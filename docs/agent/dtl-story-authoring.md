@@ -170,3 +170,8 @@ latency.
 [The initial observation](../../evidence/phase_2r/dtl_feedback_20261029/reading-baseline/summary.json)
 and [preparation provenance](../../evidence/phase_2r/dtl_feedback_20261029/preparation.json)
 retain the first baseline; they do not demonstrate a speedup.
+
+CI feedback improvements and current regression-fixture repairs are complete in
+[PR #156](https://github.com/Siuuuers/dwm/pull/156). The
+[acceptance record](../../evidence/phase_2r/dtl_feedback_20261029/acceptance.json)
+links the exact tested tree, successful cloud runs and measurement limits.

@@ -1,0 +1,598 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "repository": "Siuuuers/dwm",
+  "pull_request": 156,
+  "candidate_sha": "f0780ab3b0f6abff2aa40bfe6d85be0936c29154",
+  "tested_merge_sha": "e46dbee4ec47c5face77e169bb7a449f8a76a81d",
+  "merge_commit_sha": "f378173b888f3650c1b6a7e9f474f3ec26b1c17b",
+  "accepted_tree_sha": "0b5babe125c604110fe794e00c077e3f27127358",
+  "preflight": {
+    "run": 40881123009,
+    "job": 123472590132,
+    "conclusion": "success",
+    "test_methods": 104,
+    "assertions": 1711,
+    "gallery_checks": 729,
+    "gallery_captures": 95,
+    "artifact": 12899804303,
+    "artifact_sha256": "a7aa6a915cbdfe080a26127449c63c498742cde2eb0f9bc81672236e7b8f5688",
+    "committed_generated_files_verified": 5
+  },
+  "windows": {
+    "run": 40881123339,
+    "conclusion": "success",
+    "successful_jobs": 71,
+    "skipped_jobs": 1,
+    "selector_checks": 7,
+    "export_artifact": 12899907909,
+    "jobs": [
+      {
+        "id": 123472591647,
+        "name": "Select current change coverage",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:21:09Z",
+        "completed_at": "2026-10-29T13:21:18Z"
+      },
+      {
+        "id": 123472691154,
+        "name": "Windows / public API surface contracts",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:21:20Z",
+        "completed_at": "2026-10-29T13:28:46Z"
+      },
+      {
+        "id": 123472691353,
+        "name": "Rendered desktop and dialogue / Linux software OpenGL",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:21:20Z",
+        "completed_at": "2026-10-29T13:25:04Z"
+      },
+      {
+        "id": 123472691621,
+        "name": "Windows / exported release startup",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:21:21Z",
+        "completed_at": "2026-10-29T13:23:40Z"
+      },
+      {
+        "id": 123472691820,
+        "name": "Rendered current Gallery components",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:21:21Z",
+        "completed_at": "2026-10-29T13:24:19Z"
+      },
+      {
+        "id": 123472693826,
+        "name": "Windows / matched startup and Load",
+        "conclusion": "skipped",
+        "started_at": "2026-10-29T13:21:18Z",
+        "completed_at": "2026-10-29T13:21:18Z"
+      },
+      {
+        "id": 123472694878,
+        "name": "Windows / named_presentation",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:21:21Z",
+        "completed_at": "2026-10-29T13:23:00Z"
+      },
+      {
+        "id": 123472694897,
+        "name": "Windows / authored_self_talk_choices",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:21:21Z",
+        "completed_at": "2026-10-29T13:23:09Z"
+      },
+      {
+        "id": 123472694960,
+        "name": "Windows / reading_delivery",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:21:21Z",
+        "completed_at": "2026-10-29T13:25:11Z"
+      },
+      {
+        "id": 123472694968,
+        "name": "Windows / localization",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:21:21Z",
+        "completed_at": "2026-10-29T13:24:31Z"
+      },
+      {
+        "id": 123472694983,
+        "name": "Windows / persistence",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:21:20Z",
+        "completed_at": "2026-10-29T13:23:31Z"
+      },
+      {
+        "id": 123472694995,
+        "name": "Windows / desktop",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:21:20Z",
+        "completed_at": "2026-10-29T13:24:53Z"
+      },
+      {
+        "id": 123472695005,
+        "name": "Windows / dating",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:21:21Z",
+        "completed_at": "2026-10-29T13:23:34Z"
+      },
+      {
+        "id": 123472695023,
+        "name": "Windows / self_talk_choices",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:21:21Z",
+        "completed_at": "2026-10-29T13:23:09Z"
+      },
+      {
+        "id": 123472695060,
+        "name": "Windows / shop",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:22:41Z",
+        "completed_at": "2026-10-29T13:24:38Z"
+      },
+      {
+        "id": 123472695101,
+        "name": "Windows / audio",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:21:21Z",
+        "completed_at": "2026-10-29T13:22:38Z"
+      },
+      {
+        "id": 123472695159,
+        "name": "Windows / endings",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:24:21Z",
+        "completed_at": "2026-10-29T13:26:24Z"
+      },
+      {
+        "id": 123472695213,
+        "name": "Windows / bilingual_reading",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:26:00Z",
+        "completed_at": "2026-10-29T13:28:30Z"
+      },
+      {
+        "id": 123472695214,
+        "name": "Windows / dialogue_library",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:24:46Z",
+        "completed_at": "2026-10-29T13:26:27Z"
+      },
+      {
+        "id": 123472695268,
+        "name": "Windows / minesweeper",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:26:11Z",
+        "completed_at": "2026-10-29T13:28:36Z"
+      },
+      {
+        "id": 123472695288,
+        "name": "Windows / settings",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:26:26Z",
+        "completed_at": "2026-10-29T13:31:43Z"
+      },
+      {
+        "id": 123472695293,
+        "name": "Windows / authored_week",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:21:22Z",
+        "completed_at": "2026-10-29T13:23:18Z"
+      },
+      {
+        "id": 123472695318,
+        "name": "Windows / current_title",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:21:20Z",
+        "completed_at": "2026-10-29T13:23:07Z"
+      },
+      {
+        "id": 123472695322,
+        "name": "Windows / timeline_resources",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:21:20Z",
+        "completed_at": "2026-10-29T13:22:55Z"
+      },
+      {
+        "id": 123472695330,
+        "name": "Windows / scene_apps",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:24:29Z",
+        "completed_at": "2026-10-29T13:26:25Z"
+      },
+      {
+        "id": 123472695335,
+        "name": "Windows / profile_parse",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:23:09Z",
+        "completed_at": "2026-10-29T13:24:48Z"
+      },
+      {
+        "id": 123472695378,
+        "name": "Windows / scene_passage_catalogue",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:22:52Z",
+        "completed_at": "2026-10-29T13:24:26Z"
+      },
+      {
+        "id": 123472695379,
+        "name": "Windows / scene_player_position",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:21:21Z",
+        "completed_at": "2026-10-29T13:22:48Z"
+      },
+      {
+        "id": 123472695398,
+        "name": "Windows / scene_direct_controls",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:26:43Z",
+        "completed_at": "2026-10-29T13:28:14Z"
+      },
+      {
+        "id": 123472695402,
+        "name": "Windows / scene_same_day_supportz",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:23:11Z",
+        "completed_at": "2026-10-29T13:24:55Z"
+      },
+      {
+        "id": 123472695414,
+        "name": "Windows / scene_round_checkpoint",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:25:23Z",
+        "completed_at": "2026-10-29T13:34:29Z"
+      },
+      {
+        "id": 123472695429,
+        "name": "Windows / current_terminal_fixture",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:23:20Z",
+        "completed_at": "2026-10-29T13:26:06Z"
+      },
+      {
+        "id": 123472695440,
+        "name": "Windows / scene_backup_inspection",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:23:11Z",
+        "completed_at": "2026-10-29T13:24:44Z"
+      },
+      {
+        "id": 123472695455,
+        "name": "Windows / scene_multiple_thoughts",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:25:01Z",
+        "completed_at": "2026-10-29T13:26:28Z"
+      },
+      {
+        "id": 123472695456,
+        "name": "Windows / scene_five_outcomes",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:23:14Z",
+        "completed_at": "2026-10-29T13:24:40Z"
+      },
+      {
+        "id": 123472695467,
+        "name": "Windows / scene_controls_localization",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:25:07Z",
+        "completed_at": "2026-10-29T13:27:02Z"
+      },
+      {
+        "id": 123472695469,
+        "name": "Windows / scene_content_update_deleted_checkpoint",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:23:33Z",
+        "completed_at": "2026-10-29T13:24:59Z"
+      },
+      {
+        "id": 123472695481,
+        "name": "Windows / scene_story_localization",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:25:13Z",
+        "completed_at": "2026-10-29T13:27:15Z"
+      },
+      {
+        "id": 123472695484,
+        "name": "Windows / current_quick_load",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:26:36Z",
+        "completed_at": "2026-10-29T13:28:14Z"
+      },
+      {
+        "id": 123472695498,
+        "name": "Windows / scene_shop_checkpoint",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:26:22Z",
+        "completed_at": "2026-10-29T13:28:06Z"
+      },
+      {
+        "id": 123472695500,
+        "name": "Windows / scene_native_restore",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:21:22Z",
+        "completed_at": "2026-10-29T13:22:50Z"
+      },
+      {
+        "id": 123472695530,
+        "name": "Windows / backup_current_build",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:26:29Z",
+        "completed_at": "2026-10-29T13:28:57Z"
+      },
+      {
+        "id": 123472695533,
+        "name": "Windows / scene_caption_challenge",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:24:33Z",
+        "completed_at": "2026-10-29T13:25:58Z"
+      },
+      {
+        "id": 123472695548,
+        "name": "Windows / new_account",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:24:58Z",
+        "completed_at": "2026-10-29T13:26:58Z"
+      },
+      {
+        "id": 123472695556,
+        "name": "Windows / scene_desktop_first_reveal",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:25:53Z",
+        "completed_at": "2026-10-29T13:27:25Z"
+      },
+      {
+        "id": 123472695560,
+        "name": "Windows / scene_content_update_deleted_line",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:27:00Z",
+        "completed_at": "2026-10-29T13:29:08Z"
+      },
+      {
+        "id": 123472695568,
+        "name": "Windows / scene_later_caption",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:26:25Z",
+        "completed_at": "2026-10-29T13:28:08Z"
+      },
+      {
+        "id": 123472695577,
+        "name": "Windows / scene_content_update_resolved_unfinished",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:23:02Z",
+        "completed_at": "2026-10-29T13:24:36Z"
+      },
+      {
+        "id": 123472695585,
+        "name": "Windows / scene_content_update_active_board",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:22:57Z",
+        "completed_at": "2026-10-29T13:25:21Z"
+      },
+      {
+        "id": 123472695586,
+        "name": "Windows / scene_progress_schema",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:26:28Z",
+        "completed_at": "2026-10-29T13:27:58Z"
+      },
+      {
+        "id": 123472695605,
+        "name": "Windows / checkpoint_diagnostics",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:24:50Z",
+        "completed_at": "2026-10-29T13:26:20Z"
+      },
+      {
+        "id": 123472695607,
+        "name": "Windows / scene_content_update_transfer_terminal",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:21:21Z",
+        "completed_at": "2026-10-29T13:23:11Z"
+      },
+      {
+        "id": 123472695621,
+        "name": "Windows / scene_day_history",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:23:41Z",
+        "completed_at": "2026-10-29T13:25:21Z"
+      },
+      {
+        "id": 123472695627,
+        "name": "Windows / scene_content_update_invalid_choice",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:24:29Z",
+        "completed_at": "2026-10-29T13:26:34Z"
+      },
+      {
+        "id": 123472695662,
+        "name": "Windows / scene_content_update_transfer_active",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:23:36Z",
+        "completed_at": "2026-10-29T13:25:05Z"
+      },
+      {
+        "id": 123472695664,
+        "name": "Windows / scene_current_frames",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:26:51Z",
+        "completed_at": "2026-10-29T13:28:19Z"
+      },
+      {
+        "id": 123472695671,
+        "name": "Windows / scene_save_metadata",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:26:59Z",
+        "completed_at": "2026-10-29T13:28:23Z"
+      },
+      {
+        "id": 123472695693,
+        "name": "Windows / scene_current_snapshot",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:24:55Z",
+        "completed_at": "2026-10-29T13:26:23Z"
+      },
+      {
+        "id": 123472695710,
+        "name": "Windows / scene_content_update_wording",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:25:48Z",
+        "completed_at": "2026-10-29T13:27:43Z"
+      },
+      {
+        "id": 123472695719,
+        "name": "Windows / scene_current_challenge",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:22:49Z",
+        "completed_at": "2026-10-29T13:24:27Z"
+      },
+      {
+        "id": 123472695767,
+        "name": "Windows / scene_passage_connected",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:24:38Z",
+        "completed_at": "2026-10-29T13:26:10Z"
+      },
+      {
+        "id": 123472695794,
+        "name": "Windows / scene_content_update_invalid_choice_missing_default",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:26:07Z",
+        "completed_at": "2026-10-29T13:28:07Z"
+      },
+      {
+        "id": 123472695808,
+        "name": "Windows / scene_current_creation",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:24:42Z",
+        "completed_at": "2026-10-29T13:25:51Z"
+      },
+      {
+        "id": 123472695816,
+        "name": "Windows / scene_content_update_completed_deleted",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:25:06Z",
+        "completed_at": "2026-10-29T13:26:57Z"
+      },
+      {
+        "id": 123472695822,
+        "name": "Windows / scene_content_update_completed_appended",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:26:26Z",
+        "completed_at": "2026-10-29T13:27:56Z"
+      },
+      {
+        "id": 123472695862,
+        "name": "Windows / scene_content_update_history",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:24:40Z",
+        "completed_at": "2026-10-29T13:26:40Z"
+      },
+      {
+        "id": 123472695873,
+        "name": "Windows / scene_content_contracts",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:25:23Z",
+        "completed_at": "2026-10-29T13:26:48Z"
+      },
+      {
+        "id": 123472696257,
+        "name": "Windows / scene_contacts",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:27:03Z",
+        "completed_at": "2026-10-29T13:28:45Z"
+      },
+      {
+        "id": 123472696929,
+        "name": "Windows / scene_audio_connected",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:27:17Z",
+        "completed_at": "2026-10-29T13:29:07Z"
+      },
+      {
+        "id": 123472699206,
+        "name": "Windows / scene_challenge_recall",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:27:58Z",
+        "completed_at": "2026-10-29T13:29:46Z"
+      },
+      {
+        "id": 123472703261,
+        "name": "Windows / scene_checkpoint_ack",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:27:45Z",
+        "completed_at": "2026-10-29T13:29:16Z"
+      },
+      {
+        "id": 123472703262,
+        "name": "Windows / scene_owner_composition",
+        "conclusion": "success",
+        "started_at": "2026-10-29T13:27:26Z",
+        "completed_at": "2026-10-29T13:28:53Z"
+      }
+    ]
+  },
+  "windows_export": {
+    "ok": true,
+    "commit": "e46dbee4ec47c5face77e169bb7a449f8a76a81d",
+    "engine": "4.6.3.stable",
+    "runtime_data_files_verified": 137,
+    "templates_sha256": "3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8",
+    "executable_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+    "pck_sha256": "399f82a4f5b3f8e0c185620c51d57daea282e7cd6d2d6b5e2419bc8ebf4c1595",
+    "archive": {
+      "sha256": "3269a1cb5849e843140b83ac0d72931794a9f2b20db2e4b3e23c393bc90bc4db",
+      "bytes": 110963166,
+      "file": "DWM-windows-x86_64-validation.zip"
+    }
+  },
+  "focused_regression_preparation": {
+    "five_suites_run": 40879284618,
+    "shop_transaction_run": 40880484552,
+    "inventory_run": 40880484641,
+    "inventory_artifact": 12899149945
+  },
+  "observations": {
+    "independent_jobs": [
+      {
+        "name": "Windows / exported release startup",
+        "started_at": "2026-10-29T13:21:21Z",
+        "completed_at": "2026-10-29T13:23:40Z"
+      },
+      {
+        "name": "Rendered current Gallery components",
+        "started_at": "2026-10-29T13:21:21Z",
+        "completed_at": "2026-10-29T13:24:19Z"
+      },
+      {
+        "name": "Rendered desktop and dialogue / Linux software OpenGL",
+        "started_at": "2026-10-29T13:21:20Z",
+        "completed_at": "2026-10-29T13:25:04Z"
+      }
+    ],
+    "public_contracts_completed_at": "2026-10-29T13:28:46Z",
+    "checkout_median_seconds": 27,
+    "checkout_max_seconds": 490,
+    "notes": [
+      "Export and both rendered jobs completed before public-contract validation ended.",
+      "One runner checkout took 490 seconds; total workflow wall time is not a matched speedup measurement."
+    ]
+  },
+  "scope_limits": [
+    "Gameplay source is unchanged. Changes cover CI, regression fixtures, documentation and evidence.",
+    "The DTL-content selector is tested with seven Python checks; this candidate ran the full Windows matrix.",
+    "The archived matched startup/Load comparison is inapplicable and skipped.",
+    "Reading baseline source and raw samples are retained in preparation.json and reading-baseline/. This is observation, not a before/after gameplay speedup.",
+    "Fresh process/profile does not mean cold OS caches. Baseline uses the software-rendered editor after bootstrap, fast reveal, and fixed current Day1 content.",
+    "No cross-entry, Load or exported-player latency baseline is established."
+  ],
+  "next_measurement": "Audit Windows export checkout dependencies, then compare checkout/import/export time with a sparse checkout. Do not delete retained archive inputs.",
+  "generated_sha256": {
+    "data/manifests/scene_story_registration.json": "1e1ea35e0d99cff089507c7437afecd2f55903fe3288a640c9a31f5a931c8d39",
+    "data/manifests/dialogue_library_registration.json": "e57cf64e017bbd79e07c8388de09ccb503ac1681132ed02ba3376f32b9d7eefe",
+    "data/manifests/story_start.json": "17d0dda9b688f985eaa3fe661e88d2f7a671f633289754a9d7da11e1592fc6ea",
+    "evidence/phase_2r/runtime/game_state_surface.json": "b7cefda6f9a296d8ba533495699b8c0b03aa543ff3741682458a9246d250e678",
+    "evidence/phase_2r/runtime/save_manager_surface.json": "fd401f4d3f8776cc867b45989690d195bdd3486d8c6d953c7531eccd1a099e67"
+  }
+}

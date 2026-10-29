@@ -1,0 +1,522 @@
+[
+  {
+    "script": "tests/unit/test_dtl_story_source.gd",
+    "method": "test_migrated_structure_matches_installed_gameplay",
+    "assertions": 188
+  },
+  {
+    "script": "tests/unit/test_dtl_story_source.gd",
+    "method": "test_replacement_week_discovers_only_explicit_entries_and_native_markers",
+    "assertions": 17
+  },
+  {
+    "script": "tests/unit/test_dtl_story_source.gd",
+    "method": "test_entry_add_rename_remove_needs_no_parallel_registration_list",
+    "assertions": 3
+  },
+  {
+    "script": "tests/unit/test_dtl_story_source.gd",
+    "method": "test_manual_directive_errors_identify_source_location",
+    "assertions": 18
+  },
+  {
+    "script": "tests/unit/test_dtl_story_source.gd",
+    "method": "test_library_membership_does_not_create_a_checkpoint_or_marker",
+    "assertions": 4
+  },
+  {
+    "script": "tests/unit/test_dtl_story_source.gd",
+    "method": "test_passage_id_error_is_reported_at_the_authored_directive",
+    "assertions": 4
+  },
+  {
+    "script": "tests/unit/test_dtl_library_authoring.gd",
+    "method": "test_dtl_membership_expands_pairs_without_another_checkpoint_arrival",
+    "assertions": 13
+  },
+  {
+    "script": "tests/unit/test_dtl_library_authoring.gd",
+    "method": "test_library_membership_does_not_invent_a_checkpoint",
+    "assertions": 7
+  },
+  {
+    "script": "tests/unit/test_dtl_library_authoring.gd",
+    "method": "test_manual_title_and_condition_references_are_checked",
+    "assertions": 8
+  },
+  {
+    "script": "tests/unit/test_dtl_library_authoring.gd",
+    "method": "test_replacing_prose_keeps_structure_and_rebuilds_current_text",
+    "assertions": 6
+  },
+  {
+    "script": "tests/unit/test_dtl_replacement_export.gd",
+    "method": "test_entire_replacement_story_exports_from_dtl_and_unchanged_catalogues",
+    "assertions": 27
+  },
+  {
+    "script": "tests/unit/test_dtl_replacement_export.gd",
+    "method": "test_entry_starting_with_jump_is_rejected_during_export",
+    "assertions": 7
+  },
+  {
+    "script": "tests/unit/test_scene_art_cue_compiler.gd",
+    "method": "test_art_and_checkpoint_commands_preserve_reading_units_and_order",
+    "assertions": 7
+  },
+  {
+    "script": "tests/unit/test_scene_art_cue_compiler.gd",
+    "method": "test_art_changes_programme_identity_without_changing_line_identity",
+    "assertions": 4
+  },
+  {
+    "script": "tests/unit/test_scene_art_cue_compiler.gd",
+    "method": "test_ordinary_art_notes_do_not_become_commands",
+    "assertions": 3
+  },
+  {
+    "script": "tests/unit/test_scene_art_cue_compiler.gd",
+    "method": "test_reserved_command_typos_are_reported",
+    "assertions": 11
+  },
+  {
+    "script": "tests/unit/test_scene_art_cue_compiler.gd",
+    "method": "test_art_cannot_split_caption_and_self_talk",
+    "assertions": 2
+  },
+  {
+    "script": "tests/unit/test_scene_art_cue_compiler.gd",
+    "method": "test_commands_stay_on_reached_side_of_branch_label",
+    "assertions": 6
+  },
+  {
+    "script": "tests/unit/test_scene_art_cue_compiler.gd",
+    "method": "test_registered_control_retains_commands_after_its_label",
+    "assertions": 3
+  },
+  {
+    "script": "tests/unit/test_scene_art_cue_compiler.gd",
+    "method": "test_checkpoint_requires_caption_boundary_for_its_autosave",
+    "assertions": 6
+  },
+  {
+    "script": "tests/unit/test_scene_art_cue_compiler.gd",
+    "method": "test_native_presentation_dispatch_precedes_caption_and_later_visits_repeat",
+    "assertions": 3
+  },
+  {
+    "script": "tests/unit/test_scene_art_cue_compiler.gd",
+    "method": "test_load_seek_and_staged_control_never_replay_art_but_skip_applies_it",
+    "assertions": 2
+  },
+  {
+    "script": "tests/unit/test_scene_art_cue_compiler.gd",
+    "method": "test_bad_directive_reports_original_source_line",
+    "assertions": 2
+  },
+  {
+    "script": "tests/unit/test_scene_art_cue_compiler.gd",
+    "method": "test_reusable_scene_preset_has_explicit_dtl_placement",
+    "assertions": 2
+  },
+  {
+    "script": "tests/unit/test_scene_inline_presentation.gd",
+    "method": "test_art_can_start_without_checkpoint_or_autosave",
+    "assertions": 7
+  },
+  {
+    "script": "tests/unit/test_scene_inline_presentation.gd",
+    "method": "test_slot_replacement_and_removal_preserve_unrelated_art_order",
+    "assertions": 12
+  },
+  {
+    "script": "tests/unit/test_scene_inline_presentation.gd",
+    "method": "test_checkpoint_keeps_resolved_art_and_audio_instead_of_installing_defaults",
+    "assertions": 6
+  },
+  {
+    "script": "tests/unit/test_scene_inline_presentation.gd",
+    "method": "test_saved_resolved_state_restores_without_replaying_checkpoint",
+    "assertions": 6
+  },
+  {
+    "script": "tests/unit/test_scene_inline_presentation.gd",
+    "method": "test_legacy_fixture_state_still_resolves_without_reauthoring",
+    "assertions": 4
+  },
+  {
+    "script": "tests/unit/test_scene_inline_presentation.gd",
+    "method": "test_new_checkpoint_id_needs_no_duplicate_catalogue_entry",
+    "assertions": 6
+  },
+  {
+    "script": "tests/unit/test_scene_inline_presentation.gd",
+    "method": "test_scene_preset_changes_only_base_art_without_checkpoint_or_audio_reset",
+    "assertions": 8
+  },
+  {
+    "script": "tests/unit/test_scene_inline_presentation.gd",
+    "method": "test_legacy_fixture_overlay_bindings_can_follow_inline_art",
+    "assertions": 7
+  },
+  {
+    "script": "tests/unit/test_scene_inline_presentation.gd",
+    "method": "test_catalogue_rectangles_keep_the_saved_numeric_representation",
+    "assertions": 7
+  },
+  {
+    "script": "tests/unit/test_scene_inline_presentation.gd",
+    "method": "test_missing_saved_presentation_resolves_only_declared_entry_base",
+    "assertions": 9
+  },
+  {
+    "script": "tests/unit/test_scene_inline_presentation.gd",
+    "method": "test_preserved_early_late_and_ending_entry_defaults_resolve_exact_base_fields",
+    "assertions": 26
+  },
+  {
+    "script": "tests/unit/test_scene_audio_cue_compiler.gd",
+    "method": "test_cues_keep_caption_positions_and_authored_order",
+    "assertions": 6
+  },
+  {
+    "script": "tests/unit/test_scene_audio_cue_compiler.gd",
+    "method": "test_changed_cue_changes_programme_hash_without_new_caption",
+    "assertions": 4
+  },
+  {
+    "script": "tests/unit/test_scene_audio_cue_compiler.gd",
+    "method": "test_ordinary_comments_remain_nonexecuting",
+    "assertions": 4
+  },
+  {
+    "script": "tests/unit/test_scene_audio_cue_compiler.gd",
+    "method": "test_authoring_typos_in_reserved_audio_commands_are_rejected",
+    "assertions": 24
+  },
+  {
+    "script": "tests/unit/test_scene_audio_cue_compiler.gd",
+    "method": "test_cue_before_pair_preserves_simultaneous_self_talk",
+    "assertions": 4
+  },
+  {
+    "script": "tests/unit/test_scene_audio_cue_compiler.gd",
+    "method": "test_cue_inside_pair_is_an_authoring_error",
+    "assertions": 4
+  },
+  {
+    "script": "tests/unit/test_scene_audio_cue_compiler.gd",
+    "method": "test_branch_cues_belong_to_jump_or_after_destination_label",
+    "assertions": 5
+  },
+  {
+    "script": "tests/unit/test_scene_audio_cue_compiler.gd",
+    "method": "test_cues_cannot_leak_across_labels_or_end_of_entry",
+    "assertions": 4
+  },
+  {
+    "script": "tests/unit/test_scene_audio_cue_compiler.gd",
+    "method": "test_registered_control_owns_cue_after_label_without_new_frontier",
+    "assertions": 4
+  },
+  {
+    "script": "tests/unit/test_scene_audio_cue_compiler.gd",
+    "method": "test_native_dispatch_precedes_deferred_event_and_repeat_encounter_replays",
+    "assertions": 3
+  },
+  {
+    "script": "tests/unit/test_scene_audio_cue_compiler.gd",
+    "method": "test_skip_consumes_sfx_flag_and_load_or_seek_do_not_dispatch",
+    "assertions": 3
+  },
+  {
+    "script": "tests/unit/test_scene_save_schema.gd",
+    "method": "test_scene_versions_do_not_replace_or_migrate_legacy_versions",
+    "assertions": 8
+  },
+  {
+    "script": "tests/unit/test_scene_save_schema.gd",
+    "method": "test_scene_recovery_cannot_enter_legacy_document_via_proof_family",
+    "assertions": 6
+  },
+  {
+    "script": "tests/unit/test_scene_save_schema.gd",
+    "method": "test_scene_admissions_do_not_claim_effect_or_variable_application",
+    "assertions": 5
+  },
+  {
+    "script": "tests/unit/test_scene_save_schema.gd",
+    "method": "test_new_scene_builder_never_fills_calendar_or_missing_owner_defaults",
+    "assertions": 5
+  },
+  {
+    "script": "tests/unit/test_scene_save_schema.gd",
+    "method": "test_current_scene_gameplay_omits_retired_relationship_fields_and_requires_progress",
+    "assertions": 19
+  },
+  {
+    "script": "tests/unit/test_scene_save_schema.gd",
+    "method": "test_scene_progress_distinguishes_no_closure_from_never_started_and_keeps_occurrences",
+    "assertions": 4
+  },
+  {
+    "script": "tests/unit/test_scene_save_schema.gd",
+    "method": "test_scene_progress_refuses_malformed_required_facts",
+    "assertions": 12
+  },
+  {
+    "script": "tests/unit/test_scene_save_schema.gd",
+    "method": "test_retired_story_facts_survive_without_claiming_a_physical_attempt",
+    "assertions": 7
+  },
+  {
+    "script": "tests/unit/test_scene_save_schema.gd",
+    "method": "test_scene_content_normalization_does_not_fill_missing_owners",
+    "assertions": 4
+  },
+  {
+    "script": "tests/unit/test_scene_save_schema.gd",
+    "method": "test_optional_named_presentation_preserves_old_entry_audio_and_restores_named_selection",
+    "assertions": 15
+  },
+  {
+    "script": "tests/unit/test_scene_save_schema.gd",
+    "method": "test_inline_presentation_schema_restores_exact_saved_art_without_checkpoint_arrival",
+    "assertions": 9
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_the_shipped_visual_registry_is_empty",
+    "assertions": 2
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_the_record_field_set_is_exactly_the_five_declared_fields",
+    "assertions": 1
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_the_resource_type_allowlist_is_exactly_texture_2d",
+    "assertions": 1
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_a_well_formed_record_and_registry_are_accepted",
+    "assertions": 3
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_a_record_that_is_not_an_object_is_refused",
+    "assertions": 2
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_a_record_with_an_extra_field_is_refused",
+    "assertions": 2
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_a_record_missing_required_is_refused_by_shape_naming_the_field",
+    "assertions": 3
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_an_empty_visual_id_is_refused",
+    "assertions": 3
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_a_nonstring_resource_path_is_refused",
+    "assertions": 3
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_an_unknown_resource_type_is_refused",
+    "assertions": 2
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_a_nonbool_required_is_refused",
+    "assertions": 2
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_a_nonstring_nonnull_fallback_is_refused",
+    "assertions": 3
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_two_records_sharing_a_visual_id_are_refused",
+    "assertions": 2
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_a_fallback_naming_no_record_is_refused",
+    "assertions": 2
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_a_fallback_record_declaring_its_own_fallback_is_refused",
+    "assertions": 2
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_a_required_visual_with_no_record_is_refused_before_playback",
+    "assertions": 2
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_an_optional_visual_with_no_record_is_refused_as_unregistered",
+    "assertions": 2
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_a_required_visual_whose_record_declares_required_false_is_refused",
+    "assertions": 3
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_a_required_visual_that_consents_and_declares_no_fallback_resolves",
+    "assertions": 4
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_a_required_visual_may_not_declare_a_fallback",
+    "assertions": 2
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_a_wrong_typed_record_is_refused_at_resolution_with_the_validators_own_code",
+    "assertions": 2
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_an_optional_visual_resolves_to_itself_and_reports_its_declared_fallback",
+    "assertions": 4
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_resolution_hands_back_a_copy_and_never_an_alias_into_the_registry",
+    "assertions": 3
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_the_art_manifest_code_vocabulary_is_exactly_the_thirteen_this_suite_pins",
+    "assertions": 15
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_legacy_path_apis_now_describe_optional_placements_without_inventing_paths",
+    "assertions": 7
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_named_presentation_resolves_base_music_and_ordered_overlay_labels_without_aliasing",
+    "assertions": 7
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_named_presentation_reports_missing_saved_references_and_duplicate_labels",
+    "assertions": 7
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_named_presentation_view_orders_and_positions_overlays_and_clears_them_on_replacement",
+    "assertions": 13
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_only_explicit_entry_bindings_produce_presentation_commands",
+    "assertions": 5
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_entry_presentation_commands_clear_once_and_keep_ordered_idempotent_overlays",
+    "assertions": 14
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_missing_presentation_references_use_the_persistent_content_error_boundary",
+    "assertions": 8
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_malformed_requested_entry_commands_report_content_error_without_mutating_state",
+    "assertions": 42
+  },
+  {
+    "script": "tests/unit/test_art_manifest.gd",
+    "method": "test_malformed_named_reference_containers_report_content_error",
+    "assertions": 6
+  },
+  {
+    "script": "tests/unit/test_art_placements.gd",
+    "method": "test_missing_unknown_and_non_image_assets_return_no_texture",
+    "assertions": 5
+  },
+  {
+    "script": "tests/unit/test_art_placements.gd",
+    "method": "test_real_imported_texture_obeys_fixed_ui_dimensions",
+    "assertions": 5
+  },
+  {
+    "script": "tests/unit/test_art_placements.gd",
+    "method": "test_solo_and_pair_art_are_fixed_and_return_detached_lists",
+    "assertions": 5
+  },
+  {
+    "script": "tests/unit/test_art_placements.gd",
+    "method": "test_retained_entries_and_reusable_presets_have_known_asset_ids",
+    "assertions": 607
+  },
+  {
+    "script": "tests/unit/test_art_placements.gd",
+    "method": "test_exact_ending_entries_keep_distinct_cg_bindings",
+    "assertions": 4
+  },
+  {
+    "script": "tests/unit/test_art_placements.gd",
+    "method": "test_preview_overrides_do_not_write_catalog_and_reload_discards_them",
+    "assertions": 5
+  },
+  {
+    "script": "tests/unit/test_art_placements.gd",
+    "method": "test_legacy_intro_art_uses_runtime_ids_instead_of_editor_resource_aliases",
+    "assertions": 5
+  },
+  {
+    "script": "tests/unit/test_dialogue_library_authoring.gd",
+    "method": "test_native_draft_expands_pairs_and_conditions_without_authoring_prose",
+    "assertions": 14
+  },
+  {
+    "script": "tests/unit/test_dialogue_library_authoring.gd",
+    "method": "test_replacing_dtl_rebuilds_prose_and_exact_identity_without_changing_grouping",
+    "assertions": 16
+  },
+  {
+    "script": "tests/unit/test_dialogue_library_authoring.gd",
+    "method": "test_checkpoint_location_title_and_group_can_be_moved_then_removed_as_data",
+    "assertions": 21
+  },
+  {
+    "script": "tests/unit/test_dialogue_library_authoring.gd",
+    "method": "test_manual_reference_edits_report_missing_entry_checkpoint_and_condition",
+    "assertions": 11
+  },
+  {
+    "script": "tests/unit/test_dialogue_library_authoring.gd",
+    "method": "test_generated_rows_use_current_story_translations_and_mask_unread_text",
+    "assertions": 12
+  },
+  {
+    "script": "tests/integration/test_scene_inline_presentation.gd",
+    "method": "test_inline_art_checkpoint_and_load_keep_current_composition_without_replay",
+    "assertions": 128
+  },
+  {
+    "script": "tests/integration/test_scene_inline_presentation_load.gd",
+    "method": "test_fresh_load_restores_composition_and_music_without_story_commands",
+    "assertions": 84
+  }
+]
