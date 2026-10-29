@@ -71,7 +71,7 @@ func _verify_port() -> void:
 	var observed: Dictionary = _port.capture_output()
 	if observed.get("ok", false):
 		_states.borderless = _serialize(observed.value)
-		_check(observed.value.mode in [DisplayServer.WINDOW_MODE_MAXIMIZED, DisplayServer.WINDOW_MODE_FULLSCREEN], "borderless_native_managed_mode")
+		_check(_port.output_matches("borderless"), "borderless_native_geometry_or_managed_mode")
 		var repeated: Dictionary = _port.apply_mode("borderless")
 		_check(repeated.get("ok", false), "repeat_borderless")
 		_check(_port.capture_output().get("value", {}) == observed.value, "repeat_borderless_exact_readback")
@@ -156,6 +156,7 @@ func _verify_settled_borderless(label: String) -> void:
 	if not observed.get("ok", false): return
 	_states[label + "_settled"] = _serialize(observed.value)
 	_check(_port.output_matches("borderless"), label + "_settled_borderless")
+	_check(observed.value.mode in [DisplayServer.WINDOW_MODE_MAXIMIZED, DisplayServer.WINDOW_MODE_FULLSCREEN], label + "_settled_managed_mode")
 	var output: Array = []
 	var status := OS.execute("pwsh", PackedStringArray(["-NoProfile", "-NonInteractive", "-File",
 		ProjectSettings.globalize_path("res://tools/testing/Get-NativeWindowBounds.ps1"),

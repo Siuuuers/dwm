@@ -90,6 +90,7 @@ func test_repeated_borderless_apply_and_exact_restore_preserve_native_output() -
 	assert_true(platform.operations.is_empty(), "matching geometry needs no native setters")
 	assert_eq(port.capture_output().value, snapshot)
 	platform.mode = DisplayServer.WINDOW_MODE_WINDOWED
+	platform.size.y -= 1
 	assert_false(port.output_matches("borderless"))
 	assert_true(port.apply_mode("borderless").ok)
 	assert_false(platform.operations.is_empty(), "leaving native maximization still requires repair")
@@ -261,3 +262,14 @@ func test_native_nonexclusive_fullscreen_substitution_requires_exact_usable_boun
 	platform.maximize_mode = DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN
 	assert_eq(port.apply_mode("borderless").code, &"window_output_unproven")
 	assert_false(port.output_matches("borderless"))
+
+func test_pending_maximize_windowed_report_requires_exact_usable_bounds() -> void:
+	var platform := Platform.new()
+	platform.maximize_mode = DisplayServer.WINDOW_MODE_WINDOWED
+	var port := PORT.new(platform)
+	assert_true(port.apply_mode("borderless").ok)
+	assert_true(port.output_matches("borderless"))
+	platform.size.y -= 1
+	assert_false(port.output_matches("borderless"))
+	platform.maximize_bounds = Rect2i(platform.position, platform.size)
+	assert_eq(port.apply_mode("borderless").code, &"window_output_unproven")

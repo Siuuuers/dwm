@@ -105,8 +105,9 @@ func _matches_borderless(actual: Dictionary) -> bool:
 	var usable: Variant = _platform.screen_get_usable_rect(actual.screen)
 	if not _valid_rect(usable): return false
 	if actual.mode == MAXIMIZED: return true # Native window manager owns the geometry.
-	# With no reserved desktop area, Godot substitutes nonexclusive fullscreen.
-	return actual.mode == DisplayServer.WINDOW_MODE_FULLSCREEN \
+	# Godot can report WINDOWED until the maximize callback, or nonexclusive
+	# fullscreen when no desktop area is reserved. Both require exact bounds.
+	return actual.mode in [WINDOWED, DisplayServer.WINDOW_MODE_FULLSCREEN] \
 		and actual.position == usable.position and actual.size == usable.size
 
 func _write(target: Dictionary) -> void:
