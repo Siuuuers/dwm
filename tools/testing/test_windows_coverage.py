@@ -75,6 +75,11 @@ class WindowsCoverageTests(unittest.TestCase):
                 for mode in ('dtl_content', 'dtl_first', 'inline_audio', 'reading_layout', 'focused'):
                     self.assertEqual(result[mode], 'false', mode)
 
+    def test_full_matrix_retains_cosmetic_purchase_load_and_new_run(self):
+        expression = next(line for line in WORKFLOW.splitlines() if 'suite: ${{ fromJSON' in line)
+        full = json.loads(expression.rsplit("|| '", 1)[1].split("'", 1)[0])
+        self.assertEqual(full.count('shop_cosmetic_journey'), 1)
+
     def test_empty_and_manual_dispatch_keep_broad_coverage(self):
         self.assertEqual(select(set())['dtl_content'], 'false')
         result = select({DAY}, 'workflow_dispatch')
