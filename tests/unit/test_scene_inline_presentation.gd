@@ -154,13 +154,17 @@ func test_missing_saved_presentation_resolves_only_declared_entry_base() -> void
 
 func test_preserved_early_late_and_ending_entry_defaults_resolve_exact_base_fields() -> void:
 	assert_true(ART.reload_placements())
-	for preset_id: String in ["draft.reading.early", "draft.reading.late", "draft.ending"]:
+	var cases := [
+		["draft.reading.early", "picture2", ["picture1"], "", true],
+		["draft.reading.late", "picture3", ["picture1"], "", true],
+		["draft.ending", "background.ending.alone", [], "cg.ending.alone.normal", false]]
+	for row: Array in cases:
+		var preset_id: String = row[0]
 		var state := ART.entry_base_presentation([{"kind": "scene", "id": preset_id}])
-		var expected := ART.get_scene_art(preset_id)
-		assert_eq(state.background, expected.background, preset_id)
-		assert_eq(state.portraits, expected.portraits, preset_id)
-		assert_eq(state.cg, expected.cg, preset_id)
-		assert_eq(state.split_panels, ART.uses_split_panels(preset_id), preset_id)
+		assert_eq(state.background, row[1], preset_id)
+		assert_eq(state.portraits, row[2], preset_id)
+		assert_eq(state.cg, row[3], preset_id)
+		assert_eq(state.split_panels, row[4], preset_id)
 		assert_eq(state.scene_entry_id, preset_id)
 		assert_eq(state.overlays, [])
 		assert_eq(state.checkpoint_id, "")
