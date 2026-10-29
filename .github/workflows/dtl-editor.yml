@@ -1,7 +1,5 @@
 name: DTL pocket editor
 on:
-  push:
-    paths: ['tools/dtl-editor/**', '.github/workflows/dtl-editor.yml']
   pull_request:
     paths: ['tools/dtl-editor/**', '.github/workflows/dtl-editor.yml']
   workflow_dispatch:

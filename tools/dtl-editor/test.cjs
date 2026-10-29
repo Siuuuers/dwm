@@ -88,8 +88,11 @@ async function browserJourney() {
  // Manual text edits preserve the rest of the source, and local feedback links to its line.
  await page.locator('#source').fill((await page.locator('#source').inputValue())+'\nlabel editor.preview\n');
  assert.match(await page.locator('#issues').innerText(),/Duplicate label/);
+ await page.locator('#issues button').click();
+ assert.ok(await page.locator('#source').evaluate(node=>node.scrollTop>0));
  await page.getByRole('button',{name:'Undo edit',exact:true}).click();
  assert.equal(await page.locator('#issues').innerText(),'');
+ assert.ok(await page.locator('#source').evaluate(node=>node.scrollTop<300));
  const output=await exported();
  const expected=original.replace('# art scene draft.reading.early','label editor.preview\n# art scene draft.reading.early').replace(caption,'# art background picture3\n# checkpoint editor.arrival\n# audio music stop fade=0.4\n'+caption);
  assert.equal(output.toString(),expected);

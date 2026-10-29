@@ -135,7 +135,7 @@ if (typeof document !== 'undefined') {
   $('issues').replaceChildren(...problems.map(problem => {
    const li = document.createElement('li'), button = document.createElement('button');
    button.textContent = 'Line ' + problem.line + ': ' + problem.message;
-   button.onclick = () => { cursor = source.value.split('\n').slice(0, problem.line - 1).reduce((n,s) => n+s.length+1,0); source.focus(); source.setSelectionRange(cursor,cursor); position(); };
+   button.onclick = () => { cursor = source.value.split('\n').slice(0, problem.line - 1).reduce((n,s) => n+s.length+1,0); reveal(); position(); };
    li.append(button); return li;
   }));
   $('filename').textContent = filename + (raw !== saved ? ' · edited' : '');
@@ -143,6 +143,12 @@ if (typeof document !== 'undefined') {
   position();
  }
  function position() { $('position').textContent = 'Line ' + (source.value.slice(0,cursor).split('\n').length); }
+ function reveal() {
+  source.focus(); source.setSelectionRange(cursor,cursor);
+  const row = source.value.slice(0,cursor).split('\n').length - 1;
+  source.scrollTop = Math.max(0,row * parseFloat(getComputedStyle(source).lineHeight) - source.clientHeight / 3);
+  source.scrollLeft = 0;
+ }
  function remember() { history.push({raw,cursor}); if (history.length > 50) history.shift(); }
  function preview() {
   const kind = $('kind').value, info = descriptions[kind];
@@ -172,10 +178,10 @@ if (typeof document !== 'undefined') {
    const result = DTL.insertion(source.value,cursor,line);
    if (line.startsWith('label ') && source.value.split('\n').some(existing => existing.trim().match(/^label +([^(]+)/)?.[1].trim() === line.slice(6))) throw Error('That label already exists. Choose a unique name.');
    remember(); raw = DTL.reconcile(raw,result.text); source.value = result.text; cursor = result.position + line.length + 1;
-   source.focus(); source.setSelectionRange(cursor,cursor); $('message').textContent = 'Inserted on line ' + (result.row+1) + '. You can edit the text directly.'; refresh();
+   reveal(); $('message').textContent = 'Inserted on line ' + (result.row+1) + '. You can edit the text directly.'; refresh();
   } catch (error) { $('message').textContent = error.message; }
  };
- $('undo').onclick = () => { const prior = history.pop(); raw = prior.raw; cursor = prior.cursor; source.value = DTL.normalize(raw); source.focus(); source.setSelectionRange(cursor,cursor); $('message').textContent = 'Edit undone.'; refresh(); };
+ $('undo').onclick = () => { const prior = history.pop(); raw = prior.raw; cursor = prior.cursor; source.value = DTL.normalize(raw); reveal(); $('message').textContent = 'Edit undone.'; refresh(); };
  $('export').onclick = () => {
   const url = URL.createObjectURL(new Blob([bom + raw],{type:'text/plain;charset=utf-8'}));
   const link = document.createElement('a'); link.href = url; link.download = filename; link.click(); setTimeout(() => URL.revokeObjectURL(url),1000);
