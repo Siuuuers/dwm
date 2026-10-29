@@ -67,10 +67,10 @@ func test_entire_replacement_story_exports_from_dtl_and_unchanged_catalogues() -
 	for day: int in range(3, 8):
 		var id := "replacement.day%s" % day
 		var text := "return\n" + _entry(id, day)
-		if day == 7: text += _marker("replacement.passage.start", "passage.start", {"passage_id": "replacement.ending"})
+		if day == 7: text += _marker("replacement.passage.start", "passage.start", {"passage_id": "passage.replacement.ending"})
 		text += "\\TEST day %s. #id:line.%s\n" % [day, id]
 		text += _marker(id + ".next", "scene.transition", {"target_id": "target.replacement.day%s" % (day + 1)}) \
-			if day < 7 else _marker("replacement.passage.finish", "passage.finish", {"passage_id": "replacement.ending"})
+			if day < 7 else _marker("replacement.passage.finish", "passage.finish", {"passage_id": "passage.replacement.ending"})
 		_write(ROOT + "/day%s.dtl" % day, text + "return\n")
 
 	var result := WEEK.prepare(CONFIG)

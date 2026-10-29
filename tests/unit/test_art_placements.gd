@@ -35,12 +35,14 @@ func test_solo_and_pair_art_are_fixed_and_return_detached_lists() -> void:
 	pair.portraits.clear()
 	assert_eq(ART.get_scene_art("dating.group.priscilla_lavinia.day2.pre_challenge").portraits.size(), 2)
 
-func test_all_registered_entries_have_explicit_scene_rows_and_known_asset_ids() -> void:
+func test_retained_entries_and_reusable_presets_have_known_asset_ids() -> void:
 	var entries: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/manifests/dialogic_entries.json"))
 	var catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(ART.PLACEMENTS_PATH))
 	for entry: Dictionary in entries.entries:
-		assert_has(catalog.scenes, entry.entry_id)
-		var scene := ART.get_scene_art(entry.entry_id)
+		# The shared ending ID is now explicitly bound by production DTL.
+		var preset: String = "draft.ending" if entry.entry_id == "ending.alone.normal" else entry.entry_id
+		assert_has(catalog.scenes, preset)
+		var scene := ART.get_scene_art(preset)
 		assert_has(catalog.assets, scene.background)
 		assert_lte(scene.portraits.size(), 2)
 		for portrait: String in scene.portraits:
@@ -54,7 +56,7 @@ func test_exact_ending_entries_keep_distinct_cg_bindings() -> void:
 	var residue := ART.get_scene_art("ending.priscilla.observer.residue")
 	assert_ne(full.cg, residue.cg)
 	assert_eq(full.portraits, residue.portraits)
-	assert_ne(ART.get_scene_art("ending.alone.normal").cg, ART.get_scene_art("ending.alone.dark_mode").cg)
+	assert_ne(ART.get_scene_art("draft.ending").cg, ART.get_scene_art("ending.alone.dark_mode").cg)
 
 func test_preview_overrides_do_not_write_catalog_and_reload_discards_them() -> void:
 	var original := FileAccess.get_file_as_string(ART.PLACEMENTS_PATH)

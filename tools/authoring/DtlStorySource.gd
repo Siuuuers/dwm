@@ -3,6 +3,7 @@ extends RefCounted
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const STRICT := preload("res://scripts/validation/StrictJson.gd")
 const EVENTS := preload("res://scripts/domain/narrative/SceneEventContract.gd")
+const PASSAGE := preload("res://scripts/narrative/ScenePassageCatalog.gd")
 const MARKER_KINDS := ["thought.pass", "thought.options", "scene.transition", "challenge.playable",
 	"challenge.end", "challenge.recall", "passage.start", "passage.finish"]
 
@@ -96,6 +97,8 @@ static func prepare_texts(source: Dictionary, texts: Dictionary) -> Dictionary:
 						if value.size() != 2 or value.get("kind") not in MARKER_KINDS \
 								or not EVENTS._scene_payload(value.kind, value.get("payload")):
 							return _error("story_marker_invalid", path, line)
+						if value.kind in ["passage.start", "passage.finish"] and not PASSAGE.valid_id(value.payload.passage_id):
+							return _error("story_passage_id_invalid", path, line, value.payload.passage_id)
 						if last_caption.is_empty() and value.kind != "passage.start":
 							return _error("story_marker_without_caption", path, line, label)
 						entry.markers.append({"marker_id": label, "label": label, "after_line_id": last_caption,

@@ -3,6 +3,7 @@ return
 
 label Day3
 # story entry day=3
+# art scene draft.reading.early
 \The wool at the right shoulder of the coat has dried overnight, though the outer seam still holds a slight wave from the hanger—the price of letting someone else angle the handle for twenty minutes between the station and the hill. #id:line.Day3.one
 \Beside the door, the long black umbrella stands closed in the rack\: curved wooden handle half an inch taller than the others, ferrule dry. #id:line.Day3.002
 \On the desk blotter, the screen lights. #id:line.Day3.003
@@ -98,6 +99,7 @@ return
 
 label Day3.lavinia
 # story entry day=3
+# art scene draft.reading.early
 # story challenge {"challenge_id":"Day3.lavinia.challenge","playable_marker_id":"Day3.lavinia.playable","end_marker_id":"Day3.lavinia.end","board_profile_id":"week.canonical_solo","targets":{"never_started":"target.Day3.lavinia.result.A","unfinished":"target.Day3.lavinia.result.B","won":"target.Day3.lavinia.result.C","lost":"target.Day3.lavinia.result.D","perfect":"target.Day3.lavinia.result.E"}}
 \“Another evening?” #id:line.Day3.lavinia.001
 \Inside the coat pocket, Sylvia's fingers stay over mine for one more second, then open and let my hand slip back into the cool air. #id:line.Day3.lavinia.002
@@ -155,6 +157,7 @@ return
 
 label Day3.sylvia
 # story entry day=3
+# art scene draft.reading.early
 # story challenge {"challenge_id":"Day3.sylvia.challenge","playable_marker_id":"Day3.sylvia.playable","end_marker_id":"Day3.sylvia.end","board_profile_id":"week.canonical_solo","targets":{"never_started":"target.Day3.sylvia.result.A","unfinished":"target.Day3.sylvia.result.B","won":"target.Day3.sylvia.result.C","lost":"target.Day3.sylvia.result.D","perfect":"target.Day3.sylvia.result.E"}}
 \“I'll come with you.” #id:line.Day3.sylvia.001
 \“And Lavinia?” #id:line.Day3.sylvia.002
@@ -191,6 +194,7 @@ return
 
 label Day3.lavinia.result.A
 # story entry day=3
+# art scene draft.reading.early
 \“Another evening,” I say toward the gate. “Send a message tomorrow.” #id:line.Day3.lavinia.result.A.001
 \Footsteps recede down the hill; the cardigan sleeve swings out of the lamp light. #id:line.Day3.lavinia.result.A.002
 \“You could have said that first,” Lavinia says. #id:line.Day3.lavinia.result.A.003
@@ -208,6 +212,7 @@ return
 
 label Day3.lavinia.result.B
 # story entry day=3
+# art scene draft.reading.early
 \“Not tonight, thank you.” #id:line.Day3.lavinia.result.B.001
 \The gate latch clicks shut behind the departing steps. #id:line.Day3.lavinia.result.B.002
 \“Don't look so put out,” Lavinia says. #id:line.Day3.lavinia.result.B.003
@@ -223,6 +228,7 @@ return
 
 label Day3.lavinia.result.C
 # story entry day=3
+# art scene draft.reading.early
 \“Yes,” I say toward the gate, and then turn to Lavinia\: “Will you come for one cup?” #id:line.Day3.lavinia.result.C.001
 \“You asked for a walk.” #id:line.Day3.lavinia.result.C.002
 \“Both are possible.” #id:line.Day3.lavinia.result.C.003
@@ -240,6 +246,7 @@ return
 
 label Day3.lavinia.result.D
 # story entry day=3
+# art scene draft.reading.early
 \“We'll come,” I say toward the gate. “Give her a moment. She'll come.” #id:line.Day3.lavinia.result.D.001
 \“I'm not going,” Lavinia says. #id:line.Day3.lavinia.result.D.002
 \“You aren't interrupting—” #id:line.Day3.lavinia.result.D.003
@@ -270,6 +277,7 @@ return
 
 label Day3.lavinia.result.E
 # story entry day=3
+# art scene draft.reading.early
 \“Yes,” I say toward the gate, and then turn to Lavinia\: “Will you come for one cup?” #id:line.Day3.lavinia.result.E.001
 \“You asked for a walk.” #id:line.Day3.lavinia.result.E.002
 \“Both are possible.” #id:line.Day3.lavinia.result.E.003
@@ -293,6 +301,7 @@ return
 
 label Day3.sylvia.result.A
 # story entry day=3
+# art scene draft.reading.early
 \“Come out to the balcony for a minute. When the light cycle finishes.” #id:line.Day3.sylvia.result.A.001
 \“Let the attic bulb come on first.” #id:line.Day3.sylvia.result.A.002
 \The tiny landing light dims; three seconds later, the attic window goes dark. Sylvia lifts our joined hands. #id:line.Day3.sylvia.result.A.003
@@ -310,6 +319,7 @@ return
 
 label Day3.sylvia.result.B
 # story entry day=3
+# art scene draft.reading.early
 \“Nothing.” #id:line.Day3.sylvia.result.B.001
 \Sylvia glances sideways, then back at the lit cross-section house. #id:line.Day3.sylvia.result.B.002
 \“You nearly made me miss the timer.” #id:line.Day3.sylvia.result.B.003
@@ -320,6 +330,7 @@ return
 
 label Day3.sylvia.result.C
 # story entry day=3
+# art scene draft.reading.early
 \“Come out into the corridor with me for a minute.” #id:line.Day3.sylvia.result.C.001
 \“Why?” #id:line.Day3.sylvia.result.C.002
 \“I'd rather talk to you than look at a wooden house.” #id:line.Day3.sylvia.result.C.003
@@ -339,6 +350,7 @@ return
 
 label Day3.sylvia.result.D
 # story entry day=3
+# art scene draft.reading.early
 \“Come outside with me.” #id:line.Day3.sylvia.result.D.001
 \“Wait until the landing light changes.” #id:line.Day3.sylvia.result.D.002
 \“Now.” #id:line.Day3.sylvia.result.D.003
@@ -375,6 +387,7 @@ return
 
 label Day3.sylvia.result.E
 # story entry day=3
+# art scene draft.reading.early
 \“Come out into the corridor with me for a minute.” #id:line.Day3.sylvia.result.E.001
 \“Why?” #id:line.Day3.sylvia.result.E.002
 \“I'd rather talk to you than look at a wooden house.” #id:line.Day3.sylvia.result.E.003

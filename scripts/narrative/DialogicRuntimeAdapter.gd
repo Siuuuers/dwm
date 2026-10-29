@@ -777,8 +777,8 @@ static func _parse_scene_presentation_command(comment: String) -> Dictionary:
 	var words := comment.replace("\t", " ").split(" ", false)
 	if words.size() == 2 and words[0] == "checkpoint":
 		return {"ok": true, "value": {"kind": "checkpoint", "id": words[1]}}
-	if words.size() == 3 and words[0] == "art" and words[1] == "background":
-		return {"ok": true, "value": {"kind": "background", "id": words[2]}}
+	if words.size() == 3 and words[0] == "art" and words[1] in ["background", "scene"]:
+		return {"ok": true, "value": {"kind": words[1], "id": words[2]}}
 	if words.size() == 3 and words[0] == "art" and words[1] == "hide":
 		return {"ok": true, "value": {"kind": "hide", "slot": words[2]}}
 	if words.size() == 4 and words[0] == "art" and words[1] == "show" \

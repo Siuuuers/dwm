@@ -3,6 +3,7 @@ return
 
 label Day2
 # story entry day=2
+# art scene draft.reading.early
 \Lavinia closes the door on the music from the bar. Her coat goes over the back of the chair. #id:line.Day2.one
 \She sits at the corner of the table, close enough that one menu will do. #id:line.Day2.002
 \Her fingers brush the cuff of my right sleeve before she opens the card. #id:line.Day2.003
@@ -46,6 +47,7 @@ return
 
 label Day2.food.yes
 # story entry day=2
+# art scene draft.reading.early
 \“Give me a bite.” #id:line.Day2.food.yes.001
 \“You have a fork.” #id:line.Day2.food.yes.002
 \“I know.” #id:line.Day2.food.yes.003
@@ -61,6 +63,7 @@ return
 
 label Day2.food.default
 # story entry day=2
+# art scene draft.reading.early
 \“I should have ordered yours.” #id:line.Day2.food.default.001
 \“You're eating it.” #id:line.Day2.food.default.002
 \I take another piece before she draws the plate back. #id:line.Day2.food.default.003
@@ -72,6 +75,7 @@ return
 
 label Day2.answer
 # story entry day=2
+# art scene draft.reading.early
 # story challenge {"challenge_id":"Day2.challenge","playable_marker_id":"Day2.answer.playable","end_marker_id":"Day2.answer.end","board_profile_id":"week.canonical_solo","targets":{"never_started":"target.Day2.result.A","unfinished":"target.Day2.result.B","won":"target.Day2.result.C","lost":"target.Day2.result.D","perfect":"target.Day2.result.E"}}
 \Her elbow stays on the corner of the wood. #id:line.Day2.answer.001
 \“What?” I ask. #id:line.Day2.answer.002
@@ -100,6 +104,7 @@ return
 
 label Day2.result.A
 # story entry day=2
+# art scene draft.reading.early
 \“Of course I did.” #id:line.Day2.result.A.001
 \“Then why do I have to ask?” #id:line.Day2.result.A.002
 \“I wanted you here, Lavinia.” #id:line.Day2.result.A.003
@@ -137,6 +142,7 @@ return
 
 label Day2.result.B
 # story entry day=2
+# art scene draft.reading.early
 \“I don't want to start that tonight.” #id:line.Day2.result.B.001
 \“I'm asking about you.” #id:line.Day2.result.B.002
 \“I know.” #id:line.Day2.result.B.003
@@ -161,6 +167,7 @@ return
 
 label Day2.result.C
 # story entry day=2
+# art scene draft.reading.early
 \“Yes. I wanted you here.” #id:line.Day2.result.C.001
 \“And you decided I should be.” #id:line.Day2.result.C.002
 \“I wanted it to be possible.” #id:line.Day2.result.C.003
@@ -209,6 +216,7 @@ return
 
 label Day2.result.E
 # story entry day=2
+# art scene draft.reading.early
 \“Yes. I wanted you here.” #id:line.Day2.result.E.001
 \Someone else is listening. #id:line.Day2.result.E.002
 \“And you decided I should be.” #id:line.Day2.result.E.003
@@ -258,6 +266,7 @@ return
 
 label Day2.result.D
 # story entry day=2
+# art scene draft.reading.early
 \“Did you want me to stay?” #id:line.Day2.result.D.001
 \“Yes.” #id:line.Day2.result.D.002
 \Her thumb does not move. #id:line.Day2.result.D.003
@@ -313,6 +322,7 @@ return
 
 label Day2.threshold.stay
 # story entry day=2
+# art scene draft.reading.early
 \The door opens. Music from the bar fills the pause. I go back to my chair. #id:line.Day2.threshold.stay.001
 \Lavinia remains in the doorway. #id:line.Day2.threshold.stay.002
 \“You're still smiling.” #id:line.Day2.threshold.stay.003
@@ -336,6 +346,7 @@ return
 
 label Day2.threshold.benchmark
 # story entry day=2
+# art scene draft.reading.early
 \She does not immediately pass. Her hand comes up again. #id:line.Day2.threshold.benchmark.001
 \I draw back. #id:line.Day2.threshold.benchmark.002
 \The hand stops. #id:line.Day2.threshold.benchmark.003
@@ -366,6 +377,7 @@ return
 
 label Day2.threshold.cruel
 # story entry day=2
+# art scene draft.reading.early
 \She does not immediately pass. Her hand comes up again. #id:line.Day2.threshold.cruel.001
 \I draw back. #id:line.Day2.threshold.cruel.002
 \The hand stops. #id:line.Day2.threshold.cruel.003

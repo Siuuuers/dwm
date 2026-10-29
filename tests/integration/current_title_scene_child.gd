@@ -79,13 +79,16 @@ func _current_art_proof() -> Dictionary:
 	var view: Control = art_layer._view
 	assert_not_null(view)
 	if view == null: return {}
-	var placement: Dictionary = CURRENT_ART.get_scene_art("Day1")
+	var placement: Dictionary = game.get_scene_presentation()
+	assert_eq(placement.get("background"), "picture2", "DTL keeps the original Day1 background")
+	assert_eq(placement.get("portraits"), ["picture1"], "DTL keeps the original Day1 portrait")
+	assert_true(placement.get("split_panels", false))
 	var expected_background := CURRENT_ART.get_asset_path(str(placement.background))
 	var actual_background: Texture2D = view._background.texture
 	assert_false(expected_background.is_empty(), "Day1 has authored background")
 	assert_not_null(actual_background, "New Acc/Load hydrates art without a Settings change")
 	if actual_background == null: return {}
-	assert_eq(view._entry_id, "Day1", "art observes the adopted entry")
+	assert_eq(view._entry_id, "draft.reading.early", "art observes the explicitly selected reusable preset")
 	assert_eq(actual_background.resource_path, expected_background)
 	assert_true(view.is_visible_in_tree())
 	assert_true(view._background.is_visible_in_tree())

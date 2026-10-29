@@ -100,7 +100,12 @@ static func apply_entry_presentation(entry_id: String, previous: Dictionary) -> 
 			"show", "remove":
 				if state.is_empty():
 					return {"ok": false, "code": &"presentation_checkpoint_required", "reference": entry_id}
-				if command.kind == "show":
+				if state.has("background"):
+					var inline_command := {"kind": "show", "id": command.id, "slot": command.id} if command.kind == "show" else {"kind": "hide", "slot": command.id}
+					var applied := apply_presentation_commands([inline_command], state)
+					if not applied.ok: return applied
+					state = applied.value.state
+				elif command.kind == "show":
 					if not state.overlays.has(command.id): state.overlays.append(command.id)
 				else:
 					state.overlays.erase(command.id)
@@ -114,6 +119,13 @@ static func apply_entry_presentation(entry_id: String, previous: Dictionary) -> 
 ## Inline story commands resolve once into the Run-owned visible state.
 static func validate_presentation_commands(commands: Array) -> Dictionary:
 	for command: Dictionary in commands:
+		if command.kind == "scene":
+			if not _catalog().get("scenes", {}).has(command.id):
+				return _presentation_reference_error("scene preset", command.id)
+			var scene := get_scene_art(command.id)
+			for asset_id: String in [scene.background, scene.cg] + scene.portraits:
+				if not asset_id.is_empty() and _asset(asset_id).is_empty():
+					return _presentation_reference_error("scene asset", asset_id)
 		if command.kind == "background" and _asset(command.id).is_empty():
 			return _presentation_reference_error("background", command.id)
 		if command.kind == "show":
@@ -151,6 +163,11 @@ static func apply_presentation_commands(commands: Array, previous: Dictionary) -
 	var autosave := false
 	for command: Dictionary in commands:
 		match command.kind:
+			"scene":
+				var preset := get_scene_art(command.id)
+				state.merge(preset, true)
+				state.scene_entry_id = command.id
+				state.split_panels = uses_split_panels(command.id)
 			"background": state.background = command.id
 			"checkpoint":
 				state.checkpoint_id = command.id

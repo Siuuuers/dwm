@@ -122,13 +122,31 @@ func test_seven_day_art_assets_and_split_placement() -> void:
 	var view := SCENE_ART.new()
 	view.bind_view_preferences(null)
 	add_child_autofree(view)
+	var source := preload("res://tools/authoring/DtlStorySource.gd").prepare(
+		JSON.parse_string(FileAccess.get_file_as_string("res://data/manifests/authored_week_source.json")))
+	assert_true(source.ok, str(source))
+	if not source.ok: return
+	var labels: Array = source.value.entries.map(func(row: Dictionary) -> String: return row.entry_id)
 	for day: int in range(1, 8):
 		var entry := "Day%d" % day
-		assert_true(ART.uses_split_panels(entry))
-		var placement: Dictionary = ART.get_scene_art(entry)
+		var spec: Dictionary
+		for row: Dictionary in source.value.entries:
+			if row.entry_id == entry: spec = row
+		var compiled := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd").compile_scene_programme(
+			spec.path, entry, labels, spec.markers)
+		assert_true(compiled.ok, str(compiled))
+		if not compiled.ok: return
+		var commands: Array = compiled.value.nodes[0].presentation_commands
+		assert_eq(commands[0], {"kind": "scene", "id": "draft.reading.early" if day < 4 else "draft.reading.late"})
+		var resolved := ART.apply_presentation_commands(commands, ART.make_scene_presentation(entry))
+		assert_true(resolved.ok, str(resolved))
+		if not resolved.ok: return
+		var placement: Dictionary = resolved.value.state
+		assert_false(resolved.value.autosave, "scene selection does not create a checkpoint")
+		assert_true(placement.split_panels)
 		assert_eq(placement.portraits, ["picture1"])
 		assert_eq(placement.background, "picture2" if day < 4 else "picture3")
-		view.configure_entry(entry, 100, false, false, true)
+		view.configure_presentation(placement, 100, false, false, true)
 		assert_not_null(view.get_split_handle(), "scene caption path must expose two panels")
 		assert_eq(view._portraits[0].texture, ART.get_texture("picture1"))
 		assert_eq(view._background.texture, ART.get_texture(placement.background))

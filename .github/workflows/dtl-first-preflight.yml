@@ -33,6 +33,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
       XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/dtl-first/import/data
       DWM_TEST_ROOT: ${{ github.workspace }}/.godot/ci/dtl-first/import/test-root
     steps:
@@ -62,6 +63,11 @@ jobs:
           "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --import --log-file "$GITHUB_WORKSPACE/.godot/ci/dtl-first/import.log"
           if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' .godot/ci/dtl-first/import.log; then exit 1; fi
           git restore -- project.godot
+      - name: Install software display for rendered acceptance
+        run: |
+          sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/apt-mirrors.txt
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri
       - name: Export deterministically and validate in a fresh process
         run: |
           export XDG_DATA_HOME="$GITHUB_WORKSPACE/.godot/ci/dtl-first/export/data"
@@ -85,7 +91,7 @@ jobs:
       - name: Require current committed output for final acceptance
         if: ${{ inputs.check_generated == true }}
         run: git diff --exit-code -- data/manifests/scene_story_registration.json data/manifests/dialogue_library_registration.json data/manifests/story_start.json
-      - name: Test authoring and presentation with isolated storage
+      - name: Test authoring and rendered presentation with isolated storage
         shell: python
         run: |
           import json, os, pathlib, re, subprocess, xml.etree.ElementTree as ET
@@ -94,6 +100,7 @@ jobs:
           groups = {
               'authoring': ['tests/unit/test_dtl_story_source.gd', 'tests/unit/test_dtl_library_authoring.gd', 'tests/unit/test_dtl_replacement_export.gd'],
               'presentation': ['tests/unit/test_scene_art_cue_compiler.gd', 'tests/unit/test_scene_inline_presentation.gd', 'tests/unit/test_scene_audio_cue_compiler.gd'],
+              'runtime': ['tests/integration/test_scene_inline_presentation.gd'],
           }
           evidence = []
           for name, scripts in groups.items():
@@ -104,7 +111,8 @@ jobs:
                   env[key] = str(path)
               report = output / (name + '.xml')
               log = output / (name + '.log')
-              subprocess.run([env['GODOT_CONSOLE_PATH'], '--headless', '--path', str(root),
+              display = ['xvfb-run', '-a', env['GODOT_CONSOLE_PATH'], '--rendering-method', 'gl_compatibility', '--audio-driver', 'Dummy'] if name == 'runtime' else [env['GODOT_CONSOLE_PATH'], '--headless']
+              subprocess.run(display + ['--path', str(root),
                   '--log-file', str(log), '-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=',
                   '-gtest=' + ','.join('res://' + script for script in scripts), '-gexit', '-glog=1',
                   '-gjunit_xml_file=res://.godot/ci/dtl-first/' + name + '.xml'], env=env, check=True, timeout=300)
@@ -117,7 +125,7 @@ jobs:
                   assert expected and sorted(case.get('name') for case in cases) == expected, script
                   assert all(case.get('status') == 'pass' and int(case.get('assertions', '0')) > 0 for case in cases), script
                   evidence.extend({'script': script, 'method': case.get('name'), 'assertions': int(case.get('assertions'))} for case in cases)
-          (output / 'unit-acceptance.json').write_text(json.dumps(evidence, indent=2) + '\n')
+          (output / 'test-acceptance.json').write_text(json.dumps(evidence, indent=2) + '\n')
       - name: Generate and check public inventories
         run: |
           export XDG_DATA_HOME="$GITHUB_WORKSPACE/.godot/ci/dtl-first/inventory/data"
@@ -151,5 +159,7 @@ jobs:
             tests/**/*.gd.uid
             tools/authoring/*.gd.uid
             .godot/ci/dtl-first/
+            .godot/ci/inline-presentation*.json
+            .godot/ci/computer-inline-presentation*.png
           include-hidden-files: true
           retention-days: 7

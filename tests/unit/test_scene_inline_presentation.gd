@@ -92,3 +92,33 @@ func test_new_checkpoint_id_needs_no_duplicate_catalogue_entry() -> void:
 	var restored := ART.resolve_saved_presentation(result.value.state)
 	assert_true(restored.ok, str(restored))
 	if restored.ok: assert_eq(restored.value, result.value.state)
+
+func test_scene_preset_changes_only_base_art_without_checkpoint_or_audio_reset() -> void:
+	var prior := ART.apply_presentation_commands([
+		{"kind": "show", "id": "template.left", "slot": "portrait"},
+		{"kind": "checkpoint", "id": "authored.arrival"}], {})
+	assert_true(prior.ok)
+	if not prior.ok: return
+	prior.value.state.audio_plan_id = "selected.music"
+	var scene_id: String = ART._catalog().presentation_checkpoints["template.checkpoint"].scene_entry_id
+	var selected := ART.apply_presentation_commands([{"kind": "scene", "id": scene_id}], prior.value.state)
+	assert_true(selected.ok)
+	if not selected.ok: return
+	assert_false(selected.value.autosave)
+	assert_eq(selected.value.state.background, "template.background")
+	assert_eq(selected.value.state.overlays, prior.value.state.overlays)
+	assert_eq(selected.value.state.checkpoint_id, "authored.arrival")
+	assert_eq(selected.value.state.audio_plan_id, "selected.music")
+
+func test_legacy_fixture_overlay_bindings_can_follow_inline_art() -> void:
+	var inline_art := ART.apply_presentation_commands([{"kind": "background", "id": "template.art"}], {})
+	var legacy_show := ART.apply_entry_presentation("template.entry.show", inline_art.value.state)
+	assert_true(legacy_show.ok, str(legacy_show))
+	if not legacy_show.ok: return
+	assert_eq(legacy_show.value.state.background, "template.art")
+	assert_eq(legacy_show.value.state.overlays.size(), 2)
+	var legacy_remove := ART.apply_entry_presentation("template.entry.remove", legacy_show.value.state)
+	assert_true(legacy_remove.ok, str(legacy_remove))
+	if legacy_remove.ok:
+		assert_eq(legacy_remove.value.state.overlays.size(), 1)
+		assert_eq(legacy_remove.value.state.overlays[0].label, "template.right")

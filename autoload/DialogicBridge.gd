@@ -1003,7 +1003,7 @@ func _set_presentation_paused(value: bool) -> Dictionary:
 func _prepare_scene_art() -> void:
 	scene_art_changed.emit()
 	var source := get_current_scene_art()
-	var art: Dictionary = _SCENE_ART.get_scene_art(source.entry_id)
+	var art: Dictionary = source.get("presentation", _SCENE_ART.get_scene_art(source.entry_id))
 	# Hospital and dating own this caption style even without optional artwork.
 	var hospital := str(source.entry_id) == "hospital.faint" or str(source.entry_id).begins_with("hospital.faint.")
 	var dating := str(source.entry_id).begins_with("dating.")
@@ -4700,8 +4700,11 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 		var snapshot_input: Dictionary = prepared.snapshot_input.duplicate(true)
 		var presentation_autosave := false
 		if departing:
-			var visual := preload("res://scripts/data/ArtManifest.gd").apply_presentation_commands(
-				node.get("presentation_commands", []), snapshot_input.scene.get("presentation", {}))
+			var art_owner := preload("res://scripts/data/ArtManifest.gd")
+			var previous: Dictionary = snapshot_input.scene.get("presentation", {})
+			if previous.is_empty() and not node.get("presentation_commands", []).is_empty():
+				previous = art_owner.make_scene_presentation(snapshot_input.scene.entry_id)
+			var visual := art_owner.apply_presentation_commands(node.get("presentation_commands", []), previous)
 			if not visual.ok: return visual
 			if not visual.value.state.is_empty(): snapshot_input.scene["presentation"] = visual.value.state
 			presentation_autosave = visual.value.autosave

@@ -78,3 +78,11 @@ func test_library_membership_does_not_create_a_checkpoint_or_marker() -> void:
 	assert_true(result.value.entries[0].markers.is_empty())
 	assert_eq(result.value.library_memberships[0].entry_id, "first")
 	assert_eq(result.value.library_memberships[0].data.id, "chapter.room")
+
+func test_passage_id_error_is_reported_at_the_authored_directive() -> void:
+	var text := 'label first\n# story entry day=1 start\nlabel opening\n# story marker {"kind":"passage.start","payload":{"passage_id":"missing_prefix"}}\n\\TEST caption. #id:line.first\nreturn\n'
+	var result := SOURCE.prepare_texts({}, {PATH: text})
+	assert_false(result.ok)
+	assert_eq(result.code, "story_passage_id_invalid")
+	assert_eq(result.path, PATH)
+	assert_eq(result.line, 4)

@@ -3,6 +3,7 @@ return
 
 label Day1
 # story entry day=1 start
+# art scene draft.reading.early
 \Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself. #id:line.Day1.one
 \“The tables by the door are in a draught,” she says. “You always complain about your throat when you sit under the vent.” #id:line.Day1.002
 \“And the window light happens to be behind your chair.” #id:line.Day1.003
@@ -41,6 +42,7 @@ return
 
 label Day1.photo.yes
 # story entry day=1
+# art scene draft.reading.early
 \“Wait. One more.” #id:line.Day1.photo.yes.001
 \“We have a good one.” #id:line.Day1.photo.yes.002
 \“You aren't looking at the camera.” #id:line.Day1.photo.yes.003
@@ -56,6 +58,7 @@ return
 
 label Day1.photo.default
 # story entry day=1
+# art scene draft.reading.early
 \“Send it to me.” #id:line.Day1.photo.default.001
 \“Without making me take six more?” #id:line.Day1.photo.default.002
 \“Before you change your mind.” #id:line.Day1.photo.default.003
@@ -67,6 +70,7 @@ return
 
 label Day1.reading
 # story entry day=1
+# art scene draft.reading.early
 # story challenge {"challenge_id":"Day1.challenge","playable_marker_id":"Day1.reading.playable","end_marker_id":"Day1.reading.end","board_profile_id":"week.canonical_solo","targets":{"never_started":"target.Day1.result.A","unfinished":"target.Day1.result.B","won":"target.Day1.result.C","lost":"target.Day1.result.D","perfect":"target.Day1.result.E"}}
 \Sylvia puts her phone away and moves her chair to the other side of the table. #id:line.Day1.reading.001
 \The paperback beneath Sylvia's bag has a bent cover. She smooths it with her palm. #id:line.Day1.reading.002
@@ -187,6 +191,7 @@ return
 
 label Day1.result.A
 # story entry day=1
+# art scene draft.reading.early
 \The message is recorded once. #id:line.Day1.result.A.001
 \Priscilla, sent voice\: I'm having a very good time. I don't think I want to leave yet. #id:line.Day1.result.A.002
 \Sylvia watches it go. #id:line.Day1.result.A.003
@@ -227,6 +232,7 @@ return
 
 label Day1.result.B
 # story entry day=1
+# art scene draft.reading.early
 \The voice recorder opens, then closes without recording. #id:line.Day1.result.B.001
 \“Not now.” #id:line.Day1.result.B.002
 \Thumbs type instead\: #id:line.Day1.result.B.003
@@ -266,6 +272,7 @@ return
 
 label Day1.result.C
 # story entry day=1
+# art scene draft.reading.early
 \The phone moves closer. #id:line.Day1.result.C.001
 \Priscilla, recording\: I'm enjoying my afternoon. I'm also looking forward to seeing you tomorrow. #id:line.Day1.result.C.002
 \The recording plays back once; the small breath between the sentences stays in place, and then it goes through. #id:line.Day1.result.C.003
@@ -304,6 +311,7 @@ return
 
 label Day1.result.D
 # story entry day=1
+# art scene draft.reading.early
 \“She wants a voice message.” #id:line.Day1.result.D.001
 \“Then use the man's voice,” Sylvia says, her finger still inside the paperback. “Tell her your cousin required the carriage.” #id:line.Day1.result.D.002
 \“She'd hang up before the verb.” #id:line.Day1.result.D.003
@@ -349,6 +357,7 @@ return
 
 label Day1.result.E
 # story entry day=1
+# art scene draft.reading.early
 \The phone moves closer. #id:line.Day1.result.E.001
 \Priscilla, recording\: I'm enjoying my afternoon. I'm also looking forward to seeing you tomorrow. #id:line.Day1.result.E.002
 \The recording plays back once; the small breath between the sentences stays in place, and then it goes through. #id:line.Day1.result.E.003
@@ -389,6 +398,7 @@ return
 
 label Day1.coda
 # story entry day=1
+# art scene draft.reading.early
 \A zip runs close to Lavinia's microphone. #id:line.Day1.coda.001
 \“Hold on.” #id:line.Day1.coda.002
 \Something scrapes. She breathes out sharply. #id:line.Day1.coda.003

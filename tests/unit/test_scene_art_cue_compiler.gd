@@ -135,3 +135,14 @@ func test_load_seek_and_staged_control_never_replay_art_but_skip_applies_it() ->
 	handler.Inputs.auto_skip.enabled = true
 	adapter._on_event_handled(null)
 	assert_eq(encounters, [[{"kind": "hide", "slot": "portrait"}]], "Skip suppresses SFX, not persistent artwork")
+
+func test_bad_directive_reports_original_source_line() -> void:
+	var result := _compile("# ordinary note\n\n# art show portrait wrong=left\nCaption. #id:fixture.a\nreturn\n")
+	assert_false(result.ok)
+	assert_eq(result.get("line"), 4)
+
+func test_reusable_scene_preset_has_explicit_dtl_placement() -> void:
+	var result := _compile("# art scene room.layout\nCaption. #id:fixture.a\nreturn\n")
+	assert_true(result.ok)
+	if result.ok:
+		assert_eq(result.value.nodes[0].presentation_commands, [{"kind": "scene", "id": "room.layout"}])

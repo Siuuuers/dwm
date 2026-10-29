@@ -1133,7 +1133,8 @@ func _refresh_dating_overlay() -> void:
 	var source: Dictionary = _scene_art_bridge.get_current_scene_art() if is_instance_valid(_scene_art_bridge) \
 		and _scene_art_bridge.has_method("get_current_scene_art") else {}
 	var entry_id := str(source.get("entry_id", ""))
-	configure_dating_overlay(entry_id.begins_with("dating.") or preload("res://scripts/data/ArtManifest.gd").uses_split_panels(entry_id))
+	configure_dating_overlay(entry_id.begins_with("dating.") or bool(source.get("presentation", {}).get("split_panels",
+		preload("res://scripts/data/ArtManifest.gd").uses_split_panels(entry_id))))
 
 func configure_dating_overlay(enabled: bool) -> void:
 	_bind_dating_split_surface()
