@@ -107,7 +107,7 @@ func _run() -> void:
 	check(not desktop.cosmetic_overlay.visible, "empty inventory removes decoration")
 	if OS.get_environment("DWM_MATERIAL_BASELINE") != "1":
 		viewport.size = Vector2i(1920, 720)
-		viewport.size_2d_override = Vector2i(1280, 480)
+		viewport.size_2d_override = Vector2i.ZERO # Exercise a wide canvas beyond normal stretch.
 		main.get_node("RootHBox").set_angela_width(720)
 		var short_bare: Image = await _material_capture("short-none")
 		check(desktop.desktop_canvas.size.y <= 480, "short fixture has insufficient logical height")
