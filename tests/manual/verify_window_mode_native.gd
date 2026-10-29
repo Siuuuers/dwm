@@ -146,30 +146,36 @@ func _verify_manager_pipeline() -> void:
 	_check(reset.get("ok", false), "reset_preferences")
 	_check(_profile.get_preference(PATH) == "borderless", "reset_profile_borderless")
 	_check(_manager.get_applied_mode() == "borderless" and _port.output_matches("borderless"), "reset_native_borderless")
+	await _verify_settled_borderless("reset")
 
 
 func _verify_settled_borderless(label: String) -> void:
-	# Native resize callbacks and deferred root layout must retain the same output.
-	for frame: int in 3: await process_frame
-	var observed: Dictionary = _port.capture_output()
-	_check(observed.get("ok", false), label + "_settled_capture")
-	if not observed.get("ok", false): return
-	_states[label + "_settled"] = _serialize(observed.value)
-	_check(_port.output_matches("borderless"), label + "_settled_borderless")
-	_check(observed.value.mode in [DisplayServer.WINDOW_MODE_MAXIMIZED, DisplayServer.WINDOW_MODE_FULLSCREEN], label + "_settled_managed_mode")
-	var output: Array = []
-	var status := OS.execute("pwsh", PackedStringArray(["-NoProfile", "-NonInteractive", "-File",
-		ProjectSettings.globalize_path("res://tools/testing/Get-NativeWindowBounds.ps1"),
-		"-GodotProcessId", str(OS.get_process_id())]), output, true)
-	_check(status == 0, label + "_win32_bounds_query")
-	if status != 0:
-		printerr(output)
-		return
-	var parsed: Variant = JSON.parse_string("".join(output))
-	_check(parsed is Dictionary, label + "_win32_bounds_report")
-	if not parsed is Dictionary: return
-	_states[label + "_win32"] = parsed
-	_check(parsed.client == parsed.work_area, label + "_exact_win32_usable_bounds")
+	# Physical desktop bounds, not Godot's adjusted size or mode label, must stay fixed.
+	var previous_client: Dictionary = {}
+	for sample: String in ["settled", "stable"]:
+		for frame: int in 3: await process_frame
+		var key := label + "_" + sample
+		var observed: Dictionary = _port.capture_output()
+		_check(observed.get("ok", false), key + "_capture")
+		if not observed.get("ok", false): return
+		_states[key] = _serialize(observed.value)
+		_check(_port.output_matches("borderless"), key + "_borderless")
+		var output: Array = []
+		var status := OS.execute("pwsh", PackedStringArray(["-NoProfile", "-NonInteractive", "-File",
+			ProjectSettings.globalize_path("res://tools/testing/Get-NativeWindowBounds.ps1"),
+			"-GodotProcessId", str(OS.get_process_id())]), output, true)
+		_check(status == 0, key + "_win32_bounds_query")
+		if status != 0:
+			printerr(output)
+			return
+		var parsed: Variant = JSON.parse_string("".join(output))
+		_check(parsed is Dictionary, key + "_win32_bounds_report")
+		if not parsed is Dictionary: return
+		_states[key + "_win32"] = parsed
+		_check(parsed.client == parsed.work_area, key + "_exact_win32_usable_bounds")
+		if not previous_client.is_empty():
+			_check(parsed.client == previous_client, key + "_physical_bounds_unchanged")
+		previous_client = parsed.client
 
 func _serialize(snapshot: Dictionary) -> Dictionary:
 	return {"owner_id": snapshot.owner_id, "mode": snapshot.mode, "borderless": snapshot.borderless,

@@ -31,10 +31,11 @@ retain exact captured geometry, including a manually resized window. Maximized
 output and rollback verify mode, borderless flag and screen; Windows owns their
 geometry. Godot 4.6.3 adjusts the reported size of borderless maximized windows,
 so the adapter does not feed those adjusted dimensions back into native setters.
-Before its maximize callback, Godot can still report Windowed mode. The immediate
-readback accepts this only with the borderless flag and exact usable-desktop
-position and size; no polling or timer is added to the transaction. The native
-test separately proves settled managed mode and physical bounds after frames.
+Godot can report Windowed mode for the same usable rectangle after a maximize
+request. Readback accepts this only with the borderless flag and exact usable-
+desktop position and size; no polling or timer is added to the transaction. The
+native test independently proves exact physical bounds at two frame-separated
+samples after port application, manager initialization and preference reset.
 When no desktop area is reserved, Godot may substitute nonexclusive fullscreen
 for borderless maximization. This is accepted only when its reported rectangle
 exactly equals the usable desktop. Exclusive fullscreen is never equivalent. A newer committed Profile
