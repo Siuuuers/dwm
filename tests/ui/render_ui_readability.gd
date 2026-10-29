@@ -59,6 +59,11 @@ func capture(surface: String, language: String, _percent: int, scene: Node) -> v
 				for category: String in content.get_category_ids():
 					content.select_category(category)
 					await _record(surface + "-" + category, language, percent, style, scene)
+					check(content.sheet_scroll.get_h_scroll_bar().max_value <= content.sheet_scroll.size.x + 0.5, "Settings needs no horizontal scrolling")
+					var bar: VScrollBar = content.sheet_scroll.get_v_scroll_bar()
+					if bar.max_value > bar.page + 0.5:
+						content.sheet_scroll.scroll_vertical = int(bar.max_value)
+						await _record(surface + "-" + category + "-bottom", language, percent, style, scene)
 				content.select_category("language")
 			elif surface == "gallery":
 				for tab: Button in scene._gallery_tabs.get_children():
@@ -78,15 +83,27 @@ func _record(surface: String, language: String, percent: int, style: String, sce
 	var metrics: Array[Dictionary] = []
 	_measure_readability(scene, metrics)
 	check(not metrics.is_empty(), _sample_id + ": visible text exists")
-	for frame: int in 2: await RenderingServer.frame_post_draw
-	var image := viewport.get_texture().get_image()
-	check(image.get_size() == Vector2i(1920, 1080), _sample_id + ": output size")
-	check(image.save_png(folder.path_join(_sample_id + ".png")) == OK, _sample_id + ": capture")
-	captures += 1
-	samples.append({"id": _sample_id, "file": _sample_id + ".png", "text_metrics": metrics})
+	# Measure the full matrix; retain bounded Latin/pixel and CJK/readable captures.
+	var filename := ""
+	if (language == "en" and style == "pixel") or (language == "zh_HK" and style == "readable"):
+		for frame: int in 2: await RenderingServer.frame_post_draw
+		var image := viewport.get_texture().get_image()
+		check(image.get_size() == Vector2i(1920, 1080), _sample_id + ": output size")
+		filename = _sample_id + ".png"
+		check(image.save_png(folder.path_join(filename)) == OK, _sample_id + ": capture")
+		captures += 1
+	samples.append({"id": _sample_id, "file": filename, "text_metrics": metrics})
 
 func _measure_readability(node: Node, metrics: Array[Dictionary]) -> void:
 	if node is Control and not node.is_visible_in_tree(): return
+	if node is Control:
+		var visible_rect := Rect2(0, 0, 1280, 720)
+		var parent := node.get_parent()
+		while parent != viewport and parent != null:
+			if parent is Control and parent.clip_contents:
+				visible_rect = visible_rect.intersection(parent.get_global_rect())
+			parent = parent.get_parent()
+		if not visible_rect.intersects(node.get_global_rect()): return
 	if node is Label and not node.text.is_empty():
 		var label := node as Label
 		var minimum := label.get_minimum_size()
