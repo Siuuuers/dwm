@@ -1131,6 +1131,10 @@ func apply_scene_control_audio(marker_id: String) -> Dictionary:
 	if not has_reading_session() or _reading_session.family != "scene": return {"ok": true}
 	var index: int = _reading_session.scene_index + (1 if _reading_session.boundary == "line" else 0)
 	var nodes: Array = _reading_session._scene_nodes[_reading_session.latest_entry]
+	# A restored held control has already crossed its own cues. A subsequent
+	# adjacent control (for example End) is a new encounter.
+	if _reading_session.boundary == "control" and nodes[index].get("marker_id") == marker_id:
+		return {"ok": true}
 	while index < nodes.size() and nodes[index].kind == "control":
 		if nodes[index].marker_id == marker_id: break
 		index += 1
@@ -3480,6 +3484,8 @@ func _start_scene_restore_native(operation_id: String) -> void:
 	if _scene_restore.get("terminal", false):
 		_start_terminal_restore_native()
 		return
+	# Load abandons the previous forward encounter, including its SFX suppression.
+	_scene_control_audio_encounter = ""
 	var arrival_audio: Dictionary = apply_scene_arrival_audio(_scene_restore.get("arrival_audio_cues", []))
 	if not arrival_audio.ok:
 		_fail_scene_activation(arrival_audio)
@@ -4687,9 +4693,7 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 		var candidate: RefCounted = _scene_playable.candidate
 		var source_token: RefCounted = _scene_playable.native_token
 		var arrival_cues: Array = candidate._scene_nodes[candidate.latest_entry][checkpoint.reading_session.program_index].get("audio_cues", [])
-		var runtime := get_node_or_null("/root/Dialogic")
-		var audio: Dictionary = get_node("/root/GameState").apply_scene_audio_cues(arrival_cues,
-			_next_admitting or (runtime != null and runtime.Inputs.auto_skip.enabled))
+		var audio: Dictionary = apply_scene_arrival_audio(arrival_cues)
 		if not audio.ok: return {"ok": false, "code": audio.code, "committed": true}
 		_reading_session = candidate
 		var continued: Dictionary = _runtime_adapter.install_scene_continuation(candidate, checkpoint, source_token)

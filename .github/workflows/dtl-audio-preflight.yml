@@ -95,6 +95,7 @@ jobs:
           & $console --version
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Import project
+        id: import_project
         timeout-minutes: 8
         run: |
           $ErrorActionPreference = 'Stop'
@@ -125,10 +126,10 @@ jobs:
       - name: Test compiler catalogue and playback owners
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite scene_inline_audio_unit
       - name: Test rendered cues and fresh-process Load
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.import_project.outcome == 'success' }}
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite scene_inline_audio
       - name: Test rendered reading controls
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.import_project.outcome == 'success' }}
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite scene_inline_audio_transport
       - name: Retain generated source and diagnostic evidence
         if: always()

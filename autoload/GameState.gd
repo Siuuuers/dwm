@@ -5516,8 +5516,9 @@ func _commit_scene_target_owned() -> Dictionary:
 			return _scene_event_fatal(&"scene_audio_activation_unavailable")
 		var adopted: Dictionary = audio.call("apply_scene_admission", _scene_entry_operation.audio_plan)
 		if not adopted.get("ok", false): return _scene_event_fatal(&"scene_audio_activation_failed")
-	var effects: Dictionary = _scene_event_bridge.apply_scene_arrival_audio(_scene_entry_operation.get("audio_cues", []))
-	if not effects.ok: return _scene_event_fatal(&"scene_audio_activation_failed")
+	if not _scene_entry_operation.get("audio_cues", []).is_empty():
+		var effects: Dictionary = _scene_event_bridge.apply_scene_arrival_audio(_scene_entry_operation.audio_cues)
+		if not effects.ok: return _scene_event_fatal(&"scene_audio_activation_failed")
 	var activated: Dictionary = _scene_event_bridge.commit_day_entry(staged)
 	if not activated.get("ok", false): return _scene_event_fatal(&"scene_entry_activation_failed")
 	var renewed: bool = _scene_entry_operation.has("day_plan")

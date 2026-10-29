@@ -16,15 +16,29 @@ class ObservedPort extends "res://scripts/audio/AudioPlaybackPort.gd":
 
 var observed: ObservedPort
 
+func _inline_path() -> String:
+	return INLINE_DTL
+
+func _inline_markers() -> Array:
+	return []
+
 func _install_content_registration() -> Dictionary:
+	var built := _inline_bundle()
+	if not built.ok: return built
+	return MANIFEST.configure_test_scene_registration(built.value)
+
+func _inline_bundle() -> Dictionary:
 	var built: Dictionary = CONTENT.new()._registration_bundle()
 	if not built.ok: return built
 	var bundle: Dictionary = built.value
 	var labels: Array = []
 	for entry: Dictionary in bundle.entry_manifest.entries:
 		labels.append(entry.entry_id)
-		if entry.entry_id == "scene.test.a": entry.locators.en.path = INLINE_DTL
-	var compiled: Dictionary = ADAPTER.compile_scene_programme(INLINE_DTL, "scene.test.a", labels, [])
+		if entry.entry_id == "scene.test.a":
+			entry.locators.en.path = _inline_path()
+			for marker: Dictionary in _inline_markers():
+				if marker.kind not in entry.allowed_signals: entry.allowed_signals.append(marker.kind)
+	var compiled: Dictionary = ADAPTER.compile_scene_programme(_inline_path(), "scene.test.a", labels, _inline_markers())
 	if not compiled.ok: return compiled
 	var lines: Array = AUTHORING.caption_lines(compiled.value.events, {})
 	for row: Dictionary in bundle.caption_registry.entries:
@@ -37,7 +51,7 @@ func _install_content_registration() -> Dictionary:
 	bundle.ids_registry.lines = registered
 	for programme: Dictionary in bundle.scene_programme.entries:
 		if programme.entry_id == "scene.test.a":
-			programme.markers = []
+			programme.markers = _inline_markers()
 			programme.content_sha256 = compiled.value.content_sha256
 			programme.program_sha256 = compiled.value.program_sha256
 	for target: Dictionary in bundle.targets:
@@ -57,7 +71,7 @@ func _install_content_registration() -> Dictionary:
 			"sha256": "f85a90530be2a8f0dad87f80844e6b79d5bdf171975f4c9044a770dc4c2d32aa", "duration_ms": 4000})
 	bundle["audio_catalogue"] = {"kind": "scene_audio_catalogue", "schema_version": 3,
 		"assets": assets, "plans": plans, "bindings": bindings}
-	return MANIFEST.configure_test_scene_registration(bundle)
+	return {"ok": true, "value": bundle}
 
 func _start_services() -> bool:
 	var old: Node = get_node("/root/AudioManager")

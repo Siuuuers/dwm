@@ -641,7 +641,7 @@ static func _compile_scene_programme_timeline(timeline: DialogicTimeline, text: 
 			continue
 		if not selected: continue
 		if event is DialogicCommentEvent:
-			var comment := event.text.strip_edges()
+			var comment: String = event.text.strip_edges()
 			if comment == "audio" or comment.begins_with("audio ") or comment.begins_with("audio\t"):
 				if thought_pending: return {"ok": false, "code": &"scene_audio_splits_self_talk"}
 				var cue := _parse_scene_audio_cue(comment)

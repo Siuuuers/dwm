@@ -24,11 +24,14 @@ func test_auto_plays_and_skip_consumes_one_shots_without_a_later_burst() -> void
 	assert_eq(_starts("SFX"), 2, "suppressed SFX are never queued")
 	if not await _advance_to("four"): return
 	assert_eq(_starts("SFX"), 3, "later manual encounter remains audible")
-	# All remaining captions were genuinely witnessed by Skip. Next crosses the
-	# fifth caption and stops at the backward encounter with its SFX suppressed.
+	# The existing Scene Next control does not admit this ordinary loop.
+	# A disabled click is not evidence that a fast traversal executed.
 	if _caption().caption_text.revealing: await _accept()
+	assert_false(_caption()._next_admitted(), "ordinary Scene fast Next is currently unavailable")
+	var before_next: Dictionary = bridge.capture_reading_checkpoint(false)
 	await _click(_caption().transport_rail.get_node("Next"))
-	assert_eq(_starts("SFX"), 3, "fast Next consumes bypassed effects")
+	assert_eq(bridge.capture_reading_checkpoint(false), before_next)
+	assert_eq(_starts("SFX"), 3, "unavailable Next leaves the encounter unchanged")
 	_assert_selection("TEST.inline.a")
 	await _screenshot("inline-audio-transport")
 	_write_json("res://.godot/ci/inline-audio-transport.json", {"starts": observed.starts,
