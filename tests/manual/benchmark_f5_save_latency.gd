@@ -86,7 +86,8 @@ func test_rendered_f5_latency() -> void:
 	_edge.draw.connect(_observe_saved_draw)
 	await get_tree().process_frame
 	_test_stage = "measured_f5"
-	OS.set_environment("DWM_SAVE_LOAD_PROFILE", "1")
+	var profile_enabled := OS.get_environment("DWM_F5_PROFILE") != "0"
+	OS.set_environment("DWM_SAVE_LOAD_PROFILE", "1" if profile_enabled else "")
 	_measuring = true
 	var input_us := Time.get_ticks_usec()
 	_f5()
@@ -117,7 +118,7 @@ func test_rendered_f5_latency() -> void:
 	assert_eq(document.current_snapshot.snapshot.narrative_checkpoint, projected.value, "durable Save retains the same player position")
 	print("DWM_F5_LATENCY " + JSON.stringify({"case": scenario, "prior_quick_saves": prior_saves,
 		"diagnostic_only": diagnostic, "renderer": DisplayServer.get_name(), "engine": Engine.get_version_info().string,
-		"profile_enabled": true, "input_dispatch_us": dispatched_us - input_us,
+		"profile_enabled": profile_enabled, "input_dispatch_us": dispatched_us - input_us,
 		"input_to_saved_draw_us": _saved_draw_us - input_us if not diagnostic else null,
 		"input_to_frame_post_draw_us": presented_us - input_us if not diagnostic else null,
 		"max_process_frame_gap_us": _max_frame_gap_us,
