@@ -1,0 +1,101 @@
+name: DTL feedback inventory preparation
+'on':
+  push:
+    branches:
+    - ci/dtl-feedback-checks-20261029
+permissions:
+  contents: read
+jobs:
+  inventory:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      XDG_DATA_HOME: ${{ github.workspace }}/.godot/phase2r_tests/dtl-first/import/data
+      DWM_TEST_ROOT: ${{ github.workspace }}/.godot/phase2r_tests/dtl-first/import/test-root
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: true
+    - name: Prepare disposable checkout
+      run: 'git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+
+        git submodule foreach --recursive ''true''
+
+        mkdir -p .godot/ci/dtl-first
+
+        git rev-parse HEAD > .godot/ci/dtl-first/candidate-sha.txt
+
+        '
+    - name: Install Godot 4.6.3 standard
+      run: 'archive="$RUNNER_TEMP/godot-4.6.3-linux.zip"
+
+        curl --fail --location --retry 3 ''https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip''
+        --output "$archive"
+
+        printf ''%s  %s\n'' ''d0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3'' "$archive" | sha256sum --check
+
+        unzip -q "$archive" -d "$RUNNER_TEMP/godot-4.6.3-linux"
+
+        editor="$RUNNER_TEMP/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64"
+
+        chmod +x "$editor"
+
+        echo "GODOT_CONSOLE_PATH=$editor" >> "$GITHUB_ENV"
+
+        "$editor" --version
+
+        '
+    - name: Import once
+      id: import_project
+      timeout-minutes: 8
+      run: 'mkdir -p "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
+
+        "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --import --log-file "$GITHUB_WORKSPACE/.godot/ci/dtl-first/import.log"
+
+        if grep -E ''SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character'' .godot/ci/dtl-first/import.log;
+        then exit 1; fi
+
+        git restore -- project.godot
+
+        '
+    - name: Generate and check public inventories
+      run: "export XDG_DATA_HOME=\"$GITHUB_WORKSPACE/.godot/phase2r_tests/dtl-first/inventory/data\"\nexport DWM_TEST_ROOT=\"\
+        $GITHUB_WORKSPACE/.godot/phase2r_tests/dtl-first/inventory/test-root\"\nmkdir -p \"$XDG_DATA_HOME\" \"$DWM_TEST_ROOT\"\
+        \nfor target in game_state save_manager; do\n  owner=GameState\n  if [ \"$target\" = save_manager ]; then owner=SaveManager;\
+        \ fi\n  for mode in generate check; do\n    args=()\n    if [ \"$mode\" = check ]; then args+=(--check); fi\n    log=\"\
+        $GITHUB_WORKSPACE/.godot/ci/dtl-first/$target-$mode.log\"\n    timeout 180s \"$GODOT_CONSOLE_PATH\" --headless --path\
+        \ \"$GITHUB_WORKSPACE\" --log-file \"$log\" -s res://tools/runtime/generate_public_surface_inventory.gd -- \\\n  \
+        \    \"--script=res://autoload/$owner.gd\" \"--required=res://evidence/phase_2r/runtime/${target}_required_surface.json\"\
+        \ \\\n      \"--output=res://evidence/phase_2r/runtime/${target}_surface.json\" \\\n      --search-root=res://autoload\
+        \ --search-root=res://scripts --search-root=res://scenes --search-root=res://tests \"${args[@]}\"\n    if grep -E\
+        \ 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' \"$log\"; then exit 1; fi\n\
+        \    grep '^SURFACE_INVENTORY: PASS$' \"$log\"\n  done\ndone\n"
+    - name: Retain generated output and exact candidate evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: dtl-first-preflight-${{ github.run_id }}-${{ github.run_attempt }}
+        path: 'data/manifests/scene_story_registration.json
+
+          data/manifests/dialogue_library_registration.json
+
+          data/manifests/story_start.json
+
+          evidence/phase_2r/runtime/*surface.json
+
+          tests/**/*.gd.uid
+
+          tools/authoring/*.gd.uid
+
+          .godot/ci/dtl-first/
+
+          .godot/ci/cloud-speech/
+
+          .godot/ci/inline-presentation*.json
+
+          .godot/ci/computer-inline-presentation*.png
+
+          '
+        include-hidden-files: true
+        retention-days: 7
