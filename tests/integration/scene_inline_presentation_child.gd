@@ -1,6 +1,15 @@
 extends "res://tests/integration/scene_inline_audio_child.gd"
 ## Shared real-runtime fixture for same-process and fresh-process art restoration.
 const ART := preload("res://scripts/data/ArtManifest.gd")
+var playback_failures: Array = []
+
+func _start_services() -> bool:
+	if not super._start_services(): return false
+	bridge.timeline_failed.connect(func(result: Dictionary) -> void:
+		playback_failures.append(result.duplicate(true))
+		print("INLINE_PRESENTATION_FAILURE ", JSON.stringify(result)))
+	return true
+
 
 class CountingFiles extends "res://scripts/infrastructure/storage/FileOps.gd":
 	var autosave_writes := 0
@@ -24,7 +33,7 @@ func _advance_to(line: String) -> bool:
 			for settle: int in 3: await get_tree().process_frame
 			return true
 		await get_tree().process_frame
-	assert_eq(bridge._runtime_adapter.current_line_id(), line)
+	assert_eq(bridge._runtime_adapter.current_line_id(), line, "playback failures: " + JSON.stringify(playback_failures))
 	return false
 
 func _assert_art(background: String, slots: Array) -> void:

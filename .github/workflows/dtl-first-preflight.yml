@@ -102,9 +102,9 @@ jobs:
           groups = {
               'authoring': ['tests/unit/test_dtl_story_source.gd', 'tests/unit/test_dtl_library_authoring.gd', 'tests/unit/test_dtl_replacement_export.gd'],
               'presentation': ['tests/unit/test_scene_art_cue_compiler.gd', 'tests/unit/test_scene_inline_presentation.gd', 'tests/unit/test_scene_audio_cue_compiler.gd'],
+              'regressions': ['tests/unit/test_scene_save_schema.gd', 'tests/unit/test_art_manifest.gd', 'tests/unit/test_art_placements.gd', 'tests/unit/test_dialogue_library_authoring.gd'],
               'runtime': ['tests/integration/test_scene_inline_presentation.gd'],
               'runtime-load': ['tests/integration/test_scene_inline_presentation_load.gd'],
-              'regressions': ['tests/unit/test_scene_save_schema.gd', 'tests/unit/test_art_manifest.gd', 'tests/unit/test_art_placements.gd', 'tests/unit/test_dialogue_library_authoring.gd'],
           }
           evidence = []
           for name, scripts in groups.items():
