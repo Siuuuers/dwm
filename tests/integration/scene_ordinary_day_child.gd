@@ -185,7 +185,12 @@ func load_ordinary_day() -> void:
 	assert_eq(restored.desktop.consequence.shop_ledger, proof.shop_ledger)
 	assert_eq(restored.desktop.board.phase, "NONE")
 	assert_null(restored.desktop.board.board)
-	assert_eq(bridge.capture_reading_checkpoint(false).value, proof.reading)
+	var player_reading: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").project_player_checkpoint(proof.reading)
+	if not _ok(player_reading): return
+	var expected_reading: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(player_reading.value)
+	if not _ok(expected_reading): return
+	assert_eq(bridge.capture_reading_checkpoint(false).value, expected_reading.value,
+		"Load restores current reading and player history without transient traversal records")
 	var host: Control = get_tree().current_scene
 	var shell: Control = await _open_apps(host)
 	if shell == null or not await _launch_app(shell, &"minesweeper"): return
