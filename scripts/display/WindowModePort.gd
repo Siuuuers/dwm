@@ -2,8 +2,8 @@ class_name WindowModePort
 extends RefCounted
 ## Physical main-window output only. Profile, custody and compensation belong to
 ## the caller. The Windows backend is verified synchronously, never by a timer.
-## Godot 4.6: platform/windows/display_server_windows.cpp uses MoveWindow and
-## GetClientRect/ClientToScreen. Other backends need their own completion proof.
+## Windows owns maximized borderless geometry. Godot adjusts its reported client
+## size in that mode; native verification independently checks the usable bounds.
 
 const BASELINE := Vector2i(1280, 720)
 const WINDOW_SIZES := {"1280x720": BASELINE, "1600x900": Vector2i(1600, 900), "1920x1080": Vector2i(1920, 1080)}
@@ -12,6 +12,7 @@ const WINDOW_SIZES := {"1280x720": BASELINE, "1600x900": Vector2i(1600, 900), "1
 const FRAME_ALLOWANCE := Vector2i(32, 64)
 const MAIN := DisplayServer.MAIN_WINDOW_ID
 const WINDOWED := DisplayServer.WINDOW_MODE_WINDOWED
+const MAXIMIZED := DisplayServer.WINDOW_MODE_MAXIMIZED
 const BORDERLESS := DisplayServer.WINDOW_FLAG_BORDERLESS
 const METHODS := [
 	&"get_name", &"get_window_list", &"get_screen_count", &"screen_get_usable_rect",
@@ -40,12 +41,13 @@ func apply_mode(mode: Variant, window_size: Variant = "1280x720") -> Dictionary:
 	var target: Dictionary = captured.value.duplicate(true)
 	var usable: Variant = _platform.screen_get_usable_rect(target.screen)
 	if not _valid_rect(usable): return _failure(&"window_output_unavailable")
-	target.mode = WINDOWED
 	target.borderless = mode == "borderless"
-	target.size = usable.size if target.borderless else _fitted_size(window_size, usable.size)
-	target.position = usable.position if target.borderless else usable.position + (usable.size - target.size) / 2
+	target.mode = MAXIMIZED if target.borderless else WINDOWED
+	if not target.borderless:
+		target.size = _fitted_size(window_size, usable.size)
+		target.position = usable.position + (usable.size - target.size) / 2
 	_write(target)
-	if _read() != target: return _failure(&"window_output_unproven")
+	if not _matches_snapshot(_read(), target): return _failure(&"window_output_unproven")
 	return _success({"mode": String(mode)})
 
 func output_matches(mode: Variant, window_size: Variant = "1280x720") -> bool:
@@ -53,11 +55,11 @@ func output_matches(mode: Variant, window_size: Variant = "1280x720") -> bool:
 	var captured := capture_output()
 	if not captured.ok: return false
 	var actual: Dictionary = captured.value
-	if actual.mode != WINDOWED or actual.borderless != (mode == "borderless"): return false
+	if mode == "borderless": return _matches_borderless(actual)
+	if actual.mode != WINDOWED or actual.borderless: return false
 	var usable: Variant = _platform.screen_get_usable_rect(actual.screen)
 	if not _valid_rect(usable): return false
-	if mode == "windowed": return actual.size == _fitted_size(window_size, usable.size)
-	return actual.position == usable.position and actual.size == usable.size
+	return actual.size == _fitted_size(window_size, usable.size)
 
 func get_available_window_sizes() -> Array[String]:
 	var sizes: Array[String] = []
@@ -84,7 +86,7 @@ func restore_output(snapshot: Variant) -> Dictionary:
 	if not _available(): return _failure(&"window_output_unavailable")
 	if not _valid_snapshot(snapshot): return _failure(&"invalid_window_output_snapshot")
 	_write(snapshot)
-	if _read() != snapshot: return _failure(&"window_output_restore_unproven")
+	if not _matches_snapshot(_read(), snapshot): return _failure(&"window_output_restore_unproven")
 	return _success({"restored": true})
 
 func _read() -> Dictionary:
@@ -93,16 +95,31 @@ func _read() -> Dictionary:
 		"screen": _platform.window_get_current_screen(MAIN),
 		"position": _platform.window_get_position(MAIN), "size": _platform.window_get_size(MAIN)}
 
+func _matches_snapshot(actual: Dictionary, target: Dictionary) -> bool:
+	if target.mode != MAXIMIZED: return actual == target
+	if actual.borderless != target.borderless or actual.screen != target.screen or actual.owner_id != target.owner_id: return false
+	return actual.mode == MAXIMIZED or (target.borderless and _matches_borderless(actual))
+
+func _matches_borderless(actual: Dictionary) -> bool:
+	if not actual.borderless: return false
+	var usable: Variant = _platform.screen_get_usable_rect(actual.screen)
+	if not _valid_rect(usable): return false
+	if actual.mode == MAXIMIZED: return true # Native window manager owns the geometry.
+	# With no reserved desktop area, Godot substitutes nonexclusive fullscreen.
+	return actual.mode == DisplayServer.WINDOW_MODE_FULLSCREEN \
+		and actual.position == usable.position and actual.size == usable.size
+
 func _write(target: Dictionary) -> void:
-	# Reapplying proven geometry must not disturb the native window.
-	if _read() == target: return
+	# Reapplying proven output must not disturb the native window.
+	if _matches_snapshot(_read(), target): return
 	# Geometry setters are ignored in maximized/fullscreen mode. Restore that mode
 	# last; never overwrite unrelated flags (topmost, resizability, transparency).
 	_platform.window_set_mode(WINDOWED, MAIN)
 	_platform.window_set_flag(BORDERLESS, target.borderless, MAIN)
 	_platform.window_set_current_screen(target.screen, MAIN)
-	_platform.window_set_size(target.size, MAIN)
-	_platform.window_set_position(target.position, MAIN)
+	if target.mode != MAXIMIZED:
+		_platform.window_set_size(target.size, MAIN)
+		_platform.window_set_position(target.position, MAIN)
 	if target.mode != WINDOWED: _platform.window_set_mode(target.mode, MAIN)
 
 func _available() -> bool:

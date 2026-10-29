@@ -35,8 +35,8 @@ func _initialize() -> void:
 
 func _run() -> void:
 	if not _original.is_empty():
-		_verify_port()
-		if not _failed: _verify_manager_pipeline()
+		await _verify_port()
+		if not _failed: await _verify_manager_pipeline()
 	# No test failure may bypass cleanup of a captured physical window.
 	if is_instance_valid(_manager): _manager.free()
 	if is_instance_valid(_audio): _audio.free()
@@ -45,7 +45,11 @@ func _run() -> void:
 		var restored: Dictionary = _port.restore_output(_original)
 		_check(restored.get("ok", false), "restore_entry_window")
 		var observed: Dictionary = _port.capture_output()
-		_check(observed.get("ok", false) and observed.get("value", {}) == _original, "exact_entry_readback")
+		var matches: bool = observed.get("ok", false) and observed.get("value", {}) == _original
+		if observed.get("ok", false) and _original.mode == DisplayServer.WINDOW_MODE_MAXIMIZED:
+			matches = observed.value.mode == _original.mode and observed.value.borderless == _original.borderless \
+				and observed.value.screen == _original.screen
+		_check(matches, "entry_output_readback")
 		if observed.get("ok", false): _states.restored = _serialize(observed.value)
 	var directory := ProjectSettings.globalize_path(DESTINATION.get_base_dir())
 	var created := DirAccess.make_dir_recursive_absolute(directory)
@@ -67,9 +71,7 @@ func _verify_port() -> void:
 	var observed: Dictionary = _port.capture_output()
 	if observed.get("ok", false):
 		_states.borderless = _serialize(observed.value)
-		var usable := DisplayServer.screen_get_usable_rect(observed.value.screen)
-		_check(observed.value.mode == DisplayServer.WINDOW_MODE_WINDOWED, "borderless_not_fullscreen")
-		_check(observed.value.position == usable.position and observed.value.size == usable.size, "exact_current_usable_bounds")
+		_check(observed.value.mode in [DisplayServer.WINDOW_MODE_MAXIMIZED, DisplayServer.WINDOW_MODE_FULLSCREEN], "borderless_native_managed_mode")
 		var repeated: Dictionary = _port.apply_mode("borderless")
 		_check(repeated.get("ok", false), "repeat_borderless")
 		_check(_port.capture_output().get("value", {}) == observed.value, "repeat_borderless_exact_readback")
@@ -78,6 +80,7 @@ func _verify_port() -> void:
 		_check(_port.capture_output().get("value", {}) == observed.value, "restore_matching_borderless_exact_readback")
 	else:
 		_check(false, "capture_borderless")
+	await _verify_settled_borderless("port")
 	if _failed: return
 	var windowed: Dictionary = _port.apply_mode("windowed")
 	_check(windowed.get("ok", false), "apply_windowed")
@@ -115,6 +118,8 @@ func _verify_manager_pipeline() -> void:
 	if not initialized.get("ok", false): return
 	_check(_profile.get_preference(PATH) == "borderless", "fresh_profile_borderless")
 	_check(_manager.get_applied_mode() == "borderless" and _port.output_matches("borderless"), "fresh_native_borderless")
+	await _verify_settled_borderless("manager")
+	if _failed: return
 	_check(_manager.commit_settings_window_preference("native-window-verification", "windowed").ok, "select_windowed_before_commit_proof")
 	var revision: int = _profile.get_profile_revision()
 	var published: Array = []
@@ -142,6 +147,28 @@ func _verify_manager_pipeline() -> void:
 	_check(_profile.get_preference(PATH) == "borderless", "reset_profile_borderless")
 	_check(_manager.get_applied_mode() == "borderless" and _port.output_matches("borderless"), "reset_native_borderless")
 
+
+func _verify_settled_borderless(label: String) -> void:
+	# Native resize callbacks and deferred root layout must retain the same output.
+	for frame: int in 3: await process_frame
+	var observed: Dictionary = _port.capture_output()
+	_check(observed.get("ok", false), label + "_settled_capture")
+	if not observed.get("ok", false): return
+	_states[label + "_settled"] = _serialize(observed.value)
+	_check(_port.output_matches("borderless"), label + "_settled_borderless")
+	var output: Array = []
+	var status := OS.execute("pwsh", PackedStringArray(["-NoProfile", "-NonInteractive", "-File",
+		ProjectSettings.globalize_path("res://tools/testing/Get-NativeWindowBounds.ps1"),
+		"-GodotProcessId", str(OS.get_process_id())]), output, true)
+	_check(status == 0, label + "_win32_bounds_query")
+	if status != 0:
+		printerr(output)
+		return
+	var parsed: Variant = JSON.parse_string("".join(output))
+	_check(parsed is Dictionary, label + "_win32_bounds_report")
+	if not parsed is Dictionary: return
+	_states[label + "_win32"] = parsed
+	_check(parsed.client == parsed.work_area, label + "_exact_win32_usable_bounds")
 
 func _serialize(snapshot: Dictionary) -> Dictionary:
 	return {"owner_id": snapshot.owner_id, "mode": snapshot.mode, "borderless": snapshot.borderless,

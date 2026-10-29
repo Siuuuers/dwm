@@ -12,7 +12,7 @@ func _screenshot(label: String) -> void:
 	assert_eq(pixels.save_png("res://.godot/ci/computer-" + label + ".png"), OK)
 
 func _click(control: Control) -> void:
-	var click_trace := _begin_new_acc_click_trace(control)
+	# GUT's layer 128 otherwise intercepts the production board's mouse packets.
 	var test_overlay := get_tree().root.find_child("GutLayer", true, false)
 	if test_overlay is CanvasLayer: test_overlay.hide()
 	var point := control.get_global_transform_with_canvas() * (control.size / 2.0)
@@ -33,7 +33,7 @@ func _click(control: Control) -> void:
 		get_viewport().push_input(event, true)
 		await get_tree().process_frame
 	for frame: int in 3: await get_tree().process_frame
-	_finish_new_acc_click_trace(click_trace)
+
 func _keyboard(key: Key, pressed: bool) -> void:
 	var event := InputEventKey.new()
 	event.keycode = key
@@ -282,54 +282,3 @@ func load_computer_board() -> void:
 	await _screenshot("continued")
 	proof["continued_board"] = panel.public_view.board
 	_write_json("res://.godot/ci/computer-load-proof.json", proof)
-
-
-func _begin_new_acc_click_trace(control: Control) -> Dictionary:
-	if control.name != "NewAccButton": return {}
-	var trace := {"control": weakref(control), "down": 0, "up": 0, "pressed": 0, "gui_events": []}
-	var button := control as BaseButton
-	button.button_down.connect(func() -> void: trace.down += 1)
-	button.button_up.connect(func() -> void: trace.up += 1)
-	button.pressed.connect(func() -> void: trace.pressed += 1)
-	control.gui_input.connect(func(event: InputEvent) -> void:
-		if event is InputEventMouse:
-			trace.gui_events.append(event.as_text()))
-	print("NEW_ACC_CLICK_BEFORE ", _new_acc_click_state(control))
-	return trace
-
-func _finish_new_acc_click_trace(trace: Dictionary) -> void:
-	if trace.is_empty(): return
-	var control: Control = trace.control.get_ref()
-	var counts := trace.duplicate()
-	counts.erase("control")
-	print("NEW_ACC_CLICK_AFTER ", counts, " state=", _new_acc_click_state(control))
-
-func _new_acc_click_state(control: Control) -> Dictionary:
-	var viewport := get_viewport()
-	var window := get_window()
-	var hovered := viewport.gui_get_hovered_control()
-	var scene := get_tree().current_scene
-	var state := {"visible_rect": viewport.get_visible_rect(),
-		"stretch_transform": viewport.get_stretch_transform(),
-		"window_size": window.size, "window_position": window.position,
-		"content_scale_size": window.content_scale_size,
-		"content_scale_factor": window.content_scale_factor,
-		"content_scale_mode": window.content_scale_mode,
-		"native_client_size": DisplayServer.window_get_size(),
-		"native_client_position": DisplayServer.window_get_position(),
-		"hovered": str(hovered.get_path()) if is_instance_valid(hovered) else "",
-		"scene": scene.scene_file_path if is_instance_valid(scene) else "",
-		"ready_count": ready_count, "activation": saves._scene_restore_activation,
-		"gate_failure": saves._mutation_gate._fatal_failure}
-	if is_instance_valid(control):
-		state["button_rect"] = control.get_global_rect()
-		state["point"] = control.get_global_transform_with_canvas() * (control.size / 2.0)
-		var button := control as BaseButton
-		state["button_hovered"] = button.is_hovered()
-		state["button_disabled"] = button.disabled
-	if is_instance_valid(scene) and scene.get_script() == preload("res://scripts/ui/MenuScene.gd"):
-		state["menu"] = {"transition": scene._title_transition,
-			"token": scene._new_acc_token, "transaction": scene._new_acc_transaction,
-			"source_current": scene._new_acc_source_is_current(),
-			"confirmation": scene._confirmation.request if is_instance_valid(scene._confirmation) else {}}
-	return state

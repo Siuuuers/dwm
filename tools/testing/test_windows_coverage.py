@@ -153,6 +153,7 @@ class ReadabilityCoverageTests(unittest.TestCase):
         self.assertEqual(select(paths)['readability'], 'true')
         self.assertEqual(select(paths | {'scripts/display/WindowModePort.gd',
                                        'tests/unit/test_window_mode_port.gd',
+                                       'tools/testing/Get-NativeWindowBounds.ps1',
                                        'tests/integration/scene_computer_child.gd',
                                        'scripts/ui/ShopApp.gd',
                                        'tests/scene/test_shop_plate.gd',
