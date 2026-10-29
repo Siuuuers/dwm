@@ -86,6 +86,13 @@ func create_apps_scene() -> void:
 	var content: Control = settings.get_content_host()
 	assert_true(content._scene_presentation)
 	assert_null(content._run_day)
+	for step: int in 24:
+		await _keyboard(KEY_TAB, true)
+		await _keyboard(KEY_TAB, false)
+		var focused := get_viewport().gui_get_focus_owner()
+		assert_true(focused != null and (shell.is_ancestor_of(focused) or focused == _controls(host, "CheckComputer")), "Computer traversal stays on the active surface")
+	await _click(_caption().caption_text)
+	assert_false(_caption().caption_text.has_focus(), "The blocked caption cannot take focus from the computer")
 	await _click(content._rails["reading"])
 	var auto: BaseButton = content.controls[&"preferences.reading.auto_enabled"]
 	assert_true(auto.is_visible_in_tree())
@@ -114,12 +121,14 @@ func create_apps_scene() -> void:
 	await _click(_controls(host, "CheckComputer"))
 	assert_false(host.is_computer_open())
 	assert_false(bridge.is_computer_caption_held())
+	assert_true(_caption().transport_rail.get_node("Settings").has_focus(), "Closing returns focus to the direct Settings invoker")
 	assert_eq(bridge.capture_reading_checkpoint(false).value, reading)
 	await _click(_caption().transport_rail.get_node("Settings"))
 	assert_same(shell._cached_app_windows[&"settings"], settings)
 	assert_true(settings.is_visible_in_tree())
 	await _click(_controls(host, "CheckComputer"))
 	assert_false(host.is_computer_open())
+	assert_true(_caption().transport_rail.get_node("Settings").has_focus(), "Cached Settings preserves the same return target")
 	assert_eq(bridge.capture_reading_checkpoint(false).value, reading)
 	shell = await _open_apps(host)
 	if shell == null: return

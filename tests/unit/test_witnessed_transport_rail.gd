@@ -363,6 +363,31 @@ func test_materials_use_caption_roles_and_skip_signal_stays_admission_bound() ->
 	assert_signal_emit_count(rail, "skip_requested", 1, "the rail does not bypass owner admission")
 
 
+func test_disabled_bar_is_distinct_from_press_without_dimming_or_clearing_selection() -> void:
+	var rail := _new_rail()
+	add_child_autofree(rail)
+	assert_true(rail.project(false, false, true))
+	for key: String in CAPTION_THEME.PALETTES.TUPLES:
+		var tuple := key.split("/")
+		for style: String in ["pixel", "readable"]:
+			for percent: int in [125, 150]:
+				var presentation := CAPTION_THEME.build("en", percent, tuple[0], tuple[1] == "high", tuple[2], false, 1, false, style)
+				assert_true(rail.configure_presentation(presentation, "en", percent, style))
+				for name: String in ["History", "Auto"]:
+					var button: Button = rail.get_node(name)
+					var disabled := button.get_theme_stylebox("disabled") as StyleBoxFlat
+					var pressed := button.get_theme_stylebox("pressed") as StyleBoxFlat
+					var normal := button.get_theme_stylebox("normal") as StyleBoxFlat
+					assert_true(button.disabled)
+					assert_eq(disabled.bg_color, normal.bg_color, "blocking retains the selected or ordinary face")
+					assert_eq(button.get_theme_color("font_disabled_color"), button.get_theme_color("font_color"), "blocked copy stays fully readable")
+					assert_gt(disabled.border_width_bottom, 0, "blocked action has a bar")
+					assert_eq(disabled.border_width_top, 0, "blocked action does not impersonate the pressed box")
+					assert_gt(pressed.border_width_top, disabled.border_width_top)
+					assert_eq(button.theme_type_variation, &"WitnessedTransportMode" if name == "Auto" else &"WitnessedTransportButton")
+					assert_eq(button.focus_mode, Control.FOCUS_NONE)
+
+
 func test_projection_and_visibility_retire_stale_native_actions_without_steady_state_churn() -> void:
 	var presentation: Theme = CAPTION_THEME.build("en", 100, "AfterHours")
 	var rail := _new_rail()

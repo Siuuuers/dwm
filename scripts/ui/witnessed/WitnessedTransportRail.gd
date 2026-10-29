@@ -378,7 +378,9 @@ func _apply_button_material(button: Button, mode_on: bool) -> void:
 	button.add_theme_stylebox_override(&"hover", _plate(face, state_edge, 2))
 	button.add_theme_stylebox_override(&"pressed", _plate(face, state_edge, 4))
 	button.add_theme_stylebox_override(&"hover_pressed", _plate(face, state_edge, 4))
-	button.add_theme_stylebox_override(&"disabled", _plate(face, state_edge, 4))
+	var disabled := _plate(face, state_edge, 0)
+	disabled.border_width_bottom = 4
+	button.add_theme_stylebox_override(&"disabled", disabled)
 	button.add_theme_stylebox_override(&"focus", StyleBoxEmpty.new())
 	# Measure the native shaped line, including fallback glyphs, before adding
 	# padding. Font.get_height() alone can undercount that line at 150%.

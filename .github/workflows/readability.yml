@@ -1,7 +1,7 @@
 name: Readability measurements
 on:
   pull_request:
-    paths: ['scripts/ui/**', 'scripts/settings/SettingsPreferenceRegistry.gd', 'tests/ui/render*readability*.gd', 'tools/dtl-editor/**', '.github/workflows/readability.yml']
+    paths: ['scripts/ui/**', 'scripts/settings/SettingsPreferenceRegistry.gd', 'tests/ui/render*readability*.gd', 'tests/ui/render_interaction_states.gd', 'tools/dtl-editor/**', '.github/workflows/readability.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -44,6 +44,20 @@ jobs:
           timeout 360s xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" --path . --rendering-method gl_compatibility --rendering-driver opengl3 --audio-driver Dummy --log-file "$DWM_RENDER_OUTPUT/render.log" --script res://tests/ui/render_readability_measurements.gd -- --phase2r-bootstrap-mode=test_manual
           if grep -E 'SCRIPT ERROR:|ERROR: Failed to load' "$DWM_RENDER_OUTPUT/render.log"; then exit 1; fi
           node tools/dtl-editor/update-profile.cjs "$DWM_RENDER_OUTPUT/results.json" --check
+      - name: Capture disabled and physical-contact states
+        run: |
+          timeout 120s xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" --path . --rendering-method gl_compatibility --rendering-driver opengl3 --audio-driver Dummy --log-file "$DWM_RENDER_OUTPUT/interaction.log" --script res://tests/ui/render_interaction_states.gd -- --phase2r-bootstrap-mode=test_manual
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load' "$DWM_RENDER_OUTPUT/interaction.log"; then exit 1; fi
+          grep 'RAIL_STATES_COMPLETED 32 captures; activations=8' "$DWM_RENDER_OUTPUT/interaction.log"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: interaction-states-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .godot/ci/interaction/rail-states/
+            .godot/ci/readability/interaction.log
+          include-hidden-files: true
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
         with:
