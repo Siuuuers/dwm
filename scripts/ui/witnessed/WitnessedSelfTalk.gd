@@ -164,8 +164,10 @@ func _shape() -> void:
 func _update_window() -> void:
 	var line_height := ceilf(_font.get_height(_font_size)) if _font != null else 24.0
 	_choice_height = maxf(52, line_height + 16) + 18
-	if _dual:
-		_choice_height = _choice_height_override if _choice_height_override > 0 else maxf(52, 2 * _font.get_height(int(24 * _text_percent / 100.0)) + 16) + 18
+	# The generic Yes control is single-language. Only an actual paired option
+	# supplies a measured two-language height through SceneHost.
+	if _dual and _choice_height_override > 0:
+		_choice_height = _choice_height_override
 	for row: Dictionary in _visible_rows(): line_height = maxf(line_height, float(row.height))
 	_text_height = line_height * 3
 	if _dual:
@@ -206,7 +208,9 @@ func _visible_rows() -> Array[Dictionary]:
 	var start := _review_start if is_reviewing() else _live_line_start
 	var result: Array[Dictionary] = []
 	var height := 0.0
-	var limit := 216.0 - (_choice_height + 8 if _choice_row_visible else 0.0)
+	# With choices, top 16 + height 240 ends at 256, above the earliest
+	# caption field at 264. Keep the text-only viewport at its existing 216.
+	var limit := 240.0 - _choice_height - 8 if _choice_row_visible else 216.0
 	for index: int in range(start, _lines.size()):
 		if not _dual and result.size() == 3: break
 		var row: Dictionary = _lines[index]
