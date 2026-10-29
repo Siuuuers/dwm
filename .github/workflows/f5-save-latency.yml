@@ -1,0 +1,90 @@
+name: F5 save latency observation
+on:
+  push:
+    branches: [codex/f5-save-latency]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: f5-save-latency-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  measure:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      XDG_DATA_HOME: ${{ github.workspace }}/.godot/f5-import/data
+      DWM_TEST_ROOT: ${{ github.workspace }}/.godot/f5-import/test-root
+      DWM_RENDER_OUTPUT: ${{ github.workspace }}/.godot/ci/f5-latency
+    steps:
+      - uses: actions/checkout@v7
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          git submodule foreach --recursive 'true'
+      - name: Install pinned Godot and software renderer
+        run: |
+          sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/apt-mirrors.txt
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri libspeechd2
+          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$RUNNER_TEMP/godot.zip"
+          printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$RUNNER_TEMP/godot.zip" | sha256sum --check
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          chmod +x "$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64"
+          echo "GODOT_CONSOLE_PATH=$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64" >> "$GITHUB_ENV"
+      - name: Import project
+        run: |
+          mkdir -p "$DWM_RENDER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
+          "$GODOT_CONSOLE_PATH" --headless --path . --import --log-file "$DWM_RENDER_OUTPUT/import.log"
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_RENDER_OUTPUT/import.log"; then exit 1; fi
+          git restore -- project.godot
+      - name: Measure isolated physical F5 saves
+        shell: python
+        run: |
+          import hashlib, json, os, pathlib, subprocess
+          root = pathlib.Path.cwd()
+          output = pathlib.Path(os.environ['DWM_RENDER_OUTPUT'])
+          baseline = 'a10323b07dcd2f0732f26578f231dd4a1e62922b'
+          source_path = 'scripts/application/backup/BackupPresentationPort.gd'
+          subprocess.run(['git', 'fetch', '--no-tags', '--depth=1', 'origin', baseline], check=True)
+          changed = subprocess.check_output(['git', 'diff', '--name-only', baseline, 'HEAD', '--', 'scripts', 'autoload', 'scenes'], text=True).splitlines()
+          assert changed == [source_path], changed
+          source = root / source_path
+          versions = {'baseline': subprocess.check_output(['git', 'show', baseline + ':' + source_path]), 'candidate': source.read_bytes()}
+          samples = []
+          for repetition in range(4):
+              for scenario in ('fresh', 'repeated'):
+                  for variant in (('baseline', 'candidate') if repetition % 2 == 0 else ('candidate', 'baseline')):
+                      source.write_bytes(versions[variant])
+                      label = f'{scenario}-{repetition}-{variant}'
+                      isolated = root / '.godot' / 'phase2r_tests' / 'f5-users' / label
+                      env = dict(os.environ, DWM_F5_CASE=scenario, DWM_F5_PROFILE='0', DWM_TEST_ROOT=str(isolated / 'test-root'),
+                                 XDG_DATA_HOME=str(isolated / 'data'))
+                      log = output / f'{label}.log'
+                      args = ['xvfb-run', '-a', '-s', '-screen 0 1920x1080x24', env['GODOT_CONSOLE_PATH'],
+                              '--path', str(root), '--rendering-method', 'gl_compatibility', '--rendering-driver', 'opengl3',
+                              '--audio-driver', 'Dummy', '--log-file', str(log),
+                              '-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=',
+                              '-gtest=res://tests/manual/benchmark_f5_save_latency.gd', '-gexit', '-glog=1']
+                      result = subprocess.run(args, env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=180)
+                      (output / f'{label}-stdout.log').write_text(result.stdout)
+                      print(result.stdout[-4000:])
+                      assert result.returncode == 0, label
+                      assert 'SCRIPT ERROR:' not in result.stdout, label
+                      records = [json.loads(line.split('DWM_F5_LATENCY ', 1)[1]) for line in result.stdout.splitlines() if line.startswith('DWM_F5_LATENCY ')]
+                      assert len(records) == 1, label
+                      samples.append(dict(records[0], repetition=repetition, variant=variant))
+          source.write_bytes(versions['candidate'])
+          (output / 'results.json').write_text(json.dumps({'commit': os.environ['GITHUB_SHA'], 'baseline': baseline,
+              'source_sha256': {key: hashlib.sha256(value).hexdigest() for key, value in versions.items()},
+              'scope': 'Same runner and harness, alternating order, fresh process/storage; profiler disabled; only named production source differs.',
+              'samples': samples}, indent=2))
+          print(json.dumps(samples, indent=2))
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f5-save-latency-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/f5-latency/
+          include-hidden-files: true
+          if-no-files-found: error

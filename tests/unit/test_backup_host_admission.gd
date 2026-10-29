@@ -57,6 +57,7 @@ class BackupOwner extends RefCounted:
 class QuickOwner extends BackupOwner:
 	var quick_condition_current := true
 	var quick_capability_calls := 0
+	var quick_condition_calls := 0
 	func get_backup_quick_capability(action: String) -> Dictionary:
 		quick_capability_calls += 1
 		return {"ok": true, "value": {"enabled": true, "status_key": "",
@@ -66,6 +67,7 @@ class QuickOwner extends BackupOwner:
 		prepared.value["condition"] = {"action": action, "signature": "fixture"}
 		return prepared
 	func is_quick_condition_current(_condition: Dictionary) -> bool:
+		quick_condition_calls += 1
 		return quick_condition_current
 
 
@@ -333,8 +335,10 @@ func test_quick_load_confirmation_skips_save_capability_and_keeps_admission() ->
 	owner.quick_condition_current = true
 	owner.save_enabled = true
 	var capability_calls := owner.quick_capability_calls
+	var condition_calls := owner.quick_condition_calls
 	var saved: Dictionary = port.prepare_quick_action("save")
 	assert_true(saved.ok)
+	assert_eq(owner.quick_condition_calls, condition_calls, "Quick Save source freshness stays with owner preparation and commit")
 	assert_eq(owner.quick_capability_calls, capability_calls, "Quick Save delegates capability to owner preparation")
 	assert_eq(saved.value.record.actions, {"save": true, "load": false, "delete": false})
 	assert_eq(owner.save_capability_calls, 1, "Quick Save still queries its own capability")

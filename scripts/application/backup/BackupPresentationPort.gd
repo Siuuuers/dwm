@@ -100,8 +100,8 @@ func prepare_quick_action(action: String) -> Dictionary:
 		return prepared.duplicate(true)
 	var value: Dictionary = prepared["value"]
 	var token: String = value["token"]
-	# Preparation can call owner code. Recheck admission before exposing its token.
-	if not _pending.is_empty() or not is_quick_condition_current(value["condition"]):
+	# SaveManager checks Save source freshness at preparation and commit; this layer owns host admission.
+	if not _pending.is_empty() or not (_quick_available(action) if action == "save" else is_quick_condition_current(value["condition"])):
 		_owner.cancel_backup_action(token)
 		return _quick_refusal(get_quick_capability(action))
 	var record := _project_prepared_record(value["record"], action, true)
