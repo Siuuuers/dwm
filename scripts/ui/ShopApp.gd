@@ -444,7 +444,7 @@ func _ready() -> void:
 	for key in ["minimum", "minus", "plus", "maximum"]:
 		quantity_buttons[key] = _button(key, Vector2.ZERO, Vector2(48, 48), _quantity_action.bind(key))
 	_total_label = _label(_body, Vector2(496, 512), Vector2(272, 64), false)
-	status_label = _label(_body, Vector2(496, 576), Vector2(136, 64), false)
+	status_label = _label(_body, Vector2(496, 576), Vector2(272, 64), false)
 	_buy_button = _button("buy", Vector2(640, 576), Vector2(128, 64), _purchase_selected)
 	_supportz_button = Button.new()
 	_supportz_button.name = "SecretSupportz"
@@ -633,9 +633,9 @@ func _render_selection() -> void:
 	_buy_button.accessibility_name = "%s: %s × %d" % [_t("buy"), record.name, quantity]
 	_buy_button.tooltip_text = _buy_button.accessibility_name
 	status_label.position = Vector2(496, 576)
-	status_label.size = Vector2(136, 64)
+	status_label.size = Vector2(272, 64)
 	var has_purchase := _provider != null and _provider.has_method("purchase")
-	_buy_button.visible = has_purchase
+	var buy_had_focus := _buy_button.has_focus()
 	_buy_button.disabled = true
 	_buy_button.focus_mode = Control.FOCUS_NONE
 	status_label.text = ""
@@ -646,18 +646,24 @@ func _render_selection() -> void:
 		if _buy_button.disabled: status_label.text = _t("unavailable")
 	elif record.available:
 		status_label.text = _t("unavailable")
+	# An unavailable action gives its entire row to the explanation.
+	_buy_button.visible = has_purchase and not _buy_button.disabled
 	_measure_information.call_deferred()
 	_verify_dock_fit.call_deferred()
 	_wire_focus()
+	if buy_had_focus and not _buy_button.visible: _focus_selected()
 
 func _verify_dock_fit() -> void:
 	if not _view_is_current(): return
 	if _catalog_layout_pending or not last_result.ok: return
 	# Do not truncate exact amounts or invent a lower owner maximum to fit a key.
-	for label: Label in [_quantity_label, _total_label, _meta_price, _meta_state]:
+	for label: Label in [_quantity_label, _total_label, _meta_price, _meta_state, status_label]:
 		if not label.visible: continue
 		var measure := label.get_theme_font("font").get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, label.get_theme_font_size("font_size"))
-		if measure.x > label.size.x or measure.y > label.size.y:
+		var fits := measure.x <= label.size.x and measure.y <= label.size.y
+		if label == status_label:
+			fits = label.get_minimum_size().y <= label.size.y and Rect2(Vector2.ZERO, _body.size).encloses(label.get_rect())
+		if not fits:
 			last_result = {"ok": false, "code": "shop_dock_does_not_fit"}
 			_show_recovery()
 			return

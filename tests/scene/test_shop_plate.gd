@@ -417,6 +417,44 @@ class Preferences extends RefCounted:
 		percent = value
 		preference_changed.emit(&"preferences.accessibility.text_size",value)
 
+class PurchaseAvailability extends CatalogProvider:
+	var available := false
+	func can_purchase(_item_id: String, _quantity: int) -> Dictionary:
+		return {"ok": available}
+	func purchase(_item_id: String, _quantity: int) -> Dictionary:
+		return {"ok": available}
+
+func test_unavailable_purchase_status_fits_and_returns_focus_when_buy_disappears() -> void:
+	for font_style: String in ["pixel", "readable"]:
+		for locale: String in ["en", "zh_CN", "zh_HK", "ja", "ko"]:
+			for percent: int in [125, 150]:
+				var f := _fixture(locale, percent, false, &"after_hours", 1, false, "standard", font_style)
+				await _settle()
+				var shop: Control = f.shop
+				assert_false(shop._buy_button.visible, "No purchase provider exposes no Buy action")
+				assert_eq(shop.status_label.text, COPY.text(locale, "unavailable"))
+				assert_true(Rect2(Vector2.ZERO, shop._body.size).encloses(shop.status_label.get_rect()), "Unavailable status fits the complete visible plate")
+				assert_gte(shop.status_label.size.y, shop.status_label.get_minimum_size().y)
+				var provider := PurchaseAvailability.new()
+				provider.rows = f.rows
+				assert_true(shop.configure_catalog(provider).ok)
+				for available: bool in [false, true, false]:
+					provider.available = available
+					shop._render_selection()
+					await _settle()
+					assert_true(shop.last_result.ok, "%s %s %s%%" % [locale, font_style, percent])
+					assert_eq(shop._buy_button.visible, available)
+					if available:
+						assert_eq(shop._buy_button.get_rect(), Rect2(640, 576, 128, 64), "Available Buy retains its placement")
+						assert_true(shop.status_label.text.is_empty())
+						shop._buy_button.grab_focus()
+					else:
+						assert_eq(shop.status_label.text, COPY.text(locale, "unavailable"))
+						assert_true(Rect2(Vector2.ZERO, shop._body.size).encloses(shop.status_label.get_rect()))
+						assert_gte(shop.status_label.size.y, shop.status_label.get_minimum_size().y)
+						assert_true(shop.cards[shop.selected_id].has_focus(), "Unavailable Buy leaves focus on its selected item")
+				f.root.hide()
+
 func test_rejected_direct_configuration_preserves_valid_projection_quantity_and_focus() -> void:
 	var f := _fixture()
 	await _settle()
