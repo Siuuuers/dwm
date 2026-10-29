@@ -34,8 +34,8 @@ jobs:
     timeout-minutes: 25
     env:
       LIBGL_ALWAYS_SOFTWARE: '1'
-      XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/dtl-first/import/data
-      DWM_TEST_ROOT: ${{ github.workspace }}/.godot/ci/dtl-first/import/test-root
+      XDG_DATA_HOME: ${{ github.workspace }}/.godot/phase2r_tests/dtl-first/import/data
+      DWM_TEST_ROOT: ${{ github.workspace }}/.godot/phase2r_tests/dtl-first/import/test-root
     steps:
       - uses: actions/checkout@v7
         with:
@@ -57,6 +57,7 @@ jobs:
           echo "GODOT_CONSOLE_PATH=$editor" >> "$GITHUB_ENV"
           "$editor" --version
       - name: Import once
+        id: import_project
         timeout-minutes: 8
         run: |
           mkdir -p "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
@@ -69,9 +70,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri
       - name: Export deterministically and validate in a fresh process
+        id: export_story
         run: |
-          export XDG_DATA_HOME="$GITHUB_WORKSPACE/.godot/ci/dtl-first/export/data"
-          export DWM_TEST_ROOT="$GITHUB_WORKSPACE/.godot/ci/dtl-first/export/test-root"
+          export XDG_DATA_HOME="$GITHUB_WORKSPACE/.godot/phase2r_tests/dtl-first/export/data"
+          export DWM_TEST_ROOT="$GITHUB_WORKSPACE/.godot/phase2r_tests/dtl-first/export/test-root"
           mkdir -p "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
           timeout 180s "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --log-file "$GITHUB_WORKSPACE/.godot/ci/dtl-first/export.log" -s res://tools/authoring/ExportSevenDayRegistration.gd
           sha256sum data/manifests/scene_story_registration.json data/manifests/dialogue_library_registration.json data/manifests/story_start.json > .godot/ci/dtl-first/generated.sha256
@@ -89,7 +91,7 @@ jobs:
             cat .godot/ci/dtl-first/stale-generated.txt
           fi
       - name: Require current committed output for final acceptance
-        if: ${{ inputs.check_generated == true }}
+        if: ${{ github.event_name == 'pull_request' || inputs.check_generated == true }}
         run: git diff --exit-code -- data/manifests/scene_story_registration.json data/manifests/dialogue_library_registration.json data/manifests/story_start.json
       - name: Test authoring and rendered presentation with isolated storage
         shell: python
@@ -101,17 +103,20 @@ jobs:
               'authoring': ['tests/unit/test_dtl_story_source.gd', 'tests/unit/test_dtl_library_authoring.gd', 'tests/unit/test_dtl_replacement_export.gd'],
               'presentation': ['tests/unit/test_scene_art_cue_compiler.gd', 'tests/unit/test_scene_inline_presentation.gd', 'tests/unit/test_scene_audio_cue_compiler.gd'],
               'runtime': ['tests/integration/test_scene_inline_presentation.gd'],
+              'runtime-load': ['tests/integration/test_scene_inline_presentation_load.gd'],
+              'regressions': ['tests/unit/test_scene_save_schema.gd', 'tests/unit/test_art_manifest.gd', 'tests/unit/test_art_placements.gd', 'tests/unit/test_dialogue_library_authoring.gd'],
           }
           evidence = []
           for name, scripts in groups.items():
               env = os.environ.copy()
               for key, folder in [('XDG_DATA_HOME', 'data'), ('DWM_TEST_ROOT', 'test-root')]:
-                  path = output / name / folder
-                  path.mkdir(parents=True)
+                  storage = 'runtime' if name == 'runtime-load' else name
+                  path = root / '.godot/phase2r_tests/dtl-first' / storage / folder
+                  path.mkdir(parents=True, exist_ok=name == 'runtime-load')
                   env[key] = str(path)
               report = output / (name + '.xml')
               log = output / (name + '.log')
-              display = ['xvfb-run', '-a', env['GODOT_CONSOLE_PATH'], '--rendering-method', 'gl_compatibility', '--audio-driver', 'Dummy'] if name == 'runtime' else [env['GODOT_CONSOLE_PATH'], '--headless']
+              display = ['xvfb-run', '-a', env['GODOT_CONSOLE_PATH'], '--rendering-method', 'gl_compatibility', '--audio-driver', 'Dummy'] if name.startswith('runtime') else [env['GODOT_CONSOLE_PATH'], '--headless']
               subprocess.run(display + ['--path', str(root),
                   '--log-file', str(log), '-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=',
                   '-gtest=' + ','.join('res://' + script for script in scripts), '-gexit', '-glog=1',
@@ -127,9 +132,10 @@ jobs:
                   evidence.extend({'script': script, 'method': case.get('name'), 'assertions': int(case.get('assertions'))} for case in cases)
           (output / 'test-acceptance.json').write_text(json.dumps(evidence, indent=2) + '\n')
       - name: Generate and check public inventories
+        if: ${{ !cancelled() && steps.import_project.outcome == 'success' && steps.export_story.outcome == 'success' }}
         run: |
-          export XDG_DATA_HOME="$GITHUB_WORKSPACE/.godot/ci/dtl-first/inventory/data"
-          export DWM_TEST_ROOT="$GITHUB_WORKSPACE/.godot/ci/dtl-first/inventory/test-root"
+          export XDG_DATA_HOME="$GITHUB_WORKSPACE/.godot/phase2r_tests/dtl-first/inventory/data"
+          export DWM_TEST_ROOT="$GITHUB_WORKSPACE/.godot/phase2r_tests/dtl-first/inventory/test-root"
           mkdir -p "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
           for target in game_state save_manager; do
             owner=GameState

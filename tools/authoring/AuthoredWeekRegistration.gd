@@ -60,6 +60,11 @@ static func prepare(source_path: String = SOURCE_PATH) -> Dictionary:
 		bundle.scene_programme.story_days[id] = spec.story_day
 		var compiled: Dictionary = ADAPTER._compile_scene_programme_in_registration(spec.path, id, ids, spec.markers, parsed_sources)
 		if not compiled.ok: return compiled
+		# Registered entries are admitted at a caption. Local jumps remain valid
+		# inside an entry, but cannot stand in for its initial reading boundary.
+		if compiled.value.nodes[compiled.value.label_nodes[id]].kind != "caption":
+			return {"ok": false, "code": &"story_entry_requires_caption", "path": spec.path,
+				"line": discovered.locations[id].line, "reference": id}
 		compiled_entries[id] = compiled.value
 		if spec.role != "scene": return {"ok": false, "code": "authored_scene_role_required"}
 		var grants: Array = ["history.line.witness"]

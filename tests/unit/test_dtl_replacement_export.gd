@@ -94,3 +94,15 @@ func test_entire_replacement_story_exports_from_dtl_and_unchanged_catalogues() -
 	assert_eq(library.passages[0].entries[2].requirements, {"label": "choice.pass"})
 	assert_eq(WRITER.stringify(WEEK.prepare(CONFIG).value).value, WRITER.stringify(result.value).value,
 		"repeat full export is deterministic without hand-edited registrations")
+
+func test_entry_starting_with_jump_is_rejected_during_export() -> void:
+	DirAccess.make_dir_recursive_absolute(ROOT)
+	_write(CONFIG, JSON.stringify({"timeline_root": ROOT}))
+	var path := ROOT + "/entry.dtl"
+	_write(path, "label replacement.opening\n# story entry day=1 start\njump local.caption\nlabel local.caption\n\\TEST caption. #id:line.replacement.opening\nreturn\n")
+	var result := WEEK.prepare(CONFIG)
+	assert_false(result.ok)
+	assert_eq(result.code, &"story_entry_requires_caption")
+	assert_eq(result.path, path)
+	assert_eq(result.line, 2)
+	assert_eq(result.reference, "replacement.opening")
