@@ -103,6 +103,8 @@ jobs:
                   # and transitions; unrelated runtime changes retain broader coverage.
                   reading_layout_paths = {
                       '.github/workflows/windows-tests.yml',
+                      'evidence/phase_2r/runtime/game_state_surface.json',
+                      'evidence/phase_2r/runtime/save_manager_surface.json',
                       'scripts/ui/witnessed/WitnessedCaptionLayer.gd',
                       'scripts/ui/witnessed/WitnessedTransportRail.gd',
                       'scripts/ui/witnessed/SceneTransitionOverlay.gd',
