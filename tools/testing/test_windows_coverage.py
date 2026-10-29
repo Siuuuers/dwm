@@ -197,6 +197,9 @@ class ReadabilityCoverageTests(unittest.TestCase):
                  'tests/unit/test_witnessed_transport_button.gd'}
         self.assertEqual(select(paths)['readability'], 'true')
         self.assertEqual(select(paths)['comparison'], 'false')
+        paths |= {'evidence/phase_2r/runtime/game_state_surface.json',
+                  'evidence/phase_2r/runtime/save_manager_surface.json'}
+        self.assertEqual(select(paths)['readability'], 'true')
         for extra in ('autoload/SaveManager.gd', 'scripts/narrative/DialogicRuntimeAdapter.gd'):
             self.assertEqual(select(paths | {extra})['readability'], 'false')
 

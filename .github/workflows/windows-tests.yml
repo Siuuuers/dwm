@@ -293,6 +293,8 @@ jobs:
                       'tests/ui/render_ui_readability.gd', 'tools/dtl-editor/index.html'})
                   # Focus/state corrections share UI coverage and connected input journeys.
                   interaction_paths = {
+                      'evidence/phase_2r/runtime/game_state_surface.json',
+                      'evidence/phase_2r/runtime/save_manager_surface.json',
                       '.github/workflows/readability.yml', '.github/workflows/windows-tests.yml',
                       'tools/testing/test_windows_coverage.py', 'tools/testing/Invoke-CloudTests.ps1',
                       'scripts/ui/SceneHost.gd', 'scripts/ui/gallery/DialogueLibrary.gd',
