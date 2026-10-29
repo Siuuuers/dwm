@@ -7,8 +7,6 @@ on:
         description: Require committed generated outputs to be current
         type: boolean
         default: false
-  push:
-    branches: ['feat/dtl-first-authoring']
   pull_request:
     paths:
       - '.github/workflows/dtl-first-preflight.yml'

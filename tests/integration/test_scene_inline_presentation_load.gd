@@ -31,13 +31,23 @@ func test_fresh_load_restores_composition_and_music_without_story_commands() -> 
 		"autosave_sha256": _autosave_sha256(), "renderer": DisplayServer.get_name()})
 	# Earlier compatible saves omitted presentation. Keep the stable caption and
 	# saved BGM, resolving only its entry's declared base without replaying cues.
-	game._scene_snapshot_references.erase("presentation")
+	var legacy_input: Dictionary = game.capture_run_snapshot_input()
+	legacy_input.scene.erase("presentation")
+	var legacy_checkpoint: Dictionary = bridge.capture_reading_checkpoint()
+	if not _ok(legacy_checkpoint): return
+	var recorded: Dictionary = saves.record_stable_checkpoint({
+		"snapshot_input": legacy_input, "dialogic_checkpoint": legacy_checkpoint.value,
+		"route_id": "scene", "active_app_id": null,
+		"audio_context": get_node("/root/AudioManager").get_semantic_audio_context(),
+		"content_version": legacy_checkpoint.value.content_version}, &"manual_save")
+	if not _ok(recorded): return
 	if not _ok(saves.save_latest_to_slot(5)): return
 	var legacy_path := "user://saves/slot_5.json"
 	var legacy_sha := FileAccess.get_sha256(legacy_path)
 	var legacy: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string(legacy_path))
 	if not _ok(legacy): return
 	assert_false(legacy.value.current_snapshot.snapshot.scene.has("presentation"))
+	if legacy.value.current_snapshot.snapshot.scene.has("presentation"): return
 	if not await _load_inline(5, false): return
 	assert_eq(bridge._runtime_adapter.current_line_id(), "line.scene.test.a.two")
 	_assert_art("template.background", [])
