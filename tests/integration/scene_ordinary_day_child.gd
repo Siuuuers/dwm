@@ -63,6 +63,16 @@ func _clear_ordinary(panel: Control, ordinal: int) -> bool:
 	await _screenshot("ordinary-round-%d-complete" % ordinal)
 	return game.minesweeper_app_rounds_finished_today == ordinal
 
+func _show_supportz_page(shell: Control, shop: Control) -> void:
+	for page: int in range(shop.page_index + 1, shop.page_count):
+		shell.app_scroll.ensure_control_visible(shop.next_button)
+		for frame: int in 3: await get_tree().process_frame
+		await _click(shop.next_button)
+		assert_eq(shop.page_index, page, "visible Next advances toward the final blank slot")
+	if shop._supportz_button.is_visible_in_tree():
+		shell.app_scroll.ensure_control_visible(shop._supportz_button)
+		for frame: int in 3: await get_tree().process_frame
+
 func create_ordinary_day() -> void:
 	assert_ne(DisplayServer.get_name(), "headless")
 	if DisplayServer.get_name() == "headless" or not _start_services(): return
@@ -89,6 +99,7 @@ func create_ordinary_day() -> void:
 	assert_gt(earned, 0)
 	if not await _launch_app(shell, &"shop"): return
 	var shop: Control = shell._cached_app_windows[&"shop"]
+	await _show_supportz_page(shell, shop)
 	assert_true(shop._supportz_button.is_visible_in_tree())
 	assert_false(shop._supportz_button.disabled)
 	var before_money: int = game.money
@@ -184,6 +195,7 @@ func load_ordinary_day() -> void:
 	await _screenshot("ordinary-fresh-load-new-board")
 	if not await _launch_app(shell, &"shop"): return
 	var shop: Control = shell._cached_app_windows[&"shop"]
+	await _show_supportz_page(shell, shop)
 	assert_false(shop._supportz_button.is_visible_in_tree(), "New day needs its own two completed base rounds.")
 	assert_true(_completion_receipts().is_empty(), "Opening apps cannot replay settlement.")
 	await _screenshot("ordinary-fresh-load-shop")

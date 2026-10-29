@@ -312,6 +312,20 @@ func _shop_samples(app: Control, catalog: RefCounted) -> void:
 	check(catalog.rows == original,"Shop art previews restore their isolated public facts")
 
 func _hover_shop_item(app: Control, item_id: String) -> void:
+	var target_page := int(app._index_of(item_id) / app.page_capacity)
+	for page: int in range(absi(target_page - app.page_index)):
+		var button: Button = app.next_button if target_page > app.page_index else app.previous_button
+		desktop.app_scroll.ensure_control_visible(button)
+		await settle()
+		check(button.is_visible_in_tree() and not button.disabled,"Shop page navigation is available")
+		for pressed: bool in [true, false]:
+			var click := InputEventMouseButton.new()
+			click.position = button.get_global_rect().get_center()
+			click.button_index = MOUSE_BUTTON_LEFT
+			click.pressed = pressed
+			viewport.push_input(click,true)
+			await settle()
+	check(app.page_index == target_page,"native page navigation reaches " + item_id)
 	var card: Button = app.cards[item_id]
 	check(card.is_visible_in_tree(),"hover fixture targets a card on the current page: "+item_id)
 	if not card.is_visible_in_tree(): return

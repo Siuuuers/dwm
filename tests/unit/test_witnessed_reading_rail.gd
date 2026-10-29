@@ -332,7 +332,7 @@ func test_history_pairs_languages_with_one_event_separator_and_preserves_source(
 	assert_eq(secondary.language, "zh-HK")
 	assert_eq(secondary.get_parsed_text(), source[0].secondary_text)
 	assert_eq(secondary.focus_mode, Control.FOCUS_NONE)
-	assert_same(secondary.get_theme_font("normal_font"), preload("res://scripts/ui/UiTypography.gd").story_font("zh_HK", 100))
+	assert_same(secondary.get_theme_font("normal_font"), preload("res://scripts/ui/UiTypography.gd").story_font("zh_HK", 125))
 	assert_null(history._rows.get_node_or_null("Secondary1"))
 	var separators := 0
 	for child: Node in history._rows.get_children():

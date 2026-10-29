@@ -374,7 +374,7 @@ func test_restore_uses_candidate_font_and_size_with_silent_apply_rollback_and_pr
 	assert_true(locale_participant.rollback_silent(previous_locale).get("ok", false))
 	assert_true(participant.rollback_silent(previous_profile.value).get("ok", false))
 	assert_eq(root.applied_profile.font_style, "pixel")
-	assert_eq(root.applied_profile.text_size, 100)
+	assert_eq(root.applied_profile.text_size, 125)
 	assert_eq(publications, [])
 
 func test_separate_profile_owners_do_not_share_selected_style() -> void:

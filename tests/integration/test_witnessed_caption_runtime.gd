@@ -1522,8 +1522,8 @@ func test_real_profile_font_style_preserves_live_caption_and_retires_old_pointer
 		await _settle()
 		var projection: Dictionary = caption.get_caption_projection()
 		assert_eq(projection.font_style, style)
-		assert_eq(projection.font_size, 20 if style == "readable" else 24)
-		assert_same(native.get_theme_font("normal_font"), preload("res://scripts/ui/UiTypography.gd").story_font("en", 100, style))
+		assert_eq(projection.font_size, 25 if style == "readable" else 30)
+		assert_same(native.get_theme_font("normal_font"), preload("res://scripts/ui/UiTypography.gd").story_font("en", 125, style))
 		assert_same(caption.caption_text, native)
 		assert_true(native.has_focus())
 		assert_eq(projection.retained_captions, ["Older caption.", "Previous caption."])
@@ -1654,7 +1654,7 @@ func test_real_profile_material_preferences_preserve_native_reading_and_pending_
 	_replace_caption_display_source("ProfileManager",profile)
 	_replace_caption_display_source("LocalizationManager",CaptionFixtureLocale.new())
 	if not await _mount_root_accept_fixture("Live material preferences preserve this native caption and its reading position. ".repeat(100)): return
-	assert_true(caption.configure_presentation("en",100,"AfterHours"))
+	assert_true(caption.configure_presentation("en",125,"AfterHours"))
 	assert_true(caption.reproject_retained_captions(["Older fixture.","Previous fixture."]))
 	await _settle()
 	var native: DialogicNode_DialogText = caption.caption_text
@@ -1682,6 +1682,7 @@ func test_real_profile_material_preferences_preserve_native_reading_and_pending_
 		assert_eq(projection.get("high_contrast",false),true)
 		assert_eq(projection.get("colour_preset","standard"),tuple[1])
 		assert_eq(projection.palette,"AfterHours")
+		assert_eq(projection.text_percent,125,"material changes preserve the real profile's text metrics")
 		for role: StringName in high_roles:
 			assert_eq(caption.canvas.theme.get_color(role,&"WitnessedCaption"),high_roles[role],str(role))
 		assert_eq(caption.canvas.theme.get_color(&"focus_inner",&"WitnessedCaption"),Color(tuple[2]))
