@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="79" >
+  <testsuite name="tests/unit/test_witnessed_pause_view.gd" tests="13" failures="0" skipped="0" time="5.040353" >
+      <testcase name="test_cover_hides_complete_native_view_without_changing_reveal_or_history_then_restores_pan_focus" assertions="29" status="pass" classname="tests/unit/test_witnessed_pause_view.gd" time="0.548985" >
+      </testcase>
+      <testcase name="test_tampered_stale_and_foreign_view_anchors_are_refused_without_mutation" assertions="15" status="pass" classname="tests/unit/test_witnessed_pause_view.gd" time="0.380482" >
+      </testcase>
+      <testcase name="test_settings_reprojection_under_cover_preserves_native_copy_and_restores_clamped_pan" assertions="17" status="pass" classname="tests/unit/test_witnessed_pause_view.gd" time="0.518361" >
+      </testcase>
+      <testcase name="test_no_source_focus_is_not_invented_and_empty_capture_is_refused" assertions="11" status="pass" classname="tests/unit/test_witnessed_pause_view.gd" time="0.384397" >
+      </testcase>
+      <testcase name="test_next_matte_retains_native_composition_and_excludes_input_pause_and_rail_commands" assertions="28" status="pass" classname="tests/unit/test_witnessed_pause_view.gd" time="0.372574" >
+      </testcase>
+      <testcase name="test_next_success_after_native_host_detachment_cannot_republish_or_refocus" assertions="25" status="pass" classname="tests/unit/test_witnessed_pause_view.gd" time="0.383934" >
+      </testcase>
+      <testcase name="test_next_failure_after_native_host_detachment_cannot_mount_old_recovery" assertions="25" status="pass" classname="tests/unit/test_witnessed_pause_view.gd" time="0.338857" >
+      </testcase>
+      <testcase name="test_next_can_finish_after_native_presenter_is_freed" assertions="14" status="pass" classname="tests/unit/test_witnessed_pause_view.gd" time="0.340127" >
+      </testcase>
+      <testcase name="test_next_storage_refusal_retries_through_signal_and_restores_current_caption_focus" assertions="30" status="pass" classname="tests/unit/test_witnessed_pause_view.gd" time="0.355073" >
+      </testcase>
+      <testcase name="test_next_completion_from_retired_owner_generation_cannot_publish_or_attach_fatal_recovery" assertions="19" status="pass" classname="tests/unit/test_witnessed_pause_view.gd" time="0.345284" >
+      </testcase>
+      <testcase name="test_reconfiguring_next_presenter_releases_old_matte_and_ignores_old_completion" assertions="24" status="pass" classname="tests/unit/test_witnessed_pause_view.gd" time="0.347557" >
+      </testcase>
+      <testcase name="test_localized_repaint_under_cover_preserves_pause_source_and_can_return" assertions="15" status="pass" classname="tests/unit/test_witnessed_pause_view.gd" time="0.362224" >
+      </testcase>
+      <testcase name="test_locale_repaint_cannot_rebind_a_different_native_pause_source" assertions="9" status="pass" classname="tests/unit/test_witnessed_pause_view.gd" time="0.362498" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_witnessed_reading_rail.gd" tests="11" failures="0" skipped="0" time="3.394441" >
+      <testcase name="test_history_and_save_require_their_own_projection_and_final_admission" assertions="20" status="pass" classname="tests/unit/test_witnessed_reading_rail.gd" time="0.286133" >
+      </testcase>
+      <testcase name="test_history_and_save_retire_stale_native_activation_when_capability_changes" assertions="16" status="pass" classname="tests/unit/test_witnessed_reading_rail.gd" time="0.290083" >
+      </testcase>
+      <testcase name="test_history_is_plain_opaque_caption_projection_with_two_focus_anchors" assertions="28" status="pass" classname="tests/unit/test_witnessed_reading_rail.gd" time="0.323397" >
+      </testcase>
+      <testcase name="test_history_localizes_existing_operational_copy_and_refuses_revoked_custody" assertions="35" status="pass" classname="tests/unit/test_witnessed_reading_rail.gd" time="0.693686" >
+      </testcase>
+      <testcase name="test_history_retires_old_assistive_close_and_background_input" assertions="8" status="pass" classname="tests/unit/test_witnessed_reading_rail.gd" time="0.255642" >
+      </testcase>
+      <testcase name="test_next_has_independent_admission_and_contextual_help_without_a_mode" assertions="19" status="pass" classname="tests/unit/test_witnessed_reading_rail.gd" time="0.259161" >
+      </testcase>
+      <testcase name="test_next_cannot_reuse_old_or_repeated_native_callbacks_after_exclusive_custody" assertions="13" status="pass" classname="tests/unit/test_witnessed_reading_rail.gd" time="0.268169" >
+      </testcase>
+      <testcase name="test_next_preference_refusal_cannot_take_traversal_custody_or_call_bridge" assertions="7" status="pass" classname="tests/unit/test_witnessed_reading_rail.gd" time="0.246629" >
+      </testcase>
+      <testcase name="test_next_rechecks_source_after_auto_off_and_submits_only_its_exact_frontier" assertions="15" status="pass" classname="tests/unit/test_witnessed_reading_rail.gd" time="0.247319" >
+      </testcase>
+      <testcase name="test_next_completion_requires_exact_source_and_current_callback_generation" assertions="13" status="pass" classname="tests/unit/test_witnessed_reading_rail.gd" time="0.247895" >
+      </testcase>
+      <testcase name="test_history_pairs_languages_with_one_event_separator_and_preserves_source" assertions="13" status="pass" classname="tests/unit/test_witnessed_reading_rail.gd" time="0.276327" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_scene_audio_cue_compiler.gd" tests="11" failures="0" skipped="0" time="0.015998" >
+      <testcase name="test_cues_keep_caption_positions_and_authored_order" assertions="6" status="pass" classname="tests/unit/test_scene_audio_cue_compiler.gd" time="0.001651" >
+      </testcase>
+      <testcase name="test_changed_cue_changes_programme_hash_without_new_caption" assertions="4" status="pass" classname="tests/unit/test_scene_audio_cue_compiler.gd" time="0.000968" >
+      </testcase>
+      <testcase name="test_ordinary_comments_remain_nonexecuting" assertions="4" status="pass" classname="tests/unit/test_scene_audio_cue_compiler.gd" time="0.001226" >
+      </testcase>
+      <testcase name="test_authoring_typos_in_reserved_audio_commands_are_rejected" assertions="24" status="pass" classname="tests/unit/test_scene_audio_cue_compiler.gd" time="0.003118" >
+      </testcase>
+      <testcase name="test_cue_before_pair_preserves_simultaneous_self_talk" assertions="4" status="pass" classname="tests/unit/test_scene_audio_cue_compiler.gd" time="0.001202" >
+      </testcase>
+      <testcase name="test_cue_inside_pair_is_an_authoring_error" assertions="4" status="pass" classname="tests/unit/test_scene_audio_cue_compiler.gd" time="0.001231" >
+      </testcase>
+      <testcase name="test_branch_cues_belong_to_jump_or_after_destination_label" assertions="5" status="pass" classname="tests/unit/test_scene_audio_cue_compiler.gd" time="0.001415" >
+      </testcase>
+      <testcase name="test_cues_cannot_leak_across_labels_or_end_of_entry" assertions="4" status="pass" classname="tests/unit/test_scene_audio_cue_compiler.gd" time="0.001021" >
+      </testcase>
+      <testcase name="test_registered_control_owns_cue_after_label_without_new_frontier" assertions="4" status="pass" classname="tests/unit/test_scene_audio_cue_compiler.gd" time="0.001215" >
+      </testcase>
+      <testcase name="test_native_dispatch_precedes_deferred_event_and_repeat_encounter_replays" assertions="3" status="pass" classname="tests/unit/test_scene_audio_cue_compiler.gd" time="0.002475" >
+      </testcase>
+      <testcase name="test_skip_consumes_sfx_flag_and_load_or_seek_do_not_dispatch" assertions="3" status="pass" classname="tests/unit/test_scene_audio_cue_compiler.gd" time="0.000476" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_inline_audio_authoring.gd" tests="4" failures="0" skipped="0" time="0.216654" >
+      <testcase name="test_export_derives_media_metadata_and_initial_binding" assertions="11" status="pass" classname="tests/unit/test_inline_audio_authoring.gd" time="0.096238" >
+      </testcase>
+      <testcase name="test_explicit_silent_start_does_not_need_a_music_asset" assertions="2" status="pass" classname="tests/unit/test_inline_audio_authoring.gd" time="0.000431" >
+      </testcase>
+      <testcase name="test_authoring_mistakes_are_rejected_before_export" assertions="4" status="pass" classname="tests/unit/test_inline_audio_authoring.gd" time="0.042454" >
+      </testcase>
+      <testcase name="test_registration_checks_compiled_cue_references_without_per_cue_lists" assertions="16" status="pass" classname="tests/unit/test_inline_audio_authoring.gd" time="0.077531" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_scene_audio_manager.gd" tests="18" failures="0" skipped="0" time="0.365779" >
+      <testcase name="test_prepare_loads_real_fixture_without_changing_playback_or_semantics" assertions="6" status="pass" classname="tests/unit/test_scene_audio_manager.gd" time="0.020145" >
+      </testcase>
+      <testcase name="test_forward_zero_is_idempotent_but_restore_uses_authored_one_second" assertions="16" status="pass" classname="tests/unit/test_scene_audio_manager.gd" time="0.017906" >
+      </testcase>
+      <testcase name="test_new_admission_receipt_restarts_same_plan_at_entrance" assertions="9" status="pass" classname="tests/unit/test_scene_audio_manager.gd" time="0.016754" >
+      </testcase>
+      <testcase name="test_new_run_restore_path_uses_entrance_then_explicit_load_uses_anchor" assertions="11" status="pass" classname="tests/unit/test_scene_audio_manager.gd" time="0.020808" >
+      </testcase>
+      <testcase name="test_invalid_restore_mode_refuses_before_any_output_mutation" assertions="8" status="pass" classname="tests/unit/test_scene_audio_manager.gd" time="0.032159" >
+      </testcase>
+      <testcase name="test_explicit_silent_binding_clears_previous_audio_without_warning" assertions="17" status="pass" classname="tests/unit/test_scene_audio_manager.gd" time="0.02666" >
+      </testcase>
+      <testcase name="test_missing_registered_media_adopts_semantics_with_silence_and_warning" assertions="19" status="pass" classname="tests/unit/test_scene_audio_manager.gd" time="0.016739" >
+      </testcase>
+      <testcase name="test_present_wrong_digest_refuses_before_any_port_mutation" assertions="6" status="pass" classname="tests/unit/test_scene_audio_manager.gd" time="0.006458" >
+      </testcase>
+      <testcase name="test_wrong_registration_or_selection_refuses_without_playback_changes" assertions="13" status="pass" classname="tests/unit/test_scene_audio_manager.gd" time="0.001048" >
+      </testcase>
+      <testcase name="test_partial_apply_failure_restores_prior_physical_and_semantic_state" assertions="7" status="pass" classname="tests/unit/test_scene_audio_manager.gd" time="0.020892" >
+      </testcase>
+      <testcase name="test_failed_compensation_latches_fatal_and_shared_recovery" assertions="11" status="pass" classname="tests/unit/test_scene_audio_manager.gd" time="0.016961" >
+      </testcase>
+      <testcase name="test_legacy_restore_can_replace_scene_and_rollback_recovers_scene_playhead" assertions="11" status="pass" classname="tests/unit/test_scene_audio_manager.gd" time="0.021582" >
+      </testcase>
+      <testcase name="test_music_bed_uses_music_player_and_restores_authored_anchor" assertions="24" status="pass" classname="tests/unit/test_scene_audio_manager.gd" time="0.017994" >
+      </testcase>
+      <testcase name="test_music_apply_failure_restores_prior_music_output_and_snapshot" assertions="7" status="pass" classname="tests/unit/test_scene_audio_manager.gd" time="0.020703" >
+      </testcase>
+      <testcase name="test_inline_same_music_across_occurrences_keeps_playhead_and_gain" assertions="12" status="pass" classname="tests/unit/test_scene_audio_manager.gd" time="0.017821" >
+      </testcase>
+      <testcase name="test_inline_crossfade_stop_and_superseding_play_keep_only_latest_track" assertions="37" status="pass" classname="tests/unit/test_scene_audio_manager.gd" time="0.025125" >
+      </testcase>
+      <testcase name="test_inline_sfx_is_nonlooping_and_does_not_change_music_or_user_output" assertions="13" status="pass" classname="tests/unit/test_scene_audio_manager.gd" time="0.028127" >
+      </testcase>
+      <testcase name="test_inline_load_during_fades_restores_selection_at_start_and_clears_transients" assertions="31" status="pass" classname="tests/unit/test_scene_audio_manager.gd" time="0.037897" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_scene_audio_manifest.gd" tests="18" failures="0" skipped="0" time="0.052978" >
+      <testcase name="test_catalogue_is_pure_and_returns_detached_value" assertions="2" status="pass" classname="tests/unit/test_scene_audio_manifest.gd" time="0.001374" >
+      </testcase>
+      <testcase name="test_exact_keys_at_all_catalogue_levels" assertions="8" status="pass" classname="tests/unit/test_scene_audio_manifest.gd" time="0.000342" >
+      </testcase>
+      <testcase name="test_malformed_containers_refuse_without_indexing" assertions="17" status="pass" classname="tests/unit/test_scene_audio_manifest.gd" time="0.00038" >
+      </testcase>
+      <testcase name="test_asset_digest_and_path_restrictions" assertions="10" status="pass" classname="tests/unit/test_scene_audio_manifest.gd" time="0.000338" >
+      </testcase>
+      <testcase name="test_numeric_types_and_position_bounds" assertions="20" status="pass" classname="tests/unit/test_scene_audio_manifest.gd" time="0.000809" >
+      </testcase>
+      <testcase name="test_bounded_authorial_subset" assertions="8" status="pass" classname="tests/unit/test_scene_audio_manifest.gd" time="0.000399" >
+      </testcase>
+      <testcase name="test_duplicate_unsorted_and_unresolved_definitions" assertions="6" status="pass" classname="tests/unit/test_scene_audio_manifest.gd" time="0.000331" >
+      </testcase>
+      <testcase name="test_binding_coverage_and_duplicate_entry_ids" assertions="3" status="pass" classname="tests/unit/test_scene_audio_manifest.gd" time="0.000183" >
+      </testcase>
+      <testcase name="test_context_contains_only_selection_and_full_registration_digest" assertions="4" status="pass" classname="tests/unit/test_scene_audio_manifest.gd" time="0.001035" >
+      </testcase>
+      <testcase name="test_resolve_positions_and_all_returned_values_detached" assertions="5" status="pass" classname="tests/unit/test_scene_audio_manifest.gd" time="0.002033" >
+      </testcase>
+      <testcase name="test_explicit_silence_has_no_record_or_positions" assertions="5" status="pass" classname="tests/unit/test_scene_audio_manifest.gd" time="0.000634" >
+      </testcase>
+      <testcase name="test_context_and_selection_tampering_refused_without_mutation" assertions="12" status="pass" classname="tests/unit/test_scene_audio_manifest.gd" time="0.003136" >
+      </testcase>
+      <testcase name="test_old_registration_is_not_reinterpreted_as_scene_audio" assertions="2" status="pass" classname="tests/unit/test_scene_audio_manifest.gd" time="0.000123" >
+      </testcase>
+      <testcase name="test_music_bed_requires_version_two_and_one_unambiguous_channel" assertions="13" status="pass" classname="tests/unit/test_scene_audio_manifest.gd" time="0.000488" >
+      </testcase>
+      <testcase name="test_music_resolves_to_music_channel_without_new_saved_snapshot_fields" assertions="9" status="pass" classname="tests/unit/test_scene_audio_manifest.gd" time="0.000731" >
+      </testcase>
+      <testcase name="test_selected_registration_matches_independent_audio_validation_and_detaches_playback" assertions="8" status="pass" classname="tests/unit/test_scene_audio_manifest.gd" time="0.037257" >
+      </testcase>
+      <testcase name="test_named_presentation_selects_existing_plan_without_entry_binding" assertions="13" status="pass" classname="tests/unit/test_scene_audio_manifest.gd" time="0.002092" >
+      </testcase>
+      <testcase name="test_inline_catalogue_supports_story_assets_gain_and_music_start_on_load" assertions="7" status="pass" classname="tests/unit/test_scene_audio_manifest.gd" time="0.001293" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_scene_audio_playback_port.gd" tests="4" failures="0" skipped="0" time="0.003265" >
+      <testcase name="test_legacy_one_argument_play_starts_at_zero" assertions="5" status="pass" classname="tests/unit/test_scene_audio_playback_port.gd" time="0.000525" >
+      </testcase>
+      <testcase name="test_explicit_load_anchor_starts_native_playback_at_one_second" assertions="5" status="pass" classname="tests/unit/test_scene_audio_playback_port.gd" time="0.000297" >
+      </testcase>
+      <testcase name="test_invalid_positions_preserve_native_playback_without_restart" assertions="27" status="pass" classname="tests/unit/test_scene_audio_playback_port.gd" time="0.000722" >
+      </testcase>
+      <testcase name="test_fake_records_default_and_explicit_positions_and_refuses_invalid_input" assertions="21" status="pass" classname="tests/unit/test_scene_audio_playback_port.gd" time="0.001721" >
+      </testcase>
+  </testsuite>
+</testsuites>

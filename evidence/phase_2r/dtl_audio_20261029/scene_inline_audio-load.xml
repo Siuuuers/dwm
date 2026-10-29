@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="1" >
+  <testsuite name="tests/integration/test_scene_inline_audio_load.gd" tests="1" failures="0" skipped="0" time="1.43835" >
+      <testcase name="test_fresh_load_restores_track_start_then_silence_without_old_sfx" assertions="43" status="pass" classname="tests/integration/test_scene_inline_audio_load.gd" time="1.43835" >
+      </testcase>
+  </testsuite>
+</testsuites>

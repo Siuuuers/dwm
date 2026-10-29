@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="1" >
+  <testsuite name="tests/integration/test_scene_inline_audio_transition.gd" tests="1" failures="0" skipped="0" time="2.490939" >
+      <testcase name="test_checkpoint_then_inline_selection_is_saved_before_destination_audio" assertions="87" status="pass" classname="tests/integration/test_scene_inline_audio_transition.gd" time="2.490939" >
+      </testcase>
+  </testsuite>
+</testsuites>

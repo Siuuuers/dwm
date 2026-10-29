@@ -1,7 +1,5 @@
 name: DTL audio authoring preflight
 on:
-  push:
-    branches: [codex/dtl-audio-cues]
   workflow_dispatch:
 permissions:
   contents: read

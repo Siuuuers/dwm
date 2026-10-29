@@ -1,7 +1,16 @@
 # DTL music and one-shot SFX authoring handoff
 
 Date: 29 October 2026, Hong Kong.
-Status: design/authoring guidance; runtime implementation pending.
+Status: implemented in PR #154; final inventory/export gate pending.
+
+Implementation candidate `454521160e5737172b8fbb043058f7f4f8683402` passes
+[cloud authoring and rendered acceptance](https://github.com/Siuuuers/dwm/actions/runs/40843468988).
+All 22 selected gameplay suites also pass in
+[run 40843477904](https://github.com/Siuuuers/dwm/actions/runs/40843477904);
+its committed public inventories require the generated refresh before export.
+See [working authoring instructions](dtl-audio-authoring.md) and
+[acceptance evidence](../../evidence/phase_2r/dtl_audio_20261029/README.md).
+The remaining design sections below preserve the original implementation brief.
 Reviewed master: `dcfb578139567737eb68f6ad2bf60858d51aede0`.
 Read AGENTS.md, CLAUDE.md and relevant technical owners before implementation.
 
@@ -22,9 +31,9 @@ A DTL label identifies a position. A registered entry additionally has an entry 
 
 These choices concern the reusable system, not placement of production sounds or selection of new recordings. No new music composition, sound generation, or unrelated cosmetic changes are requested.
 
-## Proposed author-facing spelling — not implemented syntax
+## Author-facing spelling
 
-The following is a small illustrative syntax proposal, not a set of commands that currently works:
+Implemented syntax (place these directives after the destination label):
 
 ```text
 # audio music quiet_room fade=0.4
@@ -95,4 +104,4 @@ Carry forward CI guidance: measure repository-download/setup/test/wait overhead,
 
 ## Delivery
 
-Implement in reviewable stages: compiler/catalogue; runtime cue traversal and music persistence; fades/SFX; authoring examples and cloud tests. Reuse existing owners and remove only directly superseded/orphaned work. Update this handoff and the feature plan with actual PR/evidence after acceptance. This document does not claim runtime completion.
+Implement in reviewable stages: compiler/catalogue; runtime cue traversal and music persistence; fades/SFX; authoring examples and cloud tests. Reuse existing owners and remove only directly superseded/orphaned work. Update this handoff and the feature plan with actual PR/evidence after acceptance. PR #154 implements this slice; use its checks and evidence record for final acceptance and merge status.

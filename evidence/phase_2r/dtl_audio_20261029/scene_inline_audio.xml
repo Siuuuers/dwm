@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="1" >
+  <testsuite name="tests/integration/test_scene_inline_audio_create.gd" tests="1" failures="0" skipped="0" time="2.480388" >
+      <testcase name="test_manual_cues_save_target_music_and_silence_during_fades" assertions="147" status="pass" classname="tests/integration/test_scene_inline_audio_create.gd" time="2.480388" >
+      </testcase>
+  </testsuite>
+</testsuites>
