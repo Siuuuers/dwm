@@ -1,7 +1,7 @@
 # DTL-first story authoring
 
 Date: 29 October 2026, Hong Kong.
-Status: implemented in [PR #155](https://github.com/Siuuuers/dwm/pull/155); final acceptance and merge pending.
+Status: complete; merged in [PR #155](https://github.com/Siuuuers/dwm/pull/155).
 Reviewed master: `19276f9f5f28490e1b1eba0d654c8a27f1accb39`.
 
 The design and baseline below are retained as the implementation requirements.
@@ -111,42 +111,55 @@ All Godot and PowerShell execution runs in GitHub Actions. Inspect rendered artw
 
 ## Completion record
 
-Implementation candidate: `585f05d513ba126c045599f8a5d1afbe474078a7` in
-[PR #155](https://github.com/Siuuuers/dwm/pull/155). Runtime/authoring source is the
-same as candidate `f1e4d769dc05d40c5f4554b9ec416abe000bea6a`; the later candidate
-adds the native Linux speech setup needed by rendered preflight.
+Completed on 29 October 2026 in [PR #155](https://github.com/Siuuuers/dwm/pull/155),
+merged as `9a157d1ea39fed92fa14c7f2ba828929809b5d7f`.
+Accepted source candidate: `f3bff8c75fbfe06f98e82cf68ec828846810c206`;
+tested PR merge: `2c3c222ee85c3a13801b4fb7e8255a77912fc5cd`.
 
-Implemented scope:
-- DTL owns 92 explicit entries, the start/day declarations, 102 routing markers
-  and nine Challenge definitions. The duplicate JSON entry/marker/Challenge
-  lists are removed. Ordinary labels remain local; invalid declarations and
-  registered entries without an initial caption fail during export.
-- Existing entry-bound artwork is now selected explicitly in DTL from three
-  reusable presets. Inline scene/background/show/hide commands retain named slot
-  order and do not save or reset music.
-- Checkpoints capture the final resolved artwork and selected BGM of their next
-  accepted caption. Commands before that caption form one reading boundary;
-  checkpoint arrival is separate from Gallery membership.
-- Gallery groups and condition references come from DTL metadata, while localized
-  titles/condition labels and reusable art/audio catalogues remain external.
-  Export writes the registrations and the explicit `story_start.json` target.
-- Save/Load restores resolved composition and music directly without replaying
-  previous commands, SFX or checkpoint writes. Existing seven-day gameplay,
-  stable line IDs and prose are retained; no draft-save migration or deletion is
-  added. No reading-speed improvement is claimed from code removal alone.
+DTL owns 92 explicit entries, start/day declarations, 102 routing markers and nine
+Challenge definitions. Duplicate structural JSON lists and per-entry artwork rows
+are removed; three reusable art presets retain the existing appearance. Prose and
+stable line IDs are unchanged. Registered entries must begin at a caption, and
+manual declaration errors report source locations. Export derives the start target,
+story registration and Gallery projection. The [authoring guide](dtl-story-authoring.md)
+is the working syntax authority.
 
-Evidence recorded so far:
-- [Linux preflight 40855222948](https://github.com/Siuuuers/dwm/actions/runs/40855222948)
-  succeeds on `585f05d`: deterministic export, fresh-process validation, synthetic
-  replacement-story tests, rendered presentation/Load checks and public inventories.
-- [Windows presentation job 123382181481](https://github.com/Siuuuers/dwm/actions/runs/40854542415/job/123382181481)
-  succeeds on `f1e4d76`, including the rendered producer and separate-process Load.
-  That run was later cancelled and is not whole-run acceptance evidence.
-- [Final Windows acceptance run 40855222994](https://github.com/Siuuuers/dwm/actions/runs/40855222994)
-  is still running on `585f05d`. Its DTL authoring and rendered presentation suites
-  have passed; remaining gameplay/public-surface, Windows export/startup and broader
-  render results must finish before final acceptance and merge are recorded.
+Inline scene/background/show/hide commands preserve named-slot ordering and do not
+save or reset music. A checkpoint saves the final resolved artwork and selected BGM
+of the next accepted caption. Gallery membership remains separate from arrival.
+Load restores state without replaying commands, SFX or checkpoint writes. Compatible
+saved captions that omit presentation resolve only their declared entry base; no
+later commands are inferred and source save bytes remain unchanged. Draft-content
+replacement has no migration or automatic save deletion.
 
-Production checkpoint placement, Gallery population and final story prose remain
-authoring work. The reusable authoring workflow is implemented; this record does
-not yet claim final release acceptance or a merged PR.
+Gallery caption-layer ownership no longer depends on optional artwork. Its synthetic
+render fixture explicitly selects the reusable ending backdrop rather than relying
+on a removed production entry row. The painting and readable caption were visually
+checked against retained baseline evidence.
+
+Acceptance:
+- [Linux preflight 40862336277](https://github.com/Siuuuers/dwm/actions/runs/40862336277):
+  104 tests, 1,714 assertions and 729 Gallery checks pass. Import, deterministic
+  double export, fresh-process validation and synthetic seven-day replacement pass.
+  All three generated registrations/start outputs and both public inventories match
+  committed bytes exactly. Rendered assertion counts can vary with polling duration;
+  the retained exact method list records this run.
+- [Windows acceptance 40862336559](https://github.com/Siuuuers/dwm/actions/runs/40862336559):
+  34 successful jobs, including all 29 selected gameplay suites, public contracts,
+  fresh exported Windows startup and Linux desktop/dialogue/Gallery rendering.
+  The unrelated archived matched-performance comparison is intentionally skipped.
+  Export verifies 137 runtime data files. All Godot and PowerShell execution was cloud-only.
+- Save/Load tests include a separate OS process, unchanged source saves, no replayed
+  SFX/Autosaves, compatible missing-presentation Load, and continuing to the next
+  checkpoint with exactly one new Autosave. Large-text controls and transition frames
+  were inspected. [Durable evidence](../../evidence/phase_2r/dtl_first_20261029/acceptance.json)
+  retains exact runs, artifacts, hashes, method counts, Load proof and selected captures.
+
+Preflight shares import/setup across isolated related groups and checks Gallery replay
+early. PR coverage retains the relevant 29 suites and existing sparse coverage checkout;
+the temporary duplicate branch-push preflight trigger is removed. No gameplay-latency
+improvement is claimed without a matched benchmark.
+
+The reusable authoring workflow is complete. Final story prose, production checkpoint
+placement and Gallery population remain content-authoring work rather than pending
+runtime implementation.

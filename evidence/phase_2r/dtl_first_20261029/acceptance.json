@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "repository": "https://github.com/Siuuuers/dwm",
+  "pull_request": 155,
+  "candidate_sha": "f3bff8c75fbfe06f98e82cf68ec828846810c206",
+  "tested_merge_sha": "2c3c222ee85c3a13801b4fb7e8255a77912fc5cd",
+  "merge_commit_sha": "9a157d1ea39fed92fa14c7f2ba828929809b5d7f",
+  "preflight": {
+    "run_id": 40862336277,
+    "artifact_id": 12892092531,
+    "tests": 104,
+    "assertions": 1714,
+    "gallery_checks": 729,
+    "tested_merge": "2c3c222ee85c3a13801b4fb7e8255a77912fc5cd",
+    "outputs_matched": [
+      "data/manifests/scene_story_registration.json",
+      "data/manifests/dialogue_library_registration.json",
+      "data/manifests/story_start.json",
+      "evidence/phase_2r/runtime/game_state_surface.json",
+      "evidence/phase_2r/runtime/save_manager_surface.json"
+    ]
+  },
+  "windows_acceptance": {
+    "run_id": 40862336559,
+    "jobs": [
+      {
+        "id": 123409000830,
+        "name": "Select current change coverage",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409108384,
+        "name": "Windows / public API surface contracts",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409108976,
+        "name": "Windows / authored_week",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409108984,
+        "name": "Windows / scene_inline_audio_unit",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109052,
+        "name": "Windows / current_quick_load",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109092,
+        "name": "Windows / scene_checkpoint_ack",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109110,
+        "name": "Windows / scene_transition_reduced",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109119,
+        "name": "Windows / scene_transition_pixels",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109120,
+        "name": "Windows / self_talk_journey",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109123,
+        "name": "Windows / scene_transition_journey",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109142,
+        "name": "Windows / current_title",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109150,
+        "name": "Windows / dtl_first_authoring",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109172,
+        "name": "Windows / scene_player_position",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109183,
+        "name": "Windows / self_talk_skip",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109187,
+        "name": "Windows / scene_direct_controls",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109188,
+        "name": "Windows / named_presentation",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109201,
+        "name": "Windows / scene_native_restore",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109212,
+        "name": "Windows / scene_transition_auto",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109217,
+        "name": "Windows / scene_inline_audio_transport",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109221,
+        "name": "Windows / scene_day_history",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109228,
+        "name": "Windows / scene_inline_presentation",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109280,
+        "name": "Windows / dialogue_library",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109298,
+        "name": "Windows / scene_contacts",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109299,
+        "name": "Windows / scene_multiple_thoughts",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109305,
+        "name": "Windows / bilingual_reading",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109324,
+        "name": "Windows / scene_inline_audio_transition",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109349,
+        "name": "Windows / scene_caption_challenge",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109358,
+        "name": "Windows / scene_current_snapshot",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109361,
+        "name": "Windows / self_talk_transport",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109494,
+        "name": "Windows / scene_current_creation",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409109733,
+        "name": "Windows / scene_controls_localization",
+        "conclusion": "success"
+      },
+      {
+        "id": 123409112572,
+        "name": "Windows / matched startup and Load",
+        "conclusion": "skipped"
+      },
+      {
+        "id": 123412359264,
+        "name": "Rendered desktop and dialogue / Linux software OpenGL",
+        "conclusion": "success"
+      },
+      {
+        "id": 123412359269,
+        "name": "Windows / exported release startup",
+        "conclusion": "success"
+      },
+      {
+        "id": 123412359324,
+        "name": "Rendered current Gallery components",
+        "conclusion": "success"
+      }
+    ],
+    "intentional_skip": "Archived matched-performance comparison; no matched gameplay latency claim"
+  },
+  "windows_export": {
+    "ok": true,
+    "commit": "2c3c222ee85c3a13801b4fb7e8255a77912fc5cd",
+    "engine": "4.6.3.stable",
+    "runtime_data_files_verified": 137,
+    "templates_sha256": "3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8",
+    "executable_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+    "pck_sha256": "38624f40de5155e6fec302997d11b4a2197bd15e13e16b55fdc4f91908d97553",
+    "archive": {
+      "sha256": "8f3439ae5cb225f8716104d09a3c7c728bf7206c2c77292b90c46d983dfd0196",
+      "bytes": 110963169,
+      "file": "DWM-windows-x86_64-validation.zip"
+    }
+  },
+  "artifacts": [
+    {
+      "id": 12892776689,
+      "name": "windows-export-40862336559-1"
+    },
+    {
+      "id": 12892655998,
+      "name": "windows-scene_controls_localization-40862336559-1"
+    },
+    {
+      "id": 12892423251,
+      "name": "gallery-caption-collection-40862336559-1"
+    },
+    {
+      "id": 12892367674,
+      "name": "delivery-dialogue-render-40862336559-1"
+    },
+    {
+      "id": 12892052631,
+      "name": "windows-scene_inline_presentation-40862336559-1"
+    },
+    {
+      "id": 12891949274,
+      "name": "gallery-version-register-40862336559-1"
+    }
+  ],
+  "visual_review": {
+    "gallery": "Restored painting backdrop; readable caption. Compared with accepted baseline run39393228524; differences confined to caption pixel bounds [153,548,1121,610].",
+    "controls": "150% synthetic long caption wraps without clipping with English and zh_HK localized controls. Retained final zh_HK capture exactly matches the inspected image.",
+    "inline_load": "Named overlays and captions restored in a fresh process; test verifies BGM, no SFX or Autosave replay, and unchanged source save hashes.",
+    "transitions": "Source, middle, finished and fresh-Load frames inspected from run40855222994; relevant renderer unchanged and final transition suites passed."
+  },
+  "scope_limits": [
+    "No measured gameplay-latency improvement claimed.",
+    "Final story prose, production checkpoint placement and Gallery population remain content-authoring work.",
+    "Synthetic Gallery replay does not claim production caption admission or native accessibility coverage."
+  ],
+  "generated_sha256": {
+    "data/manifests/scene_story_registration.json": "1e1ea35e0d99cff089507c7437afecd2f55903fe3288a640c9a31f5a931c8d39",
+    "data/manifests/dialogue_library_registration.json": "e57cf64e017bbd79e07c8388de09ccb503ac1681132ed02ba3376f32b9d7eefe",
+    "data/manifests/story_start.json": "17d0dda9b688f985eaa3fe661e88d2f7a671f633289754a9d7da11e1592fc6ea",
+    "evidence/phase_2r/runtime/game_state_surface.json": "94b038ce6de86e602d3188ef7cc44be9580c69aef3a2baef2415404c61d93ff0",
+    "evidence/phase_2r/runtime/save_manager_surface.json": "1152b499e2fcfe9de69e1c5d2041370db9d82a079b598cd2e576630bfc5cf2f5"
+  },
+  "retained_file_sha256": {
+    "executed-tests.json": "e7715800dbefb2fc0beee2b303927c10ad663075e6d6109401988c4542680f9f",
+    "controls-zh_HK-150.png": "202cfeac700850680b5b709d1b8c4126c8a6a4fe06e9f52eb7ce9786315c4212",
+    "fresh-load-proof.json": "521a702c7f848b84a47a5e30bf06b11c620c769472a13abfb8ff38b660e7e47f",
+    "inline-presentation-fresh-load.png": "eb62b19f8381d2abad7cfdea6347e26e2b261eecbdadf29fa652c3dcba78bf69",
+    "gallery-replay-caption.png": "14a53d19eaa516bcd238a8c1b88c56164ead8b8ce10e2c25b21b04763b24dd51"
+  }
+}
