@@ -1,8 +1,6 @@
 name: DTL-first authoring preflight
 
 on:
-  push:
-    branches: [ci/dtl-feedback-checks-20261029]
   workflow_dispatch:
     inputs:
       check_generated:

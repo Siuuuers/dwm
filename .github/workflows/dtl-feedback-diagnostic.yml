@@ -14,11 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         suite:
-        - shop
-        - scene_backup_inspection
-        - scene_content_update_active_board
-        - scene_content_update_transfer_active
-        - scene_content_update_resolved_unfinished
+        - scene_shop_checkpoint
     defaults:
       run:
         shell: pwsh
