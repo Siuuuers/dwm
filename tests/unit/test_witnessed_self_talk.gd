@@ -118,3 +118,23 @@ func test_long_dual_thought_is_scrollable_without_truncating_the_pair() -> void:
 	panel.return_to_live()
 	assert_false(panel.is_reviewing())
 	assert_eq(panel.get_projection().visible_rows[0].start, 0)
+
+func test_dual_generic_choice_keeps_room_for_wrapped_latest_pair_at_150_percent() -> void:
+	var panel := _panel(432)
+	var presentation := CAPTION_THEME.build("en", 150, "AfterHours")
+	panel.configure(presentation, 432, Callable(), "Thoughts", false, 150)
+	panel.set_choice_row_visible(true)
+	var single_choice_height := panel.get_choice_row_rect().size.y
+	panel.configure(presentation, 432, Callable(), "Thoughts", true, 150)
+	panel.project([{"id":"synthetic", "text":"Ask for another photograph.", "content_locale":"en",
+		"secondary_text":"再要一張照片。", "secondary_locale":"zh_HK"}], 0)
+	var shown := panel.get_projection()
+	assert_eq(panel.get_choice_row_rect().size.y, single_choice_height, "Generic Yes reserves one UI label, even when thoughts are bilingual")
+	assert_gt(shown.row_count, 2, "Primary wraps in the narrow portrait panel at 150%")
+	assert_eq(shown.visible_rows.size(), shown.row_count, "The latest wrapped pair fits above the single-label choice")
+	assert_true(shown.visible_rows.back().secondary)
+	assert_lte(panel.size.y, 240.0)
+	panel.set_choice_row_height(single_choice_height + 48)
+	assert_eq(panel.get_choice_row_rect().size.y, single_choice_height + 48, "Real bilingual options still receive their measured height")
+	panel.set_choice_row_height(0)
+	assert_eq(panel.get_projection().visible_rows.size(), shown.row_count)
