@@ -19,6 +19,10 @@ for (const selection of ['\\Caption', '# self-talk', '\\Thought']) {
  assert.equal(edit.text, pair.replace('\\Caption', '# checkpoint room.arrival\n\\Caption'));
 }
 assert.equal(DTL.insertion(pair,pair.indexOf('\\Caption'),'label arrival').text, pair.replace('# art', 'label arrival\n# art'));
+const spaced = 'label room\n#  art background picture3\n# a note\n\\Caption. #id:c\n\n# self-talk\n# another note\n\n\\Thought. #id:t';
+assert.equal(DTL.insertion(spaced,spaced.indexOf('\\Caption'),'label arrival').text,spaced.replace('#  art','label arrival\n#  art'));
+assert.equal(DTL.insertion(spaced,spaced.indexOf('\\Thought'),'# checkpoint x').text,spaced.replace('\\Caption','# checkpoint x\n\\Caption'));
+assert.equal(DTL.issues('#  audio sfx stop').length,1);
 assert.throws(() => DTL.insertion(pair,pair.indexOf('return'),'# checkpoint end'), /caption/);
 const expected = [
  ['label','room.arrival','','','label room.arrival'],
@@ -44,10 +48,14 @@ console.log('PASS: source preservation, caption-pair insertion, all nine control
 async function browserJourney() {
  const {chromium} = require('playwright');
  const browser = await chromium.launch({headless:true});
+ try {
  const page = await browser.newPage({viewport:{width:1280,height:900}});
  const errors=[]; page.on('pageerror',error=>errors.push(error.message));
  await page.goto('file://' + path.join(__dirname,'index.html'));
- async function load(name,buffer) { await page.locator('#file').setInputFiles({name,mimeType:'text/plain',buffer}); await page.waitForFunction(()=>!document.getElementById('source').disabled); }
+ async function load(name,buffer) {
+  await page.locator('#file').setInputFiles({name,mimeType:'text/plain',buffer});
+  await page.waitForFunction(({name,text})=>document.getElementById('filename').textContent===name && document.getElementById('source').value===text,{name,text:DTL.normalize(buffer.toString().replace(/^\uFEFF/,''))});
+ }
  async function exported() {
   const pending = page.waitForEvent('download'); await page.getByRole('button',{name:'Export DTL',exact:true}).click();
   const download = await pending; return fs.readFileSync(await download.path());
@@ -88,7 +96,8 @@ async function browserJourney() {
  await page.setViewportSize({width:390,height:844});
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
  await page.screenshot({path:path.join(artifact,'mobile.png'),fullPage:true});
- assert.deepEqual(errors,[]); await browser.close();
+ assert.deepEqual(errors,[]);
  console.log('PASS: browser import/export bytes, cue insertion, undo, feedback, real Day1 export and mobile layout.');
+ } finally { await browser.close(); }
 }
 if (process.argv.includes('--browser')) browserJourney().catch(error=>{console.error(error);process.exitCode=1;});
