@@ -147,7 +147,9 @@ func test_real_keyboard_controller_mouse_and_touch_each_activate_once() -> void:
 			assert_true(events[0].is_action(configured), "controller press maps to configured caption Accept")
 			assert_true(events[1].is_action(configured), "controller release maps to configured caption Accept")
 		_push(events[0])
+		assert_false(_button._candidate.is_empty(), "%s owns transient contact feedback while held" % sample.label)
 		_push(events[1])
+		assert_true(_button._candidate.is_empty(), "%s clears contact feedback on release" % sample.label)
 		assert_eq(_activated, before + 1, "%s activates exactly once" % sample.label)
 
 
@@ -156,6 +158,7 @@ func test_logical_input_action_is_not_physical_activation_proof() -> void:
 	assert_true(_action(true).is_action(&"ui_accept"))
 	_push(_action(true))
 	_push(_action(false))
+	assert_true(_button._candidate.is_empty(), "logical input cannot paint physical contact")
 	assert_eq(_activated, 0)
 
 
@@ -178,6 +181,7 @@ func test_duplicate_focus_loss_drag_and_multiple_contacts_cannot_finish_stale_ca
 	_button.grab_focus()
 	_push(_key(true))
 	_other.grab_focus()
+	assert_true(_button._candidate.is_empty(), "focus loss clears contact feedback")
 	_push(_key(false))
 	assert_eq(_activated, 1, "focus loss retires the armed key")
 	await get_tree().process_frame
@@ -186,21 +190,32 @@ func test_duplicate_focus_loss_drag_and_multiple_contacts_cannot_finish_stale_ca
 	motion.position = Vector2(360, 132)
 	motion.relative = Vector2(220, 0)
 	_push(motion)
+	assert_true(_button._candidate.is_empty(), "drag cancellation clears contact feedback before release")
 	_push(_mouse(false, Vector2(360, 132)))
 	assert_eq(_activated, 1, "pointer motion outside the button cancels its press")
 	await get_tree().process_frame
 	_button.grab_focus()
 	_push(_key(true))
 	_push(_joy(true))
+	assert_true(_button._candidate.is_empty(), "multiple contacts clear contact feedback")
 	_push(_key(false))
 	_push(_joy(false))
 	assert_eq(_activated, 1, "two simultaneous physical contacts retire the candidate")
+	await get_tree().process_frame
+	_push(_touch(true))
+	assert_false(_button._candidate.is_empty())
+	var canceled := _touch(false)
+	canceled.canceled = true
+	_push(canceled)
+	assert_true(_button._candidate.is_empty(), "touch cancellation clears contact feedback")
+	assert_eq(_activated, 1, "canceled touch does not activate")
 
 
 func test_pause_resume_with_a_held_contact_requires_release_then_a_fresh_edge() -> void:
 	_button.grab_focus()
 	_push(_key(true))
 	assert_true(_manager.begin_suspend(HANDLE).ok)
+	assert_true(_button._candidate.is_empty(), "custody loss immediately clears contact feedback")
 	get_tree().paused = true
 	assert_true(_manager.resume(HANDLE).ok)
 	get_tree().paused = false

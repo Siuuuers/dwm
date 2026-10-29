@@ -182,11 +182,31 @@ class ReadabilityCoverageTests(unittest.TestCase):
                                    'scripts/settings/SettingsPreferenceRegistry.gd',
                                    'scripts/ui/GalleryScene.gd', 'scripts/ui/ShopApp.gd'})
 
+    def test_interaction_slice_keeps_focus_and_input_coverage(self):
+        paths = {'.github/workflows/windows-tests.yml', '.github/workflows/readability.yml',
+                 'tools/testing/test_windows_coverage.py', 'tools/testing/Invoke-CloudTests.ps1',
+                 'scripts/ui/SceneHost.gd',
+                 'scripts/ui/gallery/DialogueLibrary.gd',
+                 'scripts/ui/witnessed/WitnessedCaptionLayer.gd',
+                 'scripts/ui/witnessed/WitnessedTransportRail.gd',
+                 'scripts/ui/witnessed/WitnessedTransportButton.gd',
+                 'tests/integration/scene_apps_connected_child.gd',
+                 'tests/scene/test_scene_host_controls.gd',
+                 'tests/ui/render_dialogue_library.gd', 'tests/ui/render_interaction_states.gd',
+                 'tests/unit/test_witnessed_transport_rail.gd',
+                 'tests/unit/test_witnessed_transport_button.gd'}
+        self.assertEqual(select(paths)['readability'], 'true')
+        self.assertEqual(select(paths)['comparison'], 'false')
+        for extra in ('autoload/SaveManager.gd', 'scripts/narrative/DialogicRuntimeAdapter.gd'):
+            self.assertEqual(select(paths | {extra})['readability'], 'false')
+
     def test_readability_matrix_retains_required_registered_suites(self):
         matrix = re.search(r"needs.test-scope.outputs.readability == 'true' && '([^']+)'", WORKFLOW)
         self.assertIsNotNone(matrix)
         actual = json.loads(matrix[1])
-        required = {'settings', 'minesweeper', 'shop', 'desktop', 'localization', 'reading_delivery',
+        required = {'scene_apps', 'scene_computer', 'self_talk_ui', 'scene_direct_controls',
+                    'scene_day_history', 'current_quick_load',
+                    'settings', 'minesweeper', 'shop', 'desktop', 'localization', 'reading_delivery',
                     'dialogue_library', 'bilingual_reading', 'self_talk_choices',
                     'authored_self_talk_choices', 'scene_controls_localization',
                     'current_title', 'new_account', 'persistence',
@@ -200,6 +220,9 @@ class ReadabilityCoverageTests(unittest.TestCase):
         settings = re.search(r"(?ms)^    settings = @\((.*?)^    \)", runner)
         self.assertIsNotNone(settings)
         self.assertEqual(settings[1].count("'tests/unit/test_profile_window_restore.gd'"), 1)
+        reading = re.search(r"(?ms)^    reading_delivery = @\((.*?)^    \)", runner)
+        self.assertIsNotNone(reading)
+        self.assertEqual(reading[1].count("'tests/unit/test_witnessed_transport_button.gd'"), 1)
 
     def test_empty_metadata_only_and_manual_dispatch_do_not_select_readability(self):
         for paths in (set(), {'.github/workflows/windows-tests.yml'},

@@ -11,7 +11,10 @@ var _admission: Callable
 var _input_owner: Node
 var _contacts: Dictionary = {}
 var _blocked_contacts: Dictionary = {}
-var _candidate: Dictionary = {}
+var _candidate: Dictionary = {}:
+	set(value):
+		_candidate = value
+		queue_redraw()
 var _fresh_contact := ""
 var _generation := 0
 var _retired_frame := -1
@@ -44,7 +47,7 @@ func bind_admission(admission: Callable, input_owner: Node) -> bool:
 
 
 func retire_input() -> void:
-	_candidate.clear()
+	_candidate = {}
 	_fresh_contact = ""
 	_generation += 1
 	_retired_frame = Engine.get_process_frames()
@@ -74,7 +77,7 @@ func _notification(what: int) -> void:
 func _process(_delta: float) -> void:
 	if not is_instance_valid(_input_owner): return
 	_prune_blocked_contacts()
-	if not _candidate.is_empty() and not _admitted(): _candidate.clear()
+	if not _candidate.is_empty() and not _admitted(): _candidate = {}
 
 
 func _input(event: InputEvent) -> void:
@@ -99,7 +102,7 @@ func _input(event: InputEvent) -> void:
 		_cancel_moved_pointer("mouse:%s:%s" % [event.device, MOUSE_BUTTON_LEFT], event.position)
 	elif (event is InputEventScreenTouch and event.canceled) \
 			or (event is InputEventMouseButton and event.canceled):
-		_candidate.clear()
+		_candidate = {}
 	if (event is InputEventKey or event is InputEventJoypadButton) \
 			and _is_accept(event) and has_focus():
 		if event.is_pressed():
@@ -135,11 +138,11 @@ func _handle_pointer(event: InputEvent) -> void:
 			"started": Time.get_ticks_msec(), "touch": event is InputEventScreenTouch}
 	elif _candidate.get("id") == id:
 		if _pointer_canceled(event) or not Rect2(Vector2.ZERO, size).has_point(event.position):
-			_candidate.clear()
+			_candidate = {}
 			return
 		if bool(_candidate.get("touch", false)) \
 				and Time.get_ticks_msec() - int(_candidate.started) > TAP_LIMIT_MSEC:
-			_candidate.clear()
+			_candidate = {}
 			return
 		_activate_candidate()
 
@@ -147,7 +150,7 @@ func _handle_pointer(event: InputEvent) -> void:
 func _activate_candidate() -> void:
 	var admitted: bool = _candidate.get("generation", -1) == _generation and has_focus() and _admitted() \
 		and is_instance_valid(_input_owner) and _input_owner.get_physical_contacts().is_empty()
-	_candidate.clear()
+	_candidate = {}
 	if admitted: _activate()
 
 
@@ -186,7 +189,7 @@ func _cancel_moved_pointer(id: String, viewport_point: Vector2) -> void:
 	if _candidate.get("id") != id or not _candidate.has("origin"): return
 	var point := get_global_transform_with_canvas().affine_inverse() * viewport_point
 	if point.distance_to(_candidate.origin) > POINTER_SLOP or not Rect2(Vector2.ZERO, size).has_point(point):
-		_candidate.clear()
+		_candidate = {}
 
 
 func _pointer_canceled(event: InputEvent) -> bool:

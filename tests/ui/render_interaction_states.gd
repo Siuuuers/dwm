@@ -53,7 +53,7 @@ func _run() -> void:
 				assert(rail.project(true, false, true, true, true, true, true, true, true))
 				await _settle()
 				var history: Button = rail.get_node("History")
-				var point := viewport.global_canvas_transform * history.get_global_rect().get_center()
+				var point := history.get_global_rect().get_center()
 				var motion := InputEventMouseMotion.new()
 				motion.position = point
 				viewport.push_input(motion, true)
@@ -84,6 +84,13 @@ func _capture(id: String) -> void:
 	await _settle()
 	var history: Button = rail.get_node("History")
 	var image := viewport.get_texture().get_image()
+	if not history.disabled:
+		var point := Vector2i(viewport.global_canvas_transform * history.get_global_transform_with_canvas() * Vector2(7, 32))
+		var pixel := image.get_pixelv(point)
+		var plate := history.get_theme_stylebox("normal" if history._candidate.is_empty() else "pressed") as StyleBoxFlat
+		var expected := plate.bg_color if history._candidate.is_empty() else plate.border_color
+		assert(absf(pixel.r - expected.r) + absf(pixel.g - expected.g) + absf(pixel.b - expected.b) < 0.04,
+			"contact seam paints only during the admitted hold, between the focus outlines")
 	assert(image.save_png(folder.path_join(id + ".png")) == OK)
-	records.append({"id": id, "draw_mode": history.get_draw_mode(), "focused": history.has_focus(),
-		"disabled": history.disabled, "candidate": not history._candidate.is_empty()})
+	records.append({"id": id, "native_draw_mode": history.get_draw_mode(), "focused": history.has_focus(),
+		"disabled": history.disabled, "contact_seam": not history.disabled and not history._candidate.is_empty()})
