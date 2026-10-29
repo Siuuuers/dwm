@@ -1,0 +1,129 @@
+name: Native reading latency diagnostic
+
+on:
+  push:
+    branches: [codex/reading-latency-20261029]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reading-latency-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  measure:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      BASELINE_SHA: 2b58ab1a0d2becac3f91d76ac7a9b25f165b9c96
+      CANDIDATE_SHA: ${{ github.sha }}
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: true
+      - name: Prepare matched source worktrees
+        run: |
+          $ErrorActionPreference = 'Stop'
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git fetch --no-tags --depth=1 origin $env:BASELINE_SHA
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $sources = Join-Path $env:RUNNER_TEMP 'reading-latency-sources'
+          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/reading-latency-comparison'
+          New-Item -ItemType Directory -Force -Path $sources, $output | Out-Null
+          "READING_SOURCES=$sources" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "READING_OUTPUT=$output" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          foreach ($variant in @('baseline', 'candidate')) {
+            $source = Join-Path $sources $variant
+            $revision = if ($variant -eq 'baseline') { $env:BASELINE_SHA } else { $env:CANDIDATE_SHA }
+            git worktree add --detach $source $revision
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            git -C $source update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            foreach ($path in @('tools/testing/Invoke-CloudTests.ps1', 'tools/testing/reading_latency_probe.py', 'tests/integration/test_reading_latency.gd')) {
+              Copy-Item (Join-Path $env:GITHUB_WORKSPACE $path) (Join-Path $source $path) -Force
+            }
+            python (Join-Path $source 'tools/testing/reading_latency_probe.py') --root $source
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            Copy-Item (Join-Path $source '.godot/ci/reading-latency-instrumentation.json') (Join-Path $output "$variant-instrumentation.json")
+          }
+          [ordered]@{
+            baseline = $env:BASELINE_SHA; candidate = $env:CANDIDATE_SHA
+            order = @('baseline', 'candidate', 'candidate', 'baseline')
+            cases = @('dual-100', 'mono-100', 'dual-150', 'mono-150')
+            scope = 'Rendered editor-run native reading on one Windows runner. Identical observation wrappers; independent process/profile per sample. Imports are outside measured spans. OS caches are not cleared. Inclusive nested method spans must not be summed. Diagnostic-only first candidate is an A/A sanity check, not a speedup claim.'
+          } | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $output 'source.json') -Encoding utf8NoBOM
+      - name: Install checksum-pinned Godot
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = Join-Path $env:RUNNER_TEMP 'reading-godot.zip'
+          Invoke-WebRequest 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+          if ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90') { throw 'Godot checksum mismatch.' }
+          $editor = Join-Path $env:RUNNER_TEMP 'reading-godot'
+          Expand-Archive $archive $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          "GODOT_CONSOLE_PATH=$console" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          & $console --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Import both sources outside measured spans
+        timeout-minutes: 12
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($variant in @('baseline', 'candidate')) {
+            $source = Join-Path $env:READING_SOURCES $variant
+            $env:APPDATA = Join-Path $source '.godot/import-user/appdata'
+            $env:LOCALAPPDATA = Join-Path $source '.godot/import-user/localappdata'
+            $env:DWM_TEST_ROOT = Join-Path $source '.godot/import-user/test-root'
+            New-Item -ItemType Directory -Force -Path $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+            $log = Join-Path $env:READING_OUTPUT "$variant-import.log"
+            & $env:GODOT_CONSOLE_PATH --headless --path $source --import --log-file $log
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            if (Select-String $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Import reported script errors.' }
+            git -C $source restore -- project.godot
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+      - name: Measure counterbalanced native journeys
+        timeout-minutes: 25
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($case in @('dual-100', 'mono-100', 'dual-150', 'mono-150')) {
+            $env:DWM_READING_DUAL = if ($case.StartsWith('dual')) { '1' } else { '0' }
+            $env:DWM_READING_TEXT_SIZE = $case.Split('-')[1]
+            $sample = 0
+            foreach ($variant in @('baseline', 'candidate', 'candidate', 'baseline')) {
+              $sample += 1
+              $source = Join-Path $env:READING_SOURCES $variant
+              $capture = Join-Path $env:READING_OUTPUT "$case-$sample-$variant"
+              New-Item -ItemType Directory -Force -Path $capture | Out-Null
+              $env:APPDATA = Join-Path $source '.godot/parent-user/appdata'
+              $env:LOCALAPPDATA = Join-Path $source '.godot/parent-user/localappdata'
+              New-Item -ItemType Directory -Force -Path $env:APPDATA, $env:LOCALAPPDATA | Out-Null
+              $report = Join-Path $source '.godot/ci/reading-latency.json'
+              if (Test-Path $report) { Remove-Item $report }
+              try {
+                & (Join-Path $source 'tools/testing/Invoke-CloudTests.ps1') -Suite reading_latency
+                $result = $LASTEXITCODE
+              } finally {
+                Get-ChildItem (Join-Path $source '.godot/ci') -File | Where-Object { $_.Extension -in @('.png', '.json', '.jsonl', '.xml') } | Copy-Item -Destination $capture
+                Get-ChildItem (Join-Path $source '.godot/phase2r_logs') -Filter 'cloud-reading_latency*' -File | Copy-Item -Destination $capture
+              }
+              if ($result -ne 0) { exit $result }
+              if (-not (Test-Path $report)) { throw 'Reading latency report missing.' }
+            }
+          }
+      - name: Upload completed samples and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reading-latency-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/reading-latency-comparison/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
