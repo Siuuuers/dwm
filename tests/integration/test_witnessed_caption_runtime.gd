@@ -2229,6 +2229,7 @@ func test_dual_caption_uses_native_line_spacing_at_every_text_size() -> void:
 	for percent: int in [100, 125, 150]:
 		for large: bool in [false, true]:
 			assert_true(caption.configure_presentation("en", percent, "AfterHours", false, "standard", large))
+			caption.call("_layout_stack")
 			reference.text = copy
 			await _settle()
 			var one_line: int = reference.get_content_height()
