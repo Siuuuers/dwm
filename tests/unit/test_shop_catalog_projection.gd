@@ -88,17 +88,18 @@ func test_sold_out_item_stays_in_its_fixed_slot() -> void:
 
 func test_rejects_contradictory_maximum_but_accepts_unaffordable_available() -> void:
 	var rows := _valid_rows()
-	rows[0].available = false
+	var crystal_index := ORDER.find("crystal_stutters")
+	rows[crystal_index].available = false
 	assert_eq(CATALOG_PROJECTION.project(rows).code, "invalid_legal_max")
+	rows[crystal_index].available = true
+	rows[crystal_index].legal_max = 0
+	var projected: Dictionary = CATALOG_PROJECTION.project(rows)
+	assert_true(projected.ok)
+	if projected.ok: assert_eq(projected.value[crystal_index].legal_max, 0)
 
 func test_maximum_cannot_overflow_exact_currency_total() -> void:
 	var rows := _valid_rows()
 	rows[0].legal_max = 9223372036854775807
-	assert_eq(CATALOG_PROJECTION.project(rows).code, "invalid_legal_max")
-	rows[0].available = true
-	rows[0].legal_max = 0
-	assert_true(CATALOG_PROJECTION.project(rows).ok)
-	rows[5].legal_max = 0
 	assert_eq(CATALOG_PROJECTION.project(rows).code, "invalid_legal_max")
 
 

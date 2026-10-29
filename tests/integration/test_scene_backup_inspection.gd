@@ -472,7 +472,7 @@ func test_old_content_autosave_backup_rolls_back_exact_bytes_and_allows_retry() 
 	var captured: Dictionary = checkpoint._capture_storage_backup("autosave.json", validated_texts)
 	assert_true(captured.ok, str(captured))
 	if not captured.ok: return
-	var descriptor: Dictionary = captured.value.descriptor
+	var descriptor: Dictionary = captured.value
 	assert_eq(descriptor.validated_text, old_text)
 	assert_eq(descriptor.sha256, old_text.sha256_text())
 	assert_eq(FileAccess.get_file_as_string(path), old_text, "admission does not migrate source bytes on disk")

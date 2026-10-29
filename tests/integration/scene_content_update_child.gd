@@ -270,6 +270,13 @@ func load_content_update() -> void:
 				"board transfer starts at the retained saved cue, without a recovery rewind")
 		if not await _verify_board_continuation(proof): return
 	await _screenshot("content-update-" + case_id + "-loaded")
+	var host: Control = get_tree().current_scene
+	if host.is_computer_open():
+		# The computer retains the board while its overlay disables the reading rail.
+		await _click(_controls(host, "CheckComputer"))
+		assert_false(host.is_computer_open(), "close the computer before native Save")
+		assert_false(bridge.is_computer_caption_held())
+		if host.is_computer_open(): return
 	if not await _save_partner(3): return
 	var persisted: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_3.json"))
 	if not _ok(persisted): return
