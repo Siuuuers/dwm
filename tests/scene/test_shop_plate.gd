@@ -191,7 +191,7 @@ func test_enlarged_japanese_coin_metadata_fits_the_pinned_band() -> void:
 					row.legal_max = 0
 				f.shop.configure_shop(f.rows, "ja", 150, large)
 			await _settle()
-			f.shop.next_button.pressed.emit()
+			f.shop.cards.debug_key.grab_focus()
 			await _settle()
 			assert_true(f.shop.last_result.ok, "Japanese coin metadata remains visible at full text size.")
 			assert_eq(f.shop.selected_id, "debug_key")
@@ -331,22 +331,34 @@ func test_failed_snapshot_returns_owned_focus_to_home() -> void:
 	await _settle()
 	assert_true(f.home.has_focus())
 
-func test_held_page_button_is_cancelled_by_a_new_snapshot() -> void:
+func test_disabled_next_cannot_hold_or_navigate_across_a_new_snapshot() -> void:
 	var f := _fixture()
 	await _settle()
-	f.shop.next_button.grab_focus()
-	var held := InputEventKey.new()
-	held.keycode = KEY_ENTER
+	assert_eq(f.shop.page_count, 1)
+	assert_true(f.shop.next_button.disabled)
+	assert_eq(f.shop.next_button.focus_mode, Control.FOCUS_NONE)
+	var activations: Array = []
+	f.shop.next_button.pressed.connect(func(): activations.append(true))
+	var point: Vector2 = f.shop.next_button.get_global_transform_with_canvas() * (f.shop.next_button.size / 2.0)
+	var held := InputEventMouseButton.new()
+	held.button_index = MOUSE_BUTTON_LEFT
+	held.position = point
 	held.pressed = true
-	get_viewport().push_input(held)
+	get_viewport().push_input(held, true)
 	await _settle()
+	assert_false(f.shop.next_button.is_pressed())
+	assert_true(f.shop.cards.crystal_stutters.has_focus())
 	f.shop.configure_shop(f.rows)
 	await _settle()
-	var released := InputEventKey.new()
-	released.keycode = KEY_ENTER
-	get_viewport().push_input(released)
+	var released := InputEventMouseButton.new()
+	released.button_index = MOUSE_BUTTON_LEFT
+	released.position = point
+	get_viewport().push_input(released, true)
 	await _settle()
-	assert_eq(f.shop.page_index, 0, "An old page press cannot act on the new projection.")
+	assert_true(activations.is_empty(), "Disabled navigation never fabricates an activation.")
+	assert_eq(f.shop.page_index, 0)
+	assert_eq(f.shop.selected_id, "crystal_stutters")
+	assert_true(f.shop.next_button.disabled)
 
 func test_right_edge_without_an_inspector_action_is_a_deliberate_noop() -> void:
 	var f := _fixture()
@@ -533,30 +545,37 @@ func test_modal_custody_defers_reconstruction_and_rejects_synthetic_lower_action
 	assert_eq(f.shop._percent,150)
 	assert_true(f.shop.can_return_home())
 
-func test_owner_snapshot_cancels_held_native_page_contact_and_provider_failure_is_recoverable() -> void:
+func test_owner_snapshot_cancels_held_native_card_contact_and_provider_failure_is_recoverable() -> void:
 	var f := _fixture()
 	await _settle()
 	var provider := CatalogProvider.new()
 	provider.rows = f.rows
 	assert_true(f.shop.configure_catalog(provider).ok)
 	await _settle()
-	f.shop.next_button.grab_focus()
+	var activations: Array = []
+	f.shop.cards.crystal_stutters.pressed.connect(func(): activations.append(true))
+	f.shop.cards.crystal_stutters.grab_focus()
 	var held := InputEventKey.new()
 	held.keycode = KEY_ENTER
 	held.physical_keycode = KEY_ENTER
 	held.pressed = true
 	get_viewport().push_input(held)
 	await _settle()
-	assert_true(f.shop.next_button.is_pressed())
+	assert_true(f.shop.cards.crystal_stutters.is_pressed())
 	assert_false(f.shop.can_return_home())
+	provider.rows[0].available = false
 	provider.rows[0].legal_max = 0
 	provider.catalog_changed.emit()
 	await _settle()
+	f.shop.cards.crystal_stutters.pressed.connect(func(): activations.append(true))
+	assert_false(f.shop.cards.crystal_stutters.is_pressed())
 	var released := InputEventKey.new()
 	released.keycode = KEY_ENTER
 	released.physical_keycode = KEY_ENTER
 	get_viewport().push_input(released)
 	await _settle()
+	assert_true(activations.is_empty(), "Snapshot refresh cancels the old held card activation.")
+	assert_eq(f.shop.selected_id, "crystal_stutters")
 	assert_eq(f.shop.page_index,0)
 	provider.failed = true
 	provider.catalog_changed.emit()
