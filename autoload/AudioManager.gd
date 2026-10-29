@@ -43,6 +43,7 @@ var _semantic := {
 var _records := {&"music": {}, &"ambience": {}}
 var _active_players := {&"music": &"MusicA", &"ambience": &"AmbienceA"}
 var _settings := {}
+var _scene_streams: Dictionary = {}
 var _pool_play_sequence := {&"SFX": {}, &"UI": {}, &"Voice": {}}
 var _play_sequence := 0
 var _restore_backup := {}
@@ -229,9 +230,13 @@ func play_sfx(cue_id: String, context: Dictionary = {}) -> Dictionary:
 	if not resolved.get("ok", false):
 		return resolved
 	var record: Dictionary = resolved["value"]
+	return _play_cue(cue_id, record)
+
+
+func _play_cue(cue_id: String, record: Dictionary, stream: AudioStream = null) -> Dictionary:
 	if not _pause_handle.is_empty() and record["bus"] != &"UI":
 		return _failure(&"audio_suspended")
-	var loaded: Dictionary = _playback_port.call(&"load_stream", record["path"])
+	var loaded: Dictionary = {"ok": true, "value": stream} if stream != null else _playback_port.call(&"load_stream", record["path"])
 	if not loaded.get("ok", false):
 		return _warn_missing(cue_id)
 	var captured: Dictionary = _playback_port.call(&"capture_runtime")
@@ -257,7 +262,7 @@ func play_sfx(cue_id: String, context: Dictionary = {}) -> Dictionary:
 	for operation in [
 		[&"stop", [player_id]],
 		[&"assign_stream", [player_id, loaded["value"]]],
-		[&"set_player_db", [player_id, 0.0]],
+		[&"set_player_db", [player_id, float(record.get("gain_db", 0.0))]],
 		[&"play", [player_id]],
 	]:
 		var result: Dictionary = _playback_port.callv(operation[0], operation[1])
@@ -368,10 +373,17 @@ func _prepare_scene_output(snapshot: Dictionary) -> Dictionary:
 	prepared["stream"] = null
 	prepared["missing_media"] = false
 	if prepared.record == null: return {"ok": true, "value": prepared}
-	var asset: Dictionary = prepared.record.asset
+	var media := _prepare_scene_asset(prepared.record.asset)
+	if not media.ok: return media
+	prepared.merge(media.value, true)
+	return {"ok": true, "value": prepared}
+
+
+func _prepare_scene_asset(asset: Dictionary) -> Dictionary:
+	var key: String = asset.path + ":" + asset.sha256
+	if _scene_streams.has(key): return {"ok": true, "value": _scene_streams[key]}
 	if not FileAccess.file_exists(asset.path):
-		prepared.missing_media = true
-		return {"ok": true, "value": prepared}
+		return {"ok": true, "value": {"stream": null, "missing_media": true}}
 	if FileAccess.get_sha256(asset.path) != asset.sha256:
 		return _failure(&"scene_audio_asset_digest_mismatch")
 	var loaded: Dictionary = _playback_port.call(&"load_stream", asset.path)
@@ -381,35 +393,61 @@ func _prepare_scene_output(snapshot: Dictionary) -> Dictionary:
 	var length: float = stream.get_length()
 	if not is_finite(length) or absf(length - float(asset.duration_ms) / 1000.0) > 0.001:
 		return _failure(&"scene_audio_duration_mismatch")
-	prepared.stream = stream
-	return {"ok": true, "value": prepared}
+	_scene_streams[key] = {"stream": stream, "missing_media": false}
+	return {"ok": true, "value": _scene_streams[key]}
 
 
-func prepare_scene_admission(context: Dictionary) -> Dictionary:
+func play_scene_sfx(asset_id: String) -> Dictionary:
+	if not _initialized: return _failure(&"not_initialized")
+	if _fatal: return _failure(&"audio_runtime_indeterminate")
+	if not _pause_handle.is_empty(): return _failure(&"audio_suspended")
+	var installed := _installed_scene_registration()
+	if not installed.ok: return installed
+	for asset: Dictionary in installed.value.audio_catalogue.assets:
+		if asset.asset_id != asset_id: continue
+		var prepared := _prepare_scene_asset(asset)
+		if not prepared.ok: return prepared
+		if prepared.value.missing_media: return _warn_missing(asset_id)
+		# The shared imported resource may loop for a music plan. A one-shot owns
+		# its non-looping copy and must never alter another player's stream.
+		var stream: AudioStream = prepared.value.stream.duplicate()
+		if stream is AudioStreamWAV: stream.loop_mode = AudioStreamWAV.LOOP_DISABLED
+		elif stream is AudioStreamOggVorbis: stream.loop = false
+		elif stream is AudioStreamMP3: stream.loop = false
+		return _play_cue(asset_id, {"path": asset.path, "bus": &"SFX",
+			"gain_db": asset.get("gain_db", 0.0)}, stream)
+	return _failure(&"unknown_audio_cue")
+
+
+func prepare_scene_admission(context: Dictionary, fade_seconds: float = 0.0) -> Dictionary:
+	if not is_finite(fade_seconds) or fade_seconds < 0.0: return _failure(&"invalid_scene_audio_fade")
 	if not _initialized: return _failure(&"not_initialized")
 	if _fatal: return _failure(&"audio_runtime_indeterminate")
 	var prepared: Dictionary = _prepare_scene_output(context)
 	if not prepared.get("ok", false): return prepared
 	# Keep the handoff detached. Re-resolve against installed definitions at apply;
 	# neither caller-provided streams nor offsets can override the catalogue.
-	return {"ok": true, "code": &"ok", "value": {"snapshot": context.duplicate(true)}}
+	return {"ok": true, "code": &"ok", "value": {"snapshot": context.duplicate(true), "fade_seconds": fade_seconds}}
 
 
 func apply_scene_admission(plan: Dictionary) -> Dictionary:
 	if not _initialized: return _failure(&"not_initialized")
 	if _fatal: return _failure(&"audio_runtime_indeterminate")
 	if not _pause_handle.is_empty(): return _failure(&"audio_suspended")
-	if plan.size() != 1 or not plan.get("snapshot") is Dictionary:
+	if not plan.get("snapshot") is Dictionary:
 		return _failure(&"invalid_scene_audio_plan")
 	var resolved: Dictionary = _resolve_scene_snapshot(plan.snapshot)
 	if not resolved.get("ok", false): return resolved
-	if _semantic == plan.snapshot:
+	if _semantic == plan.snapshot or (resolved.value.inline_audio and _semantic.get("kind") == "scene_audio" \
+			and _semantic.get("registration_sha256") == plan.snapshot.registration_sha256 \
+			and _semantic.get("selection") == plan.snapshot.selection):
+		_semantic = plan.snapshot.duplicate(true)
 		return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true), "unchanged": true}
 	var prepared: Dictionary = _prepare_scene_output(plan.snapshot)
 	if not prepared.get("ok", false): return prepared
 	var captured: Dictionary = capture_restore_state()
 	if not captured.get("ok", false): return captured
-	var applied: Dictionary = _install_scene_output(prepared.value, false)
+	var applied: Dictionary = _install_scene_output(prepared.value, false, float(plan.get("fade_seconds", 0.0)))
 	if not applied.get("ok", false):
 		var compensated: Dictionary = rollback_restore_silent(captured.value)
 		return applied if compensated.get("ok", false) else compensated
@@ -417,17 +455,22 @@ func apply_scene_admission(plan: Dictionary) -> Dictionary:
 
 
 ## Caller owns the physical compensation capsule for this complete operation.
-func _install_scene_output(prepared: Dictionary, restoring: bool) -> Dictionary:
+func _install_scene_output(prepared: Dictionary, restoring: bool, fade_seconds: float = 0.0) -> Dictionary:
+	if prepared.inline_audio and not restoring and (prepared.record == null or prepared.get("channel") == &"music"):
+		return _transition_scene_music(prepared, fade_seconds)
 	var operations: Array = [[&"kill_tween", [&"music"]], [&"kill_tween", [&"ambience"]]]
 	for player: StringName in MUSIC_PLAYERS + AMBIENCE_PLAYERS:
 		operations.append([&"stop_and_clear", [player]])
 		operations.append([&"set_player_db", [player, SILENCE_DB]])
+	if restoring:
+		for player: StringName in SFX_PLAYERS + VOICE_PLAYERS:
+			operations.append([&"stop_and_clear", [player]])
 	var channel: StringName = prepared.get("channel", &"ambience")
 	if prepared.stream != null:
 		var position: float = prepared.load_seconds if restoring else prepared.entrance_seconds
 		var target_player: StringName = MUSIC_PLAYERS[0] if channel == &"music" else AMBIENCE_PLAYERS[0]
 		operations.append([&"assign_stream", [target_player, prepared.stream]])
-		operations.append([&"set_player_db", [target_player, 0.0]])
+		operations.append([&"set_player_db", [target_player, float(prepared.record.asset.get("gain_db", 0.0))]])
 		operations.append([&"play", [target_player, position]])
 	for operation: Array in operations:
 		var result: Dictionary = _playback_port.callv(operation[0], operation[1])
@@ -438,6 +481,41 @@ func _install_scene_output(prepared: Dictionary, restoring: bool) -> Dictionary:
 	_active_players = {&"music": MUSIC_PLAYERS[0], &"ambience": AMBIENCE_PLAYERS[0]}
 	if prepared.missing_media:
 		_warn_missing(str(prepared.record.asset.asset_id))
+	return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true)}
+
+
+## Two fixed music players own the audible transition; selection changes now,
+## independently of tween completion. A later command retires the previous tween.
+func _transition_scene_music(prepared: Dictionary, fade_seconds: float) -> Dictionary:
+	var operations: Array = [[&"kill_tween", [&"music"]], [&"kill_tween", [&"ambience"]]]
+	for player: StringName in AMBIENCE_PLAYERS:
+		operations.append([&"stop_and_clear", [player]])
+	var old_player: StringName = _active_players[&"music"]
+	var new_player: StringName = MUSIC_PLAYERS[1] if old_player == MUSIC_PLAYERS[0] else MUSIC_PLAYERS[0]
+	var tracks: Array[Dictionary] = []
+	if prepared.stream != null:
+		var gain_db := float(prepared.record.asset.get("gain_db", 0.0))
+		operations.append([&"stop_and_clear", [new_player]])
+		operations.append([&"assign_stream", [new_player, prepared.stream]])
+		operations.append([&"set_player_db", [new_player, SILENCE_DB if fade_seconds > 0.0 else gain_db]])
+		operations.append([&"play", [new_player, prepared.entrance_seconds]])
+		tracks.append({"player_id": new_player, "from_db": SILENCE_DB, "to_db": gain_db})
+		tracks.append({"player_id": old_player, "to_db": SILENCE_DB, "stop_on_complete": true})
+		if fade_seconds <= 0.0: operations.append([&"stop_and_clear", [old_player]])
+	else:
+		for player: StringName in MUSIC_PLAYERS:
+			tracks.append({"player_id": player, "to_db": SILENCE_DB, "stop_on_complete": true})
+			if fade_seconds <= 0.0: operations.append([&"stop_and_clear", [player]])
+	if fade_seconds > 0.0:
+		operations.append([&"create_parallel_tween", [&"music", tracks, fade_seconds]])
+	for operation: Array in operations:
+		var result: Dictionary = _playback_port.callv(operation[0], operation[1])
+		if not result.ok: return result
+	_semantic = prepared.snapshot.duplicate(true)
+	_records = {&"music": {}, &"ambience": {}}
+	if prepared.record != null: _records[&"music"] = prepared.record.duplicate(true)
+	if prepared.stream != null: _active_players[&"music"] = new_player
+	if prepared.missing_media: _warn_missing(str(prepared.record.asset.asset_id))
 	return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true)}
 
 

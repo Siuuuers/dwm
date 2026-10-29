@@ -1237,7 +1237,7 @@ static func _validate_current_scene_frame(frame: Dictionary, tables: Dictionary)
 			return _fail(&"scene_challenge_state_invalid", "active Challenge binding is malformed")
 	return {"ok": true}
 
-## Audio is derived for the live participant, never restored from player metadata.
+## Save only the selected plan label; asset metadata stays with authored content.
 ## Terminal snapshots retain the source admission and therefore its soundtrack.
 static func derive_scene_audio_context(snapshot: Dictionary, bundle: Dictionary = {}) -> Dictionary:
 	if bundle.is_empty():
@@ -1256,6 +1256,8 @@ static func derive_scene_audio_context(snapshot: Dictionary, bundle: Dictionary 
 	var owner: Script = load("res://scripts/data/AudioManifest.gd")
 	if owner == null or not owner.has_method("make_scene_context"):
 		return _fail(&"scene_audio_owner_unavailable", "canonical audio owner required")
+	if snapshot.scene.has("music_plan_id"):
+		return owner.call("make_named_presentation_context", bundle, snapshot.scene.music_plan_id, snapshot.scene.active_occurrence_id)
 	if not current.value.is_empty():
 		return owner.call("make_named_presentation_context", bundle,
 			current.value.audio_plan_id, snapshot.scene.active_occurrence_id)
@@ -1265,6 +1267,9 @@ static func derive_scene_audio_context(snapshot: Dictionary, bundle: Dictionary 
 static func _scene_current_keys(scene: Variant) -> bool:
 	var keys := ["registration_sha256", "active_occurrence_id", "entry_id", "notification", "active_challenge", "return_to"]
 	if scene is Dictionary and scene.has("presentation"): keys.append("presentation")
+	if scene is Dictionary and scene.has("music_plan_id"):
+		if not scene.music_plan_id is String: return false
+		keys.append("music_plan_id")
 	return _scene_keys(scene, keys)
 
 

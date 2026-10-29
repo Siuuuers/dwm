@@ -1,0 +1,17 @@
+label scene.test.a
+# audio music TEST.inline.a
+# audio sfx TEST.inline.hit
+\First audio caption. #id:line.scene.test.a.one
+# audio music TEST.inline.b fade=10
+# audio sfx TEST.inline.hit
+\Crossfade caption. #id:line.scene.test.a.two
+# audio music stop fade=10
+# audio sfx TEST.inline.hit
+\Silence selected during fade. #id:line.scene.test.a.three
+label scene.test.a.loop
+# audio music TEST.inline.a
+# audio sfx TEST.inline.hit
+\A later encounter. #id:line.scene.test.a.four
+# audio music TEST.inline.a
+\Same music keeps playing. #id:line.scene.test.a.five
+jump scene.test.a.loop

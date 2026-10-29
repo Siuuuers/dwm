@@ -254,3 +254,23 @@ func test_named_presentation_selects_existing_plan_without_entry_binding() -> vo
 	assert_eq(missing.details.audio_plan_id, "missing")
 	assert_true(str(missing.message).contains("missing"))
 	assert_false(MANIFEST.make_named_presentation_context(registration, "TEST.audio.01", "").ok)
+
+
+func test_inline_catalogue_supports_story_assets_gain_and_music_start_on_load() -> void:
+	var registration := _registration()
+	var catalogue: Dictionary = registration.audio_catalogue
+	catalogue.schema_version = 3
+	catalogue.assets[0].path = "res://audio/sfx/door_knock.ogg"
+	catalogue.assets[0]["gain_db"] = -4.0
+	catalogue.plans[0].music = catalogue.plans[0].ambience_asset_id
+	catalogue.plans[0].ambience_asset_id = null
+	assert_true(_valid(catalogue))
+	var context := MANIFEST.make_named_presentation_context(registration, "TEST.audio.01", "admission.inline")
+	assert_true(context.ok)
+	var resolved := MANIFEST.resolve_scene_context(context.value, registration)
+	assert_true(resolved.ok)
+	assert_true(resolved.value.inline_audio)
+	assert_eq(resolved.value.load_seconds, resolved.value.entrance_seconds)
+	assert_eq(resolved.value.record.asset.gain_db, -4.0)
+	catalogue.assets[0].gain_db = "loud"
+	assert_false(_valid(catalogue), "manually edited gain must be numeric")

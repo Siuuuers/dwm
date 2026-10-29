@@ -1111,9 +1111,47 @@ func _ensure_runtime_adapter(dialogic: Node) -> Dictionary:
 	return {"ok": true}
 
 
+var _scene_control_audio_encounter := ""
+
+func _on_scene_audio_cues_requested(cues: Array, suppress_sfx: bool) -> void:
+	var game := get_node_or_null("/root/GameState")
+	if game == null: return
+	var applied: Dictionary = game.apply_scene_audio_cues(cues, suppress_sfx or _next_admitting)
+	if not applied.ok: _runtime_adapter.halt_with_error(applied)
+
+func apply_scene_arrival_audio(cues: Array) -> Dictionary:
+	if cues.is_empty(): return {"ok": true}
+	var runtime := get_node_or_null("/root/Dialogic")
+	return get_node("/root/GameState").apply_scene_audio_cues(cues,
+		_next_admitting or (runtime != null and runtime.Inputs.auto_skip.enabled))
+
+## A held control is crossed by its admitted command, not by native playback.
+## Retain one activation key so a retry cannot repeat its one-shot sounds.
+func apply_scene_control_audio(marker_id: String) -> Dictionary:
+	if not has_reading_session() or _reading_session.family != "scene": return {"ok": true}
+	var index: int = _reading_session.scene_index + (1 if _reading_session.boundary == "line" else 0)
+	var nodes: Array = _reading_session._scene_nodes[_reading_session.latest_entry]
+	while index < nodes.size() and nodes[index].kind == "control":
+		if nodes[index].marker_id == marker_id: break
+		index += 1
+	if index >= nodes.size() or nodes[index].get("marker_id") != marker_id: return {"ok": true}
+	var cues: Array = nodes[index].get("audio_cues", [])
+	if cues.is_empty(): return {"ok": true}
+	var frontier: Dictionary = _runtime_adapter.capture_reading_frontier()
+	if not frontier.ok: return frontier
+	var encounter: String = _reading_session.scene_occurrence + ":" + str(frontier.value.publication_id) + ":" + marker_id
+	if encounter == _scene_control_audio_encounter: return {"ok": true}
+	var game := get_node_or_null("/root/GameState")
+	var runtime := get_node_or_null("/root/Dialogic")
+	var applied: Dictionary = game.apply_scene_audio_cues(cues, _next_admitting or (runtime != null and runtime.Inputs.auto_skip.enabled))
+	if applied.ok: _scene_control_audio_encounter = encounter
+	return applied
+
 func _connect_runtime_adapter(adapter: RefCounted) -> void:
 	_runtime_adapter = adapter
 	_connect_speech_runtime()
+	if adapter.has_signal("scene_audio_cues_requested") and not adapter.is_connected("scene_audio_cues_requested", _on_scene_audio_cues_requested):
+		adapter.connect("scene_audio_cues_requested", _on_scene_audio_cues_requested)
 	if adapter.has_signal("reading_frontier_restored") and not adapter.is_connected("reading_frontier_restored", _on_reading_frontier_restored):
 		adapter.connect("reading_frontier_restored", _on_reading_frontier_restored)
 	if adapter.has_signal("caption_publication_recorded") and not adapter.is_connected("caption_publication_recorded", _on_reading_publication):
@@ -3442,6 +3480,11 @@ func _start_scene_restore_native(operation_id: String) -> void:
 	if _scene_restore.get("terminal", false):
 		_start_terminal_restore_native()
 		return
+	var arrival_audio: Dictionary = apply_scene_arrival_audio(_scene_restore.get("arrival_audio_cues", []))
+	if not arrival_audio.ok:
+		_fail_scene_activation(arrival_audio)
+		return
+	_scene_restore.erase("arrival_audio_cues")
 	_scene_restore.native_started = true
 	_scene_restore.in_call = true
 	var installed: Dictionary = _runtime_adapter.restore_scene_frontier(_scene_restore.candidate,
@@ -4643,6 +4686,11 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 	if departing:
 		var candidate: RefCounted = _scene_playable.candidate
 		var source_token: RefCounted = _scene_playable.native_token
+		var arrival_cues: Array = candidate._scene_nodes[candidate.latest_entry][checkpoint.reading_session.program_index].get("audio_cues", [])
+		var runtime := get_node_or_null("/root/Dialogic")
+		var audio: Dictionary = get_node("/root/GameState").apply_scene_audio_cues(arrival_cues,
+			_next_admitting or (runtime != null and runtime.Inputs.auto_skip.enabled))
+		if not audio.ok: return {"ok": false, "code": audio.code, "committed": true}
 		_reading_session = candidate
 		var continued: Dictionary = _runtime_adapter.install_scene_continuation(candidate, checkpoint, source_token)
 		if not continued.get("ok", false):

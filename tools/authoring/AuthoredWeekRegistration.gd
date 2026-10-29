@@ -31,7 +31,6 @@ static func prepare() -> Dictionary:
 	bundle.scene_programme.entries = []
 	bundle.scene_programme["story_days"] = {}
 	bundle.targets = []
-	bundle.audio_catalogue.bindings = []
 	bundle.challenges = source.challenges.duplicate(true)
 	bundle.board_profiles = [{"board_profile_id": "week.canonical_solo", "board_kind": "solo_challenge",
 		"difficulty_id": "canonical_solo", "width": 18, "height": 18, "base_mine_count": 36,
@@ -49,6 +48,9 @@ static func prepare() -> Dictionary:
 	var ids: Array = []
 	var compiled_entries := {}
 	for spec: Dictionary in source.entries: ids.append(spec.entry_id)
+	var audio := prepare_audio_catalogue(source.get("audio"), bundle.audio_catalogue, ids, source.first_entry_id)
+	if not audio.ok: return audio
+	bundle.audio_catalogue = audio.value
 	for spec: Dictionary in source.entries:
 		var id: String = spec.entry_id
 		if typeof(spec.get("story_day")) != TYPE_INT or spec.story_day < 1 or spec.story_day > 7:
@@ -81,7 +83,6 @@ static func prepare() -> Dictionary:
 			"content_sha256": compiled.value.content_sha256, "program_sha256": compiled.value.program_sha256, "markers": spec.markers})
 		bundle.targets.append({"target_id": "target." + id, "target": {"kind": "scene",
 			"entry_id": id, "label": id, "content_version": 1, "program_sha256": compiled.value.program_sha256}})
-		bundle.audio_catalogue.bindings.append({"entry_id": id, "plan_id": BASE.MUSIC_PLAN_ID})
 	bundle.entry_manifest.entry_count = ids.size()
 	for rows: Array in [bundle.entry_manifest.entries, bundle.context_registry.schemas, bundle.caption_registry.entries, bundle.scene_programme.entries]:
 		rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.entry_id < b.entry_id)
@@ -97,6 +98,62 @@ static func prepare() -> Dictionary:
 	if not library.ok: return library
 	return {"ok": true, "value": {"registration": bundle, "dialogue_library": library.value,
 		"first_target_id": "target." + source.first_entry_id}}
+
+
+## Export boundary: authors supply stable IDs and files; hashes, durations and
+## catalogue records are generated once. Music/SFX placements live only in DTL.
+static func prepare_audio_catalogue(authored: Variant, fallback: Dictionary,
+		entry_ids: Array, first_entry_id: String) -> Dictionary:
+	var owner := preload("res://scripts/data/AudioManifest.gd")
+	var catalogue: Dictionary = fallback.duplicate(true)
+	catalogue.schema_version = 3
+	catalogue.bindings = []
+	var initial_music: String = BASE.MUSIC_PLAN_ID
+	if authored != null:
+		if not authored is Dictionary or not authored.get("music", []) is Array \
+				or not authored.get("sfx", []) is Array or not authored.get("initial_music", "") is String:
+			return {"ok": false, "code": &"audio_authoring_invalid"}
+		for key: String in authored:
+			if key not in ["music", "sfx", "initial_music"]:
+				return {"ok": false, "code": &"audio_authoring_invalid", "reference": key}
+		initial_music = authored.get("initial_music", "")
+		catalogue.assets = []
+		catalogue.plans = []
+		for kind: String in ["music", "sfx"]:
+			for row: Variant in authored.get(kind, []):
+				if not row is Dictionary or not owner._scene_id(row.get("id")) \
+						or row.id == "stop" or not owner._scene_path(row.get("path"), 3):
+					return {"ok": false, "code": &"audio_authoring_invalid"}
+				for key: String in row:
+					if key not in ["id", "path", "gain_db"] and not (kind == "music" and key == "entrance_ms"):
+						return {"ok": false, "code": &"audio_authoring_invalid", "reference": key}
+				if not FileAccess.file_exists(row.path):
+					return {"ok": false, "code": &"audio_authoring_media_missing", "reference": row.path}
+				var stream: AudioStream = ResourceLoader.load(row.path) as AudioStream
+				if stream == null or not is_finite(stream.get_length()) or stream.get_length() <= 0.0:
+					return {"ok": false, "code": &"audio_authoring_media_invalid", "reference": row.path}
+				if kind == "music":
+					var looping: bool = (stream is AudioStreamOggVorbis and stream.loop) \
+							or (stream is AudioStreamWAV and stream.loop_mode != AudioStreamWAV.LOOP_DISABLED) \
+							or (stream is AudioStreamMP3 and stream.loop)
+					if not looping: return {"ok": false, "code": &"audio_authoring_music_not_looping", "reference": row.path}
+				var asset := {"asset_id": row.id, "path": row.path, "sha256": FileAccess.get_sha256(row.path),
+					"duration_ms": roundi(stream.get_length() * 1000.0)}
+				if row.has("gain_db"): asset["gain_db"] = row.gain_db
+				catalogue.assets.append(asset)
+				if kind == "music":
+					var entrance: Variant = row.get("entrance_ms", 0)
+					catalogue.plans.append({"plan_id": row.id, "revision": 1, "variant_id": "base",
+						"ambience_asset_id": null, "music": row.id, "entrance_ms": entrance,
+						"load_anchor_id": row.id + ".start", "load_anchor_ms": entrance,
+						"authorial": true, "essential": false, "missing_media": "silence", "cues": []})
+		catalogue.assets.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.asset_id < b.asset_id)
+		catalogue.plans.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.plan_id < b.plan_id)
+	for id: String in entry_ids:
+		catalogue.bindings.append({"entry_id": id,
+			"plan_id": initial_music if id == first_entry_id and not initial_music.is_empty() else null})
+	catalogue.bindings.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.entry_id < b.entry_id)
+	return owner.validate_scene_catalogue(catalogue, entry_ids)
 
 ## Authors select entry groups, never copy dialogue, revisions or thought roles.
 ## The native compiler and freshly rebuilt caption registry supply those facts.

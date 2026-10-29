@@ -4258,6 +4258,12 @@ func prepare_scene_new_run_snapshot_input(allocation_candidate: Dictionary, entr
 		"active_occurrence_id": occurrence, "entry_id": entry_id,
 		"notification": {}, "active_challenge": {}, "return_to": null}
 	if not presentation.value.state.is_empty(): scene["presentation"] = presentation.value.state
+	var registration := _SCENE_MANIFEST.scene_contract_tables()
+	if not registration.ok: return registration
+	if registration.bundle.get("audio_catalogue", {}).get("schema_version") == 3:
+		var arrival := prepare_scene_audio_arrival(scene, registration.bundle, "", true)
+		if not arrival.ok: return arrival
+		scene["music_plan_id"] = arrival.value.music_plan_id
 	var identity := {}
 	for key: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance",
 			"causal_day_instance_issuer_receipt"]:
@@ -4920,6 +4926,10 @@ func _advance_scene_registered_marker(accept_thought: bool, choice_id: String = 
 		elif accept_thought:
 			return _transaction_failure(&"scene_thought_unavailable", "")
 		return admit_scene_target(_scene_entry_operation.binding.target_id, _scene_entry_operation.binding.trigger_command_id)
+	var pending_audio_marker: Dictionary = _scene_event_bridge.capture_scene_pending_marker()
+	if not pending_audio_marker.ok: return pending_audio_marker
+	var cue_result: Dictionary = _scene_event_bridge.apply_scene_control_audio(pending_audio_marker.value.marker_id)
+	if not cue_result.ok: return cue_result
 	var resolved := capture_resolved_scene_marker()
 	if not resolved.ok: return resolved
 	if not resolved.value.is_empty():
@@ -5118,6 +5128,68 @@ func scene_entry_staging_context(entry_id: String, frame: Dictionary) -> Diction
 	var checked := validate_scene_entry_staging_source(_scene_entry_operation.binding)
 	if not checked.ok: return checked
 	return {"ok": true, "value": _scene_entry_operation.binding.duplicate(true)}
+
+## Authored arrivals are resolved without touching playback. The committed scene
+## stores only this selection, while SFX remain transient forward encounters.
+func prepare_scene_audio_arrival(scene: Dictionary, bundle: Dictionary, label: String,
+		reset_default: bool = false) -> Dictionary:
+	var audio_owner := preload("res://scripts/data/AudioManifest.gd")
+	var context: Dictionary
+	if reset_default and scene.has("presentation"):
+		var presentation := _PRESENTATION_ART.resolve_presentation(scene.presentation.checkpoint_id, scene.presentation.overlays)
+		if not presentation.ok: return presentation
+		context = audio_owner.make_named_presentation_context(bundle, presentation.value.audio_plan_id, scene.active_occurrence_id)
+	elif not reset_default and scene.has("music_plan_id"):
+		context = audio_owner.make_named_presentation_context(bundle, scene.music_plan_id, scene.active_occurrence_id)
+	else:
+		context = audio_owner.make_scene_context(bundle, scene.entry_id, scene.active_occurrence_id)
+	if not context.ok: return context
+	var labels: Array = []
+	var path := ""
+	var markers: Array = []
+	for entry: Dictionary in bundle.entry_manifest.entries:
+		labels.append(entry.entry_id)
+		if entry.entry_id == scene.entry_id: path = entry.locators.en.path
+	for programme: Dictionary in bundle.scene_programme.entries:
+		if programme.entry_id == scene.entry_id: markers = programme.markers
+	if label.is_empty(): label = scene.entry_id
+	var compiled := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd").compile_runtime_scene_programme(path, scene.entry_id, labels, markers)
+	if not compiled.ok: return compiled
+	if not compiled.value.label_nodes.has(label): return _transaction_failure(&"scene_native_target_invalid", label)
+	var cues: Array = compiled.value.nodes[compiled.value.label_nodes[label]].get("audio_cues", [])
+	var base_context: Dictionary = context.value
+	var selected: String = "" if context.value.selection == null else context.value.selection.plan_id
+	for cue: Dictionary in cues:
+		if cue.kind == "music":
+			selected = cue.id
+	context = audio_owner.make_named_presentation_context(bundle, selected, scene.active_occurrence_id)
+	if not context.ok: return context
+	return {"ok": true, "value": {"context": context.value, "base_context": base_context, "music_plan_id": selected,
+		"cues": cues}}
+
+## The compiler has validated these instructions. Execute only a genuine forward
+## encounter; restoration installs its saved selection through the audio participant.
+func apply_scene_audio_cues(cues: Array, suppress_sfx: bool = false) -> Dictionary:
+	if cues.is_empty(): return {"ok": true}
+	var audio := get_node_or_null("/root/AudioManager")
+	if audio == null or _scene_snapshot_references.is_empty(): return _transaction_failure(&"scene_audio_activation_unavailable", "")
+	var registration := _SCENE_MANIFEST.scene_contract_tables()
+	if not registration.ok: return registration
+	for cue: Dictionary in cues:
+		if cue.kind == "sfx":
+			if suppress_sfx: continue
+			var played: Dictionary = audio.play_scene_sfx(cue.id)
+			if not played.ok: return played
+		else:
+			var selected := preload("res://scripts/data/AudioManifest.gd").make_named_presentation_context(
+				registration.bundle, cue.id, _scene_snapshot_references.active_occurrence_id)
+			if not selected.ok: return selected
+			var prepared: Dictionary = audio.prepare_scene_admission(selected.value, cue.fade_seconds)
+			if not prepared.ok: return prepared
+			var applied: Dictionary = audio.apply_scene_admission(prepared.value)
+			if not applied.ok: return applied
+			_scene_snapshot_references["music_plan_id"] = cue.id
+	return {"ok": true}
 
 func capture_scene_entry_audio(binding: Dictionary) -> Dictionary:
 	var checked := validate_scene_entry_staging_source(binding)
@@ -5342,7 +5414,10 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 			parent.erase("registration_sha256")
 			parent.erase("return_to")
 			parent.erase("presentation")
+			parent.erase("music_plan_id")
 			next_scene.return_to = {"parent": parent, "target_id": contact.return_target_id, "contact_event_id": contact_id}
+	if _scene_snapshot_references.has("music_plan_id"):
+		next_scene["music_plan_id"] = _scene_snapshot_references.music_plan_id
 	var occurrence: String = next_scene.active_occurrence_id
 	var presentation := preload("res://scripts/narrative/FrozenPresentationContext.gd").build(next_scene.entry_id,
 		{"entry_id": next_scene.entry_id, "entry_role": "scene", "occurrence_id": occurrence,
@@ -5359,21 +5434,33 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 		"entry_id": next_scene.entry_id, "frame": frame, "binding": binding,
 		"prior_receipts": _command_receipts.duplicate(true), "prior_input": capture_run_snapshot_input(),
 		"recovery": not recovery_trigger.is_empty(), "named_autosave": visual.value.autosave}
-	if registration.bundle.get("schema_version") == 3 and (visual.value.autosave or not next_scene.has("presentation")):
-		var audio_owner: Script = load("res://scripts/data/AudioManifest.gd")
+	if registration.bundle.get("audio_catalogue", {}).get("schema_version") == 3:
+		var arrival := prepare_scene_audio_arrival(next_scene, registration.bundle, target.label, visual.value.autosave)
+		if not arrival.ok: return arrival
+		next_scene["music_plan_id"] = arrival.value.music_plan_id
+		var audio := get_node_or_null("/root/AudioManager")
+		var audio_plan: Dictionary = audio.prepare_scene_admission(arrival.value.base_context)
+		if not audio_plan.ok: return audio_plan
+		_scene_entry_operation["audio_context"] = arrival.value.context
+		_scene_entry_operation["audio_plan"] = audio_plan.value
+		_scene_entry_operation["audio_cues"] = arrival.value.cues
+
+	elif registration.bundle.get("schema_version") == 3 and (visual.value.autosave or not next_scene.has("presentation")):
+		var audio_owner := preload("res://scripts/data/AudioManifest.gd")
 		var audio := get_node_or_null("/root/AudioManager")
 		var selected: Dictionary
 		if next_scene.has("presentation"):
 			var resolved := _PRESENTATION_ART.resolve_presentation(next_scene.presentation.checkpoint_id, next_scene.presentation.overlays)
 			if not resolved.ok: return resolved
-			selected = audio_owner.call("make_named_presentation_context", registration.bundle, resolved.value.audio_plan_id, occurrence)
+			selected = audio_owner.make_named_presentation_context(registration.bundle, resolved.value.audio_plan_id, occurrence)
 		else:
-			selected = audio_owner.call("make_scene_context", registration.bundle, next_scene.entry_id, occurrence)
-		if not selected.get("ok", false): return selected
-		var audio_plan: Dictionary = audio.call("prepare_scene_admission", selected.value)
-		if not audio_plan.get("ok", false): return audio_plan
+			selected = audio_owner.make_scene_context(registration.bundle, next_scene.entry_id, occurrence)
+		if not selected.ok: return selected
+		var audio_plan: Dictionary = audio.prepare_scene_admission(selected.value)
+		if not audio_plan.ok: return audio_plan
 		_scene_entry_operation["audio_context"] = selected.value
 		_scene_entry_operation["audio_plan"] = audio_plan.value
+
 	if not day_plan.value.is_empty():
 		_scene_entry_operation["day_plan"] = day_plan.value.duplicate(true)
 		candidate.lifecycle = day_plan.value.lifecycle.duplicate(true)
@@ -5429,6 +5516,8 @@ func _commit_scene_target_owned() -> Dictionary:
 			return _scene_event_fatal(&"scene_audio_activation_unavailable")
 		var adopted: Dictionary = audio.call("apply_scene_admission", _scene_entry_operation.audio_plan)
 		if not adopted.get("ok", false): return _scene_event_fatal(&"scene_audio_activation_failed")
+	var effects: Dictionary = _scene_event_bridge.apply_scene_arrival_audio(_scene_entry_operation.get("audio_cues", []))
+	if not effects.ok: return _scene_event_fatal(&"scene_audio_activation_failed")
 	var activated: Dictionary = _scene_event_bridge.commit_day_entry(staged)
 	if not activated.get("ok", false): return _scene_event_fatal(&"scene_entry_activation_failed")
 	var renewed: bool = _scene_entry_operation.has("day_plan")

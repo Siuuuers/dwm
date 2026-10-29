@@ -586,7 +586,13 @@ func _prepare_scene_new_run_plans(snapshot: Dictionary, allocation: Dictionary, 
 		profile_material, _scene_new_run_bundle, _identity_issuer, self)
 	if not narrative.get("ok", false): return narrative
 	var plans := {"run": run.value.run_plan, "profile": profile.value.profile_plan, "narrative": narrative.value.narrative_plan}
-	var audio_context := RUN_SNAPSHOT_SCHEMA.derive_scene_audio_context(snapshot, _scene_new_run_bundle)
+	# Creation installs the authored base first; entry cues execute at actual
+	# native activation. The snapshot already records their final selection.
+	var audio_snapshot := snapshot.duplicate()
+	if _scene_new_run_bundle.get("audio_catalogue", {}).get("schema_version") == 3:
+		audio_snapshot.scene = snapshot.scene.duplicate()
+		audio_snapshot.scene.erase("music_plan_id")
+	var audio_context := RUN_SNAPSHOT_SCHEMA.derive_scene_audio_context(audio_snapshot, _scene_new_run_bundle)
 	if not audio_context.ok: return audio_context
 	var inputs := {"desktop_consequence": {"state": snapshot.desktop.consequence},
 		"desktop_board": {"state": snapshot.desktop.board, "schema_version": 9},
