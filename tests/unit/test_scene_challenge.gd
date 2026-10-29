@@ -466,3 +466,24 @@ func test_preparing_frontier_restores_exactly_from_saved_run() -> void:
 	assert_true(f.begin().ok)
 	assert_eq(f.record(), saved)
 	assert_eq(f.attempt().value, {})
+
+func test_beginner_sized_scene_profile_generates_and_restores_its_own_geometry() -> void:
+	var profile: Dictionary = f.authority.bundle.board_profiles[0]
+	profile.width = 8
+	profile.height = 8
+	profile.base_mine_count = 10
+	f.generation.arm_materialize({"schema_version": 1, "width": 8, "height": 8,
+		"mine_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], "mine_count": 10})
+	assert_true(f.recreate_owner().ok)
+	assert_true(f.begin().ok)
+	var started: Dictionary = f.action("start")
+	assert_true(started.ok, str(started))
+	if not started.ok: return
+	assert_eq(f.record().spec.width, 8)
+	assert_eq(f.record().spec.height, 8)
+	assert_eq(f.record().spec.requested_mine_count, 10)
+	assert_true(f.action("reveal", 63).ok)
+	var saved: Dictionary = f.record().duplicate(true)
+	assert_true(f.recreate_owner().ok)
+	assert_true(f.begin().ok)
+	assert_eq(f.record(), saved)

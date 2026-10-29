@@ -173,8 +173,11 @@ func check_geometry(app: Control) -> void:
 		check(not drawer.disabled, "Every drawer remains inspectable regardless of record availability")
 		check(app.get_global_rect().encloses(drawer.get_global_rect().grow(7)), "Drawer outer focus ring stays inside the body")
 	if not app._title_login:
-		check_rect(app.mode_buttons["save"], app, Rect2(16, 16, 96, 64), "Save mode target retained")
-		check_rect(app.mode_buttons["load"], app, Rect2(128, 16, 96, 64), "Load mode target retained")
+		check(app.mode_buttons.save.position == Vector2(16, 16), "Save begins the mode row")
+		check(app.mode_buttons.load.position.x == app.mode_buttons.save.get_rect().end.x + 16, "Mode targets retain spacing after text measurement")
+		for key: Button in app.mode_buttons.values():
+			check(key.size.x >= 96 and key.size.y == 64, "Mode retains minimum target size")
+			check_key_caption(key)
 	for region in [app.info_scroll, app.status_region, app.action_dock]:
 		check(region.position.x == 610 and region.size.x == app.size.x - 624, "One cabinet split owns all inspector widths")
 		check(app.get_global_rect().encloses(region.get_global_rect()), "Inspector region stays inside host")

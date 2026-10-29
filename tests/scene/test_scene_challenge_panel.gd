@@ -177,7 +177,9 @@ func test_started_board_reopens_from_owner_and_fixed_chrome_has_no_start_or_new_
 	assert_eq(_panel.worksheet.grid.projection, before)
 	assert_eq(_port.calls.size(), 1)
 	assert_eq(_panel.size, Vector2(960, 656))
-	assert_eq(_panel.dock.position.y + _panel.dock.size.y, 656.0)
+	assert_lte(_panel.toolbar.position.y + _panel.toolbar.size.y, 656.0)
+	assert_eq(_panel.toolbar.get_child(0), _panel.home_button)
+	assert_eq(_panel.worksheet.view_controls.get_parent(), _panel.toolbar)
 	assert_false(_panel.dock.buttons.has("start"))
 	assert_false(_panel.dock.buttons.has("new_board"))
 
@@ -189,3 +191,16 @@ func test_pause_is_retired_even_after_pull_refusal() -> void:
 	assert_false(_panel.dock.buttons.pause.visible)
 	_panel.dock.action_requested.emit(&"pause")
 	assert_true(_port.calls.is_empty())
+
+func test_shared_toolbar_fits_localized_large_type_and_reconfiguration() -> void:
+	for locale: String in ["en", "zh-HK", "zh-CN", "ja", "ko"]:
+		for percent: int in [100, 125, 150]:
+			assert_true(_panel.configure_scene(locale, percent, true))
+			await get_tree().process_frame
+			await get_tree().process_frame
+			assert_eq(_panel.toolbar.get_child(0), _panel.home_button)
+			assert_eq(_panel.toolbar.get_child(1), _panel.dock.buttons.flag)
+			assert_eq(_panel.toolbar.get_child(2), _panel.dock.buttons.drag)
+			for child: Control in _panel.toolbar.get_children():
+				assert_true(_panel.get_global_rect().encloses(child.get_global_rect()), locale + str(percent) + child.name)
+			assert_true(_panel.toolbar.get_global_rect().encloses(_panel.worksheet.zoom_controls[1].get_global_rect()))

@@ -1285,8 +1285,8 @@ func _observer_receipt(source: Dictionary, kind: String) -> Dictionary:
 		"line_id": source.line_id, "comparison_key": source.comparison_key,
 		"playback_token": _record.physical_token}
 
-func _make_spec(host: String) -> Dictionary:
-	var dimensions: Dictionary=CATALOG.lookup(host)
+func _make_spec(host: String, scene_dimensions: Dictionary = {}) -> Dictionary:
+	var dimensions: Dictionary=CATALOG.lookup(host) if scene_dimensions.is_empty() else _ok(scene_dimensions)
 	if not dimensions.get("ok",false): return dimensions
 	var owned: Dictionary = CAPABILITIES.resolve_owned(_game_state.inventory)
 	if not owned.get("ok", false): return owned
@@ -1709,7 +1709,7 @@ func _scene_start(first_reveal_index: int = -1) -> Dictionary:
 	var selected_result: Dictionary = _scene_board_profile()
 	if not selected_result.get("ok", false): return selected_result
 	var selected: Dictionary = selected_result.value
-	var spec: Dictionary = _make_spec(str(selected.difficulty_id))
+	var spec: Dictionary = _make_spec(str(selected.difficulty_id), {"width": selected.width, "height": selected.height, "base_mine_count": selected.base_mine_count})
 	if not spec.ok: return spec
 	for key: String in ["board_kind", "difficulty_id", "width", "height", "base_mine_count", "generator_version", "verifier_version"]:
 		if spec.value[key] != selected[key]: return _fail(&"scene_board_profile_unsupported")

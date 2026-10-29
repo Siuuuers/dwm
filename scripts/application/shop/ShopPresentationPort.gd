@@ -182,7 +182,9 @@ func get_catalog(locale: String) -> Dictionary:
 		if not rows_by_id.has(public_id):
 			return _fail(&"shop_catalog_unavailable")
 		rows.append((rows_by_id[public_id] as Dictionary).duplicate(true))
-	return _ok(rows)
+	var result := _ok(rows)
+	result["balances"] = {"money": int(_game_state.get("money")), "coins": int(_game_state.get("coins"))}
+	return result
 
 
 func can_purchase(item_id: String, quantity: int = 1) -> Dictionary:

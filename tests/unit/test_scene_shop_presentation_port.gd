@@ -7,6 +7,8 @@ const GATE := preload("res://scripts/application/transaction/ApplicationMutation
 
 class SceneOwner extends RefCounted:
 	var inventory: Dictionary = {}
+	var money := 123
+	var coins := 7
 	var gate: RefCounted
 	var generation := 1
 	var previews: Array = []
@@ -148,3 +150,15 @@ func test_changed_source_releases_refused_pending_without_retargeting_it() -> vo
 	assert_true(port.purchase("crystal_stutters", 1).ok)
 	assert_eq(owner.commits[2][4].scene_occurrence, "scene-b")
 	assert_eq(issuer.next, 2)
+
+func test_catalog_projects_current_balances_with_session_admission() -> void:
+	var gate := GATE.new()
+	var owner := SceneOwner.new(gate)
+	var catalog := CATALOG.new()
+	var port := PORT.new()
+	assert_true(port.configure_scene(owner, catalog, LEGACY_FIXTURES.Issuer.new(), gate).ok)
+	assert_eq(port.get_catalog("en").balances, {"money": 123, "coins": 7})
+	owner.money = 78
+	assert_eq(port.get_catalog("en").balances.money, 78)
+	owner.generation += 1
+	assert_false(port.get_catalog("en").ok)

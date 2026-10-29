@@ -16,6 +16,10 @@ Pixel transitions are complete in [PR #142](https://github.com/Siuuuers/dwm/pull
 accepted by [run 40650052235](https://github.com/Siuuuers/dwm/actions/runs/40650052235).
 
 
+## Current UI polish candidate — October 29
+
+The [Reading, Challenge and Shop polish record](2026-10-29-ui-polish.md) covers the new 125% default, Reading typography controls, Beginner-sized story Challenge, combined Challenge toolbar, Shop balances and measured large-text layouts. This is an implementation candidate; consult its PR for publication and merge status.
+
 ## Current status and next session — October 29
 
 The owner reports the essential feature pass complete. PRs #147 and #148 are confirmed merged; reviewed master is `5a065a155b573d2a8502f2c9c84bb97547d7bba2`. Existing linked cloud records establish their acceptance; this documentation update runs no new runtime tests.

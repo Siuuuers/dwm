@@ -542,9 +542,10 @@ static func _valid_scene_record(record: Dictionary) -> bool:
 	if not token.ok or record.physical_token != "dating_challenge." + str(token.value.sha256): return false
 	var board_host: String = {"solo_challenge": "canonical_solo", "pair_challenge": "canonical_pair"}.get(record.spec.board_kind, "")
 	var geometry: Dictionary = CATALOG.lookup(board_host)
+	var dimensions := {"width": record.spec.width, "height": record.spec.height, "base_mine_count": record.spec.base_mine_count}
+	var beginner: Dictionary = CATALOG.lookup("desktop_app", "beginner")
 	if not geometry.ok or record.spec.difficulty_id != board_host \
-			or record.spec.width != geometry.value.width or record.spec.height != geometry.value.height \
-			or record.spec.base_mine_count != geometry.value.base_mine_count: return false
+			or (dimensions != geometry.value and dimensions != beginner.value): return false
 	if not ENVELOPE.validate(record): return false
 	if record.board == null:
 		return record.phase in ["preparing", "preparation_failed", "ready"] and record.state == "in_progress"

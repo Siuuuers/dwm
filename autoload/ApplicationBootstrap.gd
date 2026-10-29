@@ -2845,12 +2845,22 @@ func open_scene_computer(host: Control) -> Dictionary:
 		panel.bind_view_preferences(_target(&"ProfileManager"))
 		panel.configure_input(_target(&"InputManager"))
 		panel.presentation_changed.connect(_scene_challenge_published.bind(host, panel))
+		panel.home_requested.connect(func(): host._invoke("apps"))
 	var held: Dictionary = _target(&"DialogicBridge").hold_computer_captions(host)
 	if not held.get("ok", false):
 		if held.get("recovery_required", false): host.set_computer_open(true)
 		return held
 	host.set_computer_content_visible(false)
 	host.set_computer_open(true)
+	var profile := _target(&"ProfileManager")
+	var locale := _target(&"LocalizationManager")
+	var configuration: Dictionary = game.get_run_configuration()
+	var palette: StringName = &"midnight" if configuration.get("value", {}).get("dark_mode", false) else &"after_hours"
+	panel.configure_scene(locale.get_locale(), int(profile.get_preference(&"preferences.accessibility.text_size", 125)),
+		bool(profile.get_preference(&"preferences.accessibility.large_targets", false)), palette,
+		bool(profile.get_preference(&"preferences.accessibility.high_contrast", false)),
+		str(profile.get_preference(&"preferences.accessibility.colour_differentiation", "standard")),
+		str(profile.get_preference(&"preferences.accessibility.font_style", "pixel")))
 	if not panel.open_panel():
 		close_scene_computer(host)
 		return _failure(&"scene_panel_unavailable", "")

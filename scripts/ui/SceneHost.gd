@@ -73,7 +73,7 @@ func set_computer_content_visible(shown: bool) -> void:
 func _update_computer_visibility() -> void:
 	$SceneControlsLayer/Surface/ComputerMount.visible = _computer_open and _computer_content_visible
 	$SceneControlsLayer/Surface/ChallengeMount.visible = _computer_open and not _computer_content_visible
-	$SceneControlsLayer/Surface/Controls/ComputerHome.visible = _computer_open and not _computer_content_visible
+	$SceneControlsLayer/Surface/Controls/ComputerHome.visible = false # Challenge owns Home in its action row.
 
 func is_computer_open() -> bool:
 	return _computer_open

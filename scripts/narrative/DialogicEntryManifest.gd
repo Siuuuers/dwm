@@ -522,8 +522,10 @@ static func _validate_scene_tables(bundle: Dictionary, entries: Dictionary, prog
 			"pair_challenge": "canonical_pair"}.get(row.board_kind, "")
 		if not row.difficulty_id is String: return _scene_fail("board difficulty")
 		var geometry := MinesweeperBoardCatalog.lookup(host, row.difficulty_id if host == "desktop_app" else "")
-		if not geometry.ok or (host != "desktop_app" and row.difficulty_id != host) \
-				or geometry.value != {"width": row.width, "height": row.height, "base_mine_count": row.base_mine_count}:
+		var authored_geometry := {"width": row.width, "height": row.height, "base_mine_count": row.base_mine_count}
+		var beginner: Dictionary = MinesweeperBoardCatalog.lookup("desktop_app", "beginner")
+		var supported: bool = geometry.ok and (geometry.value == authored_geometry or (host in ["canonical_solo", "canonical_pair"] and beginner.value == authored_geometry))
+		if not supported or (host != "desktop_app" and row.difficulty_id != host):
 			return _scene_fail("unsupported board profile")
 		# Explicit scene discriminator selects the existing inventory capability projection.
 		if row.generator_version != "dwm_generator_v1" or row.verifier_version != "visible_deduction_v1" \

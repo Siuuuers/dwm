@@ -36,6 +36,8 @@ var _body: Control
 var _catalog: Control
 var _document: Control
 var _art: TextureRect
+var _balance_label: Label
+var _balances: Dictionary = {}
 var _name_label: Label
 var _description_label: Label
 var _meta_price: Label
@@ -207,6 +209,8 @@ func refresh_view(on_open: bool = false, _presentation_only: bool = false, prepa
 	if typeof(snapshot) != TYPE_DICTIONARY or typeof(snapshot.get("ok")) != TYPE_BOOL or not snapshot.ok or typeof(snapshot.get("value")) != TYPE_ARRAY:
 		_refresh_pending = false
 		return _catalog_failure("shop_catalog_unavailable")
+	_balances = snapshot.get("balances", {}).duplicate()
+	if is_node_ready(): _refresh_balances()
 	var rows: Array = snapshot.value
 	var projected := PROJECTION.project(rows)
 	if not projected.ok:
@@ -394,6 +398,8 @@ func _ready() -> void:
 	page_label.add_theme_color_override("font_color", _role("secondary_dark_copy"))
 	page_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	next_button = _button("next", Vector2(320, 576), Vector2(144, 64), func(): _change_page(1))
+	_balance_label = _label(_body, Vector2(496, 16), Vector2(272, 0))
+	_balance_label.name = "Balances"
 	info_scroll = ScrollContainer.new()
 	info_scroll.name = "InformationViewport"
 	info_scroll.position = Vector2(480, 16)
@@ -509,12 +515,14 @@ func _rebuild_catalog() -> void:
 func _measure_catalog(revision: int) -> void:
 	if not _view_is_current(): return
 	if revision != _measurement_revision or not last_result.ok: return
+	var card_height := 176.0
 	for card in cards.values():
 		card.refresh_layout()
-	page_capacity = 9
+		card_height = maxf(card_height, card.custom_minimum_size.y)
+	page_capacity = maxi(1, floori((_catalog.size.y + 8) / (card_height + 8))) * 3
 	page_count = maxi(1, ceili(float(_records.size()) / page_capacity))
 	page_index = int(_index_of(selected_id) / page_capacity) if cards.has(selected_id) else 0
-	for card in cards.values(): card.size = Vector2(144, 176)
+	for card in cards.values(): card.size = Vector2(144, card_height)
 	_show_page(_focus_after_layout)
 	_catalog_layout_pending = false
 	if not _host_anchor.is_empty(): _restore_host_view.call_deferred(revision)
@@ -574,6 +582,7 @@ func _select_item(item_id: String) -> void:
 	_render_selection()
 
 func _render_selection() -> void:
+	_refresh_balances()
 	var record: Dictionary = _records[_index_of(selected_id)]
 	for item_id in cards: cards[item_id].selected = item_id == selected_id
 	info_scroll.show()
@@ -601,7 +610,7 @@ func _render_selection() -> void:
 	_meta_state.position.x = 784 - meta_padding - state_width
 	_meta_state.size = Vector2(state_width, meta_height)
 	var meta_y := (384 if _large else 448) - meta_height
-	info_scroll.size.y = meta_y - 16
+	info_scroll.size.y = meta_y - info_scroll.position.y
 	_meta_price.position.y = meta_y
 	_meta_state.position.y = meta_y
 	_information_overlay.position = info_scroll.position
@@ -659,6 +668,19 @@ func _verify_dock_fit() -> void:
 		last_result = {"ok": false, "code": "shop_dock_does_not_fit"}
 		_show_recovery()
 
+func _refresh_balances() -> void:
+	if not is_instance_valid(_balance_label): return
+	_balance_label.visible = not _balances.is_empty()
+	_balance_label.text = "" if _balances.is_empty() else "%s\n%s" % [_price(int(_balances.money), "money"), _price(int(_balances.coins), "minesweeper_coin")]
+	_balance_label.size = Vector2(272, 0)
+	var top := 16.0 if _balances.is_empty() else 24.0 + _balance_label.get_minimum_size().y
+	var bottom := info_scroll.position.y + info_scroll.size.y
+	info_scroll.position.y = top
+	info_scroll.size.y = maxf(96.0, bottom - top)
+	if is_instance_valid(_information_overlay):
+		_information_overlay.position = info_scroll.position
+		_information_overlay.size = info_scroll.size
+
 func _measure_information() -> void:
 	if not _view_is_current(): return
 	if not last_result.ok: return
@@ -706,7 +728,7 @@ func _purchase_selected() -> void:
 
 func _refresh_supportz() -> void:
 	if not is_instance_valid(_supportz_button): return
-	var admitted: bool = page_index == 0 and _provider != null and _provider.has_method("purchase") \
+	var admitted: bool = page_index == int(_index_of("supportz") / page_capacity) and _provider != null and _provider.has_method("purchase") \
 		and _provider_can_purchase("supportz", 1).get("ok", false)
 	var card_height: float = 176.0 if cards.is_empty() else (cards.values()[0] as Control).size.y
 	var slot := _index_of("supportz") % page_capacity

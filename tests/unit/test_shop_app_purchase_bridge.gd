@@ -8,6 +8,7 @@ const COPY := preload("res://scripts/ui/shop/ShopCopy.gd")
 class Provider extends RefCounted:
 	signal catalog_changed
 	var rows: Array = []
+	var balances := {"money": 120, "coins": 7}
 	var purchases: Array[Dictionary] = []
 	var supportz_eligible := true
 	var reject_purchase := false
@@ -17,7 +18,7 @@ class Provider extends RefCounted:
 		var result: Array = rows.duplicate(true)
 		for row: Dictionary in result:
 			row["name"] = COPY.item_name(locale, str(row["id"]))
-		return {"ok": true, "code": &"ok", "value": result}
+		return {"ok": true, "code": &"ok", "value": result, "balances": balances.duplicate()}
 
 	func can_purchase(item_id: String, _quantity: int = 1) -> Dictionary:
 		var eligible := item_id != "supportz" or supportz_eligible
@@ -283,3 +284,32 @@ func _settle() -> void:
 	for frame: int in 5:
 		await get_tree().process_frame
 
+
+func test_balances_refresh_even_when_catalog_rows_do_not_change() -> void:
+	var provider := Provider.new()
+	var shop := await _shop(provider)
+	assert_eq(shop._balance_label.text, "$120\n7 coins")
+	provider.balances = {"money": 75, "coins": 3}
+	assert_true(shop.refresh_view(true).ok)
+	assert_eq(shop._balance_label.text, "$75\n3 coins")
+	assert_lte(shop._balance_label.get_rect().end.y, shop.info_scroll.position.y)
+
+func test_complete_card_names_and_balances_fit_every_font_and_locale() -> void:
+	var provider := Provider.new()
+	var shop := await _shop(provider)
+	for style: String in ["pixel", "readable"]:
+		for locale: String in ["en", "zh-HK", "zh-CN", "ja", "ko"]:
+			for percent: int in [100, 125, 150]:
+				assert_true(shop.configure_shop(provider.get_catalog(locale).value, locale, percent, false, &"after_hours", 1, false, "standard", style).ok)
+				await _settle()
+				for card: Control in shop.cards.values():
+					for label: Label in [card.name_label, card.price_label, card.availability_label]:
+						assert_true(card.get_global_rect().encloses(label.get_global_rect()), locale + str(percent) + label.text)
+						var measured := label.get_theme_font("font").get_multiline_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT,
+							label.size.x, label.get_theme_font_size("font_size"), -1, TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE)
+						assert_lte(measured.y, label.size.y, label.text)
+					if card.visible: assert_true(shop._catalog.get_global_rect().encloses(card.get_global_rect()))
+				assert_lte(shop._balance_label.get_rect().end.y, shop.info_scroll.position.y)
+				while shop.page_index < shop.page_count - 1: shop._change_page(1)
+				assert_true(shop._supportz_button.visible)
+				assert_true(shop._catalog.get_global_rect().encloses(shop._supportz_button.get_global_rect()))
