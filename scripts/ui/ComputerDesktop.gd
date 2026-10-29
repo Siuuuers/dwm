@@ -1358,15 +1358,28 @@ func _draw_cosmetics() -> void:
 	if int(owned.get("crystal_stutters", 0)) > 0:
 		for origin: Vector2 in [Vector2(5, 2), Vector2(width - 78, 2)]:
 			for shard: int in 3:
-				var base := origin + Vector2(shard * 19, 0)
-				var depth := (16.0 - shard * 3.0) if home else (5.0 - shard)
-				var tip := base + Vector2(8, depth)
-				var ridge := base + Vector2(13, 3 if home else 1)
-				var end := base + Vector2(23, 0)
-				cosmetic_overlay.draw_colored_polygon(PackedVector2Array([base, tip, ridge]), edge.lerp(light, 0.18))
-				cosmetic_overlay.draw_colored_polygon(PackedVector2Array([ridge, tip, end]), face.lerp(light, 0.3))
-				cosmetic_overlay.draw_line(base, tip, light, 1, true)
-				cosmetic_overlay.draw_line(tip, ridge, light.lerp(edge, 0.45), 1, true)
+				if home:
+					var base := origin + Vector2(shard * 18, [0, 3, 1][shard])
+					var depth: float = [19.0, 13.0, 16.0][shard]
+					var shoulder := base + Vector2(0, 5)
+					var crown := base + Vector2(5, 0)
+					var ridge := base + Vector2(10, 2)
+					var tip := base + Vector2(9, depth)
+					var left := base + Vector2(3, depth - 5)
+					var right := base + Vector2(14, depth - 4)
+					cosmetic_overlay.draw_colored_polygon(PackedVector2Array([shoulder, crown, ridge, tip, left]), edge.lerp(light, 0.18))
+					cosmetic_overlay.draw_colored_polygon(PackedVector2Array([ridge, right, tip]), face.lerp(light, 0.3))
+					cosmetic_overlay.draw_polyline(PackedVector2Array([shoulder, crown, ridge, right]), light, 1, true)
+					cosmetic_overlay.draw_line(ridge, tip, light.lerp(edge, 0.45), 1, true)
+				else:
+					var base := origin + Vector2(shard * 19, 0)
+					var tip := base + Vector2(8, 5.0 - shard)
+					var ridge := base + Vector2(13, 1)
+					var end := base + Vector2(23, 0)
+					cosmetic_overlay.draw_colored_polygon(PackedVector2Array([base, tip, ridge]), edge.lerp(light, 0.18))
+					cosmetic_overlay.draw_colored_polygon(PackedVector2Array([ridge, tip, end]), face.lerp(light, 0.3))
+					cosmetic_overlay.draw_line(base, tip, light, 1, true)
+					cosmetic_overlay.draw_line(tip, ridge, light.lerp(edge, 0.45), 1, true)
 	if int(owned.get("inked_silk_string", 0)) > 0:
 		var thread := PackedVector2Array()
 		var shadow := PackedVector2Array()
@@ -1385,8 +1398,12 @@ func _draw_cosmetics() -> void:
 		cosmetic_overlay.draw_line(finish, finish + Vector2(knot, 7), light.lerp(edge, 0.6), 1, true)
 	# The Home feedback band and failure text retain their unobstructed space.
 	if home and not status_label.visible and int(owned.get("letter_with_wax_seal", 0)) > 0:
-		var paper := Rect2(width - 100, bottom - 140, 72, 44)
-		if paper.position.y < icon_grid.get_rect().end.y + 12: return
+		var lower_edge := desktop_canvas.size.y - 144.0 - 12.0
+		var available := lower_edge - icon_grid.get_rect().end.y - 12.0
+		var paper_scale := minf(1.0, available / 47.0)
+		if paper_scale < 0.65: return
+		cosmetic_overlay.draw_set_transform(Vector2(width - 28 - 72 * paper_scale, lower_edge - 47 * paper_scale), 0, Vector2.ONE * paper_scale)
+		var paper := Rect2(0, 0, 72, 44)
 		var top_left := paper.position
 		var top_right := Vector2(paper.end.x, paper.position.y)
 		var bottom_left := Vector2(paper.position.x, paper.end.y)
@@ -1408,3 +1425,4 @@ func _draw_cosmetics() -> void:
 		cosmetic_overlay.draw_colored_polygon(seal, accent)
 		cosmetic_overlay.draw_arc(center, 5, PI, TAU, 12, light.lerp(accent, 0.65), 1, true)
 		cosmetic_overlay.draw_arc(center, 4, 0, TAU, 16, edge, 1, true)
+		cosmetic_overlay.draw_set_transform(Vector2.ZERO)

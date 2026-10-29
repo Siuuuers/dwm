@@ -1,7 +1,7 @@
 name: Readability measurements
 on:
   pull_request:
-    paths: ['scripts/ui/**', 'scripts/settings/SettingsPreferenceRegistry.gd', 'tests/ui/render*readability*.gd', 'tests/ui/render_interaction_states.gd', 'tools/dtl-editor/**', '.github/workflows/readability.yml']
+    paths: ['scripts/ui/**', 'scripts/settings/SettingsPreferenceRegistry.gd', 'tests/ui/render*readability*.gd', 'tests/ui/render_interaction_states.gd', 'tests/ui/render_material_decoration.gd', 'tools/dtl-editor/**', '.github/workflows/readability.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -45,10 +45,11 @@ jobs:
         run: |
           mkdir -p .godot/ci/material-decoration/before .godot/ci/material-decoration/after
           cp scripts/ui/ComputerDesktop.gd "$RUNNER_TEMP/material-candidate.gd"
+          trap 'cp "$RUNNER_TEMP/material-candidate.gd" scripts/ui/ComputerDesktop.gd' EXIT
           if [ -n "$MATERIAL_BASE" ]; then
             git fetch --depth=1 origin "$MATERIAL_BASE"
             git show "$MATERIAL_BASE:scripts/ui/ComputerDesktop.gd" > scripts/ui/ComputerDesktop.gd
-            DWM_RENDER_OUTPUT="$GITHUB_WORKSPACE/.godot/ci/material-decoration/before" timeout 180s xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" --path . --rendering-method gl_compatibility --audio-driver Dummy --log-file "$GITHUB_WORKSPACE/.godot/ci/material-decoration/before/render.log" --script res://tests/ui/render_material_decoration.gd -- --phase2r-bootstrap-mode=test_manual
+            DWM_MATERIAL_BASELINE=1 DWM_RENDER_OUTPUT="$GITHUB_WORKSPACE/.godot/ci/material-decoration/before" timeout 180s xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" --path . --rendering-method gl_compatibility --audio-driver Dummy --log-file "$GITHUB_WORKSPACE/.godot/ci/material-decoration/before/render.log" --script res://tests/ui/render_material_decoration.gd -- --phase2r-bootstrap-mode=test_manual
           fi
           cp "$RUNNER_TEMP/material-candidate.gd" scripts/ui/ComputerDesktop.gd
           DWM_RENDER_OUTPUT="$GITHUB_WORKSPACE/.godot/ci/material-decoration/after" timeout 180s xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" --path . --rendering-method gl_compatibility --audio-driver Dummy --log-file "$GITHUB_WORKSPACE/.godot/ci/material-decoration/after/render.log" --script res://tests/ui/render_material_decoration.gd -- --phase2r-bootstrap-mode=test_manual
