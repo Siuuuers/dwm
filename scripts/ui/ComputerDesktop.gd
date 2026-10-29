@@ -1384,10 +1384,10 @@ func _draw_cosmetics() -> void:
 		var thread := PackedVector2Array()
 		var shadow := PackedVector2Array()
 		var start := Vector2(12 if home else 3, 46)
-		var finish := Vector2(12 if home else 3, bottom - 18)
+		var finish := Vector2(12 if home else 3, minf(bottom - 18, 196 if home else 144))
 		for step: int in 25:
 			var t := step / 24.0
-			var point := start.bezier_interpolate(Vector2(3, bottom * 0.35), Vector2(18 if home else 5, bottom * 0.7), finish, t)
+			var point := start.bezier_interpolate(Vector2(3, start.y + (finish.y - start.y) * 0.3), Vector2(22 if home else 5, start.y + (finish.y - start.y) * 0.7), finish, t)
 			thread.append(point)
 			shadow.append(point + Vector2(1, 1))
 		cosmetic_overlay.draw_polyline(shadow, face.darkened(0.25), 3, true)
