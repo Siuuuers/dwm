@@ -1275,11 +1275,9 @@ static func _scene_current_keys(scene: Variant) -> bool:
 
 static func _resolve_scene_presentation(scene: Dictionary) -> Dictionary:
 	if not scene.has("presentation"): return {"ok": true, "value": {}}
-	var saved: Variant = scene.presentation
-	if not _scene_keys(saved, ["checkpoint_id", "overlays"]) \
-			or not saved.checkpoint_id is String or not saved.overlays is Array:
-		return _fail(&"scene_presentation_invalid", "saved presentation requires checkpoint ID and ordered overlay labels")
-	return preload("res://scripts/data/ArtManifest.gd").resolve_presentation(saved.checkpoint_id, saved.overlays)
+	if not scene.presentation is Dictionary:
+		return _fail(&"scene_presentation_invalid", "saved presentation must be an object")
+	return preload("res://scripts/data/ArtManifest.gd").resolve_saved_presentation(scene.presentation)
 
 
 static func _validate_scene_gameplay(gameplay: Variant) -> String:

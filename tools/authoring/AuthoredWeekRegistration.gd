@@ -6,13 +6,14 @@ const STRICT := preload("res://scripts/validation/StrictJson.gd")
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const BASE := preload("res://tests/templates/seven_day/SevenDayTemplates.gd")
-const ART_PATH := "res://data/manifests/art_placements.json"
 const LIBRARY := preload("res://scripts/narrative/DialogueLibraryCatalogue.gd")
 
-static func prepare() -> Dictionary:
-	var parsed: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(SOURCE_PATH))
+static func prepare(source_path: String = SOURCE_PATH) -> Dictionary:
+	var parsed: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(source_path))
 	if not parsed.ok: return parsed
-	var source: Dictionary = parsed.value
+	var discovered: Dictionary = preload("res://tools/authoring/DtlStorySource.gd").prepare(parsed.value)
+	if not discovered.ok: return discovered
+	var source: Dictionary = discovered.value
 	# The installed catalogue supplies revision continuity only. Its old source
 	# hashes must not validate the edited DTL that this export is rebuilding.
 	var installed: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(REGISTRATION_PATH))
@@ -47,6 +48,7 @@ static func prepare() -> Dictionary:
 		bundle.ids_registry.signals.append({"signal_id": signal_id, "payload_fields": payloads[signal_id]})
 	var ids: Array = []
 	var compiled_entries := {}
+	var parsed_sources := {}
 	for spec: Dictionary in source.entries: ids.append(spec.entry_id)
 	var audio := prepare_audio_catalogue(source.get("audio"), bundle.audio_catalogue, ids, source.first_entry_id)
 	if not audio.ok: return audio
@@ -56,7 +58,7 @@ static func prepare() -> Dictionary:
 		if typeof(spec.get("story_day")) != TYPE_INT or spec.story_day < 1 or spec.story_day > 7:
 			return {"ok": false, "code": "authored_story_day_invalid"}
 		bundle.scene_programme.story_days[id] = spec.story_day
-		var compiled: Dictionary = ADAPTER.compile_scene_programme(spec.path, id, ids, spec.markers)
+		var compiled: Dictionary = ADAPTER._compile_scene_programme_in_registration(spec.path, id, ids, spec.markers, parsed_sources)
 		if not compiled.ok: return compiled
 		compiled_entries[id] = compiled.value
 		if spec.role != "scene": return {"ok": false, "code": "authored_scene_role_required"}
@@ -92,9 +94,7 @@ static func prepare() -> Dictionary:
 	bundle.audio_catalogue.bindings.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.entry_id < b.entry_id)
 	var checked: Dictionary = MANIFEST.validate_scene_registration(bundle)
 	if not checked.ok: return checked
-	var placements: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(ART_PATH))
-	if not placements.ok: return placements
-	var library := prepare_dialogue_library(placements.value, bundle, compiled_entries)
+	var library := prepare_dtl_library(source, bundle, compiled_entries)
 	if not library.ok: return library
 	return {"ok": true, "value": {"registration": bundle, "dialogue_library": library.value,
 		"first_target_id": "target." + source.first_entry_id}}
@@ -157,6 +157,43 @@ static func prepare_audio_catalogue(authored: Variant, fallback: Dictionary,
 
 ## Authors select entry groups, never copy dialogue, revisions or thought roles.
 ## The native compiler and freshly rebuilt caption registry supply those facts.
+static func prepare_dtl_library(source: Dictionary, registration: Dictionary,
+		compiled_entries: Dictionary) -> Dictionary:
+	var checkpoints := {}
+	var bindings := {}
+	for entry_id: String in compiled_entries:
+		for node: Dictionary in compiled_entries[entry_id].nodes:
+			for command: Dictionary in node.get("presentation_commands", []):
+				if command.kind != "checkpoint": continue
+				checkpoints[command.id] = true
+				if not bindings.has(entry_id): bindings[entry_id] = []
+				bindings[entry_id].append(command)
+	var passages: Array = []
+	var passage_indices := {}
+	var titles: Dictionary = source.get("library_titles", {})
+	for membership: Dictionary in source.get("library_memberships", []):
+		var data: Dictionary = membership.data
+		var error := {"ok": false, "code": &"library_dtl_membership_invalid",
+			"path": membership.path, "line": membership.line}
+		for key: String in data:
+			if key not in ["id", "title_key", "requirements"]: return error
+		if not data.get("id") is String or data.id.is_empty() or not checkpoints.has(data.id):
+			return error
+		if not passage_indices.has(data.id):
+			if not data.get("title_key") is String or not titles.has(data.title_key): return error
+			passage_indices[data.id] = passages.size()
+			passages.append({"id": data.id, "title": titles[data.title_key], "entries": []})
+		var passage: Dictionary = passages[passage_indices[data.id]]
+		if data.has("title_key") and (not titles.has(data.title_key) or titles[data.title_key] != passage.title):
+			return error
+		for previous: Dictionary in passage.entries:
+			if previous.entry_id == membership.entry_id: return error
+		passage.entries.append({"entry_id": membership.entry_id, "requirements": data.get("requirements", {})})
+	return prepare_dialogue_library({"presentation_checkpoints": checkpoints,
+		"presentation_entries": bindings, "dialogue_library": {"passages": passages,
+			"condition_labels": source.get("condition_labels", {})}}, registration, compiled_entries)
+
+
 static func prepare_dialogue_library(placements: Dictionary, registration: Dictionary,
 		compiled_entries: Dictionary) -> Dictionary:
 	var authored: Variant = placements.get("dialogue_library", {})

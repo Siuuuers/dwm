@@ -2,6 +2,7 @@
 return
 
 label Day5
+# story entry day=5
 \Rain strikes the high louver glass near the ceiling of Room 2.17 in uneven gusts, turning the afternoon light the color of wet slate. #id:line.Day5.one
 \The room is six paces from wall to wall—no eye-level window, only the slanted ceiling louvers streaming with water above and the tall frosted glass pane of the corridor door. Above the doorframe, the metal louver of the ceiling vent hums softly, sending a cool draft across the terrazzo floor toward the door side of the table. #id:line.Day5.002
 \There are two chairs in the room\: a curved-back wooden chair standing in the sheltered corner under the warm amber wall lamp, out of the vent draft, and a narrower flat-slat chair on the cold side of the table near the door. #id:line.Day5.003
@@ -61,18 +62,22 @@ label Day5
 \I lean forward across the two-inch gap between our chairs to see the screen. #id:line.Day5.057
 \In the photograph, my hand is still half-raised above the empty corner of the blotter where the yellow slip lay a second ago, my mouth unarranged. #id:line.Day5.058
 label Day5.echo
+# story marker {"kind":"challenge.recall","payload":{"challenge_id":"Day2.challenge","never_started_target_id":"target.Day5.impulse","unfinished_target_id":"target.Day5.impulse","won_target_id":"target.Day5.impulse","lost_target_id":"target.Day5.cheek","perfect_target_id":"target.Day5.impulse"}}
 return
 
 label Day5.cheek
+# story entry day=5
 \At the corner of my mouth, a smile begins—and stops halfway as the muscle at the right cheekbone pulls slightly. #id:line.Day5.cheek.001
 \Lavinia's gaze leaves the lit screen and fixes on my right cheek. #id:line.Day5.cheek.002
 \“Does it still hurt?” she asks quietly. #id:line.Day5.cheek.003
 # self-talk
 \Bring her hand to the cheek and say it doesn't hurt now. #id:line.Day5.cheek.004
 label Day5.cheek.thought
+# story marker {"kind":"thought.pass","payload":{"opportunity_id":"Day5.cheek","yes_target_id":"target.Day5.cheek.yes","pass_target_id":"target.Day5.cheek.default"}}
 return
 
 label Day5.cheek.yes
+# story entry day=5
 \My fingers close lightly around Lavinia's free wrist and guide her palm flat against my right cheek. #id:line.Day5.cheek.yes.001
 \“Not now.” #id:line.Day5.cheek.yes.002
 \The skin of her palm is cool from the rain outside. For a second her fingers lie still over the cheekbone. #id:line.Day5.cheek.yes.003
@@ -82,27 +87,35 @@ label Day5.cheek.yes
 \Outside the frosted glass, a tall shadow pauses in the corridor, reads the reversed card on the handle, and glides past. #id:line.Day5.cheek.yes.007
 \I do not turn my head away from her thumb. My eyes stay open on hers until the pressure eases and her hand returns to her lap. #id:line.Day5.cheek.yes.008
 label Day5.cheek.yes.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day5.impulse"}}
 return
 
 label Day5.cheek.default
+# story entry day=5
 \“Only when someone makes me laugh too quickly.” Both of my hands stay flat on the margin of the folder. #id:line.Day5.cheek.default.001
 \Lavinia studies the cheekbone for a second, then lifts two fingers of her own accord and hooks a strand of hair behind my right ear. #id:line.Day5.cheek.default.002
 \“Then don't laugh,” she says softly. #id:line.Day5.cheek.default.003
 \Her knuckle grazes the mark once before her hand covers the phone screen again. #id:line.Day5.cheek.default.004
 label Day5.cheek.default.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day5.impulse"}}
 return
 
 label Day5.impulse
+# story entry day=5
+# story challenge {"challenge_id":"Day5.challenge","playable_marker_id":"Day5.impulse.playable","end_marker_id":"Day5.impulse.end","board_profile_id":"week.canonical_solo","targets":{"never_started":"target.Day5.A","unfinished":"target.Day5.B","won":"target.Day5.C","lost":"target.Day5.D","perfect":"target.Day5.E"}}
 \Lavinia's thumb rests on the side button of her phone, the portrait still open on the glass. #id:line.Day5.impulse.001
 \Beside her elbow on the corner of the desk lies a second folder—visitor notes, real work, not due today. #id:line.Day5.impulse.002
 \Rain thickens against the high louver window. On the outer handle, the reversed white card keeps the hallway empty. #id:line.Day5.impulse.003
 \“Are we finished for today?” Lavinia asks, her eyes dropping to the second folder beside her sleeve. #id:line.Day5.impulse.004
 \Open the second folder and make her pay for the photograph with another hour. #id:line.Day5.impulse.005
 label Day5.impulse.playable
+# story marker {"kind":"challenge.playable","payload":{"challenge_id":"Day5.challenge"}}
 label Day5.impulse.end
+# story marker {"kind":"challenge.end","payload":{"challenge_id":"Day5.challenge"}}
 return
 
 label Day5.A
+# story entry day=5
 \“That one isn't due today. That is all.” The second folder stays closed on the wood. “Let me see the screen.” #id:line.Day5.A.001
 \Lavinia turns the phone around. In the frame\: eyes looking straight into the lens, one hand half-raised above the blotter. #id:line.Day5.A.002
 \“This one,” I say quietly. “Don't send it to anyone.” #id:line.Day5.A.003
@@ -110,9 +123,11 @@ label Day5.A
 \She switches off the screen and slips the phone into her coat pocket. At the door, her hand pauses on the inner latch without turning the wooden chair back to the desk. #id:line.Day5.A.005
 \“Tomorrow evening,” she says. “My flat.” #id:line.Day5.A.006
 label Day5.A.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day6"}}
 return
 
 label Day5.B
+# story entry day=5
 \Fingertips touch the cardboard cover of the second folder, then draw back. #id:line.Day5.B.001
 \“There is another folder, but it can wait,” I say. “Delete the picture first.” #id:line.Day5.B.002
 \Lavinia looks at my hand leaving the folder, then down at the phone in her lap. #id:line.Day5.B.003
@@ -121,9 +136,11 @@ label Day5.B
 \Two taps on the glass; she turns the empty camera roll toward the desk, stands, and leaves the wooden chair still facing mine. At the door, she takes the reversed white card off the outer handle and drops it onto my desk blotter. #id:line.Day5.B.006
 \“Tomorrow evening,” she says. “My flat.” #id:line.Day5.B.007
 label Day5.B.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day6"}}
 return
 
 label Day5.C
+# story entry day=5
 \“The visitor notes are still inconsistent,” I say, resting a hand on the second folder. #id:line.Day5.C.001
 \“They are not due today.” #id:line.Day5.C.002
 \“No.” #id:line.Day5.C.003
@@ -134,9 +151,11 @@ label Day5.C
 \She pulls the second folder across the two-inch gap between the chairs and opens it across her knees. When we finish, she closes the folder. #id:line.Day5.C.008
 \“Tomorrow evening,” she says. “Come to the flat.” #id:line.Day5.C.009
 label Day5.C.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day6"}}
 return
 
 label Day5.D
+# story entry day=5
 \The second folder slides across the edge of the desk until its first page overlaps her knee. #id:line.Day5.D.001
 \“The visitor notes are still inconsistent,” I say. #id:line.Day5.D.002
 \“They are not due today.” #id:line.Day5.D.003
@@ -159,35 +178,43 @@ label Day5.D
 # self-talk
 \“Not anymore. Open page one.” #id:line.Day5.D.020
 label Day5.D.thought
+# story marker {"kind":"thought.options","payload":{"opportunity_id":"Day5.aftermath","options":[{"choice_id":"note","text":"Fish the yellow slip out of the bin and tear it in half.","target_id":"target.Day5.D.note"},{"choice_id":"arch","text":"Reach under the table and close my hand around her damp stockinged arch.","target_id":"target.Day5.D.arch"}],"pass_target_id":"target.Day5.D.default"}}
 return
 
 label Day5.D.default
+# story entry day=5
 \With my thigh locked between her knees and the cold, damp streak from her stocking clinging to my shin beneath the desk, I open the first page of the visitor notes across both our laps. #id:line.Day5.D.default.001
 \Neither of us moves the chairs apart; even after her foot warms against my calf, the damp patch she wiped onto my skin stays cold in the vent draft from the door. #id:line.Day5.D.default.002
 \When the last page is turned, she slides her warmed foot back into her loafer, leaving my ankle damp and chilled. #id:line.Day5.D.default.003
 \“Tomorrow night,” she says softly. “At my flat.” #id:line.Day5.D.default.004
 label Day5.D.default.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day6"}}
 return
 
 label Day5.D.note
+# story entry day=5
 \Keeping my wet shin pressed against her foot, I reach down into the wastepaper basket beside the table leg, lift out only the folded yellow slip—leaving the black pen at the bottom—and tear the yellow paper cleanly in half across the desk blotter. #id:line.Day5.D.note.001
 \Lavinia watches the two halves drop back into the bin, her foot pressing once more against the wet patch on my ankle. #id:line.Day5.D.note.002
 \“Open page one,” she says. #id:line.Day5.D.note.003
 \When the last page is turned, she slides her warmed foot back into her loafer, leaving my ankle damp and chilled. #id:line.Day5.D.note.004
 \“Tomorrow night,” she says softly. “At my flat.” #id:line.Day5.D.note.005
 label Day5.D.note.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day6"}}
 return
 
 label Day5.D.arch
+# story entry day=5
 \Before opening the folder, my left hand slides down under the desk edge and closes directly around the damp arch of her stockinged foot—holding her heel against the wet patch on my shin until both the nylon and my palm are warm. #id:line.Day5.D.arch.001
 \Lavinia's fingers tighten on the red pencil. #id:line.Day5.D.arch.002
 \“Open page one,” she whispers, leaving her foot in my hand beneath the table. #id:line.Day5.D.arch.003
 \When the last page is turned, she slides her warmed foot back into her loafer, leaving my ankle damp and chilled. #id:line.Day5.D.arch.004
 \“Tomorrow night,” she says softly. “At my flat.” #id:line.Day5.D.arch.005
 label Day5.D.arch.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day6"}}
 return
 
 label Day5.E
+# story entry day=5
 \“The visitor notes are still inconsistent,” I say, resting a hand on the second folder. #id:line.Day5.E.001
 \“They are not due today.” #id:line.Day5.E.002
 \“No.” #id:line.Day5.E.003
@@ -206,5 +233,6 @@ label Day5.E
 \When we finish, she closes the folder. #id:line.Day5.E.016
 \“Tomorrow evening,” she says. “Come to the flat.” #id:line.Day5.E.017
 label Day5.E.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day6"}}
 return
 

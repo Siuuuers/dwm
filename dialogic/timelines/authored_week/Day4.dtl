@@ -2,6 +2,7 @@
 return
 
 label Day4
+# story entry day=4
 \In the rehearsal room next door, a practice piano plays a slow four-bar phrase, pauses to correct a chord, and begins the same four notes again. #id:line.Day4.one
 \Outside Studio B, the heavy door is ajar by less than an inch. Over the piano next door, two voices are talking near the wooden bench—unhurried, mid-conversation. #id:line.Day4.002
 \“...you've made the chin too square.” #id:line.Day4.003
@@ -71,9 +72,11 @@ label Day4
 # self-talk
 \Take it from her skirt without using the hands. #id:line.Day4.067
 label Day4.thought
+# story marker {"kind":"thought.pass","payload":{"opportunity_id":"Day4.pastille","yes_target_id":"target.Day4.pastille.yes","pass_target_id":"target.Day4.pastille.default"}}
 return
 
 label Day4.pastille.yes
+# story entry day=4
 \Both knees stay on the floorboards between the edge of the bench and her shoes. #id:line.Day4.pastille.yes.001
 \Lavinia's fingers stop on the rim of the open tin. #id:line.Day4.pastille.yes.002
 \Instead of lifting my hand from the bench, my chin lowers across the wool of the wrap skirt. Beneath the cloth, the tendon at her knee pulls taut for half a breath. #id:line.Day4.pastille.yes.003
@@ -85,17 +88,22 @@ label Day4.pastille.yes
 \“They're gone now.” #id:line.Day4.pastille.yes.009
 \“The grey is still on your handkerchief.” #id:line.Day4.pastille.yes.010
 label Day4.pastille.yes.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day4.impulse"}}
 return
 
 label Day4.pastille.default
+# story entry day=4
 \Two fingers lift the amber square neatly from the pleat of the skirt and set it on the lid of her tin. #id:line.Day4.pastille.default.001
 \“It didn't touch the floor.” #id:line.Day4.pastille.default.002
 \Lavinia looks at the pastille on the metal lid, then down at my bare hand still resting near her hip. #id:line.Day4.pastille.default.003
 \“Ce păcat,” she says under her breath. “You weren't so polite when you had your hand on my ribs.” #id:line.Day4.pastille.default.004
 label Day4.pastille.default.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day4.impulse"}}
 return
 
 label Day4.impulse
+# story entry day=4
+# story challenge {"challenge_id":"Day4.challenge","playable_marker_id":"Day4.impulse.playable","end_marker_id":"Day4.impulse.end","board_profile_id":"week.canonical_solo","targets":{"never_started":"target.Day4.A","unfinished":"target.Day4.B","won":"target.Day4.C","lost":"target.Day4.D","perfect":"target.Day4.E"}}
 \Below the edge of the bench, the pale satin ribbon around Lavinia's right ankle has come undone at the cross—tied in an unfamiliar square knot right over the tendon instead of folded flat behind the ankle bone where it belongs, one loose end trailing across the rosin. #id:line.Day4.impulse.001
 \Kneeling on the floorboards in front of her, I gather both satin ends to untie the square knot. #id:line.Day4.impulse.002
 \Just as my thumbs touch the cross, her heel slides half a step backward under the bench. #id:line.Day4.impulse.003
@@ -110,10 +118,13 @@ label Day4.impulse
 \A square knot over the tendon. On her ankle. #id:line.Day4.impulse.012
 \Hold the heel where it is. #id:line.Day4.impulse.013
 label Day4.impulse.playable
+# story marker {"kind":"challenge.playable","payload":{"challenge_id":"Day4.challenge"}}
 label Day4.impulse.end
+# story marker {"kind":"challenge.end","payload":{"challenge_id":"Day4.challenge"}}
 return
 
 label Day4.A
+# story entry day=4
 \Both hands rest flat on my knees without chasing the shoe under the bench. #id:line.Day4.A.001
 \“Did you ask her to tie it, or did you leave the door unlatched so I'd think she did?” #id:line.Day4.A.002
 \“That isn't your business.” #id:line.Day4.A.003
@@ -123,9 +134,11 @@ label Day4.A
 \The square knot comes undone; the satin crosses once, tucks flat behind the ankle bone where it belongs, and smooths down. When I sit back on the bench beside her, she leans her shoulder against mine and opens the paperback again. #id:line.Day4.A.007
 \“Read the rest of the page,” she says. #id:line.Day4.A.008
 label Day4.A.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day5"}}
 return
 
 label Day4.B
+# story entry day=4
 \Fingertips brush the leather heel under the bench, then open and draw back before closing around the arch. #id:line.Day4.B.001
 \“If you want a square knot on your tendon, keep it.” #id:line.Day4.B.002
 \In the mirror, Lavinia's chin tilts slightly. #id:line.Day4.B.003
@@ -134,9 +147,11 @@ label Day4.B
 \“You weren't so patient with my waist.” #id:line.Day4.B.006
 \Lavinia looks down at the crooked knot for three seconds, then bends, jerks the square knot undone with her own fingers, and reties it flat while her shoulder brushes my knee without telling me to leave. #id:line.Day4.B.007
 label Day4.B.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day5"}}
 return
 
 label Day4.C
+# story entry day=4
 \Instead of reaching into the shadow under the bench, my left palm stays open just above the floorboards where her shoe stood a moment ago. #id:line.Day4.C.001
 \“You always tie a square knot when you're in a hurry,” I say quietly. “Nobody else touched your shoe.” #id:line.Day4.C.002
 \“You sound very certain.” #id:line.Day4.C.003
@@ -146,9 +161,11 @@ label Day4.C
 \“You're insufferable,” she mutters. #id:line.Day4.C.007
 \The heel stays cradled in my left palm while my right hand undoes the square knot and folds the satin flat behind the bone. When I lift my head, our eyes meet in the mirror glass behind her shoulder, and she draws me up onto the bench beside her. #id:line.Day4.C.008
 label Day4.C.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day5"}}
 return
 
 label Day4.D
+# story entry day=4
 \Before her shoe can settle in the shadow under the bench, five fingers of my left hand lock around the arch and heel, draw her foot out from beneath the seat, and set her heel squarely on top of my own knee. #id:line.Day4.D.001
 \In the mirror, Lavinia's breath catches; her fingers tighten on the edge of the wooden bench. #id:line.Day4.D.002
 \“Let go.” #id:line.Day4.D.003
@@ -169,34 +186,42 @@ label Day4.D
 # self-talk
 \“Ești nebună,” she breathes in Romanian, and then in English\: “You're completely out of your mind.” #id:line.Day4.D.018
 label Day4.D.thought
+# story marker {"kind":"thought.options","payload":{"opportunity_id":"Day4.aftermath","options":[{"choice_id":"mirror","text":"Make her look in the mirror at whose hand is on her waist now.","target_id":"target.Day4.D.mirror"},{"choice_id":"friday","text":"Tell her I'll be here before the other door opens on Friday.","target_id":"target.Day4.D.friday"}],"pass_target_id":"target.Day4.D.default"}}
 return
 
 label Day4.D.default
+# story entry day=4
 \Lavinia's thumb slides from my pulse to the back of my jaw, tilting my chin half an inch until her lower lip brushes the corner of mine—warm, sharp with honey from the pastille, neither of us calling it a kiss—before she drops her forehead hard against my collarbone while the mirror holds us both. #id:line.Day4.D.default.001
 \“Sit down properly before someone walks past the door,” she whispers into my collar, her fingers still twisted in my lapel. #id:line.Day4.D.default.002
 \When I slide off my knee onto the bench beside her, she does not let go of my hand; she pulls the open paperback across both our laps and sets her finger under the line where we stopped. #id:line.Day4.D.default.003
 \“Go on,” she says softly, her shoulder pressed flush against mine. “Read.” #id:line.Day4.D.default.004
 label Day4.D.default.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day5"}}
 return
 
 label Day4.D.mirror
+# story entry day=4
 \“Turn your head,” I murmur against her temple, keeping my palm warm over the damp wool at her waist. “Look in the glass.” #id:line.Day4.D.mirror.001
 \Lavinia turns her cheek half an inch against the cool mirror until her eyes meet mine in the reflection behind us—where my coat blocks the rest of the room and only my hand on her ribs is visible. #id:line.Day4.D.mirror.002
 \“Satisfied?” she whispers to the glass. #id:line.Day4.D.mirror.003
 \“Her hand isn't there now.” #id:line.Day4.D.mirror.004
 \Her thumb presses once more against my jaw before she pulls me down onto the bench beside her. #id:line.Day4.D.mirror.005
 label Day4.D.mirror.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day5"}}
 return
 
 label Day4.D.friday
+# story entry day=4
 \“When did she say she was bringing the rest on Friday?” I whisper, my thumb still resting on the turn axis at her waist. #id:line.Day4.D.friday.001
 \“Before rehearsal,” Lavinia whispers back, a sudden, dangerous smile curving her mouth two inches from mine. #id:line.Day4.D.friday.002
 \“Then I'll be here first.” #id:line.Day4.D.friday.003
 \She laughs once against my mouth, her thumb sliding from my throat to my nape as she pulls me down onto the bench beside her. #id:line.Day4.D.friday.004
 label Day4.D.friday.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day5"}}
 return
 
 label Day4.E
+# story entry day=4
 \Instead of reaching into the shadow under the bench, my left palm stays open just above the floorboards where her shoe stood a moment ago. #id:line.Day4.E.001
 \“You always tie a square knot when you're in a hurry,” I say quietly. “Nobody else touched your shoe.” #id:line.Day4.E.002
 \“You sound very certain.” #id:line.Day4.E.003
@@ -213,5 +238,6 @@ label Day4.E
 \The paper cup is warm against the lip—the exact spot on the rim where Lavinia drank. #id:line.Day4.E.014
 \Stay behind the glass if you like. The pencil marks are already gone. #id:line.Day4.E.015
 label Day4.E.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day5"}}
 return
 

@@ -1113,6 +1113,15 @@ func _ensure_runtime_adapter(dialogic: Node) -> Dictionary:
 
 var _scene_control_audio_encounter := ""
 
+func _on_scene_presentation_commands_requested(commands: Array) -> void:
+	var game := get_node_or_null("/root/GameState")
+	if game == null: return
+	var applied: Dictionary = game.apply_scene_presentation_commands(commands)
+	if not applied.ok:
+		_runtime_adapter.halt_with_error(applied)
+		return
+	scene_art_changed.emit()
+
 func _on_scene_audio_cues_requested(cues: Array, suppress_sfx: bool) -> void:
 	var game := get_node_or_null("/root/GameState")
 	if game == null: return
@@ -1140,20 +1149,26 @@ func apply_scene_control_audio(marker_id: String) -> Dictionary:
 		index += 1
 	if index >= nodes.size() or nodes[index].get("marker_id") != marker_id: return {"ok": true}
 	var cues: Array = nodes[index].get("audio_cues", [])
-	if cues.is_empty(): return {"ok": true}
+	var commands: Array = nodes[index].get("presentation_commands", [])
+	if cues.is_empty() and commands.is_empty(): return {"ok": true}
 	var frontier: Dictionary = _runtime_adapter.capture_reading_frontier()
 	if not frontier.ok: return frontier
 	var encounter: String = _reading_session.scene_occurrence + ":" + str(frontier.value.publication_id) + ":" + marker_id
 	if encounter == _scene_control_audio_encounter: return {"ok": true}
 	var game := get_node_or_null("/root/GameState")
 	var runtime := get_node_or_null("/root/Dialogic")
-	var applied: Dictionary = game.apply_scene_audio_cues(cues, (runtime != null and runtime.Inputs.auto_skip.enabled))
+	var applied: Dictionary = game.apply_scene_presentation_commands(commands)
+	if not applied.ok: return applied
+	if not commands.is_empty(): scene_art_changed.emit()
+	applied = game.apply_scene_audio_cues(cues, (runtime != null and runtime.Inputs.auto_skip.enabled))
 	if applied.ok: _scene_control_audio_encounter = encounter
 	return applied
 
 func _connect_runtime_adapter(adapter: RefCounted) -> void:
 	_runtime_adapter = adapter
 	_connect_speech_runtime()
+	if adapter.has_signal("scene_presentation_commands_requested") and not adapter.is_connected("scene_presentation_commands_requested", _on_scene_presentation_commands_requested):
+		adapter.connect("scene_presentation_commands_requested", _on_scene_presentation_commands_requested)
 	if adapter.has_signal("scene_audio_cues_requested") and not adapter.is_connected("scene_audio_cues_requested", _on_scene_audio_cues_requested):
 		adapter.connect("scene_audio_cues_requested", _on_scene_audio_cues_requested)
 	if adapter.has_signal("reading_frontier_restored") and not adapter.is_connected("reading_frontier_restored", _on_reading_frontier_restored):
@@ -3591,6 +3606,10 @@ func publish_scene_activation(operation_id: String) -> Dictionary:
 	if not checked.ok: return checked
 	if _scene_restore.get("published", false): return {"ok": true}
 	_scene_restore["published"] = true
+	if _scene_restore.get("arrival_presentation_checkpoint", false):
+		get_node("/root/GameState").mark_scene_presentation_checkpoint_pending()
+		# Creation publishes under its lease; the deferred save runs after release.
+		_finish_scene_presentation_checkpoint.call_deferred()
 	# Restoring a visible caption acknowledges its renderer without writing global
 	# history. The next publication resumes ordinary witnessed-text recording.
 	if _scene_restore.get("read_only", false) and not _scene_restore.checkpoint.is_empty():
@@ -3708,7 +3727,16 @@ func _on_reading_frontier_restored(result: Dictionary) -> void:
 		return
 	if not result.get("ok", false):
 		_on_playback_start_failed(result, true)
+	elif has_reading_session() and _reading_session.family == "scene":
+		_finish_scene_presentation_checkpoint()
 	reading_session_changed.emit()
+
+
+func _finish_scene_presentation_checkpoint() -> void:
+	var game := get_node_or_null("/root/GameState")
+	if game == null: return
+	var saved: Dictionary = game.finish_scene_presentation_checkpoint()
+	if not saved.ok: _on_playback_start_failed(saved, true)
 
 
 func _on_reading_publication(result: Dictionary) -> void:
@@ -3727,6 +3755,11 @@ func _on_reading_publication(result: Dictionary) -> void:
 			var reconciled: Dictionary = _runtime_adapter.reconcile_scene_publication(_reading_session)
 			if not reconciled.ok:
 				_on_playback_start_failed(reconciled, true)
+				return
+			var game := get_node_or_null("/root/GameState")
+			if game != null:
+				var saved: Dictionary = game.finish_scene_presentation_checkpoint()
+				if not saved.ok: _on_playback_start_failed(saved, true)
 			return
 		# Ordinary playback after a completed/refused Next starts a new frontier.
 		# Keep the prior operation in its already durable retained checkpoint.
@@ -4664,13 +4697,24 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 		target_checkpoint.reading_session = destination.value
 		var candidate := _prepare_scene_reading_candidate(target_checkpoint)
 		if not candidate.ok: return candidate
+		var snapshot_input: Dictionary = prepared.snapshot_input.duplicate(true)
+		var presentation_autosave := false
+		if departing:
+			var visual := preload("res://scripts/data/ArtManifest.gd").apply_presentation_commands(
+				node.get("presentation_commands", []), snapshot_input.scene.get("presentation", {}))
+			if not visual.ok: return visual
+			if not visual.value.state.is_empty(): snapshot_input.scene["presentation"] = visual.value.state
+			presentation_autosave = visual.value.autosave
+			for cue: Dictionary in node.get("audio_cues", []):
+				if cue.kind == "music": snapshot_input.scene["music_plan_id"] = cue.id
 		var material := {"source_input": prepared.source_input.duplicate(true), "source_checkpoint": source_checkpoint,
-			"snapshot_input": prepared.snapshot_input.duplicate(true), "checkpoint": target_checkpoint,
+			"snapshot_input": snapshot_input, "checkpoint": target_checkpoint,
 			"event": event.duplicate(true), "plan": plan.duplicate(true)}
 		_scene_playable = {"token": RefCounted.new(), "native_token": native.value, "material": material,
 			"prepared": prepared.duplicate(true), "source_session": _reading_session, "source_reading": source.reading_session.duplicate(true),
 			"source_entry": _active_entry.duplicate(true), "runtime": _runtime_adapter,
-			"candidate": candidate.value.candidate, "lease": lease, "owner": owner}
+			"candidate": candidate.value.candidate, "lease": lease, "owner": owner,
+			"presentation_autosave": presentation_autosave}
 		var retained: Dictionary = _scene_stage_port.retain_scene_control(self, _scene_playable.token, material.duplicate(true))
 		if not retained.ok:
 			_scene_playable = {}
@@ -4705,8 +4749,11 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 		var continued: Dictionary = _runtime_adapter.install_scene_continuation(candidate, checkpoint, source_token)
 		if not continued.get("ok", false):
 			return {"ok": false, "code": continued.get("code", &"scene_continuation_native_refused"), "committed": true}
+		var scene: Dictionary = _scene_playable.material.snapshot_input.scene.duplicate(true)
+		var presentation_autosave: bool = _scene_playable.presentation_autosave
 		_scene_playable = {}
-		return {"ok": true, "value": {"checkpoint": checkpoint, "publication": value.target_publication}}
+		return {"ok": true, "value": {"checkpoint": checkpoint, "publication": value.target_publication,
+			"scene": scene, "presentation_autosave": presentation_autosave}}
 	var installed: Dictionary = _runtime_adapter.install_scene_control(_scene_playable.candidate,
 		checkpoint.reading_session.duplicate(true), _scene_playable.native_token)
 	if not installed.get("ok", false):

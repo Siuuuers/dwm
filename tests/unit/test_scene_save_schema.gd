@@ -164,3 +164,26 @@ func test_optional_named_presentation_preserves_old_entry_audio_and_restores_nam
 	assert_false(RUN.validate_current_scene(scene, bundle).ok)
 	art.reload_placements()
 	scope.restore()
+
+func test_inline_presentation_schema_restores_exact_saved_art_without_checkpoint_arrival() -> void:
+	var art := preload("res://scripts/data/ArtManifest.gd")
+	assert_true(art.reload_placements("res://tests/fixtures/presentation/named_checkpoints.json"))
+	var applied: Dictionary = art.apply_presentation_commands([
+		{"kind": "background", "id": "template.art"},
+		{"kind": "show", "id": "template.right", "slot": "portrait"},
+		{"kind": "checkpoint", "id": "template.checkpoint"},
+		{"kind": "show", "id": "template.left", "slot": "letter"}], {})
+	assert_true(applied.ok, str(applied))
+	if applied.ok:
+		var saved: Dictionary = applied.value.state
+		var before := saved.duplicate(true)
+		var restored: Dictionary = RUN._resolve_scene_presentation({"presentation": saved})
+		assert_true(restored.ok, str(restored))
+		if restored.ok:
+			assert_eq(restored.value, before)
+			assert_eq(restored.value.background, "template.art", "checkpoint default must not replace inline background")
+			assert_eq(restored.value.overlays[0].slot, "portrait")
+			assert_eq(restored.value.overlays[1].slot, "letter")
+			assert_eq(restored.value.audio_plan_id, "", "restore does not adopt the checkpoint's music default")
+		assert_eq(saved, before)
+	art.reload_placements()

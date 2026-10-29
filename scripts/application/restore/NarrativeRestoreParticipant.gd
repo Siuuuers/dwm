@@ -81,6 +81,8 @@ func _init(owner: Object, catalog: Object = null) -> void:
 	_catalog = catalog if catalog != null else preload("res://scripts/data/DialogicTimelineCatalog.gd")
 
 func prepare(input: Dictionary) -> Dictionary:
+	_prepared_scene_arrival_cues = []
+	_prepared_scene_presentation_checkpoint = false
 	_prepared_scene_checkpoint = {}
 	_prepared_terminal = false
 	if typeof(input.get("narrative_checkpoint")) != TYPE_DICTIONARY:
@@ -136,9 +138,11 @@ func prepare(input: Dictionary) -> Dictionary:
 ## Current Load has already resolved its authored position. Native staging owns
 ## the reading session needed to display it; no second saved-Run admission.
 var _prepared_scene_arrival_cues: Array = []
+var _prepared_scene_presentation_checkpoint := false
 
 func prepare_scene_load(snapshot: Dictionary) -> Dictionary:
 	_prepared_scene_arrival_cues = []
+	_prepared_scene_presentation_checkpoint = false
 	_prepared_terminal = preload("res://scripts/domain/run/RunSnapshotSchema.gd").is_scene_terminal(snapshot)
 	_prepared_scene_checkpoint = snapshot.narrative_checkpoint
 	var plan: Dictionary = {"scene_terminal_checkpoint": _prepared_scene_checkpoint} \
@@ -165,8 +169,11 @@ func prepare_scene_new_run(snapshot: Dictionary, _allocation_candidate: Dictiona
 	if not admitted.get("ok", false): return admitted
 	_prepared_scene_checkpoint = checkpoint.duplicate(true)
 	_prepared_scene_arrival_cues = []
+	var game: Node = _owner.get_node("/root/GameState")
+	var presentation: Dictionary = game.prepare_scene_presentation_arrival(snapshot.scene, _bundle, "")
+	if not presentation.ok: return presentation
+	_prepared_scene_presentation_checkpoint = presentation.value.autosave
 	if _bundle.get("audio_catalogue", {}).get("schema_version") == 3:
-		var game: Node = _owner.get_node("/root/GameState")
 		var arrival: Dictionary = game.prepare_scene_audio_arrival(snapshot.scene, _bundle, "")
 		if not arrival.ok: return arrival
 		_prepared_scene_arrival_cues = arrival.value.cues
@@ -191,6 +198,8 @@ func apply_silent(plan: Dictionary) -> Dictionary:
 		if not staged.get("ok", false): return staged
 		if not _prepared_scene_arrival_cues.is_empty():
 			_owner._scene_restore["arrival_audio_cues"] = _prepared_scene_arrival_cues
+		if _prepared_scene_presentation_checkpoint:
+			_owner._scene_restore["arrival_presentation_checkpoint"] = true
 		_scene_operation = plan.scene_restore_operation_id
 		_scene_activation_proof = false
 		_scene_activation_notified = false
@@ -228,6 +237,8 @@ func capture() -> Dictionary:
 	return _owner.capture_restore_state()
 
 func rollback_silent(backup: Dictionary) -> Dictionary:
+	_prepared_scene_arrival_cues = []
+	_prepared_scene_presentation_checkpoint = false
 	_prepared_scene_checkpoint = {}
 	_prepared_terminal = false
 	_scene_operation = ""

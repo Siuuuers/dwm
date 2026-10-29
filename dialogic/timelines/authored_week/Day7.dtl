@@ -2,6 +2,7 @@
 return
 
 label Day7
+# story entry day=7
 \Outside the studio, visitors crowd the corridor with damp programmes. #id:line.Day7.one
 \Inside the narrow warm-up room behind the stage, the crowd noise drops to a muffled hum through the double acoustic doors. #id:line.Day7.002
 \Beside the dressing counter, Lavinia stands with her weight settled into her left hip. Her right heel stays half an inch clear of the floorboards—the exact guarded transfer from before she went away, when she insisted to the department that nothing was wrong. #id:line.Day7.003
@@ -32,9 +33,11 @@ label Day7
 # self-talk
 \Cross the second piece off the stage-door board while her back is turned. #id:line.Day7.028
 label Day7.thought
+# story marker {"kind":"thought.pass","payload":{"opportunity_id":"Day7.clipboard","yes_target_id":"target.Day7.clipboard.yes","pass_target_id":"target.Day7.clipboard.default"}}
 return
 
 label Day7.clipboard.yes
+# story entry day=7
 \While Lavinia adjusts the cardigan over her shoulders, two silent steps reach the clipboard hanging beside the inner studio door. #id:line.Day7.clipboard.yes.001
 \In the Second Variation / Floor Q&A row, one clean stroke of the pen crosses out Second Variation and writes beside it\: #id:line.Day7.clipboard.yes.002
 \Session concluded. Clear hall. #id:line.Day7.clipboard.yes.003
@@ -44,18 +47,24 @@ label Day7.clipboard.yes
 \“There are twenty people out there.” #id:line.Day7.clipboard.yes.007
 \“Twenty-four. The fire notice says twenty.” #id:line.Day7.clipboard.yes.008
 label Day7.clipboard.yes.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day7.crossed.impulse"}}
 return
 
 label Day7.crossed.impulse
+# story entry day=7
+# story challenge {"challenge_id":"Day7.crossed.challenge","playable_marker_id":"Day7.crossed.impulse.playable","end_marker_id":"Day7.crossed.impulse.end","board_profile_id":"week.canonical_solo","targets":{"never_started":"target.Day7.A","unfinished":"target.Day7.B","won":"target.Day7.C","lost":"target.Day7.crossed.D","perfect":"target.Day7.E"}}
 \Through the double acoustic panel, applause rises and thins as the pianist finishes the interlude. In a moment the stage manager will check the door. #id:line.Day7.crossed.impulse.001
 \Lavinia takes one step toward the brass push-bar. Her right heel touches the floorboards, hesitates for a fraction of a second, and takes her weight anyway. #id:line.Day7.crossed.impulse.002
 \“Move, Priscilla,” she says. “I'm doing the second piece, and then I'm going home alone.” #id:line.Day7.crossed.impulse.003
 \Hold the door shut and give her the truth she's been trying to tear out of me all week. #id:line.Day7.crossed.impulse.004
 label Day7.crossed.impulse.playable
+# story marker {"kind":"challenge.playable","payload":{"challenge_id":"Day7.crossed.challenge"}}
 label Day7.crossed.impulse.end
+# story marker {"kind":"challenge.end","payload":{"challenge_id":"Day7.crossed.challenge"}}
 return
 
 label Day7.crossed.D
+# story entry day=7
 \Before her fingertips touch the brass push-bar, my right hand closes around her left wrist—directly over the thin gold bracelet clasp—and draws her arm down from the door. My left palm plants flat against the heavy acoustic panel beside her cheek, holding the door shut with my weight. #id:line.Day7.crossed.D.001
 \Lavinia's breath catches hard. #id:line.Day7.crossed.D.002
 \“Let go.” #id:line.Day7.crossed.D.003
@@ -64,9 +73,11 @@ label Day7.crossed.D
 \“It wasn't for your leg,” I whisper against her lips, every trace of polish gone, my voice softer than in the library and completely still. “You could have danced on it for another month. I altered the form because I couldn't bear the thought of someone else watching you in another city while I stayed here.” #id:line.Day7.crossed.D.006
 \Against the heavy wood, Lavinia's shoulders go rigid; her eyes widen an inch from mine. #id:line.Day7.crossed.D.007
 label Day7.crossed.D.echo
+# story marker {"kind":"challenge.recall","payload":{"challenge_id":"Day1.challenge","never_started_target_id":"target.Day7.crossed.D.no_recording","unfinished_target_id":"target.Day7.crossed.D.no_recording","won_target_id":"target.Day7.crossed.D.no_recording","lost_target_id":"target.Day7.crossed.D.recording","perfect_target_id":"target.Day7.crossed.D.no_recording"}}
 return
 
 label Day7.crossed.D.recording
+# story entry day=7
 \“That's all?” she breathes. #id:line.Day7.crossed.D.recording.001
 \“No,” I whisper, sliding my right hand from her gold bracelet to lace tightly between her fingers and pressing our joined hands flat against the door panel beside her hip. “When you asked for an answer on Monday, I recorded Sylvia reading a line out of her novel and sent it to your phone so you wouldn't hear how badly I wanted you back. And two minutes ago I crossed your second piece off the stage manager's board behind your back.” #id:line.Day7.crossed.D.recording.002
 \Through the thick soundproof panel two inches behind her head, the stage manager's voice announces to the crowd that the performance has concluded. Chairs scrape back; twenty-four pairs of footsteps file out into the corridor and fade away. #id:line.Day7.crossed.D.recording.003
@@ -75,9 +86,11 @@ label Day7.crossed.D.recording
 # self-talk
 \“Ești un monstru,” she breathes against my mouth—and then in English, her forehead dropping hard against my collarbone\: “You're completely monstrous.” #id:line.Day7.crossed.D.recording.006
 label Day7.crossed.D.recording.thought
+# story marker {"kind":"thought.options","payload":{"opportunity_id":"Day7.crossed.D.recording.aftermath","options":[{"choice_id":"pocket","text":"Put Sylvia's lower-gate card into Lavinia's coat pocket myself and tell her she won't be using it.","target_id":"target.Day7.D.pocket"},{"choice_id":"board","text":"Make her look at the crossed-out clipboard on our way out the door.","target_id":"target.Day7.crossed.D.board"}],"pass_target_id":"target.Day7.D.default"}}
 return
 
 label Day7.crossed.D.no_recording
+# story entry day=7
 \“That's all?” she breathes. #id:line.Day7.crossed.D.no_recording.001
 \“No,” I whisper, sliding my right hand from her gold bracelet to lace tightly between her fingers and pressing our joined hands flat against the door panel beside her hip. “Two minutes ago I crossed your second piece off the stage manager's board behind your back.” #id:line.Day7.crossed.D.no_recording.002
 \Through the thick soundproof panel two inches behind her head, the stage manager's voice announces to the crowd that the performance has concluded. Chairs scrape back; twenty-four pairs of footsteps file out into the corridor and fade away. #id:line.Day7.crossed.D.no_recording.003
@@ -86,15 +99,19 @@ label Day7.crossed.D.no_recording
 # self-talk
 \“Ești un monstru,” she breathes against my mouth—and then in English, her forehead dropping hard against my collarbone\: “You're completely monstrous.” #id:line.Day7.crossed.D.no_recording.006
 label Day7.crossed.D.no_recording.thought
+# story marker {"kind":"thought.options","payload":{"opportunity_id":"Day7.crossed.D.no_recording.aftermath","options":[{"choice_id":"pocket","text":"Put Sylvia's lower-gate card into Lavinia's coat pocket myself and tell her she won't be using it.","target_id":"target.Day7.D.pocket"},{"choice_id":"board","text":"Make her look at the crossed-out clipboard on our way out the door.","target_id":"target.Day7.crossed.D.board"}],"pass_target_id":"target.Day7.D.default"}}
 return
 
 label Day7.crossed.D.board
+# story entry day=7
 \After I kneel to tie her street shoes and draw her coat over her shoulders, I pause for half a second beside the inner door where my black line strikes through Second Variation on the hanging clipboard. #id:line.Day7.crossed.D.board.001
 \Lavinia looks at my handwriting on the board, then up at my mouth, her fingers tightening around mine as we turn toward the rear courtyard door. #id:line.Day7.crossed.D.board.002
 label Day7.crossed.D.board.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.ending.alone.normal"}}
 return
 
 label Day7.clipboard.default
+# story entry day=7
 \The clipboard stays untouched on the hook; two steps place my shoulder directly between Lavinia and the inner studio door. #id:line.Day7.clipboard.default.001
 \“The stage manager already moved the next slot to the main hall,” I say. #id:line.Day7.clipboard.default.002
 \“He didn't tell me.” #id:line.Day7.clipboard.default.003
@@ -103,18 +120,24 @@ label Day7.clipboard.default
 \“You're lying.” #id:line.Day7.clipboard.default.006
 \“Go out and ask him. You'll have to walk across the floor on that right leg in front of twenty-four people to do it.” #id:line.Day7.clipboard.default.007
 label Day7.clipboard.default.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day7.untouched.impulse"}}
 return
 
 label Day7.untouched.impulse
+# story entry day=7
+# story challenge {"challenge_id":"Day7.untouched.challenge","playable_marker_id":"Day7.untouched.impulse.playable","end_marker_id":"Day7.untouched.impulse.end","board_profile_id":"week.canonical_solo","targets":{"never_started":"target.Day7.A","unfinished":"target.Day7.B","won":"target.Day7.C","lost":"target.Day7.untouched.D","perfect":"target.Day7.E"}}
 \Through the double acoustic panel, applause rises and thins as the pianist finishes the interlude. In a moment the stage manager will check the door. #id:line.Day7.untouched.impulse.001
 \Lavinia takes one step toward the brass push-bar. Her right heel touches the floorboards, hesitates for a fraction of a second, and takes her weight anyway. #id:line.Day7.untouched.impulse.002
 \“Move, Priscilla,” she says. “I'm doing the second piece, and then I'm going home alone.” #id:line.Day7.untouched.impulse.003
 \Hold the door shut and give her the truth she's been trying to tear out of me all week. #id:line.Day7.untouched.impulse.004
 label Day7.untouched.impulse.playable
+# story marker {"kind":"challenge.playable","payload":{"challenge_id":"Day7.untouched.challenge"}}
 label Day7.untouched.impulse.end
+# story marker {"kind":"challenge.end","payload":{"challenge_id":"Day7.untouched.challenge"}}
 return
 
 label Day7.untouched.D
+# story entry day=7
 \Before her fingertips touch the brass push-bar, my right hand closes around her left wrist—directly over the thin gold bracelet clasp—and draws her arm down from the door. My left palm plants flat against the heavy acoustic panel beside her cheek, holding the door shut with my weight. #id:line.Day7.untouched.D.001
 \Lavinia's breath catches hard. #id:line.Day7.untouched.D.002
 \“Let go.” #id:line.Day7.untouched.D.003
@@ -123,9 +146,11 @@ label Day7.untouched.D
 \“It wasn't for your leg,” I whisper against her lips, every trace of polish gone, my voice softer than in the library and completely still. “You could have danced on it for another month. I altered the form because I couldn't bear the thought of someone else watching you in another city while I stayed here.” #id:line.Day7.untouched.D.006
 \Against the heavy wood, Lavinia's shoulders go rigid; her eyes widen an inch from mine. #id:line.Day7.untouched.D.007
 label Day7.untouched.D.echo
+# story marker {"kind":"challenge.recall","payload":{"challenge_id":"Day1.challenge","never_started_target_id":"target.Day7.untouched.D.no_recording","unfinished_target_id":"target.Day7.untouched.D.no_recording","won_target_id":"target.Day7.untouched.D.no_recording","lost_target_id":"target.Day7.untouched.D.recording","perfect_target_id":"target.Day7.untouched.D.no_recording"}}
 return
 
 label Day7.untouched.D.recording
+# story entry day=7
 \“That's all?” she breathes. #id:line.Day7.untouched.D.recording.001
 \“No,” I whisper, sliding my right hand from her gold bracelet to lace tightly between her fingers and pressing our joined hands flat against the door panel beside her hip. “When you asked for an answer on Monday, I recorded Sylvia reading a line out of her novel and sent it to your phone so you wouldn't hear how badly I wanted you back.” #id:line.Day7.untouched.D.recording.002
 \Through the thick soundproof panel two inches behind her head, the stage manager's voice announces to the crowd that the performance has concluded. Chairs scrape back; twenty-four pairs of footsteps file out into the corridor and fade away. #id:line.Day7.untouched.D.recording.003
@@ -134,24 +159,30 @@ label Day7.untouched.D.recording
 # self-talk
 \“Ești un monstru,” she breathes against my mouth—and then in English, her forehead dropping hard against my collarbone\: “You're completely monstrous.” #id:line.Day7.untouched.D.recording.006
 label Day7.untouched.D.recording.thought
+# story marker {"kind":"thought.options","payload":{"opportunity_id":"Day7.untouched.D.recording.aftermath","options":[{"choice_id":"pocket","text":"Put Sylvia's lower-gate card into Lavinia's coat pocket myself and tell her she won't be using it.","target_id":"target.Day7.D.pocket"},{"choice_id":"board","text":"Make her look at the untouched clipboard on our way out the door.","target_id":"target.Day7.untouched.D.board"}],"pass_target_id":"target.Day7.D.default"}}
 return
 
 label Day7.untouched.D.no_recording
+# story entry day=7
 \Through the thick soundproof panel two inches behind her head, the stage manager's voice announces to the crowd that the performance has concluded. Chairs scrape back; twenty-four pairs of footsteps file out into the corridor and fade away. #id:line.Day7.untouched.D.no_recording.001
 \The second piece is gone. #id:line.Day7.untouched.D.no_recording.002
 \Lavinia does not call out through the door, and she does not let go of my lapel. Instead, her free hand slides up from my collar into the hair at the back of my neck, her fingers locking hard at my nape as she pulls my mouth down to hers—her breath hot, trembling, and electric against my lips. #id:line.Day7.untouched.D.no_recording.003
 # self-talk
 \“Ești un monstru,” she breathes against my mouth—and then in English, her forehead dropping hard against my collarbone\: “You're completely monstrous.” #id:line.Day7.untouched.D.no_recording.004
 label Day7.untouched.D.no_recording.thought
+# story marker {"kind":"thought.options","payload":{"opportunity_id":"Day7.untouched.D.no_recording.aftermath","options":[{"choice_id":"pocket","text":"Put Sylvia's lower-gate card into Lavinia's coat pocket myself and tell her she won't be using it.","target_id":"target.Day7.D.pocket"},{"choice_id":"board","text":"Make her look at the untouched clipboard on our way out the door.","target_id":"target.Day7.untouched.D.board"}],"pass_target_id":"target.Day7.D.default"}}
 return
 
 label Day7.untouched.D.board
+# story entry day=7
 \After I kneel to tie her street shoes and draw her coat over her shoulders, I pause for half a second beside the inner door where Second Variation remains untouched on the hanging clipboard. #id:line.Day7.untouched.D.board.001
 \Lavinia looks at the unchanged row on the board, then up at my mouth, her fingers tightening around mine as we turn toward the rear courtyard door. #id:line.Day7.untouched.D.board.002
 label Day7.untouched.D.board.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.ending.alone.normal"}}
 return
 
 label Day7.A
+# story entry day=7
 \“If you go back out on that floor,” I say quietly, “I'll bring a chair onto the stage for you in the middle of the piece.” #id:line.Day7.A.001
 \Lavinia's hand stops an inch from the brass push-bar. #id:line.Day7.A.002
 \“You wouldn't dare.” #id:line.Day7.A.003
@@ -161,9 +192,11 @@ label Day7.A
 \“Not when it's you.” #id:line.Day7.A.007
 \Beyond the wall, the stage manager announces that the session has concluded. Chairs scrape back; footsteps move toward the main hall. Lavinia lowers her hand from the brass bar and reaches for her street coat. #id:line.Day7.A.008
 label Day7.A.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.ending.alone.normal"}}
 return
 
 label Day7.B
+# story entry day=7
 \My hand lifts toward her sleeve, then stops in the six inches of air between us without touching the wool. #id:line.Day7.B.001
 \“Go on, then. Push the door open.” #id:line.Day7.B.002
 \Lavinia looks at my stopped hand, then at the heavy acoustic door. #id:line.Day7.B.003
@@ -173,9 +206,11 @@ label Day7.B
 \Lavinia lets out a short, quiet breath that sounds almost like a laugh. #id:line.Day7.B.007
 \“You knew I'd wait a second too long,” she says, and reaches for her coat. #id:line.Day7.B.008
 label Day7.B.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.ending.alone.normal"}}
 return
 
 label Day7.C
+# story entry day=7
 \“Don't open it,” I say quietly. “It wasn't only because of your leg.” #id:line.Day7.C.001
 \Lavinia's fingers stop on the brass push-bar. She does not turn around right away. #id:line.Day7.C.002
 \“What did you say?” #id:line.Day7.C.003
@@ -185,22 +220,28 @@ label Day7.C
 \“I'm saying it now. Sit down and let me take your ribbons off.” #id:line.Day7.C.007
 \She sinks onto the wooden bench and reaches down with unsteady fingers; I kneel on the floorboards in front of her, untie the pale satin from her right ankle, and slip her street shoe onto her foot before we walk out to the rear door. #id:line.Day7.C.008
 label Day7.C.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.ending.alone.normal"}}
 return
 
 label Day7.D.default
+# story entry day=7
 \“Sit down,” I say gently, smoothing the hair back from her temple as if nothing had happened at the door. “Put your street shoes on before your ankle stiffens.” #id:line.Day7.D.default.001
 \Lavinia sinks onto the wooden bench, her chest still rising fast, her eyes never leaving my face as I kneel at her feet, untie the rehearsal ribbons from her ankles, and slip both of her street shoes on for her. Before we step toward the rear passage, my hand lifts Sylvia's white lower-gate card from the counter and drops it into the bin beside the rosin box. #id:line.Day7.D.default.002
 label Day7.D.default.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.ending.alone.normal"}}
 return
 
 label Day7.D.pocket
+# story entry day=7
 \While I button her street coat up to her chin, I take Sylvia's white lower-gate card from the counter, fold it once, and slip it into Lavinia's outer pocket before sliding my own hand in after it. #id:line.Day7.D.pocket.001
 \“Keep the souvenir if you like,” I murmur against her ear. “We're taking the hill path.” #id:line.Day7.D.pocket.002
 \Lavinia laughs once—breathless and dark—before I kneel to slip her street shoes onto her feet. #id:line.Day7.D.pocket.003
 label Day7.D.pocket.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.ending.alone.normal"}}
 return
 
 label Day7.E
+# story entry day=7
 \“Don't open it,” I say quietly. “It wasn't only because of your leg.” #id:line.Day7.E.001
 \Lavinia's fingers stop on the brass push-bar. She does not turn around right away. #id:line.Day7.E.002
 \“What did you say?” #id:line.Day7.E.003
@@ -216,10 +257,13 @@ label Day7.E
 \You wanted to see what remains when every other door is locked. #id:line.Day7.E.013
 \Look closely, then. #id:line.Day7.E.014
 label Day7.E.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.ending.alone.normal"}}
 return
 
 label ending.alone.normal
+# story entry day=7
 label ending.alone.normal.start
+# story marker {"kind":"passage.start","payload":{"passage_id":"passage.umbrella"}}
 \At the rear doors of the building, the evening rain falls straight down through the courtyard lamp light. #id:line.ending.alone.normal.001
 \The long black umbrella stands in the rack beside the threshold. #id:line.ending.alone.normal.002
 \My right hand takes the curved wooden handle; my shoulder pushes the heavy door outward, and my thumb presses the catch. #id:line.ending.alone.normal.003
@@ -243,5 +287,6 @@ label ending.alone.normal.start
 \“Before then.” #id:line.ending.alone.normal.021
 \Lavinia laughs once under her breath, rests her temple against my shoulder beneath the black canopy, and lets the turn take us up the hill. #id:line.ending.alone.normal.022
 label ending.alone.normal.finish
+# story marker {"kind":"passage.finish","payload":{"passage_id":"passage.umbrella"}}
 return
 
