@@ -142,6 +142,7 @@ jobs:
                       'tests/integration/test_artwork_gallery.gd',
                       'tests/integration/test_scene_inline_presentation.gd',
                       'tests/integration/test_scene_inline_presentation_load.gd',
+                      'tests/ui/render_gallery_caption_collection.gd',
                       'tests/unit/test_art_placements.gd',
                       'tests/unit/test_dtl_library_authoring.gd',
                       'tests/unit/test_dtl_replacement_export.gd',
