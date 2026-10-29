@@ -307,7 +307,7 @@ func test_f5_commits_current_quick_through_real_owner_without_displacing_backup_
 		assert_true(changed.ok,JSON.stringify(changed))
 		assert_true(_profile.commit_prepared_profile(changed.value).ok)
 		await get_tree().process_frame
-		assert_same(edge.theme.default_font,TYPOGRAPHY.font("en",100,font_style))
+		assert_same(edge.theme.default_font,TYPOGRAPHY.font("en",125,font_style))
 		assert_eq(edge.current_binding,binding,"font preference does not replace the published saved fact")
 		assert_eq(edge.remaining_seconds,remaining,"font preference does not restart status lifetime")
 	assert_signal_not_emitted(edge,"status_announced")
