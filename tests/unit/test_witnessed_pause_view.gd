@@ -270,7 +270,7 @@ class SettlingNextBridge extends RefCounted:
 		acknowledgements += 1
 		return {"ok": true}
 	func is_current_line_presentation_acknowledged() -> bool: return acknowledgements > 0
-	func request_next(expected_frontier: Dictionary) -> Dictionary:
+	func request_next(expected_frontier: Dictionary, _suppress_sfx: bool = true) -> Dictionary:
 		requests += 1
 		active = true
 		next_traversal_changed.emit()

@@ -2380,6 +2380,22 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_named_arrival_manual_save_load_and_ordinary_overlay_continuation"
+    },
+    {
+      "symbol": "apply_scene_audio_cues",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_checkpoint_then_inline_selection_is_saved_before_destination_audio"
+    },
+    {
+      "symbol": "prepare_scene_audio_arrival",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_checkpoint_then_inline_selection_is_saved_before_destination_audio"
     }
   ]
 }

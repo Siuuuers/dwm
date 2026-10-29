@@ -124,6 +124,7 @@ jobs:
       - name: Generate canonical public inventories
         run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
       - name: Test compiler catalogue and playback owners
+        if: ${{ !cancelled() && steps.import_project.outcome == 'success' }}
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite scene_inline_audio_unit
       - name: Test rendered cues and fresh-process Load
         if: ${{ !cancelled() && steps.import_project.outcome == 'success' }}
@@ -131,6 +132,9 @@ jobs:
       - name: Test rendered reading controls
         if: ${{ !cancelled() && steps.import_project.outcome == 'success' }}
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite scene_inline_audio_transport
+      - name: Test checkpoint audio arrival and same-process Load
+        if: ${{ !cancelled() && steps.import_project.outcome == 'success' }}
+        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite scene_inline_audio_transition
       - name: Retain generated source and diagnostic evidence
         if: always()
         uses: actions/upload-artifact@v4

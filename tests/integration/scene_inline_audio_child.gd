@@ -142,7 +142,8 @@ func _load_inline(slot: int, from_title: bool) -> bool:
 	if not _ok(prepared): return false
 	ready_count = 0
 	var loaded: Dictionary = await port.commit_action(prepared.value.token)
-	if not _ok(loaded): return false
+	assert_eq(loaded.get("code"), &"scene_activation_pending", str(loaded))
+	if loaded.get("code") != &"scene_activation_pending": return false
 	if not await _await_ready(): return false
 	for frame: int in 5: await get_tree().process_frame
 	return true

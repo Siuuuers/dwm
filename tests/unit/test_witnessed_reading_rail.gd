@@ -216,7 +216,7 @@ class NextBridge extends RefCounted:
 	var requested: Dictionary = {}
 	var finish_immediately := true
 	func can_next_current_line() -> bool: return true
-	func request_next(frontier: Dictionary) -> Dictionary:
+	func request_next(frontier: Dictionary, _suppress_sfx: bool = true) -> Dictionary:
 		trace.append("request")
 		requested = frontier.duplicate(true)
 		if finish_immediately: next_request_finished.emit(requested.duplicate(true), result)

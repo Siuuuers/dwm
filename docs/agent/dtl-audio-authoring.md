@@ -68,10 +68,13 @@ unlocks. Ordinary comments retain their existing meaning. Misspelled reserved
 audio commands, options, durations and unknown IDs fail compilation/registration.
 
 Put a destination cue **after its label**. It then runs both when a jump reaches
-that label and when reading reaches it in order. A cue immediately before an
-ordinary label is rejected because a jump would bypass it while sequential
+that label and when reading reaches it in order. A cue immediately before a
+label is rejected because a jump would bypass it while sequential
 reading would cross it. A cue before a jump belongs to that outgoing branch;
 a cue after the destination label belongs to the arrival.
+
+For an existing registered control marker, place its cues between the label
+and its registered signal. Cues after that signal belong to the next caption.
 
 Music persists until another cue changes or stops it. Selecting the active ID
 again does not restart it; stop then play to restart. Explicit named-checkpoint
@@ -79,7 +82,8 @@ audio still overrides the previous selection, followed by any inline arrival cue
 Hidden transition preparation must not emit sounds.
 
 Manual reading and Auto play one-shot effects. Skip consumes them silently;
-fast Next suppresses effects on bypassed intermediate positions. A genuine later
+supported Next control traversal also suppresses effects. Ordinary Scene captions
+retain their existing unavailable Next behavior. A genuine later
 story encounter can play the sound again. Load, language changes, repaint,
 History, library browsing and Settings return do not replay crossed effects.
 
