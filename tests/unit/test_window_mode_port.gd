@@ -256,6 +256,7 @@ func test_native_nonexclusive_fullscreen_substitution_requires_exact_usable_boun
 	assert_true(platform.operations.is_empty())
 	platform.maximize_bounds = Rect2i(platform.screens[1].position, platform.screens[1].size - Vector2i(1, 0))
 	platform.mode = DisplayServer.WINDOW_MODE_WINDOWED
+	platform.size.x -= 1 # Start outside the already-proven no-op state.
 	assert_eq(port.apply_mode("borderless").code, &"window_output_unproven")
 	assert_false(port.output_matches("borderless"))
 	platform.maximize_bounds = Rect2i()
