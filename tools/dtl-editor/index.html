@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DTL · Pocket editor</title>
+<style>
+:root{color-scheme:light;--ink:#243d37;--muted:#5b6c65;--paper:#faf9f4;--line:#d8ded4;--accent:#295b48;font:16px/1.5 system-ui,sans-serif;background:var(--paper);color:var(--ink)}
+*{box-sizing:border-box}body{margin:0}main{max-width:1440px;margin:auto;padding:36px}header{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:28px}h1{font:500 34px/1.15 Georgia,serif;margin:4px 0 10px}h2{font-size:17px;margin:0 0 14px}p{margin:6px 0 14px}.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}.subtle,small{color:var(--muted)}.actions{display:flex;gap:10px;flex-wrap:wrap}button,select,input{font:inherit}button{padding:10px 16px;border:1px solid var(--line);border-radius:7px;color:var(--ink);background:white;cursor:pointer}button.primary{background:var(--accent);color:white;border-color:var(--accent)}button:disabled{opacity:.45;cursor:default}:focus-visible{outline:3px solid #b17d32;outline-offset:3px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:22px}.panel{background:white;border:1px solid var(--line);border-radius:10px;overflow:hidden}.bar{display:flex;justify-content:space-between;gap:12px;padding:13px 18px;border-bottom:1px solid var(--line);font-size:13px;overflow-wrap:anywhere}textarea{display:block;width:100%;height:62vh;min-height:330px;padding:20px;border:0;resize:vertical;background:#fffefa;color:var(--ink);font:14px/1.8 ui-monospace,monospace;tab-size:4;white-space:pre;overflow:auto}aside .panel{padding:20px;margin-bottom:16px}label{display:block;font-size:13px;font-weight:600;margin:14px 0 5px}select,input:not([type=file]){width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:6px;background:white;color:var(--ink)}code{font-family:ui-monospace,monospace}#cuePreview{display:block;padding:12px;background:#f0f4ed;overflow-wrap:anywhere;font-size:12px;min-height:45px;margin:16px 0}#insert{width:100%}#feedback{padding:16px 18px;border-top:1px solid var(--line);font-size:13px}#issues{padding-left:22px;margin:8px 0 0}#issues button{padding:0;border:0;text-decoration:underline;background:none;text-align:left;color:#8d482c}#message{min-height:24px;font-size:13px;color:#8d482c}ol.guide{padding-left:18px;font-size:13px}ol.guide li{padding:3px 0}footer{font-size:12px;color:var(--muted);margin-top:18px}[hidden]{display:none!important}@media(max-width:800px){main{padding:20px}header{align-items:flex-start;flex-direction:column}.layout{grid-template-columns:1fr}textarea{height:48vh}h1{font-size:30px}}
+</style>
+<main>
+ <header><div><div class="eyebrow">DWM / Story tools</div><h1>A little room for your story.</h1><p class="subtle">Import a DTL file. Add a cue. Keep writing.</p></div><div class="actions"><input id="file" type="file" accept=".dtl" hidden><button id="import">Import DTL</button><button id="undo" disabled>Undo edit</button><button id="export" class="primary" disabled>Export DTL</button></div></header>
+ <div class="layout">
+  <section class="panel" aria-label="DTL source"><div class="bar"><span id="filename">No file open</span><span id="position">Line 1</span></div><textarea id="source" aria-label="DTL text and exact preview" spellcheck="false" disabled placeholder="Import your .dtl file to begin. Your text is also the export preview."></textarea><div id="feedback"><strong id="summary" role="status">Ready when you are.</strong><ul id="issues"></ul><p class="subtle">Local checks cover quick-control syntax and duplicate labels. Project export checks assets, routes, story metadata and full DTL validity.</p></div></section>
+  <aside>
+   <section class="panel"><h2>Quick controls</h2><p class="subtle"><small>Click a caption line, then add a label or cue before it.</small></p>
+    <form id="controls"><label for="kind">Add</label><select id="kind"><option value="label">Label</option><option value="scene">Scene preset</option><option value="background">Background</option><option value="show">Show artwork</option><option value="hide">Hide artwork</option><option value="music">Music</option><option value="stop">Stop music</option><option value="sfx">One-shot SFX</option><option value="checkpoint">Checkpoint</option></select>
+    <div id="idField"><label id="idLabel" for="identifier">Label name</label><input id="identifier" autocomplete="off" placeholder="rooftop.meeting"></div>
+    <div id="slotField" hidden><label for="slot">Slot name</label><input id="slot" autocomplete="off" placeholder="portrait"></div>
+    <div id="fadeField" hidden><label for="fade">Fade in seconds · optional</label><input id="fade" type="number" min="0" step="any" placeholder="0"></div>
+    <small id="hint">Names a point in this timeline; does not register a story entry.</small><code id="cuePreview">label rooftop.meeting</code><button id="insert" class="primary" disabled>Insert before line</button><p id="message" role="status"></p></form>
+   </section>
+   <section class="panel"><h2>A small guide</h2><ol class="guide"><li><b>Import</b> one UTF-8 .dtl file.</li><li><b>Click a caption</b> in the text. Quick controls keep its self-talk pair together.</li><li><b>Insert</b> a label or cue. Edit or remove any line directly.</li><li><b>Review</b> the text and feedback, then export.</li></ol><small>Use existing catalogue IDs for images and audio. Export downloads a file; it does not publish to GitHub.</small></section>
+  </aside>
+ </div><footer>Works offline · No uploads · Your text stays in this tab. Export before closing; edits are not saved automatically.</footer>
+</main>
+<script>
+// DTL stays as source text. Only the edited span is replaced; no parser rewrites it.
+const DTL = (() => {
+ const normalize = text => text.replace(/\r\n|\r/g, '\n');
+ const semanticID = /^[A-Za-z0-9_.:-]{1,256}$/;
+ const audioID = /^[A-Za-z0-9_][A-Za-z0-9_.-]*$/;
+ const cue = line => /^# (?:art|audio|checkpoint)\b/.test(line.trim());
+ function reconcile(raw, next) {
+  const old = normalize(raw);
+  if (old === next) return raw;
+  let a = 0, b = old.length, c = next.length;
+  while (a < b && a < c && old[a] === next[a]) a++;
+  while (b > a && c > a && old[b - 1] === next[c - 1]) { b--; c--; }
+  function offset(pos) {
+   let i = 0, n = 0;
+   while (n < pos) { if (raw[i] === '\r' && raw[i + 1] === '\n') i++; i++; n++; }
+   return i;
+  }
+  const eol = raw.match(/\r\n|\r|\n/)?.[0] || '\n';
+  return raw.slice(0, offset(a)) + next.slice(a, c).replace(/\n/g, eol) + raw.slice(offset(b));
+ }
+ function command(kind, id, slot, fade) {
+  id = id.trim(); slot = slot.trim(); fade = fade.trim();
+  if (kind !== 'stop' && !(kind === 'music' || kind === 'sfx' ? audioID : semanticID).test(id))
+   throw Error('Enter an ID using letters, numbers, dots, underscores or hyphens' + (kind === 'music' || kind === 'sfx' ? '.' : ' (colons are also allowed; maximum 256 characters).'));
+  if (kind === 'sfx' && id === 'stop') throw Error('SFX needs a sound ID; stop is reserved for music.');
+  if (kind === 'show' && !semanticID.test(slot)) throw Error('Enter a slot name, such as portrait.');
+  if ((kind === 'music' || kind === 'stop') && fade && (!/^\d*\.?\d+(?:[eE][+-]?\d+)?$/.test(fade) || !Number.isFinite(Number(fade)) || Number(fade) < 0)) throw Error('Fade must be a finite number of seconds, zero or greater.');
+  if (kind === 'label') return 'label ' + id;
+  if (kind === 'checkpoint') return '# checkpoint ' + id;
+  if (kind === 'sfx') return '# audio sfx ' + id;
+  if (kind === 'music' || kind === 'stop') return '# audio music ' + (kind === 'stop' ? 'stop' : id) + (fade ? ' fade=' + fade : '');
+  return '# art ' + kind + ' ' + id + (kind === 'show' ? ' slot=' + slot : '');
+ }
+ function insertion(text, cursor, newLine) {
+  const lines = text.split('\n');
+  let row = text.slice(0, cursor).split('\n').length - 1;
+  // The compiler treats caption + self-talk + thought as one presentation.
+  if (lines[row].trim() === '# self-talk') row--;
+  else if (row > 0 && lines[row - 1].trim() === '# self-talk') row -= 2;
+  if (row < 0 || !lines[row].includes('#id:') || /^\s*(#|label |jump |return\b)/.test(lines[row]))
+   throw Error('Click a caption with a #id: marker. Insertions go before that caption, outside its self-talk pair.');
+  // A new label must precede pending cues; otherwise a jump would bypass them.
+  if (newLine.startsWith('label ')) {
+   while (row > 0 && (cue(lines[row - 1]) || !lines[row - 1].trim())) row--;
+  }
+  const position = lines.slice(0, row).reduce((n, line) => n + line.length + 1, 0);
+  return {text: text.slice(0, position) + newLine + '\n' + text.slice(position), position, row};
+ }
+ function issues(text) {
+  const found = [], labels = new Map();
+  text.split('\n').forEach((line, index) => {
+   const s = line.trim(), label = s.match(/^label +([^(]+)/);
+   if (label) {
+    const name = label[1].trim();
+    if (labels.has(name)) found.push({line: index + 1, message: 'Duplicate label “' + name + '” (first on line ' + labels.get(name) + ').'});
+    else labels.set(name, index + 1);
+   } else if (s === 'label') found.push({line: index + 1, message: 'Label needs a name.'});
+   if (!/^# (art|audio|checkpoint)\b/.test(s)) return;
+   const parts = s.split(/\s+/);
+   let kind, id = '', slot = '', fade = '', valid = true;
+   if (parts[1] === 'checkpoint') { kind = 'checkpoint'; id = parts[2] || ''; valid = parts.length === 3; }
+   else if (parts[1] === 'art') {
+    kind = parts[2]; id = parts[3] || '';
+    valid = ['scene','background','show','hide'].includes(kind) && parts.length === (kind === 'show' ? 5 : 4);
+    if (kind === 'show') { valid &&= parts[4]?.startsWith('slot='); slot = parts[4]?.slice(5) || ''; }
+   } else {
+    kind = parts[2]; id = parts[3] || '';
+    valid = ['music','sfx'].includes(kind) && (parts.length === 4 || (kind === 'music' && parts.length === 5 && parts[4].startsWith('fade=') && parts[4].length > 5));
+    fade = parts[4]?.slice(5) || '';
+   }
+   try { if (!valid) throw Error('Check the cue’s fields and options.'); command(kind, id, slot, fade); }
+   catch (error) { found.push({line: index + 1, message: error.message}); }
+  });
+  return found;
+ }
+ return {normalize, reconcile, command, insertion, issues};
+})();
+if (typeof module !== 'undefined') module.exports = DTL;
+if (typeof document !== 'undefined') {
+ const $ = id => document.getElementById(id);
+ const source = $('source'), history = [];
+ let raw = '', bom = '', filename = '', saved = '', cursor = 0;
+ const descriptions = {
+  label: ['Label name','rooftop.meeting','Names a point in this timeline; does not register a story entry.'],
+  scene: ['Scene preset ID','draft.reading.early','Selects a reusable composition from the artwork catalogue.'],
+  background: ['Background asset ID','picture3','Changes the background only.'],
+  show: ['Overlay preset ID','portrait_neutral','Shows an overlay preset in a named slot.'],
+  hide: ['Slot name','portrait','Removes the artwork in this slot.'],
+  music: ['Music ID','quiet_room','Plays or changes music. It persists until another music cue.'],
+  stop: ['','','Stops music; an optional fade makes the change gradual.'],
+  sfx: ['SFX ID','door_knock','Plays one sound at this story encounter.'],
+  checkpoint: ['Checkpoint ID','room.arrival','Requests an Autosave when the next caption is accepted.']
+ };
+ function refresh() {
+  const problems = DTL.issues(source.value);
+  $('summary').textContent = problems.length ? problems.length + ' local issue' + (problems.length === 1 ? '' : 's') : 'No issues found by local checks.';
+  $('issues').replaceChildren(...problems.map(problem => {
+   const li = document.createElement('li'), button = document.createElement('button');
+   button.textContent = 'Line ' + problem.line + ': ' + problem.message;
+   button.onclick = () => { cursor = source.value.split('\n').slice(0, problem.line - 1).reduce((n,s) => n+s.length+1,0); source.focus(); source.setSelectionRange(cursor,cursor); position(); };
+   li.append(button); return li;
+  }));
+  $('filename').textContent = filename + (raw !== saved ? ' · edited' : '');
+  $('undo').disabled = !history.length;
+  position();
+ }
+ function position() { $('position').textContent = 'Line ' + (source.value.slice(0,cursor).split('\n').length); }
+ function remember() { history.push({raw,cursor}); if (history.length > 50) history.shift(); }
+ function preview() {
+  const kind = $('kind').value, info = descriptions[kind];
+  $('idField').hidden = kind === 'stop'; $('slotField').hidden = kind !== 'show'; $('fadeField').hidden = !['music','stop'].includes(kind);
+  $('idLabel').textContent = info[0]; $('identifier').placeholder = info[1]; $('hint').textContent = info[2];
+  try { $('cuePreview').textContent = DTL.command(kind,$('identifier').value || info[1],$('slot').value || 'portrait',$('fade').value); }
+  catch (error) { $('cuePreview').textContent = error.message; }
+ }
+ $('import').onclick = () => { if (!filename || raw === saved || confirm('Replace these unexported edits with another file?')) $('file').click(); };
+ $('file').onchange = async () => {
+  const file = $('file').files[0]; if (!file) return;
+  try {
+   const decoded = new TextDecoder('utf-8',{fatal:true,ignoreBOM:true}).decode(await file.arrayBuffer());
+   bom = decoded.startsWith('\uFEFF') ? '\uFEFF' : ''; raw = decoded.slice(bom.length); saved = raw;
+   filename = file.name; cursor = 0; history.length = 0; source.disabled = false; source.value = DTL.normalize(raw);
+   $('insert').disabled = false; $('export').disabled = false; $('message').textContent = ''; refresh();
+  } catch (error) { $('message').textContent = 'Could not import this file as UTF-8 DTL. ' + error.message; }
+  $('file').value = '';
+ };
+ source.oninput = () => { remember(); raw = DTL.reconcile(raw,source.value); cursor = source.selectionStart; refresh(); };
+ for (const event of ['click','keyup','select']) source.addEventListener(event,() => {cursor = source.selectionStart; position();});
+ $('controls').oninput = preview;
+ $('controls').onsubmit = event => {
+  event.preventDefault();
+  try {
+   const line = DTL.command($('kind').value,$('identifier').value,$('slot').value,$('fade').value);
+   const result = DTL.insertion(source.value,cursor,line);
+   if (line.startsWith('label ') && DTL.issues(result.text).some(p => p.message.startsWith('Duplicate label'))) throw Error('That label already exists. Choose a unique name.');
+   remember(); raw = DTL.reconcile(raw,result.text); source.value = result.text; cursor = result.position + line.length + 1;
+   source.focus(); source.setSelectionRange(cursor,cursor); $('message').textContent = 'Inserted on line ' + (result.row+1) + '. You can edit the text directly.'; refresh();
+  } catch (error) { $('message').textContent = error.message; }
+ };
+ $('undo').onclick = () => { const prior = history.pop(); raw = prior.raw; cursor = prior.cursor; source.value = DTL.normalize(raw); source.focus(); source.setSelectionRange(cursor,cursor); $('message').textContent = 'Edit undone.'; refresh(); };
+ $('export').onclick = () => {
+  const url = URL.createObjectURL(new Blob([bom + raw],{type:'text/plain;charset=utf-8'}));
+  const link = document.createElement('a'); link.href = url; link.download = filename; link.click(); setTimeout(() => URL.revokeObjectURL(url),1000);
+  saved = raw; refresh(); $('message').textContent = 'Export requested. Run the project exporter before shipping.';
+ };
+ window.addEventListener('beforeunload',event => { if (raw !== saved) { event.preventDefault(); event.returnValue = ''; } });
+ preview();
+}
+</script>
+</html>
