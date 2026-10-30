@@ -736,8 +736,8 @@ func _sync_transport() -> void:
 		canvas.queue_redraw()
 	transport_rail.visible = not rehearsal
 	if is_instance_valid(self_talk):
-		self_talk.visible = (self_talk.has_history() or self_talk.has_choice_row()) and _timed_hold_frontier.is_empty()
-		self_talk.focus_mode = Control.FOCUS_ALL if self_talk.visible and _reading_source_admitted() else Control.FOCUS_NONE
+		self_talk.visible = _timed_hold_frontier.is_empty()
+		self_talk.focus_mode = Control.FOCUS_ALL if self_talk.visible and self_talk.has_history() and _reading_source_admitted() else Control.FOCUS_NONE
 	if _ending_caption_handoff or not _timed_hold_frontier.is_empty() or _computer_caption_held():
 		transport_rail.project(false, skip_controller.is_skip_active(), skip_controller.is_auto_enabled(), false, false, false, false, false, false)
 	else:

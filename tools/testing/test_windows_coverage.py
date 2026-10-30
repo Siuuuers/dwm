@@ -54,6 +54,39 @@ def select(paths, event_name='pull_request', sources=None):
 
 
 class WindowsCoverageTests(unittest.TestCase):
+    def test_self_talk_panel_uses_linux_only_for_the_reviewed_shared_methods(self):
+        owners = {
+            'autoload/DialogicBridge.gd': 'get_reading_history',
+            'scripts/narrative/SoloReadingSession.gd': 'project_self_talk',
+            'scripts/ui/witnessed/WitnessedCaptionLayer.gd': '_sync_transport',
+        }
+        paths = set(owners) | {
+            'scripts/ui/witnessed/WitnessedSelfTalk.gd',
+            'tests/unit/test_scene_self_talk.gd', 'tests/unit/test_witnessed_self_talk.gd',
+            'tests/ui/render_self_talk_journey.gd', 'tests/ui/render_self_talk_load.gd',
+            'tests/ui/render_self_talk_base.gd', 'tests/ui/render_self_talk_transport.gd',
+            'tests/ui/render_self_talk_choices.gd', '.github/workflows/windows-tests.yml',
+            'tests/integration/test_witnessed_caption_runtime.gd',
+            'tools/testing/test_windows_coverage.py',
+            'docs/agent/2026-10-30-self-talk-panel-implementation.md',
+        }
+        sources = {}
+        for path, method in owners.items():
+            for ref, value in [('a' * 40, 1), ('HEAD', 2)]:
+                sources[ref + ':' + path] = f'func {method}():\n\treturn {value}\nfunc unrelated():\n\treturn 1\n'
+        self.assertEqual(select(paths, sources=sources)['self_talk_panel'], 'true')
+        self.assertEqual(select(paths | {'autoload/SaveManager.gd'}, sources=sources)['self_talk_panel'], 'false')
+        self.assertEqual(select(paths, 'workflow_dispatch', sources=sources)['self_talk_panel'], 'false')
+        for path in owners:
+            changed = dict(sources)
+            changed['HEAD:' + path] += 'func new_behavior():\n\tpass\n'
+            self.assertEqual(select(paths, sources=changed)['self_talk_panel'], 'false')
+        linux = WORKFLOW.split('  self-talk-panel:', 1)[1]
+        self.assertIn("if: needs.test-scope.outputs.self_talk_panel == 'true'", linux)
+        for job in ('focused-tests', 'windows-export', 'public-surfaces', 'rendered-journeys', 'rendered-desktop'):
+            section = WORKFLOW.split('  ' + job + ':', 1)[1].split('    steps:', 1)[0]
+            self.assertIn("needs.test-scope.outputs.self_talk_panel != 'true'", section)
+
     def test_dtl_only_and_generated_companions_select_content(self):
         for paths in ({DAY}, {DAY} | GENERATED | {'docs/agent/dtl-story-authoring.md'}):
             with self.subTest(paths=paths):

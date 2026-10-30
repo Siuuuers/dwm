@@ -9,47 +9,46 @@ func _panel(width: float = 400.0) -> PANEL:
 	panel.configure(CAPTION_THEME.build("en", 100, "AfterHours"), width, func() -> bool: return true)
 	return panel
 
-func test_wrapped_rows_evicted_without_losing_source_identity() -> void:
+func test_current_thought_starts_at_top_and_long_text_remains_scrollable() -> void:
 	var panel := _panel()
-	panel.project([{"id":"a", "text":"First row\nSecond row"}, {"id":"b", "text":"Third row"}], 0)
+	panel.project([{"id":"a", "text":"First row\nSecond row\nThird row\nFourth row"}], 0)
 	var full := panel.get_projection()
 	assert_eq(full.visible_rows.size(), 3)
-	assert_eq(full.visible_rows[0].id, "a")
 	assert_eq(full.visible_rows[0].line, 0)
-	panel.project([{"id":"a", "text":"First row\nSecond row"}, {"id":"b", "text":"Third row"}, {"id":"c", "text":"Fourth row"}], 0)
-	var shifted := panel.get_projection()
-	assert_eq(shifted.visible_rows.size(), 3)
-	assert_eq(shifted.visible_rows[0].id, "a")
-	assert_eq(shifted.visible_rows[0].line, 1)
-	assert_eq(shifted.history_count, 3)
-	panel.review_rows(1)
-	assert_eq(panel.get_projection().visible_rows[0].line, 0)
-	assert_true(panel.is_reviewing())
-	panel.return_to_live()
-	assert_eq(panel.get_projection().visible_rows[0].line, 1)
-
-func test_clear_keeps_scrollback_and_unchanged_publication_keeps_review() -> void:
-	var panel := _panel()
-	var rows := [{"id":"a", "text":"Earlier"}, {"id":"b", "text":"Later"}]
-	panel.project(rows, 2)
-	assert_eq(panel.get_projection().visible_rows.size(), 0)
-	assert_eq(panel.get_projection().history_count, 2)
-	panel.review_rows(1)
-	assert_true(panel.is_reviewing())
-	assert_eq(panel.get_projection().visible_rows[0].id, "b")
-	panel.project(rows, 2)
-	assert_true(panel.is_reviewing())
+	var frame_size := panel.size
 	panel.review_rows(-1)
-	assert_false(panel.is_reviewing())
-	assert_eq(panel.get_projection().visible_rows.size(), 0)
+	assert_true(panel.is_reviewing())
+	assert_eq(panel.get_projection().visible_rows.back().line, 3)
+	assert_eq(panel.size, frame_size)
+	panel.return_to_live()
+	assert_eq(panel.get_projection().visible_rows[0].line, 0)
 
-func test_reflow_preserves_review_identity_and_three_row_limit() -> void:
+func test_advance_replaces_or_clears_thought_without_panel_scrollback() -> void:
+	var panel := _panel()
+	panel.project([{"id":"a", "text":"Earlier"}], 0)
+	var frame_size := panel.size
+	panel.project([{"id":"b", "text":"Current"}], 0)
+	panel.review_rows(100)
+	assert_false(panel.is_reviewing())
+	assert_eq(panel.get_projection().history_count, 1)
+	assert_eq(panel.get_projection().visible_rows[0].id, "b")
+	panel.project([], 0)
+	panel.review_rows(100)
+	assert_true(panel.visible)
+	assert_eq(panel.get_projection().visible_rows.size(), 0)
+	assert_eq(panel.get_projection().history_count, 0)
+	assert_eq(panel.size, frame_size)
+	assert_false(panel.is_reviewing())
+
+func test_reflow_preserves_current_thought_scroll_anchor_and_three_row_limit() -> void:
 	var panel := _panel(160)
-	var rows := [{"id":"a", "text":"A long synthetic thought with several words that wraps across lines."}, {"id":"b", "text":"Another synthetic thought with several words for wrapping."}]
+	var rows := [{"id":"a", "text":"A long synthetic thought with several words that wraps across lines and keeps its current reading position."}]
 	panel.project(rows, 0)
 	assert_gt(panel.get_projection().row_count, 3)
-	panel.review_rows(3)
+	panel.review_rows(-3)
 	var anchor: Dictionary = panel.get_projection().visible_rows[0]
+	panel.project(rows, 0)
+	assert_true(panel.is_reviewing(), "Refreshing the same caption preserves current-thought scrolling")
 	panel.configure(CAPTION_THEME.build("en", 150, "AfterHours"), 200, func() -> bool: return true)
 	var after := panel.get_projection()
 	assert_true(after.reviewing)
@@ -58,44 +57,41 @@ func test_reflow_preserves_review_identity_and_three_row_limit() -> void:
 	assert_lte(after.visible_rows[0].start, anchor.start)
 	assert_gte(after.visible_rows[0].end, anchor.start)
 
-func test_cleared_panel_keeps_localized_accessible_name() -> void:
+func test_empty_frame_keeps_localized_accessible_name_and_stable_height() -> void:
 	var panel := _panel()
-	var rows := [{"id":"a", "text":"Synthetic thought"}]
-	panel.project(rows, 1)
 	for locale: String in ["en", "zh_CN", "zh_HK", "ja", "ko"]:
 		var catalogue: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://localization/ui/" + locale + ".json"))
 		var pane_name := ""
 		for entry: Dictionary in catalogue.messages:
 			if entry.id == "witnessed.self_talk.name": pane_name = entry.text
 		assert_false(pane_name.is_empty())
-		panel.configure(CAPTION_THEME.build(locale.replace("_", "-"), 100, "AfterHours"), 400, Callable(), pane_name)
-		assert_eq(panel.get_projection().visible_rows.size(), 0)
-		assert_eq(panel.accessibility_name, pane_name)
-		panel.review_rows(1)
-		assert_eq(panel.accessibility_name, "Synthetic thought")
-		panel.return_to_live()
+		for percent: int in [125, 150]:
+			for dual: bool in [false, true]:
+				panel.configure(CAPTION_THEME.build(locale.replace("_", "-"), percent, "AfterHours"), 400, Callable(), pane_name, dual, percent)
+				panel.project([{"id":"a", "text":"Synthetic thought", "content_locale":"en", "secondary_text":"測試想法", "secondary_locale":"zh_HK"}], 0)
+				var populated_size := panel.size
+				panel.project([], 0)
+				assert_true(panel.visible)
+				assert_eq(panel.get_projection().visible_rows.size(), 0)
+				assert_eq(panel.accessibility_name, pane_name)
+				assert_eq(panel.size, populated_size)
 
-func test_dual_latest_pair_retains_thought_until_clear_and_restores_single_window() -> void:
+func test_dual_current_pair_refresh_clear_and_single_language_reflow() -> void:
 	var panel := _panel(440)
 	panel.configure(CAPTION_THEME.build("en", 100, "AfterHours"), 440, Callable(), "Thoughts", true)
-	var rows := [{"id":"a", "text":"Earlier synthetic thought", "content_locale":"en", "secondary_text":"較早的測試想法", "secondary_locale":"zh_HK"},
-		{"id":"b", "text":"Latest synthetic thought", "content_locale":"en", "secondary_text":"最新的測試想法", "secondary_locale":"zh_HK"}]
+	var rows := [{"id":"b", "text":"Current synthetic thought", "content_locale":"en", "secondary_text":"目前的測試想法", "secondary_locale":"zh_HK"}]
 	panel.project(rows, 0)
-	var latest := panel.get_projection()
-	assert_eq(latest.history_count, 2)
-	assert_true(latest.visible_rows.all(func(row: Dictionary) -> bool: return row.id == "b"))
-	assert_true(latest.visible_rows.any(func(row: Dictionary) -> bool: return row.secondary))
+	var current := panel.get_projection()
+	assert_eq(current.history_count, 1)
+	assert_true(current.visible_rows.all(func(row: Dictionary) -> bool: return row.id == "b"))
+	assert_true(current.visible_rows.any(func(row: Dictionary) -> bool: return row.secondary))
 	assert_eq(panel.get_child(0).locale, "en")
 	assert_eq(panel.get_child(panel.get_child_count() - 1).locale, "zh-HK")
 	panel.project(rows, 0)
-	assert_eq(panel.get_projection(), latest, "An unrelated caption retains the latest thought pair")
-	panel.review_rows(2)
-	assert_true(panel.is_reviewing())
-	assert_eq(panel.get_projection().visible_rows[0].id, "a")
-	panel.return_to_live()
-	panel.project(rows, 2)
+	assert_eq(panel.get_projection(), current, "Refreshing the same caption preserves its thought pair")
+	panel.project([], 0)
 	assert_true(panel.get_projection().visible_rows.is_empty())
-	assert_eq(panel.get_projection().history_count, 2)
+	assert_eq(panel.get_projection().history_count, 0)
 	panel.configure(CAPTION_THEME.build("en", 100, "AfterHours"), 440, Callable(), "Thoughts", false)
 	panel.project(rows, 0)
 	assert_false(panel.get_projection().dual_enabled)

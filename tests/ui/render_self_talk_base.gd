@@ -6,6 +6,7 @@ const AUTHORING := preload("res://tools/authoring/AuthoredWeekRegistration.gd")
 const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 var _captures := 0
+var _capture_dimensions: Array[Dictionary] = []
 
 func _self_talk_markers() -> Array:
 	return []
@@ -52,22 +53,22 @@ func _capture_self_talk(label: String) -> void:
 	var pixels: Image = get_viewport().get_texture().get_image()
 	assert_false(pixels.is_empty(), "actual renderer supplies pixels")
 	assert_eq(pixels.save_png("res://.godot/ci/self-talk-" + label + ".png"), OK)
+	_capture_dimensions.append({"label": label, "client": str(DisplayServer.window_get_size()),
+		"viewport": str(get_viewport().get_visible_rect().size), "pixels": str(pixels.get_size())})
 	_captures += 1
 
 func _history_ids() -> Array:
 	var captured: Dictionary = bridge.capture_reading_checkpoint(false)
 	if not _ok(captured): return []
 	var ids: Array = []
-	var caption_ids: Array = []
 	for section: Array in captured.value.reading_session.player_progress.history_sections:
 		for id: String in section:
 			ids.append(id)
-			if not id.begins_with("line.scene.test.a.thought_"): caption_ids.append(id)
 	var history: Dictionary = bridge.get_reading_history()
 	if not _ok(history): return ids
 	var visible_ids: Array = []
 	for row: Dictionary in history.value.captions: visible_ids.append(row.line_id)
-	assert_eq(visible_ids, caption_ids, "general History contains captions only; paired IDs remain in saved encounters")
+	assert_eq(visible_ids, ids, "History contains captions and thoughts in encountered DTL order")
 	return ids
 
 func _wheel_thought(older: bool) -> void:
@@ -77,7 +78,7 @@ func _wheel_thought(older: bool) -> void:
 		var event := InputEventMouseButton.new()
 		event.position = point
 		event.global_position = point
-		event.button_index = MOUSE_BUTTON_WHEEL_DOWN if older else MOUSE_BUTTON_WHEEL_UP
+		event.button_index = MOUSE_BUTTON_WHEEL_UP if older else MOUSE_BUTTON_WHEEL_DOWN
 		event.pressed = pressed
 		get_viewport().push_input(event, true)
 		await get_tree().process_frame
@@ -89,7 +90,7 @@ func _advance_to(suffix: String) -> bool:
 	assert_eq(actual, "line.scene.test.a." + suffix, "one Advance passes the paired thought")
 	return actual == "line.scene.test.a." + suffix
 
-func _resize_review(caption: Node, panel: Control) -> void:
+func _resize_current_thought(caption: Node, panel: Control) -> void:
 	# Synthetic plain portrait activates the existing production divider; only art
 	# presentation is supplied here. Reading, History and input owners remain real.
 	var surface: Control = caption._dating_split_surface
@@ -117,14 +118,13 @@ func _resize_review(caption: Node, panel: Control) -> void:
 		await get_tree().process_frame
 	for frame: int in 3: await get_tree().process_frame
 	assert_lt(panel.size.x, width_before, "keyboard divider resize reflows the actual thought panel")
-	assert_true(panel.is_reviewing(), "reflow preserves review mode")
 	var resized: Dictionary = panel.get_projection()
 	assert_lte(resized.visible_rows.size(), 3)
-	assert_eq(resized.visible_rows[0].id, anchor.id, "reflow preserves the reviewed stable line")
+	assert_eq(resized.visible_rows[0].id, anchor.id, "reflow preserves the current thought")
 	assert_lte(resized.visible_rows[0].start, anchor.start)
 	assert_gte(resized.visible_rows[0].end, anchor.start)
 	assert_eq(bridge.capture_reading_checkpoint(false), before, "divider input never advances")
-	await _capture_self_talk("resized-review")
+	await _capture_self_talk("resized-current-thought")
 	var localization: Node = get_node("/root/LocalizationManager")
 	for locale: String in ["zh_HK", "ja", "en"]:
 		# The rail and captions share the actual locale owner; a foreign tuple is

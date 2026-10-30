@@ -68,10 +68,30 @@ class HistoryBridge extends "res://autoload/DialogicBridge.gd":
 	func _scene_day_history(_frontier: Dictionary) -> Dictionary:
 		return {"ok": true, "value": {"captions": encountered.duplicate(true)}}
 
-func test_public_history_excludes_thoughts_without_removing_encountered_ids() -> void:
+func test_public_history_includes_thoughts_in_encountered_order() -> void:
 	var bridge: Node = add_child_autofree(HistoryBridge.new())
 	bridge._reading_session = HistorySession.new()
 	var result: Dictionary = bridge.get_reading_history()
 	assert_true(result.ok)
-	assert_eq(result.value.captions.map(func(row: Dictionary) -> String: return row.line_id), ["caption"])
+	assert_eq(result.value.captions.map(func(row: Dictionary) -> String: return row.line_id), ["caption", "thought"])
 	assert_eq(bridge.encountered.map(func(row: Dictionary) -> String: return row.line_id), ["caption", "thought"])
+
+class ThoughtSession extends SESSION:
+	func _capture_scene(_frontier: Dictionary) -> Dictionary:
+		return {"ok": true}
+
+func test_current_thought_projection_does_not_change_encountered_history() -> void:
+	var session := ThoughtSession.new()
+	session._scene_display = {"a": {"self_talk": {"line_id": "thought_a", "text": "Thought A."}},
+		"c": {"self_talk": {"line_id": "thought_c", "text": "Thought C."}}}
+	session.player_progress = {"history_sections": [["a", "thought_a", "b", "c", "thought_c"]]}
+	var history: Dictionary = session.player_progress.duplicate(true)
+	var first: Dictionary = session.project_self_talk({"line_id": "a"})
+	assert_eq(first.value.rows, [{"id": "thought_a", "text": "Thought A."}])
+	assert_eq(session.project_self_talk({"line_id": "a"}), first, "refresh preserves current thought")
+	var empty: Dictionary = session.project_self_talk({"line_id": "b"})
+	assert_eq(empty.value.rows, [])
+	assert_eq(empty.value.current_thought, "")
+	var next: Dictionary = session.project_self_talk({"line_id": "c"})
+	assert_eq(next.value.rows, [{"id": "thought_c", "text": "Thought C."}])
+	assert_eq(session.player_progress, history)
