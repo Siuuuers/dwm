@@ -42,7 +42,6 @@ var _choice_height_override := 0.0
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	focus_mode = Control.FOCUS_ALL
-	clip_contents = true
 	focus_entered.connect(queue_redraw)
 	focus_exited.connect(queue_redraw)
 
