@@ -62,8 +62,8 @@ func _cosmetic_pixels(shell: Control) -> Dictionary:
 	# Purchase paper first: later edge materials leave this central background sample alone.
 	# The right strip also clears the silk stroke's antialiased fringe.
 	var regions := {"letter_with_wax_seal": [Rect2(canvas.size.x * 0.5 - 64, canvas.size.y - 232, 128, 48)],
-		"crystal_stutters": [Rect2(0, 0, canvas.size.x - 20, 8),
-			Rect2(0, canvas.size.y - 72, canvas.size.x - 20, 8),
+		"crystal_stutters": [Rect2(0, 0, canvas.size.x - 9, 8),
+			Rect2(0, canvas.size.y - 72, canvas.size.x - 9, 8),
 			Rect2(0, 8, 8, canvas.size.y - 80), Rect2(canvas.size.x - 28, 8, 8, canvas.size.y - 80)],
 		"inked_silk_string": [Rect2(canvas.size.x - 18, canvas.size.y * 0.12 - 2, 18, 36)]}
 	# Window.get_final_transform includes letterbox offsets outside the viewport texture.

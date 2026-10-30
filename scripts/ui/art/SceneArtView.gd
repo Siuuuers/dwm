@@ -320,6 +320,5 @@ func _draw_material() -> void:
 	var panels: Array[Rect2] = [right]
 	if _dating_split:
 		panels.append(Rect2(0, 0, get_portrait_width() - 8, size.y))
-	var ink := Color(0.82, 0.84, 0.8)
 	for index: int in panels.size():
-		MATERIAL.draw_crystal(_material_overlay, panels[index], ink, _crystal_right if index == 0 else _crystal_left)
+		MATERIAL.draw_crystal(_material_overlay, panels[index], _crystal_right if index == 0 else _crystal_left)
