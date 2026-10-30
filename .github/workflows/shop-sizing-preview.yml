@@ -1,0 +1,109 @@
+name: Mounted Shop sizing comparison
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/ui/ShopApp.gd'
+      - 'scripts/ui/ShopItemBox.gd'
+      - 'scripts/ui/ComputerDesktop.gd'
+      - 'scripts/ui/SceneHost.gd'
+      - 'autoload/ApplicationBootstrap.gd'
+      - 'scenes/shared/ShopItemBox.tscn'
+      - 'scenes/desktop/ComputerDesktop.tscn'
+      - 'scenes/narrative/SceneHost.tscn'
+      - 'tests/ui/render_shop_mounted_sizing.gd'
+      - '.github/workflows/shop-sizing-preview.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shop-sizing-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      BASELINE_SHA: 7a06b0eabd05ecca8debc52fcd461f2bdb2473ab
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          git submodule foreach --recursive 'true'
+      - name: Install pinned Godot and software renderer
+        run: |
+          sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/apt-mirrors.txt
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri libspeechd2
+          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$RUNNER_TEMP/godot.zip"
+          printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$RUNNER_TEMP/godot.zip" | sha256sum --check
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          chmod +x "$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64"
+          echo "GODOT_CONSOLE_PATH=$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64" >> "$GITHUB_ENV"
+      - name: Prepare matched source trees
+        run: |
+          git fetch --no-tags --depth=1 origin "$BASELINE_SHA"
+          git worktree add --detach "$RUNNER_TEMP/shop-baseline" "$BASELINE_SHA"
+          cp tests/ui/render_shop_mounted_sizing.gd "$RUNNER_TEMP/shop-baseline/tests/ui/"
+          mkdir -p .godot/ci/shop-sizing
+          git rev-parse HEAD > .godot/ci/shop-sizing/candidate-sha.txt
+          printf '%s\n' "$BASELINE_SHA" > .godot/ci/shop-sizing/baseline-sha.txt
+      - name: Import and capture both revisions
+        shell: python
+        run: |
+          import os, pathlib, shutil, subprocess, xml.etree.ElementTree as ET
+          candidate = pathlib.Path.cwd()
+          output = candidate / '.godot/ci/shop-sizing'
+          godot = os.environ['GODOT_CONSOLE_PATH']
+          for variant, source in [('candidate', candidate), ('baseline', pathlib.Path(os.environ['RUNNER_TEMP']) / 'shop-baseline')]:
+              destination = output / variant
+              destination.mkdir(parents=True)
+              isolated = source / '.godot/phase2r_tests/shop-sizing'
+              env = dict(os.environ, DWM_TEST_ROOT=str(isolated / 'test-root'),
+                         XDG_DATA_HOME=str(isolated / 'data'), DWM_RENDER_OUTPUT=str(destination))
+              pathlib.Path(env['DWM_TEST_ROOT']).mkdir(parents=True)
+              pathlib.Path(env['XDG_DATA_HOME']).mkdir(parents=True)
+              # Reimport each tree; reuse only content-addressed resource imports, never script caches or saves.
+              if variant == 'baseline':
+                  shutil.copytree(candidate / '.godot/imported', source / '.godot/imported')
+              imported = subprocess.run([godot, '--headless', '--path', str(source), '--import',
+                                         '--log-file', str(destination / 'import.log')], env=env, timeout=480)
+              imported.check_returncode()
+              import_log = (destination / 'import.log').read_text()
+              assert not any(error in import_log for error in ['SCRIPT ERROR:', 'ERROR: Failed to load', 'Unicode parsing error', 'Unexpected NUL character']), variant
+              subprocess.run(['git', '-C', str(source), 'restore', '--', 'project.godot'], check=True)
+              result = subprocess.run(['xvfb-run', '-a', '-s', '-screen 0 1920x1080x24', godot,
+                  '--path', str(source), '--rendering-method', 'gl_compatibility', '--rendering-driver', 'opengl3',
+                  '--audio-driver', 'Dummy', '--log-file', str(destination / 'render.log'),
+                  '-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=',
+                  '-gtest=res://tests/ui/render_shop_mounted_sizing.gd', '-gexit', '-glog=1',
+                  '-gjunit_xml_file=' + str(destination / 'results.xml'),
+                  '--', '--phase2r-bootstrap-mode=test_manual', '--scene-reading-fixture'],
+                  env=env, timeout=480)
+              for path in (source / '.godot/ci').glob('shop-mounted-*'):
+                  if path.is_file(): shutil.copy2(path, destination / path.name)
+              result.check_returncode()
+              log = (destination / 'render.log').read_text()
+              assert 'SCRIPT ERROR:' not in log, variant
+              assert 'SHOP_MOUNTED_SIZING_COMPLETED samples=30 captures=9' in log, variant
+              report = ET.parse(destination / 'results.xml').getroot()
+              assert len(report.findall('.//testcase')) == 1, variant
+              assert not report.findall('.//failure') and not report.findall('.//error'), variant
+              captures = list((source / '.godot/ci').glob('shop-mounted-*.png'))
+              assert len(captures) == 9 and all(path.stat().st_size > 0 for path in captures), variant
+              assert (destination / 'shop-mounted-sizing.json').is_file(), variant
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shop-mounted-sizing-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/shop-sizing/
+          include-hidden-files: true
+          if-no-files-found: error
