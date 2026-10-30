@@ -13,10 +13,27 @@ const SLATE := Color("78919e")
 
 static func texture(item_id: String, size: int) -> Texture2D:
 	if size not in [28, 56]: return null
-	if item_id == "lucky_charm": return _historical_tile("weighted_plush", size)
-	if item_id == "debug_key": return _historical_tile("bandage_pack", size)
 	var strokes: Array = []
 	match item_id:
+		# Original plush and bandage illustrations from 8630b25b (2026-09-21).
+		"lucky_charm":
+			strokes = [
+				[5, 3, 5, 5, INK], [18, 3, 5, 5, INK],
+				[6, 4, 3, 3, WOOD], [19, 4, 3, 3, WOOD],
+				[8, 5, 12, 2, INK], [6, 7, 16, 9, INK], [7, 7, 14, 8, SAND],
+				[9, 9, 2, 2, INK], [17, 9, 2, 2, INK],
+				[11, 12, 6, 3, PAPER], [13, 12, 2, 1, INK],
+				[7, 16, 14, 8, INK], [8, 16, 12, 7, SAND], [11, 17, 6, 5, PAPER],
+				[3, 18, 6, 7, INK], [19, 18, 6, 7, INK],
+				[4, 19, 4, 5, WOOD], [20, 19, 4, 5, WOOD],
+			]
+		"debug_key":
+			strokes = [
+				[4, 4, 15, 19, INK], [5, 5, 13, 17, PAPER],
+				[5, 5, 13, 3, SLATE], [7, 10, 8, 1, WOOD], [7, 12, 5, 1, WOOD],
+				[11, 15, 14, 7, INK], [12, 16, 12, 5, SAND],
+				[16, 17, 4, 3, LIGHT], [13, 18, 1, 1, WOOD], [22, 18, 1, 1, WOOD],
+			]
 		"crystal_stutters":
 			strokes = [
 				[9, 3, 10, 2, INK], [6, 5, 16, 3, INK], [4, 8, 20, 9, INK],
@@ -72,19 +89,4 @@ static func texture(item_id: String, size: int) -> Texture2D:
 	for stroke: Array in strokes:
 		image.fill_rect(Rect2i(stroke[0] * step, stroke[1] * step,
 			stroke[2] * step, stroke[3] * step), stroke[4])
-	return ImageTexture.create_from_image(image)
-
-
-## Pre-PR #1 ShopPresentationPort at 9e43b52c: the optional PNGs were absent.
-## Keep the original ID-derived tile colours and one-pixel border unchanged.
-static func _historical_tile(item_id: String, size: int) -> Texture2D:
-	var image := Image.create(size, size, false, Image.FORMAT_RGBA8)
-	var hue := float(abs(item_id.hash()) % 360) / 360.0
-	image.fill(Color.from_hsv(hue, 0.28, 0.78, 1.0))
-	var edge := Color.from_hsv(hue, 0.5, 0.34, 1.0)
-	for coordinate: int in size:
-		image.set_pixel(coordinate, 0, edge)
-		image.set_pixel(coordinate, size - 1, edge)
-		image.set_pixel(0, coordinate, edge)
-		image.set_pixel(size - 1, coordinate, edge)
 	return ImageTexture.create_from_image(image)

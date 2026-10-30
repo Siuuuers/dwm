@@ -22,17 +22,12 @@ func test_nine_items_keep_inventory_only_effects_and_requested_order() -> void:
 			assert_false(COPY.item_description(locale, id).is_empty())
 		for size: int in [28, 56]: assert_not_null(ART.texture(id, size))
 
-func test_capability_art_matches_pre_pr_one_fallback_tiles() -> void:
-	for pair: Array in [["lucky_charm", "weighted_plush"], ["debug_key", "bandage_pack"]]:
-		var hue := float(abs(str(pair[1]).hash()) % 360) / 360.0
-		for size: int in [28, 56]:
-			var actual: Image = ART.texture(pair[0], size).get_image()
-			var expected := Image.create(size, size, false, Image.FORMAT_RGBA8)
-			expected.fill(Color.from_hsv(hue, 0.28, 0.78, 1.0))
-			var edge := Color.from_hsv(hue, 0.5, 0.34, 1.0)
-			for coordinate: int in size:
-				expected.set_pixel(coordinate, 0, edge)
-				expected.set_pixel(coordinate, size - 1, edge)
-				expected.set_pixel(0, coordinate, edge)
-				expected.set_pixel(size - 1, coordinate, edge)
-			assert_eq(actual.get_data(), expected.get_data())
+func test_capability_art_matches_september_21_illustrations() -> void:
+	# Original 8630b25b RGBA signatures, including Godot's transparent-white surround.
+	var signatures := {
+		"lucky_charm": "cd8b20a974cf74a9550aa7b168a5d03fc2461206942716cc75f5573c64331c7e",
+		"debug_key": "ba911428ff291657d9118437e9152747b818199ae43f8afb2f462445f9b379ba",
+	}
+	for id: String in signatures:
+		var actual: Image = ART.texture(id, 28).get_image()
+		assert_eq(actual.get_data().hex_encode().sha256_text(), signatures[id], id)

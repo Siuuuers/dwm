@@ -164,11 +164,11 @@ func test_catalog_projects_all_current_items_from_the_authoritative_nine_templat
 				for offset: Vector2i in [Vector2i.ZERO,Vector2i.RIGHT,Vector2i.DOWN,Vector2i.ONE]:
 					if inspector.get_pixelv(Vector2i(x,y)*2+offset) != pixel: mismatched += 1
 		assert_gt(opaque,0,row.id+": visible object")
-		if row.id not in ["lucky_charm", "debug_key"]:
-			assert_lt(opaque,28*28,row.id+": transparent surround")
+
+		assert_lt(opaque,28*28,row.id+": transparent surround")
 		assert_eq(partial_alpha,0,row.id+": crisp pixel edges")
-		if row.id not in ["lucky_charm", "debug_key"]:
-			assert_eq(mismatched,0,row.id+": inspector is the same object at exact double coverage")
+
+		assert_eq(mismatched,0,row.id+": inspector is the same object at exact double coverage")
 		var signature := card.get_data().hex_encode().sha256_text()
 		assert_false(art_signatures.has(signature),row.id+": distinct item artwork")
 		art_signatures.append(signature)
