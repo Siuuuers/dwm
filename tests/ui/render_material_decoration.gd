@@ -62,10 +62,7 @@ func _run() -> void:
 	var letter_app: Image = await _material_capture("letter-only-app")
 	inventory.inventory = {}
 	var bare_app: Image = await _material_capture("none-app")
-	if OS.get_environment("DWM_MATERIAL_BASELINE") == "1":
-		check(letter_app.get_data() == bare_app.get_data(), "baseline letter object remains Home-only")
-	else:
-		check(letter_app.get_data() != bare_app.get_data(), "paper remains visible with an app open")
+	check(letter_app.get_data() != bare_app.get_data(), "paper remains visible with an app open")
 	check(desktop.return_home().get("ok", false), "letter check returns Home")
 	inventory.inventory = {"crystal_stutters": 1, "inked_silk_string": 1, "letter_with_wax_seal": 1}
 	for palette: StringName in [&"after_hours", &"midnight"]:

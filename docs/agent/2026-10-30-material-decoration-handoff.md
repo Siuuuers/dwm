@@ -199,3 +199,17 @@ included the root window transform when sampling its viewport texture. This is
 being corrected with viewport-image scaling. Prior purchasing/save assertions
 are not evidence that fresh-process Load or new-run checks completed. Current
 acceptance, cloud results and screenshots remain tracked in the PR.
+
+## Visibility revision, 30 October 2026
+
+After reviewing the actual scene, the owner found PR #162's materials too faint.
+Wax is now deferred: keep the existing letter inventory ID but remove its seal.
+Paper uses a warm light computer background and seven light control plates with
+contrasting dark ink; the computer footer retains dark textured chrome. Crystal
+uses broader static corner reflections and branching cracks, behind computer
+controls and above artwork. Silk uses a continuous thicker edge wrap. No animation,
+new ownership state, imported assets or geometry changes are required.
+
+Acceptance must include recognizable materials at normal playing size, actual
+Day1 screenshots, control-state readability, and the existing purchase/Load/new-run
+journey. Changed pixels alone do not establish that the materials look convincing.

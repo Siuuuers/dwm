@@ -1,5 +1,6 @@
 extends "res://tests/integration/authored_week_child.gd"
 ## Shipped Day1 artwork and seven controls; purchases use real Shop commands.
+const PAPER_RAIL := preload("res://scripts/ui/witnessed/WitnessedTransportRail.gd")
 
 func test_authored_story_materials_preserve_reading_and_control_geometry() -> void:
 	_phase = "create"
@@ -54,7 +55,50 @@ func test_authored_story_materials_preserve_reading_and_control_geometry() -> vo
 	art._material_overlay.queue_redraw()
 	rail._refresh_material()
 	assert_eq(await _story_material_pixels(art, rail), decorated, "static story materials repaint identically")
+	await _paper_control_states(host, rail, reading)
 	print("MATERIAL_AUTHORED_STORY_COMPLETED background=Day1 controls=7 purchases=3")
+
+func _paper_control_states(host: Control, rail: Control, reading: Dictionary) -> void:
+	var history: Button = rail._buttons[&"history"]
+	var auto_button: Button = rail._buttons[&"auto"]
+	var previous_delay: String = profile.get_preference(&"preferences.reading.auto_delay", "normal")
+	if not _ok(profile.set_preference(&"preferences.reading.auto_delay", "long")): return
+	var focused: Control = get_viewport().gui_get_focus_owner()
+	if focused != null: focused.release_focus()
+	var motion := InputEventMouseMotion.new()
+	motion.position = Vector2(10, 10)
+	get_viewport().push_input(motion, true)
+	await get_tree().process_frame
+	assert_false(history.disabled)
+	assert_true(history.get_theme_stylebox(&"normal") is PAPER_RAIL.PaperPlate)
+	assert_eq(history.get_theme_color(&"font_color"), rail._roles[&"field"], "paper uses dark native text")
+	await _screenshot("material-paper-normal")
+	history.grab_focus()
+	await get_tree().process_frame
+	assert_true(history.has_focus())
+	await _screenshot("material-paper-focused")
+	await _keyboard(KEY_ENTER, true)
+	assert_false(history._candidate.is_empty(), "physical hold reaches admitted pressed state")
+	await _screenshot("material-paper-pressed")
+	# Leaving focus cancels the hold before release, so History does not open.
+	history.release_focus()
+	await _keyboard(KEY_ENTER, false)
+	assert_true(history._candidate.is_empty())
+	await _click(auto_button)
+	assert_true(_caption().auto_controller.is_auto_enabled())
+	assert_eq(auto_button.theme_type_variation, &"WitnessedTransportMode")
+	await _screenshot("material-paper-active-auto")
+	await _click(auto_button)
+	assert_false(_caption().auto_controller.is_auto_enabled())
+	await _click(_controls(host, "CheckComputer"))
+	assert_true(host.is_computer_open())
+	assert_true(rail.is_visible_in_tree())
+	for button: Button in rail._buttons.values(): assert_true(button.disabled, "computer hold disables reading command")
+	await _screenshot("material-paper-disabled-computer-hold")
+	await _click(_controls(host, "CheckComputer"))
+	assert_false(host.is_computer_open())
+	assert_true(_ok(profile.set_preference(&"preferences.reading.auto_delay", previous_delay)))
+	assert_eq(bridge.capture_reading_checkpoint(false).value, reading, "paper state review never advances the authored beat")
 
 func _story_material_pixels(art: Control, rail: Control) -> Dictionary:
 	await get_tree().process_frame

@@ -390,7 +390,11 @@ func _full_label(id: StringName, enabled_mode: bool) -> String:
 func _apply_button_material(button: Button, mode_on: bool) -> void:
 	var face: Color = _filed if mode_on else _roles[&"field"]
 	var ink: Color = _roles[&"field"] if mode_on else _roles[&"text"]
-	var state_edge: Color = _roles[&"field"] if mode_on else _roles[&"rule"]
+	var paper_owned := is_instance_valid(_material_owner) and int(_material_owner.inventory.get("letter_with_wax_seal", 0)) > 0
+	if paper_owned and not mode_on:
+		face = _roles[&"text"]
+		ink = _roles[&"field"]
+	var state_edge: Color = ink if paper_owned else (_roles[&"field"] if mode_on else _roles[&"rule"])
 	button.add_theme_stylebox_override(&"normal", _plate(face, Color.TRANSPARENT, 0))
 	button.add_theme_stylebox_override(&"hover", _plate(face, state_edge, 2))
 	button.add_theme_stylebox_override(&"pressed", _plate(face, state_edge, 4))
@@ -406,7 +410,7 @@ func _apply_button_material(button: Button, mode_on: bool) -> void:
 		var plate := button.get_theme_stylebox(state)
 		plate.content_margin_top = padding
 		plate.content_margin_bottom = padding
-		if is_instance_valid(_material_owner) and int(_material_owner.inventory.get("letter_with_wax_seal", 0)) > 0:
+		if paper_owned:
 			var paper := PaperPlate.new()
 			paper.base = plate
 			paper.ink = ink
@@ -444,10 +448,14 @@ func _draw_button_state(button: TRANSPORT_BUTTON) -> void:
 	var mode_on := button.theme_type_variation == &"WitnessedTransportMode"
 	if not button._candidate.is_empty():
 		var edge: Color = _roles[&"field"] if mode_on else _roles[&"rule"]
+		if button.get_theme_stylebox(&"normal") is PaperPlate:
+			edge = button.get_theme_color(&"font_color")
 		button.draw_rect(Rect2(Vector2(6, 6), button.size - Vector2(12, 12)), edge, false, 4.0)
 	if not button.has_focus(): return
 	var colours := [_roles[&"deep"], _roles[&"field"]] if mode_on \
 		else [_roles[&"focus_outer"], _roles[&"focus_inner"]]
+	if button.get_theme_stylebox(&"normal") is PaperPlate and not mode_on:
+		colours[0] = _roles[&"field"]
 	var frames := _focus_rects(button.size)
 	button.draw_rect(frames[0], colours[0], false, 2.0)
 	button.draw_rect(frames[1], colours[1], false, 2.0)

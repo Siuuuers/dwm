@@ -61,7 +61,7 @@ func _cosmetic_pixels(shell: Control) -> Dictionary:
 	# Purchase paper first: later edge materials leave this central background sample alone.
 	var regions := {"letter_with_wax_seal": Rect2(canvas.size.x * 0.5 - 64, canvas.size.y - 232, 128, 48),
 		"crystal_stutters": Rect2(1, 1, 60, 7),
-		"inked_silk_string": Rect2(canvas.size.x - 8, canvas.size.y * 0.12 - 2, 8, 24)}
+		"inked_silk_string": Rect2(canvas.size.x - 18, canvas.size.y * 0.12 - 2, 18, 36)}
 	# Window.get_final_transform includes letterbox offsets outside the viewport texture.
 	var texture_transform := Transform2D.IDENTITY.scaled(Vector2(pixels.get_size()) / get_viewport().get_visible_rect().size)
 	var hashes := {}
