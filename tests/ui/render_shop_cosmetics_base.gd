@@ -1,6 +1,6 @@
 extends "res://tests/integration/scene_apps_connected_child.gd"
 ## Cloud-rendered synthetic scene, FINAL services and real Shop/Save owners.
-const COSMETICS := ["crystal_stutters", "inked_silk_string", "letter_with_wax_seal"]
+const COSMETICS := ["letter_with_wax_seal", "crystal_stutters", "inked_silk_string"]
 const SHOP_PROOF := "user://shop-cosmetics-proof.json"
 
 func _begin_cosmetic_run() -> bool:
@@ -58,13 +58,16 @@ func _cosmetic_pixels(shell: Control) -> Dictionary:
 	await RenderingServer.frame_post_draw
 	var pixels: Image = get_viewport().get_texture().get_image()
 	var canvas: Control = shell.desktop_canvas
-	var bottom: float = canvas.size.y - 64.0 - shell._quick_status_band_height()
-	# Separate regions avoid app text, balances, focus and other decorations.
-	var regions := {"crystal_stutters": Rect2(3, 1, 64, 19),
-		"inked_silk_string": Rect2(1, 48, 20, 40),
-		"letter_with_wax_seal": Rect2(canvas.size.x - 101, bottom - 141, 76, 49)}
+	# Purchase paper first: later edge materials leave this central background sample alone.
+	var regions := {"letter_with_wax_seal": Rect2(canvas.size.x * 0.5 - 64, canvas.size.y - 232, 128, 48),
+		"crystal_stutters": Rect2(1, 1, 60, 7),
+		"inked_silk_string": Rect2(canvas.size.x - 8, canvas.size.y * 0.12 - 2, 8, 24)}
+	# Window.get_final_transform includes letterbox offsets outside the viewport texture.
+	var texture_transform := Transform2D.IDENTITY.scaled(Vector2(pixels.get_size()) / get_viewport().get_visible_rect().size)
 	var hashes := {}
 	for item_id: String in COSMETICS:
-		var region: Rect2 = get_tree().root.get_final_transform() * canvas.get_global_transform_with_canvas() * regions[item_id]
-		hashes[item_id] = pixels.get_region(Rect2i(region)).get_data().hex_encode().sha256_text()
+		var region := Rect2i(texture_transform * canvas.get_global_transform_with_canvas() * regions[item_id])
+		assert_true(Rect2i(Vector2i.ZERO, pixels.get_size()).encloses(region), item_id + " sample stays inside viewport pixels")
+		hashes[item_id] = pixels.get_region(region).get_data().hex_encode().sha256_text()
+		print("COSMETIC_PIXEL_REGION ", item_id, " ", region)
 	return hashes

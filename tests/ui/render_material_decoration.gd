@@ -57,21 +57,15 @@ func _run() -> void:
 		check(decorated.get_data() != bare.get_data(), item + " visibly differs from no-item desktop")
 		check(desktop.icon_grid.get_global_rect() == launcher_rect, item + " preserves launcher geometry")
 		check(viewport.gui_get_focus_owner() == focused, item + " preserves focus")
-		if item == "letter_with_wax_seal" and OS.get_environment("DWM_MATERIAL_BASELINE") != "1":
-			var canvas: Control = desktop.desktop_canvas
-			var region := Rect2i(viewport.get_final_transform() * canvas.get_global_transform_with_canvas() * Rect2(canvas.size.x - 110, 0, 110, canvas.size.y - 144))
-			desktop.status_label.text = "Preview failure"
-			desktop.status_label.show()
-			var failure: Image = await _material_capture("letter-status-visible", true, false)
-			check(failure.get_region(region).get_data() == bare.get_region(region).get_data(), "failure feedback suppresses letter pixels")
-			desktop.status_label.hide()
-			var restored: Image = await _material_capture("letter-status-cleared", false, false)
-			check(restored.get_data() == decorated.get_data(), "cleared feedback restores same letter pixels")
+
 	check(desktop.open_contacts().get("ok", false), "letter-only Contacts")
 	var letter_app: Image = await _material_capture("letter-only-app")
 	inventory.inventory = {}
 	var bare_app: Image = await _material_capture("none-app")
-	check(letter_app.get_data() == bare_app.get_data(), "letter-only app matches undecorated app")
+	if OS.get_environment("DWM_MATERIAL_BASELINE") == "1":
+		check(letter_app.get_data() == bare_app.get_data(), "baseline letter object remains Home-only")
+	else:
+		check(letter_app.get_data() != bare_app.get_data(), "paper remains visible with an app open")
 	check(desktop.return_home().get("ok", false), "letter check returns Home")
 	inventory.inventory = {"crystal_stutters": 1, "inked_silk_string": 1, "letter_with_wax_seal": 1}
 	for palette: StringName in [&"after_hours", &"midnight"]:
@@ -113,18 +107,19 @@ func _run() -> void:
 		check(desktop.desktop_canvas.size.y <= 480, "short fixture has insufficient logical height")
 		inventory.inventory = {"letter_with_wax_seal": 1}
 		var short_letter: Image = await _material_capture("short-letter")
-		check(short_letter.get_data() == short_bare.get_data(), "short layout suppresses letter instead of covering content")
+		check(short_letter.get_data() != short_bare.get_data(), "paper remains visible in a short layout")
+		check(desktop.cosmetic_overlay.visible, "short paper is still owned and displayed")
 	print("MATERIAL_DECORATION_RESULT captures=", captures, " failures=", failures.size())
 	viewport.queue_free()
 	await process_frame
 	quit(0 if failures.is_empty() else 1)
 
-func _material_capture(label: String, failure_visible: bool = false, refresh: bool = true) -> Image:
-	if refresh: desktop._refresh_cosmetics()
+func _material_capture(label: String) -> Image:
+	desktop._refresh_cosmetics()
 	await settle()
 	check(desktop.cosmetic_overlay.mouse_filter == Control.MOUSE_FILTER_IGNORE, label + " ignores pointer")
 	check(desktop.cosmetic_overlay.focus_mode == Control.FOCUS_NONE, label + " cannot receive focus")
-	check(desktop.status_label.visible == failure_visible, label + " expected failure notice visibility")
+	check(not desktop.status_label.visible, label + " has no failure notice")
 	await RenderingServer.frame_post_draw
 	var image: Image = viewport.get_texture().get_image()
 	check(image.get_size() == viewport.size, label + " full viewport")

@@ -1,7 +1,7 @@
 name: Readability measurements
 on:
   pull_request:
-    paths: ['scripts/ui/**', 'scripts/settings/SettingsPreferenceRegistry.gd', 'tests/ui/render*readability*.gd', 'tests/ui/render_interaction_states.gd', 'tests/ui/render_material_decoration.gd', 'tools/dtl-editor/**', '.github/workflows/readability.yml']
+    paths: ['scripts/ui/**', 'scripts/settings/SettingsPreferenceRegistry.gd', 'tests/ui/render*readability*.gd', 'tests/ui/render_interaction_states.gd', 'tests/ui/render_material_decoration.gd', 'tests/ui/render_material_story.gd', 'tools/dtl-editor/**', '.github/workflows/readability.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -59,6 +59,24 @@ jobs:
         with:
           name: material-decoration-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/material-decoration/
+          include-hidden-files: true
+          if-no-files-found: error
+      - name: Render materials in the authored Day1 scene
+        env:
+          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/material-story-user/test-root
+          XDG_DATA_HOME: ${{ github.workspace }}/.godot/material-story-user/data
+        run: |
+          mkdir -p "$DWM_TEST_ROOT" "$XDG_DATA_HOME"
+          timeout 240s xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" --path . --rendering-method gl_compatibility --audio-driver Dummy --log-file "$GITHUB_WORKSPACE/.godot/ci/material-story.log" -s res://addons/gut/gut_cmdln.gd -gconfig= -gtest=res://tests/ui/render_material_story.gd -gexit -- --phase2r-bootstrap-mode=test_manual
+          grep 'MATERIAL_AUTHORED_STORY_COMPLETED background=Day1 controls=7 purchases=3' .godot/ci/material-story.log
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load' .godot/ci/material-story.log; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: material-story-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .godot/ci/*material-authored*
+            .godot/ci/material-story.log
           include-hidden-files: true
           if-no-files-found: error
       - name: Measure real caption and thought layouts

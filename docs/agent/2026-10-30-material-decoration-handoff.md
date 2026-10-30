@@ -177,3 +177,25 @@ two palettes, high contrast, narrow and short layouts. Purchase/Load/new-run che
 remain the existing real-owner journey. Exact revisions, final screenshots, cloud
 results and remaining visual-review limitations belong to the PR acceptance record.
 This work makes no measured gameplay speedup claim and does not redesign the base UI.
+
+
+## Expanded material direction, 30 October 2026
+
+The owner superseded the small-object prototype: letter ownership now gives the
+computer and seven dialogue controls a subtle paper material with a neutral wax
+seal; crystal ownership gives computer and live story-art surfaces restrained
+edge sheen and hairline cracks; silk wraps the outer computer edge. Effects remain
+static, code-drawn, noninteractive and per-run. Existing inventory is canonical.
+The paper tile is generated once and reused; no imported concept art is used.
+
+The concept board was AI-generated visual direction, not gameplay evidence.
+The earlier 1920×1080 desktop previews assembled a UI shell without an active
+story session and must not be described as normal playable scenes. Final review
+requires active story artwork and the real seven-control rail, plus open computer
+views. Test-scene captures must be labelled as such.
+
+PR #162's prior cosmetic journey failed because screen-space crop conversion
+included the root window transform when sampling its viewport texture. This is
+being corrected with viewport-image scaling. Prior purchasing/save assertions
+are not evidence that fresh-process Load or new-run checks completed. Current
+acceptance, cloud results and screenshots remain tracked in the PR.

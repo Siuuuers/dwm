@@ -266,6 +266,7 @@ $suites = @{
         'tests/unit/test_minesweeper_shop_purchase_participant.gd'
     )
     desktop = @(
+        'tests/unit/test_desktop_cosmetics.gd'
         'tests/unit/test_application_runtime_lifetime.gd'
         'tests/integration/test_application_bootstrap.gd'
         'tests/integration/test_desktop_day_change_fatal.gd'
