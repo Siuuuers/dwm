@@ -1319,4 +1319,3 @@ func _draw() -> void:
 	draw_rect(Rect2(0, size.y - chrome_height, size.x, chrome_height), get_theme_color("face", "Desktop"))
 	draw_rect(Rect2(0, size.y - footer_height, size.x, 2 * desktop_canvas.scale.y), get_theme_color("structure", "Desktop"))
 	$PanelOutline.border_color = Color(get_theme_color("structure", "Desktop"), 0.45)
-	$PanelOutline.offset_bottom = -footer_height

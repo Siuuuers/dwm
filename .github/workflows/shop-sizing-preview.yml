@@ -5,6 +5,7 @@ on:
     paths:
       - 'scripts/ui/ShopApp.gd'
       - 'scripts/ui/ShopItemBox.gd'
+      - 'scripts/ui/shop/ShopItemArt.gd'
       - 'scripts/ui/ComputerDesktop.gd'
       - 'scripts/ui/SceneHost.gd'
       - 'autoload/ApplicationBootstrap.gd'
