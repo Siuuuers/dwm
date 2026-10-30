@@ -14,6 +14,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/dtl-first-preflight.yml'
+      - 'tools/testing/self_talk_panel_scope.py'
       - 'tools/authoring/**'
       - 'autoload/**'
       - 'scripts/**'
@@ -31,7 +32,42 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  scope:
+    runs-on: ubuntu-24.04
+    outputs:
+      presentation_only: ${{ steps.scope.outputs.presentation_only }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /tools/testing/self_talk_panel_scope.py
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          git submodule foreach --recursive 'true'
+      - name: Retain authoring checks unless this is the proven presentation slice
+        id: scope
+        shell: python
+        run: |
+          import json, os, subprocess, sys
+          sys.path.insert(0, "tools/testing")
+          from self_talk_panel_scope import is_self_talk_panel
+          with open(os.environ['GITHUB_EVENT_PATH']) as source:
+              event = json.load(source)
+          base = event.get('pull_request', {}).get('base', {}).get('sha')
+          selected = False
+          if os.environ['GITHUB_EVENT_NAME'] == 'pull_request' and base:
+              diff = subprocess.run(['git', 'diff', '--name-only', '-z', base, 'HEAD'], capture_output=True)
+              if diff.returncode == 0:
+                  paths = set(diff.stdout.decode().strip('\0').split('\0'))
+                  selected = is_self_talk_panel(paths, base)
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'presentation_only={str(selected).lower()}\n')
+          print('Focused self-talk workflow owns this presentation slice' if selected else 'Authoring preflight required')
   authoring:
+    needs: scope
+    if: needs.scope.outputs.presentation_only != 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:

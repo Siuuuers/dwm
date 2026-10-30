@@ -113,7 +113,7 @@ func return_to_live() -> void:
 	review_changed.emit()
 
 func review_rows(delta: int) -> void:
-	if _lines.is_empty(): return
+	if _lines.is_empty() or (not is_reviewing() and _visible_rows().size() == _lines.size()): return
 	var current := _review_start if is_reviewing() else _live_line_start
 	var next := clampi(current - delta, 0, _lines.size() - 1)
 	if next == 0:

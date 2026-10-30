@@ -11,6 +11,10 @@ func _panel(width: float = 400.0) -> PANEL:
 
 func test_current_thought_starts_at_top_and_long_text_remains_scrollable() -> void:
 	var panel := _panel()
+	panel.project([{"id":"short", "text":"First row\nSecond row\nThird row"}], 0)
+	panel.review_rows(-1)
+	assert_false(panel.is_reviewing(), "Fully visible text does not enter review or hold progression")
+	assert_eq(panel.get_projection().visible_rows[0].line, 0)
 	panel.project([{"id":"a", "text":"First row\nSecond row\nThird row\nFourth row"}], 0)
 	var full := panel.get_projection()
 	assert_eq(full.visible_rows.size(), 3)

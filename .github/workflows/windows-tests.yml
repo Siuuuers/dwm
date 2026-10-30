@@ -42,6 +42,7 @@ jobs:
           sparse-checkout: |
             /.github/workflows/windows-tests.yml
             /tools/testing/test_windows_coverage.py
+            /tools/testing/self_talk_panel_scope.py
             /tools/testing/Invoke-CloudTests.ps1
           persist-credentials: true
       - name: Prepare disposable checkout for credential cleanup
@@ -54,7 +55,9 @@ jobs:
         id: scope
         shell: python
         run: |
-          import io, json, os, re, subprocess, zipfile
+          import io, json, os, re, subprocess, sys, zipfile
+          sys.path.insert(0, "tools/testing")
+          from self_talk_panel_scope import is_self_talk_panel
           with open(os.environ["GITHUB_EVENT_PATH"]) as event_file:
               event = json.load(event_file)
           base = event.get("pull_request", {}).get("base", {}).get("sha") or event.get("before", "")
@@ -628,30 +631,7 @@ jobs:
                       'tools/testing/Invoke-CloudTests.ps1',
                   }
                   self_talk = bool(paths) and paths <= self_talk_paths and bool(paths & {"scripts/ui/witnessed/WitnessedSelfTalk.gd", "tests/unit/test_scene_self_talk.gd", "tests/ui/render_self_talk_journey.gd"})
-                  # Current-caption presentation and History use one shared Linux import.
-                  self_talk_panel_paths = {
-                      '.github/workflows/windows-tests.yml', 'tools/testing/test_windows_coverage.py',
-                      'autoload/DialogicBridge.gd', 'scripts/narrative/SoloReadingSession.gd',
-                      'scripts/ui/witnessed/WitnessedCaptionLayer.gd',
-                      'scripts/ui/witnessed/WitnessedSelfTalk.gd',
-                      'tests/unit/test_scene_self_talk.gd', 'tests/unit/test_witnessed_self_talk.gd',
-                      'tests/ui/render_self_talk_base.gd', 'tests/ui/render_self_talk_journey.gd',
-                      'tests/ui/render_self_talk_load.gd', 'tests/ui/render_self_talk_transport.gd',
-                      'tests/ui/render_self_talk_choices.gd',
-                      'tests/integration/test_witnessed_caption_runtime.gd',
-                      'docs/agent/2026-10-30-self-talk-panel-handoff.md',
-                      'docs/agent/2026-10-30-self-talk-panel-implementation.md',
-                      'docs/agent/2026-10-28-self-talk-implementation-plan.md',
-                  }
-                  self_talk_panel = bool(paths) and paths <= self_talk_panel_paths and bool(paths & {
-                      'scripts/ui/witnessed/WitnessedSelfTalk.gd', 'tests/unit/test_scene_self_talk.gd',
-                      'tests/ui/render_self_talk_journey.gd'})
-                  if self_talk_panel:
-                      self_talk_panel = all(unchanged_outside_method(path, method) for path, method in {
-                          'autoload/DialogicBridge.gd': 'get_reading_history',
-                          'scripts/narrative/SoloReadingSession.gd': 'project_self_talk',
-                          'scripts/ui/witnessed/WitnessedCaptionLayer.gd': '_sync_transport',
-                      }.items() if path in paths)
+                  self_talk_panel = is_self_talk_panel(paths, base)
                   comparison_paths = paths
                   previous = event.get("before", "") if event.get("action") == "synchronize" else ""
                   if re.fullmatch(r"[0-9a-f]{40}", previous):
@@ -1641,7 +1621,7 @@ jobs:
               ('choices', ['tests/ui/render_self_talk_choices.gd'], 'SELF_TALK_CHOICES_COMPLETED', 'choices', ''),
           ]
           for name, scripts, marker, storage, method in suites:
-              isolated = output / ('user-' + storage)
+              isolated = root / '.godot/phase2r_tests/self-talk-panel' / ('user-' + storage)
               env = dict(os.environ, XDG_DATA_HOME=str(isolated / 'data'), DWM_TEST_ROOT=str(isolated / 'test-root'))
               pathlib.Path(env['XDG_DATA_HOME']).mkdir(parents=True, exist_ok=True)
               pathlib.Path(env['DWM_TEST_ROOT']).mkdir(parents=True, exist_ok=True)
