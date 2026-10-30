@@ -17,7 +17,8 @@ func test_new_run_clears_cosmetics_without_changing_saved_run() -> void:
 	if not await _launch_app(shell, &"shop"): return
 	var shop: Control = shell._cached_app_windows[&"shop"]
 	_assert_retained_catalogue(shop)
-	_assert_retired_unavailable(shop)
+	for item_id: String in COSMETICS:
+		assert_true(shop._provider.can_purchase(item_id).ok, "new run restores purchase availability")
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256, "starting fresh leaves saved owned cosmetics intact")
 	_write_json("res://.godot/ci/shop-cosmetics-new-run.json", {"process_id": OS.get_process_id(),
 		"inventory": game.inventory, "prior_slot_sha256": proof.slot_sha256})

@@ -3,10 +3,14 @@ extends "res://addons/gut/test.gd"
 const CATALOG_PROJECTION := preload("res://scripts/ui/shop/ShopCatalogProjection.gd")
 
 const ORDER := [
-	"lucky_charm", "debug_key", "bookend_keepsake", "metronome_keepsake",
-	"pocket_calculator_keepsake", "supportz",
+	"crystal_stutters", "inked_silk_string", "letter_with_wax_seal",
+	"metronome_keepsake", "pocket_calculator_keepsake", "bookend_keepsake", "lucky_charm",
+	"debug_key", "supportz",
 ]
 const SPECS := {
+	"crystal_stutters": [45, "money", false],
+	"inked_silk_string": [45, "money", false],
+	"letter_with_wax_seal": [45, "money", false],
 	"lucky_charm": [1, "minesweeper_coin", false],
 	"debug_key": [3, "minesweeper_coin", false],
 	"bookend_keepsake": [3, "minesweeper_coin", false],
@@ -24,7 +28,7 @@ func test_shuffled_owner_rows_are_reordered_and_private_keys_are_removed() -> vo
 
 	assert_true(result["ok"])
 	assert_eq(_ids(result["value"]), ORDER)
-	var projected: Dictionary = result["value"][4]
+	var projected: Dictionary = result["value"][7]
 	assert_eq(projected.keys().size(), 10)
 	assert_false(projected.has("effect_ids"))
 	assert_false(projected.has("purchase_count"))
@@ -43,15 +47,15 @@ func test_rejects_missing_duplicate_unknown_and_old_keepsake_ids() -> void:
 	assert_false(CATALOG_PROJECTION.project(missing)["ok"])
 
 	var duplicate := _valid_rows()
-	duplicate[4] = duplicate[0].duplicate()
+	duplicate[7] = duplicate[0].duplicate()
 	assert_eq(CATALOG_PROJECTION.project(duplicate)["code"], "duplicate_item_id")
 
 	var unknown := _valid_rows()
-	unknown[4]["id"] = "unknown_item"
+	unknown[7]["id"] = "unknown_item"
 	assert_eq(CATALOG_PROJECTION.project(unknown)["code"], "unknown_item_id")
 
 	var old_keepsake := _valid_rows()
-	old_keepsake[2]["id"] = "priscilla_gift"
+	old_keepsake[5]["id"] = "priscilla_gift"
 	assert_eq(CATALOG_PROJECTION.project(old_keepsake)["code"], "unknown_item_id")
 
 
@@ -69,7 +73,7 @@ func test_rejects_bad_price_art_and_field_types() -> void:
 	assert_eq(CATALOG_PROJECTION.project(bad_type)["code"], "invalid_legal_max")
 
 	var non_record := _valid_rows()
-	non_record[0] = "lucky_charm"
+	non_record[0] = "crystal_stutters"
 	assert_eq(CATALOG_PROJECTION.project(non_record)["code"], "invalid_item_type")
 
 
@@ -78,13 +82,13 @@ func test_sold_out_item_stays_in_its_fixed_slot() -> void:
 	rows[0]["available"] = false
 	rows[0]["legal_max"] = 0
 	var value: Array = CATALOG_PROJECTION.project(rows)["value"]
-	assert_eq(value[0]["id"], "lucky_charm")
+	assert_eq(value[0]["id"], "crystal_stutters")
 	assert_false(value[0]["available"])
 	assert_eq(value[0]["legal_max"], 0)
 
 func test_rejects_contradictory_maximum_but_accepts_unaffordable_available() -> void:
 	var rows := _valid_rows()
-	var crystal_index := ORDER.find("lucky_charm")
+	var crystal_index := ORDER.find("crystal_stutters")
 	rows[crystal_index].available = false
 	assert_eq(CATALOG_PROJECTION.project(rows).code, "invalid_legal_max")
 	rows[crystal_index].available = true
@@ -101,7 +105,7 @@ func test_maximum_cannot_overflow_exact_currency_total() -> void:
 
 func test_supportz_blank_has_only_public_blank_fields_in_both_states() -> void:
 	for eligible: bool in [false, true]:
-		var blank: Dictionary = CATALOG_PROJECTION.project(_valid_rows(), eligible)["value"][5]
+		var blank: Dictionary = CATALOG_PROJECTION.project(_valid_rows(), eligible)["value"][8]
 		assert_eq(blank, {"id": "supportz", "blank": true, "actionable": eligible})
 
 
@@ -112,7 +116,7 @@ func test_projected_records_are_detached_from_owner_record_mutation() -> void:
 	rows[0]["name"] = "Changed"
 	rows[0]["description"] = "Changed"
 	rows[0]["private"] = true
-	assert_eq(result["value"][0]["name"], "Lucky Charm")
+	assert_eq(result["value"][0]["name"], "Crystal Stutters")
 	assert_eq(result["value"][0]["description"], "A sealed vending cup.")
 	assert_false(result["value"][0].has("private"))
 

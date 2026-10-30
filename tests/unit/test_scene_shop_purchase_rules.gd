@@ -164,15 +164,15 @@ func test_invalid_currency_and_price_are_refused() -> void:
 		item.price = price
 		assert_false(RULES.prepare(_gameplay(), item, 1).ok)
 
-func test_keepsake_ownership_is_once_per_run_and_does_not_unlock_notes() -> void:
-	for item_id: String in ["priscilla_gift", "lavinia_gift", "sylvia_gift"]:
+func test_cosmetic_ownership_is_once_per_run_and_does_not_unlock_notes() -> void:
+	for item_id: String in ["crystal_stutters", "inked_silk_string", "letter_with_wax_seal"]:
 		var state: Dictionary = _gameplay()
 		state.shop_purchase_counts[item_id] = 3
 		var item: Dictionary = _item(item_id)
 		var result: Dictionary = RULES.prepare(state, item, 1)
 		assert_true(result.ok, item_id)
 		if not result.ok: continue
-		assert_eq(result.value.gameplay.coins, 7)
+		assert_eq(result.value.gameplay.money, 55)
 		assert_eq(result.value.gameplay.inventory, {item_id: 1})
 		assert_eq(result.value.gameplay.stats, state.stats)
 		assert_eq(result.value.gameplay.shop_purchase_counts, state.shop_purchase_counts)

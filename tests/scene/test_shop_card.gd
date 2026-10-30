@@ -40,10 +40,10 @@ func test_card_has_only_public_copy_and_no_purchase_or_hidden_controls() -> void
 	var row: Dictionary = CATALOG_PROJECTION.project(_valid_rows()).value[0]
 	var card := _card(row)
 	await _settle()
-	assert_eq(card.name_label.text, "Lucky Charm")
-	assert_eq(card.price_label.text, "1 coin")
+	assert_eq(card.name_label.text, "Crystal Stutters")
+	assert_eq(card.price_label.text, "$45")
 	assert_eq(card.availability_label.text, "Available")
-	assert_eq(card.accessibility_name, "Lucky Charm, 1 coin, Available")
+	assert_eq(card.accessibility_name, "Crystal Stutters, $45, Available")
 	assert_eq(card.get_child_count(), 4, "Three public labels plus nonfocusable pointer surface.")
 	for child in card.get_children():
 		assert_false(child is BaseButton, "No nested Buy/quantity/secret target.")

@@ -23,13 +23,27 @@ func _assert_retained_catalogue(shop: Control) -> void:
 		assert_true(supportz[0].blank)
 		assert_false(supportz[0].actionable, "ordinary caption has no fabricated round completions")
 
-func _assert_retired_unavailable(shop: Control) -> void:
-	var before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
+func _select_cosmetic(shop: Control, item_id: String) -> bool:
+	assert_true(shop.cards.has(item_id), "catalogue retains " + item_id)
+	if not shop.cards.has(item_id): return false
+	# Page through actual visible controls instead of clicking hidden cards.
+	for attempt: int in shop.page_count:
+		if shop.cards[item_id].is_visible_in_tree(): break
+		await _click(shop.next_button if not shop.next_button.disabled else shop.previous_button)
+	assert_true(shop.cards[item_id].is_visible_in_tree())
+	if not shop.cards[item_id].is_visible_in_tree(): return false
+	await _click(shop.cards[item_id])
+	assert_eq(shop.selected_id, item_id)
+	return shop.selected_id == item_id
+
+func _assert_owned_unavailable(shop: Control) -> void:
 	for item_id: String in COSMETICS:
-		assert_false(shop.cards.has(item_id))
-		assert_eq(shop._provider.can_purchase(item_id).get("code"), &"unregistered_shop_item")
-		assert_eq(shop._provider.purchase(item_id, 1).get("code"), &"unregistered_shop_item")
-	assert_eq(game.capture_run_snapshot_input(), before, "rejected retired purchases never debit or mutate state")
+		assert_eq(game.inventory.get(item_id, 0), 1)
+		if not await _select_cosmetic(shop, item_id): return
+		assert_true(shop._buy_button.disabled, "owned cosmetic cannot be bought again: " + item_id)
+		var before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
+		await _click(shop._buy_button)
+		assert_eq(game.capture_run_snapshot_input(), before, "disabled duplicate purchase changes nothing")
 
 func _assert_cosmetic_overlay(shell: Control) -> void:
 	assert_null(shell.find_child("CosmeticOverlay", true, false))

@@ -22,14 +22,14 @@ func test_fresh_process_load_restores_cosmetic_ownership() -> void:
 	var shell: Control = await _open_apps(get_tree().current_scene)
 	if shell == null: return
 	_assert_cosmetic_overlay(shell)
-	assert_eq(await _cosmetic_pixels(shell), proof.bare_pixels, "fresh Load leaves legacy decorations inert")
+	assert_eq(await _cosmetic_pixels(shell), proof.bare_pixels, "fresh Load leaves purchased keepsakes visually inert")
 	await _screenshot("shop-cosmetics-loaded-home")
 	if not await _launch_app(shell, &"shop"): return
 	_assert_cosmetic_overlay(shell)
 	await _screenshot("shop-cosmetics-loaded-app")
 	var shop: Control = shell._cached_app_windows[&"shop"]
 	_assert_retained_catalogue(shop)
-	_assert_retired_unavailable(shop)
+	await _assert_owned_unavailable(shop)
 	assert_eq(game.capture_run_snapshot_input().gameplay, proof.gameplay)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256)
 	proof["loader_process_id"] = OS.get_process_id()
