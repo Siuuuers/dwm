@@ -60,9 +60,8 @@ static func texture(item_id: String, size: int) -> Texture2D:
 			strokes = [
 				[3, 6, 22, 17, INK], [4, 7, 20, 15, PAPER], [5, 8, 3, 2, WOOD],
 				[8, 10, 3, 2, WOOD], [11, 12, 6, 2, WOOD], [17, 10, 3, 2, WOOD],
-				[20, 8, 3, 2, WOOD], [12, 14, 4, 3, RED], [13, 13, 2, 5, RED],
-				[6, 16, 1, 2, RED], [7, 17, 1, 2, RED], [8, 18, 2, 1, RED],
-				[9, 19, 2, 1, RED], [11, 20, 1, 1, RED],
+				[20, 8, 3, 2, WOOD], [13, 14, 2, 2, RED],
+				[6, 17, 1, 1, RED], [9, 19, 1, 1, RED], [19, 18, 1, 1, RED],
 			]
 		"bookend_keepsake":
 			strokes = [
