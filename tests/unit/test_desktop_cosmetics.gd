@@ -88,6 +88,9 @@ func test_live_art_and_seven_controls_share_inventory_without_new_input_targets(
 		assert_true(paper is RAIL.PaperPlate)
 		assert_eq([paper.get_minimum_size(), paper.get_content_margin(SIDE_TOP), paper.get_content_margin(SIDE_BOTTOM)], before[style])
 	assert_eq(buttons[0].get_theme_stylebox("disabled").base.border_width_bottom, 4)
+	for button: Button in buttons:
+		assert_eq(button.get_theme_stylebox("normal").base.bg_color, rail._roles[&"text"], "paper has a visible light surface")
+		assert_eq(button.get_theme_color("font_color"), rail._roles[&"field"], "paper uses dark readable ink")
 	assert_eq(buttons[0]._candidate, {"material_probe": true}, "material refresh preserves pending input")
 	assert_eq(art._material_overlay.mouse_filter, Control.MOUSE_FILTER_IGNORE)
 	assert_eq(art._material_overlay.focus_mode, Control.FOCUS_NONE)
