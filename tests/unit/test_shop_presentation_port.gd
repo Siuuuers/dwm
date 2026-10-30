@@ -195,8 +195,8 @@ func test_item_art_cache_survives_locale_reconfiguration_and_sold_out_facts() ->
 				assert_eq(localized[index][key],original[index][key],language+": art does not change "+key)
 	_game_state.inventory["lucky_charm"] = 1
 	var sold_out: Array = _port.get_catalog("en").value
-	assert_false(sold_out[3].available)
-	assert_eq(sold_out[3].legal_max,0)
+	assert_false(sold_out[PUBLIC_ORDER.find("lucky_charm")].available)
+	assert_eq(sold_out[PUBLIC_ORDER.find("lucky_charm")].legal_max,0)
 	for index: int in original.size():
 		assert_same(sold_out[index].card_art,original[index].card_art)
 		assert_same(sold_out[index].inspector_art,original[index].inspector_art)
