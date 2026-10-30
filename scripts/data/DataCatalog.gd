@@ -27,9 +27,6 @@ const FRIEND_IDS := _CONTACT_STATE.FRIEND_IDS
 # the registry record (max_purchases from cap.per_branch). The secret Supportz row is last;
 # a delegated row is recognized by carrying no "currency" key.
 const _SHOP_ROWS := [
-	{"id": "crystal_stutters", "currency": "money", "price": 45, "effects": ["inventory:add:crystal_stutters"], "max": 1},
-	{"id": "inked_silk_string", "currency": "money", "price": 45, "effects": ["inventory:add:inked_silk_string"], "max": 1},
-	{"id": "letter_with_wax_seal", "currency": "money", "price": 45, "effects": ["inventory:add:letter_with_wax_seal"], "max": 1},
 	{"id": "lucky_charm"},
 	{"id": "debug_key"},
 	{"id": "priscilla_gift", "currency": "minesweeper_coin", "price": 3, "effects": ["inventory:add:priscilla_gift"], "max": 1, "gift": true, "special": true},

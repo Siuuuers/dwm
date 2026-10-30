@@ -10,21 +10,8 @@ signal save_requested
 signal next_requested
 signal settings_requested
 
-const MATERIAL := preload("res://scripts/ui/MaterialDecoration.gd")
 const TRANSPORT_BUTTON := preload("res://scripts/ui/witnessed/WitnessedTransportButton.gd")
 const SETTINGS_PALETTES := preload("res://scripts/settings/SettingsPaletteRegistry.gd")
-
-class PaperPlate extends StyleBox:
-	var base: StyleBoxFlat
-	var ink: Color
-
-	func _get_minimum_size() -> Vector2:
-		return base.get_minimum_size()
-
-	func _draw(canvas_item: RID, rect: Rect2) -> void:
-		base.draw(canvas_item, rect)
-		var border := maxi(maxi(base.border_width_left, base.border_width_right), maxi(base.border_width_top, base.border_width_bottom))
-		MATERIAL.paper_texture().draw_rect(canvas_item, rect.grow(-PLATE_INSET - border), true, ink)
 
 const RAIL_POSITION := Vector2(0, 592)
 const RAIL_SIZE := Vector2(1280, 128)
@@ -77,7 +64,6 @@ var _auto_enabled := false
 var _projection_initialized := false
 var _roles: Dictionary = {}
 var _filed := Color.TRANSPARENT
-var _material_owner: Node
 
 
 func _ready() -> void:
@@ -87,9 +73,6 @@ func _ready() -> void:
 	clip_contents = true
 	focus_mode = Control.FOCUS_NONE
 	_ensure_controls()
-	_material_owner = get_node_or_null("/root/GameState")
-	if _material_owner != null:
-		_material_owner.inventory_changed.connect(_refresh_material)
 	visibility_changed.connect(retire_input)
 	_apply_projection()
 	queue_redraw()
@@ -390,7 +373,6 @@ func _full_label(id: StringName, enabled_mode: bool) -> String:
 func _apply_button_material(button: Button, mode_on: bool) -> void:
 	var face: Color = _filed if mode_on else _roles[&"field"]
 	var ink: Color = _roles[&"field"] if mode_on else _roles[&"text"]
-	var paper_owned := is_instance_valid(_material_owner) and int(_material_owner.inventory.get("letter_with_wax_seal", 0)) > 0
 	var state_edge: Color = _roles[&"field"] if mode_on else _roles[&"rule"]
 	button.add_theme_stylebox_override(&"normal", _plate(face, Color.TRANSPARENT, 0))
 	button.add_theme_stylebox_override(&"hover", _plate(face, state_edge, 2))
@@ -407,13 +389,6 @@ func _apply_button_material(button: Button, mode_on: bool) -> void:
 		var plate := button.get_theme_stylebox(state)
 		plate.content_margin_top = padding
 		plate.content_margin_bottom = padding
-		if paper_owned:
-			var paper := PaperPlate.new()
-			paper.base = plate
-			paper.ink = ink
-			for side: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
-				paper.set_content_margin(side, plate.get_content_margin(side))
-			button.add_theme_stylebox_override(state, paper)
 	for state: StringName in [
 		&"font_color", &"font_hover_color", &"font_pressed_color",
 		&"font_hover_pressed_color", &"font_focus_color", &"font_disabled_color",
@@ -432,11 +407,6 @@ func _plate(fill: Color, edge: Color, edge_width: int) -> StyleBoxFlat:
 		result.set_expand_margin(side, -PLATE_INSET)
 		result.set_content_margin(side, 0.0 if side in [SIDE_TOP, SIDE_BOTTOM] else 10.0)
 	return result
-
-
-func _refresh_material() -> void:
-	_apply_projection()
-	queue_redraw()
 
 
 func _draw_button_state(button: TRANSPORT_BUTTON) -> void:

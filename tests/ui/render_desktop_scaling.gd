@@ -206,7 +206,7 @@ func _run() -> void:
 	check(opened.get("ok",false),"shop opened")
 	if opened.get("ok",false):
 		await settle()
-		opened.value.app.cards.crystal_stutters.grab_focus()
+		opened.value.app.cards.lucky_charm.grab_focus()
 		await pair("shop")
 		await _shop_samples(opened.value.app,catalog)
 		desktop.app_scroll.ensure_control_visible(opened.value.app._buy_button)
@@ -307,7 +307,7 @@ func _shop_samples(app: Control, catalog: RefCounted) -> void:
 	profile.present(100,false)
 	profile.present_font("pixel")
 	await settle()
-	app.cards.crystal_stutters.grab_focus()
+	app.cards.lucky_charm.grab_focus()
 	await settle()
 	check(catalog.rows == original,"Shop art previews restore their isolated public facts")
 
@@ -344,7 +344,7 @@ func _check_shop_geometry(name: String) -> void:
 	var app: Control = desktop._cached_app_windows[&"shop"]
 	check(app.cards.size() == 8 and app._records.size() == 9 and not app.cards.has("supportz"),
 		name+": eight catalog items and the blank position gains no card or art target")
-	check(app._records[8].id == "supportz" and app._records[8].blank,
+	check(app._records[5].id == "supportz" and app._records[5].blank,
 		name+": Supportz stays in the final blank slot")
 	for row: Dictionary in app._records:
 		if row.blank: continue

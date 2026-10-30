@@ -36,10 +36,10 @@ func test_rendered_blank_laminate_uses_the_current_supportz_slot() -> void:
 	for frame: int in 3: await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	var index: int = shop._index_of("supportz")
-	assert_eq(index, 8, "Current catalogue's structural blank moved with retired merchandise.")
+	assert_eq(index, 5, "Current catalogue's structural blank moved with retired merchandise.")
 	assert_true(shop._records[index].blank)
 	assert_false(shop.cards.has("supportz"), "Blank remains noninteractive.")
-	var card_height: float = shop.cards.crystal_stutters.size.y
+	var card_height: float = shop.cards.lucky_charm.size.y
 	var local_point := Vector2(26 + (index % 3) * 152, 26 + floori(float(index) / 3.0) * (card_height + 8))
 	var point: Vector2 = shop._body.get_global_transform_with_canvas() * local_point
 	var image: Image = viewport.get_texture().get_image()

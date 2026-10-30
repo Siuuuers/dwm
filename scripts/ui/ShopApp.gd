@@ -17,7 +17,7 @@ var cards: Dictionary = {}
 var page_index := 0
 var page_capacity := 9
 var page_count := 1
-var selected_id := "crystal_stutters"
+var selected_id := "lucky_charm"
 var quantity := 1
 var _item_quantities: Dictionary = {}
 var previous_button: Button

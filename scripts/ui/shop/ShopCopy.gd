@@ -47,9 +47,6 @@ const _TEXT := {
 
 const _ITEM_NAMES := {
 	"en": {
-		"crystal_stutters": "crystal stutters",
-		"inked_silk_string": "inked silk string",
-		"letter_with_wax_seal": "letter with wax seal",
 		"lucky_charm": "Lucky Charm",
 		"debug_key": "Debug Key",
 		"bookend_keepsake": "Bookend",
@@ -57,9 +54,6 @@ const _ITEM_NAMES := {
 		"pocket_calculator_keepsake": "Pocket Calculator"
 	},
 	"zh_CN": {
-		"crystal_stutters": "水晶碎光",
-		"inked_silk_string": "墨染丝线",
-		"letter_with_wax_seal": "火漆封缄信",
 		"lucky_charm": "幸运符",
 		"debug_key": "调试键",
 		"bookend_keepsake": "书挡",
@@ -67,9 +61,6 @@ const _ITEM_NAMES := {
 		"pocket_calculator_keepsake": "袖珍计算器"
 	},
 	"zh_HK": {
-		"crystal_stutters": "水晶碎光",
-		"inked_silk_string": "墨染絲線",
-		"letter_with_wax_seal": "火漆封緘信",
 		"lucky_charm": "幸運符",
 		"debug_key": "除錯鍵",
 		"bookend_keepsake": "書擋",
@@ -77,9 +68,6 @@ const _ITEM_NAMES := {
 		"pocket_calculator_keepsake": "袖珍計算器"
 	},
 	"ja": {
-		"crystal_stutters": "水晶のさざめき",
-		"inked_silk_string": "墨染めの絹糸",
-		"letter_with_wax_seal": "封蝋付きの手紙",
 		"lucky_charm": "幸運のお守り",
 		"debug_key": "デバッグキー",
 		"bookend_keepsake": "ブックエンド",
@@ -87,9 +75,6 @@ const _ITEM_NAMES := {
 		"pocket_calculator_keepsake": "ポケット電卓"
 	},
 	"ko": {
-		"crystal_stutters": "수정의 속삭임",
-		"inked_silk_string": "먹빛 비단실",
-		"letter_with_wax_seal": "밀랍 봉인 편지",
 		"lucky_charm": "행운의 부적",
 		"debug_key": "디버그 키",
 		"bookend_keepsake": "북엔드",
@@ -101,29 +86,14 @@ const _ITEM_NAMES := {
 
 const _ITEM_DESCRIPTIONS := {
 	"en": {
-		"crystal_stutters": "Adds quiet glass highlights to computer edges for this run.",
-		"inked_silk_string": "Adds a fine ink-thread accent to the computer frame for this run.",
-		"letter_with_wax_seal": "Adds a small paper-and-wax detail to the desktop wallpaper for this run."
 	},
 	"zh_CN": {
-		"crystal_stutters": "本次游玩中，为电脑边缘添上柔和的玻璃微光。",
-		"inked_silk_string": "本次游玩中，为电脑边框添上一缕细细的墨色丝线。",
-		"letter_with_wax_seal": "本次游玩中，为桌面壁纸添上一处纸张与火漆装饰。"
 	},
 	"zh_HK": {
-		"crystal_stutters": "本次遊玩中，為電腦邊緣添上柔和的玻璃微光。",
-		"inked_silk_string": "本次遊玩中，為電腦邊框添上一縷細細的墨色絲線。",
-		"letter_with_wax_seal": "本次遊玩中，為桌面桌布添上一處紙張與火漆裝飾。"
 	},
 	"ja": {
-		"crystal_stutters": "今回のプレイ中、コンピューターの縁に静かなガラスの輝きを添えます。",
-		"inked_silk_string": "今回のプレイ中、コンピューターの枠に細い墨色の糸を添えます。",
-		"letter_with_wax_seal": "今回のプレイ中、デスクトップの壁紙に小さな紙と封蝋の飾りを添えます。"
 	},
 	"ko": {
-		"crystal_stutters": "이번 플레이 동안 컴퓨터 가장자리에 은은한 유리빛을 더합니다.",
-		"inked_silk_string": "이번 플레이 동안 컴퓨터 테두리에 가느다란 먹빛 실 장식을 더합니다.",
-		"letter_with_wax_seal": "이번 플레이 동안 바탕 화면에 작은 종이와 밀랍 장식을 더합니다."
 	}
 }
 

@@ -6,7 +6,6 @@ const LAUNCHER_BUTTON := preload("res://scripts/ui/desktop/DesktopLauncherButton
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
 const DESKTOP_THEME := preload("res://scripts/ui/desktop/DesktopTheme.gd")
 const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
-const MATERIAL_DECORATION := preload("res://scripts/ui/MaterialDecoration.gd")
 const HOME_BUTTON := preload("res://scripts/ui/desktop/DesktopHomeButton.gd")
 const BACKUP_PORT := preload("res://scripts/application/backup/BackupPresentationPort.gd")
 const QUICK_COMMANDS := preload("res://scripts/ui/desktop/DesktopQuickCommands.gd")
@@ -49,10 +48,6 @@ var home_button: Button
 var title_label: Label
 var clock_label: Label
 var status_label: Label
-var cosmetic_overlay: Control
-var _material_run_id := ""
-var _crystal_pattern: Array = []
-var _cosmetic_inventory_owner: Node
 var touch_navigation: HBoxContainer
 var app_footer_slot: HBoxContainer
 var _clock_timer: Timer
@@ -221,20 +216,6 @@ func _ready() -> void:
 	visibility_changed.connect(_on_delivery_visibility_changed)
 	set_process(false)
 	_build_shell()
-	cosmetic_overlay = Control.new()
-	cosmetic_overlay.name = "CosmeticOverlay"
-	cosmetic_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	desktop_canvas.add_child(cosmetic_overlay)
-	desktop_canvas.move_child(cosmetic_overlay, notification_layer.get_index())
-	cosmetic_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	cosmetic_overlay.draw.connect(_draw_cosmetics)
-	background_image.draw.connect(func() -> void:
-		if not is_instance_valid(_cosmetic_inventory_owner) or theme == null: return
-		if background_image.texture != null and int(_cosmetic_inventory_owner.inventory.get("letter_with_wax_seal", 0)) > 0:
-			MATERIAL_DECORATION.draw_paper(background_image, Rect2(Vector2.ZERO, background_image.size), theme.get_color("ink", "Desktop"))
-		if int(_cosmetic_inventory_owner.inventory.get("crystal_stutters", 0)) > 0:
-			# Reflections sit beneath launcher and app controls.
-			MATERIAL_DECORATION.draw_crystal(background_image, Rect2(0, 0, background_image.size.x - 8, desktop_canvas.size.y - 64), _crystal_pattern))
 	resized.connect(queue_redraw)
 	resized.connect(_layout_desktop)
 	_layout_desktop()
@@ -269,10 +250,6 @@ func _ready() -> void:
 			and not saves.is_connected("live_session_ready", _configure_from_bootstrap):
 		saves.connect("live_session_ready", _configure_from_bootstrap)
 	var state := get_node_or_null("/root/GameState")
-	_cosmetic_inventory_owner = state
-	if state != null:
-		state.inventory_changed.connect(_refresh_cosmetics)
-	_refresh_cosmetics()
 	if state != null and not state.daily_state_reset.is_connected(_on_daily_state_reset):
 		state.daily_state_reset.connect(_on_daily_state_reset)
 	if state != null:
@@ -399,7 +376,6 @@ func _refresh_app_scroll() -> void:
 	app_scroll.offset_bottom = -chrome_height
 	app_scroll_rail.offset_bottom = -chrome_height
 	background_image.offset_bottom = -chrome_height
-	_refresh_cosmetics()
 	app_scroll.visible = _active_id != &""
 	var app: Control = _cached_app_windows.get(_active_id)
 	if is_instance_valid(app):
@@ -1142,7 +1118,6 @@ func _refresh_launcher(refresh_contacts: bool = true) -> void:
 		button.accessibility_name = navigation_copy[index]
 		button.tooltip_text = navigation_copy[index]
 	_refresh_clock_description()
-	_refresh_cosmetics()
 	if refresh_contacts: _refresh_contact_notice()
 	if status_label.visible:
 		_set_failure_copy()
@@ -1342,33 +1317,3 @@ func _draw() -> void:
 	var chrome_height := (64.0 + _quick_status_band_height()) * desktop_canvas.scale.y
 	draw_rect(Rect2(0, size.y - chrome_height, size.x, chrome_height), get_theme_color("face", "Desktop"))
 	draw_rect(Rect2(0, size.y - footer_height, size.x, 2 * desktop_canvas.scale.y), get_theme_color("structure", "Desktop"))
-	if is_instance_valid(_cosmetic_inventory_owner) and int(_cosmetic_inventory_owner.inventory.get("letter_with_wax_seal", 0)) > 0:
-		draw_set_transform(Vector2.ZERO, 0, desktop_canvas.scale)
-		MATERIAL_DECORATION.draw_paper(self, Rect2(Vector2.ZERO, desktop_canvas.size), get_theme_color("ink", "Desktop"))
-		draw_set_transform(Vector2.ZERO)
-
-
-func _refresh_cosmetics() -> void:
-	if not is_instance_valid(cosmetic_overlay): return
-	if is_instance_valid(_cosmetic_inventory_owner):
-		_material_run_id = _cosmetic_inventory_owner.capture_live_session().value.run_id
-		_crystal_pattern = MATERIAL_DECORATION.crystal_pattern(_material_run_id, "computer")
-	var owned: Dictionary = _cosmetic_inventory_owner.inventory if is_instance_valid(_cosmetic_inventory_owner) else {}
-	cosmetic_overlay.visible = int(owned.get("crystal_stutters", 0)) > 0 \
-		or int(owned.get("inked_silk_string", 0)) > 0 \
-		or int(owned.get("letter_with_wax_seal", 0)) > 0
-	cosmetic_overlay.queue_redraw()
-	background_image.queue_redraw()
-	queue_redraw()
-
-
-func _draw_cosmetics() -> void:
-	if not is_instance_valid(_cosmetic_inventory_owner) or theme == null: return
-	var owned: Dictionary = _cosmetic_inventory_owner.inventory
-	var ink := theme.get_color("ink", "Desktop")
-	var edge := theme.get_color("structure", "Desktop")
-	var bounds := Rect2(Vector2.ZERO, desktop_canvas.size)
-	if int(owned.get("inked_silk_string", 0)) > 0:
-		# An overflowing app owns the right rail; thread continues below its hit area.
-		var top := app_scroll_rail.get_rect().end.y if app_scroll_rail.visible else 0.0
-		MATERIAL_DECORATION.draw_silk(cosmetic_overlay, Rect2(0, top, bounds.size.x, bounds.size.y - top), ink, edge)

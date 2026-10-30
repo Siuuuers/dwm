@@ -63,12 +63,12 @@ func _run() -> void:
 				while shop.page_index > 0:
 					shop.previous_button.pressed.emit()
 					await process_frame
-				shop.cards.crystal_stutters.grab_focus()
-				shop.cards.crystal_stutters.pressed.emit()
+				shop.cards.lucky_charm.grab_focus()
+				shop.cards.lucky_charm.pressed.emit()
 				for frame in 4: await RenderingServer.frame_post_draw
 				_check(shop.last_result.ok,"valid current catalog")
 				_check(shop._records.size()==9 and shop.cards.size()==8,"canonical positions and public card count")
-				_check(shop._records[8].blank and not shop.cards.has("supportz"),"blank has no input or accessible card")
+				_check(shop._records[5].blank and not shop.cards.has("supportz"),"blank has no input or accessible card")
 				_check(shop._body.get_global_rect()==Rect2(0,64,800,656),"shared desktop plate placement")
 				_check(not shop.get_node("VBoxContainer/TopBar").visible,"only one shared top bar")
 				_check(shop._percent==percent,"saved font size")

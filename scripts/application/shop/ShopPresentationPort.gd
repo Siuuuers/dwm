@@ -14,7 +14,6 @@ const _CAPABILITY_RULES := preload("res://scripts/domain/minesweeper/Minesweeper
 
 const _SPECIAL_IDS: Array[String] = ["supportz", "lucky_charm", "debug_key"]
 const _PUBLIC_ORDER: Array[String] = [
-	"crystal_stutters", "inked_silk_string", "letter_with_wax_seal",
 	"lucky_charm", "debug_key", "bookend_keepsake",
 	"metronome_keepsake", "pocket_calculator_keepsake",
 ]

@@ -45,11 +45,11 @@ func test_shop_live_purchase_custody_duplicate_and_manual_save() -> void:
 	if not await _wait_line("scene.test.a", "line.scene.test.a.one"): return
 	# Economy fixture through the existing owner, not invented completion/claim
 	# receipts. Manual Save later persists the funding and purchase together.
-	game.change_money(200)
+	game.change_coins(20)
 	var before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	var reading: Dictionary = bridge.capture_reading_checkpoint(false)
 	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
-	var command: Callable = _shop_command("crystal_stutters")
+	var command: Callable = _shop_command("priscilla_gift")
 	if not command.is_valid(): return
 	var actual_port: Object = game._narrative_checkpoint_port
 	var probe := CustodyFault.new()
@@ -87,9 +87,9 @@ func test_shop_live_purchase_custody_duplicate_and_manual_save() -> void:
 		return
 	var after: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	var catalogue: Variant = preload("res://scripts/data/DataCatalog.gd").new()
-	assert_eq(after.gameplay.money, before.gameplay.money - catalogue.get_shop_item("crystal_stutters").price)
+	assert_eq(after.gameplay.coins, before.gameplay.coins - catalogue.get_shop_item("priscilla_gift").price)
 	assert_eq(after.gameplay.stats, before.gameplay.stats)
-	assert_eq(after.gameplay.inventory.get("crystal_stutters"), 1)
+	assert_eq(after.gameplay.inventory.get("priscilla_gift"), 1)
 	assert_eq(after.gameplay.shop_purchase_counts, before.gameplay.shop_purchase_counts)
 	assert_eq(after.command_receipts.size(), before.command_receipts.size() + 1)
 	assert_eq(after.scene, before.scene, "purchase never advances authored frontier")
@@ -118,7 +118,7 @@ func test_shop_live_purchase_custody_duplicate_and_manual_save() -> void:
 	assert_eq(storage.read_text("autosave.json"), accepted_disk)
 	var receipt: Dictionary = accepted.receipt
 	var context: Dictionary = game.capture_scene_shop_context()
-	var conflict: Dictionary = game.commit_scene_shop_purchase("inked_silk_string", 1, receipt.transaction_id,
+	var conflict: Dictionary = game.commit_scene_shop_purchase("lavinia_gift", 1, receipt.transaction_id,
 		receipt.scene_shop_purchase.issuer_receipt, context.value)
 	assert_false(conflict.get("ok", false))
 	assert_eq(conflict.get("code"), &"scene_shop_command_conflict")
@@ -126,7 +126,7 @@ func test_shop_live_purchase_custody_duplicate_and_manual_save() -> void:
 	var stale_source: Dictionary = context.value.duplicate(true)
 	stale_source.scene_occurrence = "TEST.other-occurrence"
 	if _ok(stale_issue):
-		assert_false(game.commit_scene_shop_purchase("inked_silk_string", 1, stale_issue.value.token,
+		assert_false(game.commit_scene_shop_purchase("lavinia_gift", 1, stale_issue.value.token,
 			stale_issue.value.issuer_receipt, stale_source).get("ok", false), "unaccepted request must match source occurrence")
 	var supportz: Callable = _shop_command("supportz")
 	if supportz.is_valid(): assert_false(supportz.call().get("ok", false), "no fabricated base completions")
@@ -166,9 +166,9 @@ func test_shop_live_purchase_custody_duplicate_and_manual_save() -> void:
 	assert_false(pause.surface.visible)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), slot_hash)
 	if not await _wait_line("scene.test.a", "line.scene.test.a.one"): return
-	assert_eq(game.inventory.get("crystal_stutters"), 1, "manual Load retains cosmetic ownership")
-	var second_purchase: Callable = _shop_command("crystal_stutters")
-	if second_purchase.is_valid(): assert_false(second_purchase.call().get("ok", false), "Load does not re-enable owned cosmetic")
+	assert_eq(game.inventory.get("priscilla_gift"), 1, "manual Load retains keepsake ownership")
+	var second_purchase: Callable = _shop_command("priscilla_gift")
+	if second_purchase.is_valid(): assert_false(second_purchase.call().get("ok", false), "Load does not re-enable owned keepsake")
 	# Retire the live run through the existing Logout confirmation before New Acc.
 	var host: Control = get_tree().current_scene
 	await _click(_controls(host, "CheckComputer"))
@@ -192,8 +192,8 @@ func test_shop_live_purchase_custody_duplicate_and_manual_save() -> void:
 	assert_eq(fresh.get("code"), &"scene_activation_pending", str(fresh))
 	if fresh.get("code") != &"scene_activation_pending" or not await _await_ready(): return
 	assert_eq(ready_count, 1, "one Ready belongs to the new run")
-	assert_false(game.inventory.has("crystal_stutters"), "genuinely new run resets cosmetic ownership")
-	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), slot_hash, "new run preserves the owned-cosmetic save")
+	assert_false(game.inventory.has("priscilla_gift"), "genuinely new run resets keepsake ownership")
+	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), slot_hash, "new run preserves the owned-keepsake save")
 	_write_json("res://.godot/ci/scene-shop-transaction-proof.json", {"custody_faults": probe.hits,
 		"automatic_writes": fault.autosave_writes, "storage_preparations": lower_trap.calls.size(),
 		"accepted_receipt": receipt, "process_id": OS.get_process_id()})

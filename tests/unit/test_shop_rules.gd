@@ -112,9 +112,9 @@ func before_each() -> void:
 	_dc = DataCatalog.new()
 
 
-func test_nine_shop_items() -> void:
+func test_six_shop_items() -> void:
 	var items := _dc.get_shop_items()
-	assert_eq(items.size(), 9, "eight public items and secret Supportz")
+	assert_eq(items.size(), 6, "five public items and secret Supportz")
 
 
 func test_supportz_properties() -> void:
@@ -282,8 +282,4 @@ func test_replaced_items_are_absent_and_cosmetics_use_inventory() -> void:
 			"wine", "pineapple_bun", "quiet_tea", "soft_blanket", "weighted_plush", "spa_coupon", "premium_care"]:
 		assert_true(_dc.get_shop_item(item_id).is_empty(), item_id)
 	for item_id: String in ["crystal_stutters", "inked_silk_string", "letter_with_wax_seal"]:
-		var item: Dictionary = _dc.get_shop_item(item_id)
-		assert_eq(item.effect_ids, ["inventory:add:" + item_id])
-		assert_eq(item.price, 45)
-		assert_eq(item.currency, "money")
-		assert_eq(item.max_purchases, 1)
+		assert_true(_dc.get_shop_item(item_id).is_empty(), item_id)

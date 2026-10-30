@@ -1,0 +1,21 @@
+{
+  "scripts/ui/MaterialDecoration.gd": "c33147170beb0a79d0e919d3889ec56e80af84cceb4170c05fdeb6346998b8df",
+  "scripts/ui/ComputerDesktop.gd": "b80d8b077e0c8a236a04b6aa29acf492b4a334b5d078edab5df29062920fd25d",
+  "scripts/ui/art/SceneArtView.gd": "5d5604fc224dfb6ef95d03dafbcc29e792628dcd2c5972d0b33b1822e2b01d83",
+  "scripts/ui/witnessed/WitnessedTransportRail.gd": "bdc40eea44065b470151daed62dd1ce19cfc8d02a2a9f3c3447287dbfc0bd834",
+  "scripts/ui/shop/ShopItemArt.gd": "6700501637d6c2c869f0bc6c9ff49b30e7ee7680081cac5d3139e70d6c1b2022",
+  "scripts/ui/shop/ShopCopy.gd": "f5b468b864814e6936f4a1828234410991d85412f017d54f837dc73c67f07c0f",
+  "scripts/ui/shop/ShopCatalogProjection.gd": "befe69c3a48768c7201d35525608ddf72dc5e83d84dfe5ea829d39966389d905",
+  "scripts/ui/ShopApp.gd": "aee3012f903e18ce5d53bd608e7d6d137bb651a870f7639d38354f25a5203d5d",
+  "scripts/data/DataCatalog.gd": "9f195d5ecbe6d7eb585f510a0ecff4d00f68bb678619fba88e1df9f910ccfcd2",
+  "scripts/application/shop/ShopPresentationPort.gd": "74fba094e8dfc822c77ed97e9232fbea82953cdafb9247e8fed9dafdd92b256d",
+  "autoload/EffectResolver.gd": "7c2cdae5ac30fd0b3bc12becb9e73b7b89e800f1ec9bc82040f62d6e979a15de",
+  "tests/unit/test_desktop_cosmetics.gd": "a1fb66ec7f02b3214ad6f87fe4d2a50a7256c8c06fab5b7101917c527e794126",
+  "tests/unit/test_shop_cosmetic_catalogue.gd": "8261d33a362ae78a01ac0835ba0d1019d997f8ac167da2f87b01871070c72db9",
+  "tests/ui/render_material_decoration.gd": "ff31054d559ba6033d073b59b2ab8392591cd9fffcb4b33429032af3866a2201",
+  "tests/ui/render_material_story.gd": "f926989275529a6a8baa60ea7fc6f762a201780eb9f6a5312d08e5ed6b16cc8f",
+  "tests/ui/render_shop_cosmetics_load.gd": "2b91c9f3f520d58c07666cd33ee7c342bdeb11594e823d84b5cee4c7be1e0026",
+  "tests/ui/render_shop_cosmetics_create.gd": "8903b098f2134132580221b1b3431c735c108cdc5ac90445f23a77ee04828505",
+  "tests/ui/render_shop_cosmetics_base.gd": "5fa02f0fa41e10c99195ea98b2de4e0b12bbb1d9962a6f9882298c100bfdd9d1",
+  "tests/ui/render_shop_cosmetics_new_run.gd": "fa0c30df4d2ae2b9d4b2970c3386029a9ec496c2e6d3ea0354d9602bc2b276e7"
+}

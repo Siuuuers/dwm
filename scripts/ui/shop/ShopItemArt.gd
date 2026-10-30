@@ -15,27 +15,6 @@ static func texture(item_id: String, size: int) -> Texture2D:
 	if size not in [28, 56]: return null
 	var strokes: Array = []
 	match item_id:
-		"crystal_stutters":
-			strokes = [
-				[9, 3, 10, 2, INK], [6, 5, 16, 3, INK], [4, 8, 20, 9, INK],
-				[7, 17, 14, 4, INK], [10, 21, 8, 3, INK], [13, 24, 2, 2, INK],
-				[10, 5, 8, 3, LIGHT], [7, 8, 14, 8, SLATE], [10, 16, 8, 5, SLATE],
-				[13, 8, 2, 14, PAPER], [8, 9, 3, 4, LIGHT], [17, 9, 3, 6, SAGE],
-			]
-		"inked_silk_string":
-			strokes = [
-				[7, 4, 14, 3, INK], [9, 7, 10, 14, WOOD], [7, 21, 14, 3, INK],
-				[10, 7, 8, 2, SLATE], [10, 11, 8, 2, SLATE], [10, 15, 8, 2, SLATE],
-				[10, 19, 8, 2, SLATE], [18, 13, 5, 1, INK], [22, 14, 1, 7, INK],
-				[20, 21, 3, 1, INK], [19, 22, 2, 3, INK], [8, 5, 12, 1, PAPER],
-			]
-		"letter_with_wax_seal":
-			strokes = [
-				[3, 6, 22, 17, INK], [4, 7, 20, 15, PAPER], [5, 8, 3, 2, WOOD],
-				[8, 10, 3, 2, WOOD], [11, 12, 6, 2, WOOD], [17, 10, 3, 2, WOOD],
-				[20, 8, 3, 2, WOOD], [10, 14, 8, 6, INK], [11, 13, 6, 8, INK],
-				[11, 15, 6, 4, ROSE], [12, 14, 4, 6, ROSE], [13, 16, 2, 2, PAPER],
-			]
 		"lucky_charm":
 			strokes = [
 				[10, 3, 3, 3, INK], [15, 3, 3, 3, INK],
