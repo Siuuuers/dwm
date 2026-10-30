@@ -29,6 +29,7 @@ jobs:
       comparison: ${{ steps.scope.outputs.comparison }}
       playtest_polish: ${{ steps.scope.outputs.playtest_polish }}
       self_talk: ${{ steps.scope.outputs.self_talk }}
+      self_talk_panel: ${{ steps.scope.outputs.self_talk_panel }}
       shop_cosmetics: ${{ steps.scope.outputs.shop_cosmetics }}
       save_ink: ${{ steps.scope.outputs.save_ink }}
       scene_transition: ${{ steps.scope.outputs.scene_transition }}
@@ -40,7 +41,9 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             /.github/workflows/windows-tests.yml
+            /.github/workflows/dtl-first-preflight.yml
             /tools/testing/test_windows_coverage.py
+            /tools/testing/self_talk_panel_scope.py
             /tools/testing/Invoke-CloudTests.ps1
           persist-credentials: true
       - name: Prepare disposable checkout for credential cleanup
@@ -53,7 +56,9 @@ jobs:
         id: scope
         shell: python
         run: |
-          import io, json, os, re, subprocess, zipfile
+          import io, json, os, re, subprocess, sys, zipfile
+          sys.path.insert(0, "tools/testing")
+          from self_talk_panel_scope import is_self_talk_panel
           with open(os.environ["GITHUB_EVENT_PATH"]) as event_file:
               event = json.load(event_file)
           base = event.get("pull_request", {}).get("base", {}).get("sha") or event.get("before", "")
@@ -102,6 +107,7 @@ jobs:
           dialogue_library = False
           playtest_polish = False
           self_talk = False
+          self_talk_panel = False
           shop_cosmetics = False
           save_ink = False
           scene_transition = False
@@ -626,6 +632,7 @@ jobs:
                       'tools/testing/Invoke-CloudTests.ps1',
                   }
                   self_talk = bool(paths) and paths <= self_talk_paths and bool(paths & {"scripts/ui/witnessed/WitnessedSelfTalk.gd", "tests/unit/test_scene_self_talk.gd", "tests/ui/render_self_talk_journey.gd"})
+                  self_talk_panel = is_self_talk_panel(paths, base)
                   comparison_paths = paths
                   previous = event.get("before", "") if event.get("action") == "synchronize" else ""
                   if re.fullmatch(r"[0-9a-f]{40}", previous):
@@ -643,7 +650,7 @@ jobs:
           # Current native Save/Load and terminal fixtures qualify incompatible schemas;
           # skipping this old-input measurement does not establish a speedup.
           comparison = comparison or (focused and not previous)
-          if dtl_content or dtl_first or reading_layout or readability or bilingual_reading or dialogue_library or playtest_polish or self_talk or shop_cosmetics or scene_transition or save_ink: comparison = False
+          if dtl_content or dtl_first or reading_layout or readability or bilingual_reading or dialogue_library or playtest_polish or self_talk or self_talk_panel or shop_cosmetics or scene_transition or save_ink: comparison = False
           if comparison:
               archive = "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip"
               archive_bytes = subprocess.run(["git", "show", "HEAD:" + archive], capture_output=True, check=True).stdout
@@ -661,7 +668,7 @@ jobs:
                   if keys != saved_keys:
                       comparison = False
                       print("Archived startup/Load measurement is incompatible with " + ref + "; current-build correctness coverage remains required.")
-          print("Selected " + ("DTL content and manual-edit recovery coverage" if dtl_content else "DTL compiler/save/runtime coverage" if dtl_first else "readability and display-default coverage" if readability else "reading layout coverage" if reading_layout else "bilingual reading coverage" if bilingual_reading else "runtime resource/Backup coverage" if focused else "full validation"))
+          print("Selected " + ("self-talk panel Linux coverage" if self_talk_panel else "DTL content and manual-edit recovery coverage" if dtl_content else "DTL compiler/save/runtime coverage" if dtl_first else "readability and display-default coverage" if readability else "reading layout coverage" if reading_layout else "bilingual reading coverage" if bilingual_reading else "runtime resource/Backup coverage" if focused else "full validation"))
           with open(os.environ["GITHUB_OUTPUT"], "a") as output:
               output.write(f"dtl_first={str(dtl_first).lower()}\n")
               output.write(f"dtl_content={str(dtl_content).lower()}\n")
@@ -675,6 +682,7 @@ jobs:
               output.write(f"scene_transition={str(scene_transition).lower()}\n")
               output.write(f"shop_cosmetics={str(shop_cosmetics).lower()}\n")
               output.write(f"self_talk={str(self_talk).lower()}\n")
+              output.write(f"self_talk_panel={str(self_talk_panel).lower()}\n")
               output.write("focused=" + str(focused).lower() + "\n")
               output.write("comparison=" + str(comparison).lower() + "\n")
 
@@ -682,7 +690,7 @@ jobs:
     # Independent suites use committed source; inventory verification remains a
     # separate required result and cannot be satisfied by diagnostic regeneration.
     needs: test-scope
-    if: ${{ needs.test-scope.result == 'success' }}
+    if: ${{ needs.test-scope.result == 'success' && needs.test-scope.outputs.self_talk_panel != 'true' }}
     name: Windows / ${{ matrix.suite }}
     runs-on: windows-2022
     timeout-minutes: ${{ matrix.suite == 'current_terminal_fixture' && 35 || 20 }}
@@ -926,7 +934,7 @@ jobs:
 
   windows-export:
     needs: test-scope
-    if: needs.test-scope.outputs.focused != 'true'
+    if: needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.focused != 'true'
     name: Windows / exported release startup
     runs-on: windows-2022
     timeout-minutes: 35
@@ -1030,7 +1038,7 @@ jobs:
 
   public-surfaces:
     needs: test-scope
-    if: needs.test-scope.outputs.focused != 'true'
+    if: needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.focused != 'true'
     name: Windows / public API surface contracts
     runs-on: windows-2022
     timeout-minutes: 20
@@ -1181,7 +1189,7 @@ jobs:
 
   rendered-journeys:
     needs: test-scope
-    if: needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
+    if: needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
     name: Rendered current Gallery components
     runs-on: ubuntu-24.04
     timeout-minutes: 25
@@ -1282,7 +1290,7 @@ jobs:
           retention-days: 7
   rendered-desktop:
     needs: test-scope
-    if: needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
+    if: needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
     name: Rendered desktop and dialogue / Linux software OpenGL
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -1563,3 +1571,99 @@ jobs:
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 7
+
+  self-talk-panel:
+    name: Linux / self-talk panel
+    needs: test-scope
+    if: needs.test-scope.outputs.self_talk_panel == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      DWM_SCENE_READING_FIXTURE: '1'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          git submodule foreach --recursive 'true'
+      - name: Install pinned Godot and software renderer
+        run: |
+          sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/apt-mirrors.txt
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2 speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
+          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$RUNNER_TEMP/godot.zip"
+          printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$RUNNER_TEMP/godot.zip" | sha256sum --check
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          chmod +x "$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64"
+          echo "GODOT_CONSOLE_PATH=$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64" >> "$GITHUB_ENV"
+      - name: Start native speech service for mounted settings refresh
+        timeout-minutes: 2
+        run: bash tools/testing/start_cloud_speech.sh
+      - name: Import once and run focused isolated suites
+        shell: python
+        run: |
+          import os, pathlib, re, subprocess, xml.etree.ElementTree as ET
+          root = pathlib.Path.cwd()
+          output = root / '.godot/ci/self-talk-panel'
+          output.mkdir(parents=True)
+          godot = os.environ['GODOT_CONSOLE_PATH']
+          env = dict(os.environ, XDG_DATA_HOME=str(output / 'import-user'))
+          subprocess.run([godot, '--headless', '--path', str(root), '--import',
+                          '--log-file', str(output / 'import.log')], env=env, check=True, timeout=480)
+          log = (output / 'import.log').read_text()
+          assert not any(error in log for error in ['SCRIPT ERROR:', 'ERROR: Failed to load']), log
+          subprocess.run(['git', 'restore', '--', 'project.godot'], check=True)
+          suites = [
+              ('unit', ['tests/unit/test_scene_self_talk.gd', 'tests/unit/test_witnessed_self_talk.gd'], '', 'unit', ''),
+              ('review', ['tests/integration/test_witnessed_caption_runtime.gd'], '', 'review', 'test_self_talk_review'),
+              ('journey', ['tests/ui/render_self_talk_journey.gd'], 'SELF_TALK_JOURNEY_COMPLETED', 'journey', ''),
+              ('load', ['tests/ui/render_self_talk_load.gd'], 'SELF_TALK_FRESH_LOAD_COMPLETED', 'journey', ''),
+              ('transport', ['tests/ui/render_self_talk_transport.gd'], 'SELF_TALK_TRANSPORT_COMPLETED', 'transport', ''),
+              ('choices', ['tests/ui/render_self_talk_choices.gd'], 'SELF_TALK_CHOICES_COMPLETED', 'choices', ''),
+          ]
+          for name, scripts, marker, storage, method in suites:
+              isolated = root / '.godot/phase2r_tests/self-talk-panel' / ('user-' + storage)
+              env = dict(os.environ, XDG_DATA_HOME=str(isolated / 'data'), DWM_TEST_ROOT=str(isolated / 'test-root'))
+              pathlib.Path(env['XDG_DATA_HOME']).mkdir(parents=True, exist_ok=True)
+              pathlib.Path(env['DWM_TEST_ROOT']).mkdir(parents=True, exist_ok=True)
+              prefix = [godot, '--headless'] if name == 'unit' else [
+                  'xvfb-run', '-a', '-s', '-screen 0 1920x1080x24', godot,
+                  '--rendering-method', 'gl_compatibility', '--rendering-driver', 'opengl3']
+              captures_before = set((root / '.godot/ci').glob('*self-talk*.png'))
+              subprocess.run(prefix + (['-gunit_test_name=' + method] if method else []) + ['--path', str(root), '--audio-driver', 'Dummy',
+                  '--log-file', str(output / (name + '.log')), '-s', 'res://addons/gut/gut_cmdln.gd',
+                  '-gconfig=', '-gtest=' + ','.join('res://' + path for path in scripts), '-gexit', '-glog=1',
+                  '-gjunit_xml_file=' + str(output / (name + '.xml'))], env=env, check=True, timeout=480)
+              log = (output / (name + '.log')).read_text()
+              assert 'SCRIPT ERROR:' not in log and 'ERROR: Failed to load' not in log, name
+              assert not marker or marker in log, name
+              report = ET.parse(output / (name + '.xml')).getroot()
+              expected = sum(sum(method in test for test in re.findall(r'^func (test_\w+)', (root / path).read_text(), re.M)) for path in scripts)
+              assert expected > 0 and len(report.findall('.//testcase')) == expected, name
+              assert not any(report.findall('.//' + tag) for tag in ('failure', 'error', 'skipped')), name
+              if marker:
+                  captures = set((root / '.godot/ci').glob('*self-talk*.png')) - captures_before
+                  required = {'load': 2, 'transport': 2, 'choices': 2}.get(name)
+                  if name == 'journey':
+                      import json
+                      required = json.loads((root / '.godot/ci/self-talk-journey.json').read_text())['captures']
+                  assert required > 0 and len(captures) == required, (name, len(captures), required)
+                  assert all(path.stat().st_size > 0 for path in captures), name
+          captures = list((root / '.godot/ci').glob('*self-talk*.png'))
+          assert captures and all(path.stat().st_size > 0 for path in captures)
+          for report in ['self-talk-journey.json', 'self-talk-fresh-load.json', 'self-talk-transport.json']:
+              assert (root / '.godot/ci' / report).is_file(), report
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: self-talk-panel-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .godot/ci/self-talk-panel/*.log
+            .godot/ci/self-talk-panel/*.xml
+            .godot/ci/*self-talk*.png
+            .godot/ci/self-talk-*.json
+          include-hidden-files: true
+          if-no-files-found: error

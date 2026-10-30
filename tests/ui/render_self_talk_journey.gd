@@ -2,7 +2,7 @@ extends "res://tests/ui/render_self_talk_base.gd"
 
 const STORY_LOCALE := preload("res://scripts/localization/StoryLocalization.gd")
 
-func test_rendered_pair_review_clear_and_physical_save_load() -> void:
+func test_rendered_current_thought_clear_and_physical_save_load() -> void:
 	assert_ne(DisplayServer.get_name(), "headless", "this acceptance requires a real renderer")
 	if DisplayServer.get_name() == "headless": return
 	if not _start_services(): return
@@ -12,6 +12,9 @@ func test_rendered_pair_review_clear_and_physical_save_load() -> void:
 	assert_eq(started.get("code"), &"scene_activation_pending")
 	if started.get("code") != &"scene_activation_pending" or not await _await_ready(): return
 	for frame: int in 5: await get_tree().process_frame
+	get_tree().root.size = Vector2i(1920, 1080)
+	for frame: int in 3: await get_tree().process_frame
+	assert_eq(DisplayServer.window_get_size(), Vector2i(1920, 1080))
 	var caption: Node = _caption()
 	var panel: Control = caption.self_talk
 	assert_true(panel.is_visible_in_tree())
@@ -26,7 +29,7 @@ func test_rendered_pair_review_clear_and_physical_save_load() -> void:
 	assert_lt(native.visible_ratio, 1.0)
 	var presentation: Dictionary = bridge.capture_self_talk_presentation()
 	if not _ok(presentation): return
-	assert_eq(presentation.value.rows.size(), 2, "attached thought is already complete during caption reveal")
+	assert_eq(presentation.value.rows.size(), 1, "attached thought is already complete during caption reveal")
 	assert_true(str(presentation.value.rows.back().text).begins_with("SECOND"))
 	var shaped: Dictionary = panel.get_projection()
 	assert_gt(int(shaped.row_count), int(shaped.history_count), "wrapped rows consume the budget")
@@ -37,8 +40,19 @@ func test_rendered_pair_review_clear_and_physical_save_load() -> void:
 		"one speech stream receives caption then thought")
 	await _capture_self_talk("partial-caption-instant-thought")
 	await _accept()
+	assert_false(native.revealing)
+	assert_eq(bridge._runtime_adapter.current_line_id(), "line.scene.test.a.two", "reveal completion does not advance")
+	assert_eq(bridge.capture_self_talk_presentation(), presentation, "reveal completion preserves current thought")
+	var populated_size: Vector2 = panel.size
 	if not await _advance_to("three"): return
-	assert_eq(bridge.capture_self_talk_presentation().value.rows, presentation.value.rows, "caption without thought retains thoughts")
+	assert_eq(bridge.capture_self_talk_presentation().value.rows, [], "caption without thought clears the previous thought")
+	assert_true(panel.is_visible_in_tree(), "empty frame persists")
+	assert_eq(panel.size, populated_size, "clearing thought does not collapse the frame")
+	assert_eq(panel.focus_mode, Control.FOCUS_NONE, "empty frame is not a keyboard stop")
+	await _wheel_thought(true)
+	assert_eq(panel.get_projection().visible_rows, [], "wheel cannot recover older thoughts")
+	assert_eq(bridge._runtime_adapter.current_line_id(), "line.scene.test.a.three", "empty panel wheel does not advance")
+	await _capture_self_talk("empty-current-thought")
 	if not await _advance_to("four"): return
 	if not await _advance_to("five"): return
 	if caption.caption_text.revealing: await _accept()
@@ -46,8 +60,8 @@ func test_rendered_pair_review_clear_and_physical_save_load() -> void:
 	assert_eq(ids, ["line.scene.test.a.one", "line.scene.test.a.thought_one", "line.scene.test.a.two",
 		"line.scene.test.a.thought_two", "line.scene.test.a.three", "line.scene.test.a.four",
 		"line.scene.test.a.thought_three", "line.scene.test.a.five", "line.scene.test.a.thought_four"])
-	assert_eq(panel.get_projection().visible_rows.size(), 3)
-	assert_ne(panel.get_projection().visible_rows[0].id, "line.scene.test.a.thought_one", "oldest rows leave live window")
+	assert_eq(panel.get_projection().visible_rows.size(), 1)
+	assert_eq(panel.get_projection().visible_rows[0].id, "line.scene.test.a.thought_four", "only the current thought remains")
 	# Synthetic translations exercise the real attached-thought view; no production
 	# wording or registration is changed, and the following mono journey is retained.
 	var thought_sources: Dictionary = bridge.capture_self_talk_presentation().value
@@ -72,7 +86,7 @@ func test_rendered_pair_review_clear_and_physical_save_load() -> void:
 		assert_eq(paired.rows.back().id, "line.scene.test.a.thought_four")
 		assert_eq(paired.rows.back().text, thought_sources.rows.back().text)
 		assert_eq(paired.rows.back().content_locale, "en")
-		assert_eq(paired.rows.back().secondary_text, "合成測試想法4。")
+		assert_eq(paired.rows.back().secondary_text, "合成測試想法1。")
 		assert_eq(paired.rows.back().secondary_locale, "zh_HK")
 		var dual_panel: Dictionary = panel.get_projection()
 		assert_true(dual_panel.dual_enabled)
@@ -91,25 +105,35 @@ func test_rendered_pair_review_clear_and_physical_save_load() -> void:
 	_ok(profile.set_preference(&"preferences.accessibility.text_size", prior_size))
 	for frame: int in 4: await get_tree().process_frame
 	assert_false(panel.get_projection().dual_enabled)
-	assert_eq(panel.get_projection().visible_rows.size(), 3)
+	assert_eq(panel.get_projection().visible_rows.size(), 1)
 	assert_eq(bridge.capture_self_talk_presentation().value.rows, thought_sources.rows)
 	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
 	if not _ok(checkpoint): return
 	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
 	await _wheel_thought(true)
-	assert_true(panel.is_reviewing(), "real wheel input enters thought review")
+	assert_false(panel.is_reviewing(), "one-row current thought has no historical scrollback")
+	assert_eq(panel.get_projection().visible_rows[0].id, "line.scene.test.a.thought_four")
 	assert_eq(caption._review_offset, 0, "caption review cursor stays independent")
-	assert_false(caption._auto_button_admitted())
-	assert_false(caption._next_admitted())
 	assert_eq(bridge.capture_reading_checkpoint(false), checkpoint)
 	assert_eq(profile.get_profile_snapshot(), profile_before)
 	assert_eq(_history_ids(), ids)
-	await _capture_self_talk("thought-review")
-	await _resize_review(caption, panel)
+	await _capture_self_talk("current-thought-wheel")
+	await _resize_current_thought(caption, panel)
 	await _click(panel)
-	assert_false(panel.is_reviewing(), "click returns to live without Advance")
+	assert_false(panel.is_reviewing(), "click does not create historical review")
 	assert_eq(bridge.capture_reading_checkpoint(false), checkpoint)
 	var rail: Control = caption.transport_rail
+	await _click(rail.get_node("History"))
+	assert_true(caption._history_open)
+	assert_true(caption._history_overlay.is_visible_in_tree())
+	var history_texts: Array = caption._history_overlay.get_captions()
+	assert_has(history_texts, "FIRST thought.")
+	assert_has(history_texts, "FOURTH thought.")
+	assert_eq(history_texts, bridge.get_reading_history().value.captions.map(
+		func(row: Dictionary) -> String: return row.text), "mounted History displays captions and thoughts in DTL order")
+	await caption._on_history_close_requested()
+	assert_false(caption._history_open)
+	assert_eq(bridge.capture_reading_checkpoint(false), checkpoint, "History close does not advance or republish")
 	var rail_y: float = rail.get_node("History").position.y
 	for command: String in ["History", "Save", "Load", "Skip", "Auto", "Next"]:
 		assert_eq(rail.get_node(command).position.y, rail_y, "all six controls share one bottom row")
@@ -137,13 +161,42 @@ func test_rendered_pair_review_clear_and_physical_save_load() -> void:
 	var thoughts_before: Dictionary = bridge.capture_self_talk_presentation().value.duplicate(true)
 	if not await _advance_to("six"): return
 	assert_eq(panel.get_projection().visible_rows, [], "explicit clear empties the live view")
-	assert_eq(panel.get_projection().history_count, 4, "clear retains encountered thoughts")
+	assert_eq(panel.get_projection().history_count, 0, "empty panel has no retained thought rows")
+	assert_true(panel.is_visible_in_tree())
+	var empty_ids: Array = _history_ids()
+	assert_eq(empty_ids, ids + ["line.scene.test.a.six"], "clear preserves thoughts in History")
 	await _wheel_thought(true)
-	assert_true(panel.is_reviewing(), "thoughts remain reviewable after clear")
-	assert_false(panel.get_projection().visible_rows.is_empty())
-	await _capture_self_talk("review-after-clear")
-	await _click(panel)
+	assert_false(panel.is_reviewing())
+	assert_eq(panel.get_projection().visible_rows, [], "previous thoughts stay in History only")
+	await _capture_self_talk("empty-after-clear")
+	for dual: bool in [false, true]:
+		_ok(profile.set_preference(&"preferences.language.dual_enabled", dual))
+		for percent: int in [125, 150]:
+			_ok(profile.set_preference(&"preferences.accessibility.text_size", percent))
+			for frame: int in 4: await get_tree().process_frame
+			assert_true(panel.is_visible_in_tree())
+			assert_eq(panel.get_projection().visible_rows, [])
+			assert_eq(_history_ids(), empty_ids)
+			await _capture_self_talk("empty-%s-%d" % ["dual" if dual else "mono", percent])
+	_ok(profile.set_preference(&"preferences.language.dual_enabled", false))
+	_ok(profile.set_preference(&"preferences.accessibility.text_size", prior_size))
+	get_tree().root.size = Vector2i(1280, 720)
+	for frame: int in 4: await get_tree().process_frame
+	assert_true(panel.is_visible_in_tree())
+	assert_eq(panel.get_projection().visible_rows, [])
+	await _capture_self_talk("empty-smaller-window")
+	get_tree().root.size = Vector2i(1920, 1080)
+	for frame: int in 3: await get_tree().process_frame
 	if caption.caption_text.revealing: await _accept()
+	await _click(rail.get_node("Save"))
+	sheet = get_node("/root/SceneRouter")._production_pause
+	prepared = sheet._backup_port.prepare_action("save", "slot:2")
+	if not _ok(prepared): return
+	if not _ok(await sheet._backup_port.commit_action(prepared.value.token)): return
+	sheet.surface.leave_host()
+	for frame: int in 5: await get_tree().process_frame
+	var empty_saved_hash := FileAccess.get_sha256("user://saves/slot_2.json")
+	assert_false(empty_saved_hash.is_empty())
 	await _click(rail.get_node("Load"))
 	sheet = get_node("/root/SceneRouter")._production_pause
 	prepared = sheet._backup_port.prepare_action("load", "slot:1")
@@ -158,11 +211,11 @@ func test_rendered_pair_review_clear_and_physical_save_load() -> void:
 	assert_eq(_history_ids(), ids, "Load restores encountered pair order without duplicate or future clear")
 	assert_eq(bridge.capture_self_talk_presentation().value.rows, thoughts_before.rows)
 	assert_eq(bridge.capture_self_talk_presentation().value.live_start, thoughts_before.live_start)
-	assert_eq(panel.get_projection().visible_rows.size(), 3)
+	assert_eq(panel.get_projection().visible_rows.size(), 1)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), saved_hash, "Load preserves source slot")
 	assert_false(caption.caption_text.revealing, "restored pair is fully visible")
 	await _capture_self_talk("restored-pair")
-	var report := {"captures": _captures, "history_ids": ids, "slot_sha256": saved_hash,
+	var report := {"captures": _captures, "capture_dimensions": _capture_dimensions, "history_ids": ids, "slot_sha256": saved_hash,
 		"renderer": DisplayServer.get_name(), "scope": "synthetic paired DTL; FINAL services; physical Save and same-process Load"}
 	_write_json("res://.godot/ci/self-talk-journey.json", report)
 	var final_checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
@@ -171,6 +224,7 @@ func test_rendered_pair_review_clear_and_physical_save_load() -> void:
 	if not _ok(compact): return
 	_write_json("user://self-talk-pair-proof.json", {"creator_process_id": OS.get_process_id(),
 		"history_ids": ids, "slot_sha256": saved_hash, "checkpoint": compact.value,
+		"empty_history_ids": empty_ids, "empty_slot_sha256": empty_saved_hash,
 		"thoughts": bridge.capture_self_talk_presentation().value, "profile": profile.get_profile_snapshot(),
 		"profile_sha256": FileAccess.get_sha256("user://profile.json"),
 		"gameplay": game.capture_run_snapshot_input().gameplay, "scene": game.capture_run_snapshot_input().scene})

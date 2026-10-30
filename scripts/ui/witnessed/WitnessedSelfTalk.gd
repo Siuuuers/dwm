@@ -1,5 +1,5 @@
 extends Control
-## A bounded thought viewport. Canonical reading History owns all text.
+## A bounded current-thought viewport. Earlier thoughts belong to History.
 signal review_changed
 signal return_to_live_requested
 signal input_started
@@ -27,6 +27,8 @@ var _live_line_start := 0
 var _font: Font
 var _font_size := 20
 var _ink := Color.WHITE
+var _surface := Color.TRANSPARENT
+var _border := Color.TRANSPARENT
 var _pane_name := ""
 var _admission: Callable
 var _drag_y := 0.0
@@ -40,7 +42,6 @@ var _choice_height_override := 0.0
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	focus_mode = Control.FOCUS_ALL
-	clip_contents = true
 	focus_entered.connect(queue_redraw)
 	focus_exited.connect(queue_redraw)
 
@@ -77,6 +78,9 @@ func configure(next_theme: Theme, width: float, admission: Callable, pane_name: 
 	_font = next_font
 	_font_size = next_size
 	_ink = next_theme.get_color(&"default_color", &"RichTextLabel")
+	_surface = next_theme.get_color(&"deep", &"WitnessedCaption")
+	_surface.a = 0.35
+	_border = next_theme.get_color(&"rule", &"WitnessedCaption")
 	size.x = width
 	if changed: _shape()
 	else: _update_window()
@@ -108,14 +112,13 @@ func return_to_live() -> void:
 	review_changed.emit()
 
 func review_rows(delta: int) -> void:
-	if _lines.is_empty(): return
+	if _lines.is_empty() or (not is_reviewing() and _visible_rows().size() == _lines.size()): return
 	var current := _review_start if is_reviewing() else _live_line_start
-	var next := clampi(current - delta, 0, _lines.size() - 1 if _dual and _live_start < _rows.size() else _lines.size())
-	if not _dual and delta < 0 and next >= _live_line_start:
+	var next := clampi(current - delta, 0, _lines.size() - 1)
+	if next == 0:
 		return_to_live()
 		return
-	if next == current and is_reviewing(): return
-	if next == current and not is_reviewing() and _live_start < _rows.size(): return
+	if next == current: return
 	_review_start = next
 	_update_window()
 	review_changed.emit()
@@ -146,14 +149,7 @@ func _shape() -> void:
 					"locale":projection.locale, "text":projection.text,
 					"line":line, "height":ceilf(paragraph.get_line_ascent(line) + paragraph.get_line_descent(line))})
 	if _live_start >= _rows.size(): first_live_line = _lines.size()
-	_live_line_start = maxi(first_live_line, _lines.size() - 3)
-	if _dual:
-		_live_line_start = _lines.size()
-		if _live_start < _rows.size():
-			for index: int in _lines.size():
-				if _lines[index].entry == _rows.size() - 1:
-					_live_line_start = index
-					break
+	_live_line_start = first_live_line
 	if not anchor.is_empty():
 		_review_start = -1
 		for index: int in _lines.size():
@@ -168,15 +164,11 @@ func _update_window() -> void:
 	# supplies a measured two-language height through SceneHost.
 	if _dual and _choice_height_override > 0:
 		_choice_height = _choice_height_override
-	for row: Dictionary in _visible_rows(): line_height = maxf(line_height, float(row.height))
 	_text_height = line_height * 3
 	if _dual:
-		_text_height = 0
-		for row: Dictionary in _visible_rows(): _text_height += float(row.height)
-		_text_height = maxf(line_height, _text_height)
+		_text_height = 240.0 - _choice_height - 8 if _choice_row_visible else 216.0
 	if not _dual: _choice_height = maxf(52, line_height + 16) + 18
 	size.y = _text_height + 8 + _choice_height if _choice_row_visible else _text_height
-	visible = not _rows.is_empty() or _choice_row_visible
 	var copy := PackedStringArray()
 	for row: Dictionary in _visible_rows():
 		copy.append(str(row.text).substr(row.start, row.end - row.start))
@@ -224,6 +216,10 @@ func get_projection() -> Dictionary:
 		"dual_enabled":_dual, "history_count":_rows.size(), "live_start":_live_start, "row_count":_lines.size()}
 
 func _draw() -> void:
+	# Keep existing text wrapping while giving its frame a small outer inset.
+	var frame := Rect2(Vector2(-6, -6), Vector2(size.x + 12, _text_height + 12))
+	draw_rect(frame, _surface)
+	draw_rect(frame, _border, false)
 	var top := 0.0
 	for row: Dictionary in _visible_rows():
 		var paragraph: TextParagraph = _paragraphs[row.paragraph]
@@ -239,7 +235,7 @@ func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		input_started.emit()
 		if event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_DOWN, MOUSE_BUTTON_WHEEL_UP]:
-			review_rows(1 if event.button_index == MOUSE_BUTTON_WHEEL_DOWN else -1)
+			review_rows(-1 if event.button_index == MOUSE_BUTTON_WHEEL_DOWN else 1)
 		elif event.button_index == MOUSE_BUTTON_LEFT:
 			if event.pressed:
 				_drag_y = event.position.y

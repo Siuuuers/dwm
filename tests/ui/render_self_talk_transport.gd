@@ -46,7 +46,7 @@ func test_auto_and_skip_cross_paired_text_without_executing_transition() -> void
 	await _click(caption.transport_rail.get_node("Auto"))
 	assert_false(profile.get_preference(&"preferences.reading.auto_enabled", true), "actual Auto button disables further automatic progression")
 	_assert_pair_witnessed("line.scene.test.a.two")
-	assert_eq(bridge.capture_self_talk_presentation().value.rows.size(), 2)
+	assert_eq(bridge.capture_self_talk_presentation().value.rows.size(), 1)
 	assert_eq(_native_lines, ["line.scene.test.a.one", "line.scene.test.a.two"], "thoughts never became independent native text steps")
 	await _capture_self_talk("auto-paired-step")
 	assert_false(profile.is_line_visited("line.scene.test.a.four"))
@@ -70,6 +70,7 @@ func test_auto_and_skip_cross_paired_text_without_executing_transition() -> void
 	assert_eq(_history_ids(), ["line.scene.test.a.one", "line.scene.test.a.thought_one", "line.scene.test.a.two",
 		"line.scene.test.a.thought_two", "line.scene.test.a.three", "line.scene.test.a.four",
 		"line.scene.test.a.thought_three", "line.scene.test.a.five", "line.scene.test.a.thought_four"])
+	assert_eq(bridge.capture_self_talk_presentation().value.rows[0].id, "line.scene.test.a.thought_four", "Skip shows only the final paired thought")
 	await _capture_self_talk("skip-paired-boundary")
 	_write_json("res://.godot/ci/self-talk-transport.json", {"native_lines": _native_lines,
 		"history_ids": _history_ids(), "boundary": str(bridge._runtime_adapter.classify_next_event()),

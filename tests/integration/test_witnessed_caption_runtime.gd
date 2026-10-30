@@ -2137,9 +2137,9 @@ func test_continue_projection_uses_existing_surface_and_follows_source_admission
 func test_self_talk_review_holds_caption_and_returns_without_advancing() -> void:
 	if not await _mount_root_accept_fixture("One.\nTwo still revealing."): return
 	await _next_caption()
-	var thoughts := [{"id":"a", "text":"One\nTwo"}, {"id":"b", "text":"Three\nFour"}]
+	var thoughts := [{"id":"a", "text":"One\nTwo\nThree\nFour"}]
 	caption.self_talk.project(thoughts, 0)
-	caption.self_talk.review_rows(1)
+	caption.self_talk.review_rows(-1)
 	var before := _stack_invariants()
 	assert_true(caption.self_talk.is_reviewing())
 	assert_false(caption.caption_text.is_processing())
@@ -2164,8 +2164,8 @@ func test_self_talk_review_pauses_pending_effect_with_caption_visible() -> void:
 		await get_tree().create_timer(0.01).timeout
 	assert_eq(effects, ["entered"])
 	var speech_count: int = fixture.speech.requests.size()
-	caption.self_talk.project([{"id":"a", "text":"First\nSecond"}, {"id":"b", "text":"Third\nFourth"}], 0)
-	caption.self_talk.review_rows(1)
+	caption.self_talk.project([{"id":"a", "text":"First\nSecond\nThird\nFourth"}], 0)
+	caption.self_talk.review_rows(-1)
 	await _settle()
 	var before := _stack_invariants()
 	assert_true(caption.caption_text.visible, "thought review retains the live caption on screen")

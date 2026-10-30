@@ -684,17 +684,13 @@ func project_self_talk(frontier: Dictionary) -> Dictionary:
 	var captured := _capture_scene(frontier)
 	if not captured.ok: return captured
 	var rows: Array[Dictionary] = []
-	var live_start := 0
-	for section: Array in player_progress.get("history_sections", []):
-		for id: String in section:
-			if not _caption_variants_by_line.has(id): continue
-			var prepared := _ensure_scene_programme(_caption_variants_by_line[id].owning_entry_id)
-			if not prepared.ok: return prepared
-			if _scene_display.get(id, {}).get("self_talk_clear", false): live_start = rows.size()
-			if _scene_thought_ids.has(id): rows.append({"id": id, "text": _scene_text[id]})
 	var thought: Dictionary = _scene_display.get(frontier.get("line_id", ""), {}).get("self_talk", {})
-	if not thought.is_empty() and not rows.any(func(row: Dictionary) -> bool: return row.id == thought.line_id): thought = {}
-	return {"ok": true, "value": {"rows": rows, "live_start": live_start,
+	if not thought.is_empty():
+		var encountered: bool = player_progress.get("history_sections", []).any(
+			func(section: Array) -> bool: return thought.line_id in section)
+		if encountered: rows.append({"id": thought.line_id, "text": thought.text})
+		else: thought = {}
+	return {"ok": true, "value": {"rows": rows, "live_start": 0,
 		"current_thought": thought.get("text", ""), "current_thought_id": thought.get("line_id", "")}}
 
 func _project_scene(frontier: Dictionary) -> Dictionary:
