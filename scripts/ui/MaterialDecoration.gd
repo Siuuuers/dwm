@@ -4,14 +4,19 @@ static var _paper_tile: ImageTexture
 
 static func paper_texture() -> ImageTexture:
 	if _paper_tile == null:
-		var image := Image.create(128, 64, false, Image.FORMAT_RGBA8)
+		var image := Image.create(128, 128, false, Image.FORMAT_RGBA8)
 		image.fill(Color.TRANSPARENT)
-		for fibre: int in 192:
-			var x := (fibre * 37 + fibre / 11) % 128
-			var y := (fibre * 19 + fibre / 7) % 64
-			for point: int in 2 + fibre % 4:
-				image.set_pixel((x + point) % 128, (y + (point / 3 if fibre % 5 == 0 else 0)) % 64,
-					Color(1, 1, 1, 0.035 + (fibre % 4) * 0.012))
+		var grain := RandomNumberGenerator.new()
+		grain.seed = 0x50415045
+		for point: int in 1800:
+			image.set_pixel(grain.randi_range(0, 127), grain.randi_range(0, 127), Color(1, 1, 1, grain.randf_range(0.012, 0.035)))
+		for fibre: int in 96:
+			var x := grain.randi_range(0, 127)
+			var y := grain.randi_range(0, 127)
+			var slope := grain.randi_range(-1, 1)
+			var alpha := grain.randf_range(0.025, 0.05)
+			for point: int in grain.randi_range(2, 4):
+				image.set_pixel((x + point) % 128, posmod(y + point * slope, 128), Color(1, 1, 1, alpha))
 		_paper_tile = ImageTexture.create_from_image(image)
 	return _paper_tile
 
@@ -47,11 +52,14 @@ static func draw_seal(canvas: CanvasItem, center: Vector2, ink: Color, face: Col
 
 static func draw_silk(canvas: CanvasItem, rect: Rect2, ink: Color, edge: Color) -> void:
 	var turn_height := minf(18, rect.size.y / 5)
+	# A dim returning cord links the lit turns around the outside edge.
+	canvas.draw_line(Vector2(rect.end.x - 3.5, rect.position.y + 2),
+		Vector2(rect.end.x - 3.5, rect.end.y - 2), Color(edge, 0.55), 1.5, true)
 	for turn: int in 3:
 		var y := rect.position.y + rect.size.y * (0.12 + turn * 0.31)
 		var back := PackedVector2Array([Vector2(rect.end.x - 2, y), Vector2(rect.end.x - 6, y + turn_height * 0.5)])
 		var front := PackedVector2Array([back[1], Vector2(rect.end.x - 2, y + turn_height)])
-		canvas.draw_polyline(back, Color(edge, 0.45), 2.5, true)
-		canvas.draw_polyline(back, Color(ink, 0.2), 1, true)
+		canvas.draw_polyline(back, Color(edge, 0.3), 1.5, true)
+		canvas.draw_polyline(back, Color(ink, 0.12), 1, true)
 		canvas.draw_polyline(front, Color(edge, 0.9), 2.5, true)
-		canvas.draw_polyline(front, Color(ink, 0.8), 1, true)
+		canvas.draw_polyline(front, Color(ink, 0.65), 1, true)

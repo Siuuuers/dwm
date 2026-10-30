@@ -311,8 +311,14 @@ func _draw_material() -> void:
 	if _dating_split:
 		right.position.x += 8
 		right.size.x -= 8
-	var ink := Color(0.82, 0.84, 0.8)
-	MATERIAL.draw_crystal(_material_overlay, right, ink)
+	var panels: Array[Rect2] = [right]
 	if _dating_split:
-		# Leave the draggable seam untouched on both sides.
-		MATERIAL.draw_crystal(_material_overlay, Rect2(0, 0, get_portrait_width() - 8, size.y), ink)
+		panels.append(Rect2(0, 0, get_portrait_width() - 8, size.y))
+	var ink := Color(0.82, 0.84, 0.8)
+	for panel: Rect2 in panels:
+		MATERIAL.draw_crystal(_material_overlay, panel, ink)
+		# A static corner reflection leaves the central artwork clear.
+		var corner := panel.position
+		_material_overlay.draw_colored_polygon(PackedVector2Array([
+			corner + Vector2(36, 2), corner + Vector2(56, 2),
+			corner + Vector2(2, 72), corner + Vector2(2, 48)]), Color(ink, 0.035))
