@@ -1,7 +1,7 @@
 # Material decoration guiding handoff
 
 Date: 30 October 2026 (Hong Kong)
-Status: draft visual direction for discussion; handoff saved, runtime implementation not performed.
+Status: static hybrid prototype implemented in PR #162; final rendered acceptance is tracked in that PR.
 The owner reports interaction consistency complete and now requests decoration planning. This document does not independently certify that implementation's acceptance.
 
 ## Goal
@@ -74,7 +74,7 @@ Suggested construction:
 The emblem is undecided; do not silently choose a character, route symbol, initials or narrative meaning.
 Do not make it openable, clickable or a Notes feature.
 
-## Questions awaiting owner selection
+## Original visual choices (resolved below)
 
 1. Overall finish:
    - Clearly pixel-stepped, matching the game's pixel character.
@@ -157,3 +157,45 @@ Scope clarification: the earlier "no-item state stays unchanged" acceptance appl
 Respect completed interaction, 125/150% readability, palettes and approved caption/control geometry. If proposed font, content width or padding changes affect reading layout, rerun the Godot measurements and refresh DTL guidance; never leave authoring profiles stale. Prefer refinements that preserve reading metrics.
 
 The implementation handoff must report screenshot-backed observations separately from aesthetic preferences. The previous material-style/motion questions remain open.
+
+
+## Selected implementation direction, 30 October 2026
+
+The owner selected hybrid crisp silhouettes with restrained shading and static artwork,
+and delegated composition. [PR #162](https://github.com/Siuuuers/dwm/pull/162) keeps
+all drawing in ComputerDesktop, adds no runtime nodes or save fields, and uses a
+neutral ring seal without narrative meaning. App accents avoid the right scrollbar.
+The letter fits between launcher controls and Home quick feedback, scales modestly
+when space is limited, and yields entirely to failure feedback or very short layouts.
+
+The first cloud comparison exposed an overstrict fixed-size letter guard in a wide
+direct-canvas fixture and crystal silhouettes resembling pennants; the revised candidate
+fixes both. Final primary previews match the game: a 1280×720 logical canvas stretched
+to 1920×1080. The earlier wide-canvas result is not a normal shipped-layout defect. Rendered checks now require each item to produce visible pixels, verify the
+letter is absent over apps and failure feedback, and cover both fonts, 125/150%,
+two palettes, high contrast, narrow and short layouts. Purchase/Load/new-run checks
+remain the existing real-owner journey. Exact revisions, final screenshots, cloud
+results and remaining visual-review limitations belong to the PR acceptance record.
+This work makes no measured gameplay speedup claim and does not redesign the base UI.
+
+
+## Expanded material direction, 30 October 2026
+
+The owner superseded the small-object prototype: letter ownership now gives the
+computer and seven dialogue controls a subtle paper material with a neutral wax
+seal; crystal ownership gives computer and live story-art surfaces restrained
+edge sheen and hairline cracks; silk wraps the outer computer edge. Effects remain
+static, code-drawn, noninteractive and per-run. Existing inventory is canonical.
+The paper tile is generated once and reused; no imported concept art is used.
+
+The concept board was AI-generated visual direction, not gameplay evidence.
+The earlier 1920×1080 desktop previews assembled a UI shell without an active
+story session and must not be described as normal playable scenes. Final review
+requires active story artwork and the real seven-control rail, plus open computer
+views. Test-scene captures must be labelled as such.
+
+PR #162's prior cosmetic journey failed because screen-space crop conversion
+included the root window transform when sampling its viewport texture. This is
+being corrected with viewport-image scaling. Prior purchasing/save assertions
+are not evidence that fresh-process Load or new-run checks completed. Current
+acceptance, cloud results and screenshots remain tracked in the PR.

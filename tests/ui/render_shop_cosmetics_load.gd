@@ -25,6 +25,8 @@ func test_fresh_process_load_restores_cosmetic_ownership() -> void:
 	assert_eq(await _cosmetic_pixels(shell), proof.owned_pixels, "fresh Load renders all three saved decorations")
 	await _screenshot("shop-cosmetics-loaded-home")
 	if not await _launch_app(shell, &"shop"): return
+	_assert_cosmetic_overlay(shell, true)
+	await _screenshot("shop-cosmetics-loaded-app")
 	var shop: Control = shell._cached_app_windows[&"shop"]
 	_assert_retained_catalogue(shop)
 	await _assert_owned_unavailable(shop)

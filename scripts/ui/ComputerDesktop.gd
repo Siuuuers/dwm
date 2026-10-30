@@ -6,6 +6,7 @@ const LAUNCHER_BUTTON := preload("res://scripts/ui/desktop/DesktopLauncherButton
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
 const DESKTOP_THEME := preload("res://scripts/ui/desktop/DesktopTheme.gd")
 const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
+const MATERIAL_DECORATION := preload("res://scripts/ui/MaterialDecoration.gd")
 const HOME_BUTTON := preload("res://scripts/ui/desktop/DesktopHomeButton.gd")
 const BACKUP_PORT := preload("res://scripts/application/backup/BackupPresentationPort.gd")
 const QUICK_COMMANDS := preload("res://scripts/ui/desktop/DesktopQuickCommands.gd")
@@ -225,6 +226,9 @@ func _ready() -> void:
 	desktop_canvas.move_child(cosmetic_overlay, notification_layer.get_index())
 	cosmetic_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	cosmetic_overlay.draw.connect(_draw_cosmetics)
+	background_image.draw.connect(func() -> void:
+		if background_image.texture != null and is_instance_valid(_cosmetic_inventory_owner) and theme != null and int(_cosmetic_inventory_owner.inventory.get("letter_with_wax_seal", 0)) > 0:
+			MATERIAL_DECORATION.draw_paper(background_image, Rect2(Vector2.ZERO, background_image.size), theme.get_color("ink", "Desktop")))
 	resized.connect(queue_redraw)
 	resized.connect(_layout_desktop)
 	_layout_desktop()
@@ -1332,6 +1336,10 @@ func _draw() -> void:
 	var chrome_height := (64.0 + _quick_status_band_height()) * desktop_canvas.scale.y
 	draw_rect(Rect2(0, size.y - chrome_height, size.x, chrome_height), get_theme_color("face", "Desktop"))
 	draw_rect(Rect2(0, size.y - footer_height, size.x, 2 * desktop_canvas.scale.y), get_theme_color("structure", "Desktop"))
+	if is_instance_valid(_cosmetic_inventory_owner) and int(_cosmetic_inventory_owner.inventory.get("letter_with_wax_seal", 0)) > 0:
+		draw_set_transform(Vector2.ZERO, 0, desktop_canvas.scale)
+		MATERIAL_DECORATION.draw_paper(self, Rect2(Vector2.ZERO, desktop_canvas.size), get_theme_color("ink", "Desktop"))
+		draw_set_transform(Vector2.ZERO)
 
 
 func _refresh_cosmetics() -> void:
@@ -1339,33 +1347,23 @@ func _refresh_cosmetics() -> void:
 	var owned: Dictionary = _cosmetic_inventory_owner.inventory if is_instance_valid(_cosmetic_inventory_owner) else {}
 	cosmetic_overlay.visible = int(owned.get("crystal_stutters", 0)) > 0 \
 		or int(owned.get("inked_silk_string", 0)) > 0 \
-		or (_active_id == &"" and int(owned.get("letter_with_wax_seal", 0)) > 0)
+		or int(owned.get("letter_with_wax_seal", 0)) > 0
 	cosmetic_overlay.queue_redraw()
+	background_image.queue_redraw()
+	queue_redraw()
 
 
 func _draw_cosmetics() -> void:
 	if not is_instance_valid(_cosmetic_inventory_owner) or theme == null: return
 	var owned: Dictionary = _cosmetic_inventory_owner.inventory
+	var ink := theme.get_color("ink", "Desktop")
 	var edge := theme.get_color("structure", "Desktop")
-	var light := theme.get_color("ink", "Desktop")
-	var accent := theme.get_color("focus", "Desktop")
-	var width := desktop_canvas.size.x
-	var bottom := desktop_canvas.size.y - 64.0 - _quick_status_band_height()
-	# Only the outer eight pixels decorate apps; no content or input geometry moves.
+	var bounds := Rect2(Vector2.ZERO, desktop_canvas.size)
 	if int(owned.get("crystal_stutters", 0)) > 0:
-		for origin: Vector2 in [Vector2(4, 4), Vector2(width - 44, 4)]:
-			cosmetic_overlay.draw_line(origin, origin + Vector2(36, 0), light, 1)
-			cosmetic_overlay.draw_line(origin + Vector2(8, 3), origin + Vector2(28, 3), edge, 1)
-		cosmetic_overlay.draw_line(Vector2(4, 4), Vector2(4, 36), light, 1)
-		cosmetic_overlay.draw_line(Vector2(width - 4, 4), Vector2(width - 4, 36), light, 1)
+		MATERIAL_DECORATION.draw_crystal(cosmetic_overlay, Rect2(Vector2.ZERO, bounds.size - Vector2(8, 64)), ink)
 	if int(owned.get("inked_silk_string", 0)) > 0:
-		cosmetic_overlay.draw_line(Vector2(2, 44), Vector2(2, bottom - 4), edge, 1)
-		cosmetic_overlay.draw_line(Vector2(2, bottom - 4), Vector2(width - 12, bottom - 4), edge, 1)
-		cosmetic_overlay.draw_circle(Vector2(5, bottom - 7), 2, accent, false, 1)
-	if _active_id == &"" and int(owned.get("letter_with_wax_seal", 0)) > 0:
-		var paper := Rect2(width - 60, bottom - 54, 36, 26)
-		cosmetic_overlay.draw_rect(paper, theme.get_color("face", "Desktop"))
-		cosmetic_overlay.draw_rect(paper, edge, false, 1)
-		cosmetic_overlay.draw_line(paper.position, paper.get_center(), edge, 1)
-		cosmetic_overlay.draw_line(Vector2(paper.end.x, paper.position.y), paper.get_center(), edge, 1)
-		cosmetic_overlay.draw_circle(paper.get_center(), 4, accent)
+		# An overflowing app owns the right rail; thread continues below its hit area.
+		var top := app_scroll_rail.get_rect().end.y if app_scroll_rail.visible else 0.0
+		MATERIAL_DECORATION.draw_silk(cosmetic_overlay, Rect2(0, top, bounds.size.x, bounds.size.y - top), ink, edge)
+	if int(owned.get("letter_with_wax_seal", 0)) > 0:
+		MATERIAL_DECORATION.draw_seal(cosmetic_overlay, bounds.end - Vector2(14, 14), ink, theme.get_color("face", "Desktop"))

@@ -11,6 +11,7 @@ func test_rendered_cosmetic_purchases_and_physical_save() -> void:
 	_assert_cosmetic_overlay(shell, false)
 	var bare_pixels: Dictionary = await _cosmetic_pixels(shell)
 	var owned_pixels := {}
+	var previous_pixels: Dictionary = bare_pixels.duplicate()
 	if not await _launch_app(shell, &"shop"): return
 	var shop: Control = shell._cached_app_windows[&"shop"]
 	_assert_retained_catalogue(shop)
@@ -37,12 +38,15 @@ func test_rendered_cosmetic_purchases_and_physical_save() -> void:
 		assert_eq(bridge.capture_reading_checkpoint(false).value, reading)
 		await _click(shell.home_button)
 		var actual_pixels: Dictionary = await _cosmetic_pixels(shell)
-		assert_ne(actual_pixels[item_id], bare_pixels[item_id], "purchase renders its own visible decoration")
+		assert_ne(actual_pixels[item_id], previous_pixels[item_id], "purchase adds its visible material to the preceding ownership state")
 		for previous_id: String in owned_pixels:
 			assert_eq(actual_pixels[previous_id], owned_pixels[previous_id], "stack retains earlier decoration pixels")
 		owned_pixels[item_id] = actual_pixels[item_id]
+		previous_pixels = actual_pixels
 		await _screenshot("shop-cosmetic-" + item_id)
 		if not await _launch_app(shell, &"shop"): return
+	_assert_cosmetic_overlay(shell, true)
+	await _screenshot("shop-cosmetics-stacked-app")
 	await _assert_owned_unavailable(shop)
 	var after: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	assert_eq(after.gameplay.stats, before.gameplay.stats, "cosmetics change no pressure or other stats")
