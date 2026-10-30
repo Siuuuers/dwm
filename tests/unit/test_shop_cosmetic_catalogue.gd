@@ -13,6 +13,7 @@ func test_current_catalogue_keeps_six_items_and_excludes_retired_decorations() -
 	for id: String in RETIRED:
 		assert_true(catalog.get_shop_item(id).is_empty())
 		for locale: String in ["en", "zh_CN", "zh_HK", "ja", "ko"]:
+			assert_true(COPY.item_name(locale, id).is_empty())
 			assert_true(COPY.item_description(locale, id).is_empty())
 		for size: int in [28, 56]: assert_null(ART.texture(id, size))
 	assert_eq(catalog.get_shop_item("lucky_charm").price, 1)

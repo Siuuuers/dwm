@@ -41,6 +41,8 @@ func test_legacy_inventory_does_not_restore_decorations_or_change_focus() -> voi
 func test_legacy_inventory_leaves_art_and_controls_plain() -> void:
 	var art := preload("res://scripts/ui/art/SceneArtView.gd").new()
 	add_child_autofree(art)
+	var texture := ImageTexture.create_from_image(Image.create(16, 16, false, Image.FORMAT_RGBA8))
+	art.configure_textures(texture, [])
 	var rail := RAIL.new()
 	add_child_autofree(rail)
 	assert_true(rail.configure_presentation(preload("res://scripts/ui/witnessed/WitnessedCaptionTheme.gd").build("en", 150, "AfterHours"), "en", 150))

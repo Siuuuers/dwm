@@ -277,7 +277,7 @@ func test_shop_projection_equals_the_registry_records() -> void:
 			"%s max_purchases is derived from cap.per_branch" % item_id)
 
 
-func test_replaced_items_are_absent_and_cosmetics_use_inventory() -> void:
+func test_replaced_items_and_retired_decorations_are_absent() -> void:
 	for item_id: String in ["coffee", "pep_note", "bandage_pack", "healthy_meal", "protein_box",
 			"wine", "pineapple_bun", "quiet_tea", "soft_blanket", "weighted_plush", "spa_coupon", "premium_care"]:
 		assert_true(_dc.get_shop_item(item_id).is_empty(), item_id)

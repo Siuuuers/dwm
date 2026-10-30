@@ -445,7 +445,7 @@ $methodFilters = @{
     shop_cosmetic_layout = 'test_every_locale_and_size_keeps_full_catalog_inside_the_plate'
     shop_cosmetic_buy = 'test_buy_control_dispatches_selected_quantity_and_refreshes_the_catalog'
     shop_cosmetic_supportz = 'test_supportz_activation_asks_price_only_and_yes_purchases_once'
-    shop_cosmetic_legacy = 'test_current_cosmetics_use_ordinary_inventory_without_a_note_catalogue'
+    shop_cosmetic_legacy = 'test_retained_keepsakes_use_ordinary_inventory_without_a_note_catalogue'
 }
 if ($methodFilters.ContainsKey($Suite)) { $arguments += "-gunit_test_name=$($methodFilters[$Suite])" }
 # Creator and loader must share storage but never a process/registration registry.
