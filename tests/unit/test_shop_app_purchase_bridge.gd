@@ -293,7 +293,8 @@ func test_balances_refresh_even_when_catalog_rows_do_not_change() -> void:
 	provider.balances = {"money": 75, "coins": 3}
 	assert_true(shop.refresh_view(true).ok)
 	assert_eq(shop._balance_label.text, "$75    3 coins")
-	assert_lte(shop._balance_label.get_rect().end.y, shop.info_scroll.position.y)
+	assert_eq(shop.info_scroll.position.y, 16.0)
+	assert_lte(shop._balance_label.get_rect().end.x, shop._catalog.get_rect().end.x)
 	assert_lte(shop._balance_label.get_rect().end.y, shop._catalog.position.y)
 
 func test_complete_card_names_and_balances_fit_every_font_and_locale() -> void:
@@ -315,7 +316,14 @@ func test_complete_card_names_and_balances_fit_every_font_and_locale() -> void:
 				assert_true(shop.last_result.ok)
 				assert_eq(shop._balance_label.get_line_count(), 1)
 				assert_lte(shop._balance_label.get_rect().end.y, shop._catalog.position.y)
-				assert_lte(shop._balance_label.get_rect().end.y, shop.info_scroll.position.y)
+				assert_eq(shop.info_scroll.position.y, 16.0)
+				assert_lte(shop._balance_label.get_rect().end.x, shop._catalog.get_rect().end.x)
+				assert_eq(shop.page_count, 1)
+				assert_eq(shop.page_capacity, 9)
+				assert_false(shop.previous_button.visible)
+				assert_false(shop.next_button.visible)
+				assert_false(shop.page_label.visible)
+				for card: Control in shop.cards.values(): assert_true(card.visible)
 				while shop.page_index < shop.page_count - 1: shop._change_page(1)
 				assert_true(shop._supportz_button.visible)
 				assert_true(shop._catalog.get_global_rect().encloses(shop._supportz_button.get_global_rect()))

@@ -555,7 +555,7 @@ jobs:
                       'tests/ui/render_material_story.gd',
                       'tests/ui/render_ui_readability.gd',
                   })
-                  shop_cosmetic_paths.update(p for p in paths if p.startswith('docs/retired-features/material-decorations/'))
+                  shop_cosmetic_paths.update(p for p in paths if p.startswith(('docs/retired-features/material-decorations/', 'docs/retired-features/shop-pagination/')))
                   shop_cosmetics = bool(paths) and paths <= shop_cosmetic_paths and "scripts/data/DataCatalog.gd" in paths
                   self_talk_paths = {
                       '.github/workflows/windows-tests.yml',

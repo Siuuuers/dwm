@@ -397,7 +397,7 @@ func _ready() -> void:
 	page_label.add_theme_color_override("font_color", _role("secondary_dark_copy"))
 	page_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	next_button = _button("next", Vector2(320, 576), Vector2(144, 64), func(): _change_page(1))
-	_balance_label = _label(_body, Vector2(32, 24), Vector2(736, 0))
+	_balance_label = _label(_body, Vector2(32, 24), Vector2(416, 0))
 	_balance_label.name = "Balances"
 	_balance_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	info_scroll = ScrollContainer.new()
@@ -518,9 +518,16 @@ func _measure_catalog(revision: int) -> void:
 	for card in cards.values():
 		card.refresh_layout()
 		card_height = maxf(card_height, card.custom_minimum_size.y)
-	page_capacity = maxi(1, floori((_catalog.size.y + 8) / (card_height + 8))) * 3
-	page_count = maxi(1, ceili(float(_records.size()) / page_capacity))
-	page_index = int(_index_of(selected_id) / page_capacity) if cards.has(selected_id) else 0
+	# All nine structural slots remain on one page, including secret Supportz.
+	page_capacity = 9
+	page_count = 1
+	page_index = 0
+	_catalog.size.y = 3 * card_height + 16
+	var plate_height := maxf(656, _catalog.position.y + _catalog.size.y + 16)
+	_body.size = Vector2(800, plate_height)
+	_content_host.custom_minimum_size = _body.size
+	custom_minimum_size = _body.size
+	size = _body.size
 	for card in cards.values(): card.size = Vector2(144, card_height)
 	_show_page(_focus_after_layout)
 	_catalog_layout_pending = false
@@ -528,7 +535,13 @@ func _measure_catalog(revision: int) -> void:
 
 func _show_page(focus_selection: bool = true) -> void:
 	_cancel_contacts()
-	for control in [previous_button, next_button, page_label, _total_label]: control.show()
+	_total_label.show()
+	# Retain the former controls as inert compatibility objects; no paging UI.
+	for control in [previous_button, next_button, page_label]: control.hide()
+	for button: Button in [previous_button, next_button]:
+		button.disabled = true
+		button.focus_mode = Control.FOCUS_NONE
+		button.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for card in cards.values(): card.hide()
 	_supportz_button.hide()
 	var start := page_index * page_capacity
@@ -662,15 +675,14 @@ func _refresh_balances() -> void:
 	if not is_instance_valid(_balance_label): return
 	_balance_label.visible = not _balances.is_empty()
 	_balance_label.text = "" if _balances.is_empty() else "%s    %s" % [_price(int(_balances.money), "money"), _price(int(_balances.coins), "minesweeper_coin")]
-	_balance_label.size = Vector2(736, 0)
+	_balance_label.size = Vector2(416, 0)
 	_balance_label.size.y = _balance_label.get_minimum_size().y
 	var top := 16.0 if _balances.is_empty() else 40.0 + _balance_label.size.y
 	_catalog.position.y = top
-	_catalog.size.y = 560.0 - top
 	_body.queue_redraw()
 	var bottom := info_scroll.position.y + info_scroll.size.y
-	info_scroll.position.y = top
-	info_scroll.size.y = maxf(96.0, bottom - top)
+	info_scroll.position.y = 16.0
+	info_scroll.size.y = maxf(96.0, bottom - info_scroll.position.y)
 	if is_instance_valid(_information_overlay):
 		_information_overlay.position = info_scroll.position
 		_information_overlay.size = info_scroll.size
@@ -972,12 +984,12 @@ func _button(key: String, at: Vector2, measure: Vector2, action: Callable) -> Bu
 	return button
 
 func _draw_plate() -> void:
-	_body.draw_rect(Rect2(0, 0, 800, 656), _role("habitat"))
+	_body.draw_rect(Rect2(Vector2.ZERO, _body.size), _role("habitat"))
 	if not last_result.ok: return
-	_body.draw_rect(Rect2(16, 16, 768, 624), _role("controlled_face"))
-	_body.draw_rect(Rect2(480, _catalog.position.y, 304, (384 if _large else 448) - _catalog.position.y), _role("laminate"))
+	_body.draw_rect(Rect2(16, 16, 768, _body.size.y - 32), _role("controlled_face"))
+	_body.draw_rect(Rect2(480, 16, 304, 368 if _large else 432), _role("laminate"))
 	if not _balances.is_empty():
-		_body.draw_rect(Rect2(16, 16, 768, _catalog.position.y - 24), _role("paper"))
+		_body.draw_rect(Rect2(16, 16, 448, _catalog.position.y - 24), _role("paper"))
 	var blank_index := _index_of("supportz") - page_index * page_capacity
 	if blank_index >= 0 and blank_index < page_capacity and not cards.is_empty():
 		var height: float = cards.values()[0].size.y

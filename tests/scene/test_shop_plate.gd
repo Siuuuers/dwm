@@ -153,11 +153,15 @@ func test_every_locale_and_size_keeps_full_catalog_inside_the_plate() -> void:
 				await _settle()
 				var shop: Control = f.shop
 				assert_true(shop.last_result.ok,"%s %s %s%%" % [font_style,locale,percent])
-				assert_eq(shop.size, Vector2(800, 656))
+				assert_eq(shop.size.x, 800.0)
+				assert_gte(shop.size.y, 656.0)
 				assert_eq(shop.get_node("VBoxContainer/TopBar").visible, false)
 				assert_eq(shop.cards.size(), 8)
-				assert_true(shop.page_capacity in [3, 6, 9], "Measured rows retain three columns.")
-				assert_gte(shop.page_count, 1)
+				assert_eq(shop.page_capacity, 9)
+				assert_false(shop.previous_button.visible)
+				assert_false(shop.next_button.visible)
+				assert_false(shop.page_label.visible)
+				assert_eq(shop.page_count, 1)
 				assert_true(shop.cards.crystal_stutters.has_focus())
 				var seen: Array[String] = []
 				for page in shop.page_count:
@@ -169,7 +173,7 @@ func test_every_locale_and_size_keeps_full_catalog_inside_the_plate() -> void:
 						var card: Control = shop.cards[item_id]
 						if not card.visible: continue
 						seen.append(item_id)
-						assert_true(Rect2(0, 0, 448, 544).encloses(card.get_rect()), "%s %s%% %s" % [locale, percent, item_id])
+						assert_true(Rect2(Vector2.ZERO, shop._catalog.size).encloses(card.get_rect()), "%s %s%% %s" % [locale, percent, item_id])
 						assert_eq(card.name_label.text, COPY.item_name(locale, item_id))
 						assert_lte(card.availability_label.position.y + card.availability_label.size.y, card.size.y - 8)
 					if page < shop.page_count - 1:
@@ -271,7 +275,7 @@ func test_missing_projection_recovers_without_partial_cards_then_reopens() -> vo
 	await _settle()
 	assert_true(shop.cards.crystal_stutters.visible)
 	assert_true(shop.info_scroll.visible)
-	assert_true(shop.next_button.visible)
+	assert_false(shop.next_button.visible)
 
 func test_only_overflowing_information_enters_traversal() -> void:
 	var f := _fixture()

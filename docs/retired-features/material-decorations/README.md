@@ -29,7 +29,9 @@ original SHA-256 hashes. These snapshots are unchanged historical references.
   At `9e43b52c9884ccd59e82245d2168c3113ee4d037`, the optional PNGs were absent:
   ShopPresentationPort generated ID-derived coloured tiles with one-pixel borders.
   The owner chose these exact historical tiles rather than newly drawn icons.
-- Balances share a full-width tinted header; cards paginate beneath it. The
+- Balances share a tinted header above only the catalogue; all nine slots form
+  one 3×3 grid. The pager is retired and its code is preserved in
+  [shop-pagination](../shop-pagination/README.md). The
   redundant inspector price beside availability is removed. Card prices and
   purchase totals remain exact and localized.
 
