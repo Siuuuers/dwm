@@ -49,13 +49,14 @@ static func crystal_pattern(run_id: String, surface: String) -> Array:
 				var bend := fork.lerp(tip, 0.5) + Vector2(0, rng.randf_range(-0.04, 0.04))
 				bend.y = maxf(0.01, bend.y)
 				paths.append(PackedVector2Array([fork, bend, tip]))
-			var reach := rng.randf_range(0.65, 1.0)
-			pattern.append({"corner": corner, "paths": paths, "reflection": PackedVector2Array([
-				Vector2.ZERO, Vector2(reach, 0), Vector2(0, reach * rng.randf_range(0.45, 0.8))])})
+			# Preserve seeded crack layouts while retiring the reflection geometry.
+			rng.randf_range(0.65, 1.0)
+			rng.randf_range(0.45, 0.8)
+			pattern.append({"corner": corner, "paths": paths})
 		_crystal_patterns[surface] = pattern
 	return _crystal_patterns[surface]
 
-static func draw_crystal(canvas: CanvasItem, rect: Rect2, ink: Color, pattern: Array) -> void:
+static func draw_crystal(canvas: CanvasItem, rect: Rect2, pattern: Array) -> void:
 	var shine := Color(0.86, 0.94, 1.0)
 	for fracture: Dictionary in pattern:
 		var corner: int = fracture.corner
@@ -64,14 +65,12 @@ static func draw_crystal(canvas: CanvasItem, rect: Rect2, ink: Color, pattern: A
 		if corner % 2 == 1:
 			origin.x = rect.end.x
 			direction.x = -1
-		var length := minf(128 if corner < 2 else 64, minf(rect.size.x * 0.3, rect.size.y * 0.25))
+		var length := minf(70 if corner < 2 else 36, minf(rect.size.x * 0.3, rect.size.y * 0.25))
 		var transform := Transform2D(Vector2(direction.x * length, 0), Vector2(0, direction.y * length), origin + Vector2(2, 2) * direction)
-		canvas.draw_colored_polygon(transform * fracture.reflection, Color(shine, 0.16))
 		for path: PackedVector2Array in fracture.paths:
 			var points: PackedVector2Array = transform * path
-			canvas.draw_polyline(points, Color(0.04, 0.07, 0.1, 0.5), 2.5, true)
-			canvas.draw_polyline(points, Color(shine, 0.8), 1, true)
-		canvas.draw_line(transform * Vector2.ZERO, transform * fracture.reflection[1], Color(ink, 0.7), 1.5, true)
+			canvas.draw_polyline(points, Color(0.04, 0.07, 0.1, 0.18), 1.5, true)
+			canvas.draw_polyline(points, Color(shine, 0.35), 0.8, true)
 
 static func draw_silk(canvas: CanvasItem, rect: Rect2, ink: Color, edge: Color) -> void:
 	var turn_height := minf(32, rect.size.y / 5)

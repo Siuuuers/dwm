@@ -234,7 +234,7 @@ func _ready() -> void:
 			MATERIAL_DECORATION.draw_paper(background_image, Rect2(Vector2.ZERO, background_image.size), theme.get_color("ink", "Desktop"))
 		if int(_cosmetic_inventory_owner.inventory.get("crystal_stutters", 0)) > 0:
 			# Reflections sit beneath launcher and app controls.
-			MATERIAL_DECORATION.draw_crystal(background_image, Rect2(0, 0, background_image.size.x - 8, desktop_canvas.size.y - 64), theme.get_color("ink", "Desktop"), _crystal_pattern))
+			MATERIAL_DECORATION.draw_crystal(background_image, Rect2(0, 0, background_image.size.x - 8, desktop_canvas.size.y - 64), _crystal_pattern))
 	resized.connect(queue_redraw)
 	resized.connect(_layout_desktop)
 	_layout_desktop()
