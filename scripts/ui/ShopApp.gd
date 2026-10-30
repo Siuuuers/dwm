@@ -13,6 +13,9 @@ const SUPPORTZ_CONFIRMATION := preload("res://scripts/ui/shop/SupportzConfirmati
 const CONFIRMATION_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 
 var _scene_presentation := false
+var _card_width := 144.0
+var _inspector_x := 480.0
+var _plate_width := 800.0
 var cards: Dictionary = {}
 var page_index := 0
 var page_capacity := 9
@@ -376,20 +379,20 @@ func configure_host(home: Button) -> void:
 func _ready() -> void:
 	super._ready()
 	auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
-	custom_minimum_size = Vector2(800, 656)
+	custom_minimum_size = Vector2(_plate_width, 656)
 	add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	$VBoxContainer/TopBar.hide()
 	$VBoxContainer.add_theme_constant_override("separation", 0)
-	_content_host.custom_minimum_size = Vector2(800, 656)
+	_content_host.custom_minimum_size = Vector2(_plate_width, 656)
 	_body = Control.new()
 	_body.name = "ShopPlate"
-	_body.size = Vector2(800, 656)
+	_body.size = Vector2(_plate_width, 656)
 	_content_host.add_child(_body)
 	_body.draw.connect(_draw_plate)
 	_catalog = Control.new()
 	_catalog.name = "Catalog"
 	_catalog.position = Vector2(16, 16)
-	_catalog.size = Vector2(448, 544)
+	_catalog.size = Vector2(3 * _card_width + 16, 544)
 	_body.add_child(_catalog)
 	previous_button = _button("previous", Vector2(16, 576), Vector2(144, 64), func(): _change_page(-1))
 	page_label = _label(_body, Vector2(168, 576), Vector2(144, 64), false)
@@ -397,12 +400,12 @@ func _ready() -> void:
 	page_label.add_theme_color_override("font_color", _role("secondary_dark_copy"))
 	page_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	next_button = _button("next", Vector2(320, 576), Vector2(144, 64), func(): _change_page(1))
-	_balance_label = _label(_body, Vector2(32, 24), Vector2(416, 0))
+	_balance_label = _label(_body, Vector2(_inspector_x + 16, 24), Vector2(272, 0))
 	_balance_label.name = "Balances"
 	_balance_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	info_scroll = ScrollContainer.new()
 	info_scroll.name = "InformationViewport"
-	info_scroll.position = Vector2(480, 16)
+	info_scroll.position = Vector2(_inspector_x, 16)
 	info_scroll.size = Vector2(304, 384)
 	info_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	info_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
@@ -433,17 +436,17 @@ func _ready() -> void:
 	info_scroll.get_v_scroll_bar().value_changed.connect(func(_value): _information_overlay.queue_redraw())
 	info_scroll.focus_entered.connect(_information_overlay.queue_redraw)
 	info_scroll.focus_exited.connect(_information_overlay.queue_redraw)
-	_meta_state = _label(_body, Vector2(632, 400), Vector2(136, 48))
+	_meta_state = _label(_body, Vector2(_inspector_x + 152, 400), Vector2(136, 48))
 	# Pinned facts stay on one line; their exact bounds are checked before use.
 	_meta_state.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_meta_state.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_quantity_label = _label(_body, Vector2(608, 456), Vector2(48, 48), false)
+	_quantity_label = _label(_body, Vector2(_inspector_x + 128, 456), Vector2(48, 48), false)
 	_quantity_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	for key in ["minimum", "minus", "plus", "maximum"]:
 		quantity_buttons[key] = _button(key, Vector2.ZERO, Vector2(48, 48), _quantity_action.bind(key))
-	_total_label = _label(_body, Vector2(496, 512), Vector2(272, 64), false)
-	status_label = _label(_body, Vector2(496, 576), Vector2(272, 64), false)
-	_buy_button = _button("buy", Vector2(640, 576), Vector2(128, 64), _purchase_selected)
+	_total_label = _label(_body, Vector2(_inspector_x + 16, 512), Vector2(272, 64), false)
+	status_label = _label(_body, Vector2(_inspector_x + 16, 576), Vector2(272, 64), false)
+	_buy_button = _button("buy", Vector2(_inspector_x + 160, 576), Vector2(128, 64), _purchase_selected)
 	_supportz_button = Button.new()
 	_supportz_button.name = "SecretSupportz"
 	_supportz_button.flat = true
@@ -475,6 +478,14 @@ func _apply_colours() -> void:
 		if is_instance_valid(control): control.queue_redraw()
 
 func _rebuild_catalog() -> void:
+	_card_width = 184.0 if _scene_presentation else 144.0
+	_inspector_x = 3 * _card_width + 48
+	_plate_width = _inspector_x + 320
+	_catalog.size.x = 3 * _card_width + 16
+	info_scroll.position.x = _inspector_x
+	_balance_label.position.x = _inspector_x + 16
+	_total_label.position.x = _inspector_x + 16
+	_buy_button.position.x = _inspector_x + 160
 	_measurement_revision += 1
 	_catalog_layout_pending = true
 	_cancel_contacts()
@@ -516,6 +527,7 @@ func _measure_catalog(revision: int) -> void:
 	_refresh_balances()
 	var card_height := 176.0
 	for card in cards.values():
+		card.size.x = _card_width
 		card.refresh_layout()
 		card_height = maxf(card_height, card.custom_minimum_size.y)
 	# All nine structural slots remain on one page, including secret Supportz.
@@ -524,11 +536,11 @@ func _measure_catalog(revision: int) -> void:
 	page_index = 0
 	_catalog.size.y = 3 * card_height + 16
 	var plate_height := maxf(656, _catalog.position.y + _catalog.size.y + 16)
-	_body.size = Vector2(800, plate_height)
+	_body.size = Vector2(_plate_width, plate_height)
 	_content_host.custom_minimum_size = _body.size
 	custom_minimum_size = _body.size
 	size = _body.size
-	for card in cards.values(): card.size = Vector2(144, card_height)
+	for card in cards.values(): card.size = Vector2(_card_width, card_height)
 	_show_page(_focus_after_layout)
 	_catalog_layout_pending = false
 	if not _host_anchor.is_empty(): _restore_host_view.call_deferred(revision)
@@ -553,7 +565,7 @@ func _show_page(focus_selection: bool = true) -> void:
 			_refresh_supportz()
 			continue
 		var card: Button = cards[record.id]
-		card.position = Vector2((slot % 3) * 152, (slot / 3) * (card.size.y + 8))
+		card.position = Vector2((slot % 3) * (_card_width + 8), (slot / 3) * (card.size.y + 8))
 		card.show()
 	if not cards.has(selected_id) or not cards[selected_id].visible:
 		selected_id = str(_page_selection.get(page_index, ""))
@@ -606,16 +618,16 @@ func _render_selection() -> void:
 	_meta_state.text = _t("available" if record.available else "sold_out")
 	# Availability has its own pinned row; unit price remains on the card and total.
 	var meta_height := maxi(48, 2 * ceili(_meta_state.get_minimum_size().y / 2.0))
-	_meta_state.position.x = 496
+	_meta_state.position.x = _inspector_x + 16
 	_meta_state.size = Vector2(272, meta_height)
 	var meta_y := (384 if _large else 448) - meta_height
 	info_scroll.size.y = meta_y - info_scroll.position.y
 	_meta_state.position.y = meta_y
 	_information_overlay.position = info_scroll.position
 	_information_overlay.size = info_scroll.size
-	var positions := {"minimum": Vector2(496, 456), "minus": Vector2(552, 456), "plus": Vector2(664, 456), "maximum": Vector2(720, 456)}
+	var positions := {"minimum": Vector2(_inspector_x + 16, 456), "minus": Vector2(_inspector_x + 72, 456), "plus": Vector2(_inspector_x + 184, 456), "maximum": Vector2(_inspector_x + 240, 456)}
 	if _large:
-		positions = {"minimum": Vector2(492, 384), "minus": Vector2(564, 384), "plus": Vector2(708, 384), "maximum": Vector2(708, 448)}
+		positions = {"minimum": Vector2(_inspector_x + 12, 384), "minus": Vector2(_inspector_x + 84, 384), "plus": Vector2(_inspector_x + 228, 384), "maximum": Vector2(_inspector_x + 228, 448)}
 	for key in quantity_buttons:
 		var button: Button = quantity_buttons[key]
 		button.position = positions[key]
@@ -623,14 +635,14 @@ func _render_selection() -> void:
 		button.visible = record.batchable and record.available
 		button.disabled = record.legal_max == 0 or (quantity == 1 if key in ["minimum", "minus"] else quantity >= record.legal_max)
 		button.focus_mode = Control.FOCUS_NONE if button.disabled else Control.FOCUS_ALL
-	_quantity_label.position = Vector2(636, 384) if _large else Vector2(608, 456)
+	_quantity_label.position = Vector2(_inspector_x + 156, 384) if _large else Vector2(_inspector_x + 128, 456)
 	_quantity_label.size = Vector2(64, 64) if _large else Vector2(48, 48)
 	_quantity_label.visible = record.batchable and record.available
 	_quantity_label.text = str(quantity)
 	_total_label.text = _price(record.unit_price * quantity, record.currency)
 	_buy_button.accessibility_name = "%s: %s × %d" % [_t("buy"), record.name, quantity]
 	_buy_button.tooltip_text = _buy_button.accessibility_name
-	status_label.position = Vector2(496, 576)
+	status_label.position = Vector2(_inspector_x + 16, 576)
 	status_label.size = Vector2(272, 64)
 	var has_purchase := _provider != null and _provider.has_method("purchase")
 	var buy_had_focus := _buy_button.has_focus()
@@ -666,7 +678,7 @@ func _verify_dock_fit() -> void:
 			_show_recovery()
 			return
 	var band_top := info_scroll.position.y + info_scroll.size.y
-	var meta_band := Rect2(480, band_top, 304, (384 if _large else 448) - band_top)
+	var meta_band := Rect2(_inspector_x, band_top, 304, (384 if _large else 448) - band_top)
 	if not meta_band.encloses(_meta_state.get_rect()):
 		last_result = {"ok": false, "code": "shop_dock_does_not_fit"}
 		_show_recovery()
@@ -675,13 +687,13 @@ func _refresh_balances() -> void:
 	if not is_instance_valid(_balance_label): return
 	_balance_label.visible = not _balances.is_empty()
 	_balance_label.text = "" if _balances.is_empty() else "%s    %s" % [_price(int(_balances.money), "money"), _price(int(_balances.coins), "minesweeper_coin")]
-	_balance_label.size = Vector2(416, 0)
+	_balance_label.size = Vector2(272, 0)
 	_balance_label.size.y = _balance_label.get_minimum_size().y
 	var top := 16.0 if _balances.is_empty() else 40.0 + _balance_label.size.y
-	_catalog.position.y = top
+	_catalog.position.y = 16.0
 	_body.queue_redraw()
 	var bottom := info_scroll.position.y + info_scroll.size.y
-	info_scroll.position.y = 16.0
+	info_scroll.position.y = top
 	info_scroll.size.y = maxf(96.0, bottom - info_scroll.position.y)
 	if is_instance_valid(_information_overlay):
 		_information_overlay.position = info_scroll.position
@@ -738,8 +750,8 @@ func _refresh_supportz() -> void:
 		and _provider_can_purchase("supportz", 1).get("ok", false)
 	var card_height: float = 176.0 if cards.is_empty() else (cards.values()[0] as Control).size.y
 	var slot := _index_of("supportz") % page_capacity
-	_supportz_button.position = Vector2((slot % 3) * 152, (slot / 3) * (card_height + 8))
-	_supportz_button.size = Vector2(144, card_height)
+	_supportz_button.position = Vector2((slot % 3) * (_card_width + 8), (slot / 3) * (card_height + 8))
+	_supportz_button.size = Vector2(_card_width, card_height)
 	_supportz_button.disabled = not admitted
 	_supportz_button.focus_mode = Control.FOCUS_ALL if admitted else Control.FOCUS_NONE
 	_supportz_button.mouse_filter = Control.MOUSE_FILTER_STOP if admitted else Control.MOUSE_FILTER_IGNORE
@@ -751,12 +763,12 @@ func _draw_supportz_contact() -> void:
 	if _supportz_button.disabled or not _has_host_custody(): return
 	var height := _supportz_button.size.y
 	if _supportz_button.is_pressed():
-		_supportz_button.draw_rect(Rect2(138, 4, 2, height - 8), _role("structure"))
+		_supportz_button.draw_rect(Rect2(_card_width - 6, 4, 2, height - 8), _role("structure"))
 	elif _supportz_button.is_hovered():
 		_supportz_button.draw_rect(Rect2(4, 4, 2, height - 8), _role("structure"))
 	if _supportz_button.has_focus():
-		_supportz_button.draw_rect(Rect2(-7, -7, 158, height + 14), _role("dark_focus_outer"), false, 2)
-		_supportz_button.draw_rect(Rect2(-3, -3, 150, height + 6), _role("dark_focus_inner"), false, 2)
+		_supportz_button.draw_rect(Rect2(-7, -7, _card_width + 14, height + 14), _role("dark_focus_outer"), false, 2)
+		_supportz_button.draw_rect(Rect2(-3, -3, _card_width + 6, height + 6), _role("dark_focus_inner"), false, 2)
 
 func _purchase_supportz() -> void:
 	if not _has_host_custody() or not is_instance_valid(_supportz_button): return
@@ -916,7 +928,7 @@ func _show_recovery() -> void:
 	for card in cards.values(): card.hide()
 	for control in [info_scroll, _information_overlay, _balance_label, _meta_state, previous_button, next_button, page_label, _quantity_label, _total_label, _buy_button, _supportz_button] + quantity_buttons.values(): control.hide()
 	status_label.position = Vector2(32, 32)
-	status_label.size = Vector2(736, 576)
+	status_label.size = Vector2(_plate_width - 64, 576)
 	status_label.text = _t("unavailable")
 	_body.queue_redraw()
 	_wire_focus()
@@ -986,16 +998,16 @@ func _button(key: String, at: Vector2, measure: Vector2, action: Callable) -> Bu
 func _draw_plate() -> void:
 	_body.draw_rect(Rect2(Vector2.ZERO, _body.size), _role("habitat"))
 	if not last_result.ok: return
-	_body.draw_rect(Rect2(16, 16, 768, _body.size.y - 32), _role("controlled_face"))
-	_body.draw_rect(Rect2(480, 16, 304, 368 if _large else 432), _role("laminate"))
+	_body.draw_rect(Rect2(16, 16, _plate_width - 32, _body.size.y - 32), _role("controlled_face"))
+	_body.draw_rect(Rect2(_inspector_x, 16, 304, 368 if _large else 432), _role("laminate"))
 	if not _balances.is_empty():
-		_body.draw_rect(Rect2(16, 16, 448, _catalog.position.y - 24), _role("paper"))
+		_body.draw_rect(Rect2(_inspector_x, 16, 304, info_scroll.position.y - 24), _role("paper"))
 	var blank_index := _index_of("supportz") - page_index * page_capacity
 	if blank_index >= 0 and blank_index < page_capacity and not cards.is_empty():
 		var height: float = cards.values()[0].size.y
-		var at := Vector2(16 + (blank_index % 3) * 152, _catalog.position.y + (blank_index / 3) * (height + 8))
-		_body.draw_rect(Rect2(at, Vector2(144, height)), _role("controlled_face"))
-		_body.draw_rect(Rect2(at + Vector2(4, 4), Vector2(136, height - 8)), _role("laminate"))
+		var at := Vector2(16 + (blank_index % 3) * (_card_width + 8), _catalog.position.y + (blank_index / 3) * (height + 8))
+		_body.draw_rect(Rect2(at, Vector2(_card_width, height)), _role("controlled_face"))
+		_body.draw_rect(Rect2(at + Vector2(4, 4), Vector2(_card_width - 8, height - 8)), _role("laminate"))
 
 func _draw_information() -> void:
 	if not last_result.ok: return

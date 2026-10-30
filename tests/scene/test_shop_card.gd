@@ -72,22 +72,40 @@ func test_native_pointer_hover_requests_inspection_without_activation() -> void:
 	assert_eq(activations.size(), 0, "Hover does not activate the product")
 	assert_false(card.selected, "The standalone card does not own selection")
 
-func test_fixed_card_bands_keep_name_price_and_availability_inside_two_page_geometry() -> void:
+func test_card_grows_for_complete_copy_without_shrinking_artwork() -> void:
 	var rows: Array = CATALOG_PROJECTION.project(_valid_rows()).value
 	for font_size in [20, 25, 30]:
 		for row: Dictionary in rows:
 			if row.blank: continue
 			var card := _card(row, font_size)
 			await _settle()
-			assert_eq(card.size.y, 176.0)
-			var previous_bottom: float = card.get("_art_rect").end.y + 4.0
-			for label: Label in [card.name_label, card.price_label, card.availability_label]:
+			assert_gte(card.size.y, 176.0)
+			assert_eq(card._art_rect.size, Vector2(56, 56))
+			assert_false(card._art_rect.intersects(card.name_label.get_rect()))
+			var previous_bottom: float = maxf(card._art_rect.end.y, card.name_label.get_rect().end.y) + 4.0
+			for label: Label in [card.price_label, card.availability_label]:
 				assert_gte(label.position.y, previous_bottom)
 				assert_lte(label.position.y + label.size.y, card.size.y - 8)
 				assert_eq(label.text_overrun_behavior, TextServer.OVERRUN_NO_TRIMMING)
 				assert_true(label.clip_text)
 				previous_bottom = label.position.y + label.size.y
 			card.hide()
+
+func test_wider_card_keeps_artwork_beside_complete_name() -> void:
+	var row: Dictionary = CATALOG_PROJECTION.project(_valid_rows()).value[0]
+	row.name = "Letter with Wax Seal"
+	var card := _card(row, 30)
+	await _settle()
+	var narrow_name_height: float = card.name_label.size.y
+	card.size.x = 184
+	card.refresh_layout()
+	await _settle()
+	assert_eq(card._art_rect, Rect2(8, 8, 56, 56))
+	assert_eq(card.name_label.size.x, 104.0)
+	assert_eq(card.price_label.size.x, 168.0)
+	assert_eq(card.availability_label.size.x, 160.0)
+	assert_lte(card.name_label.size.y, narrow_name_height)
+	assert_eq(card.name_label.get_theme_font_size("font_size"), 24)
 
 func test_pointer_release_selects_once_and_cancels_after_leave_or_hide() -> void:
 	var card := _card(CATALOG_PROJECTION.project(_valid_rows()).value[0])
@@ -180,8 +198,10 @@ func test_cjk_font_metrics_preserve_complete_public_labels_at_all_sizes() -> voi
 			card.refresh_layout()
 			await _settle()
 			assert_eq(card.name_label.text, row.name)
-			var previous_bottom: float = card.get("_art_rect").end.y + 4.0
-			for label: Label in [card.name_label, card.price_label, card.availability_label]:
+			assert_eq(card._art_rect.size, Vector2(56, 56))
+			assert_false(card._art_rect.intersects(card.name_label.get_rect()))
+			var previous_bottom: float = maxf(card._art_rect.end.y, card.name_label.get_rect().end.y) + 4.0
+			for label: Label in [card.price_label, card.availability_label]:
 				assert_gte(label.position.y, previous_bottom)
 				assert_lte(label.position.y + label.size.y, card.size.y - 8)
 				assert_true(label.clip_text)

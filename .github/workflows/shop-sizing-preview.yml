@@ -69,6 +69,7 @@ jobs:
               isolated = source / '.godot/phase2r_tests/shop-sizing'
               env = dict(os.environ, DWM_TEST_ROOT=str(isolated / 'test-root'),
                          XDG_DATA_HOME=str(isolated / 'data'), DWM_RENDER_OUTPUT=str(destination),
+                         DWM_SHOP_SIZING_ACCEPT='1' if variant == 'candidate' else '0',
                          DWM_SCENE_READING_FIXTURE='1')
               pathlib.Path(env['DWM_TEST_ROOT']).mkdir(parents=True)
               pathlib.Path(env['XDG_DATA_HOME']).mkdir(parents=True)
@@ -90,6 +91,8 @@ jobs:
                   env=env, timeout=480)
               for path in (source / '.godot/ci').glob('shop-mounted-*'):
                   if path.is_file(): shutil.copy2(path, destination / path.name)
+              for path in (source / '.godot/ci').glob('shop-mounted-*'):
+                  shutil.copy2(path, destination / path.name)
               result.check_returncode()
               log = (destination / 'render.log').read_text()
               assert 'SCRIPT ERROR:' not in log, variant

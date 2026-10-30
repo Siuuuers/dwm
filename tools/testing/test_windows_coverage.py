@@ -24,10 +24,12 @@ GENERATED = {
 }
 
 
-def select(paths, event_name='pull_request'):
+def select(paths, event_name='pull_request', sources=None):
     def git(args, **kwargs):
         if args[:3] == ['git', 'diff', '--name-only']:
             return subprocess.CompletedProcess(args, 0, ('\0'.join(sorted(paths)) + '\0').encode())
+        if args[:2] == ['git', 'show'] and sources and args[2] in sources:
+            return subprocess.CompletedProcess(args, 0, sources[args[2]].encode())
         # An unrelated runtime edit may invoke the existing archived benchmark
         # compatibility check. Supply an intentionally incompatible old fixture.
         if args[:2] == ['git', 'show'] and args[2].endswith('.zip'):
@@ -79,6 +81,22 @@ class WindowsCoverageTests(unittest.TestCase):
         expression = next(line for line in WORKFLOW.splitlines() if 'suite: ${{ fromJSON' in line)
         full = json.loads(expression.rsplit("|| '", 1)[1].split("'", 1)[0])
         self.assertEqual(full.count('shop_cosmetic_journey'), 1)
+
+    def test_shop_layout_and_preview_select_existing_shop_coverage(self):
+        paths = {'scripts/ui/ShopApp.gd', 'scripts/ui/ShopItemBox.gd',
+                 'tests/ui/render_shop_mounted_sizing.gd', '.github/workflows/shop-sizing-preview.yml'}
+        self.assertEqual(select(paths)['shop_cosmetics'], 'true')
+        self.assertEqual(select(paths | {'autoload/GameState.gd'})['shop_cosmetics'], 'false')
+
+    def test_scene_mount_changes_are_scoped_only_inside_layout_method(self):
+        path = 'autoload/ApplicationBootstrap.gd'
+        baseline = 'func _layout_scene_desktop(host, desktop):\n\tdesktop.size = Vector2(800, 720)\n\nfunc other():\n\tpass\n'
+        sources = {'a' * 40 + ':' + path: baseline,
+                   'HEAD:' + path: baseline.replace('800', '920')}
+        paths = {path, 'scripts/ui/ShopApp.gd'}
+        self.assertEqual(select(paths, sources=sources)['shop_cosmetics'], 'true')
+        sources['HEAD:' + path] = sources['HEAD:' + path].replace('pass', 'return false')
+        self.assertEqual(select(paths, sources=sources)['shop_cosmetics'], 'false')
 
     def test_empty_and_manual_dispatch_keep_broad_coverage(self):
         self.assertEqual(select(set())['dtl_content'], 'false')

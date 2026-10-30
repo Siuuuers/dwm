@@ -293,9 +293,11 @@ func test_balances_refresh_even_when_catalog_rows_do_not_change() -> void:
 	provider.balances = {"money": 75, "coins": 3}
 	assert_true(shop.refresh_view(true).ok)
 	assert_eq(shop._balance_label.text, "$75    3 coins")
-	assert_eq(shop.info_scroll.position.y, 16.0)
-	assert_lte(shop._balance_label.get_rect().end.x, shop._catalog.get_rect().end.x)
-	assert_lte(shop._balance_label.get_rect().end.y, shop._catalog.position.y)
+	assert_eq(shop._catalog.position.y, 16.0)
+	assert_eq(shop._balance_label.position.x, shop.info_scroll.position.x + 16)
+	assert_eq(shop._balance_label.size.x, 272.0)
+	assert_lte(shop._balance_label.get_rect().end.x, shop.info_scroll.get_rect().end.x)
+	assert_lte(shop._balance_label.get_rect().end.y, shop.info_scroll.position.y)
 
 func test_complete_card_names_and_balances_fit_every_font_and_locale() -> void:
 	var provider := Provider.new()
@@ -307,6 +309,7 @@ func test_complete_card_names_and_balances_fit_every_font_and_locale() -> void:
 				assert_true(shop.configure_shop(provider.get_catalog(locale).value, locale, percent, false, &"after_hours", 1, false, "standard", style).ok)
 				await _settle()
 				for card: Control in shop.cards.values():
+					assert_eq(card._art_rect.size, Vector2(56, 56), locale + str(percent) + style)
 					for label: Label in [card.name_label, card.price_label, card.availability_label]:
 						assert_true(card.get_global_rect().encloses(label.get_global_rect()), locale + str(percent) + label.text)
 						var measured := label.get_theme_font("font").get_multiline_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT,
@@ -315,9 +318,11 @@ func test_complete_card_names_and_balances_fit_every_font_and_locale() -> void:
 					if card.visible: assert_true(shop._catalog.get_global_rect().encloses(card.get_global_rect()))
 				assert_true(shop.last_result.ok)
 				assert_eq(shop._balance_label.get_line_count(), 1)
-				assert_lte(shop._balance_label.get_rect().end.y, shop._catalog.position.y)
-				assert_eq(shop.info_scroll.position.y, 16.0)
-				assert_lte(shop._balance_label.get_rect().end.x, shop._catalog.get_rect().end.x)
+				assert_eq(shop._catalog.position.y, 16.0)
+				assert_eq(shop._balance_label.position.x, shop.info_scroll.position.x + 16)
+				assert_eq(shop._balance_label.size.x, 272.0)
+				assert_lte(shop._balance_label.get_rect().end.y, shop.info_scroll.position.y)
+				assert_lte(shop._balance_label.get_rect().end.x, shop.info_scroll.get_rect().end.x)
 				assert_eq(shop.page_count, 1)
 				assert_eq(shop.page_capacity, 9)
 				assert_false(shop.previous_button.visible)

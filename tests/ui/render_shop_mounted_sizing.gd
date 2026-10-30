@@ -1,6 +1,6 @@
 extends "res://tests/ui/render_shop_cosmetics_base.gd"
 ## Diagnostic baseline/candidate evidence: FINAL owners in the real SceneHost,
-## with TEST authored dialogue. Fit measurements are observations, not acceptance.
+## with TEST authored dialogue. DWM_SHOP_SIZING_ACCEPT=1 enables candidate targets.
 
 func test_mounted_shop_sizing() -> void:
 	if not await _begin_cosmetic_run(): return
@@ -18,6 +18,7 @@ func test_mounted_shop_sizing() -> void:
 	var shop: Control = shell._cached_app_windows[&"shop"]
 	var samples: Array[Dictionary] = []
 	var captures: Array[String] = []
+	var accept_targets := OS.get_environment("DWM_SHOP_SIZING_ACCEPT") == "1"
 	var localization: Node = get_node("/root/LocalizationManager")
 	for locale: String in ["en", "zh_CN", "zh_HK", "ja", "ko"]:
 		if not _ok(localization.set_locale(locale)): return
@@ -43,14 +44,39 @@ func test_mounted_shop_sizing() -> void:
 				var plate_rect := _pixel_rect(shop._body, texture_transform)
 				var visible_rect := _pixel_rect(shell.app_scroll, texture_transform)
 				var catalog_rect := _pixel_rect(shop._catalog, texture_transform)
+				if accept_targets:
+					assert_lte(absf(panel_rect.position.x - bar_rect.position.x), 1.0, sample_id + ": panel/bar left edge")
+					assert_lte(absf(panel_rect.end.x - bar_rect.end.x), 1.0, sample_id + ": panel/bar right edge")
+					assert_lte(absf(plate_rect.position.x - bar_rect.position.x), 1.0, sample_id + ": plate/bar left edge")
+					assert_lte(absf(plate_rect.end.x - bar_rect.end.x), 1.0, sample_id + ": plate/bar right edge")
+					assert_eq(shop.page_count, 1)
+					assert_eq(shop._index_of("supportz"), 8)
+					for control: Control in [shop.previous_button, shop.next_button, shop.page_label]:
+						assert_false(control.visible)
+					for button: Button in [shop.previous_button, shop.next_button]:
+						assert_true(button.disabled)
+						assert_eq(button.focus_mode, Control.FOCUS_NONE)
+					assert_eq(shop._catalog.position.y, 16.0)
+					assert_eq(shop._balance_label.position.x, shop.info_scroll.position.x + 16)
+					assert_lte(shop._balance_label.get_rect().end.y, shop.info_scroll.position.y)
+					assert_lte(shop._balance_label.get_rect().end.x, shop.info_scroll.get_rect().end.x)
+					if locale == "en" and font_style == "pixel" and percent in [125, 150]:
+						assert_true(visible_rect.grow(1).encloses(catalog_rect), sample_id + ": complete default grid without scrolling")
 				var card_samples: Array[Dictionary] = []
 				for item_id: String in shop.cards:
 					var card: Control = shop.cards[item_id]
 					assert_true(card.is_visible_in_tree(), sample_id + ": " + item_id)
 					var card_rect := _pixel_rect(card, texture_transform)
 					var art_rect: Rect2 = texture_transform * card.get_global_transform_with_canvas() * card._art_rect
+					if accept_targets:
+						assert_eq(card._art_rect.size, Vector2(56, 56), sample_id + ": " + item_id + " artwork")
+						assert_true(catalog_rect.grow(1).encloses(card_rect), sample_id + ": " + item_id + " grid bounds")
 					var wording: Array[Dictionary] = []
 					for label: Label in [card.name_label, card.price_label, card.availability_label]:
+						if accept_targets:
+							var measured := label.get_theme_font("font").get_multiline_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT,
+								label.size.x, label.get_theme_font_size("font_size"), -1, TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE)
+							assert_lte(measured.y, label.size.y, sample_id + ": " + label.text)
 						wording.append({"text": label.text, "rect": _rect_values(_pixel_rect(label, texture_transform)),
 							"font_size": label.get_theme_font_size("font_size"),
 							"minimum_height": label.get_minimum_size().y, "height": label.size.y})
@@ -87,9 +113,13 @@ func test_mounted_shop_sizing() -> void:
 						captures.append(prefix + "-" + crop_name + ".png")
 	assert_eq(samples.size(), 30)
 	assert_eq(captures.size(), 9)
-	_write_json("res://.godot/ci/shop-mounted-sizing.json", {
+	var report := FileAccess.open("res://.godot/ci/shop-mounted-sizing.json", FileAccess.WRITE)
+	assert_not_null(report)
+	if report == null: return
+	report.store_string(JSON.stringify({
 		"scope": "Production SceneHost and services, TEST authored dialogue; Linux/Windows rendered viewport geometry, not native display-mode certification.",
-		"samples": samples, "captures": captures})
+		"accept_targets": accept_targets, "samples": samples, "captures": captures}))
+	report.close()
 	print("SHOP_MOUNTED_SIZING_COMPLETED samples=30 captures=9")
 
 func _pixel_rect(control: Control, texture_transform: Transform2D) -> Rect2:
