@@ -217,8 +217,10 @@ func get_projection() -> Dictionary:
 		"dual_enabled":_dual, "history_count":_rows.size(), "live_start":_live_start, "row_count":_lines.size()}
 
 func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, Vector2(size.x, _text_height)), _surface)
-	draw_rect(Rect2(Vector2.ONE, Vector2(size.x - 2, _text_height - 2)), _border, false)
+	# Keep existing text wrapping while giving its frame a small outer inset.
+	var frame := Rect2(Vector2(-6, -6), Vector2(size.x + 12, _text_height + 12))
+	draw_rect(frame, _surface)
+	draw_rect(frame, _border, false)
 	var top := 0.0
 	for row: Dictionary in _visible_rows():
 		var paragraph: TextParagraph = _paragraphs[row.paragraph]
