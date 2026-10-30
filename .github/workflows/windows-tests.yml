@@ -503,6 +503,7 @@ jobs:
                   }
                   scene_transition = bool(paths) and paths <= transition_paths and "autoload/DialogicBridge.gd" in paths
                   shop_cosmetic_paths = {
+                      'tools/localization/UiLiteralAudit.gd',
                       '.github/workflows/windows-tests.yml',
                       'autoload/EffectResolver.gd',
                       'docs/agent/2026-10-28-current-and-future-feature-plan.md',
