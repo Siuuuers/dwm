@@ -10,7 +10,7 @@ func test_authored_story_materials_preserve_reading_and_control_geometry() -> vo
 	var art: Control = get_tree().root.find_child("SceneArt", true, false)
 	assert_not_null(art)
 	if art == null: return
-	assert_eq(art._entry_id, "Day1", "current authored opening owns artwork")
+	assert_eq(art._entry_id, "draft.reading.early", "Day1 uses its authored art scene cue")
 	assert_not_null(art._background.texture, "capture contains the shipped background")
 	assert_true(art.is_visible_in_tree())
 	var rail: Control = _caption().transport_rail
