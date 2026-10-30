@@ -14,8 +14,9 @@ conditional blank Supportz slot remain one page. Purchase and save owners are un
 - Every card reserves 56×56 artwork beside complete measured text. The historical
   56px maximum is now a stable aperture, not a claim that all historical cards
   displayed 56px art at every text size. Card height still grows with measured copy.
-- The balance strip uses the inspector's width with 8px text margins. It no longer
-  consumes height above the grid.
+- The balance strip uses the inspector's width with 8px text margins. Earned
+  balances wrap when needed instead of overflowing the column; the inspector
+  yields height while the grid stays fixed.
 - Bootstrap sizes the production computer to the available mount; the scene canvas
   uses the same 968px logical width. The panel and AppStrip share that canvas.
   Available mount height is retained when width limits the scale.

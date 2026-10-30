@@ -402,7 +402,7 @@ func _ready() -> void:
 	next_button = _button("next", Vector2(320, 576), Vector2(144, 64), func(): _change_page(1))
 	_balance_label = _label(_body, Vector2(_inspector_x + 8, 24), Vector2(288, 0))
 	_balance_label.name = "Balances"
-	_balance_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_balance_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info_scroll = ScrollContainer.new()
 	info_scroll.name = "InformationViewport"
 	info_scroll.position = Vector2(_inspector_x, 16)
@@ -670,6 +670,9 @@ func _verify_dock_fit() -> void:
 	for label: Label in [_quantity_label, _total_label, _meta_state, _balance_label, status_label]:
 		if not label.visible: continue
 		var measure := label.get_theme_font("font").get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, label.get_theme_font_size("font_size"))
+		if label == _balance_label:
+			measure = label.get_theme_font("font").get_multiline_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT,
+				label.size.x, label.get_theme_font_size("font_size"), -1, TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE)
 		var fits := measure.x <= label.size.x and measure.y <= label.size.y
 		if label == status_label:
 			fits = label.get_minimum_size().y <= label.size.y and Rect2(Vector2.ZERO, _body.size).encloses(label.get_rect())

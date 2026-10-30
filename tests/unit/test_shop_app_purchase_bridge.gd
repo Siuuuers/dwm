@@ -299,6 +299,22 @@ func test_balances_refresh_even_when_catalog_rows_do_not_change() -> void:
 	assert_lte(shop._balance_label.get_rect().end.x, shop.info_scroll.get_rect().end.x)
 	assert_lte(shop._balance_label.get_rect().end.y, shop.info_scroll.position.y)
 
+func test_earned_balances_wrap_above_inspector_without_displacing_grid() -> void:
+	var provider := Provider.new()
+	provider.balances = {"money": 1000, "coins": 100}
+	var shop := await _shop(provider)
+	assert_true(shop.configure_shop(provider.get_catalog("en").value, "en", 150).ok)
+	await _settle()
+	assert_true(shop.last_result.ok)
+	assert_eq(shop._balance_label.text, "$1000    100 coins")
+	assert_gt(shop._balance_label.get_line_count(), 1)
+	assert_eq(shop._balance_label.size.x, 288.0)
+	assert_lte(shop._balance_label.get_minimum_size().y, shop._balance_label.size.y)
+	assert_lte(shop._balance_label.get_rect().end.x, shop.info_scroll.get_rect().end.x)
+	assert_lte(shop._balance_label.get_rect().end.y, shop.info_scroll.position.y)
+	assert_eq(shop._catalog.position.y, 16.0)
+	for card: Control in shop.cards.values(): assert_true(card.visible)
+
 func test_complete_card_names_and_balances_fit_every_font_and_locale() -> void:
 	var provider := Provider.new()
 	provider.balances = {"money": 120, "coins": 7}
