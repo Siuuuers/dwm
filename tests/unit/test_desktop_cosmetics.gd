@@ -75,7 +75,7 @@ func test_live_art_and_seven_controls_share_inventory_without_new_input_targets(
 	var before := {}
 	for style: String in states:
 		var plate: StyleBox = buttons[0].get_theme_stylebox(style)
-		before[style] = [plate.get_minimum_size(), plate.get_content_margin(SIDE_TOP), plate.get_content_margin(SIDE_BOTTOM)]
+		before[style] = [plate.get_minimum_size(), plate.get_content_margin(SIDE_TOP), plate.get_content_margin(SIDE_BOTTOM), plate.bg_color, plate.border_color]
 	buttons[0]._candidate = {"material_probe": true}
 	assert_eq(buttons.size(), 7)
 	assert_same(rail._material_owner, state)
@@ -86,11 +86,11 @@ func test_live_art_and_seven_controls_share_inventory_without_new_input_targets(
 	for style: String in states:
 		var paper: StyleBox = buttons[0].get_theme_stylebox(style)
 		assert_true(paper is RAIL.PaperPlate)
-		assert_eq([paper.get_minimum_size(), paper.get_content_margin(SIDE_TOP), paper.get_content_margin(SIDE_BOTTOM)], before[style])
+		assert_eq([paper.get_minimum_size(), paper.get_content_margin(SIDE_TOP), paper.get_content_margin(SIDE_BOTTOM), paper.base.bg_color, paper.base.border_color], before[style])
 	assert_eq(buttons[0].get_theme_stylebox("disabled").base.border_width_bottom, 4)
 	for button: Button in buttons:
-		assert_eq(button.get_theme_stylebox("normal").base.bg_color, rail._roles[&"text"], "paper has a visible light surface")
-		assert_eq(button.get_theme_color("font_color"), rail._roles[&"field"], "paper uses dark readable ink")
+		assert_eq(button.get_theme_stylebox("normal").base.bg_color, rail._roles[&"field"], "paper preserves original surface color")
+		assert_eq(button.get_theme_color("font_color"), rail._roles[&"text"], "paper preserves original lettering")
 	assert_eq(buttons[0]._candidate, {"material_probe": true}, "material refresh preserves pending input")
 	assert_eq(art._material_overlay.mouse_filter, Control.MOUSE_FILTER_IGNORE)
 	assert_eq(art._material_overlay.focus_mode, Control.FOCUS_NONE)
@@ -100,5 +100,30 @@ func test_live_art_and_seven_controls_share_inventory_without_new_input_targets(
 	assert_false(art._material_overlay.visible, "new run removes crystal from artwork")
 	assert_true(buttons[0].get_theme_stylebox("normal") is StyleBoxFlat, "new run removes paper backgrounds")
 	assert_eq(rail._buttons.values(), buttons)
-	assert_true(desktop.theme.has_color("paper", "Desktop"), "desktop exposes its paper palette")
-	assert_true(desktop.theme.has_color("paper_ink", "Desktop"), "desktop exposes contrasting paper ink")
+
+func test_crystal_patterns_are_run_stable_varied_and_do_not_consume_gameplay_rng() -> void:
+	var material := preload("res://scripts/ui/MaterialDecoration.gd")
+	seed(91234)
+	var expected_random := randi()
+	seed(91234)
+	var first: Array = material.crystal_pattern("run-a", "computer")
+	assert_true(is_same(first, material.crystal_pattern("run-a", "computer")), "redraw reuses cached geometry")
+	assert_ne(first, material.crystal_pattern("run-b", "computer"), "new run changes the fractures")
+	assert_eq(first, material.crystal_pattern("run-a", "computer"), "Load regenerates the same geometry")
+	assert_ne(first, material.crystal_pattern("run-a", "art-right"), "panels have independent arrangements")
+	assert_eq(randi(), expected_random, "decoration never consumes gameplay RNG")
+	var counts := [0, 0, 0, 0]
+	for run: int in 64:
+		var pattern: Array = material.crystal_pattern("sample-" + str(run), "computer")
+		assert_between(pattern.size(), 1, 3)
+		counts[pattern.size()] += 1
+		var corners := []
+		for fracture: Dictionary in pattern:
+			assert_false(corners.has(fracture.corner), "selected corners are unique")
+			corners.append(fracture.corner)
+			assert_between(fracture.paths.size(), 2, 4, "one main fracture and one to three branches")
+			for path: PackedVector2Array in fracture.paths:
+				for point: Vector2 in path:
+					assert_true(Rect2(0, 0, 1.2, 1.2).has_point(point), "fractures stay in the corner region")
+	assert_gt(counts[2], counts[1])
+	assert_gt(counts[2], counts[3])

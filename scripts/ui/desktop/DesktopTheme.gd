@@ -17,8 +17,7 @@ static func build(locale: String, percent: int, palette: StringName = &"after_ho
 	if result.default_font == null: return null
 	result.default_font_size = TYPOGRAPHY.font_size(locale, percent, 24, font_style)
 	var roles := {"habitat": tuple.habitat, "face": tuple.face, "ink": tuple.ink,
-		"structure": tuple.structure, "focus": tuple.focus, "current": tuple.filed,
-		"paper": tuple.paper, "paper_ink": tuple.paper_ink}
+		"structure": tuple.structure, "focus": tuple.focus, "current": tuple.filed}
 	roles = WEEK_TINT.apply(roles, week_tint, high_contrast, colour_preset)
 	for role in roles:
 		result.set_color(role, "Desktop", roles[role])

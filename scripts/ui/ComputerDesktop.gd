@@ -50,6 +50,8 @@ var title_label: Label
 var clock_label: Label
 var status_label: Label
 var cosmetic_overlay: Control
+var _material_run_id := ""
+var _crystal_pattern: Array = []
 var _cosmetic_inventory_owner: Node
 var touch_navigation: HBoxContainer
 var app_footer_slot: HBoxContainer
@@ -229,11 +231,10 @@ func _ready() -> void:
 	background_image.draw.connect(func() -> void:
 		if not is_instance_valid(_cosmetic_inventory_owner) or theme == null: return
 		if background_image.texture != null and int(_cosmetic_inventory_owner.inventory.get("letter_with_wax_seal", 0)) > 0:
-			background_image.draw_rect(Rect2(Vector2.ZERO, background_image.size), theme.get_color("paper", "Desktop"))
-			MATERIAL_DECORATION.draw_paper(background_image, Rect2(Vector2.ZERO, background_image.size), theme.get_color("paper_ink", "Desktop"))
+			MATERIAL_DECORATION.draw_paper(background_image, Rect2(Vector2.ZERO, background_image.size), theme.get_color("ink", "Desktop"))
 		if int(_cosmetic_inventory_owner.inventory.get("crystal_stutters", 0)) > 0:
 			# Reflections sit beneath launcher and app controls.
-			MATERIAL_DECORATION.draw_crystal(background_image, Rect2(0, 0, background_image.size.x - 8, desktop_canvas.size.y - 64), theme.get_color("ink", "Desktop")))
+			MATERIAL_DECORATION.draw_crystal(background_image, Rect2(0, 0, background_image.size.x - 8, desktop_canvas.size.y - 64), theme.get_color("ink", "Desktop"), _crystal_pattern))
 	resized.connect(queue_redraw)
 	resized.connect(_layout_desktop)
 	_layout_desktop()
@@ -1343,15 +1344,15 @@ func _draw() -> void:
 	draw_rect(Rect2(0, size.y - footer_height, size.x, 2 * desktop_canvas.scale.y), get_theme_color("structure", "Desktop"))
 	if is_instance_valid(_cosmetic_inventory_owner) and int(_cosmetic_inventory_owner.inventory.get("letter_with_wax_seal", 0)) > 0:
 		draw_set_transform(Vector2.ZERO, 0, desktop_canvas.scale)
-		var paper_rect := Rect2(Vector2.ZERO, desktop_canvas.size - Vector2(0, 64 + _quick_status_band_height()))
-		draw_rect(paper_rect, get_theme_color("paper", "Desktop"))
-		MATERIAL_DECORATION.draw_paper(self, paper_rect, get_theme_color("paper_ink", "Desktop"))
-		MATERIAL_DECORATION.draw_paper(self, Rect2(0, paper_rect.end.y, desktop_canvas.size.x, 64 + _quick_status_band_height()), get_theme_color("ink", "Desktop"))
+		MATERIAL_DECORATION.draw_paper(self, Rect2(Vector2.ZERO, desktop_canvas.size), get_theme_color("ink", "Desktop"))
 		draw_set_transform(Vector2.ZERO)
 
 
 func _refresh_cosmetics() -> void:
 	if not is_instance_valid(cosmetic_overlay): return
+	if is_instance_valid(_cosmetic_inventory_owner):
+		_material_run_id = _cosmetic_inventory_owner.capture_live_session().value.run_id
+		_crystal_pattern = MATERIAL_DECORATION.crystal_pattern(_material_run_id, "computer")
 	var owned: Dictionary = _cosmetic_inventory_owner.inventory if is_instance_valid(_cosmetic_inventory_owner) else {}
 	cosmetic_overlay.visible = int(owned.get("crystal_stutters", 0)) > 0 \
 		or int(owned.get("inked_silk_string", 0)) > 0 \

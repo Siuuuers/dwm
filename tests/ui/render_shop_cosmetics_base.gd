@@ -1,6 +1,7 @@
 extends "res://tests/integration/scene_apps_connected_child.gd"
 ## Cloud-rendered synthetic scene, FINAL services and real Shop/Save owners.
 const COSMETICS := ["letter_with_wax_seal", "crystal_stutters", "inked_silk_string"]
+const MATERIAL := preload("res://scripts/ui/MaterialDecoration.gd")
 const SHOP_PROOF := "user://shop-cosmetics-proof.json"
 
 func _begin_cosmetic_run() -> bool:
@@ -59,15 +60,21 @@ func _cosmetic_pixels(shell: Control) -> Dictionary:
 	var pixels: Image = get_viewport().get_texture().get_image()
 	var canvas: Control = shell.desktop_canvas
 	# Purchase paper first: later edge materials leave this central background sample alone.
-	var regions := {"letter_with_wax_seal": Rect2(canvas.size.x * 0.5 - 64, canvas.size.y - 232, 128, 48),
-		"crystal_stutters": Rect2(1, 1, 60, 7),
-		"inked_silk_string": Rect2(canvas.size.x - 18, canvas.size.y * 0.12 - 2, 18, 36)}
+	# The right strip also clears the silk stroke's antialiased fringe.
+	var regions := {"letter_with_wax_seal": [Rect2(canvas.size.x * 0.5 - 64, canvas.size.y - 232, 128, 48)],
+		"crystal_stutters": [Rect2(0, 0, canvas.size.x - 20, 8),
+			Rect2(0, canvas.size.y - 72, canvas.size.x - 20, 8),
+			Rect2(0, 8, 8, canvas.size.y - 80), Rect2(canvas.size.x - 28, 8, 8, canvas.size.y - 80)],
+		"inked_silk_string": [Rect2(canvas.size.x - 18, canvas.size.y * 0.12 - 2, 18, 36)]}
 	# Window.get_final_transform includes letterbox offsets outside the viewport texture.
 	var texture_transform := Transform2D.IDENTITY.scaled(Vector2(pixels.get_size()) / get_viewport().get_visible_rect().size)
 	var hashes := {}
 	for item_id: String in COSMETICS:
-		var region := Rect2i(texture_transform * canvas.get_global_transform_with_canvas() * regions[item_id])
-		assert_true(Rect2i(Vector2i.ZERO, pixels.get_size()).encloses(region), item_id + " sample stays inside viewport pixels")
-		hashes[item_id] = pixels.get_region(region).get_data().hex_encode().sha256_text()
-		print("COSMETIC_PIXEL_REGION ", item_id, " ", region)
+		var sampled := PackedByteArray()
+		for sample: Rect2 in regions[item_id]:
+			var region := Rect2i(texture_transform * canvas.get_global_transform_with_canvas() * sample)
+			assert_true(Rect2i(Vector2i.ZERO, pixels.get_size()).encloses(region), item_id + " sample stays inside viewport pixels")
+			sampled.append_array(pixels.get_region(region).get_data())
+			print("COSMETIC_PIXEL_REGION ", item_id, " ", region)
+		hashes[item_id] = sampled.hex_encode().sha256_text()
 	return hashes

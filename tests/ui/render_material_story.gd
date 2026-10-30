@@ -71,7 +71,7 @@ func _paper_control_states(host: Control, rail: Control, reading: Dictionary) ->
 	await get_tree().process_frame
 	assert_false(history.disabled)
 	assert_true(history.get_theme_stylebox(&"normal") is PAPER_RAIL.PaperPlate)
-	assert_eq(history.get_theme_color(&"font_color"), rail._roles[&"field"], "paper uses dark native text")
+	assert_eq(history.get_theme_color(&"font_color"), rail._roles[&"text"], "paper retains the original native text colour")
 	await _screenshot("material-paper-normal")
 	history.grab_focus()
 	await get_tree().process_frame
@@ -107,11 +107,20 @@ func _story_material_pixels(art: Control, rail: Control) -> Dictionary:
 	var texture_transform := Transform2D.IDENTITY.scaled(Vector2(pixels.get_size()) / get_viewport().get_visible_rect().size)
 	var result := {"art": "", "rail": []}
 	var artwork_rect: Rect2 = art.get_right_rect()
-	var region := Rect2i(texture_transform * art.get_global_transform_with_canvas() * Rect2(artwork_rect.position, Vector2(64, 8)))
-	assert_true(Rect2i(Vector2i.ZERO, pixels.get_size()).encloses(region))
-	result.art = pixels.get_region(region).get_data().hex_encode().sha256_text()
+	if art._dating_split:
+		artwork_rect.position.x += 8
+		artwork_rect.size.x -= 8
+	var artwork_pixels := PackedByteArray()
+	for sample: Rect2 in [Rect2(artwork_rect.position, Vector2(artwork_rect.size.x, 8)),
+		Rect2(artwork_rect.position + Vector2(0, artwork_rect.size.y - 8), Vector2(artwork_rect.size.x, 8)),
+		Rect2(artwork_rect.position + Vector2(0, 8), Vector2(8, artwork_rect.size.y - 16)),
+		Rect2(artwork_rect.position + Vector2(artwork_rect.size.x - 8, 8), Vector2(8, artwork_rect.size.y - 16))]:
+		var region := Rect2i(texture_transform * art.get_global_transform_with_canvas() * sample)
+		assert_true(Rect2i(Vector2i.ZERO, pixels.get_size()).encloses(region))
+		artwork_pixels.append_array(pixels.get_region(region).get_data())
+	result.art = artwork_pixels.hex_encode().sha256_text()
 	for button: Button in rail._buttons.values():
-		region = Rect2i(texture_transform * button.get_global_transform_with_canvas() * Rect2(12, 12, button.size.x - 24, 4))
+		var region := Rect2i(texture_transform * button.get_global_transform_with_canvas() * Rect2(12, 12, button.size.x - 24, 4))
 		assert_true(Rect2i(Vector2i.ZERO, pixels.get_size()).encloses(region))
 		result.rail.append(pixels.get_region(region).get_data().hex_encode().sha256_text())
 	return result

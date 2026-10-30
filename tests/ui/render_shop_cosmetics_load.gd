@@ -22,6 +22,8 @@ func test_fresh_process_load_restores_cosmetic_ownership() -> void:
 	var shell: Control = await _open_apps(get_tree().current_scene)
 	if shell == null: return
 	_assert_cosmetic_overlay(shell, true)
+	assert_eq(shell._material_run_id, proof.run_id, "fresh Load retains the saved run identity")
+	assert_eq(var_to_str(MATERIAL.crystal_pattern(shell._material_run_id, "computer")).sha256_text(), proof.crystal_pattern, "fresh Load regenerates the same crystal branches and corners")
 	assert_eq(await _cosmetic_pixels(shell), proof.owned_pixels, "fresh Load renders all three saved decorations")
 	await _screenshot("shop-cosmetics-loaded-home")
 	if not await _launch_app(shell, &"shop"): return

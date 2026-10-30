@@ -4,6 +4,8 @@ const ITEMS := ["crystal_stutters", "inked_silk_string", "letter_with_wax_seal"]
 
 class InventoryFixture extends Node:
 	var inventory: Dictionary = {}
+	func capture_live_session() -> Dictionary:
+		return {"value": {"run_id": "material-preview"}}
 
 var inventory: InventoryFixture
 

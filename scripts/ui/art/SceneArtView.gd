@@ -23,6 +23,8 @@ var _scene_panel: Control
 var _split: PANEL_SPLIT
 var _overlays: Control
 var _cg: TextureRect
+var _crystal_right: Array = []
+var _crystal_left: Array = []
 var _material_owner: Node
 var _material_overlay: Control
 var _entry_id := ""
@@ -302,6 +304,10 @@ func _texture_rect(node_name: String, stretch: TextureRect.StretchMode) -> Textu
 
 func _refresh_material() -> void:
 	if not is_instance_valid(_material_overlay): return
+	if is_instance_valid(_material_owner):
+		var run_id: String = _material_owner.capture_live_session().value.run_id
+		_crystal_right = MATERIAL.crystal_pattern(run_id, "art-right")
+		_crystal_left = MATERIAL.crystal_pattern(run_id, "art-left")
 	move_child(_material_overlay, -1)
 	_material_overlay.visible = is_instance_valid(_material_owner) and int(_material_owner.inventory.get("crystal_stutters", 0)) > 0
 	_material_overlay.queue_redraw()
@@ -315,5 +321,5 @@ func _draw_material() -> void:
 	if _dating_split:
 		panels.append(Rect2(0, 0, get_portrait_width() - 8, size.y))
 	var ink := Color(0.82, 0.84, 0.8)
-	for panel: Rect2 in panels:
-		MATERIAL.draw_crystal(_material_overlay, panel, ink)
+	for index: int in panels.size():
+		MATERIAL.draw_crystal(_material_overlay, panels[index], ink, _crystal_right if index == 0 else _crystal_left)

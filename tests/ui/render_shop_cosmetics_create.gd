@@ -9,6 +9,8 @@ func test_rendered_cosmetic_purchases_and_physical_save() -> void:
 	var shell: Control = await _open_apps(host)
 	if shell == null: return
 	_assert_cosmetic_overlay(shell, false)
+	assert_false(shell._material_run_id.is_empty())
+	var pattern: String = var_to_str(MATERIAL.crystal_pattern(shell._material_run_id, "computer")).sha256_text()
 	var bare_pixels: Dictionary = await _cosmetic_pixels(shell)
 	var owned_pixels := {}
 	var previous_pixels: Dictionary = bare_pixels.duplicate()
@@ -66,7 +68,8 @@ func test_rendered_cosmetic_purchases_and_physical_save() -> void:
 	var disk: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_1.json"))
 	if not _ok(disk): return
 	assert_eq(disk.value.current_snapshot.snapshot.gameplay, after.gameplay)
-	var proof := {"creator_process_id": OS.get_process_id(), "gameplay": after.gameplay,
+	assert_eq(var_to_str(MATERIAL.crystal_pattern(shell._material_run_id, "computer")).sha256_text(), pattern, "purchase and reopen retain the run crystal pattern")
+	var proof := {"run_id": shell._material_run_id, "crystal_pattern": pattern, "creator_process_id": OS.get_process_id(), "gameplay": after.gameplay,
 		"initial_inventory": initial_inventory, "owned_pixels": owned_pixels, "bare_pixels": bare_pixels, "slot_sha256": FileAccess.get_sha256("user://saves/slot_1.json")}
 	if not _write_json(SHOP_PROOF, proof): return
 	_write_json("res://.godot/ci/shop-cosmetics-create.json", proof)
