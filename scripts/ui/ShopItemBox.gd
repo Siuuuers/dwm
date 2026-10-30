@@ -1,7 +1,7 @@
 extends Button
 class_name ShopItemBox
 ## Ordinary public product card. Shop owns inspection, selection, and purchases.
-## The catalog measures complete text bands and paginates at every supported size.
+## The catalog measures complete text bands for its single-page grid.
 ## Host custody transitions use set_admitted(), not direct writes to disabled.
 
 signal inspection_requested
@@ -106,21 +106,18 @@ func refresh_layout() -> void:
 		var label: Label = [name_label, price_label, availability_label][index]
 		label.add_theme_font_size_override("font_size", card_font_size)
 		label.text = _copy[index] if _copy.size() == 3 else ""
-		label.size = Vector2(120 if index == 2 else 128, 0)
+		label.size = Vector2(size.x - (80 if index == 0 else (24 if index == 2 else 16)), 0)
 		var measured := get_theme_font("font").get_multiline_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT,
 			label.size.x, card_font_size, -1, TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE)
 		heights.append(maxf(line_height * (2 if index == 0 else 1), ceilf(measured.y)))
 	var name_height := heights[0]
-	var band_gap := 2.0
-	var copy_height := name_height + heights[1] + heights[2] + band_gap * 2
-	var card_height := maxf(176, ceilf((copy_height + 40) / 2.0) * 2.0)
-	var copy_top := card_height - 8.0 - copy_height
-	var art_size := clampf(floorf(copy_top - 12.0), 12.0, 56.0)
-	_art_rect = Rect2(floorf((144.0 - art_size) / 2.0), 8, art_size, art_size)
+	var copy_top := 12.0 + maxf(56, name_height)
+	var card_height := maxf(176, ceilf((copy_top + heights[1] + 2 + heights[2] + 8) / 2.0) * 2.0)
+	_art_rect = Rect2(8, 8, 56, 56)
 	var bands: Array[Rect2] = [
-		Rect2(8, copy_top, 128, name_height),
-		Rect2(8, copy_top + name_height + band_gap, 128, heights[1]),
-		Rect2(8, copy_top + name_height + heights[1] + band_gap * 2, 120, heights[2]),
+		Rect2(72, 8, size.x - 80, name_height),
+		Rect2(8, copy_top, size.x - 16, heights[1]),
+		Rect2(8, copy_top + heights[1] + 2, size.x - 24, heights[2]),
 	]
 	var labels := [name_label, price_label, availability_label]
 	for index in labels.size():
@@ -186,10 +183,10 @@ func _draw() -> void:
 		draw_rect(aperture, _roles.paper)
 		draw_rect(aperture, _roles.structure, false, 2)
 		draw_texture_rect(_art, _art_rect, false)
-	draw_rect(Rect2(8, size.y - 8, 128, 2), _roles.structure)
-	if not _available: draw_rect(Rect2(134, size.y - 16, 2, 10), _roles.structure)
+	draw_rect(Rect2(8, size.y - 8, size.x - 16, 2), _roles.structure)
+	if not _available: draw_rect(Rect2(size.x - 10, size.y - 16, 2, 10), _roles.structure)
 	if selected: draw_rect(Rect2(0, size.y - 4, size.x, 4), _roles.selected_ink)
-	if _held or is_pressed(): draw_rect(Rect2(138, 4, 2, size.y - 8), _roles.structure)
+	if _held or is_pressed(): draw_rect(Rect2(size.x - 6, 4, 2, size.y - 8), _roles.structure)
 	elif _hover: draw_rect(Rect2(4, 4, 2, size.y - 8), _roles.structure)
 	if has_focus():
 		draw_rect(Rect2(-7, -7, size.x + 14, size.y + 14), _roles.dark_focus_outer, false, 2)

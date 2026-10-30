@@ -503,6 +503,9 @@ jobs:
                   }
                   scene_transition = bool(paths) and paths <= transition_paths and "autoload/DialogicBridge.gd" in paths
                   shop_cosmetic_paths = {
+                      '.github/workflows/shop-sizing-preview.yml',
+                      'tests/ui/render_shop_mounted_sizing.gd',
+                      'scripts/ui/ShopItemBox.gd',
                       'tools/localization/UiLiteralAudit.gd',
                       '.github/workflows/windows-tests.yml',
                       'autoload/EffectResolver.gd',
@@ -556,7 +559,16 @@ jobs:
                       'tests/ui/render_ui_readability.gd',
                   })
                   shop_cosmetic_paths.update(p for p in paths if p.startswith(('docs/retired-features/material-decorations/', 'docs/retired-features/shop-pagination/')))
-                  shop_cosmetics = bool(paths) and paths <= shop_cosmetic_paths and "scripts/data/DataCatalog.gd" in paths
+                  shop_cosmetic_paths.update({
+                      'tools/testing/test_windows_coverage.py',
+                      'docs/agent/2026-10-30-shop-sizing-results.md',
+                  })
+                  if 'autoload/ApplicationBootstrap.gd' in paths and unchanged_outside_method('autoload/ApplicationBootstrap.gd', '_layout_scene_desktop'):
+                      shop_cosmetic_paths.add('autoload/ApplicationBootstrap.gd')
+                  shop_cosmetics = bool(paths) and paths <= shop_cosmetic_paths and bool(paths & {
+                      'scripts/data/DataCatalog.gd', 'scripts/ui/ShopApp.gd', 'scripts/ui/ShopItemBox.gd',
+                      'tests/ui/render_shop_mounted_sizing.gd', '.github/workflows/shop-sizing-preview.yml',
+                  })
                   self_talk_paths = {
                       '.github/workflows/windows-tests.yml',
                       'addons/dialogic/Core/DialogicGameHandler.gd',

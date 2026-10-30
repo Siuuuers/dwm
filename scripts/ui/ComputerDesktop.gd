@@ -134,6 +134,7 @@ func configure_scene_navigation(host: Object, phase_reader: Callable,
 	if profile != null and profile.has_signal("preference_changed") and not profile.is_connected("preference_changed", _on_preference_changed):
 		profile.connect("preference_changed", _on_preference_changed)
 	if is_node_ready():
+		_layout_desktop()
 		_update_launcher_navigation()
 		_refresh_launcher()
 	return {"ok": true, "code": &"ok"}
@@ -363,7 +364,7 @@ func _layout_desktop() -> void:
 	if not is_node_ready() or size.x <= 0: return
 	# One canvas keeps artwork, text, controls, overlays and hit targets in the
 	# same coordinate system. Fixed-height apps scroll instead of being clipped.
-	var factor := size.x / 800.0
+	var factor := size.x / (968.0 if _scene_navigation else 800.0)
 	desktop_canvas.scale = Vector2.ONE * factor
 	desktop_canvas.size = size / factor
 	status_label.size.y = minf(140, maxf(0, desktop_canvas.size.y - 80 - status_label.position.y))
