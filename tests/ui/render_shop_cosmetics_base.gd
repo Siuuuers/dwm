@@ -1,7 +1,6 @@
 extends "res://tests/integration/scene_apps_connected_child.gd"
 ## Cloud-rendered synthetic scene, FINAL services and real Shop/Save owners.
 const COSMETICS := ["letter_with_wax_seal", "crystal_stutters", "inked_silk_string"]
-const MATERIAL := preload("res://scripts/ui/MaterialDecoration.gd")
 const SHOP_PROOF := "user://shop-cosmetics-proof.json"
 
 func _begin_cosmetic_run() -> bool:
@@ -15,19 +14,6 @@ func _begin_cosmetic_run() -> bool:
 	if started.get("code") != &"scene_activation_pending" or not await _await_ready(): return false
 	return await _wait_line("scene.test.b", "line.scene.test.b.one")
 
-func _select_cosmetic(shop: Control, item_id: String) -> bool:
-	assert_true(shop.cards.has(item_id), "catalogue retains " + item_id)
-	if not shop.cards.has(item_id): return false
-	# Page through actual visible controls instead of clicking hidden cards.
-	for attempt: int in shop.page_count:
-		if shop.cards[item_id].is_visible_in_tree(): break
-		await _click(shop.next_button if not shop.next_button.disabled else shop.previous_button)
-	assert_true(shop.cards[item_id].is_visible_in_tree())
-	if not shop.cards[item_id].is_visible_in_tree(): return false
-	await _click(shop.cards[item_id])
-	assert_eq(shop.selected_id, item_id)
-	return shop.selected_id == item_id
-
 func _assert_retained_catalogue(shop: Control) -> void:
 	for item_id: String in ["lucky_charm", "debug_key", "bookend_keepsake", "metronome_keepsake", "pocket_calculator_keepsake"]:
 		assert_true(shop.cards.has(item_id), "retained catalogue card " + item_id)
@@ -37,29 +23,24 @@ func _assert_retained_catalogue(shop: Control) -> void:
 		assert_true(supportz[0].blank)
 		assert_false(supportz[0].actionable, "ordinary caption has no fabricated round completions")
 
-func _assert_owned_unavailable(shop: Control) -> void:
+func _assert_retired_unavailable(shop: Control) -> void:
+	var before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	for item_id: String in COSMETICS:
-		assert_eq(game.inventory.get(item_id, 0), 1)
-		if not await _select_cosmetic(shop, item_id): return
-		assert_true(shop._buy_button.disabled, "owned cosmetic cannot be bought again: " + item_id)
-		var before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
-		await _click(shop._buy_button)
-		assert_eq(game.capture_run_snapshot_input(), before, "disabled duplicate purchase changes nothing")
+		assert_false(shop.cards.has(item_id))
+		assert_eq(shop._provider.can_purchase(item_id).get("code"), &"unregistered_shop_item")
+		assert_eq(shop._provider.purchase(item_id, 1).get("code"), &"unregistered_shop_item")
+	assert_eq(game.capture_run_snapshot_input(), before, "rejected retired purchases never debit or mutate state")
 
-func _assert_cosmetic_overlay(shell: Control, expected: bool) -> void:
-	var overlay: Control = shell.cosmetic_overlay
-	assert_not_null(overlay)
-	if overlay == null: return
-	assert_eq(overlay.is_visible_in_tree(), expected)
-	assert_eq(overlay.mouse_filter, Control.MOUSE_FILTER_IGNORE)
-	assert_eq(overlay.focus_mode, Control.FOCUS_NONE)
+func _assert_cosmetic_overlay(shell: Control) -> void:
+	assert_null(shell.find_child("CosmeticOverlay", true, false))
+	assert_null(get_tree().current_scene.find_child("CrystalSurface", true, false))
 
 func _cosmetic_pixels(shell: Control) -> Dictionary:
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	var pixels: Image = get_viewport().get_texture().get_image()
 	var canvas: Control = shell.desktop_canvas
-	# Purchase paper first: later edge materials leave this central background sample alone.
+	# Sample the former paper and edge decoration regions.
 	# The right strip also clears the silk stroke's antialiased fringe.
 	var regions := {"letter_with_wax_seal": [Rect2(canvas.size.x * 0.5 - 64, canvas.size.y - 232, 128, 48)],
 		"crystal_stutters": [Rect2(0, 0, canvas.size.x - 9, 8),

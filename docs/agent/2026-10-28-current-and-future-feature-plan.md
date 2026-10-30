@@ -1,3 +1,5 @@
+> **Retirement update:** All three material decorations and their purchases are retired. See [the preserved implementation and compatibility policy](../retired-features/material-decorations/README.md). Earlier decoration requirements below are historical.
+
 # Current and future feature plan
 
 Updated: 29 October 2026, Hong Kong time.

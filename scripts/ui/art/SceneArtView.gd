@@ -1,6 +1,5 @@
 extends Control
 ## Scene artwork and the profile's independent solo/group portrait dividers.
-const MATERIAL := preload("res://scripts/ui/MaterialDecoration.gd")
 const ART := preload("res://scripts/data/ArtManifest.gd")
 const PANEL_SPLIT := preload("res://scripts/ui/desktop/DesktopPanelSplit.gd")
 const APERTURE_HEIGHT := {100: 448, 125: 392, 150: 328}
@@ -23,10 +22,6 @@ var _scene_panel: Control
 var _split: PANEL_SPLIT
 var _overlays: Control
 var _cg: TextureRect
-var _crystal_right: Array = []
-var _crystal_left: Array = []
-var _material_owner: Node
-var _material_overlay: Control
 var _entry_id := ""
 var _dating_split := false
 var _portrait_count := 0
@@ -35,10 +30,6 @@ var _preference_scope: StringName = &"solo"
 func _ready() -> void:
 	if not _view_preferences_bound:
 		bind_view_preferences(get_node_or_null("/root/ProfileManager"))
-	_material_owner = get_node_or_null("/root/GameState")
-	if _material_owner != null:
-		_material_owner.inventory_changed.connect(_refresh_material)
-	_refresh_material()
 
 func bind_view_preferences(profile: Object) -> bool:
 	if profile != null and (not profile.has_method("get_preference") or not profile.has_method("set_preference")): return false
@@ -111,7 +102,6 @@ func configure_presentation(presentation: Dictionary, text_percent: int = 100,
 		rect.position = Vector2(overlay.rect[0], overlay.rect[1]) * size
 		rect.size = Vector2(overlay.rect[2], overlay.rect[3]) * size
 	move_child(_overlays, get_child_count() - 1)
-	_refresh_material()
 	visible = visible or _overlays.get_child_count() > 0
 
 func configure_textures(background: Texture2D, portraits: Array[Texture2D], cg: Texture2D = null,
@@ -164,7 +154,6 @@ func configure_textures(background: Texture2D, portraits: Array[Texture2D], cg: 
 		move_child(_background, 0)
 		_background.size = size
 	visible = _dating_split or background != null or cg != null or _portraits[0].visible or _portraits[1].visible
-	_refresh_material()
 	split_changed.emit(get_right_rect())
 
 func get_right_rect() -> Rect2:
@@ -211,7 +200,6 @@ func handle_split_input(event: InputEvent, source_control: Control) -> bool:
 func _on_split_changed(_width: float) -> void:
 	if not _dating_split: return
 	_layout_dating_art()
-	_refresh_material()
 	split_changed.emit(get_right_rect())
 
 func _layout_dating_art() -> void:
@@ -281,12 +269,6 @@ func _build() -> void:
 	_overlays.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_overlays.focus_mode = Control.FOCUS_NONE
 	add_child(_overlays)
-	_material_overlay = Control.new()
-	_material_overlay.name = "CrystalSurface"
-	_material_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_material_overlay.focus_mode = Control.FOCUS_NONE
-	add_child(_material_overlay)
-	_material_overlay.draw.connect(_draw_material)
 	_split.split_changed.connect(_on_split_changed)
 	_split.width_committed.connect(_on_split_width_committed)
 	_split.drag_changed.connect(func(active: bool): split_drag_changed.emit(active))
@@ -300,25 +282,3 @@ func _texture_rect(node_name: String, stretch: TextureRect.StretchMode) -> Textu
 	rect.stretch_mode = stretch
 	add_child(rect)
 	return rect
-
-
-func _refresh_material() -> void:
-	if not is_instance_valid(_material_overlay): return
-	if is_instance_valid(_material_owner):
-		var run_id: String = _material_owner.capture_live_session().value.run_id
-		_crystal_right = MATERIAL.crystal_pattern(run_id, "art-right")
-		_crystal_left = MATERIAL.crystal_pattern(run_id, "art-left")
-	move_child(_material_overlay, -1)
-	_material_overlay.visible = is_instance_valid(_material_owner) and int(_material_owner.inventory.get("crystal_stutters", 0)) > 0
-	_material_overlay.queue_redraw()
-
-func _draw_material() -> void:
-	var right := get_right_rect()
-	if _dating_split:
-		right.position.x += 8
-		right.size.x -= 8
-	var panels: Array[Rect2] = [right]
-	if _dating_split:
-		panels.append(Rect2(0, 0, get_portrait_width() - 8, size.y))
-	for index: int in panels.size():
-		MATERIAL.draw_crystal(_material_overlay, panels[index], _crystal_right if index == 0 else _crystal_left)

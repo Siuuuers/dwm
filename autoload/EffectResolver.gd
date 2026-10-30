@@ -6,7 +6,6 @@ extends Node
 const _FRIEND_IDS := ["priscilla", "lavinia", "sylvia"]
 const _ATTITUDES := ["impressed", "amused", "concerned", "upset", "mad", "lovely"]
 const _INVENTORY_ITEMS := [
-	"crystal_stutters", "inked_silk_string", "letter_with_wax_seal",
 	"pineapple_bun", "quiet_tea", "lucky_charm", "debug_key",
 	"priscilla_gift", "lavinia_gift", "sylvia_gift",
 ]
