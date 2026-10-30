@@ -342,8 +342,8 @@ func _hover_shop_item(app: Control, item_id: String) -> void:
 
 func _check_shop_geometry(name: String) -> void:
 	var app: Control = desktop._cached_app_windows[&"shop"]
-	check(app.cards.size() == 8 and app._records.size() == 9 and not app.cards.has("supportz"),
-		name+": eight catalog items and the blank position gains no card or art target")
+	check(app.cards.size() == 5 and app._records.size() == 6 and not app.cards.has("supportz"),
+		name+": five catalog items and the blank position gains no card or art target")
 	check(app._records[5].id == "supportz" and app._records[5].blank,
 		name+": Supportz stays in the final blank slot")
 	for row: Dictionary in app._records:

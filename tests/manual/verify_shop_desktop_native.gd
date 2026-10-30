@@ -67,7 +67,7 @@ func _run() -> void:
 				shop.cards.lucky_charm.pressed.emit()
 				for frame in 4: await RenderingServer.frame_post_draw
 				_check(shop.last_result.ok,"valid current catalog")
-				_check(shop._records.size()==9 and shop.cards.size()==8,"canonical positions and public card count")
+				_check(shop._records.size()==6 and shop.cards.size()==5,"canonical positions and public card count")
 				_check(shop._records[5].blank and not shop.cards.has("supportz"),"blank has no input or accessible card")
 				_check(shop._body.get_global_rect()==Rect2(0,64,800,656),"shared desktop plate placement")
 				_check(not shop.get_node("VBoxContainer/TopBar").visible,"only one shared top bar")
@@ -77,13 +77,13 @@ func _run() -> void:
 					_check(card.size.y>=card.get_combined_minimum_size().y,"full public card copy height")
 					_check(shop._catalog.get_global_rect().encloses(card.get_global_rect()),"visible card fits catalog aperture")
 				var first_pixels := viewport.get_texture().get_image()
-				var blank_page := int(8 / shop.page_capacity)
+				var blank_page := int(5 / shop.page_capacity)
 				while shop.page_index < blank_page:
 					shop.next_button.pressed.emit()
 					await process_frame
 				for frame in 4: await RenderingServer.frame_post_draw
 				var pixels := viewport.get_texture().get_image()
-				var slot: int = 8-shop.page_index*shop.page_capacity
+				var slot: int = 5-shop.page_index*shop.page_capacity
 				var height: float = shop.cards.values()[0].size.y
 				var center := Vector2(16+(slot%3)*152+72,64+16+floori(slot/3.0)*(height+8)+height/2)
 				_check(pixels.get_pixelv(Vector2i(center/2)).to_html(false)==shop._role("laminate").to_html(false),"blank slot has only its structural laminate")
@@ -94,7 +94,7 @@ func _run() -> void:
 				_samples.append({"locale":language,"percent":percent,"large_targets":large,"path":filename,
 					"capacity":shop.page_capacity,"blank_page":blank_page,"catalog_unchanged":provider.rows==original})
 	var output := {"ok":_failures.is_empty(),"samples":_samples,"checks":_checks,"captures":_samples.size(),
-		"failures":_failures,"fixture":"Synthetic 8 ordinary public records, transparent test textures and working ShopCopy names; no purchase owner or player data."}
+		"failures":_failures,"fixture":"Synthetic 5 ordinary public records, transparent test textures and working ShopCopy names; no purchase owner or player data."}
 	var file := FileAccess.open(folder.path_join("measurements.json"),FileAccess.WRITE)
 	file.store_string(JSON.stringify(output,"\t"))
 	file.close()
