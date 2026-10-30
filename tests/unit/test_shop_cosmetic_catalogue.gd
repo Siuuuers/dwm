@@ -23,10 +23,10 @@ func test_nine_items_keep_inventory_only_effects_and_requested_order() -> void:
 		for size: int in [28, 56]: assert_not_null(ART.texture(id, size))
 
 func test_capability_art_matches_september_21_illustrations() -> void:
-	# Frozen RGBA signatures from the original 8630b25b drawings.
+	# Original 8630b25b RGBA signatures, including Godot's transparent-white surround.
 	var signatures := {
-		"lucky_charm": "8f70af7c1339c4a0e06d6b6eb03708930fd7c1b6f04ff90ebee0ee24f669fb35",
-		"debug_key": "975b8621abb80c24add0c9aad16d0b2ce8e8c6885f3689853eeb9c4ce4c33700",
+		"lucky_charm": "cd8b20a974cf74a9550aa7b168a5d03fc2461206942716cc75f5573c64331c7e",
+		"debug_key": "ba911428ff291657d9118437e9152747b818199ae43f8afb2f462445f9b379ba",
 	}
 	for id: String in signatures:
 		var actual: Image = ART.texture(id, 28).get_image()
