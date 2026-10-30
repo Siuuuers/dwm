@@ -170,3 +170,13 @@ mouse_filter = 2
 text = "delivering."
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="PanelOutline" type="ReferenceRect" parent="."]
+z_index = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+border_width = 1.0
+editor_only = false
