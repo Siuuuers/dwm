@@ -213,3 +213,18 @@ new ownership state, imported assets or geometry changes are required.
 Acceptance must include recognizable materials at normal playing size, actual
 Day1 screenshots, control-state readability, and the existing purchase/Load/new-run
 journey. Changed pixels alone do not establish that the materials look convincing.
+
+## Texture-only paper and per-run crystal, 30 October 2026
+
+The owner superseded the light paper recoloring: retain the original computer,
+footer and seven-control colors; add only transparent fibres/grain. Original
+lettering, active-mode, hover, press and focus colors remain authoritative.
+Wax remains deferred and silk is unchanged.
+
+Crystal selects one to three distinct corners per panel (two most often), with
+irregular fracture starts and branches. Derive a private RNG seed from the
+existing activated run ID and fixed panel role, never gameplay RNG or a session
+instance/generation. Cache normalized geometry; resizing transforms the same
+pattern. Loading the same run regenerates the same pattern without new saved
+fields; a new run receives a different arrangement. Real purchase/fresh-process
+Load/new-run checks compare run identity and pattern alongside rendered pixels.

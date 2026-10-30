@@ -12,6 +12,10 @@ func test_new_run_clears_cosmetics_without_changing_saved_run() -> void:
 	var shell: Control = await _open_apps(get_tree().current_scene)
 	if shell == null: return
 	_assert_cosmetic_overlay(shell, false)
+	assert_false(shell._material_run_id.is_empty())
+	assert_ne(shell._material_run_id, proof.run_id, "new run has its own identity")
+	var pattern: String = var_to_str(MATERIAL.crystal_pattern(shell._material_run_id, "computer")).sha256_text()
+	assert_ne(pattern, proof.crystal_pattern, "new run selects its own crystal arrangement")
 	assert_eq(await _cosmetic_pixels(shell), proof.bare_pixels, "new run restores undecorated computer pixels")
 	await _screenshot("shop-cosmetics-new-run-home")
 	if not await _launch_app(shell, &"shop"): return
@@ -22,5 +26,6 @@ func test_new_run_clears_cosmetics_without_changing_saved_run() -> void:
 		assert_false(shop._buy_button.disabled, "new run may purchase its own " + item_id)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256, "starting fresh leaves saved owned cosmetics intact")
 	_write_json("res://.godot/ci/shop-cosmetics-new-run.json", {"process_id": OS.get_process_id(),
-		"inventory": game.inventory, "prior_slot_sha256": proof.slot_sha256})
+		"inventory": game.inventory, "prior_slot_sha256": proof.slot_sha256,
+		"run_id": shell._material_run_id, "crystal_pattern": pattern})
 	print("SHOP_COSMETICS_NEW_RUN_COMPLETED owned=0")

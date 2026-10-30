@@ -44,7 +44,7 @@ jobs:
           MATERIAL_BASE: ${{ github.event.pull_request.base.sha }}
         run: |
           mkdir -p .godot/ci/material-decoration/before .godot/ci/material-decoration/after
-          material_files=(scripts/ui/ComputerDesktop.gd scripts/ui/MaterialDecoration.gd scripts/ui/art/SceneArtView.gd scripts/ui/witnessed/WitnessedTransportRail.gd)
+          material_files=(scripts/ui/desktop/DesktopTheme.gd scripts/ui/ComputerDesktop.gd scripts/ui/MaterialDecoration.gd scripts/ui/art/SceneArtView.gd scripts/ui/witnessed/WitnessedTransportRail.gd)
           tar -cf "$RUNNER_TEMP/material-candidate.tar" "${material_files[@]}"
           trap 'tar -xf "$RUNNER_TEMP/material-candidate.tar"' EXIT
           if [ -n "$MATERIAL_BASE" ]; then
