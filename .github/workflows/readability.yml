@@ -63,11 +63,11 @@ jobs:
           if-no-files-found: error
       - name: Render materials in the authored Day1 scene
         env:
-          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/material-story-user/test-root
+          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/phase2r_tests/material-story/test-root
           XDG_DATA_HOME: ${{ github.workspace }}/.godot/material-story-user/data
         run: |
           mkdir -p "$DWM_TEST_ROOT" "$XDG_DATA_HOME"
-          timeout 240s xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" --path . --rendering-method gl_compatibility --audio-driver Dummy --log-file "$GITHUB_WORKSPACE/.godot/ci/material-story.log" -s res://addons/gut/gut_cmdln.gd -gconfig= -gtest=res://tests/ui/render_material_story.gd -gexit -- --phase2r-bootstrap-mode=test_manual
+          timeout 240s xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" --path . --rendering-method gl_compatibility --audio-driver Dummy --log-file "$GITHUB_WORKSPACE/.godot/ci/material-story.log" -s res://addons/gut/gut_cmdln.gd -gconfig= -gtest=res://tests/ui/render_material_story.gd -gexit
           grep 'MATERIAL_AUTHORED_STORY_COMPLETED background=Day1 controls=7 purchases=3' .godot/ci/material-story.log
           if grep -E 'SCRIPT ERROR:|ERROR: Failed to load' .godot/ci/material-story.log; then exit 1; fi
       - uses: actions/upload-artifact@v4
