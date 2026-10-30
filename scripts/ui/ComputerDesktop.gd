@@ -1318,3 +1318,4 @@ func _draw() -> void:
 	var chrome_height := (64.0 + _quick_status_band_height()) * desktop_canvas.scale.y
 	draw_rect(Rect2(0, size.y - chrome_height, size.x, chrome_height), get_theme_color("face", "Desktop"))
 	draw_rect(Rect2(0, size.y - footer_height, size.x, 2 * desktop_canvas.scale.y), get_theme_color("structure", "Desktop"))
+	draw_rect(Rect2(0.5, 0.5, size.x - 1, size.y - footer_height - 1), Color(get_theme_color("structure", "Desktop"), 0.45), false, 1)
