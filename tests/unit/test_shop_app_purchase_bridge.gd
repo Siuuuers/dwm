@@ -93,7 +93,7 @@ func test_supportz_activation_asks_price_only_and_yes_purchases_once() -> void:
 	var sheet: Control = shop.get("_supportz_confirmation")
 	assert_not_null(sheet)
 	assert_true(provider.purchases.is_empty(), "activation alone must never spend money")
-	assert_eq(sheet.get("_price_body").text, "1 coin")
+	assert_eq(sheet.get("_price_body").text, "$45")
 	assert_false(sheet.request.warning)
 	assert_false(shop.can_return_home(), "the sheet owns Home custody")
 	assert_eq(shop.cards.lucky_charm.get_focus_mode_with_override(), Control.FOCUS_NONE)
