@@ -41,6 +41,7 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             /.github/workflows/windows-tests.yml
+            /.github/workflows/dtl-first-preflight.yml
             /tools/testing/test_windows_coverage.py
             /tools/testing/self_talk_panel_scope.py
             /tools/testing/Invoke-CloudTests.ps1
