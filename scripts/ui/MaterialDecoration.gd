@@ -9,12 +9,12 @@ static func paper_texture() -> ImageTexture:
 		var grain := RandomNumberGenerator.new()
 		grain.seed = 0x50415045
 		for point: int in 3600:
-			image.set_pixel(grain.randi_range(0, 127), grain.randi_range(0, 127), Color(1, 1, 1, grain.randf_range(0.05, 0.14)))
-		for fibre: int in 180:
+			image.set_pixel(grain.randi_range(0, 127), grain.randi_range(0, 127), Color(1, 1, 1, grain.randf_range(0.04, 0.10)))
+		for fibre: int in 96:
 			var x := grain.randi_range(0, 127)
 			var y := grain.randi_range(0, 127)
 			var slope := grain.randi_range(-1, 1)
-			var alpha := grain.randf_range(0.10, 0.20)
+			var alpha := grain.randf_range(0.08, 0.14)
 			for point: int in grain.randi_range(3, 7):
 				image.set_pixel((x + point) % 128, posmod(y + point * slope, 128), Color(1, 1, 1, alpha))
 		_paper_tile = ImageTexture.create_from_image(image)

@@ -100,3 +100,5 @@ func test_live_art_and_seven_controls_share_inventory_without_new_input_targets(
 	assert_false(art._material_overlay.visible, "new run removes crystal from artwork")
 	assert_true(buttons[0].get_theme_stylebox("normal") is StyleBoxFlat, "new run removes paper backgrounds")
 	assert_eq(rail._buttons.values(), buttons)
+	assert_true(desktop.theme.has_color("paper", "Desktop"), "desktop exposes its paper palette")
+	assert_true(desktop.theme.has_color("paper_ink", "Desktop"), "desktop exposes contrasting paper ink")
