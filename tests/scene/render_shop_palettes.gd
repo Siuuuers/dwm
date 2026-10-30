@@ -36,7 +36,7 @@ func _run() -> void:
 		for page in target_page:
 			shop.next_button.pressed.emit()
 			for frame in 3: await process_frame
-		if target_page == 0: shop.cards.lucky_charm.grab_focus()
+		if target_page == 0: shop.cards.crystal_stutters.grab_focus()
 		for frame in 5: await RenderingServer.frame_post_draw
 		var pixels := viewport.get_texture().get_image()
 		if pixels == null or pixels.is_empty() or pixels.save_png("res://.godot/phase2r_logs/"+sample.file) != OK:

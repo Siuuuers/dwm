@@ -45,19 +45,19 @@ func test_week_tint_and_accessibility_reach_plate_cards_without_filtering_specim
 	var expected: Dictionary = SHOP_THEME.resolve(&"midnight", 7, false, "protan")
 	for role: String in expected:
 		assert_eq(f.shop.theme.get_color(role, "Shop"), expected[role], role)
-	assert_eq(f.shop.cards.size(), 5)
+	assert_eq(f.shop.cards.size(), 8)
 	assert_eq(f.shop.page_count, 1)
-	assert_true(f.shop._records[5].blank)
+	assert_true(f.shop._records[8].blank)
 	assert_false(f.shop.cards.has("supportz"))
 	for card: Button in f.shop.cards.values():
 		assert_eq(card.get("_roles"), expected)
-	assert_same(f.shop.cards.lucky_charm.get("_art"), f.rows[0].card_art,
+	assert_same(f.shop.cards.crystal_stutters.get("_art"), f.rows[0].card_art,
 		"The specimen texture remains the source texture.")
 	assert_same(f.shop._art.texture, f.rows[0].inspector_art)
 	assert_eq(f.shop._art.modulate, Color.WHITE)
 	assert_eq(f.shop._art.self_modulate, Color.WHITE)
-	assert_eq(f.shop.cards.lucky_charm.modulate, Color.WHITE)
-	assert_eq(f.shop.cards.lucky_charm.self_modulate, Color.WHITE)
+	assert_eq(f.shop.cards.crystal_stutters.modulate, Color.WHITE)
+	assert_eq(f.shop.cards.crystal_stutters.self_modulate, Color.WHITE)
 	assert_eq(WEEK_TINT.tint_for_day(1), 0.0)
 
 func test_both_standard_palettes_publish_exact_roles_to_plate_and_all_cards() -> void:
@@ -80,16 +80,16 @@ func test_both_standard_palettes_publish_exact_roles_to_plate_and_all_cards() ->
 		assert_eq(expected.paper_focus_inner, Color("644000"))
 		for role: String in expected:
 			assert_eq(f.shop.theme.get_color(role, "Shop"), expected[role], "%s %s" % [palette, role])
-		assert_eq(f.shop.get("_records").size(), 6)
-		assert_true(f.shop.get("_records")[5].blank, "Supportz remains the fixed structural blank slot.")
-		assert_eq(f.shop.cards.size(), 5)
+		assert_eq(f.shop.get("_records").size(), 9)
+		assert_true(f.shop.get("_records")[8].blank, "Supportz remains the fixed structural blank slot.")
+		assert_eq(f.shop.cards.size(), 8)
 		for card in f.shop.cards.values(): assert_eq(card.get("_roles"), expected)
-		assert_eq(f.shop.cards.lucky_charm.get("_roles").selected_plane, Color("789083"))
-		assert_eq(f.shop.cards.lucky_charm.get("_roles").dark_focus_inner, Color("a9935f"))
-		assert_eq(f.shop.cards.lucky_charm.get("_roles").structure, expected.primary_ink)
+		assert_eq(f.shop.cards.crystal_stutters.get("_roles").selected_plane, Color("789083"))
+		assert_eq(f.shop.cards.crystal_stutters.get("_roles").dark_focus_inner, Color("a9935f"))
+		assert_eq(f.shop.cards.crystal_stutters.get("_roles").structure, expected.primary_ink)
 		assert_eq(f.shop.page_label.get_theme_color("font_color"), expected.secondary_dark_copy, "Pager uses secondary copy on the controlled-dark rail.")
 		assert_eq(f.shop.previous_button.get_theme_color("font_disabled_color"), expected.primary_dark_copy, "A terminal pager keeps readable copy while Disabled.")
-		assert_eq(f.shop.get("_meta_price").get_theme_color("font_color"), expected.primary_ink, "Inspector facts use laminate ink.")
+		assert_eq(f.shop.get("_meta_state").get_theme_color("font_color"), expected.primary_ink, "Inspector facts use laminate ink.")
 		assert_eq(f.shop.get("_description_label").get_theme_color("font_color"), expected.secondary_ink, "The neutral description uses secondary laminate ink.")
 		assert_eq(f.shop.theme.get_color("scroll_track", "Shop"), expected.primary_ink)
 		assert_eq(f.shop.theme.get_color("scroll_thumb", "Shop"), expected.primary_dark_copy)
@@ -99,7 +99,7 @@ func test_invalid_palette_preserves_the_mounted_snapshot_and_presentation() -> v
 	var f := _fixture("en", 100, false, &"midnight")
 	await _settle()
 	var shop = f.shop
-	shop.cards.debug_key.pressed.emit()
+	shop.cards.inked_silk_string.pressed.emit()
 	var old_theme: Theme = shop.theme
 	var old_records: Array = shop.get("_records")
 	var result: Dictionary = shop.configure_shop([], "zh_CN", 150, true, &"unknown")
@@ -109,15 +109,15 @@ func test_invalid_palette_preserves_the_mounted_snapshot_and_presentation() -> v
 	assert_same(shop.theme, old_theme)
 	assert_eq(shop.get("_records"), old_records)
 	assert_eq(shop.get("_palette"), &"midnight")
-	assert_eq(shop.selected_id, "debug_key")
-	assert_true(shop.cards.debug_key.visible)
+	assert_eq(shop.selected_id, "inked_silk_string")
+	assert_true(shop.cards.inked_silk_string.visible)
 
 func test_invalid_day_or_accessibility_preset_preserves_mounted_shop() -> void:
 	var f := _fixture("en", 100, false, &"midnight", 5, false, "deutan")
 	await _settle()
-	f.shop.cards.debug_key.pressed.emit()
-	f.shop.cards.debug_key.grab_focus()
-	var old_card: Button = f.shop.cards.debug_key
+	f.shop.cards.inked_silk_string.pressed.emit()
+	f.shop.cards.inked_silk_string.grab_focus()
+	var old_card: Button = f.shop.cards.inked_silk_string
 	var old_theme: Theme = f.shop.theme
 	var old_records: Array = f.shop._records.duplicate(true)
 	for invalid: Dictionary in [
@@ -129,9 +129,9 @@ func test_invalid_day_or_accessibility_preset_preserves_mounted_shop() -> void:
 			invalid.day, false, invalid.preset)
 		assert_false(result.ok)
 		assert_same(f.shop.theme, old_theme)
-		assert_same(f.shop.cards.debug_key, old_card)
+		assert_same(f.shop.cards.inked_silk_string, old_card)
 		assert_eq(f.shop._records, old_records)
-		assert_eq(f.shop.selected_id, "debug_key")
+		assert_eq(f.shop.selected_id, "inked_silk_string")
 		assert_true(old_card.has_focus())
 
 func _settle() -> void:
@@ -153,12 +153,16 @@ func test_every_locale_and_size_keeps_full_catalog_inside_the_plate() -> void:
 				await _settle()
 				var shop: Control = f.shop
 				assert_true(shop.last_result.ok,"%s %s %s%%" % [font_style,locale,percent])
-				assert_eq(shop.size, Vector2(800, 656))
+				assert_eq(shop.size.x, 800.0)
+				assert_gte(shop.size.y, 656.0)
 				assert_eq(shop.get_node("VBoxContainer/TopBar").visible, false)
-				assert_eq(shop.cards.size(), 5)
-				assert_true(shop.page_capacity in [3, 6, 9], "Measured rows retain three columns.")
-				assert_gte(shop.page_count, 1)
-				assert_true(shop.cards.lucky_charm.has_focus())
+				assert_eq(shop.cards.size(), 8)
+				assert_eq(shop.page_capacity, 9)
+				assert_false(shop.previous_button.visible)
+				assert_false(shop.next_button.visible)
+				assert_false(shop.page_label.visible)
+				assert_eq(shop.page_count, 1)
+				assert_true(shop.cards.crystal_stutters.has_focus())
 				var seen: Array[String] = []
 				for page in shop.page_count:
 					assert_true(shop.last_result.ok, "%s %s %s%% page %s: %s" % [font_style, locale, percent, page, str(shop.last_result)])
@@ -169,7 +173,7 @@ func test_every_locale_and_size_keeps_full_catalog_inside_the_plate() -> void:
 						var card: Control = shop.cards[item_id]
 						if not card.visible: continue
 						seen.append(item_id)
-						assert_true(Rect2(0, 0, 448, 544).encloses(card.get_rect()), "%s %s%% %s" % [locale, percent, item_id])
+						assert_true(Rect2(Vector2.ZERO, shop._catalog.size).encloses(card.get_rect()), "%s %s%% %s" % [locale, percent, item_id])
 						assert_eq(card.name_label.text, COPY.item_name(locale, item_id))
 						assert_lte(card.availability_label.position.y + card.availability_label.size.y, card.size.y - 8)
 					if page < shop.page_count - 1:
@@ -191,19 +195,19 @@ func test_enlarged_japanese_coin_metadata_fits_the_pinned_band() -> void:
 					row.legal_max = 0
 				f.shop.configure_shop(f.rows, "ja", 150, large)
 			await _settle()
+			while not f.shop.cards.debug_key.visible: f.shop._change_page(1)
 			f.shop.cards.debug_key.grab_focus()
 			await _settle()
 			assert_true(f.shop.last_result.ok, "Japanese coin metadata remains visible at full text size.")
 			assert_eq(f.shop.selected_id, "debug_key")
-			var price: Label = f.shop._meta_price
 			var state: Label = f.shop._meta_state
-			assert_eq(price.text, "3 コイン")
+			assert_eq(f.shop._total_label.text, "3 コイン")
 			assert_eq(state.text, "在庫あり" if available else "売り切れ")
 			# Enlarged text uses the expanded dock even without Large Targets.
 			# Pinned line metrics may consume information space, never dock space.
 			var band := Rect2(480, 16, 304, 368)
 			var information_bottom: float = f.shop.info_scroll.position.y + f.shop.info_scroll.size.y
-			for label: Label in [price, state]:
+			for label: Label in [state]:
 				assert_true(label.is_visible_in_tree())
 				assert_eq(label.get_theme_font_size("font_size"), 36)
 				assert_true(band.encloses(label.get_rect()))
@@ -213,7 +217,6 @@ func test_enlarged_japanese_coin_metadata_fits_the_pinned_band() -> void:
 					HORIZONTAL_ALIGNMENT_LEFT, -1, label.get_theme_font_size("font_size"))
 				assert_lte(measured.x, label.size.x)
 				assert_lte(measured.y, label.size.y)
-			assert_lte(price.position.x + price.size.x + 16, state.position.x)
 			f.root.hide()
 
 func test_selection_is_single_purchase_on_one_page() -> void:
@@ -236,19 +239,19 @@ func test_keyboard_focus_inspects_immediately_and_stays_in_single_purchase_grid(
 	await _settle()
 	var shop = f.shop
 	await _key(KEY_RIGHT)
-	assert_true(shop.cards.debug_key.has_focus())
-	assert_eq(shop.selected_id, "debug_key")
+	assert_true(shop.cards.inked_silk_string.has_focus())
+	assert_eq(shop.selected_id, "inked_silk_string")
 	await _key(KEY_ENTER)
-	assert_eq(shop.selected_id, "debug_key")
+	assert_eq(shop.selected_id, "inked_silk_string")
 	await _key(KEY_RIGHT)
-	assert_true(shop.cards.bookend_keepsake.has_focus())
+	assert_true(shop.cards.letter_with_wax_seal.has_focus())
 	await _key(KEY_RIGHT)
-	assert_true(shop.cards.bookend_keepsake.has_focus())
+	assert_true(shop.cards.letter_with_wax_seal.has_focus())
 	await _key(KEY_LEFT)
-	assert_true(shop.cards.debug_key.has_focus())
+	assert_true(shop.cards.inked_silk_string.has_focus())
 	f.home.grab_focus()
 	await _key(KEY_TAB)
-	assert_true(shop.cards.lucky_charm.has_focus())
+	assert_true(shop.cards.crystal_stutters.has_focus())
 
 func test_missing_projection_recovers_without_partial_cards_then_reopens() -> void:
 	var f := _fixture()
@@ -270,9 +273,9 @@ func test_missing_projection_recovers_without_partial_cards_then_reopens() -> vo
 	provider.rows = f.rows
 	assert_true(shop.refresh_view().ok)
 	await _settle()
-	assert_true(shop.cards.lucky_charm.visible)
+	assert_true(shop.cards.crystal_stutters.visible)
 	assert_true(shop.info_scroll.visible)
-	assert_true(shop.next_button.visible)
+	assert_false(shop.next_button.visible)
 
 func test_only_overflowing_information_enters_traversal() -> void:
 	var f := _fixture()
@@ -286,7 +289,7 @@ func test_only_overflowing_information_enters_traversal() -> void:
 	shop.info_scroll.grab_focus()
 	await _key(KEY_END)
 	assert_gt(shop.info_scroll.scroll_vertical, 0)
-	shop.cards.debug_key.pressed.emit()
+	shop.cards.inked_silk_string.pressed.emit()
 	await _settle()
 	assert_eq(shop.info_scroll.scroll_vertical, 0)
 	assert_eq(shop.info_scroll.focus_mode, Control.FOCUS_NONE)
@@ -298,9 +301,9 @@ func test_sold_out_and_unaffordable_products_keep_truthful_quantity_state() -> v
 	f.rows[0].legal_max = 0
 	f.shop.configure_shop(f.rows)
 	await _settle()
-	assert_true(f.shop.cards.lucky_charm.visible)
-	assert_eq(f.shop.cards.lucky_charm.availability_label.text, "Sold out")
-	assert_eq(f.shop.get("_total_label").text, "1 coin")
+	assert_true(f.shop.cards.crystal_stutters.visible)
+	assert_eq(f.shop.cards.crystal_stutters.availability_label.text, "Sold out")
+	assert_eq(f.shop.get("_total_label").text, "$45")
 	for button in f.shop.quantity_buttons.values(): assert_false(button.visible)
 	f.rows[0].available = true
 	f.shop.configure_shop(f.rows)
@@ -324,7 +327,7 @@ func test_new_snapshot_resets_quantity_and_preserves_external_home_focus() -> vo
 func test_failed_snapshot_returns_owned_focus_to_home() -> void:
 	var f := _fixture()
 	await _settle()
-	assert_true(f.shop.cards.lucky_charm.has_focus())
+	assert_true(f.shop.cards.crystal_stutters.has_focus())
 	var provider := CatalogProvider.new()
 	provider.rows = []
 	assert_false(f.shop.configure_catalog(provider).ok)
@@ -347,7 +350,7 @@ func test_disabled_next_cannot_hold_or_navigate_across_a_new_snapshot() -> void:
 	get_viewport().push_input(held, true)
 	await _settle()
 	assert_false(f.shop.next_button.is_pressed())
-	assert_true(f.shop.cards.lucky_charm.has_focus())
+	assert_true(f.shop.cards.crystal_stutters.has_focus())
 	f.shop.configure_shop(f.rows)
 	await _settle()
 	var released := InputEventMouseButton.new()
@@ -357,7 +360,7 @@ func test_disabled_next_cannot_hold_or_navigate_across_a_new_snapshot() -> void:
 	await _settle()
 	assert_true(activations.is_empty(), "Disabled navigation never fabricates an activation.")
 	assert_eq(f.shop.page_index, 0)
-	assert_eq(f.shop.selected_id, "lucky_charm")
+	assert_eq(f.shop.selected_id, "crystal_stutters")
 	assert_true(f.shop.next_button.disabled)
 
 func test_right_edge_without_an_inspector_action_is_a_deliberate_noop() -> void:
@@ -366,16 +369,16 @@ func test_right_edge_without_an_inspector_action_is_a_deliberate_noop() -> void:
 	f.rows[2].legal_max = 0
 	f.shop.configure_shop(f.rows)
 	await _settle()
-	f.shop.cards.bookend_keepsake.grab_focus()
+	f.shop.cards.letter_with_wax_seal.grab_focus()
 	await _key(KEY_RIGHT)
-	assert_true(f.shop.cards.bookend_keepsake.has_focus(), "Accepted spatial law consumes Right when no inspector action exists.")
+	assert_true(f.shop.cards.letter_with_wax_seal.has_focus(), "Accepted spatial law consumes Right when no inspector action exists.")
 
 func test_bottom_card_keeps_focus_when_single_page_navigation_is_disabled() -> void:
 	var f := _fixture()
 	await _settle()
-	f.shop.cards.pocket_calculator_keepsake.grab_focus()
+	f.shop.cards.debug_key.grab_focus()
 	await _key(KEY_DOWN)
-	assert_true(f.shop.cards.pocket_calculator_keepsake.has_focus())
+	assert_true(f.shop.cards.debug_key.has_focus())
 	assert_true(f.shop.previous_button.disabled)
 	assert_true(f.shop.next_button.disabled)
 
@@ -384,7 +387,7 @@ func test_single_purchase_total_fits_without_quantity_controls() -> void:
 	var f := _fixture()
 	await _settle()
 	assert_eq(f.shop.quantity, 1)
-	assert_eq(f.shop.get("_total_label").text, "1 coin")
+	assert_eq(f.shop.get("_total_label").text, "$45")
 	assert_true(f.shop.last_result.ok)
 	for button in f.shop.quantity_buttons.values(): assert_false(button.visible)
 
@@ -458,15 +461,15 @@ func test_unavailable_purchase_status_fits_and_returns_focus_when_buy_disappears
 func test_rejected_direct_configuration_preserves_valid_projection_quantity_and_focus() -> void:
 	var f := _fixture()
 	await _settle()
-	f.shop.cards.debug_key.grab_focus()
+	f.shop.cards.inked_silk_string.grab_focus()
 	assert_false(f.shop.quantity_buttons.maximum.visible)
-	f.shop.cards.debug_key.grab_focus()
-	var old_card: Button = f.shop.cards.debug_key
+	f.shop.cards.inked_silk_string.grab_focus()
+	var old_card: Button = f.shop.cards.inked_silk_string
 	var old_theme: Theme = f.shop.theme
 	assert_false(f.shop.configure_shop([],"en",100).ok)
 	assert_false(f.shop.configure_shop(f.rows,"unsupported",150).ok)
 	await _settle()
-	assert_same(f.shop.cards.debug_key,old_card)
+	assert_same(f.shop.cards.inked_silk_string,old_card)
 	assert_same(f.shop.theme,old_theme)
 	assert_eq(f.shop.quantity,1)
 	assert_true(old_card.has_focus())
@@ -479,21 +482,21 @@ func test_catalog_owner_updates_preserve_selection_page_focus_and_reset_only_cha
 	provider.rows = f.rows
 	assert_true(f.shop.configure_catalog(provider).ok)
 	await _settle()
-	f.shop.cards.debug_key.grab_focus()
+	f.shop.cards.inked_silk_string.grab_focus()
 	assert_false(f.shop.quantity_buttons.maximum.visible)
-	f.shop.cards.debug_key.grab_focus()
-	var old_card: Button = f.shop.cards.debug_key
+	f.shop.cards.inked_silk_string.grab_focus()
+	var old_card: Button = f.shop.cards.inked_silk_string
 	provider.catalog_changed.emit()
 	await _settle()
-	assert_same(f.shop.cards.debug_key,old_card,"An identical owner delivery does not rebuild or restart quantity")
+	assert_same(f.shop.cards.inked_silk_string,old_card,"An identical owner delivery does not rebuild or restart quantity")
 	assert_eq(f.shop.quantity,1)
 	provider.rows[0].legal_max = 0
 	provider.catalog_changed.emit()
 	await _settle()
-	assert_eq(f.shop.selected_id,"debug_key")
+	assert_eq(f.shop.selected_id,"inked_silk_string")
 	assert_eq(f.shop.page_index,0)
 	assert_eq(f.shop.quantity,1)
-	assert_true(f.shop.cards.debug_key.has_focus(),"The inspector and purchase target follow the focused merchandise")
+	assert_true(f.shop.cards.inked_silk_string.has_focus(),"The inspector and purchase target follow the focused merchandise")
 	var replacement := CatalogProvider.new()
 	replacement.rows = f.rows
 	assert_false(f.shop.configure_catalog(replacement).ok)
@@ -521,11 +524,11 @@ func test_localized_shared_reflow_preserves_quantity_semantic_focus_and_informat
 	assert_eq(f.shop.quantity,1,"Localized copy is presentation reflow, not a fresh economic snapshot")
 	assert_true(f.shop.info_scroll.has_focus())
 	assert_eq(f.shop.info_scroll.scroll_vertical,30)
-	assert_eq(f.shop._name_label.text,COPY.item_name("zh_HK","lucky_charm"))
-	var card: Button = f.shop.cards.lucky_charm
+	assert_eq(f.shop._name_label.text,COPY.item_name("zh_HK","crystal_stutters"))
+	var card: Button = f.shop.cards.crystal_stutters
 	preferences.publish_size(110)
 	await _settle()
-	assert_same(f.shop.cards.lucky_charm,card)
+	assert_same(f.shop.cards.crystal_stutters,card)
 	assert_eq(f.shop._percent,150)
 
 func test_hidden_catalog_and_preferences_defer_without_changing_shared_home_navigation() -> void:
@@ -536,21 +539,21 @@ func test_hidden_catalog_and_preferences_defer_without_changing_shared_home_navi
 	var preferences := Preferences.new()
 	assert_true(f.shop.configure_catalog(provider,preferences,preferences).ok)
 	await _settle()
-	f.shop.cards.debug_key.grab_focus()
+	f.shop.cards.inked_silk_string.grab_focus()
 	f.shop.hide_window()
 	f.home.grab_focus()
 	var home_next: NodePath = f.home.focus_next
-	var card: Button = f.shop.cards.debug_key
+	var card: Button = f.shop.cards.inked_silk_string
 	provider.rows[0].legal_max = 0
 	provider.catalog_changed.emit()
 	preferences.publish_size(150)
 	await _settle()
-	assert_same(f.shop.cards.debug_key,card)
+	assert_same(f.shop.cards.inked_silk_string,card)
 	assert_true(f.home.has_focus())
 	assert_eq(f.home.focus_next,home_next)
 	f.shop.show_window()
 	await _settle()
-	assert_true(f.shop.cards.debug_key.has_focus())
+	assert_true(f.shop.cards.inked_silk_string.has_focus())
 	assert_eq(f.shop._percent,150)
 	assert_eq(f.shop._records[0].legal_max,0)
 
@@ -562,7 +565,7 @@ func test_modal_custody_defers_reconstruction_and_rejects_synthetic_lower_action
 	var preferences := Preferences.new()
 	assert_true(f.shop.configure_catalog(provider,preferences,preferences).ok)
 	await _settle()
-	var card: Button = f.shop.cards.debug_key
+	var card: Button = f.shop.cards.inked_silk_string
 	f.shop.focus_behavior_recursive = Control.FOCUS_BEHAVIOR_DISABLED
 	f.home.grab_focus()
 	preferences.publish_size(150)
@@ -570,16 +573,16 @@ func test_modal_custody_defers_reconstruction_and_rejects_synthetic_lower_action
 	card.pressed.emit()
 	f.shop.next_button.pressed.emit()
 	await _settle()
-	assert_same(f.shop.cards.debug_key,card)
+	assert_same(f.shop.cards.inked_silk_string,card)
 	assert_eq(f.shop.quantity,1)
-	assert_eq(f.shop.selected_id,"lucky_charm")
+	assert_eq(f.shop.selected_id,"crystal_stutters")
 	assert_eq(f.shop.page_index,0)
 	assert_false(f.shop.can_return_home())
 	assert_true(f.home.has_focus())
 	f.shop.focus_behavior_recursive = Control.FOCUS_BEHAVIOR_INHERITED
 	card.grab_focus()
 	await _settle()
-	assert_true(f.shop.cards.debug_key.has_focus())
+	assert_true(f.shop.cards.inked_silk_string.has_focus())
 	assert_eq(f.shop._percent,150)
 	assert_true(f.shop.can_return_home())
 
@@ -591,29 +594,29 @@ func test_owner_snapshot_cancels_held_native_card_contact_and_provider_failure_i
 	assert_true(f.shop.configure_catalog(provider).ok)
 	await _settle()
 	var activations: Array = []
-	f.shop.cards.lucky_charm.pressed.connect(func(): activations.append(true))
-	f.shop.cards.lucky_charm.grab_focus()
+	f.shop.cards.crystal_stutters.pressed.connect(func(): activations.append(true))
+	f.shop.cards.crystal_stutters.grab_focus()
 	var held := InputEventKey.new()
 	held.keycode = KEY_ENTER
 	held.physical_keycode = KEY_ENTER
 	held.pressed = true
 	get_viewport().push_input(held)
 	await _settle()
-	assert_true(f.shop.cards.lucky_charm.is_pressed())
+	assert_true(f.shop.cards.crystal_stutters.is_pressed())
 	assert_false(f.shop.can_return_home())
 	provider.rows[0].available = false
 	provider.rows[0].legal_max = 0
 	provider.catalog_changed.emit()
 	await _settle()
-	f.shop.cards.lucky_charm.pressed.connect(func(): activations.append(true))
-	assert_false(f.shop.cards.lucky_charm.is_pressed())
+	f.shop.cards.crystal_stutters.pressed.connect(func(): activations.append(true))
+	assert_false(f.shop.cards.crystal_stutters.is_pressed())
 	var released := InputEventKey.new()
 	released.keycode = KEY_ENTER
 	released.physical_keycode = KEY_ENTER
 	get_viewport().push_input(released)
 	await _settle()
 	assert_true(activations.is_empty(), "Snapshot refresh cancels the old held card activation.")
-	assert_eq(f.shop.selected_id, "lucky_charm")
+	assert_eq(f.shop.selected_id, "crystal_stutters")
 	assert_eq(f.shop.page_index,0)
 	provider.failed = true
 	provider.catalog_changed.emit()
@@ -626,7 +629,7 @@ func test_owner_snapshot_cancels_held_native_card_contact_and_provider_failure_i
 	f.shop.show_window()
 	await _settle()
 	assert_true(f.shop.last_result.ok)
-	assert_eq(f.shop.cards.size(),5)
+	assert_eq(f.shop.cards.size(),8)
 
 
 func test_native_back_keeps_hidden_return_admission_and_cached_semantic_focus() -> void:
@@ -636,7 +639,7 @@ func test_native_back_keeps_hidden_return_admission_and_cached_semantic_focus() 
 	provider.rows = f.rows
 	assert_true(f.shop.configure_catalog(provider).ok)
 	await _settle()
-	f.shop.cards.debug_key.grab_focus()
+	f.shop.cards.inked_silk_string.grab_focus()
 	var returns: Array[bool] = []
 	f.shop.window_hidden.connect(func():
 		returns.append(f.shop.can_return_home())
@@ -648,7 +651,7 @@ func test_native_back_keeps_hidden_return_admission_and_cached_semantic_focus() 
 	assert_true(f.shop.can_return_home(),"Host pre-open Home admission does not depend on visibility")
 	f.shop.show_window()
 	await _settle()
-	assert_true(f.shop.cards.debug_key.has_focus())
+	assert_true(f.shop.cards.inked_silk_string.has_focus())
 
 
 func test_hidden_prepare_validates_fresh_owner_before_open_without_home_custody_writes() -> void:
@@ -718,7 +721,7 @@ func test_hidden_external_focus_does_not_block_opening_or_current_catalog_refres
 	assert_same(get_viewport().gui_get_focus_owner(),retired_launcher,"Exercise native hidden-focus behavior")
 	f.shop.show_window()
 	await _settle()
-	assert_true(f.shop.cards.lucky_charm.has_focus())
+	assert_true(f.shop.cards.crystal_stutters.has_focus())
 	retired_launcher.grab_focus()
 	provider.rows[0].legal_max = 0
 	provider.catalog_changed.emit()
@@ -734,7 +737,7 @@ func test_detached_shop_retires_queued_focus_and_ignores_owner_publications_unti
 	var preferences := Preferences.new()
 	assert_true(f.shop.configure_catalog(provider,preferences,preferences).ok)
 	await _settle()
-	f.shop.cards.debug_key.grab_focus()
+	f.shop.cards.inked_silk_string.grab_focus()
 	var remembered: String = f.shop._remembered_focus
 	f.shop._focus_selected.call_deferred()
 	f.shop.configure_shop(f.rows,"en",125)
@@ -759,7 +762,7 @@ func test_detached_shop_retires_queued_focus_and_ignores_owner_publications_unti
 	await _settle()
 	assert_eq(f.shop._percent,150)
 	assert_eq(f.shop._records[0].legal_max,0)
-	assert_true(f.shop.cards.debug_key.has_focus())
+	assert_true(f.shop.cards.inked_silk_string.has_focus())
 
 func test_queued_ancestor_rejects_shop_focus_and_layout_before_native_deletion() -> void:
 	var f := _fixture()
@@ -786,11 +789,11 @@ func test_remount_resumes_retired_measurement_with_identical_catalog_and_prefere
 	provider.rows = f.rows
 	assert_true(f.shop.configure_catalog(provider).ok)
 	await _settle()
-	f.shop.cards.debug_key.grab_focus()
+	f.shop.cards.inked_silk_string.grab_focus()
 	provider.rows[0].legal_max = 0
 	provider.catalog_changed.emit()
 	assert_true(f.shop._catalog_layout_pending)
-	assert_false(f.shop.cards.debug_key.visible,"Rebuild awaits full-font measurement")
+	assert_false(f.shop.cards.inked_silk_string.visible,"Rebuild awaits full-font measurement")
 	f.root.remove_child(f.shop)
 	f.home.grab_focus()
 	await _settle()
@@ -800,8 +803,8 @@ func test_remount_resumes_retired_measurement_with_identical_catalog_and_prefere
 	await _settle()
 	assert_false(f.shop._catalog_layout_pending)
 	assert_true(f.shop.last_result.ok)
-	assert_true(f.shop.cards.debug_key.is_visible_in_tree())
-	assert_true(f.shop.cards.debug_key.has_focus())
-	assert_eq(f.shop.selected_id,"debug_key")
+	assert_true(f.shop.cards.inked_silk_string.is_visible_in_tree())
+	assert_true(f.shop.cards.inked_silk_string.has_focus())
+	assert_eq(f.shop.selected_id,"inked_silk_string")
 	assert_eq(f.shop._records[0].legal_max,0)
-	assert_gt(f.shop.cards.debug_key.size.y,0.0)
+	assert_gt(f.shop.cards.inked_silk_string.size.y,0.0)

@@ -2,6 +2,7 @@ extends "res://addons/gut/test.gd"
 
 const COPY := preload("res://scripts/ui/shop/ShopCopy.gd")
 const ITEM_IDS := [
+	"crystal_stutters", "inked_silk_string", "letter_with_wax_seal",
 	"lucky_charm", "debug_key", "bookend_keepsake", "metronome_keepsake",
 	"pocket_calculator_keepsake",
 ]
@@ -22,12 +23,12 @@ func test_english_labels_and_generic_item_names_are_exact() -> void:
 	assert_eq(COPY.item_name("en", "pocket_calculator_keepsake"), "Pocket Calculator")
 
 
-func test_all_five_ordinary_names_exist_in_every_locale_and_aliases_work() -> void:
+func test_all_eight_ordinary_names_exist_in_every_locale_and_aliases_work() -> void:
 	for locale: String in ["en", "zh_CN", "zh_HK", "ja", "ko"]:
 		for item_id: String in ITEM_IDS:
 			assert_false(COPY.item_name(locale, item_id).is_empty(), "%s %s" % [locale, item_id])
-	assert_eq(COPY.item_name("zh-CN", "lucky_charm"), COPY.item_name("zh_CN", "lucky_charm"))
-	assert_eq(COPY.item_name("zh-HK", "lucky_charm"), COPY.item_name("zh_HK", "lucky_charm"))
+	assert_eq(COPY.item_name("zh-CN", "crystal_stutters"), COPY.item_name("zh_CN", "crystal_stutters"))
+	assert_eq(COPY.item_name("zh-HK", "crystal_stutters"), COPY.item_name("zh_HK", "crystal_stutters"))
 	assert_eq(COPY.text("zh-CN", "previous"), COPY.text("zh_CN", "previous"))
 
 
@@ -35,7 +36,7 @@ func test_blank_capacity_and_unknown_inputs_never_gain_fallback_copy() -> void:
 	for locale: String in ["en", "zh_CN", "zh_HK", "zh-CN", "zh-HK"]:
 		assert_eq(COPY.item_name(locale, "supportz"), "")
 	assert_eq(COPY.item_name("en", "unknown"), "")
-	assert_eq(COPY.item_name("fr", "lucky_charm"), "")
+	assert_eq(COPY.item_name("fr", "crystal_stutters"), "")
 	assert_eq(COPY.text("en", "unknown"), "")
 	assert_eq(COPY.text("fr", "previous"), "")
 

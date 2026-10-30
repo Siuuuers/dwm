@@ -13,17 +13,7 @@ func test_rendered_blank_laminate_uses_the_current_supportz_slot() -> void:
 	viewport.size = Vector2i(800, 656)
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	add_child_autofree(viewport)
-	var catalogue: Variant = CATALOG.new()
-	var presentation: Variant = PRESENTATION.new()
-	var rows: Array = []
-	for item: Variant in catalogue.get_shop_items():
-		if item.id == "supportz": continue
-		var id: String = PRESENTATION._SOURCE_TO_PUBLIC.get(item.id, item.id)
-		rows.append({"id": id, "name": COPY.item_name("en", id), "unit_price": item.price,
-			"currency": item.currency, "available": true,
-			"batchable": id in PRESENTATION._BATCHABLE_IDS,
-			"legal_max": item.max_purchases if id in PRESENTATION._BATCHABLE_IDS else 1,
-			"card_art": presentation._texture(id, 28), "inspector_art": presentation._texture(id, 56)})
+	var rows := _catalogue_rows()
 	var home := Button.new()
 	viewport.add_child(home)
 	home.hide()
@@ -36,10 +26,10 @@ func test_rendered_blank_laminate_uses_the_current_supportz_slot() -> void:
 	for frame: int in 3: await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	var index: int = shop._index_of("supportz")
-	assert_eq(index, 5, "Current catalogue's structural blank moved with retired merchandise.")
+	assert_eq(index, 8, "Current catalogue's structural blank moved with retired merchandise.")
 	assert_true(shop._records[index].blank)
 	assert_false(shop.cards.has("supportz"), "Blank remains noninteractive.")
-	var card_height: float = shop.cards.lucky_charm.size.y
+	var card_height: float = shop.cards.crystal_stutters.size.y
 	var local_point := Vector2(26 + (index % 3) * 152, 26 + floori(float(index) / 3.0) * (card_height + 8))
 	var point: Vector2 = shop._body.get_global_transform_with_canvas() * local_point
 	var image: Image = viewport.get_texture().get_image()
@@ -60,3 +50,49 @@ func test_rendered_blank_laminate_uses_the_current_supportz_slot() -> void:
 			"expected_rgba": [laminate.r, laminate.g, laminate.b, laminate.a],
 			"viewport_width": image.get_width(), "viewport_height": image.get_height()}))
 		proof.close()
+
+func _catalogue_rows() -> Array:
+	var catalogue: Variant = CATALOG.new()
+	var presentation: Variant = PRESENTATION.new()
+	var rows: Array = []
+	for item: Variant in catalogue.get_shop_items():
+		if item.id == "supportz": continue
+		var id: String = PRESENTATION._SOURCE_TO_PUBLIC.get(item.id, item.id)
+		rows.append({"id": id, "name": COPY.item_name("en", id), "unit_price": item.price,
+			"currency": item.currency, "available": true,
+			"batchable": id in PRESENTATION._BATCHABLE_IDS,
+			"legal_max": item.max_purchases if id in PRESENTATION._BATCHABLE_IDS else 1,
+			"card_art": presentation._texture(id, 28), "inspector_art": presentation._texture(id, 56)})
+	return rows
+
+func test_single_page_grid_and_balance_strip_at_1080p() -> void:
+	assert_ne(DisplayServer.get_name(), "headless")
+	if DisplayServer.get_name() == "headless": return
+	for percent: int in [100, 125, 150]:
+		var viewport := SubViewport.new()
+		viewport.size = Vector2i(1920, 1080)
+		viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+		add_child_autofree(viewport)
+		var shop: Control = SHOP.instantiate()
+		shop._balances = {"money": 200, "coins": 7}
+		assert_true(shop.configure_shop(_catalogue_rows(), "en", percent).ok)
+		shop.position = Vector2(560, 48)
+		viewport.add_child(shop)
+		for frame: int in 5: await get_tree().process_frame
+		assert_true(shop.last_result.ok)
+		assert_eq(shop.page_count, 1)
+		assert_eq(shop._records.size(), 9)
+		assert_false(shop.previous_button.visible)
+		assert_false(shop.next_button.visible)
+		assert_false(shop.page_label.visible)
+		assert_true(Rect2(0, 0, 1920, 1080).encloses(shop.get_global_rect()))
+		assert_lte(shop._balance_label.get_rect().end.x, shop._catalog.get_rect().end.x)
+		for card: Control in shop.cards.values():
+			assert_true(card.visible)
+			assert_true(shop._catalog.get_global_rect().encloses(card.get_global_rect()))
+		await RenderingServer.frame_post_draw
+		var pixels: Image = viewport.get_texture().get_image()
+		assert_eq(DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://.godot/ci")), OK)
+		assert_eq(pixels.save_png("res://.godot/ci/shop-single-page-%d.png" % percent), OK)
+		viewport.queue_free()
+		await get_tree().process_frame

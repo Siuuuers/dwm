@@ -79,11 +79,11 @@ func test_shell_layers_share_the_full_art_host_and_preserve_order() -> void:
 		assert_eq(child.mouse_filter, Control.MOUSE_FILTER_IGNORE)
 
 func test_shop_art_uses_valid_exact_sizes_and_wrong_size_keeps_procedural_tile() -> void:
-	_place("shop.lucky_charm.card", "ui-28.svg", Vector2i(28, 28))
-	_place("shop.lucky_charm.inspector", "ui-48.svg", Vector2i(48, 48))
+	_place("shop.crystal_stutters.card", "ui-28.svg", Vector2i(28, 28))
+	_place("shop.crystal_stutters.inspector", "ui-48.svg", Vector2i(48, 48))
 	var shop := SHOP.new()
-	var card: Texture2D = shop.call("_texture", "lucky_charm", 28)
-	var inspector: Texture2D = shop.call("_texture", "lucky_charm", 56)
+	var card: Texture2D = shop.call("_texture", "crystal_stutters", 28)
+	var inspector: Texture2D = shop.call("_texture", "crystal_stutters", 56)
 	assert_eq(card.get_size(), Vector2(28, 28))
 	assert_eq(inspector.get_size(), Vector2(56, 56))
 	assert_eq(card.resource_path, "res://tests/fixtures/art/ui-28.svg")

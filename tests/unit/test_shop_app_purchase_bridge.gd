@@ -8,7 +8,7 @@ const COPY := preload("res://scripts/ui/shop/ShopCopy.gd")
 class Provider extends RefCounted:
 	signal catalog_changed
 	var rows: Array = []
-	var balances := {"money": 120, "coins": 7}
+	var balances: Dictionary = {}
 	var purchases: Array[Dictionary] = []
 	var supportz_eligible := true
 	var reject_purchase := false
@@ -57,7 +57,7 @@ func test_buy_control_dispatches_selected_quantity_and_refreshes_the_catalog() -
 	assert_not_null(shop.get("_buy_button"))
 	shop.get("_buy_button").pressed.emit()
 	await _settle()
-	assert_eq(provider.purchases, [{"item_id": "lucky_charm", "quantity": 1}])
+	assert_eq(provider.purchases, [{"item_id": "crystal_stutters", "quantity": 1}])
 	assert_eq(shop.quantity, 1, "the provider publication resets quantity against the new owner snapshot")
 
 
@@ -74,11 +74,11 @@ func test_supportz_rechecks_eligibility_when_ordinary_catalog_does_not_change() 
 	assert_eq(shop.refresh_view(true).code, "unchanged")
 	assert_true(supportz.visible, "completing both base rounds must unlock the unchanged blank slot")
 	assert_false(supportz.disabled)
-	assert_eq(supportz.position, Vector2(304, 184), "page one lower-right slot follows the retained catalogue")
+	assert_eq(supportz.position, Vector2(304, 368), "page one lower-right slot follows the retained catalogue")
 	assert_eq(supportz.text, "", "eligibility never adds a visible secret name")
 	assert_eq(supportz.accessibility_name, "Blank shop card")
 	assert_eq(shop.page_count, 1)
-	assert_eq(shop.selected_id, "lucky_charm")
+	assert_eq(shop.selected_id, "crystal_stutters")
 	provider.supportz_eligible = false
 	shop.refresh_view(true)
 	assert_false(supportz.visible, "day/branch exhaustion must also refresh without changing ordinary rows")
@@ -96,15 +96,15 @@ func test_supportz_activation_asks_price_only_and_yes_purchases_once() -> void:
 	assert_eq(sheet.get("_price_body").text, "$45")
 	assert_false(sheet.request.warning)
 	assert_false(shop.can_return_home(), "the sheet owns Home custody")
-	assert_eq(shop.cards.lucky_charm.get_focus_mode_with_override(), Control.FOCUS_NONE)
+	assert_eq(shop.cards.crystal_stutters.get_focus_mode_with_override(), Control.FOCUS_NONE)
 	assert_eq(get_viewport().gui_get_focus_owner(), sheet.cancel_button)
 	sheet.confirm_button.pressed.emit()
 	sheet.confirm_button.pressed.emit()
 	await _settle()
 	assert_eq(provider.purchases, [{"item_id": "supportz", "quantity": 1}])
 	assert_false(supportz.visible)
-	assert_eq(shop.selected_id, "pocket_calculator_keepsake", "Returning focus also restores the ordinary inspector")
-	assert_eq(get_viewport().gui_get_focus_owner(), shop.cards.pocket_calculator_keepsake)
+	assert_eq(shop.selected_id, "debug_key", "Returning focus also restores the ordinary inspector")
+	assert_eq(get_viewport().gui_get_focus_owner(), shop.cards.debug_key)
 
 func test_supportz_purchase_departure_does_not_touch_a_retired_viewport() -> void:
 	var provider := Provider.new()
@@ -144,7 +144,7 @@ func test_supportz_yes_revalidates_and_keeps_refusal_inside_the_sheet() -> void:
 	assert_eq(sheet.get("_price_body").text, "$45\n\nUnavailable")
 	sheet.cancel_button.pressed.emit()
 	await _settle()
-	assert_eq(get_viewport().gui_get_focus_owner(), shop.cards.pocket_calculator_keepsake)
+	assert_eq(get_viewport().gui_get_focus_owner(), shop.cards.debug_key)
 
 func test_supportz_failed_transaction_never_closes_the_sheet_as_success() -> void:
 	var provider := Provider.new()
@@ -211,31 +211,31 @@ func test_focus_and_pointer_inspect_without_purchase_and_preserve_each_item_quan
 	var provider := Provider.new()
 	var shop := await _shop(provider)
 	provider.rows[0].description = "A crystal ornament from the campus shop."
-	provider.rows[1].description = "An Debug Key from the campus shop."
+	provider.rows[1].description = "An inked silk string from the campus shop."
 	provider.catalog_changed.emit()
 	await _settle()
 	assert_false(shop.quantity_buttons.maximum.visible)
 	assert_eq(shop.quantity, 1)
-	shop.cards.debug_key.grab_focus()
-	assert_eq(shop.selected_id, "debug_key", "No Enter press is needed")
-	assert_eq(shop.get("_name_label").text, "Debug Key")
+	shop.cards.inked_silk_string.grab_focus()
+	assert_eq(shop.selected_id, "inked_silk_string", "No Enter press is needed")
+	assert_eq(shop.get("_name_label").text, "inked silk string")
 	assert_eq(shop.get("_description_label").text, provider.rows[1].description)
 	assert_eq(shop.quantity, 1, "A different item does not inherit another item's batch")
-	assert_true(shop.cards.debug_key.selected)
-	shop.cards.lucky_charm.get_node("PointerSurface").mouse_entered.emit()
-	assert_eq(shop.selected_id, "lucky_charm", "The child pointer surface owns native hover")
+	assert_true(shop.cards.inked_silk_string.selected)
+	shop.cards.crystal_stutters.get_node("PointerSurface").mouse_entered.emit()
+	assert_eq(shop.selected_id, "crystal_stutters", "The child pointer surface owns native hover")
 	assert_eq(shop.quantity, 1, "Returning from a preview restores the edited quantity")
-	assert_eq(shop.get("_name_label").text, "Lucky Charm")
+	assert_eq(shop.get("_name_label").text, "crystal stutters")
 	assert_eq(shop.get("_description_label").text, provider.rows[0].description)
-	assert_true(shop.cards.lucky_charm.selected)
-	assert_false(shop.cards.debug_key.selected)
+	assert_true(shop.cards.crystal_stutters.selected)
+	assert_false(shop.cards.inked_silk_string.selected)
 	assert_true(provider.purchases.is_empty(), "Inspection never dispatches a purchase")
-	assert_eq(shop.get("_buy_button").accessibility_name, "Buy: Lucky Charm × 1")
+	assert_eq(shop.get("_buy_button").accessibility_name, "Buy: crystal stutters × 1")
 	shop.get("_buy_button").pressed.emit()
 	await _settle()
-	assert_eq(provider.purchases, [{"item_id": "lucky_charm", "quantity": 1}])
-	shop.cards.debug_key.grab_focus()
-	shop.cards.lucky_charm.grab_focus()
+	assert_eq(provider.purchases, [{"item_id": "crystal_stutters", "quantity": 1}])
+	shop.cards.inked_silk_string.grab_focus()
+	shop.cards.crystal_stutters.grab_focus()
 	assert_eq(shop.quantity, 1, "A successful purchase retires that item's old batch draft")
 
 
@@ -246,27 +246,27 @@ func test_inspection_does_not_retarget_a_held_buy_action() -> void:
 	buy.toggle_mode = true
 	buy.set_pressed_no_signal(true)
 	assert_true(buy.is_pressed())
-	shop.cards.debug_key.get_node("PointerSurface").mouse_entered.emit()
-	assert_eq(shop.selected_id, "lucky_charm")
-	assert_eq(shop.get("_name_label").text, "Lucky Charm")
+	shop.cards.inked_silk_string.get_node("PointerSurface").mouse_entered.emit()
+	assert_eq(shop.selected_id, "crystal_stutters")
+	assert_eq(shop.get("_name_label").text, "crystal stutters")
 	assert_true(provider.purchases.is_empty())
 	buy.set_pressed_no_signal(false)
 	buy.toggle_mode = false
-	shop.cards.debug_key.get_node("PointerSurface").mouse_entered.emit()
-	assert_eq(shop.selected_id, "debug_key")
+	shop.cards.inked_silk_string.get_node("PointerSurface").mouse_entered.emit()
+	assert_eq(shop.selected_id, "inked_silk_string")
 
 
 func test_changed_catalog_retires_all_saved_item_quantities() -> void:
 	var provider := Provider.new()
 	var shop := await _shop(provider)
 	assert_false(shop.quantity_buttons.maximum.visible)
-	shop.cards.debug_key.grab_focus()
+	shop.cards.inked_silk_string.grab_focus()
 	assert_false(shop.quantity_buttons.maximum.visible)
 	provider.rows[0].legal_max = 0
 	provider.catalog_changed.emit()
 	await _settle()
 	assert_eq(shop.quantity, 1)
-	shop.cards.lucky_charm.grab_focus()
+	shop.cards.crystal_stutters.grab_focus()
 	assert_eq(shop.quantity, 1, "A changed owner snapshot invalidates every old maximum")
 
 func _shop(provider: Provider) -> Control:
@@ -287,15 +287,19 @@ func _settle() -> void:
 
 func test_balances_refresh_even_when_catalog_rows_do_not_change() -> void:
 	var provider := Provider.new()
+	provider.balances = {"money": 120, "coins": 7}
 	var shop := await _shop(provider)
-	assert_eq(shop._balance_label.text, "$120\n7 coins")
+	assert_eq(shop._balance_label.text, "$120    7 coins")
 	provider.balances = {"money": 75, "coins": 3}
 	assert_true(shop.refresh_view(true).ok)
-	assert_eq(shop._balance_label.text, "$75\n3 coins")
-	assert_lte(shop._balance_label.get_rect().end.y, shop.info_scroll.position.y)
+	assert_eq(shop._balance_label.text, "$75    3 coins")
+	assert_eq(shop.info_scroll.position.y, 16.0)
+	assert_lte(shop._balance_label.get_rect().end.x, shop._catalog.get_rect().end.x)
+	assert_lte(shop._balance_label.get_rect().end.y, shop._catalog.position.y)
 
 func test_complete_card_names_and_balances_fit_every_font_and_locale() -> void:
 	var provider := Provider.new()
+	provider.balances = {"money": 120, "coins": 7}
 	var shop := await _shop(provider)
 	for style: String in ["pixel", "readable"]:
 		for locale: String in ["en", "zh-HK", "zh-CN", "ja", "ko"]:
@@ -309,7 +313,17 @@ func test_complete_card_names_and_balances_fit_every_font_and_locale() -> void:
 							label.size.x, label.get_theme_font_size("font_size"), -1, TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE)
 						assert_lte(measured.y, label.size.y, label.text)
 					if card.visible: assert_true(shop._catalog.get_global_rect().encloses(card.get_global_rect()))
-				assert_lte(shop._balance_label.get_rect().end.y, shop.info_scroll.position.y)
+				assert_true(shop.last_result.ok)
+				assert_eq(shop._balance_label.get_line_count(), 1)
+				assert_lte(shop._balance_label.get_rect().end.y, shop._catalog.position.y)
+				assert_eq(shop.info_scroll.position.y, 16.0)
+				assert_lte(shop._balance_label.get_rect().end.x, shop._catalog.get_rect().end.x)
+				assert_eq(shop.page_count, 1)
+				assert_eq(shop.page_capacity, 9)
+				assert_false(shop.previous_button.visible)
+				assert_false(shop.next_button.visible)
+				assert_false(shop.page_label.visible)
+				for card: Control in shop.cards.values(): assert_true(card.visible)
 				while shop.page_index < shop.page_count - 1: shop._change_page(1)
 				assert_true(shop._supportz_button.visible)
 				assert_true(shop._catalog.get_global_rect().encloses(shop._supportz_button.get_global_rect()))

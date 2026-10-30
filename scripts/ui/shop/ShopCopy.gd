@@ -47,6 +47,9 @@ const _TEXT := {
 
 const _ITEM_NAMES := {
 	"en": {
+		"crystal_stutters": "crystal stutters",
+		"inked_silk_string": "inked silk string",
+		"letter_with_wax_seal": "letter with wax seal",
 		"lucky_charm": "Lucky Charm",
 		"debug_key": "Debug Key",
 		"bookend_keepsake": "Bookend",
@@ -54,6 +57,9 @@ const _ITEM_NAMES := {
 		"pocket_calculator_keepsake": "Pocket Calculator"
 	},
 	"zh_CN": {
+		"crystal_stutters": "水晶碎光",
+		"inked_silk_string": "墨染丝线",
+		"letter_with_wax_seal": "火漆封缄信",
 		"lucky_charm": "幸运符",
 		"debug_key": "调试键",
 		"bookend_keepsake": "书挡",
@@ -61,6 +67,9 @@ const _ITEM_NAMES := {
 		"pocket_calculator_keepsake": "袖珍计算器"
 	},
 	"zh_HK": {
+		"crystal_stutters": "水晶碎光",
+		"inked_silk_string": "墨染絲線",
+		"letter_with_wax_seal": "火漆封緘信",
 		"lucky_charm": "幸運符",
 		"debug_key": "除錯鍵",
 		"bookend_keepsake": "書擋",
@@ -68,6 +77,9 @@ const _ITEM_NAMES := {
 		"pocket_calculator_keepsake": "袖珍計算器"
 	},
 	"ja": {
+		"crystal_stutters": "水晶のさざめき",
+		"inked_silk_string": "墨染めの絹糸",
+		"letter_with_wax_seal": "封蝋付きの手紙",
 		"lucky_charm": "幸運のお守り",
 		"debug_key": "デバッグキー",
 		"bookend_keepsake": "ブックエンド",
@@ -75,6 +87,9 @@ const _ITEM_NAMES := {
 		"pocket_calculator_keepsake": "ポケット電卓"
 	},
 	"ko": {
+		"crystal_stutters": "수정의 속삭임",
+		"inked_silk_string": "먹빛 비단실",
+		"letter_with_wax_seal": "밀랍 봉인 편지",
 		"lucky_charm": "행운의 부적",
 		"debug_key": "디버그 키",
 		"bookend_keepsake": "북엔드",
@@ -86,15 +101,30 @@ const _ITEM_NAMES := {
 
 const _ITEM_DESCRIPTIONS := {
 	"en": {
+		"crystal_stutters": "A keepsake stored in your inventory. No decorative effect.",
+		"inked_silk_string": "A keepsake stored in your inventory. No decorative effect.",
+		"letter_with_wax_seal": "A keepsake stored in your inventory. No decorative effect.",
 	},
 	"zh_CN": {
+		"crystal_stutters": "存放于物品栏的纪念品，不会产生装饰效果。",
+		"inked_silk_string": "存放于物品栏的纪念品，不会产生装饰效果。",
+		"letter_with_wax_seal": "存放于物品栏的纪念品，不会产生装饰效果。",
 	},
 	"zh_HK": {
+		"crystal_stutters": "存放於物品欄的紀念品，不會產生裝飾效果。",
+		"inked_silk_string": "存放於物品欄的紀念品，不會產生裝飾效果。",
+		"letter_with_wax_seal": "存放於物品欄的紀念品，不會產生裝飾效果。",
 	},
 	"ja": {
+		"crystal_stutters": "インベントリに保管する記念品です。装飾効果はありません。",
+		"inked_silk_string": "インベントリに保管する記念品です。装飾効果はありません。",
+		"letter_with_wax_seal": "インベントリに保管する記念品です。装飾効果はありません。",
 	},
 	"ko": {
-	}
+		"crystal_stutters": "인벤토리에 보관하는 기념품입니다. 장식 효과는 없습니다.",
+		"inked_silk_string": "인벤토리에 보관하는 기념품입니다. 장식 효과는 없습니다.",
+		"letter_with_wax_seal": "인벤토리에 보관하는 기념품입니다. 장식 효과는 없습니다.",
+	},
 }
 
 

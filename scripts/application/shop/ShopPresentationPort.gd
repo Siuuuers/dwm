@@ -14,8 +14,9 @@ const _CAPABILITY_RULES := preload("res://scripts/domain/minesweeper/Minesweeper
 
 const _SPECIAL_IDS: Array[String] = ["supportz", "lucky_charm", "debug_key"]
 const _PUBLIC_ORDER: Array[String] = [
-	"lucky_charm", "debug_key", "bookend_keepsake",
-	"metronome_keepsake", "pocket_calculator_keepsake",
+	"crystal_stutters", "inked_silk_string", "letter_with_wax_seal",
+	"metronome_keepsake", "pocket_calculator_keepsake", "bookend_keepsake",
+	"lucky_charm", "debug_key",
 ]
 const _SOURCE_TO_PUBLIC := {
 	"priscilla_gift": "bookend_keepsake",
@@ -436,7 +437,8 @@ func _texture(item_id: String, size: int) -> Texture2D:
 	if _art.has(key):
 		return _art[key]
 	var role := "card" if size == 28 else "inspector"
-	var placed := ART_MANIFEST.get_texture("shop.%s.%s" % [item_id, role], Vector2i(size, size))
+	var art_id: String = {"lucky_charm": "weighted_plush", "debug_key": "bandage_pack"}.get(item_id, item_id)
+	var placed := ART_MANIFEST.get_texture("shop.%s.%s" % [art_id, role], Vector2i(size, size))
 	if placed != null:
 		_art[key] = placed
 		return placed

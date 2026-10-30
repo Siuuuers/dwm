@@ -77,7 +77,7 @@ func _desktop_samples(language: String) -> void:
 	var opened: Dictionary = desktop.open_app(&"shop")
 	if check(opened.get("ok", false), "Shop open"):
 		await settle()
-		opened.value.app.cards.lucky_charm.grab_focus()
+		opened.value.app.cards.crystal_stutters.grab_focus()
 		await capture("shop", language, 100, main)
 	desktop.return_home()
 	var mine_fixture := MINES.new()

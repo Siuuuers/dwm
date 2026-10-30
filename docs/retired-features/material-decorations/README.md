@@ -1,8 +1,10 @@
 # Retired material decorations
 
-All three decorations and their purchases are retired: Crystal Stutters
-(`crystal_stutters`), Inked Silk String (`inked_silk_string`), and Letter with Wax
-Seal (`letter_with_wax_seal`). This supersedes the material-decoration handoff.
+The rendering functions for Crystal Stutters (`crystal_stutters`), Inked Silk
+String (`inked_silk_string`), and Letter with Wax Seal (`letter_with_wax_seal`)
+remain retired. Following the owner's clarification, all three are purchasable
+again for $45 each, once per run, and add only to inventory. PR #166's purchase
+retirement is superseded; its rendering retirement remains in force.
 
 ## Preserved implementation
 
@@ -11,26 +13,33 @@ Seal (`letter_with_wax_seal`). This supersedes the material-decoration handoff.
 renderer, computer/art/transport integrations, Shop catalogue/copy/art, effect
 registration, and former unit/rendered purchase journeys. Files end in `.gd.txt`
 so Godot cannot import them as live scripts. `source-sha256.json` records their
-original SHA-256 hashes. The complete original revision remains in Git history.
-These snapshots are historical references, not an alternate enabled feature.
+original SHA-256 hashes. These snapshots are unchanged historical references.
 
-## Runtime disposition
+## Current runtime disposition
 
-- Remove crystal cracks, silk edging and purchased paper from every surface.
-- Remove all three offers, localized descriptions, item art, and effect registrations.
-- Reject direct purchase attempts through the current Shop owner without mutation.
-- Preserve the five ordinary products and the secret Supportz slot, interaction
-  improvements, typography, layout, focus and disabled-state styling.
-- Preserve legacy inventory and historical receipt data as inert save data. No
-  refunds, destructive migration, or feature toggle is introduced. New runs do
-  not inherit the inventory. Compatibility-only Notes purchase-count identifiers
-  remain accepted by the existing schema; they do not enable these Shop offers.
+- No crystal cracks, silk edging or purchased paper on any surface.
+- Three $45 offers grant ordinary inventory only; no stat, Notes or visual effect.
+- Existing owned inventory remains owned and prevents duplicate purchases.
+  Save/load preserves it; a new run starts with its own inventory. No refund,
+  destructive migration or toggle is introduced.
+- Public order: Crystal Stutters, Inked Silk String, Letter with Wax Seal,
+  Metronome, Pocket Calculator, Bookend, Lucky Charm, Debug Key. The secret
+  Supportz slot remains last. Capability and currency rules are unchanged.
+- Lucky Charm uses the pre–PR #1 Weighted Plush tile; Debug Key uses Bandage Pack.
+  At `9e43b52c9884ccd59e82245d2168c3113ee4d037`, the optional PNGs were absent:
+  ShopPresentationPort generated ID-derived coloured tiles with one-pixel borders.
+  The owner chose these exact historical tiles rather than newly drawn icons.
+- Balances share a tinted header above only the catalogue; all nine slots form
+  one 3×3 grid. The pager is retired and its code is preserved in
+  [shop-pagination](../shop-pagination/README.md). The
+  redundant inspector price beside availability is removed. Card prices and
+  purchase totals remain exact and localized.
 
 ## Verification
 
-The retained `shop_cosmetic_journey` suite name now tests retirement: seed legacy
-ownership, assert unchanged sampled pixels and absent cards, reject direct
-purchases, save through the real owner, load in a fresh process, and start a new
-run without modifying the prior save. Unit tests cover the reduced catalogue,
-retired art/copy, purchase rejection and unchanged layout/focus/control styles.
-Godot/rendered verification runs in GitHub Actions per repository policy.
+`shop_cosmetic_journey` purchases all three through the real owner, checks one
+$45 debit apiece and unchanged sampled desktop pixels, saves, loads in a fresh
+process, rejects duplicate purchases, and checks new-run availability without
+modifying the prior save. Catalogue, art provenance, focus and 100/125/150% layout
+checks cover the restored offers. Godot/rendered verification runs in GitHub
+Actions per repository policy; check the current PR for execution results.

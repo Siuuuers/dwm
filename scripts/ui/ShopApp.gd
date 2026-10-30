@@ -17,7 +17,7 @@ var cards: Dictionary = {}
 var page_index := 0
 var page_capacity := 9
 var page_count := 1
-var selected_id := "lucky_charm"
+var selected_id := "crystal_stutters"
 var quantity := 1
 var _item_quantities: Dictionary = {}
 var previous_button: Button
@@ -40,7 +40,6 @@ var _balance_label: Label
 var _balances: Dictionary = {}
 var _name_label: Label
 var _description_label: Label
-var _meta_price: Label
 var _meta_state: Label
 var _quantity_label: Label
 var _total_label: Label
@@ -398,8 +397,9 @@ func _ready() -> void:
 	page_label.add_theme_color_override("font_color", _role("secondary_dark_copy"))
 	page_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	next_button = _button("next", Vector2(320, 576), Vector2(144, 64), func(): _change_page(1))
-	_balance_label = _label(_body, Vector2(496, 16), Vector2(272, 0))
+	_balance_label = _label(_body, Vector2(32, 24), Vector2(416, 0))
 	_balance_label.name = "Balances"
+	_balance_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	info_scroll = ScrollContainer.new()
 	info_scroll.name = "InformationViewport"
 	info_scroll.position = Vector2(480, 16)
@@ -433,10 +433,8 @@ func _ready() -> void:
 	info_scroll.get_v_scroll_bar().value_changed.connect(func(_value): _information_overlay.queue_redraw())
 	info_scroll.focus_entered.connect(_information_overlay.queue_redraw)
 	info_scroll.focus_exited.connect(_information_overlay.queue_redraw)
-	_meta_price = _label(_body, Vector2(496, 400), Vector2(136, 48))
 	_meta_state = _label(_body, Vector2(632, 400), Vector2(136, 48))
 	# Pinned facts stay on one line; their exact bounds are checked before use.
-	_meta_price.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_meta_state.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_meta_state.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_quantity_label = _label(_body, Vector2(608, 456), Vector2(48, 48), false)
@@ -515,13 +513,21 @@ func _rebuild_catalog() -> void:
 func _measure_catalog(revision: int) -> void:
 	if not _view_is_current(): return
 	if revision != _measurement_revision or not last_result.ok: return
+	_refresh_balances()
 	var card_height := 176.0
 	for card in cards.values():
 		card.refresh_layout()
 		card_height = maxf(card_height, card.custom_minimum_size.y)
-	page_capacity = maxi(1, floori((_catalog.size.y + 8) / (card_height + 8))) * 3
-	page_count = maxi(1, ceili(float(_records.size()) / page_capacity))
-	page_index = int(_index_of(selected_id) / page_capacity) if cards.has(selected_id) else 0
+	# All nine structural slots remain on one page, including secret Supportz.
+	page_capacity = 9
+	page_count = 1
+	page_index = 0
+	_catalog.size.y = 3 * card_height + 16
+	var plate_height := maxf(656, _catalog.position.y + _catalog.size.y + 16)
+	_body.size = Vector2(800, plate_height)
+	_content_host.custom_minimum_size = _body.size
+	custom_minimum_size = _body.size
+	size = _body.size
 	for card in cards.values(): card.size = Vector2(144, card_height)
 	_show_page(_focus_after_layout)
 	_catalog_layout_pending = false
@@ -529,7 +535,13 @@ func _measure_catalog(revision: int) -> void:
 
 func _show_page(focus_selection: bool = true) -> void:
 	_cancel_contacts()
-	for control in [previous_button, next_button, page_label, _total_label]: control.show()
+	_total_label.show()
+	# Retain the former controls as inert compatibility objects; no paging UI.
+	for control in [previous_button, next_button, page_label]: control.hide()
+	for button: Button in [previous_button, next_button]:
+		button.disabled = true
+		button.focus_mode = Control.FOCUS_NONE
+		button.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for card in cards.values(): card.hide()
 	_supportz_button.hide()
 	var start := page_index * page_capacity
@@ -587,31 +599,17 @@ func _render_selection() -> void:
 	for item_id in cards: cards[item_id].selected = item_id == selected_id
 	info_scroll.show()
 	_information_overlay.show()
-	_meta_price.show()
 	_meta_state.show()
 	_art.texture = record.inspector_art
 	_name_label.text = record.name
 	_description_label.text = record.get("description", "")
-	_meta_price.text = _price(record.unit_price, record.currency)
 	_meta_state.text = _t("available" if record.available else "sold_out")
-	# Keep both exact facts in the pinned band. Enlarged localized copy may use
-	# its side padding, but never the information pane or transaction controls.
-	var state_width := 2 * ceili(_meta_state.get_theme_font("font").get_string_size(
-		_meta_state.text, HORIZONTAL_ALIGNMENT_LEFT, -1, _meta_state.get_theme_font_size("font_size")).x / 2.0)
-	var price_width := 2 * ceili(_meta_price.get_theme_font("font").get_string_size(
-		_meta_price.text, HORIZONTAL_ALIGNMENT_LEFT, -1, _meta_price.get_theme_font_size("font_size")).x / 2.0)
-	var meta_padding := clampi(2 * floori((304 - price_width - state_width - 16) / 4.0), 0, 16)
-	# Label line metrics can exceed get_string_size (including fallback ascent).
-	# Grow upward into scrollable information, keeping the dock boundary fixed.
-	var meta_height := maxi(48, 2 * ceili(maxf(_meta_price.get_minimum_size().y,
-		_meta_state.get_minimum_size().y) / 2.0))
-	_meta_price.position.x = 480 + meta_padding
-	_meta_price.size = Vector2(maxi(0, 304 - 2 * meta_padding - state_width - 16), meta_height)
-	_meta_state.position.x = 784 - meta_padding - state_width
-	_meta_state.size = Vector2(state_width, meta_height)
+	# Availability has its own pinned row; unit price remains on the card and total.
+	var meta_height := maxi(48, 2 * ceili(_meta_state.get_minimum_size().y / 2.0))
+	_meta_state.position.x = 496
+	_meta_state.size = Vector2(272, meta_height)
 	var meta_y := (384 if _large else 448) - meta_height
 	info_scroll.size.y = meta_y - info_scroll.position.y
-	_meta_price.position.y = meta_y
 	_meta_state.position.y = meta_y
 	_information_overlay.position = info_scroll.position
 	_information_overlay.size = info_scroll.size
@@ -657,7 +655,7 @@ func _verify_dock_fit() -> void:
 	if not _view_is_current(): return
 	if _catalog_layout_pending or not last_result.ok: return
 	# Do not truncate exact amounts or invent a lower owner maximum to fit a key.
-	for label: Label in [_quantity_label, _total_label, _meta_price, _meta_state, status_label]:
+	for label: Label in [_quantity_label, _total_label, _meta_state, _balance_label, status_label]:
 		if not label.visible: continue
 		var measure := label.get_theme_font("font").get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, label.get_theme_font_size("font_size"))
 		var fits := measure.x <= label.size.x and measure.y <= label.size.y
@@ -669,20 +667,22 @@ func _verify_dock_fit() -> void:
 			return
 	var band_top := info_scroll.position.y + info_scroll.size.y
 	var meta_band := Rect2(480, band_top, 304, (384 if _large else 448) - band_top)
-	if not meta_band.encloses(_meta_price.get_rect()) or not meta_band.encloses(_meta_state.get_rect()) \
-			or _meta_price.position.x + _meta_price.size.x + 16 > _meta_state.position.x:
+	if not meta_band.encloses(_meta_state.get_rect()):
 		last_result = {"ok": false, "code": "shop_dock_does_not_fit"}
 		_show_recovery()
 
 func _refresh_balances() -> void:
 	if not is_instance_valid(_balance_label): return
 	_balance_label.visible = not _balances.is_empty()
-	_balance_label.text = "" if _balances.is_empty() else "%s\n%s" % [_price(int(_balances.money), "money"), _price(int(_balances.coins), "minesweeper_coin")]
-	_balance_label.size = Vector2(272, 0)
-	var top := 16.0 if _balances.is_empty() else 24.0 + _balance_label.get_minimum_size().y
+	_balance_label.text = "" if _balances.is_empty() else "%s    %s" % [_price(int(_balances.money), "money"), _price(int(_balances.coins), "minesweeper_coin")]
+	_balance_label.size = Vector2(416, 0)
+	_balance_label.size.y = _balance_label.get_minimum_size().y
+	var top := 16.0 if _balances.is_empty() else 40.0 + _balance_label.size.y
+	_catalog.position.y = top
+	_body.queue_redraw()
 	var bottom := info_scroll.position.y + info_scroll.size.y
-	info_scroll.position.y = top
-	info_scroll.size.y = maxf(96.0, bottom - top)
+	info_scroll.position.y = 16.0
+	info_scroll.size.y = maxf(96.0, bottom - info_scroll.position.y)
 	if is_instance_valid(_information_overlay):
 		_information_overlay.position = info_scroll.position
 		_information_overlay.size = info_scroll.size
@@ -797,7 +797,7 @@ func _restore_supportz_focus() -> void:
 	if not _has_host_custody(): return
 	_refresh_supportz()
 	_wire_focus()
-	var target: Control = _supportz_button if _supportz_button.visible else cards.get("pocket_calculator_keepsake")
+	var target: Control = _supportz_button if _supportz_button.visible else cards.get("debug_key")
 	if is_instance_valid(target) and target.is_visible_in_tree(): target.grab_focus()
 
 func _dispatch_purchase(item_id: String, requested_quantity: int) -> void:
@@ -914,7 +914,7 @@ func _cancel_contacts() -> void:
 func _show_recovery() -> void:
 	_catalog_layout_pending = false
 	for card in cards.values(): card.hide()
-	for control in [info_scroll, _information_overlay, _meta_price, _meta_state, previous_button, next_button, page_label, _quantity_label, _total_label, _buy_button, _supportz_button] + quantity_buttons.values(): control.hide()
+	for control in [info_scroll, _information_overlay, _balance_label, _meta_state, previous_button, next_button, page_label, _quantity_label, _total_label, _buy_button, _supportz_button] + quantity_buttons.values(): control.hide()
 	status_label.position = Vector2(32, 32)
 	status_label.size = Vector2(736, 576)
 	status_label.text = _t("unavailable")
@@ -984,14 +984,16 @@ func _button(key: String, at: Vector2, measure: Vector2, action: Callable) -> Bu
 	return button
 
 func _draw_plate() -> void:
-	_body.draw_rect(Rect2(0, 0, 800, 656), _role("habitat"))
+	_body.draw_rect(Rect2(Vector2.ZERO, _body.size), _role("habitat"))
 	if not last_result.ok: return
-	_body.draw_rect(Rect2(16, 16, 768, 624), _role("controlled_face"))
+	_body.draw_rect(Rect2(16, 16, 768, _body.size.y - 32), _role("controlled_face"))
 	_body.draw_rect(Rect2(480, 16, 304, 368 if _large else 432), _role("laminate"))
+	if not _balances.is_empty():
+		_body.draw_rect(Rect2(16, 16, 448, _catalog.position.y - 24), _role("paper"))
 	var blank_index := _index_of("supportz") - page_index * page_capacity
 	if blank_index >= 0 and blank_index < page_capacity and not cards.is_empty():
 		var height: float = cards.values()[0].size.y
-		var at := Vector2(16 + (blank_index % 3) * 152, 16 + (blank_index / 3) * (height + 8))
+		var at := Vector2(16 + (blank_index % 3) * 152, _catalog.position.y + (blank_index / 3) * (height + 8))
 		_body.draw_rect(Rect2(at, Vector2(144, height)), _role("controlled_face"))
 		_body.draw_rect(Rect2(at + Vector2(4, 4), Vector2(136, height - 8)), _role("laminate"))
 

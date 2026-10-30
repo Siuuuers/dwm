@@ -68,7 +68,7 @@ func test_scene_retry_keeps_issued_request_and_does_not_requote() -> void:
 	assert_eq(owner.previews, [["priscilla_gift", 1]])
 	assert_eq(owner.commits[0][0], "priscilla_gift")
 	assert_eq(issuer.next, 1)
-	assert_eq(port.purchase("lucky_charm", 1).code, &"shop_purchase_pending")
+	assert_eq(port.purchase("crystal_stutters", 1).code, &"shop_purchase_pending")
 	assert_eq(owner.commits.size(), 1)
 	owner.commit_ok = true
 	assert_true(port.purchase("bookend_keepsake", 1).ok)
@@ -86,9 +86,9 @@ func test_scene_pending_retry_cannot_cross_session() -> void:
 	var issuer := LEGACY_FIXTURES.Issuer.new()
 	var port := PORT.new()
 	assert_true(port.configure_scene(owner, catalog, issuer, gate).ok)
-	assert_false(port.purchase("lucky_charm", 1).ok)
+	assert_false(port.purchase("crystal_stutters", 1).ok)
 	owner.generation += 1
-	assert_eq(port.purchase("lucky_charm", 1).code, &"stale_live_session")
+	assert_eq(port.purchase("crystal_stutters", 1).code, &"stale_live_session")
 	assert_eq(owner.commits.size(), 1)
 	assert_eq(issuer.next, 1)
 	assert_true(port.has_pending_purchase())
@@ -140,14 +140,14 @@ func test_changed_source_releases_refused_pending_without_retargeting_it() -> vo
 	var issuer := LEGACY_FIXTURES.Issuer.new()
 	var port := PORT.new()
 	assert_true(port.configure_scene(owner, catalog, issuer, gate).ok)
-	assert_false(port.purchase("lucky_charm", 1).ok)
+	assert_false(port.purchase("crystal_stutters", 1).ok)
 	owner.occurrence = "scene-b"
-	assert_eq(port.purchase("lucky_charm", 1).code, &"scene_shop_source_changed")
+	assert_eq(port.purchase("crystal_stutters", 1).code, &"scene_shop_source_changed")
 	assert_false(port.has_pending_purchase())
 	assert_eq(owner.commits[1][4].scene_occurrence, "scene-a")
 	assert_eq(issuer.next, 1)
 	owner.commit_ok = true
-	assert_true(port.purchase("lucky_charm", 1).ok)
+	assert_true(port.purchase("crystal_stutters", 1).ok)
 	assert_eq(owner.commits[2][4].scene_occurrence, "scene-b")
 	assert_eq(issuer.next, 2)
 
