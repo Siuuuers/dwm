@@ -235,7 +235,7 @@ func test_ordinary_quantity_uses_the_same_durable_consequence_flow() -> void:
 	assert_eq(_participant.quote_requests.size(), 1)
 	assert_eq(_participant.quote_requests[0].quantity, 1)
 	assert_eq(_participant.prepare_requests.size(), 1)
-	assert_eq(_participant.prepare_requests[0].item_id, "bookend_keepsake")
+	assert_eq(_participant.prepare_requests[0].item_id, "priscilla_gift")
 	assert_eq(_consequence.requests.size(), 1)
 
 

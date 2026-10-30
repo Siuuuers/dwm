@@ -545,6 +545,7 @@ jobs:
                   }
                   shop_cosmetic_paths.update({
                       '.github/workflows/readability.yml',
+                      'tests/scene/test_shop_card.gd',
                       'docs/agent/2026-10-30-material-decoration-handoff.md',
                       'scripts/ui/MaterialDecoration.gd',
                       'scripts/ui/art/SceneArtView.gd',
