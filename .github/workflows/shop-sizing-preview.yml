@@ -29,7 +29,7 @@ jobs:
     timeout-minutes: 25
     env:
       LIBGL_ALWAYS_SOFTWARE: '1'
-      BASELINE_SHA: 7a06b0eabd05ecca8debc52fcd461f2bdb2473ab
+      BASELINE_SHA: e07bbae29123a4daad979ef6f2470f3cd6ee2480
     steps:
       - uses: actions/checkout@v7
         with:
