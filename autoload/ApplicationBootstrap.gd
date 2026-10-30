@@ -3005,8 +3005,8 @@ func _ensure_scene_desktop(host: Control) -> Dictionary:
 func _layout_scene_desktop(host: Control, desktop: Control) -> void:
 	if not is_instance_valid(host) or not is_instance_valid(desktop): return
 	var available: Vector2 = host.get_computer_mount().size
-	desktop.size = Vector2(920, 720)
-	desktop.scale = Vector2.ONE * maxf(0.1, minf(available.x / desktop.size.x, available.y / desktop.size.y))
+	desktop.scale = Vector2.ONE * maxf(0.1, minf(available.x / 968.0, available.y / 720.0))
+	desktop.size = Vector2(968, available.y / desktop.scale.y)
 	desktop.position = Vector2.ZERO
 
 func open_scene_apps(host: Control) -> Dictionary:

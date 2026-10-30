@@ -97,15 +97,17 @@ func test_wider_card_keeps_artwork_beside_complete_name() -> void:
 	var card := _card(row, 30)
 	await _settle()
 	var narrow_name_height: float = card.name_label.size.y
-	card.size.x = 184
+	card.size.x = 200
 	card.refresh_layout()
 	await _settle()
 	assert_eq(card._art_rect, Rect2(8, 8, 56, 56))
-	assert_eq(card.name_label.size.x, 104.0)
-	assert_eq(card.price_label.size.x, 168.0)
-	assert_eq(card.availability_label.size.x, 160.0)
+	assert_eq(card.name_label.size.x, 120.0)
+	assert_eq(card.price_label.size.x, 184.0)
+	assert_eq(card.availability_label.size.x, 176.0)
 	assert_lte(card.name_label.size.y, narrow_name_height)
 	assert_eq(card.name_label.get_theme_font_size("font_size"), 24)
+	for word: String in ["Metronome", "Calculator"]:
+		assert_lte(card.name_label.get_theme_font("font").get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, 24).x, card.name_label.size.x)
 
 func test_pointer_release_selects_once_and_cancels_after_leave_or_hide() -> void:
 	var card := _card(CATALOG_PROJECTION.project(_valid_rows()).value[0])

@@ -87,8 +87,8 @@ func test_single_page_grid_and_balance_strip_at_1080p() -> void:
 		assert_false(shop.page_label.visible)
 		assert_true(Rect2(0, 0, 1920, 1080).encloses(shop.get_global_rect()))
 		assert_eq(shop._catalog.position.y, 16.0)
-		assert_eq(shop._balance_label.position.x, shop.info_scroll.position.x + 16)
-		assert_eq(shop._balance_label.size.x, 272.0)
+		assert_eq(shop._balance_label.position.x, shop.info_scroll.position.x + 8)
+		assert_eq(shop._balance_label.size.x, 288.0)
 		assert_lte(shop._balance_label.get_rect().end.x, shop.info_scroll.get_rect().end.x)
 		assert_lte(shop._balance_label.get_rect().end.y, shop.info_scroll.position.y)
 		for card: Control in shop.cards.values():

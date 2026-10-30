@@ -57,11 +57,10 @@ func test_mounted_shop_sizing() -> void:
 						assert_true(button.disabled)
 						assert_eq(button.focus_mode, Control.FOCUS_NONE)
 					assert_eq(shop._catalog.position.y, 16.0)
-					assert_eq(shop._balance_label.position.x, shop.info_scroll.position.x + 16)
+					assert_eq(shop._balance_label.position.x, shop.info_scroll.position.x + 8)
 					assert_lte(shop._balance_label.get_rect().end.y, shop.info_scroll.position.y)
 					assert_lte(shop._balance_label.get_rect().end.x, shop.info_scroll.get_rect().end.x)
-					if locale == "en" and font_style == "pixel" and percent in [125, 150]:
-						assert_true(visible_rect.grow(1).encloses(catalog_rect), sample_id + ": complete default grid without scrolling")
+					assert_true(visible_rect.grow(1).encloses(catalog_rect), sample_id + ": complete grid without scrolling")
 				var card_samples: Array[Dictionary] = []
 				for item_id: String in shop.cards:
 					var card: Control = shop.cards[item_id]

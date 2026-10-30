@@ -400,7 +400,7 @@ func _ready() -> void:
 	page_label.add_theme_color_override("font_color", _role("secondary_dark_copy"))
 	page_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	next_button = _button("next", Vector2(320, 576), Vector2(144, 64), func(): _change_page(1))
-	_balance_label = _label(_body, Vector2(_inspector_x + 16, 24), Vector2(272, 0))
+	_balance_label = _label(_body, Vector2(_inspector_x + 8, 24), Vector2(288, 0))
 	_balance_label.name = "Balances"
 	_balance_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	info_scroll = ScrollContainer.new()
@@ -478,12 +478,12 @@ func _apply_colours() -> void:
 		if is_instance_valid(control): control.queue_redraw()
 
 func _rebuild_catalog() -> void:
-	_card_width = 184.0 if _scene_presentation else 144.0
+	_card_width = 200.0 if _scene_presentation else 144.0
 	_inspector_x = 3 * _card_width + 48
 	_plate_width = _inspector_x + 320
 	_catalog.size.x = 3 * _card_width + 16
 	info_scroll.position.x = _inspector_x
-	_balance_label.position.x = _inspector_x + 16
+	_balance_label.position.x = _inspector_x + 8
 	_total_label.position.x = _inspector_x + 16
 	_buy_button.position.x = _inspector_x + 160
 	_measurement_revision += 1
@@ -687,7 +687,7 @@ func _refresh_balances() -> void:
 	if not is_instance_valid(_balance_label): return
 	_balance_label.visible = not _balances.is_empty()
 	_balance_label.text = "" if _balances.is_empty() else "%s    %s" % [_price(int(_balances.money), "money"), _price(int(_balances.coins), "minesweeper_coin")]
-	_balance_label.size = Vector2(272, 0)
+	_balance_label.size = Vector2(288, 0)
 	_balance_label.size.y = _balance_label.get_minimum_size().y
 	var top := 16.0 if _balances.is_empty() else 40.0 + _balance_label.size.y
 	_catalog.position.y = 16.0
