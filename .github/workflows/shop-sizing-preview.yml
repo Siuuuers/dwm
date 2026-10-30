@@ -68,7 +68,8 @@ jobs:
               destination.mkdir(parents=True)
               isolated = source / '.godot/phase2r_tests/shop-sizing'
               env = dict(os.environ, DWM_TEST_ROOT=str(isolated / 'test-root'),
-                         XDG_DATA_HOME=str(isolated / 'data'), DWM_RENDER_OUTPUT=str(destination))
+                         XDG_DATA_HOME=str(isolated / 'data'), DWM_RENDER_OUTPUT=str(destination),
+                         DWM_SCENE_READING_FIXTURE='1')
               pathlib.Path(env['DWM_TEST_ROOT']).mkdir(parents=True)
               pathlib.Path(env['XDG_DATA_HOME']).mkdir(parents=True)
               # Reimport each tree; reuse only content-addressed resource imports, never script caches or saves.
@@ -85,8 +86,7 @@ jobs:
                   '--audio-driver', 'Dummy', '--log-file', str(destination / 'render.log'),
                   '-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=',
                   '-gtest=res://tests/ui/render_shop_mounted_sizing.gd', '-gexit', '-glog=1',
-                  '-gjunit_xml_file=' + str(destination / 'results.xml'),
-                  '--', '--phase2r-bootstrap-mode=test_manual', '--scene-reading-fixture'],
+                  '-gjunit_xml_file=' + str(destination / 'results.xml')],
                   env=env, timeout=480)
               for path in (source / '.godot/ci').glob('shop-mounted-*'):
                   if path.is_file(): shutil.copy2(path, destination / path.name)
