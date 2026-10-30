@@ -38,12 +38,12 @@ func test_fresh_process_load_restores_current_thought_and_empty_frame() -> void:
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256)
 	assert_eq(FileAccess.get_sha256("user://profile.json"), proof.profile_sha256)
 	await _capture_self_talk("fresh-process-restored-pair")
-	var in_run_backup: RefCounted = preload("res://scripts/application/backup/BackupPresentationPort.gd").new()
-	if not _ok(in_run_backup.configure(saves, "in_run")): return
-	prepared = in_run_backup.prepare_action("load", "slot:2")
+	await _click(caption.transport_rail.get_node("Load"))
+	var sheet: Node = get_node("/root/SceneRouter")._production_pause
+	prepared = sheet._backup_port.prepare_action("load", "slot:2")
 	if not _ok(prepared): return
 	ready_count = 0
-	loaded = in_run_backup.commit_action(prepared.value.token)
+	loaded = await sheet._backup_port.commit_action(prepared.value.token)
 	assert_eq(loaded.get("code"), &"scene_activation_pending", str(loaded))
 	if loaded.get("code") != &"scene_activation_pending" or not await _await_ready(): return
 	for frame: int in 6: await get_tree().process_frame
