@@ -10,6 +10,7 @@ const WOOD := Color("8e6850")
 const SAGE := Color("859b8b")
 const ROSE := Color("b7817d")
 const SLATE := Color("78919e")
+const RED := Color("a7353d")
 
 static func texture(item_id: String, size: int) -> Texture2D:
 	if size not in [28, 56]: return null
@@ -36,10 +37,17 @@ static func texture(item_id: String, size: int) -> Texture2D:
 			]
 		"crystal_stutters":
 			strokes = [
-				[9, 3, 10, 2, INK], [6, 5, 16, 3, INK], [4, 8, 20, 9, INK],
-				[7, 17, 14, 4, INK], [10, 21, 8, 3, INK], [13, 24, 2, 2, INK],
-				[10, 5, 8, 3, LIGHT], [7, 8, 14, 8, SLATE], [10, 16, 8, 5, SLATE],
-				[13, 8, 2, 14, PAPER], [8, 9, 3, 4, LIGHT], [17, 9, 3, 6, SAGE],
+				[13, 2, 2, 3, INK], [12, 5, 4, 4, INK], [11, 9, 6, 2, INK],
+				[13, 4, 1, 4, LIGHT], [12, 8, 3, 2, SLATE],
+				[2, 12, 3, 2, INK], [5, 11, 4, 4, INK], [9, 10, 2, 6, INK],
+				[4, 12, 4, 1, LIGHT], [7, 13, 3, 1, SLATE],
+				[17, 10, 2, 6, INK], [19, 11, 4, 4, INK], [23, 12, 3, 2, INK],
+				[18, 11, 2, 3, SLATE], [20, 12, 3, 1, LIGHT],
+				[11, 17, 6, 2, INK], [12, 19, 4, 4, INK], [13, 23, 2, 3, INK],
+				[12, 18, 3, 1, LIGHT], [13, 19, 2, 4, SLATE],
+				[12, 12, 4, 4, INK], [13, 12, 2, 3, LIGHT], [12, 14, 2, 2, SLATE],
+				[5, 4, 3, 3, INK], [6, 5, 1, 1, LIGHT],
+				[21, 21, 2, 3, INK], [21, 21, 1, 2, SLATE],
 			]
 		"inked_silk_string":
 			strokes = [
@@ -52,8 +60,9 @@ static func texture(item_id: String, size: int) -> Texture2D:
 			strokes = [
 				[3, 6, 22, 17, INK], [4, 7, 20, 15, PAPER], [5, 8, 3, 2, WOOD],
 				[8, 10, 3, 2, WOOD], [11, 12, 6, 2, WOOD], [17, 10, 3, 2, WOOD],
-				[20, 8, 3, 2, WOOD], [10, 14, 8, 6, INK], [11, 13, 6, 8, INK],
-				[11, 15, 6, 4, ROSE], [12, 14, 4, 6, ROSE], [13, 16, 2, 2, PAPER],
+				[20, 8, 3, 2, WOOD], [12, 14, 4, 3, RED], [13, 13, 2, 5, RED],
+				[6, 16, 1, 2, RED], [7, 17, 1, 2, RED], [8, 18, 2, 1, RED],
+				[9, 19, 2, 1, RED], [11, 20, 1, 1, RED],
 			]
 		"bookend_keepsake":
 			strokes = [
