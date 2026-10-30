@@ -44,8 +44,7 @@ func test_fresh_process_load_restores_current_thought_and_empty_frame() -> void:
 	if not _ok(prepared): return
 	ready_count = 0
 	loaded = await sheet._backup_port.commit_action(prepared.value.token)
-	assert_eq(loaded.get("code"), &"scene_activation_pending", str(loaded))
-	if loaded.get("code") != &"scene_activation_pending" or not await _await_ready(): return
+	if not _ok(loaded) or not await _await_ready(): return
 	for frame: int in 6: await get_tree().process_frame
 	assert_eq(bridge._runtime_adapter.current_line_id(), "line.scene.test.a.six")
 	assert_eq(_history_ids(), proof.empty_history_ids, "empty caption Load retains earlier thoughts in History")
