@@ -8,6 +8,12 @@ The `.gdignore` prevents the root game from importing this nested project.
 [The gd_libvgm comparison](GD_LIBVGM_EVALUATION.md) records a working playback
 trial and a reproducible clean-import blocker; that candidate is not adopted.
 
+To reproduce the isolated candidate comparison, run `build_gd_libvgm.py` then
+`compare_gd_libvgm.py` from this directory with Python. Windows builds debug and
+release libraries and launches an exported executable. Reports go to
+`reports/gd_libvgm/`. The two known strict native differences remain visible;
+passing this comparison is not approval to replace the game's audio backend.
+
 ## Build and check
 
 Use Python 3.12, a C++ compiler (GCC on Linux or Visual Studio 2022 C++ on Windows),

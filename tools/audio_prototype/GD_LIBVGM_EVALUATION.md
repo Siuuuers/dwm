@@ -41,6 +41,11 @@ The compiler requires a `.nsf` output name even for NSFe; rename it afterward.
 The NSFe `time` chunk carries 399 ms, versus 399.336 ms in the authored manifest.
 The effect is already silent at its end. No custom NSFe wrapper is necessary.
 
+The comparison's committed `fixtures/confirm.nsfe` is that direct export from
+pinned FamiStudio 4.5.3: 4235 bytes, SHA-256
+`84e71d644c17f4a26c8ae389e992c214efc50bc28b35022f69b830e90a44710e`.
+The runner verifies it before using it; these remain original test assets.
+
 ## Observed results
 
 | Check | Result |
@@ -106,3 +111,39 @@ millisecond endpoint reporting is acceptable and measure the actual temporary
 rollback operation. Native error forwarding and production shutdown integration
 remain required cutover work for either backend. Physical-device sound quality
 and latency have not been evaluated. No unrelated gameplay suites were run.
+
+## Actual restoration callers
+
+Read-only audit against master `57dec14142bfaebaee6bc41f52d5335a598f18be`:
+
+| Operation | Current owner and behavior |
+| --- | --- |
+| Pause/Resume | `AudioPlaybackPort.gd` retains the same playback; no seek |
+| Successful Load | `AudioManager.apply_restore_silent` uses the authored entrance via `AudioManifest`; not the elapsed session playhead |
+| New cue | Starts at authored entrance; the current registered music plan uses zero |
+| Settings/focus | Production output-only restoration does not reconstruct streams |
+| Failed audio operation/restore transaction | `AudioPlaybackPort.restore_runtime` reconstructs active players at captured elapsed positions |
+
+`tests/unit/test_audio_manager.gd` explicitly requires failed-operation rollback
+to preserve streams, physical positions, fades and identities. Restarting music
+on failure would change that contract. No such change is made by this trial.
+
+A diagnostic measured the complete unchanged `restore_runtime()` call for one
+active `loop_b` at a constructed captured position of 120 seconds: 1,351,688 us
+(about 1.35 s), with immediate reported position 120.002899 s. Only the position
+in a real capture was changed; this is not a real two-minute player journey or a
+statistical benchmark. It shows a synchronous recovery cost, not normal Load
+latency. Do not modulo the playhead by loop length without proving equivalent
+emulator state. Retaining playback during transactions could avoid replay, but
+would require its own ownership design and focused recovery tests.
+
+## Automated Windows trial
+
+`build_gd_libvgm.py` builds the pinned upstream debug/release libraries under
+`.build/gd_trial`. `compare_gd_libvgm.py` stages the unchanged production port and
+adapts only fixture factories in copies of the existing tests. It records a raw
+cold-import control, then requires a separate fresh project to import using the
+documented timing workaround. Strict native assertions remain unchanged: exactly
+the two recorded differences are recognized as unresolved diagnostics; additional
+failures stop the trial. Port checks, finite-output smoke, and Windows exported
+startup must pass. No binary package is published and no game backend is changed.

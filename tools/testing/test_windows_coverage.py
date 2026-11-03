@@ -24,10 +24,18 @@ GENERATED = {
 }
 
 
-def select(paths, event_name='pull_request', sources=None, selector=SELECTOR):
+def select(paths, event_name='pull_request', sources=None, selector=SELECTOR, diff_code=0, event_data=None, commands=None, check_code=0):
     def git(args, **kwargs):
+        if commands is not None:
+            commands.append(args)
+        if args[:3] == ['git', 'diff', '--check']:
+            if check_code and kwargs.get('check'):
+                raise subprocess.CalledProcessError(check_code, args)
+            return subprocess.CompletedProcess(args, check_code, b'')
         if args[:3] == ['git', 'diff', '--name-only']:
-            return subprocess.CompletedProcess(args, 0, ('\0'.join(sorted(paths)) + '\0').encode())
+            return subprocess.CompletedProcess(args, diff_code, ('\0'.join(sorted(paths)) + '\0').encode())
+        if args[:2] == ['git', 'show'] and args[2].startswith('HEAD^:'):
+            args = args[:2] + [args[2].replace('HEAD^:', 'a' * 40 + ':', 1)]
         if args[:2] == ['git', 'show'] and sources and args[2] in sources:
             return subprocess.CompletedProcess(args, 0, sources[args[2]].encode())
         if args[:2] == ['git', 'show'] and args[2].endswith(':.github/workflows/windows-tests.yml'):
@@ -47,7 +55,7 @@ def select(paths, event_name='pull_request', sources=None, selector=SELECTOR):
     with tempfile.TemporaryDirectory() as temporary:
         event = Path(temporary) / 'event.json'
         output = Path(temporary) / 'output'
-        event.write_text(json.dumps({'pull_request': {'base': {'sha': 'a' * 40}}}))
+        event.write_text(json.dumps(event_data if event_data is not None else {'pull_request': {'base': {'sha': 'a' * 40}}}))
         with patch.dict(os.environ, {'GITHUB_EVENT_NAME': event_name,
                                      'GITHUB_EVENT_PATH': str(event), 'GITHUB_OUTPUT': str(output)}), \
                 patch('subprocess.run', side_effect=git), contextlib.redirect_stdout(io.StringIO()):
@@ -56,6 +64,180 @@ def select(paths, event_name='pull_request', sources=None, selector=SELECTOR):
 
 
 class WindowsCoverageTests(unittest.TestCase):
+    def test_reviewed_prose_selects_docs_checks_for_pr_and_push(self):
+        paths = {'docs/agent/new-technical-handoff.md', 'docs/agent/2026-11-04-f5-baseline.md'}
+        for event, data, base in (
+            ('pull_request', {'pull_request': {'base': {'sha': 'a' * 40}}}, 'HEAD^'),
+            ('push', {'before': 'a' * 40}, 'a' * 40),
+        ):
+            commands = []
+            result = select(paths, event_name=event, event_data=data, commands=commands)
+            self.assertEqual(result['docs_only'], 'true')
+            self.assertIn(['git', 'diff', '--check', base, 'HEAD', '--', *sorted(paths)], commands)
+            for key in ('inventory_tooling', 'self_talk_panel', 'progression', 'comparison'):
+                self.assertEqual(result[key], 'false', key)
+
+    def test_proven_narrow_scopes_ignore_superseded_runtime_changes(self):
+        event = {'action': 'synchronize', 'before': 'b' * 40,
+                 'pull_request': {'base': {'sha': 'a' * 40}}}
+        for path, scope in (('docs/agent/prose.md', 'docs_only'),
+                            ('tools/runtime/PublicSurfaceInventory.gd', 'inventory_only')):
+            commands = []
+            result = select({path}, event_data=event, commands=commands)
+            self.assertEqual(result[scope], 'true')
+            self.assertEqual(result['comparison'], 'false')
+            self.assertFalse(any('b' * 40 in arg or '.zip' in arg for args in commands for arg in args))
+
+    def test_docs_contracts_other_markdown_and_mixed_changes_retain_coverage(self):
+        prose = 'docs/agent/new-technical-handoff.md'
+        for path in ('docs/agent/execution-map.md', 'docs/agent/2026-09-23-next-session-handoff.md',
+                     'docs/agent/nested/note.md', 'story/README.md', 'README.md', 'AGENTS.md',
+                     'docs/design/rule.md', 'docs/superpowers/plans/plan.md', 'evidence/result.md',
+                     'tests/fixtures/README.md', 'autoload/GameState.gd', 'autoload/SaveManager.gd',
+                     DAY, 'autoload/AudioManager.gd', 'tools/runtime/PublicSurfaceInventory.gd',
+                     'tests/unit/tooling/test_public_surface_inventory.gd',
+                     'tools/testing/test_windows_coverage.py', '.github/workflows/windows-tests.yml',
+                     'docs/agent/result.json'):
+            with self.subTest(path=path):
+                result = select({prose, path})
+                self.assertEqual(result['docs_only'], 'false')
+        for kwargs in ({'event_name': 'workflow_dispatch'}, {'diff_code': 128}, {'event_data': {}}):
+            self.assertEqual(select({prose}, **kwargs)['docs_only'], 'false')
+        self.assertEqual(select(set())['docs_only'], 'false')
+        result = select({prose, 'tests/unit/tooling/test_public_surface_inventory.gd'})
+        self.assertEqual(result['inventory_tooling'], 'true')
+
+    def test_docs_route_gates_broad_jobs_and_reports_whitespace_failure(self):
+        with self.assertRaises(subprocess.CalledProcessError):
+            select({'docs/agent/prose.md'}, check_code=2)
+        for job in ('focused-tests', 'windows-export', 'public-surfaces', 'rendered-journeys', 'rendered-desktop'):
+            section = WORKFLOW.split('  ' + job + ':', 1)[1].split('    steps:', 1)[0]
+            self.assertIn("needs.test-scope.outputs.docs_only != 'true'", section)
+        with tempfile.TemporaryDirectory() as directory:
+            subprocess.run(['git', 'init', '-q', directory], check=True)
+            path = Path(directory, 'docs/agent/prose.md')
+            path.parent.mkdir(parents=True)
+            path.write_text('Clean prose.\n')
+            subprocess.run(['git', '-C', directory, 'add', '.'], check=True)
+            path.write_text('Trailing whitespace.  \n')
+            result = subprocess.run(['git', '-C', directory, 'diff', '--check', '--', 'docs/agent/prose.md'],
+                                    capture_output=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn(b'trailing whitespace', result.stdout)
+
+    def test_closed_pr_cancels_its_group_without_starting_validation(self):
+        triggers = WORKFLOW.split('\non:\n', 1)[1].split('\npermissions:', 1)[0]
+        pull_request = triggers.split('  pull_request:\n', 1)[1].split('  push:', 1)[0]
+        types = re.search(r'^    types: \[(.*?)\]$', pull_request, re.M)[1]
+        self.assertEqual([value.strip() for value in types.split(',')],
+                         ['opened', 'synchronize', 'reopened', 'closed'])
+        self.assertIn('  push:\n    branches: [master]', triggers)
+        self.assertIn('  workflow_dispatch:', triggers)
+        concurrency = WORKFLOW.split('\nconcurrency:\n', 1)[1].split('\njobs:', 1)[0]
+        self.assertIn('group: windows-tests-${{ github.event.pull_request.number || github.ref }}', concurrency)
+        self.assertIn('cancel-in-progress: true', concurrency)
+        jobs = dict(re.findall(r'(?ms)^  ([\w-]+):\n(.*?)(?=^  [\w-]+:|\Z)',
+                               WORKFLOW.split('\njobs:\n', 1)[1]))
+        self.assertIn("    if: github.event.action != 'closed'\n", jobs['test-scope'])
+        closed = jobs.pop('closed-pr')
+        self.assertIn("    if: github.event.action == 'closed'\n", closed)
+        self.assertNotIn('uses:', closed)
+        self.assertEqual(closed.count('      - run:'), 1)
+        for name, job in jobs.items():
+            if name == 'test-scope':
+                continue
+            with self.subTest(job=name):
+                header = job.split('    steps:', 1)[0]
+                self.assertIn('    needs: test-scope\n', header)
+                condition = re.search(r'^    if: (.*)$', header, re.M)[1]
+                self.assertNotRegex(condition, r'\b(?:always|cancelled|failure)\s*\(')
+
+    def test_inventory_sources_and_test_only_select_linux(self):
+        for path in ('tools/runtime/PublicSurfaceInventory.gd',
+                     'tools/runtime/generate_public_surface_inventory.gd',
+                     'tests/unit/tooling/test_public_surface_inventory.gd'):
+            for paths in ({path}, {path, path + '.uid',
+                                  'evidence/phase_2r/runtime/game_state_surface.json',
+                                  'evidence/phase_2r/runtime/save_manager_surface.json'}):
+                with self.subTest(paths=paths):
+                    result = select(paths)
+                    self.assertEqual(result['inventory_tooling'], 'true')
+                    self.assertEqual(result['inventory_only'], 'true')
+                    self.assertEqual(result['comparison'], 'false')
+
+    def test_inventory_mixed_changes_preserve_runtime_coverage(self):
+        source = 'tools/runtime/PublicSurfaceInventory.gd'
+        for companion in ('autoload/GameState.gd', 'autoload/SaveManager.gd', DAY,
+                          'scenes/Title.tscn', 'autoload/AudioManager.gd',
+                          'unknown.gd', 'tools/testing/Invoke-PublicSurfaceValidation.ps1',
+                          'evidence/phase_2r/runtime/game_state_required_surface.json',
+                          '.github/workflows/windows-tests.yml',
+                          'tools/testing/test_windows_coverage.py'):
+            with self.subTest(companion=companion):
+                result = select({source, companion})
+                self.assertEqual(result['inventory_tooling'], 'true')
+                self.assertEqual(result['inventory_only'], 'false')
+                for key in ('focused', 'self_talk_panel', 'progression', 'dtl_content'):
+                    self.assertEqual(result[key], 'false', key)
+        for path in ('evidence/phase_2r/runtime/game_state_surface.json',
+                     'docs/agent/2026-11-04-inventory-preflight-efficiency.md',
+                     source + '.uid'):
+            self.assertEqual(select({path})['inventory_only'], 'false')
+
+    def test_inventory_events_and_unavailable_base(self):
+        paths = {'tools/runtime/PublicSurfaceInventory.gd'}
+        commands = []
+        self.assertEqual(select(paths, commands=commands)['inventory_only'], 'true')
+        self.assertIn(['git', 'diff', '--name-only', '-z', '--no-renames', 'HEAD^', 'HEAD'], commands)
+        commands.clear()
+        result = select(paths, 'push', event_data={'before': 'b' * 40}, commands=commands)
+        self.assertEqual(result['inventory_only'], 'true')
+        self.assertIn(['git', 'diff', '--name-only', '-z', '--no-renames', 'b' * 40, 'HEAD'], commands)
+        for kwargs in ({'event_name': 'workflow_dispatch'}, {'diff_code': 128},
+                       {'event_data': {}}, {'event_name': 'push', 'event_data': {'before': '0' * 40}}):
+            self.assertEqual(select(paths, **kwargs)['inventory_only'], 'false')
+
+    def test_inventory_renames_keep_both_paths(self):
+        with tempfile.TemporaryDirectory() as directory:
+            def git(*args):
+                return subprocess.check_output(['git', '-C', directory, *args])
+            git('init', '-q')
+            git('config', 'user.email', 'test@example.invalid')
+            git('config', 'user.name', 'Test')
+            old = Path(directory, 'runtime.gd')
+            old.write_text('extends RefCounted\n')
+            git('add', '.')
+            git('commit', '-qm', 'base')
+            new = Path(directory, 'tools/runtime/PublicSurfaceInventory.gd')
+            new.parent.mkdir(parents=True)
+            old.rename(new)
+            git('add', '-A')
+            git('commit', '-qm', 'rename')
+            paths = set(git('diff', '--name-only', '-z', '--no-renames', 'HEAD^', 'HEAD').decode().strip('\0').split('\0'))
+            self.assertEqual(paths, {'runtime.gd', 'tools/runtime/PublicSurfaceInventory.gd'})
+            self.assertEqual(select(paths)['inventory_only'], 'false')
+            self.assertEqual(select({'tools/runtime/PublicSurfaceInventory.gd'})['inventory_tooling'], 'true')
+
+    def test_inventory_job_is_required_and_broad_jobs_are_gated(self):
+        for job in ('focused-tests', 'windows-export', 'public-surfaces', 'rendered-journeys', 'rendered-desktop'):
+            section = WORKFLOW.split('  ' + job + ':', 1)[1].split('    steps:', 1)[0]
+            self.assertIn("needs.test-scope.outputs.inventory_only != 'true'", section)
+        section = WORKFLOW.split('  inventory-tooling:', 1)[1]
+        self.assertIn('needs: test-scope', section)
+        self.assertIn("if: needs.test-scope.outputs.inventory_tooling == 'true'", section)
+        self.assertNotIn('continue-on-error:', section)
+        self.assertIn('run: python tools/testing/run_inventory_checks.py', section)
+        self.assertIn('python tools/testing/test_inventory_runner.py', WORKFLOW)
+        self.assertIn('/tools/testing/test_inventory_runner.py', WORKFLOW)
+        for path in ('tools/testing/run_inventory_checks.py', 'tools/testing/test_inventory_runner.py',
+                     'tools/testing/test_windows_coverage.py', '.github/workflows/windows-tests.yml'):
+            self.assertEqual(select({path})['inventory_tooling'], 'true')
+            self.assertEqual(select({path})['inventory_only'], 'false')
+        dtl = (ROOT / '.github/workflows/dtl-first-preflight.yml').read_text()
+        triggers = dtl.split('  pull_request:', 1)[1].split('permissions:', 1)[0]
+        self.assertNotIn('tools/runtime', triggers)
+        self.assertNotIn('tests/unit/tooling', triggers)
+
     def test_lint_only_paths_skip_gameplay_for_push_and_pull_request(self):
         triggers = WORKFLOW.split('\non:\n', 1)[1].split('\npermissions:', 1)[0]
         expected = {
@@ -80,6 +262,7 @@ class WindowsCoverageTests(unittest.TestCase):
         paths = {
             'tools/audio_prototype/project.godot',
             'tools/audio_prototype/fixtures/loop.txt',
+            'CLAUDE.md',
             '.github/workflows/audio-prototype.yml',
             '.github/workflows/windows-tests.yml',
             'tools/testing/test_windows_coverage.py',
