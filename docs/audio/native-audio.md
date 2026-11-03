@@ -50,3 +50,11 @@ The Godot 4.6.3 cold-import crash remains unresolved. Verification uses the obse
 establish lifecycle and packaging behavior, not physical-device audibility.
 The original comparison and its measured timing differences remain in
 `tools/audio_prototype/GD_LIBVGM_EVALUATION.md` as historical evidence.
+
+Initial integration acceptance: [run 41718755394](https://github.com/Siuuuers/dwm/actions/runs/41718755394)
+passed 94 tests and 1,078 assertions on each platform at
+`1ccba0ac003417e72a274dd08a8499262a40ab14`. Windows also exported and launched
+successfully, completed application startup, played native music and a finite
+effect, and exited cleanly. The verifier temporarily makes its smoke scene the
+export's main scene because the release template disables command-line scene
+overrides. The game autoloads, resources and shutdown owner remain in that export.

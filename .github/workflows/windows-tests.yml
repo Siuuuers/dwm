@@ -174,6 +174,19 @@ jobs:
                           "tools/testing/test_windows_coverage.py",
                       } for p in paths)
                   native_audio_paths = {
+                      '.github/workflows/audio-prototype.yml',
+                      'tools/audio_prototype/verify.py',
+                      'tools/audio_prototype/NATIVE_NOTES.md',
+                      'tools/audio_prototype/GD_LIBVGM_EVALUATION.md',
+                      'tools/audio_prototype/FIXTURES.md',
+                      'tools/audio_prototype/licenses/README.md',
+                      'tools/audio_prototype/native/.gdignore',
+                      'tools/audio_prototype/native/nsf_stream.cpp',
+                      'tools/audio_prototype/SConstruct',
+                      'tools/audio_prototype/build.py',
+                      'tools/audio_prototype/build_profile.json',
+                      'tools/audio_prototype/nsf.gdextension',
+                      'tools/audio_prototype/nsf.gdextension.uid',
                       '.github/workflows/native-audio.yml',
                       '.github/workflows/windows-tests.yml',
                       '.gitignore',
@@ -207,8 +220,10 @@ jobs:
                              for p in paths)
                   workflow = '.github/workflows/windows-tests.yml'
                   inventory_test = 'tools/testing/test_inventory_runner.py'
-                  if paths and paths <= {workflow, inventory_test}:
-                      ci_jobs = ['inventory-tooling'] if inventory_test in paths else []
+                  coverage_test = 'tools/testing/test_windows_coverage.py'
+                  if paths and paths <= {workflow, inventory_test, coverage_test}:
+                      ci_jobs = [name for path, name in ((inventory_test, 'inventory-tooling'), (coverage_test, 'test-scope'))
+                                 if path in paths]
                       if workflow in paths:
                           sources = [subprocess.run(['git', 'show', ref + ':' + workflow], capture_output=True)
                                      for ref in (base, 'HEAD')]
@@ -856,7 +871,7 @@ jobs:
         shell: pwsh
     steps:
       - uses: actions/checkout@v7
-        if: matrix.suite != 'scene_current_frames'
+        if: matrix.suite != 'scene_current_frames' && matrix.suite != 'scene_current_creation'
         with:
           # The schedule-gate contract inspects its immutable historical seals.
           fetch-depth: ${{ (matrix.suite == 'new_account' || matrix.suite == 'desktop') && '0' || '1' }}
@@ -864,7 +879,7 @@ jobs:
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
       - name: Check out initial-frame and new-run inputs
-        if: matrix.suite == 'scene_current_frames'
+        if: matrix.suite == 'scene_current_frames' || matrix.suite == 'scene_current_creation'
         uses: actions/checkout@v7
         with:
           fetch-depth: 1

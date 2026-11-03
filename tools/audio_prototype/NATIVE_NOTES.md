@@ -1,5 +1,10 @@
 # Native prototype boundary
 
+> Historical prototype record. The custom adapter was retired after native game
+> integration passed. Its source and reproduction instructions remain at
+> [the archived revision](https://github.com/Siuuuers/dwm/tree/a91b013b51653c6e4830911a650d6730d184ca48/tools/audio_prototype).
+> See [native game audio](../../docs/audio/native-audio.md) for the current implementation.
+
 `DwmNsfStream.create(bytes, duration_seconds=0, intro_seconds=0, loop_seconds=0)`
 creates an immutable stream from trusted, single-song, NTSC, VRC6 NSF build output.
 A zero duration delegates looping to the NSF program. A positive duration gives

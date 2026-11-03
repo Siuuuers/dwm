@@ -66,6 +66,19 @@ def select(paths, event_name='pull_request', sources=None, selector=SELECTOR, di
 class WindowsCoverageTests(unittest.TestCase):
     def test_native_audio_integration_selects_its_own_workflow(self):
         paths = {
+            '.github/workflows/audio-prototype.yml',
+            'tools/audio_prototype/verify.py',
+            'tools/audio_prototype/NATIVE_NOTES.md',
+            'tools/audio_prototype/GD_LIBVGM_EVALUATION.md',
+            'tools/audio_prototype/FIXTURES.md',
+            'tools/audio_prototype/licenses/README.md',
+            'tools/audio_prototype/native/.gdignore',
+            'tools/audio_prototype/native/nsf_stream.cpp',
+            'tools/audio_prototype/SConstruct',
+            'tools/audio_prototype/build.py',
+            'tools/audio_prototype/build_profile.json',
+            'tools/audio_prototype/nsf.gdextension',
+            'tools/audio_prototype/nsf.gdextension.uid',
             '.github/workflows/native-audio.yml',
             '.github/workflows/windows-tests.yml',
             '.gitignore',
@@ -106,6 +119,7 @@ class WindowsCoverageTests(unittest.TestCase):
         self.assertEqual(select(paths | {'tools/audio_prototype/game_smoke.gd.uid'})['native_audio'], 'true')
         for unrelated in ('autoload/GameState.gd', 'autoload/SaveManager.gd',
                           'scripts/ui/Other.gd.uid', 'tools/audio_prototype/other.py',
+                          'tools/audio_prototype/native/other.cpp', 'tools/audio_prototype/licenses/other.md',
                           'docs/audio/other.md', '.github/workflows/other.yml'):
             sources = {'a' * 40 + ':autoload/ApplicationBootstrap.gd': '',
                        'HEAD:autoload/ApplicationBootstrap.gd': ''}
@@ -126,14 +140,22 @@ class WindowsCoverageTests(unittest.TestCase):
     def test_ci_job_edits_select_only_their_owners(self):
         workflow = '.github/workflows/windows-tests.yml'
         test = 'tools/testing/test_inventory_runner.py'
+        coverage = 'tools/testing/test_windows_coverage.py'
         for names, paths in (
             (['inventory-tooling'], {workflow}),
             (['rendered-desktop'], {workflow}),
             (['inventory-tooling', 'rendered-desktop'], {workflow, test}),
             (['inventory-tooling'], {test}),
+            (['test-scope'], {coverage}),
+            (['inventory-tooling', 'test-scope'], {test, coverage}),
+            (['inventory-tooling', 'test-scope'], {workflow, coverage}),
+            (['rendered-desktop', 'test-scope'], {workflow, coverage}),
+            (['inventory-tooling', 'rendered-desktop', 'test-scope'], {workflow, test, coverage}),
         ):
             before = WORKFLOW
             for name in names:
+                if name == 'test-scope':
+                    continue
                 label = {'inventory-tooling': 'Linux / inventory tooling',
                          'rendered-desktop': 'Rendered desktop and dialogue / Linux software OpenGL'}[name]
                 before = before.replace('    name: ' + label, '    name: Previous ' + label, 1)
@@ -165,15 +187,20 @@ class WindowsCoverageTests(unittest.TestCase):
             WORKFLOW + '\nenv:\n  EXTRA: value\n',
         )
         for before in variants:
-            result = select({workflow}, sources={'a' * 40 + ':' + workflow: before, 'HEAD:' + workflow: WORKFLOW})
-            self.assertEqual(result['ci_jobs'], '[]')
-        for path in ('tools/testing/test_windows_coverage.py', 'tools/testing/run_inventory_checks.py',
+            for paths in ({workflow}, {workflow, 'tools/testing/test_windows_coverage.py'}):
+                result = select(paths, sources={'a' * 40 + ':' + workflow: before, 'HEAD:' + workflow: WORKFLOW})
+                self.assertEqual(result['ci_jobs'], '[]')
+        for path in ('tools/testing/run_inventory_checks.py', 'tools/testing/self_talk_panel_scope.py',
+                     'tools/testing/progression_scope.py',
                      'autoload/GameState.gd', '.github/workflows/source-lint.yml'):
-            result = select({workflow, path}, sources={'a' * 40 + ':' + workflow: WORKFLOW,
-                                                       'HEAD:' + workflow: WORKFLOW})
-            self.assertEqual(result['ci_jobs'], '[]', path)
+            for paths in ({workflow, path}, {'tools/testing/test_windows_coverage.py', path}):
+                result = select(paths, sources={'a' * 40 + ':' + workflow: WORKFLOW,
+                                               'HEAD:' + workflow: WORKFLOW})
+                self.assertEqual(result['ci_jobs'], '[]', path)
         for kwargs in ({}, {'event_name': 'workflow_dispatch'}, {'diff_code': 128}, {'event_data': {}}):
             self.assertEqual(select({workflow}, **kwargs)['ci_jobs'], '[]')
+        for kwargs in ({'event_name': 'workflow_dispatch'}, {'diff_code': 128}, {'event_data': {}}):
+            self.assertEqual(select({'tools/testing/test_windows_coverage.py'}, **kwargs)['ci_jobs'], '[]')
 
     def test_ci_route_gates_unrelated_jobs(self):
         for name in ('focused-tests', 'windows-export', 'public-surfaces', 'rendered-journeys'):
@@ -349,7 +376,7 @@ class WindowsCoverageTests(unittest.TestCase):
         self.assertIn('python tools/testing/test_inventory_runner.py', WORKFLOW)
         self.assertIn('/tools/testing/test_inventory_runner.py', WORKFLOW)
         for path in ('tools/testing/run_inventory_checks.py', 'tools/testing/test_inventory_runner.py',
-                     'tools/testing/test_windows_coverage.py', '.github/workflows/windows-tests.yml'):
+                     '.github/workflows/windows-tests.yml'):
             self.assertEqual(select({path})['inventory_tooling'], 'true')
             self.assertEqual(select({path})['inventory_only'], 'false')
         dtl = (ROOT / '.github/workflows/dtl-first-preflight.yml').read_text()
@@ -737,8 +764,8 @@ class ReadabilityCoverageTests(unittest.TestCase):
     def test_initial_frame_checkout_preserves_inputs_without_historical_evidence(self):
         job = WORKFLOW.split('\n  focused-tests:', 1)[1].split('\n  startup-load-comparison:', 1)[0]
         checkout = job.split('      - name: Check out initial-frame and new-run inputs\n', 1)[1].split('      - name:', 1)[0]
-        self.assertIn("if: matrix.suite != 'scene_current_frames'", job.split('      - name:', 1)[0])
-        self.assertIn("if: matrix.suite == 'scene_current_frames'", checkout)
+        self.assertIn("if: matrix.suite != 'scene_current_frames' && matrix.suite != 'scene_current_creation'", job.split('      - name:', 1)[0])
+        self.assertIn("if: matrix.suite == 'scene_current_frames' || matrix.suite == 'scene_current_creation'", checkout)
         self.assertIn('sparse-checkout-cone-mode: false', checkout)
         patterns = textwrap.dedent(checkout.split('          sparse-checkout: |\n', 1)[1])
         keep = {'project.godot', 'evidence/.gdignore', 'assets/nested/image.png',

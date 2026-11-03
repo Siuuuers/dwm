@@ -1,5 +1,10 @@
 # Native prototype dependencies
 
+> Historical prototype record. The custom adapter was retired after native game
+> integration passed. Its source and reproduction instructions remain at
+> [the archived revision](https://github.com/Siuuuers/dwm/tree/a91b013b51653c6e4830911a650d6730d184ca48/tools/audio_prototype).
+> See [native game audio](../../../docs/audio/native-audio.md) for the current implementation.
+
 The native adapter dynamically links Game Music Emu 0.6.3 (LGPL-2.1-or-later),
 with only the NSF emulator enabled. Its source is
 https://github.com/libgme/game-music-emu/tree/0.6.3.
