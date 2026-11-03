@@ -63,14 +63,19 @@ def main():
             package.extract("templates/windows_release_x86_64.exe", verify.BUILD)
         preset = ROOT / "export_presets.cfg"
         original = preset.read_text()
+        project = ROOT / "project.godot"
+        original_project = project.read_text()
+        project.write_text(original_project.replace('run/main_scene="res://scenes/menu/MenuScene.tscn"',
+            'run/main_scene="res://native_audio_verify/smoke.tscn"'))
         template = (verify.BUILD / "templates/windows_release_x86_64.exe").as_posix()
         preset.write_text(original.replace('custom_template/release=""', 'custom_template/release="' + template + '"'))
         exported = reports / "export"
         exported.mkdir(exist_ok=True)
         verify.run("game-export", [*base, "--export-release", "Windows Desktop", exported / "game.exe"], cwd=ROOT)
         preset.write_text(original)
-        verify.run("exported-game", [exported / "game.exe", "--headless", "--audio-driver", "Dummy",
-            "res://native_audio_verify/smoke.tscn"], "NATIVE_GAME_EXPORT_PASS", cwd=exported)
+        project.write_text(original_project)
+        verify.run("exported-game", [exported / "game.exe", "--headless", "--audio-driver", "Dummy"],
+            "NATIVE_GAME_EXPORT_PASS", cwd=exported)
     print("PASS: native game integration and focused audio suites")
     shutil.rmtree(staged)
     (ROOT / "audio/bgm/_native_verify.nsf").unlink()

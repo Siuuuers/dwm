@@ -856,12 +856,24 @@ jobs:
         shell: pwsh
     steps:
       - uses: actions/checkout@v7
+        if: matrix.suite != 'scene_current_frames'
         with:
           # The schedule-gate contract inspects its immutable historical seals.
           fetch-depth: ${{ (matrix.suite == 'new_account' || matrix.suite == 'desktop') && '0' || '1' }}
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
+      - name: Check out initial-frame and new-run inputs
+        if: matrix.suite == 'scene_current_frames'
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: true
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/evidence/*
+            /evidence/.gdignore
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
