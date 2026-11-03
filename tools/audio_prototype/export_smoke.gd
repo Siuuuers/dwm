@@ -23,7 +23,7 @@ func _ready() -> void:
 	add_child(player)
 	player.stream = stream
 	player.play()
-	var retiring := weakref(player.get_stream_playback())
+	var retiring: WeakRef = weakref(player.get_stream_playback())
 	await get_tree().create_timer(0.7).timeout
 	if player.playing:
 		get_tree().quit(1)
