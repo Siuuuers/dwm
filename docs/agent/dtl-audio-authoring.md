@@ -110,3 +110,11 @@ cache uses the new registration. The cloud audio suites check compilation,
 playback, traversal and Save/Load; listening for artistic suitability remains an
 author review. Deleting or renaming IDs used by old draft saves can make those
 unshipped saves unusable; keep IDs stable or start a new draft run.
+
+## Planned live synthesis
+
+The [NES + VRC6 implementation handoff](2026-11-04-vrc6-audio-implementation-handoff.md)
+and [text music creation guide](music-creation-guide.md) describe future score
+compilation and live playback. Those documents preserve the cue and Save/Load
+rules above. They do not make synthesized score assets available in the current
+exporter or runtime.
