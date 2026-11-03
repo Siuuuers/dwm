@@ -1,0 +1,33 @@
+name: Focused source lint
+
+on:
+  pull_request:
+    paths:
+      - '**/*.gd'
+      - '**/*.py'
+      - '.github/workflows/source-lint.yml'
+      - 'docs/agent/2026-11-03-ci-efficiency-handoff.md'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: source-lint-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+          sparse-checkout: tools/lint
+          persist-credentials: false
+      - name: Check the lint rule
+        run: python3 -m unittest discover -s tools/lint -p 'test_*.py'
+      - name: Reject new explanatory comments and whitespace errors
+        run: |
+          python3 tools/lint/check_comments.py --base HEAD^
+          git diff --check HEAD^ HEAD -- '*.gd' '*.py' '.github/workflows/*.yml' 'docs/agent/*.md'
