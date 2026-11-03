@@ -64,6 +64,66 @@ def select(paths, event_name='pull_request', sources=None, selector=SELECTOR, di
 
 
 class WindowsCoverageTests(unittest.TestCase):
+    def test_ci_job_edits_select_only_their_owners(self):
+        workflow = '.github/workflows/windows-tests.yml'
+        test = 'tools/testing/test_inventory_runner.py'
+        for names, paths in (
+            (['inventory-tooling'], {workflow}),
+            (['rendered-desktop'], {workflow}),
+            (['inventory-tooling', 'rendered-desktop'], {workflow, test}),
+            (['inventory-tooling'], {test}),
+        ):
+            before = WORKFLOW
+            for name in names:
+                label = {'inventory-tooling': 'Linux / inventory tooling',
+                         'rendered-desktop': 'Rendered desktop and dialogue / Linux software OpenGL'}[name]
+                before = before.replace('    name: ' + label, '    name: Previous ' + label, 1)
+            for event, data in (
+                ('pull_request', {'pull_request': {'base': {'sha': 'a' * 40}}}),
+                ('push', {'before': 'a' * 40}),
+                ('pull_request', {'action': 'synchronize', 'before': 'b' * 40,
+                                  'pull_request': {'base': {'sha': 'a' * 40}}}),
+            ):
+                commands = []
+                result = select(paths, event_name=event, event_data=data, commands=commands,
+                                sources={'a' * 40 + ':' + workflow: before, 'HEAD:' + workflow: WORKFLOW})
+                self.assertEqual(json.loads(result['ci_jobs']), names)
+                self.assertEqual(result['inventory_tooling'], str('inventory-tooling' in names).lower())
+                for key in ('comparison', 'progression', 'self_talk_panel'):
+                    self.assertEqual(result[key], 'false', key)
+                self.assertFalse(any('b' * 40 in arg or '.zip' in arg for args in commands for arg in args))
+
+    def test_ci_route_keeps_shared_workflow_changes_broad(self):
+        workflow = '.github/workflows/windows-tests.yml'
+        variants = (
+            WORKFLOW.replace('contents: read', 'contents: write', 1),
+            WORKFLOW.replace('cancel-in-progress: true', 'cancel-in-progress: false', 1),
+            WORKFLOW.replace('  test-scope:', '  test-scope: # changed', 1),
+            WORKFLOW.replace('  windows-export:', '  windows-export: # changed', 1),
+            WORKFLOW.replace('  inventory-tooling:', '  renamed-inventory:', 1),
+            WORKFLOW + '\n  inventory-tooling:\n    runs-on: ubuntu-24.04\n',
+            WORKFLOW + '\n  "other-job":\n    runs-on: ubuntu-24.04\n',
+            WORKFLOW + '\nenv:\n  EXTRA: value\n',
+        )
+        for before in variants:
+            result = select({workflow}, sources={'a' * 40 + ':' + workflow: before, 'HEAD:' + workflow: WORKFLOW})
+            self.assertEqual(result['ci_jobs'], '[]')
+        for path in ('tools/testing/test_windows_coverage.py', 'tools/testing/run_inventory_checks.py',
+                     'autoload/GameState.gd', '.github/workflows/source-lint.yml'):
+            result = select({workflow, path}, sources={'a' * 40 + ':' + workflow: WORKFLOW,
+                                                       'HEAD:' + workflow: WORKFLOW})
+            self.assertEqual(result['ci_jobs'], '[]', path)
+        for kwargs in ({}, {'event_name': 'workflow_dispatch'}, {'diff_code': 128}, {'event_data': {}}):
+            self.assertEqual(select({workflow}, **kwargs)['ci_jobs'], '[]')
+
+    def test_ci_route_gates_unrelated_jobs(self):
+        for name in ('focused-tests', 'windows-export', 'public-surfaces', 'rendered-journeys'):
+            header = WORKFLOW.split('  ' + name + ':', 1)[1].split('    steps:', 1)[0]
+            self.assertIn("needs.test-scope.outputs.ci_jobs == '[]'", header)
+        header = WORKFLOW.split('  rendered-desktop:', 1)[1].split('    steps:', 1)[0]
+        self.assertIn("contains(needs.test-scope.outputs.ci_jobs, '\"rendered-desktop\"')", header)
+        self.assertIn("needs.test-scope.outputs.ci_jobs == '[]'", header)
+
     def test_reviewed_prose_selects_docs_checks_for_pr_and_push(self):
         paths = {'docs/agent/new-technical-handoff.md', 'docs/agent/2026-11-04-f5-baseline.md'}
         for event, data, base in (
@@ -489,6 +549,7 @@ class WindowsCoverageTests(unittest.TestCase):
     def test_empty_and_manual_dispatch_keep_broad_coverage(self):
         self.assertEqual(select(set())['dtl_content'], 'false')
         result = select({DAY}, 'workflow_dispatch')
+        self.assertEqual(result.pop('ci_jobs'), '[]')
         self.assertTrue(all(value == 'false' for value in result.values()))
 
     def test_existing_reviewed_migration_still_selects_dtl_first(self):
@@ -648,3 +709,4 @@ class ReadabilityCoverageTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+

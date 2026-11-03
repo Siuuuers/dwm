@@ -1,12 +1,11 @@
 # DWM
 
-Godot 4.6.3 standard GDScript project.
+A 2D visual novel built with Godot 4.6.3 standard (GDScript), targeting Windows.
+Build and verification workflows run in GitHub Actions.
 
-For development continuation, start with the
-[current handoff](docs/agent/2026-09-23-next-session-handoff.md), then its
-[execution map](docs/agent/execution-map.md) and the selected Bead's current
-approved design and requirements. The handoff preserves working guidance and
-source-bound acceptance; Beads owns task status and dependencies.
+Start with [AGENTS.md](AGENTS.md) for the route relevant to your task. Read the
+code, tests and design records that the change touches. Run focused checks;
+include broader suites only when their protected behavior is affected.
 
-Godot and PowerShell verification runs in GitHub Actions. Continue PR #1 on
-`codex/windows-cloud-ux`; keep it draft and unmerged unless the owner directs otherwise.
+Use the current GitHub branch and pull request state for ongoing work. Historical
+handoffs record past decisions and evidence; they are not mandatory startup reading.

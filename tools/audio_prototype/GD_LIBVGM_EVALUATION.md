@@ -58,7 +58,7 @@ The runner verifies it before using it; these remain original test assets.
 | Fresh editor import | SIGABRT on exit, reproducible |
 | Warm editor import | Exit 0; does not resolve fresh-import failure |
 | Windows candidate build/playback | Debug/release built; 34 port checks and in-editor smoke passed |
-| Windows candidate export/startup | Export blocked by missing preset key; exported startup not reached |
+| Windows candidate export/startup | Passed in run 41707225580 with Dummy audio |
 
 The two native assertion failures remain visible. Raw NSF exposes loop count 0
 rather than the expected three completed loops; actual looping works. The finite
@@ -171,3 +171,20 @@ workaround as the candidate. Neither change proves the engine race fixed.
 No production restoration contract is changed. The current audit supports keeping
 pause, Load and failure rollback separate; expensive recovery alone does not
 justify redesigning normal playback or silently restarting music after a failure.
+
+## Export result and shutdown follow-up
+
+[Run 41707225580](https://github.com/Siuuuers/dwm/actions/runs/41707225580)
+passed the gd_libvgm Windows job, including release export and actual executable
+startup/clean exit. All 34 port checks passed; the strict native result remains
+16/18. The cold control still crashes; the delayed import is only a workaround.
+The custom adapter passed Linux verification and Windows native/port checks, but
+its Windows exported process exited 3221226356 after printing the smoke marker.
+A success marker without exit 0 is not a passing export.
+
+The smoke now releases its offline playback, stops/clears its player, and waits
+for an observed weak playback reference to expire before quitting, matching the
+existing controller harness. Upstream [issue #76745](https://github.com/godotengine/godot/issues/76745)
+describes audio references surviving extension shutdown. This motivates the
+change but does not establish the root cause of the Windows heap-corruption exit.
+The updated smoke requires cloud verification for both backends.
