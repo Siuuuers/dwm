@@ -3,6 +3,8 @@ name: Windows automated tests
 on:
   pull_request:
     paths-ignore:
+      - '.github/workflows/audio-prototype.yml'
+      - 'tools/audio_prototype/**'
       - '.github/workflows/source-lint.yml'
       - 'tools/lint/check_comments.py'
       - 'tools/lint/test_comments.py'
@@ -12,6 +14,8 @@ on:
   push:
     branches: [master]
     paths-ignore:
+      - '.github/workflows/audio-prototype.yml'
+      - 'tools/audio_prototype/**'
       - '.github/workflows/source-lint.yml'
       - 'tools/lint/check_comments.py'
       - 'tools/lint/test_comments.py'
@@ -32,6 +36,7 @@ jobs:
     name: Select current change coverage
     runs-on: ubuntu-24.04
     outputs:
+      audio_prototype: ${{ steps.scope.outputs.audio_prototype }}
       dtl_first: ${{ steps.scope.outputs.dtl_first }}
       dtl_content: ${{ steps.scope.outputs.dtl_content }}
       inline_audio: ${{ steps.scope.outputs.inline_audio }}
@@ -115,6 +120,7 @@ jobs:
                       rest = rest.replace(state, b"")
                   bodies.append(rest)
               return bodies[0] == bodies[1]
+          audio_prototype = False
           dtl_first = False
           dtl_content = False
           inline_audio = False
@@ -136,6 +142,12 @@ jobs:
               diff = subprocess.run(["git", "diff", "--name-only", "-z", base, "HEAD"], capture_output=True)
               if diff.returncode == 0:
                   paths = set(diff.stdout.decode().strip("\0").split("\0"))
+                  audio_prototype = any(p.startswith("tools/audio_prototype/") for p in paths) and all(
+                      p.startswith("tools/audio_prototype/") or p in {
+                          ".github/workflows/audio-prototype.yml",
+                          ".github/workflows/windows-tests.yml",
+                          "tools/testing/test_windows_coverage.py",
+                      } for p in paths)
                   progression = is_progression(paths, base)
                   # DTL authoring changes cross compiler, save and renderer owners.
                   # Only this reviewed file set qualifies; unrelated source gets full coverage.
@@ -669,7 +681,7 @@ jobs:
           # Current native Save/Load and terminal fixtures qualify incompatible schemas;
           # skipping this old-input measurement does not establish a speedup.
           comparison = comparison or (focused and not previous)
-          if progression or dtl_content or dtl_first or reading_layout or readability or bilingual_reading or dialogue_library or playtest_polish or self_talk or self_talk_panel or shop_cosmetics or scene_transition or save_ink: comparison = False
+          if audio_prototype or progression or dtl_content or dtl_first or reading_layout or readability or bilingual_reading or dialogue_library or playtest_polish or self_talk or self_talk_panel or shop_cosmetics or scene_transition or save_ink: comparison = False
           if comparison:
               archive = "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip"
               archive_bytes = subprocess.run(["git", "show", "HEAD:" + archive], capture_output=True, check=True).stdout
@@ -687,8 +699,9 @@ jobs:
                   if keys != saved_keys:
                       comparison = False
                       print("Archived startup/Load measurement is incompatible with " + ref + "; current-build correctness coverage remains required.")
-          print("Selected " + ("progression Linux coverage" if progression else "self-talk panel Linux coverage" if self_talk_panel else "DTL content and manual-edit recovery coverage" if dtl_content else "DTL compiler/save/runtime coverage" if dtl_first else "readability and display-default coverage" if readability else "reading layout coverage" if reading_layout else "bilingual reading coverage" if bilingual_reading else "runtime resource/Backup coverage" if focused else "full validation"))
+          print("Selected " + ("isolated audio prototype coverage" if audio_prototype else "progression Linux coverage" if progression else "self-talk panel Linux coverage" if self_talk_panel else "DTL content and manual-edit recovery coverage" if dtl_content else "DTL compiler/save/runtime coverage" if dtl_first else "readability and display-default coverage" if readability else "reading layout coverage" if reading_layout else "bilingual reading coverage" if bilingual_reading else "runtime resource/Backup coverage" if focused else "full validation"))
           with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"audio_prototype={str(audio_prototype).lower()}\n")
               output.write(f"dtl_first={str(dtl_first).lower()}\n")
               output.write(f"dtl_content={str(dtl_content).lower()}\n")
               output.write(f"inline_audio={str(inline_audio).lower()}\n")
@@ -710,7 +723,7 @@ jobs:
     # Independent suites use committed source; inventory verification remains a
     # separate required result and cannot be satisfied by diagnostic regeneration.
     needs: test-scope
-    if: ${{ needs.test-scope.result == 'success' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' }}
+    if: ${{ needs.test-scope.result == 'success' && needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' }}
     name: Windows / ${{ matrix.suite }}
     runs-on: windows-2022
     timeout-minutes: ${{ matrix.suite == 'current_terminal_fixture' && 35 || 20 }}
@@ -954,7 +967,7 @@ jobs:
 
   windows-export:
     needs: test-scope
-    if: needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true'
+    if: needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true'
     name: Windows / exported release startup
     runs-on: windows-2022
     timeout-minutes: 35
@@ -1058,7 +1071,7 @@ jobs:
 
   public-surfaces:
     needs: test-scope
-    if: needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true'
+    if: needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true'
     name: Windows / public API surface contracts
     runs-on: windows-2022
     timeout-minutes: 20
@@ -1209,7 +1222,7 @@ jobs:
 
   rendered-journeys:
     needs: test-scope
-    if: needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
+    if: needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
     name: Rendered current Gallery components
     runs-on: ubuntu-24.04
     timeout-minutes: 25
@@ -1310,7 +1323,7 @@ jobs:
           retention-days: 7
   rendered-desktop:
     needs: test-scope
-    if: needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
+    if: needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
     name: Rendered desktop and dialogue / Linux software OpenGL
     runs-on: ubuntu-24.04
     timeout-minutes: 20

@@ -1,0 +1,72 @@
+name: Native audio prototype
+
+on:
+  pull_request:
+    paths:
+      - 'tools/audio_prototype/**'
+      - 'scripts/audio/AudioPlaybackPort.gd'
+      - '.github/workflows/audio-prototype.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'tools/audio_prototype/**'
+      - 'scripts/audio/AudioPlaybackPort.gd'
+      - '.github/workflows/audio-prototype.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: audio-prototype-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            tools/audio_prototype
+            scripts/audio
+          persist-credentials: false
+      - name: Prepare disposable checkout cleanup
+        run: git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install native build tools
+        run: python -m pip install scons==4.11.1 cmake==4.4.4
+      - name: Rebuild text fixtures with the pinned compiler
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          curl --fail --location https://builds.dotnet.microsoft.com/dotnet/Runtime/8.0.16/dotnet-runtime-8.0.16-linux-x64.tar.gz -o "$RUNNER_TEMP/dotnet.tar.gz"
+          echo '8659010470ea4d17aa546d08f6c43aa7fa8b67a3cea49e0e7e61a87f4e31b998  '"$RUNNER_TEMP/dotnet.tar.gz" | sha256sum --check
+          mkdir -p "$RUNNER_TEMP/dotnet"
+          tar -xzf "$RUNNER_TEMP/dotnet.tar.gz" -C "$RUNNER_TEMP/dotnet"
+          curl --fail --location https://github.com/BleuBleu/FamiStudio/releases/download/4.5.3/FamiStudio453-LinuxAMD64.zip -o "$RUNNER_TEMP/famistudio.zip"
+          echo '9133afed2fb384663b0735d8e950cdc2714849f4fd476b16de8d56e5e81da0ad  '"$RUNNER_TEMP/famistudio.zip" | sha256sum --check
+          unzip -q "$RUNNER_TEMP/famistudio.zip" -d "$RUNNER_TEMP/famistudio"
+          chmod +x "$RUNNER_TEMP/famistudio/FamiStudio"
+          DOTNET_ROOT="$RUNNER_TEMP/dotnet" python tools/audio_prototype/compile_fixtures.py "$RUNNER_TEMP/famistudio/FamiStudio"
+      - name: Build NSF-only adapter
+        run: python tools/audio_prototype/build.py
+      - name: Verify playback and Windows exported startup
+        run: python tools/audio_prototype/verify.py
+      - name: Upload focused evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-audio-${{ runner.os }}
+          path: |
+            tools/audio_prototype/reports/*.log
+            tools/audio_prototype/reports/version.txt
+          if-no-files-found: error
+          retention-days: 7

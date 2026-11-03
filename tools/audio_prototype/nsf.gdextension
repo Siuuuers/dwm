@@ -1,0 +1,12 @@
+[configuration]
+entry_symbol = "dwm_nsf_init"
+compatibility_minimum = "4.5"
+reloadable = false
+
+[libraries]
+linux.x86_64 = "res://bin/libdwm_nsf.so"
+windows.x86_64 = "res://bin/dwm_nsf.dll"
+
+[dependencies]
+linux.x86_64 = {"res://bin/libgme.so.0": ""}
+windows.x86_64 = {"res://bin/gme.dll": ""}

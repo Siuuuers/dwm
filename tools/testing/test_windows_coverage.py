@@ -59,6 +59,8 @@ class WindowsCoverageTests(unittest.TestCase):
     def test_lint_only_paths_skip_gameplay_for_push_and_pull_request(self):
         triggers = WORKFLOW.split('\non:\n', 1)[1].split('\npermissions:', 1)[0]
         expected = {
+            '.github/workflows/audio-prototype.yml',
+            'tools/audio_prototype/**',
             '.github/workflows/source-lint.yml',
             'tools/lint/check_comments.py',
             'tools/lint/test_comments.py',
@@ -73,6 +75,27 @@ class WindowsCoverageTests(unittest.TestCase):
             self.assertEqual(set(ignored), expected)
             self.assertEqual(len(ignored), len(expected))
         self.assertIn('  workflow_dispatch:', triggers)
+
+    def test_audio_prototype_uses_its_workflow_and_retains_runtime_coverage(self):
+        paths = {
+            'tools/audio_prototype/project.godot',
+            'tools/audio_prototype/fixtures/loop.txt',
+            '.github/workflows/audio-prototype.yml',
+            '.github/workflows/windows-tests.yml',
+            'tools/testing/test_windows_coverage.py',
+        }
+        result = select(paths)
+        self.assertEqual(result['audio_prototype'], 'true')
+        self.assertEqual(result['comparison'], 'false')
+        self.assertEqual(select(paths, 'workflow_dispatch')['audio_prototype'], 'false')
+        self.assertEqual(select({'.github/workflows/windows-tests.yml'})['audio_prototype'], 'false')
+        for unrelated in ('autoload/AudioManager.gd', 'scripts/audio/AudioPlaybackPort.gd',
+                          'project.godot', 'tools/audio_prototype_other/check.py'):
+            self.assertEqual(select(paths | {unrelated})['audio_prototype'], 'false')
+        for job in ('focused-tests', 'windows-export', 'public-surfaces',
+                    'rendered-journeys', 'rendered-desktop'):
+            section = WORKFLOW.split('  ' + job + ':', 1)[1].split('    steps:', 1)[0]
+            self.assertIn("needs.test-scope.outputs.audio_prototype != 'true'", section)
 
     def test_self_talk_panel_uses_linux_only_for_the_reviewed_shared_methods(self):
         owners = {

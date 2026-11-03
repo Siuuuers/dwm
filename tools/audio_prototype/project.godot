@@ -1,0 +1,8 @@
+config_version=5
+[application]
+config/name="DWM audio prototype"
+run/main_scene="res://export_smoke.tscn"
+[audio]
+driver/mix_rate=44100
+[rendering]
+renderer/rendering_method="gl_compatibility"

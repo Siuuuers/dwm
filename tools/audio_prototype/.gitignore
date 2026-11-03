@@ -1,0 +1,13 @@
+.build/
+.godot/
+bin/
+__pycache__/
+.sconsign.dblite
+native/*.o
+native/*.os
+native/*.obj
+production_audio_playback_port.gd
+production_audio_playback_port.gd.uid
+*.log
+reports/
+export_presets.cfg
