@@ -254,18 +254,17 @@ static func _scan_references(
 	return {"static": static_sites, "dynamic": dynamic_sites}
 
 static func _without_comments(source: String) -> String:
-	var result := ""
+	var parts := PackedStringArray()
+	var segment_start := 0
 	var delimiter := ""
 	var index := 0
 	while index < source.length():
 		var character := source[index]
 		if not delimiter.is_empty():
 			if character == "\\" and index + 1 < source.length():
-				result += source.substr(index, 2)
 				index += 2
 				continue
 			if source.substr(index, delimiter.length()) == delimiter:
-				result += delimiter
 				index += delimiter.length()
 				delimiter = ""
 				continue
@@ -273,16 +272,17 @@ static func _without_comments(source: String) -> String:
 			delimiter = character
 			if source.substr(index, 3) == character.repeat(3):
 				delimiter = character.repeat(3)
-			result += delimiter
 			index += delimiter.length()
 			continue
 		elif character == "#":
+			parts.append(source.substr(segment_start, index - segment_start))
 			while index < source.length() and source[index] != "\n":
 				index += 1
+			segment_start = index
 			continue
-		result += character
 		index += 1
-	return result
+	parts.append(source.substr(segment_start))
+	return "".join(parts)
 
 static func _files_under(root: String) -> Array[String]:
 	var results: Array[String] = []
