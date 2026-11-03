@@ -11,4 +11,5 @@ if env['platform'] == 'windows':
 else:
     env.Append(LIBPATH=[str(gme_build / 'gme')], LIBS=['gme'])
     env.Append(LINKFLAGS=['-Wl,-rpath,$$ORIGIN'])
-Default(env.SharedLibrary('bin/dwm_nsf', ['native/nsf_stream.cpp']))
+name = 'bin/dwm_nsf_release' if env['target'] == 'template_release' else 'bin/dwm_nsf'
+Default(env.SharedLibrary(name, ['native/nsf_stream.cpp']))

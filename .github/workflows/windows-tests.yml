@@ -1896,4 +1896,3 @@ jobs:
           path: .godot/ci/inventory-tooling/
           include-hidden-files: true
           if-no-files-found: error
-

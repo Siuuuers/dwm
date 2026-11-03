@@ -46,9 +46,11 @@ def main():
     subprocess.run(["cmake", "-S", str(gme), "-B", str(gme_build), *options], check=True)
     subprocess.run(["cmake", "--build", str(gme_build), "--config", "Release", "--parallel", "2"], check=True)
     env = dict(os.environ, GODOT_CPP=str(cpp), GME_SOURCE=str(gme), GME_BUILD=str(gme_build))
-    subprocess.run([sys.executable, "-m", "SCons", "-j2", "platform=" + ("windows" if WINDOWS else "linux"),
-                    "target=template_debug", "arch=x86_64", "build_profile=" + str(ROOT / "build_profile.json")],
-                   cwd=ROOT, env=env, check=True)
+    targets = ("template_debug", "template_release") if WINDOWS else ("template_debug",)
+    for target in targets:
+        subprocess.run([sys.executable, "-m", "SCons", "-j2", "platform=" + ("windows" if WINDOWS else "linux"),
+                        "target=" + target, "arch=x86_64", "build_profile=" + str(ROOT / "build_profile.json")],
+                       cwd=ROOT, env=env, check=True)
     binary = gme_build / ("gme/Release/gme.dll" if WINDOWS else "gme/libgme.so.0")
     shutil.copy2(binary, ROOT / "bin" / binary.name)
     notices = ROOT / "bin/notices"
