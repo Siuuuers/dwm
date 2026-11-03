@@ -8,6 +8,11 @@ func _ready() -> void:
 
 
 func _run() -> void:
+	var bootstrap := get_node("/root/ApplicationBootstrap")
+	if not OS.is_debug_build() and not bootstrap.get_startup_state().ready:
+		push_error("Native export did not complete application startup")
+		get_tree().quit(1)
+		return
 	var port := PlaybackPort.new()
 	var music: Dictionary = port.load_stream("res://audio/bgm/_native_verify.nsf")
 	var effect: Dictionary = port.load_stream("res://audio/sfx/_native_verify.nsfe")
@@ -33,4 +38,4 @@ func _run() -> void:
 		get_tree().quit(1)
 		return
 	print("NATIVE_GAME_EXPORT_PASS")
-	get_node("/root/ApplicationBootstrap").request_quit()
+	bootstrap.request_quit()
