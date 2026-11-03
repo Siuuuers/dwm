@@ -82,6 +82,7 @@ class WindowsCoverageTests(unittest.TestCase):
             'tests/unit/test_inline_audio_authoring.gd',
             'tests/unit/test_scene_audio_manager.gd',
             'tests/unit/test_scene_audio_manifest.gd',
+            'tests/unit/test_scene_audio_playback_port.gd',
             'tools/audio_prototype/build_gd_libvgm.py',
             'tools/audio_prototype/game_smoke.gd',
             'tools/audio_prototype/verify_game.py',
@@ -785,3 +786,4 @@ class ReadabilityCoverageTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
