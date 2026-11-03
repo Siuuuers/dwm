@@ -19,7 +19,6 @@ const REQUIRED_SCENE_PATHS := [
 	"res://scenes/ending/EndingScene.tscn",
 	"res://scenes/hospital/HospitalScene.tscn",
 	"res://scenes/dating/DatingScene.tscn",
-	"res://scenes/dating/MinesweeperChallengeOverlay.tscn",
 	"res://scenes/shared/BoxMeter.tscn",
 	"res://scenes/shared/AppWindowBase.tscn",
 	"res://scenes/shared/IconButton.tscn",
