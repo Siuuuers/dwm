@@ -60,6 +60,33 @@ def select(paths, event_name='pull_request', sources=None, selector=SELECTOR, di
 
 
 class WindowsCoverageTests(unittest.TestCase):
+    def test_closed_pr_cancels_its_group_without_starting_validation(self):
+        triggers = WORKFLOW.split('\non:\n', 1)[1].split('\npermissions:', 1)[0]
+        pull_request = triggers.split('  pull_request:\n', 1)[1].split('  push:', 1)[0]
+        types = re.search(r'^    types: \[(.*?)\]$', pull_request, re.M)[1]
+        self.assertEqual([value.strip() for value in types.split(',')],
+                         ['opened', 'synchronize', 'reopened', 'closed'])
+        self.assertIn('  push:\n    branches: [master]', triggers)
+        self.assertIn('  workflow_dispatch:', triggers)
+        concurrency = WORKFLOW.split('\nconcurrency:\n', 1)[1].split('\njobs:', 1)[0]
+        self.assertIn('group: windows-tests-${{ github.event.pull_request.number || github.ref }}', concurrency)
+        self.assertIn('cancel-in-progress: true', concurrency)
+        jobs = dict(re.findall(r'(?ms)^  ([\w-]+):\n(.*?)(?=^  [\w-]+:|\Z)',
+                               WORKFLOW.split('\njobs:\n', 1)[1]))
+        self.assertIn("    if: github.event.action != 'closed'\n", jobs['test-scope'])
+        closed = jobs.pop('closed-pr')
+        self.assertIn("    if: github.event.action == 'closed'\n", closed)
+        self.assertNotIn('uses:', closed)
+        self.assertEqual(closed.count('      - run:'), 1)
+        for name, job in jobs.items():
+            if name == 'test-scope':
+                continue
+            with self.subTest(job=name):
+                header = job.split('    steps:', 1)[0]
+                self.assertIn('    needs: test-scope\n', header)
+                condition = re.search(r'^    if: (.*)$', header, re.M)[1]
+                self.assertNotRegex(condition, r'\b(?:always|cancelled|failure)\s*\(')
+
     def test_inventory_sources_and_test_only_select_linux(self):
         for path in ('tools/runtime/PublicSurfaceInventory.gd',
                      'tools/runtime/generate_public_surface_inventory.gd',
