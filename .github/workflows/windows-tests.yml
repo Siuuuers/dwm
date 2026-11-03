@@ -6,6 +6,8 @@ on:
       - '.github/workflows/source-lint.yml'
       - 'tools/lint/check_comments.py'
       - 'tools/lint/test_comments.py'
+      - 'tools/lint/check_python.py'
+      - 'tools/lint/test_python.py'
       - 'docs/agent/2026-11-03-ci-efficiency-handoff.md'
   push:
     branches: [master]
@@ -13,6 +15,8 @@ on:
       - '.github/workflows/source-lint.yml'
       - 'tools/lint/check_comments.py'
       - 'tools/lint/test_comments.py'
+      - 'tools/lint/check_python.py'
+      - 'tools/lint/test_python.py'
       - 'docs/agent/2026-11-03-ci-efficiency-handoff.md'
   workflow_dispatch:
 
