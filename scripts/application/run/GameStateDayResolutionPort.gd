@@ -1,29 +1,12 @@
 class_name GameStateDayResolutionPort
 extends RefCounted
 
-## Production state port bridging DayResolutionCoordinator to the GameState
-## facade and its RunLifecycle
-## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 3).
-##
-## Phase 2R scope note: every stage completes immediately with a
-## deterministic owner receipt; registered external route commands and real
-## schedule-substage receipts arrive with the Plan04 integration tasks.
 
-## Real snapshot production (dwm-7e6). GameState supplies the inner snapshot_input through its pure
-## capture seam; the five non-GameState fields arrive through injected Callables, mirroring the
-## SaveManagerNarrativeCheckpointPort provider seam. Unconfigured, safe defaults keep the SHAPE
-## complete so no caller can silently regress to the old {run_id, day} stub.
 const RUN_LIFECYCLE := preload("res://scripts/domain/run/RunLifecycle.gd")
-## The registry and its pure projector. Route, effects, kind and participants come ONLY from the
-## registry the committed aggregate names by fingerprint -- never from a caller field or an
-## action-id parse (Plan 01 global constraint; Task 7 Step 7.5).
 const SCHEDULE_ACTION_REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
 const SCHEDULE_RULES := preload("res://scripts/domain/schedule/ScheduleRules.gd")
-## The pure Schedule-Done Hospital owner (Task 7 Step 7.3).
 const HOSPITAL_RULES := preload("res://scripts/domain/hospital/HospitalRules.gd")
 const CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
-## The canonical JSON writer every Plan-01 identity projection goes through, and the plan module
-## whose frozen stage arrays own `stage_index` (dwm-p2r.18).
 const SCHEDULE_STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 const DAY_RESOLUTION_PLAN := preload("res://scripts/domain/run/DayResolutionPlan.gd")
 const HOSPITAL_CONTEXT := preload("res://scripts/narrative/HospitalFrozenContext.gd")
@@ -54,27 +37,11 @@ func configure_frozen_hospital_contexts() -> Dictionary:
 	_frozen_hospital_contexts_enabled = true
 	return {"ok": true}
 
-## The one configured Day-7 provenance service, injected by Bootstrap; never constructed here.
 var _day7_provenance: Object = null
 
-## The exact `.16` issuer and the retained DayResolutionStartPort (dwm-p2r.18). Together they turn a
-## Done command into the resolution ROOT and its `P01.day_resolution.start` receipt -- the two
-## records every presentation child is derived under.
 var _identity_issuer: Object = null
 var _day_resolution_start_port: Object = null
 
-## The Plan-02 desktop-consequence inputs a Schedule-Done resolution consumes but does not own:
-## the board-fate receipt bound by `P01.day_resolution.start`, and the condition receipt projected
-## by `P01.hospital.resolution`.
-##
-## DEVIATION-5, FINISHED BY THE dwm-oyo.3 SLICE (2026-08-24, authorized on dwm-p2r.21 /
-## dwm-oyo.3). The seam stood deliberately unconfigured through Phase 2R (user-approved on
-## dwm-p2r.18) because no lawful production source existed; Bootstrap's desktop-graph stage now
-## configures the real `DesktopConsequenceSourcePort` -- board fate settled through the retained
-## `DesktopBoardFatePort`, condition truth read from the shared consequence coordinator's
-## policy-produced receipts. The fail-closed law is unchanged in kind and narrower in scope: a
-## resolution that needs a condition receipt no committed action produced still fails closed
-## naming the missing input rather than fabricating one.
 var _desktop_consequence_source: Object = null
 
 const _ISSUER_METHODS: Array[String] = ["issue", "verify_issued", "derive_child", "validate_child"]
@@ -88,7 +55,6 @@ const ROOT_PURPOSE := &"transaction_id"
 func _init(game_state: Object) -> void:
 	_game_state = game_state
 
-## Bind the same canonical owners used by desktop play and restore; this port retains no copy.
 func configure_day_advance_owners(view: Object, board: Object, consequence: Object) -> Dictionary:
 	if view == null or not view.has_method("install_restored_view") or not view.has_method("snapshot") 			or board == null or not board.has_method("prepare_restore") 			or consequence == null or not consequence.has_method("prepare_restore"):
 		return {"ok": false, "code": &"invalid_day_advance_owners"}
@@ -127,20 +93,9 @@ func configure_checkpoint_providers(providers: Dictionary) -> Dictionary:
 	_provider_identity = identity
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
-## Builds the complete CHECKPOINT_INPUT_KEYS bundle the coordinator hands straight to the real
-## SaveManagerCheckpointPort. Providers are consulted once each, in a fixed order.
-##
-## `lifecycle` is supplied by the caller rather than read from live state: a stage's checkpoint must
-## record the lifecycle that stage PRODUCES (dwm-7e6). Every other field is genuinely live, because
-## completing a stage mutates the RunLifecycle alone.
 func _checkpoint_inputs(lifecycle: Dictionary) -> Dictionary:
 	var snapshot_input: Dictionary = _game_state.capture_run_snapshot_input()
 	snapshot_input["lifecycle"] = lifecycle.duplicate(true)
-	# v3 committed-Schedule boundary (Plan 01 Task 5, dwm-p2r.13). Because the recorded lifecycle is
-	# the one the stage PRODUCES rather than live state, it can name a later day than the owner has
-	# entered. A snapshot names ONE day, so the aggregate must describe the recorded day: a day the
-	# owner has not begun has no committed Schedule yet, so it records the canonical empty aggregate
-	# with a null fingerprint. When the days already agree this leaves the real aggregate untouched.
 	var recorded_day := int(lifecycle.get("day", 0))
 	var aggregate_value: Variant = snapshot_input.get("committed_schedule", {})
 	var aggregate: Dictionary = aggregate_value if typeof(aggregate_value) == TYPE_DICTIONARY else {}
@@ -172,8 +127,6 @@ func _provided(key: String, fallback: Variant) -> Variant:
 func begin_or_resume(command_id: String) -> Dictionary:
 	if command_id.is_empty():
 		return {"ok": false, "code": &"invalid_command_id", "message": "", "details": {}}
-	# An exact prior-day continuation may finish arriving on Day 7. A saved Day 7
-	# plan still waits for the mandatory presentations before any further gameplay.
 	var existing := _active_plan()
 	var prior_day_resume := not existing.is_empty() and str(existing.get("command_id", "")) == command_id \
 		and int(existing.get("source_day", 7)) < 7
@@ -181,13 +134,7 @@ func begin_or_resume(command_id: String) -> Dictionary:
 		var presentations: Dictionary = _game_state.require_day7_presentations_complete()
 		if not presentations.get("ok", false): return presentations
 	var lifecycle: RefCounted = _game_state._run_lifecycle
-	# Step 6.6 (dwm-p2r.13): the resolution begins from the owner's REAL canonical committed
-	# Schedule. This used to pass a synthetic empty array, which silently claimed "no entries" for
-	# every day regardless of what had actually been committed.
 	var aggregate: Dictionary = _game_state._canonical_committed_schedule()
-	# Task 7 Step 7.5 (dwm-p2r.14): the plan must carry the FROZEN REGISTRY PROJECTION, because the
-	# execute stages read each entry's effects out of it. Without this the plan persisted an empty
-	# route_plan and no committed ordinary effect could ever be applied.
 	var projection := _frozen_route_plan(aggregate)
 	if not projection.get("ok", false):
 		return projection
@@ -196,8 +143,6 @@ func begin_or_resume(command_id: String) -> Dictionary:
 	if typeof(commit_receipt) == TYPE_DICTIONARY:
 		commit_receipt_id = (commit_receipt as Dictionary).get("receipt_id")
 	var route_plan: Array = (projection["value"] as Dictionary)["route_plan"]
-	# dwm-p2r.18: mint the resolution ROOT and its start receipt before the plan exists, so the plan
-	# can PERSIST both. Everything a presentation child is derived under comes from here.
 	var minted := _resolution_start(command_id, aggregate, route_plan)
 	if not minted.get("ok", false):
 		return minted
@@ -211,9 +156,6 @@ func begin_or_resume(command_id: String) -> Dictionary:
 		"value": {"run_id": str(lifecycle.to_dict()["run_id"])}}
 
 
-## The board-fate id the start receipt bound, or null on the unconfigured path. Read back off the
-## start receipt rather than tracked separately, so the plan's `board_fate_receipt_id` and the
-## anchored start row can never name different receipts.
 static func _board_fate_receipt_id(resolution_start: Dictionary) -> Variant:
 	var start: Variant = resolution_start.get("day_resolution_start_receipt")
 	if typeof(start) != TYPE_DICTIONARY:
@@ -221,16 +163,6 @@ static func _board_fate_receipt_id(resolution_start: Dictionary) -> Variant:
 	return (start as Dictionary).get("board_fate_receipt_id")
 
 
-## Mints the resolution root and drives the retained `DayResolutionStartPort`.
-##
-## THE ROOT IS MINTED AT MOST ONCE PER DONE COMMAND. A replayed Done command must not mint a second
-## root: it would produce a different `resolution_id`, and every presentation child already derived
-## under the first root would become unreachable. So an active plan that already records this exact
-## command id returns ITS persisted root and start receipt unchanged, and the issuer is not touched.
-##
-## Returns the empty bundle -- not a failure -- when the Plan-02 desktop-consequence source is
-## absent. A resolution with no presentation in it is still perfectly resolvable without a root; it
-## is only the presentation sites that fail closed (see `_presentation_command`).
 func _resolution_start(command_id: String, aggregate: Dictionary,
 		route_plan: Array) -> Dictionary:
 	var existing := _active_plan()
@@ -244,11 +176,8 @@ func _resolution_start(command_id: String, aggregate: Dictionary,
 			} if existing["resolution_issuer_receipt"] != null else {},
 		}}
 	if not is_presentation_producer_ready():
-		# The unconfigured board-fate path: no root, and the Done command IS the resolution id.
 		return {"ok": true, "code": &"ok",
 			"value": {"resolution_id": command_id, "resolution_start": {}}}
-	# A genuinely concurrent unfinished resolution is refused BEFORE the issuer is touched, so a
-	# rejected Done command never burns a root the ledger would then hold forever.
 	if not existing.is_empty() and not _plan_is_complete(existing):
 		return {"ok": false, "code": &"resolution_conflict",
 			"message": str(existing.get("resolution_id", "")), "details": {}}
@@ -272,7 +201,6 @@ func _resolution_start(command_id: String, aggregate: Dictionary,
 			"message": "the issuer refused to mint a resolution root", "details": {}}
 	var issued_value: Dictionary = (issued as Dictionary)["value"]
 	var root_receipt: Dictionary = issued_value["issuer_receipt"]
-	# Plan line 560: the semantic resolution id IS the minted token.
 	var resolution_id := str(issued_value["token"])
 	var prepared: Variant = _day_resolution_start_port.call(&"prepare_from_committed_schedule", {
 		"resolution_id": resolution_id,
@@ -298,7 +226,6 @@ func _resolution_start(command_id: String, aggregate: Dictionary,
 	}}
 
 
-## The live active resolution plan as raw bytes, or {} when there is none.
 func _active_plan() -> Dictionary:
 	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
 	var plan: Variant = lifecycle.get("active_resolution_plan")
@@ -312,11 +239,6 @@ static func _plan_is_complete(plan: Dictionary) -> bool:
 	return true
 
 
-## Projects the committed aggregate through the registry it was COMMITTED against.
-##
-## The aggregate records the exact `registry_fingerprint` its entries were validated with, so the
-## currently loadable registry is accepted only when it is byte-identical. A registry that has moved
-## on since the commit fails closed rather than silently re-pricing a committed day.
 func _frozen_route_plan(aggregate: Dictionary) -> Dictionary:
 	var entries: Variant = aggregate.get("entries", [])
 	if typeof(entries) != TYPE_ARRAY or (entries as Array).is_empty():
@@ -337,8 +259,6 @@ func inspect_next_stage() -> Dictionary:
 	var cursor: Dictionary = _game_state._run_lifecycle.resume_resolution()
 	return cursor
 
-## The two Day-7 stages that may not be answered from the aggregate alone (Task 8 Step 8.7,
-## dwm-p2r.14). Both are driven through the ONE configured Day7ScheduleProvenance service.
 const DAY7_PROVENANCE_STAGES: Array[String] = [
 	"validate_day7_provenance", "checkpoint_day7_provenance",
 ]
@@ -346,8 +266,6 @@ const DAY7_PROVENANCE_STAGES: Array[String] = [
 
 func begin_next_stage() -> Dictionary:
 	var lifecycle: RefCounted = _game_state._run_lifecycle
-	# A Day-7 provenance stage is refused BEFORE the lifecycle marks it active, so an unconfigured
-	# or refused handoff leaves the stage pending and the run resumable rather than half-run.
 	var peeked: Dictionary = lifecycle.resume_resolution()
 	var presentation_request: Dictionary = {}
 	var contacts_receipt: Dictionary = {}
@@ -366,9 +284,6 @@ func begin_next_stage() -> Dictionary:
 			var handoff := _day7_handoff()
 			if not handoff.get("ok", false):
 				return handoff
-		# Same fail-before-mutation law as the Day-7 guard above: the presentation children are
-		# derived while the stage is still PENDING, so an undeliverable presentation leaves the run
-		# exactly where it was rather than stranding an active stage with no command behind it.
 		var retained := {}
 		if _frozen_hospital_contexts_enabled and pending_id == HOSPITAL_STAGE:
 			var read: Dictionary = _game_state.read_hospital_presentation_request(str(_active_plan().resolution_id))
@@ -390,9 +305,6 @@ func begin_next_stage() -> Dictionary:
 	if not begun.get("ok", false):
 		return begun
 	var stage: Dictionary = begun["value"]["stage"]
-	# A presentation site PAUSES the walk. The stage stays active and carries no receipt until the
-	# configured port publishes a completion the coordinator can checkpoint, so a crash anywhere in
-	# the presentation resumes at exactly this boundary.
 	if not presentation_request.is_empty():
 		return {"ok": true, "code": &"ok", "value": {
 			"mode": &"await_registered_command",
@@ -404,9 +316,6 @@ func begin_next_stage() -> Dictionary:
 				"presentation_request": presentation_request,
 			},
 		}}
-	# An entry SUBSTAGE is not just a second delivery of its parent stage's envelope: an
-	# ordinary_action substage is where that entry's registered effects actually reach the owner
-	# (Task 7 Step 7.2, dwm-p2r.14).
 	var substage_id := str(stage.get("substage_id", ""))
 	if substage_id.begins_with("ordinary_action:"):
 		return _begin_ordinary_action_substage(stage, substage_id)
@@ -419,15 +328,6 @@ func begin_next_stage() -> Dictionary:
 	}}
 
 
-## Commits ONE committed ordinary entry's registered effects through the existing effect
-## transaction owner, keyed by that entry's own substage transaction id.
-##
-## The effect ids come from the plan's persisted `route_plan` -- the frozen registry projection --
-## and never from a caller-supplied field, an action-id parse, or a live registry re-read. Because
-## GameState.commit_effect_transaction is already idempotent per transaction id, a duplicate
-## delivery of the same substage replays its stored receipt instead of applying twice; two repeated
-## Rest/Training/Working entries carry DISTINCT substage ids and so apply twice, as the registry
-## intends for repeatable actions.
 func _begin_ordinary_action_substage(stage: Dictionary, substage_id: String) -> Dictionary:
 	var parts: PackedStringArray = substage_id.split(":")
 	if parts.size() != 4:
@@ -454,11 +354,6 @@ func _begin_ordinary_action_substage(stage: Dictionary, substage_id: String) -> 
 	}}
 
 
-## One committed DATE entry, after Hospital has had its say.
-##
-## A date Hospital superseded completes as a recorded miss and starts no board; only a surviving
-## date carries a presentation. Either way the substage completes exactly once, so the plan stays
-## resumable and a crash cannot leave a date half-run.
 func _begin_surviving_date_substage(stage: Dictionary, substage_id: String) -> Dictionary:
 	var parts: PackedStringArray = substage_id.split(":")
 	if parts.size() != 4:
@@ -472,14 +367,11 @@ func _begin_surviving_date_substage(stage: Dictionary, substage_id: String) -> D
 			"entry_receipt_id": entry_id,
 			"superseded": superseded,
 			"reason": HOSPITAL_RULES.MISS_REASON if superseded else null,
-			# A SUPERSEDED date presents nothing, so it completes with no presentation evidence.
-			# A surviving date never reaches here: it pauses on its presentation instead.
 			"presentation_completion_receipt": null,
 		}),
 	}}
 
 
-## The frozen registry projection the ACTIVE plan persisted for one committed entry.
 func _route_plan_entry(schedule_entry_id: String) -> Dictionary:
 	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
 	var plan: Variant = lifecycle.get("active_resolution_plan")
@@ -498,19 +390,12 @@ func prepare_completion(transaction_id: String, receipt: Dictionary) -> Dictiona
 	if snapshot["active_resolution_plan"] != null:
 		for stage: Dictionary in snapshot["active_resolution_plan"]["stages"]:
 			if str(stage["transaction_id"]) == transaction_id and str(stage["state"]) == "completed":
-				# Already durable, so byte-identical bytes are a duplicate: re-applying would be a
-				# no-op, and building a candidate would misrepresent a replay as fresh work.
-				# DIFFERENT bytes fall through instead (dwm-p2r.25), so the domain's
-				# `_complete_record` stays the one conflict authority and `_completed_lifecycle`
-				# surfaces its `duplicate_transaction_conflict` here at prepare time.
 				if _plan_receipt_for_snapshot(receipt, snapshot) == stage["receipt"]:
 					return _prepared(transaction_id, receipt, snapshot, true, stage["receipt"])
 			for substage: Dictionary in stage["substages"]:
 				if str(substage["transaction_id"]) != transaction_id \
 						or str(substage["state"]) != "completed":
 					continue
-				# The same law one level down (dwm-p2r.22): identical bytes are a duplicate,
-				# different bytes fall through to the domain conflict.
 				if _plan_receipt_from_envelope(receipt) == substage["receipt"]:
 					return _prepared(transaction_id, receipt, snapshot, true, substage["receipt"])
 	var stage_id := _stage_id_for_transaction(snapshot, transaction_id)
@@ -595,9 +480,6 @@ func prepare_completion(transaction_id: String, receipt: Dictionary) -> Dictiona
 		prepared.value.snapshot_input.snapshot_input["gameplay"] = captured.value.duplicate(true)
 	return prepared
 
-## The existing Hospital projector has already issued these source-specific miss
-## IDs. Retain them only when its physical completion is being checkpointed, so
-## later Contacts prose can distinguish prevention from an ordinary missed date.
 static func _capture_schedule_hospital_misses(gameplay: Dictionary, contacts: Dictionary, request: Dictionary,
 		misses: Array, miss_ids: Array) -> Dictionary:
 	var checked := HOSPITAL_CONTEXT.validate_request(request)
@@ -630,7 +512,6 @@ static func _capture_schedule_hospital_misses(gameplay: Dictionary, contacts: Di
 	return {"ok": true, "value": candidate}
 
 
-## Attendance comes from completed date substages, including their recorded Hospital supersession.
 func _prepare_contacts_day_end(transaction_id: String) -> Dictionary:
 	var attendance := {"solo_attended_action_ids": [], "group_outcome": "not_scheduled"}
 	for stage: Dictionary in _active_plan().get("stages", []):
@@ -672,12 +553,6 @@ func _stage_id_for_transaction(snapshot: Dictionary, transaction_id: String) -> 
 	return ""
 
 
-## The Contacts candidate a completing Hospital stage produces, or {} when it produces none.
-##
-## Append-only and idempotent: the witness is keyed by the Hospital stage's own transaction id, so
-## replaying the same stage rewrites the byte-identical record rather than appending a second one.
-## The witness is recomputed from the SAME pure owner that produced the stage envelope, so the two
-## can never disagree; the caller's receipt only decides WHETHER a witness exists.
 func _hospital_contacts_candidate(snapshot: Dictionary, transaction_id: String,
 		receipt: Dictionary) -> Dictionary:
 	if not _is_hospital_stage(snapshot, transaction_id):
@@ -713,9 +588,6 @@ func _is_hospital_stage(snapshot: Dictionary, transaction_id: String) -> bool:
 	return false
 
 
-## Applies the stage to a DETACHED clone of the lifecycle. The checkpoint is then built from the
-## state the transaction PRODUCES, while live state stays untouched until the coordinator has
-## durably committed that checkpoint and replays this exact lifecycle into it (dwm-7e6).
 func _completed_lifecycle(snapshot: Dictionary, transaction_id: String, receipt: Dictionary) -> Dictionary:
 	var detached: RefCounted = RUN_LIFECYCLE.new()
 	var prepared: Dictionary = detached.prepare_restore(snapshot)
@@ -724,7 +596,6 @@ func _completed_lifecycle(snapshot: Dictionary, transaction_id: String, receipt:
 	var restored: Dictionary = detached.commit_restore(prepared["value"]["candidate"])
 	if not restored.get("ok", false):
 		return restored
-	# The clone is also the validation seam: an illegal receipt fails here, before any checkpoint.
 	var completed: Dictionary = detached.complete_active_stage(
 		transaction_id, _plan_receipt_for_snapshot(receipt, snapshot))
 	if not completed.get("ok", false):
@@ -745,8 +616,6 @@ func _prepared(
 			"receipt": receipt.duplicate(true),
 			"lifecycle": lifecycle.duplicate(true),
 		},
-		# Despite the key name, the coordinator forwards this value verbatim as the real checkpoint
-		# port's `checkpoint_inputs`, so it must be the COMPLETE bundle (dwm-7e6).
 		"snapshot_input": _checkpoint_inputs(lifecycle),
 		"stage": {"transaction_id": transaction_id},
 		"publication": {
@@ -758,9 +627,6 @@ func _prepared(
 	}}
 
 func capture() -> Dictionary:
-	# Contacts joins the backup because the Hospital stage commits the Sylvia witness into the
-	# Contacts handoff index in the SAME transaction (Task 7 Step 7.3, dwm-p2r.14). Backing up only
-	# the lifecycle would leave a witness behind for a supersession that was rolled back.
 	var backup := {
 		"lifecycle": _game_state._run_lifecycle.to_dict(),
 		"contacts": (_game_state.contacts as Dictionary).duplicate(true),
@@ -775,8 +641,6 @@ func capture() -> Dictionary:
 			"consequence": _day_consequence.capture().value.state}
 	return {"ok": true, "code": &"ok", "value": {"backup": backup}}
 
-## Installs the EXACT lifecycle the checkpoint recorded, rather than re-deriving the completion from
-## live state. Re-deriving would let the durable record and the live run drift apart (dwm-7e6).
 func commit(candidate: Dictionary) -> Dictionary:
 	var lifecycle: RefCounted = _game_state._run_lifecycle
 	var prepared: Dictionary = lifecycle.prepare_restore(candidate["lifecycle"])
@@ -785,8 +649,6 @@ func commit(candidate: Dictionary) -> Dictionary:
 	var committed: Dictionary = lifecycle.commit_restore(prepared["value"]["candidate"])
 	if not committed.get("ok", false):
 		return committed
-	# The Contacts half of the SAME transaction. Validated before install, so a malformed witness
-	# can never reach the owner, and absent when the stage produced none.
 	if candidate.has("contacts"):
 		var validated: Dictionary = CONTACT_STATE.validate_state(candidate["contacts"])
 		if not validated.get("ok", false):
@@ -808,7 +670,6 @@ func rollback(backup: Dictionary) -> Dictionary:
 	var committed: Dictionary = lifecycle.commit_restore(restored["value"]["candidate"])
 	if not committed.get("ok", false):
 		return committed
-	# Restore BOTH owners, so a rolled-back Hospital leaves no witness behind.
 	if backup.has("contacts"):
 		_game_state.contacts = (backup["contacts"] as Dictionary).duplicate(true)
 	if backup.has("gameplay"):
@@ -819,7 +680,6 @@ func rollback(backup: Dictionary) -> Dictionary:
 	if not installed.get("ok", false): return installed
 	return committed
 
-## The real issuer validates both the saved start and the deterministic continuation child.
 func prepare_day_advance_source(snapshot: Dictionary) -> Dictionary:
 	if _identity_issuer == null:
 		return {"ok": false, "code": &"day_advance_source_unavailable"}
@@ -906,18 +766,6 @@ func publish(publication: Dictionary) -> Dictionary:
 				_game_state.emit_signal(str(signal_name))
 	return {"ok": true, "code": &"ok"}
 
-## Injects the ONE configured Day-7 provenance service Bootstrap retained (Plan 01 Task 6 Step 6.5,
-## dwm-p2r.13).
-##
-## The service arrives ALREADY CONFIGURED with the exact registry/issuer pair; this port never
-## configures it and never constructs one, so there is no second place a Day-7 handoff could be
-## minted from a different identity root. Idempotent for the same instance, refuses a replacement.
-## Retains the exact `.16` issuer and the retained `DayResolutionStartPort` (dwm-p2r.18).
-##
-## Both arrive ALREADY CONSTRUCTED from Bootstrap. Without them a resolution mints no root, derives
-## no `P01.day_resolution.start`, and therefore cannot derive a lawful presentation child -- so this
-## seam is what makes the producer half reachable at all. Identical replay is idempotent; a
-## replacement in either position is refused before any mutation.
 func configure_resolution_identity(identity_issuer: Object, start_port: Object) -> Dictionary:
 	if identity_issuer == null or not _has_methods(identity_issuer, _ISSUER_METHODS) 			or start_port == null or not _has_methods(start_port, _START_PORT_METHODS):
 		return {"ok": false, "code": &"resolution_identity_conflict",
@@ -935,9 +783,6 @@ func configure_resolution_identity(identity_issuer: Object, start_port: Object) 
 		"value": {"configured": true, "already_configured": false}, "receipt": {}}
 
 
-## The Plan-02 desktop-consequence handoff (DEVIATION-5, finished by the dwm-oyo.3 slice --
-## Bootstrap's desktop-graph stage now calls this with the real `DesktopConsequenceSourcePort`;
-## see the field comment above). Same idempotent/refuse-replacement law as every other seam.
 func configure_desktop_consequence_source(source: Object) -> Dictionary:
 	if source == null or not _has_methods(source, _CONSEQUENCE_SOURCE_METHODS):
 		return {"ok": false, "code": &"desktop_consequence_source_conflict",
@@ -953,8 +798,6 @@ func configure_desktop_consequence_source(source: Object) -> Dictionary:
 		"value": {"configured": true, "already_configured": false}, "receipt": {}}
 
 
-## Whether this resolution can mint a root at all. Reported so bootstrap evidence and the contract
-## probe can show the Phase-2R gap rather than leaving it invisible.
 func is_presentation_producer_ready() -> bool:
 	return _identity_issuer != null and _day_resolution_start_port != null 		and _desktop_consequence_source != null
 
@@ -980,13 +823,6 @@ func configure_day7_provenance(service: Object) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"configured": true}, "receipt": {}}
 
 
-## The committed entry identities the ACTIVE plan froze, in its own persisted substage order.
-##
-## Read from the plan rather than recomputed from live state: the plan is what the resolution
-## actually began from, and live state can legitimately have moved on by the time this stage runs.
-## Scoped to ONE entry stage (Task 7, dwm-p2r.14). The ordinary stage and the date stage own
-## disjoint substage sets and run on opposite sides of Hospital, so a single flat read across every
-## stage would report dates as already executed before Hospital had a chance to supersede them.
 func _committed_entry_receipt_ids(owning_stage_id: String) -> Array:
 	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
 	var plan: Variant = lifecycle.get("active_resolution_plan")
@@ -1005,7 +841,6 @@ func _committed_entry_receipt_ids(owning_stage_id: String) -> Array:
 	return receipt_ids
 
 
-## The day this resolution was created for, independent of how far its stages have advanced.
 func _active_source_day() -> int:
 	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
 	var plan: Variant = lifecycle.get("active_resolution_plan")
@@ -1014,11 +849,7 @@ func _active_source_day() -> int:
 	return int(_game_state._run_lifecycle.get_day())
 
 
-## `presented` is true only on the path where a registered presentation physically completed for
-## this stage; every ordinary stage completes with it false and is unaffected.
 func _immediate_receipt(stage_id: String, presented: bool = false) -> Dictionary:
-	# Freeze the resolution's SOURCE day (dwm-7e6). Reading the live day here made
-	# reset_day_scope.target_day become source + 2 once increment_day had already advanced it.
 	var day: int = _active_source_day()
 	match stage_id:
 		"lock_day":
@@ -1027,14 +858,9 @@ func _immediate_receipt(stage_id: String, presented: bool = false) -> Dictionary
 			return _envelope("schedule_rules", "schedule_validation",
 				{"schedule_digest": "digest-day-%d" % day, "ordered_entry_ids": []})
 		"execute_schedule_actions":
-			# Step 6.6 (dwm-p2r.13): the receipt ids are READ from the committed substages this
-			# plan actually froze, never synthesized. An empty list here now means the committed
-			# Schedule was genuinely empty, rather than meaning nobody supplied one.
 			return _envelope("schedule_rules", "schedule_actions_complete",
 				{"entry_receipt_ids": _committed_entry_receipt_ids("execute_schedule_actions")})
 		"execute_schedule_dates":
-			# Runs AFTER hospital_if_triggered, so the supersession set is already durable and is
-			# READ from that completed stage rather than recomputed here.
 			return _envelope("schedule_rules", "schedule_dates_complete",
 				{"entry_receipt_ids": _committed_entry_receipt_ids("execute_schedule_dates"),
 					"superseded_entry_ids": _superseded_entry_ids()})
@@ -1043,9 +869,6 @@ func _immediate_receipt(stage_id: String, presented: bool = false) -> Dictionary
 		"hospital_if_triggered":
 			return _envelope("hospital_rules", "hospital_resolution", _hospital_envelope(presented))
 		"twofriends_if_deferred":
-			# `required` is the same fact `_deferred_pair_site` presents on, read from the same
-			# Hospital supersession. A stage that presented the pair and then recorded
-			# required=false would checkpoint a receipt contradicting its own presentation.
 			return _envelope("contact_invitation_state", "twofriends_resolution",
 				{"required": not _deferred_pair_entry_id().is_empty(),
 					"route_receipt_id": null, "message_transaction_ids": [],
@@ -1073,8 +896,6 @@ func _immediate_receipt(stage_id: String, presented: bool = false) -> Dictionary
 				"source_receipt_id": validated["source_receipt_id"],
 			})
 		"checkpoint_day7_provenance":
-			# The checkpoint carries the ANCHORED child, not a literal cause string. dwm-oyo.3 and
-			# dwm-oyo.6 consume exactly this receipt id and provenance.
 			var terminal: Dictionary = _day7_terminal_provenance()
 			return _envelope("day7_schedule_provenance", "day7_provenance_checkpoint", {
 				"cause": str(terminal["cause"]),
@@ -1093,36 +914,10 @@ func _immediate_receipt(stage_id: String, presented: bool = false) -> Dictionary
 				{"save_kind": "autosave", "save_reason": "ending"})
 	return _envelope("unknown", "unknown", {})
 
-# -------------------------------------------------------------------------------------------------
-# The committed-Schedule presentation PRODUCER (Plan 01 Task 8, dwm-p2r.18)
-# -------------------------------------------------------------------------------------------------
-#
-# WHAT THIS IS. Task 8 built the presentation LAYER -- the two ports, the narrative owner, the
-# scenes, the router and the composition -- but nothing HANDED those ports a command during a
-# resolution, so no stage ever paused on a presentation. This is that missing producer.
-#
-# WHERE THE IDENTITY COMES FROM. Every row below is derived through the ONE retained `.16` issuer,
-# under the resolution root the plan PERSISTED. Nothing here invents an id, an ordinal, or a source
-# order: each variant selects exactly one matrix row (plan lines 94-98) and constructs exactly that
-# row's request. Recovery re-runs this same code over the same persisted bytes and therefore derives
-# the same children -- which is the whole reason the root is persisted rather than held in memory.
-#
-# THE ORDER IS CLOSED (plan line 102). The Hospital aggregate row precedes its miss rows, which
-# precede the Hospital presentation intent; every intent precedes its own completion row.
 
-## The presentation locator for each variant. Constructed, then REQUIRED to be registered in
-## DialogicTimelineCatalog -- a locator the manifest does not carry is refused rather than played.
 const HOSPITAL_TIMELINE_ID := "hospital.faint"
-## "A group date IS the P-L pair" is an enforced domain invariant, not an assumption made here:
-## `ScheduleActionRegistry` refuses any group action whose participants are not exactly this array
-## in this order ("a reversed pair is a tamper, not a synonym"), and `ContactInvitationState` mints
-## every group action_id as `group:priscilla_lavinia:dayN` against an exact-match check. A committed
-## group entry is validated against that registry under the fingerprint it was committed with, so
-## two group dates with different participants cannot both exist to collide on one context hash.
 const PAIR_PARTICIPANTS: Array[String] = ["priscilla", "lavinia"]
 const PAIR_SLUG := "priscilla_lavinia"
-## Phase 2R presents the PRE-challenge timeline: the challenge itself is dwm-oyo.4's board, and the
-## post-challenge timeline follows it, so neither is reachable from Plan 01.
 const DATING_TIMELINE_PHASE := "pre_challenge"
 
 const HOSPITAL_STAGE := "hospital_if_triggered"
@@ -1138,18 +933,12 @@ const HOSPITAL_MISS_ROLE := "hospital.miss"
 const HOSPITAL_MISS_CHILD_KIND := &"hospital_miss"
 
 
-## Whether the pending stage/substage is a presentation site, and which variant.
-##
-## Returns {} for every stage that presents nothing, so the ordinary immediate-completion path is
-## untouched for the great majority of stages.
 func _prepare_pair_presentation(site: Dictionary) -> Dictionary:
 	var pair_site: bool = site.get("kind") == "twofriends_if_deferred"
 	if site.get("kind") == "surviving_date":
 		pair_site = _route_plan_entry(str(site.get("schedule_entry_id", ""))).get("action_kind") == "group"
 	if not pair_site: return {"ok": true}
 	if _pair_deck == null: return {"ok": false, "code": &"pair_deck_unconfigured"}
-	# Dating freezes the portrayed form when it begins. Its checkpoint will carry this
-	# projection of the already-durable Profile receipt before any board can be played.
 	return _pair_deck.prepare_schedule(true)
 
 
@@ -1171,7 +960,6 @@ func _presentation_site(stage: Dictionary) -> Dictionary:
 	return {}
 
 
-## Hospital presents only when the owner's own condition truth says it triggered.
 func _hospital_site() -> Dictionary:
 	var required: bool = bool(_game_state.should_route_hospital()) \
 		if _game_state.has_method("should_route_hospital") else false
@@ -1181,9 +969,6 @@ func _hospital_site() -> Dictionary:
 		"schedule_entry_id": null}
 
 
-## A committed date presents only if Hospital did NOT supersede it. When Hospital triggered it
-## supersedes every committed date, so a surviving date and a Hospital presentation are mutually
-## exclusive by construction rather than by a second rule.
 func _surviving_date_site(substage_id: String) -> Dictionary:
 	var parts: PackedStringArray = substage_id.split(":")
 	if parts.size() != 4:
@@ -1195,8 +980,6 @@ func _surviving_date_site(substage_id: String) -> Dictionary:
 		"schedule_entry_id": entry_id}
 
 
-## Hospital-superseded committed groups retain their original source identity. Other visible
-## pair meetings are backed by Contacts operations, without pretending they were scheduled dates.
 func _deferred_pair_site() -> Dictionary:
 	var committed_id: String = _hospital_deferred_pair_entry_id()
 	if not committed_id.is_empty():
@@ -1204,20 +987,11 @@ func _deferred_pair_site() -> Dictionary:
 			"route_id": "dating", "schedule_entry_id": committed_id}
 	var preview: Dictionary = _deferred_pair_preview()
 	if preview.get("ok", false) and not bool(preview.value.get("required", false)): return {}
-	# Carry an invalid preview into admission too: missing source proof must refuse before the
-	# stage is activated, not silently turn a visible meeting into a no-op.
 	return {"kind": "twofriends_if_deferred", "stage_name": PAIR_STAGE,
 		"route_id": "dating", "schedule_entry_id": str(preview.get("value", {}).get("action_id", "")),
 		"pair_preview": preview.duplicate(true)}
 
 
-## The exact top-level `P01.day_resolution.stage` child id for `stage_id`, or "" when the plan
-## carries no such stage.
-##
-## Read out of the PERSISTED plan rather than off the cursor record. For a surviving date the cursor
-## is the entry SUBSTAGE, whose transaction id is `<resolution>:surviving_date:<slot>:<entry>`;
-## projecting that would bind the completion to an entry-substage row when plan line 100 names the
-## top-level one, and line 100 explicitly separates the two roles.
 static func _top_level_stage_transaction_id(plan: Dictionary, stage_id: String) -> String:
 	for stage_value: Variant in (plan.get("stages", []) as Array):
 		var stage: Dictionary = stage_value
@@ -1226,7 +1000,6 @@ static func _top_level_stage_transaction_id(plan: Dictionary, stage_id: String) 
 	return ""
 
 
-## One source ID for the same visibility decision used by admission and the completion envelope.
 func _deferred_pair_entry_id() -> String:
 	var committed_id: String = _hospital_deferred_pair_entry_id()
 	if not committed_id.is_empty(): return committed_id
@@ -1243,8 +1016,6 @@ func _hospital_deferred_pair_entry_id() -> String:
 			return str(entry.schedule_entry_id)
 	return ""
 
-## Pure preview only. Invitation rollover still owns the one closure receipt, count and message
-## batch. Its frozen transaction ID makes this preview byte-identical to that later preparation.
 func _deferred_pair_preview() -> Dictionary:
 	var plan: Dictionary = _active_plan()
 	var day: int = int(plan.get("source_day", 0))
@@ -1269,8 +1040,6 @@ func _deferred_pair_preview() -> Dictionary:
 			or activation.get("day") != day or activation.get("transaction_id") != activation_id:
 		return {"ok": false, "code": &"pair_activation_source_unavailable"}
 	var source_ids: Array = [action_id, activation_id]
-	# Activation has a persisted operation identity but its existing schema has no issuer receipt.
-	# Open/reply operations do carry receipts: verify those instead of claiming the missing proof.
 	for operation: Dictionary in contacts.transaction_receipts.values():
 		if operation.get("action_id") != action_id or operation.get("day") != day \
 				or operation.get("kind") not in ["open_group_first", "open_group_second", "reply_group"]: continue
@@ -1284,7 +1053,6 @@ func _deferred_pair_preview() -> Dictionary:
 			var proven: Dictionary = _identity_issuer.validate_child(source.receipt_provenance, &"contact_source")
 			if not proven.get("ok", false): return proven
 			source_ids.append(str(operation.source_receipt_id))
-	# Bind actual attendance/supersession evidence as well as the invitation's operation history.
 	for stage: Dictionary in plan.get("stages", []):
 		if stage.get("stage_id") == "hospital_if_triggered" and stage.get("state") == "completed":
 			source_ids.append(str(stage.transaction_id))
@@ -1295,8 +1063,6 @@ func _deferred_pair_preview() -> Dictionary:
 		"source_day": day, "resolution_id": str(plan.get("resolution_id", "")),
 		"input_receipt_ids": _id_list(source_ids), "closure_receipt": prepared.receipt.duplicate(true)}}
 
-## A presentation admission must use the detached preview it started with. A changed source
-## between site selection and identity derivation is refused, rather than authorizing new bytes.
 func _validated_pair_preview(site: Dictionary) -> Dictionary:
 	var preview: Variant = site.get("pair_preview")
 	if not preview is Dictionary or not preview.get("ok", false):
@@ -1308,12 +1074,6 @@ func _validated_pair_preview(site: Dictionary) -> Dictionary:
 	return current
 
 
-## Builds the exact port `begin()` request for one presentation site: the `P01.presentation.intent`
-## child, its matching `P01.presentation.completion` child, and the frozen context between them.
-##
-## FAILS CLOSED BEFORE ANY STAGE MUTATION. A resolution with no persisted root cannot derive a
-## lawful intent, so it refuses here rather than silently completing the stage with no presentation
-## -- which is exactly the silent skip this bead exists to remove.
 func _presentation_command(stage: Dictionary, site: Dictionary) -> Dictionary:
 	var plan := _active_plan()
 	var root: Variant = plan.get("resolution_issuer_receipt")
@@ -1323,25 +1083,16 @@ func _presentation_command(stage: Dictionary, site: Dictionary) -> Dictionary:
 			"message": "this resolution persisted no root, so no presentation child can be derived"
 				+ " (the Plan-02 desktop consequence source is unconfigured)",
 			"details": {"stage_id": str(stage.get("stage_id", ""))}}
-	# A plan can carry a perfectly good root while THIS port has no issuer to derive under -- a
-	# half-composed process, or a resolution begun by one port and resumed by another. Fail closed
-	# rather than dereferencing a null issuer part-way through the derivation.
 	if _identity_issuer == null:
 		return {"ok": false, "code": &"presentation_intent_unavailable",
 			"message": "this port has no configured identity issuer to derive a presentation under",
 			"details": {"stage_id": str(stage.get("stage_id", ""))}}
-	# Line 100's `stage_id` is the TOP-LEVEL stage, which is not the record this call was handed
-	# whenever the presentation hangs off an entry substage. Resolved before anything is minted, so a
-	# plan that cannot name its own stage refuses rather than anchoring a child under a wrong id.
 	var stage_child_id := _top_level_stage_transaction_id(plan, str(stage.get("stage_id", "")))
 	if stage_child_id.is_empty():
 		return {"ok": false, "code": &"presentation_intent_unavailable",
 			"message": "this resolution carries no top-level stage for this presentation",
 			"details": {"stage_id": str(stage.get("stage_id", ""))}}
 
-	# HOSPITAL ANCESTRY FIRST, and exactly once. The aggregate and miss rows feed BOTH the context's
-	# `miss_receipt_ids` and the intent's `input_receipt_ids`; deriving them twice would be wasteful
-	# and would leave two places able to disagree about which misses exist.
 	var hospital_rows: Dictionary = {}
 	if str(site["kind"]) == "hospital":
 		var derived_rows := _derive_hospital_rows(plan, root as Dictionary, start as Dictionary)
@@ -1368,11 +1119,6 @@ func _presentation_command(stage: Dictionary, site: Dictionary) -> Dictionary:
 	if ordinal < 0:
 		return {"ok": false, "code": &"invalid_presentation_ordinal",
 			"message": "the within-stage presentation ordinal is not derivable", "details": {}}
-	# Same fail-closed rule as the ordinal beside it. `Array.find()` returns -1 for a stage this
-	# day's frozen array does not contain, and -1 is a perfectly projectable int: it would anchor a
-	# child under a stage_index that names no stage rather than refusing. Unreachable today -- the
-	# D7 array carries none of the three presentation stages -- which is exactly why it is guarded
-	# rather than left to a future day's stage array to discover.
 	var stage_index := _stage_index(str(site["stage_name"]), int(plan["source_day"]))
 	if stage_index < 0:
 		return {"ok": false, "code": &"invalid_presentation_stage_index",
@@ -1403,9 +1149,6 @@ func _presentation_command(stage: Dictionary, site: Dictionary) -> Dictionary:
 		return intent
 	var intent_id := str((intent["value"] as Dictionary)["child_id"])
 
-	# The completion binds its prerequisite: `substage_id` is the intent child id just derived, so
-	# the completion projection cannot be built before the intent exists (plan line 100). `stage_id`
-	# is the TOP-LEVEL stage that intent belongs to, never the entry substage it may be driven from.
 	var completion := _derive_row(str(root_receipt["receipt_id"]), PRESENTATION_CHILD_KIND, ordinal, [
 		_project("role", COMPLETION_ROLE),
 		_project("resolution_id", str(plan["resolution_id"])),
@@ -1437,12 +1180,10 @@ func _presentation_command(stage: Dictionary, site: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"presentation_request": request}}
 
 
-## The exact frozen context each port validates, and nothing that could carry an outcome.
 func _presentation_context(site: Dictionary, plan: Dictionary,
 		hospital_rows: Dictionary) -> Dictionary:
 	var day := int(plan["source_day"])
 	if str(site["kind"]) == "hospital":
-		# Hospital owns no semantic order for either array, so both are sorted and unique.
 		var source_entry_ids := _id_list(hospital_rows["date_schedule_entry_ids"] as Array)
 		var miss_ids := _id_list(hospital_rows["hospital_miss_receipt_ids"] as Array)
 		return {"kind": "hospital", "day": day, "source_entry_ids": source_entry_ids,
@@ -1455,7 +1196,6 @@ func _presentation_context(site: Dictionary, plan: Dictionary,
 	var entry := _committed_entry(str(site["schedule_entry_id"]))
 	if entry.is_empty():
 		return {}
-	# The pair keeps the invitation-owned order; a solo date carries its one registered friend.
 	var kind := "twofriends_if_deferred" if str(site["kind"]) == "twofriends_if_deferred" \
 		else str(entry.get("action_kind", ""))
 	var participants: Array[String] = []
@@ -1468,8 +1208,6 @@ func _presentation_context(site: Dictionary, plan: Dictionary,
 		"participants": participants}
 
 
-## Constructs the locator and proves it is registered. A constructed String that the manifest does
-## not carry returns "" and the presentation refuses rather than starting an unregistered timeline.
 func _presentation_timeline_id(context: Dictionary) -> String:
 	var day := int(context["day"])
 	var timeline_id := ""
@@ -1491,7 +1229,6 @@ func _presentation_timeline_id(context: Dictionary) -> String:
 	return timeline_id if DialogicTimelineCatalog.has_timeline_id(timeline_id) else ""
 
 
-## The exact `input_receipt_ids` set each variant projects (plan line 100).
 func _presentation_inputs(site: Dictionary, hospital_rows: Dictionary) -> Dictionary:
 	if str(site["kind"]) == "hospital":
 		var ids: Array = [str(hospital_rows["condition_receipt_id"])]
@@ -1514,12 +1251,6 @@ func _presentation_inputs(site: Dictionary, hospital_rows: Dictionary) -> Dictio
 		str(site["schedule_entry_id"]), str(source_receipt_id)])}}
 
 
-## Derives `P01.hospital.resolution` and then its `P01.hospital.miss[]` children, in that order.
-##
-## The condition receipt is a PLAN-02 record this resolution consumes but does not own, so it
-## arrives through the desktop-consequence seam -- configured in production since the dwm-oyo.3
-## slice -- and its absence still fails closed. Deriving a Hospital aggregate against a condition nobody anchored would be exactly the
-## forged ancestry the matrix exists to prevent.
 func _derive_hospital_rows(plan: Dictionary, root: Dictionary, start: Dictionary) -> Dictionary:
 	if _desktop_consequence_source == null:
 		return {"ok": false, "code": &"condition_receipt_unavailable",
@@ -1564,7 +1295,6 @@ func _derive_hospital_rows(plan: Dictionary, root: Dictionary, start: Dictionary
 		return resolution_row
 	var hospital_resolution_id := str((resolution_row["value"] as Dictionary)["child_id"])
 
-	# Miss rows follow the aggregate, each at its own matrix ordinal.
 	var miss_ids: Array[String] = []
 	for miss_value: Variant in (planned_value["misses"] as Array):
 		var miss: Dictionary = miss_value
@@ -1590,13 +1320,6 @@ func _derive_hospital_rows(plan: Dictionary, root: Dictionary, start: Dictionary
 	}}
 
 
-## The stage envelope for a completing PRESENTATION stage, carrying the exact receipt the port
-## published (dwm-p2r.18).
-##
-## The domain half is still owned by the domain: Hospital's envelope comes from `HospitalRules`, a
-## date substage's from the committed entry. The port's completion receipt is ATTACHED to it rather
-## than replacing it, so one checkpoint durably records both what the domain decided and the
-## evidence that the presentation physically happened.
 func presentation_stage_receipt(transaction_id: String, completion: Dictionary) -> Dictionary:
 	var plan := _active_plan()
 	if plan.is_empty():
@@ -1604,20 +1327,6 @@ func presentation_stage_receipt(transaction_id: String, completion: Dictionary) 
 	for stage_value: Variant in (plan.get("stages", []) as Array):
 		var stage: Dictionary = stage_value
 		if str(stage.get("transaction_id", "")) == transaction_id:
-			# Only Hospital and the deferred pair ever pause at stage level (`_presentation_site`
-			# routes exactly those two ids; every other stage completes immediately and can never
-			# be awaiting a presentation), so any other stage transaction is refused rather than
-			# answered with presentation evidence folded onto its envelope (dwm-p2r.28). The
-			# check is the STATIC stage identity, never a live site re-derivation --
-			# completion-time re-reads of live state are the bug the `_hospital_envelope`
-			# docstring records -- and it sits BEFORE the envelope build, so a refused Day-7 id
-			# never runs provenance side effects. A required=false Hospital stays answerable
-			# here BY DESIGN (dwm-p2r.29, resolved as a recorded limit): the mint cannot LAND
-			# for pending or completed records (the domain record-state and byte laws), and the
-			# one ACTIVE window has no durable marker this port can reach -- the issuer derives
-			# children purely, the live flag is foreclosed by FINDING-4, and the checkpointed
-			# flag copy lives behind the coordinator checkpoint port, absent entirely on
-			# port-direct walks.
 			if not str(stage["stage_id"]) in [HOSPITAL_STAGE, PAIR_STAGE]:
 				return {"ok": false, "code": &"invalid_presentation_stage",
 					"message": str(stage["stage_id"]), "details": {}}
@@ -1629,22 +1338,10 @@ func presentation_stage_receipt(transaction_id: String, completion: Dictionary) 
 			if str(substage.get("transaction_id", "")) != transaction_id:
 				continue
 			var substage_id := str(substage["substage_id"])
-			# Only a non-superseded surviving DATE ever pauses for presentation
-			# (`_presentation_site`), and this seam is the ONE place on the path that knows the
-			# transaction arrived as a presentation settle -- `RunLifecycle.complete_active_stage`
-			# runs no owner-receipt validation at all for substage records. Refusing BY KIND here
-			# keeps a date-shaped receipt from being minted for an entry that is not a date
-			# (dwm-p2r.26). The superseded-date half of the same door -- right kind, wrong
-			# state -- is dwm-p2r.27.
 			if not substage_id.begins_with("surviving_date:"):
 				return {"ok": false, "code": &"invalid_presentation_substage",
 					"message": substage_id, "details": {}}
 			var entry_id := substage_id.split(":")[3] if substage_id.split(":").size() == 4 else ""
-			# A date Hospital superseded never presents either (`_surviving_date_site` answers {}
-			# for it), so its transaction is refused for the same reason as a wrong kind: this
-			# substage cannot be awaiting a presentation, and answering would mint
-			# superseded: false against the durable supersession in the completed hospital stage
-			# receipt (dwm-p2r.27). The read is the DURABLE set, never the live flag.
 			if entry_id in _superseded_entry_ids():
 				return {"ok": false, "code": &"invalid_presentation_substage",
 					"message": substage_id, "details": {}}
@@ -1658,11 +1355,6 @@ func presentation_stage_receipt(transaction_id: String, completion: Dictionary) 
 	return {"ok": false, "code": &"unknown_transaction", "message": transaction_id, "details": {}}
 
 
-## The zero-based within-stage presentation ordinal (plan line 97).
-##
-## Hospital and the deferred pair are single presentations and reserve ordinal 0. A surviving date
-## takes its index among the SURVIVING committed dates in slot order -- never the raw slot number
-## and never the order the boards happened to finish in.
 func _presentation_ordinal(site: Dictionary) -> int:
 	if str(site["kind"]) != "surviving_date":
 		return 0
@@ -1685,12 +1377,10 @@ func _presentation_ordinal(site: Dictionary) -> int:
 	return -1
 
 
-## The zero-based index of a stage in its own frozen stage array.
 static func _stage_index(stage_name: String, source_day: int) -> int:
 	return DAY_RESOLUTION_PLAN.stage_allowlist(source_day).find(stage_name)
 
 
-## One committed entry from the aggregate this plan FROZE, never from live state.
 func _committed_entry(schedule_entry_id: String) -> Dictionary:
 	for entry_value: Variant in _active_committed_entries():
 		var entry: Dictionary = entry_value
@@ -1699,7 +1389,6 @@ func _committed_entry(schedule_entry_id: String) -> Dictionary:
 	return {}
 
 
-## One `derive_child()` call plus the four independent checks every Plan-01 producer performs.
 func _derive_row(parent_receipt_id: String, child_kind: StringName, ordinal: int,
 		tokens: Array) -> Dictionary:
 	for token: String in tokens:
@@ -1736,7 +1425,6 @@ func _derive_row(parent_receipt_id: String, child_kind: StringName, ordinal: int
 		"child_id": str((value as Dictionary)["child_id"]), "provenance": provenance}}
 
 
-## `L(id...)`: nonblank, unique, strictly sorted.
 static func _id_list(ids: Array) -> Array[String]:
 	var seen := {}
 	var listed: Array[String] = []
@@ -1750,8 +1438,6 @@ static func _id_list(ids: Array) -> Array[String]:
 	return listed
 
 
-## `P(path,value)` and `H(value)` from the matrix preamble, over the same canonical writer every
-## other Plan-01 producer uses.
 static func _project(path: String, value: Variant) -> String:
 	var canonical: Dictionary = SCHEDULE_STATE_SCHEMA.canonical_json(value)
 	if not canonical.get("ok", false):
@@ -1766,26 +1452,6 @@ static func _sha256(value: Variant) -> String:
 	return str((hashed["value"] as Dictionary)["sha256"])
 
 
-## The Hospital completion envelope, projected by the pure HospitalRules owner from condition truth
-## plus the committed aggregate this plan froze (Task 7 Step 7.3, dwm-p2r.14).
-##
-## Condition truth comes from the owner's own pending-hospital flag, resolved by the earlier
-## commit_outcomes stage -- never from a caller field. When Hospital triggers, EVERY committed date
-## is superseded here, before the date stage runs a single board.
-##
-## `presented` IS THE DERIVATION-TIME ANSWER, carried here rather than read again.
-##
-## `required` is live state. `_hospital_site()` reads it at stage-BEGIN to decide whether to derive
-## a presentation at all; re-reading it at stage-COMPLETION bracketed the physical presentation with
-## two independent reads of a mutable flag, and nothing compared them. If anything cleared it while
-## the timeline played, this receipt recorded required=false with superseded_entry_ids=[] and
-## silently un-superseded every date the presentation had just been played for.
-##
-## A Hospital presentation EXISTS only because `_hospital_site()` said required, and the coordinator
-## proves the published completion settles that exact command before this runs, so the presentation
-## is itself the evidence -- a second read of live state cannot be more authoritative than the
-## derivation the published intent and its children already committed to. Every other input here is
-## already read from the frozen aggregate, so this was the last live read in the envelope.
 func _hospital_envelope(presented: bool) -> Dictionary:
 	var required := presented
 	if not presented:
@@ -1796,8 +1462,6 @@ func _hospital_envelope(presented: bool) -> Dictionary:
 		"committed_entries": _active_committed_entries(),
 	})
 	if not planned.get("ok", false):
-		# A malformed committed aggregate cannot silently become "no Hospital"; report the
-		# supersession set as unknown-empty and let the stage contract reject it.
 		return {"required": required, "date_schedule_entry_ids": [],
 			"superseded_entry_ids": [], "witness_entry_id": null,
 			"presentation_completion_receipt": null}
@@ -1811,15 +1475,10 @@ func _hospital_envelope(presented: bool) -> Dictionary:
 		"date_schedule_entry_ids": value["date_schedule_entry_ids"],
 		"superseded_entry_ids": superseded,
 		"witness_entry_id": str((witness as Dictionary)["schedule_entry_id"]) if witness != null else null,
-		# Filled in by presentation_stage_receipt() when this Hospital actually presented.
 		"presentation_completion_receipt": null,
 	}
 
 
-## The entry ids Hospital already superseded, read from this plan's COMPLETED hospital stage.
-##
-## Read from the durable stage receipt rather than recomputed, so a date substage resumed after a
-## crash sees exactly the supersession the Hospital transaction committed.
 func _superseded_entry_ids() -> Array:
 	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
 	var plan: Variant = lifecycle.get("active_resolution_plan")
@@ -1839,17 +1498,6 @@ func _superseded_entry_ids() -> Array:
 		return (superseded as Array) if typeof(superseded) == TYPE_ARRAY else []
 	return []
 
-## Drives the ONE configured Day7ScheduleProvenance service and returns its exact frozen
-## `terminal_provenance` (Task 8 Step 8.7, dwm-p2r.14).
-##
-## Task 7 answered these two stages from the aggregate directly, which meant a Day-7 resolution
-## could report a cause no issuer had ever anchored. Every input here is READ from the plan's frozen
-## committed aggregate and the owner's own Contacts index -- never from a caller field -- and the
-## service revalidates the issuer receipt, the saved registry fingerprint, the commit ancestry, and
-## the source receipt before it derives anything.
-##
-## Deliberately absent: `date_completed`, planned UI state, a synthetic empty array standing in for
-## a missing index, and any hospital-skipped counter. None of them is Day-7 proof.
 func _day7_handoff() -> Dictionary:
 	if _day7_provenance == null:
 		return {"ok": false, "code": &"day7_provenance_unconfigured",
@@ -1887,8 +1535,6 @@ func _day7_handoff() -> Dictionary:
 	})
 
 
-## The derived row, for the two stages that already passed the same guard in begin_next_stage().
-## Deterministic for one frozen aggregate, so validate and checkpoint cannot disagree.
 func _day7_terminal_provenance() -> Dictionary:
 	var handoff := _day7_handoff()
 	if not handoff.get("ok", false):
@@ -1909,16 +1555,7 @@ func _active_committed_entries() -> Array:
 	return (entries as Array) if typeof(entries) == TYPE_ARRAY else []
 
 
-func _active_commit_receipt_id() -> Variant:
-	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
-	var plan: Variant = lifecycle.get("active_resolution_plan")
-	if typeof(plan) != TYPE_DICTIONARY:
-		return null
-	return (plan as Dictionary).get("schedule_commit_receipt_id")
 
-
-## Pure terminal admission source: every Day-7 stage must already be durable, and the
-## retained provenance owner reproduces the exact checkpointed receipt from persisted inputs.
 func prepare_terminal_ending_source() -> Dictionary:
 	var snapshot: Dictionary = _game_state._run_lifecycle.to_dict()
 	var plan: Variant = snapshot.get("active_resolution_plan")
@@ -1978,8 +1615,6 @@ static func _plan_receipt_for_snapshot(envelope: Dictionary, snapshot: Dictionar
 	if str(value.get("primary_id", "")) != str(frozen.get("ending_id", "")) \
 			or epilogue != str(frozen.get("epilogue_ending_id", "")):
 		return {"value": {"ending_plan": {}}}
-	# The envelope stays closed. The already durable resolution receipt owns the complete
-	# ordered steps and cursor; reconstructing five legacy keys here discarded its branches.
 	return {"value": {"ending_plan": frozen}}
 
 
@@ -2005,8 +1640,6 @@ static func _plan_receipt_from_envelope(envelope: Dictionary) -> Dictionary:
 	return {"value": value.duplicate(true)}
 
 
-## A detached candidate joins the existing outcome-stage checkpoint. No condition signal or
-## gameplay field changes before that checkpoint commits; completed-stage replay skips it.
 static func _prepare_schedule_condition_gameplay(gameplay: Dictionary, day: int) -> Dictionary:
 	var candidate := gameplay.duplicate(true)
 	if day >= 7 or int(candidate.get("condition_resolved_day", 0)) == day: return candidate

@@ -1,25 +1,12 @@
 class_name ContactInvitationState
 extends RefCounted
 
-## Stateless contact & invitation state machine (dwm-p2r.6, plan-04 stateless rebuild).
-## Every function is static: it takes a primitive `state` Dictionary plus a transaction
-## id and returns a frozen CommandResult {ok, code, value:{candidate, message_batch}, receipt}.
-## GameState owns one primitive `contacts` bag; no instance state lives here — a failed
-## transaction simply discards the returned candidate, so rollback/idempotency are by
-## construction. Queries are pure and never mutate the passed state.
-## Spec: prompt_docs/requirements/contacts_invitations.md; story/05 §7/§13;
-## docs/superpowers/plans/2026-07-22-phase-2r-06-contacts-stateless-reconciliation.md
 
-## The pure Hospital owner supplies the frozen witness facts, so this module validates against
-## the SAME constants rather than keeping a second copy of the law (Task 7 Step 7.3).
 const ORDINARY_REPLIES := preload("res://scripts/domain/contact/OrdinaryReplyEchoState.gd")
 const HOSPITAL_RULES := preload("res://scripts/domain/hospital/HospitalRules.gd")
 const CALENDAR := preload("res://scripts/domain/contact/SevenDayCalendar.gd")
 
-## THE canonical friend roster (dwm-pm4): DataCatalog and GameState alias this declaration, so
-## adding or renaming a friend is a one-line change with a drift pin watching all three surfaces.
 const FRIEND_IDS: Array[String] = ["priscilla", "lavinia", "sylvia"]
-## The one counted Priscilla-Lavinia pair and its group-eligible windows.
 const GROUP_PAIR: Array[String] = ["priscilla", "lavinia"]
 const GROUP_WINDOW_DAYS: Array[int] = CALENDAR.GROUP_DAYS
 const GROUP_ACTIVATION_ROUND := 3
@@ -83,7 +70,6 @@ const _RESOLVE_RECEIPT_KEYS: Array[String] = [
 	"message_sequences", "pl_window", "state_transitions", "transaction_id",
 ]
 
-# ---- canonical state shape ----
 
 static func make_defaults() -> Dictionary:
 	return {
@@ -119,9 +105,6 @@ static func validate_state(state: Dictionary) -> Dictionary:
 			return _fail(&"invalid_state", "%s must be a Dictionary" % key)
 	if not _is_integral(state.get("next_sequence")) or int(state["next_sequence"]) < 1:
 		return _fail(&"invalid_state", "next_sequence must be a positive integer")
-	# OPENED BY TASK 7 (dwm-p2r.14 Step 7.3). Task 3 reserved this index empty; the Hospital
-	# transaction now commits the byte-identical witness here, and it outlives the resolution plan
-	# so dwm-oyo.4 can consume it. Append-only HANDOFF index, never a second gameplay ledger.
 	for witness_id: Variant in state["sylvia_hospital_witness_receipts"]:
 		if typeof(witness_id) != TYPE_STRING or str(witness_id).strip_edges().is_empty():
 			return _fail(&"invalid_state", "Sylvia witness receipt ids must be nonblank strings")
@@ -197,13 +180,6 @@ static func validate_state(state: Dictionary) -> Dictionary:
 	if not ordinary_check.ok: return ordinary_check
 	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
 
-## The exact Schedule-Done Sylvia witness record (Task 7 Step 7.3, dwm-p2r.14).
-##
-## The deltas, attitude and tier transition are FROZEN FACTS recorded for dwm-oyo.4; validating them
-## here keeps a malformed handoff from ever reaching disk. Nothing in this module applies them.
-##
-## `resolution_kind` is pinned to schedule_done on purpose: Plan 03's condition-Hospital flow owns
-## its own typed ancestry and must not reach this index through a Plan-01 shaped record.
 const SYLVIA_WITNESS_KEYS: Array[String] = [
 	"action_id", "affection_delta", "attitude", "care_followup_day", "care_followup_entry_id",
 	"dark_delta", "hospital_miss_ordinal", "kind", "resolution_kind", "schedule_entry_id",
@@ -231,8 +207,6 @@ static func _validate_sylvia_witness_shape(record: Variant) -> Dictionary:
 	for int_field: String in ["care_followup_day", "hospital_miss_ordinal"]:
 		if typeof(witness[int_field]) != TYPE_INT or int(witness[int_field]) < 0:
 			return _fail(&"invalid_sylvia_witness", int_field + " must be a non-negative int")
-	# Type FIRST, then value: a coerced "2" must fail as a bad shape rather than reaching a
-	# String-vs-int comparison.
 	for delta_field: String in ["affection_delta", "dark_delta"]:
 		if typeof(witness[delta_field]) != TYPE_INT:
 			return _fail(&"invalid_sylvia_witness", delta_field + " must be a strict int")
@@ -243,11 +217,6 @@ static func _validate_sylvia_witness_shape(record: Variant) -> Dictionary:
 	return {"ok": true, "code": &"ok"}
 
 
-## Did a Hospital witness record cover this exact solo action?
-##
-## Read-only. The witness index is an append-only handoff written by the Hospital transaction; the
-## day-end rollover consults it and never consumes, clears, or rewrites it, because dwm-oyo.4 reads
-## it after this plan retires.
 static func _has_hospital_witness(state: Dictionary, action_id: String) -> bool:
 	var index: Variant = state.get("sylvia_hospital_witness_receipts")
 	if typeof(index) != TYPE_DICTIONARY:
@@ -261,7 +230,6 @@ static func _has_hospital_witness(state: Dictionary, action_id: String) -> bool:
 	return false
 
 
-# ---- solo offer / open (req.contact.history_watermark, req.invitation.solo) ----
 
 static func prepare_offer_solo(state: Dictionary, friend_id: String, day: int, message_id: String, transaction_id: String) -> Dictionary:
 	var detached: Dictionary = state.duplicate(true)
@@ -271,7 +239,6 @@ static func prepare_offer_solo(state: Dictionary, friend_id: String, day: int, m
 		return _fail(&"invalid_day", str(day))
 	if transaction_id.is_empty():
 		return _fail(&"invalid_transaction", "transaction_id is required")
-	# Idempotent replay: an identical prior receipt returns the stored candidate/receipt.
 	if detached["transaction_receipts"].has(transaction_id):
 		return _replay(detached, transaction_id)
 	var action_id := "solo:%s:day%d" % [friend_id, day]
@@ -313,8 +280,6 @@ static func prepare_offer_solo(state: Dictionary, friend_id: String, day: int, m
 	detached["transaction_receipts"][transaction_id] = receipt
 	return _ok(detached, [record], receipt)
 
-## Care and a currently visible invitation share this one preflight/commit candidate. The
-## original invitation source receipt remains unchanged for Schedule subscribers.
 static func prepare_open_contact(state: Dictionary, friend_id: String, day: int,
 		transaction_id: String, command_issuer_receipt: Dictionary,
 		identity_issuer: Object, action_record: Dictionary) -> Dictionary:
@@ -382,7 +347,6 @@ static func _prepare_invitation_open(state: Dictionary, friend_id: String, day: 
 	if detached["transaction_receipts"].has(transaction_id):
 		return _replay_authenticated(detached, transaction_id, friend_id, day,
 			command_issuer_receipt, identity_issuer, &"open")
-	# Route to the group open branch when an active group offer covers this friend/day.
 	if _routes_to_group(detached, friend_id, day):
 		return _open_group(detached, friend_id, transaction_id, command_issuer_receipt)
 	var action_id := "solo:%s:day%d" % [friend_id, day]
@@ -396,7 +360,6 @@ static func _prepare_invitation_open(state: Dictionary, friend_id: String, day: 
 	if not record_check.get("ok", false):
 		return record_check
 	var prior := int(detached["read_watermarks"][friend_id])
-	# Opening a solo is the scripted acceptance; there is no second solo reply transition.
 	var new_watermark := prior
 	for record: Dictionary in detached["messages"][friend_id]:
 		if str(record["visibility"]) != "visible":
@@ -443,7 +406,6 @@ static func prepare_reply(state: Dictionary, friend_id: String, day: int,
 	if detached["transaction_receipts"].has(transaction_id):
 		return _replay_authenticated(detached, transaction_id, friend_id, day,
 			command_issuer_receipt, identity_issuer, &"reply")
-	# Route to the group reply branch when an active group offer covers this friend/day.
 	if _routes_to_group(detached, friend_id, day):
 		return _reply_group(detached, friend_id, transaction_id,
 			command_issuer_receipt, identity_issuer, action_record)
@@ -459,8 +421,6 @@ static func prepare_resolve_day_end(state: Dictionary, day: int, attendance: Dic
 		return _replay(detached, transaction_id)
 	var ordinary_expiry := ORDINARY_REPLIES.expiry_entry_id(detached, day)
 	var attended: Array = attendance.get("solo_attended_action_ids", [])
-	# Resolve this day's solo actions in deterministic action_id order so queued
-	# records (and their sequences) allocate identically on every replay.
 	var action_ids: Array = []
 	for action_id: String in detached["solo_actions"]:
 		if int(detached["solo_actions"][action_id]["day"]) == day:
@@ -477,11 +437,9 @@ static func prepare_resolve_day_end(state: Dictionary, day: int, attendance: Dic
 		var to_state := ""
 		var queued_type := ""
 		if day == 7:
-			# Day 7 closes every unresolved action silently.
 			if from_state == "AVAILABLE" or from_state == "ACCEPTED":
 				to_state = "RESOLVED_RUN_END"
 		elif from_state == "AVAILABLE":
-			# Un-replied (unread OR opened-unanswered) both draw the nevermind (§13).
 			to_state = "RESOLVED_UNANSWERED"
 			queued_type = "nevermind"
 		elif from_state == "ACCEPTED":
@@ -489,13 +447,10 @@ static func prepare_resolve_day_end(state: Dictionary, day: int, attendance: Dic
 				to_state = "RESOLVED_ATTENDED"
 			else:
 				to_state = "RESOLVED_MISSED"
-				# A friend who WITNESSED the faint already knows why the date did not happen, so
-				# she sends care the next day instead of asking what happened (Task 7 Step 7.3).
-				# The date is still missed; only the question is suppressed.
 				if not _has_hospital_witness(detached, action_id):
 					queued_type = "missed_question"
 		if to_state.is_empty():
-			continue  # already resolved on a prior day-end; leave untouched
+			continue
 		action["state"] = to_state
 		state_transitions.append({"action_id": action_id, "from_state": from_state, "to_state": to_state})
 		if queued_type.is_empty():
@@ -521,7 +476,6 @@ static func prepare_resolve_day_end(state: Dictionary, day: int, attendance: Dic
 		message_ids.append(message_id)
 		message_sequences.append(sequence)
 		child_transaction_ids.append(message_tx)
-	# ---- group day-end resolution (plan-04 table; §7 PL counter is added in Cycle B) ----
 	var date_outcome_ids: Array = []
 	var counter_deltas: Dictionary = {}
 	var group_date_variation: Variant = null
@@ -533,14 +487,14 @@ static func prepare_resolve_day_end(state: Dictionary, day: int, attendance: Dic
 		var replied_ids: Array = group["replied_ids"]
 		var to_group := ""
 		if day == 7:
-			to_group = "RESOLVED_RUN_END"  # lingering window closes silently
+			to_group = "RESOLVED_RUN_END"
 		elif int(group["day"]) == day:
 			if group_state == "AVAILABLE_UNOPENED" and replied_ids.is_empty():
-				to_group = "RESOLVED_UNANSWERED"  # wholly untouched -> busy to both
+				to_group = "RESOLVED_UNANSWERED"
 				for recipient: String in GROUP_PAIR:
 					_queue_group_message(detached, recipient, "busy", day + 1, transaction_id, message_batch, message_ids, message_sequences, child_transaction_ids)
 			elif group_state == "REPLY_REQUIRED" and replied_ids.is_empty():
-				to_group = "RESOLVED_UNANSWERED"  # opened but unanswered -> nevermind to both
+				to_group = "RESOLVED_UNANSWERED"
 				for recipient: String in GROUP_PAIR:
 					_queue_group_message(detached, recipient, "nevermind", day + 1, transaction_id, message_batch, message_ids, message_sequences, child_transaction_ids)
 			elif group_state == "ACCEPTED" and group_outcome == "attended":
@@ -555,8 +509,6 @@ static func prepare_resolve_day_end(state: Dictionary, day: int, attendance: Dic
 				to_group = "RESOLVED_MISSED"
 				date_outcome_ids.append("date.group.priscilla_lavinia.missed.day%d" % day)
 				deferred_twofriends = {"route_id": "dating", "action_id": str(group["action_id"]), "after_hospital": group_outcome == "prevented_by_fainting"}
-				# Hospital owns its distinct fainting miss in Task 7. Contacts retains the
-				# deferred marker here, but must not also author the ordinary miss messages.
 				if group_outcome != "prevented_by_fainting":
 					for recipient: String in GROUP_PAIR:
 						_queue_group_message(detached, recipient, "missed_question", day + 1, transaction_id, message_batch, message_ids, message_sequences, child_transaction_ids)
@@ -565,7 +517,6 @@ static func prepare_resolve_day_end(state: Dictionary, day: int, attendance: Dic
 		if not to_group.is_empty():
 			state_transitions.append({"action_id": str(group["action_id"]), "from_state": group_state, "to_state": to_group})
 			group["state"] = to_group
-	# ---- §7 four-way counted Priscilla-Lavinia window (group window days only) ----
 	var pl_window: Variant = null
 	if day in GROUP_WINDOW_DAYS:
 		pl_window = _classify_pl_window(day, group_state, attendance)
@@ -585,8 +536,6 @@ static func prepare_resolve_day_end(state: Dictionary, day: int, attendance: Dic
 		"pl_window": pl_window,
 		"counter_deltas": counter_deltas,
 	}
-	# Unanswered ordinary entries are virtual: their invisible tombstone belongs to
-	# this existing closure, without allocating history, a sequence or a watermark.
 	if not ordinary_expiry.is_empty():
 		receipt["ordinary_expired_entry_id"] = ordinary_expiry
 	detached["transaction_receipts"][transaction_id] = receipt
@@ -614,7 +563,6 @@ static func prepare_activate_group_after_round(state: Dictionary, day: int, roun
 			return _fail(&"group_not_inactive", str(previous["state"]))
 		var valid := validate_state(state)
 		if not valid.ok: return valid
-	# Predicate: both solos must be unread, AVAILABLE, unreplied (a failure changes nothing).
 	var superseded_action_ids: Array = []
 	for participant: String in GROUP_PAIR:
 		var solo_id := "solo:%s:day%d" % [participant, day]
@@ -631,7 +579,6 @@ static func prepare_activate_group_after_round(state: Dictionary, day: int, roun
 		if sequence <= int(detached["read_watermarks"][participant]):
 			return _fail(&"solo_already_read", solo_id)
 		superseded_action_ids.append(solo_id)
-	# Atomic success: supersede both solos, hide their offers, open the group.
 	for participant: String in GROUP_PAIR:
 		var solo_id := "solo:%s:day%d" % [participant, day]
 		var action: Dictionary = detached["solo_actions"][solo_id]
@@ -667,7 +614,6 @@ static func prepare_activate_group_after_round(state: Dictionary, day: int, roun
 		if not valid.ok: return valid
 	return _ok(detached, [], receipt)
 
-# ---- pure queries ----
 
 static func get_unread_count(state: Dictionary, friend_id: String, day: int) -> int:
 	var watermark := int(state["read_watermarks"].get(friend_id, 0))
@@ -694,7 +640,6 @@ static func is_date_addable(state: Dictionary, action_id: String) -> bool:
 	return typeof(action) == TYPE_DICTIONARY and str(action["state"]) == "ACCEPTED"
 
 static func get_contact_view(state: Dictionary, friend_id: String, day: int) -> Dictionary:
-	# The player-visible message list for a friend on a given day (hidden records excluded).
 	var visible: Array = []
 	for record: Dictionary in state["messages"].get(friend_id, []):
 		if str(record["visibility"]) != "visible":
@@ -747,15 +692,12 @@ static func validate_schedule_source_receipt(state: Dictionary, receipt_id: Stri
 		return _fail(&"schedule_source_provenance_mismatch", receipt_id)
 	return {"ok": true, "code": &"ok", "value": {"receipt": receipt.duplicate(true)}, "receipt": {}}
 
-# ---- internals ----
 
 static func _classify_pl_window(day: int, pre_group_state: String, attendance: Dictionary) -> Dictionary:
-	# One rule (story/05 §7): did Angela solo-date either woman this window?
 	var attended: Array = attendance.get("solo_attended_action_ids", [])
 	for participant: String in GROUP_PAIR:
 		if ("solo:%s:day%d" % [participant, day]) in attended:
 			return {"outcome": "prevented", "counts": false, "visible": false}
-	# Solo-dated neither: the pair always meets and counts once; flavor by group state.
 	if pre_group_state not in GROUP_OPEN_STATES:
 		return {"outcome": "private_offscreen", "counts": true, "visible": false}
 	if pre_group_state == "ACCEPTED":
@@ -818,7 +760,6 @@ static func _open_group(detached: Dictionary, friend_id: String, transaction_id:
 	var day := int(group["day"])
 	var action_id := str(group["action_id"])
 	if str(group["state"]) == "AVAILABLE_UNOPENED":
-		# First open: the opener becomes presentation-only inviter; two records appear.
 		group["inviter_id"] = friend_id
 		group["opened_ids"] = [friend_id]
 		group["history_generated"] = true
@@ -833,7 +774,6 @@ static func _open_group(detached: Dictionary, friend_id: String, transaction_id:
 		var other_record := _group_offer_record(action_id, other, friend_id, day, "second_open", other_seq, other_tx)
 		(detached["messages"][other] as Array).append(other_record)
 		detached["next_sequence"] = other_seq + 1
-		# Advance only the inviter's watermark through their own new record.
 		detached["read_watermarks"][friend_id] = maxi(int(detached["read_watermarks"][friend_id]), inviter_seq)
 		var receipt := {
 			"transaction_id": transaction_id,
@@ -848,7 +788,6 @@ static func _open_group(detached: Dictionary, friend_id: String, transaction_id:
 		}
 		detached["transaction_receipts"][transaction_id] = receipt
 		return _ok(detached, [inviter_record, other_record], receipt)
-	# Second open: append nothing; advance only this participant's watermark.
 	if friend_id not in group["opened_ids"]:
 		(group["opened_ids"] as Array).append(friend_id)
 		group["opened_ids"] = _canonical_participants(group["opened_ids"])
@@ -1367,7 +1306,6 @@ static func _validate_operation_linkage(state: Dictionary, transaction_id: Strin
 		if not care_link.ok or receipt.kind == "open_sylvia_care": return care_link
 	match receipt["kind"]:
 		"ordinary_reply", "ordinary_echo_presented":
-			# Cross-row ownership is checked once by validate_state below.
 			return {"ok": true}
 		"offer_solo":
 			return _validate_offer_linkage(state, receipt)
@@ -1529,8 +1467,6 @@ static func _validate_activate_group_linkage(state: Dictionary, receipt: Diction
 	return _validate_group_history_linkage(state, receipt["action_id"], receipt["day"])
 
 
-## The current slot is a view; earlier window facts remain in the original operation receipts.
-## Reconstruct only a completed older window, then use the same history/source validators.
 static func _group_for_day(state: Dictionary, day: int) -> Dictionary:
 	var current: Variant = state.get("group_action")
 	if not current is Dictionary: return {}
@@ -1976,15 +1912,6 @@ static func _find_exact_message(state: Dictionary, friend_id: String, message_id
 	return {}
 
 
-static func _find_exact_message_any_friend(state: Dictionary, message_id: String,
-		child_transaction_id: String, sequence: int) -> Dictionary:
-	for friend_id: String in FRIEND_IDS:
-		var found := _find_exact_message(state, friend_id, message_id,
-			child_transaction_id, sequence)
-		if not found.is_empty():
-			return found
-	return {}
-
 
 static func _validate_source_receipt_linkage(state: Dictionary, receipt_id: String,
 		value: Variant) -> Dictionary:
@@ -2239,8 +2166,6 @@ static func _fail(code: StringName, message: String, details: Dictionary = {}) -
 	return {"ok": false, "code": code, "message": message, "details": details.duplicate(true)}
 
 
-## Additive pre-Done witness variant: it binds the source invitation and Hospital miss,
-## never a fabricated committed Schedule entry. Schedule-Done keeps its original exact shape.
 static func _validate_condition_hospital_witness(record: Dictionary) -> Dictionary:
 	var keys := ["action_id", "affection_delta", "attitude", "care_followup_day",
 		"care_followup_entry_id", "dark_delta", "hospital_miss_receipt_id", "kind",
@@ -2269,8 +2194,6 @@ static func _validate_condition_hospital_witness(record: Dictionary) -> Dictiona
 		return _fail(&"invalid_sylvia_witness", "condition Hospital witness ancestry differs")
 	return {"ok": true, "code": &"ok"}
 
-## Read-only prospective care. It becomes history only in prepare_open_contact's accepted
-## candidate; the caller persists that candidate with the frozen relationship consequence.
 static func get_pending_sylvia_care(state: Dictionary, day: int) -> Array:
 	var entries: Array = []
 	if day < 2 or day > 7: return entries
@@ -2372,8 +2295,6 @@ static func prepare_satisfy_ordinary_echo(state: Dictionary, echo_id: String, at
 	if not verified.ok: return verified
 	return ORDINARY_REPLIES.prepare_echo_presented(state, echo_id, atom_id, command_id, issuer_receipt, presented)
 
-# Scene Contacts use only the installed successor registration. These pure
-# candidate builders do not commit Run bytes or authenticate a screen draw.
 const _SCENE_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const _SCENE_BAG_KEYS := ["schema_version", "messages", "read_watermarks", "transaction_receipts", "next_sequence"]
 const _SCENE_CONTEXT_KEYS := ["identity", "scene_occurrence", "registration_sha256", "contacts_sha256"]
@@ -2387,7 +2308,6 @@ static func make_scene_defaults() -> Dictionary:
 		"read_watermarks": {"priscilla": 0, "lavinia": 0, "sylvia": 0},
 		"transaction_receipts": {}, "next_sequence": 1}
 
-## A calls this pure row validator during full-B admission. No retained registry.
 static func validate_scene_definitions(definitions: Variant) -> Dictionary:
 	if not _s_json(definitions) or not _has_exact_keys(definitions, ["kind", "schema_version", "messages", "replies"]) \
 			or definitions.kind != "scene_contact_definitions" or typeof(definitions.schema_version) != TYPE_INT \
@@ -2423,8 +2343,6 @@ static func capture_scene_definitions(registration_sha256: String) -> Dictionary
 	if not bundle is Dictionary or typeof(bundle.get("schema_version")) != TYPE_INT or bundle.schema_version not in [2, 3] \
 			or not bundle.has("contact_definitions") or not _s_digest(registration_sha256) \
 			or _s_hash(bundle) != registration_sha256: return _s_fail("scene_contact_registration_unbound")
-	# scene_registration is the existing frozen/validated owner. Its full B binds
-	# every table, including these definitions; saved state cannot select a bundle.
 	return validate_scene_definitions(bundle.contact_definitions)
 
 static func validate_scene_state(state: Dictionary, registration_sha256: String, identity_issuer: Object) -> Dictionary:
