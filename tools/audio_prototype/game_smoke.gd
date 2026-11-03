@@ -32,7 +32,9 @@ func _run() -> void:
 		push_error("Native smoke could not start playback")
 		get_tree().quit(1)
 		return
-	await get_tree().create_timer(0.7).timeout
+	var deadline := Time.get_ticks_msec() + 3000
+	while port._players[&"NativeEffect"].playing and Time.get_ticks_msec() < deadline:
+		await get_tree().create_timer(0.01).timeout
 	if not port._players[&"NativeMusic"].playing or port._players[&"NativeEffect"].playing:
 		push_error("Native smoke completion mismatch: music=%s effect=%s effect_position=%s paused=%s" % [
 			port._players[&"NativeMusic"].playing, port._players[&"NativeEffect"].playing,

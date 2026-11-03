@@ -74,8 +74,12 @@ def main():
         verify.run("game-export", [*base, "--export-release", "Windows Desktop", exported / "game.exe"], cwd=ROOT)
         preset.write_text(original)
         project.write_text(original_project)
-        verify.run("exported-game", [exported / "game.exe", "--headless", "--audio-driver", "Dummy"],
-            "NATIVE_GAME_EXPORT_PASS", cwd=exported)
+        for attempt in range(3):
+            os.environ["APPDATA"] = str(reports / "user" / ("export-" + str(attempt)))
+            Path(os.environ["APPDATA"]).mkdir(exist_ok=True)
+            verify.run("exported-game-" + str(attempt + 1),
+                [exported / "game.exe", "--headless", "--audio-driver", "Dummy"],
+                "NATIVE_GAME_EXPORT_PASS", cwd=exported)
     print("PASS: native game integration and focused audio suites")
     shutil.rmtree(staged)
     (ROOT / "audio/bgm/_native_verify.nsf").unlink()
