@@ -206,6 +206,10 @@ func test_profile_write_failure_halts_advancement() -> void:
 	var decision: Dictionary = _bridge.request_skip_step()
 	assert_false(decision.get("ok", false), "a profile write failure fails the step")
 	assert_eq(adapter.cursor, 0, "advancement halted")
+	assert_true(_bridge.can_skip_current_line(), "ordinary refusal releases both Skip and acknowledgement")
+	(wired["profile"] as Node).fail_write = false
+	assert_true(_bridge.request_skip_step().ok)
+	assert_eq(adapter.cursor, 1, "the next deliberate request succeeds once")
 
 
 func test_skip_requires_a_configured_context() -> void:
@@ -318,6 +322,25 @@ func test_reentrant_presentation_acknowledgement_is_refused() -> void:
 	assert_eq(profile.mark_calls, [LINE_A], "the nested request performs no second profile call")
 	assert_true(profile.is_line_visited(LINE_A))
 	assert_eq(adapter.cursor, 0)
+
+
+func test_skip_acknowledgement_blocks_competitors_and_returns_to_its_outer_step() -> void:
+	var wired := _wired([[LINE_A, "text"], [LINE_B, "choice"]], POLICY.ALL_TEXT)
+	var profile: Node = wired.profile
+	var proof: Dictionary = _bridge.capture_current_line_presentation_frontier()
+	var nested: Array[Dictionary] = []
+	profile.visited_history_changed.connect(func(_line_id: String, _visited: bool) -> void:
+		assert_false(_bridge.can_next_current_line())
+		nested.append(_bridge.request_skip_step())
+		nested.append(_bridge.request_auto_step(proof))
+		nested.append(_bridge.acknowledge_current_line_presentation(proof)))
+	var result: Dictionary = _bridge.request_skip_step()
+	assert_true(result.ok, str(result))
+	assert_eq(nested.size(), 3)
+	for refused: Dictionary in nested: assert_false(refused.ok)
+	assert_eq(profile.mark_calls, [LINE_A])
+	assert_eq(wired.adapter.cursor, 1)
+	assert_true(_bridge.can_skip_current_line(), "the completed outer Skip releases ownership")
 
 
 func test_stale_presentation_frontier_is_refused_before_profile_publication() -> void:
@@ -454,6 +477,7 @@ func test_auto_step_requires_acknowledged_complete_exact_source() -> void:
 	assert_false(_bridge.call("can_auto_advance_current_line"))
 	assert_false(_bridge.call("request_auto_step", proof).get("ok", true))
 	assert_eq(f.profile.mark_calls, [], "Auto never retries presentation persistence")
+	assert_true(_bridge.can_skip_current_line(), "unacknowledged Auto refusal releases command ownership")
 	assert_true(_bridge.acknowledge_current_line_presentation(proof).ok)
 	f.adapter.line_complete = false
 	assert_false(_bridge.call("can_auto_advance_current_line"))

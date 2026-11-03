@@ -188,6 +188,44 @@ func test_partial_unseen_next_finishes_and_witnesses_current_line_then_seeks_in_
 	assert_false(_gate.is_active())
 	assert_false(_bridge.is_next_traversal_active())
 
+func test_next_acknowledgement_and_completion_signals_keep_outer_command_ownership() -> void:
+	_activate()
+	var proof := _proof()
+	var observations: Array[Dictionary] = []
+	var notifications: Array[Dictionary] = []
+	_bridge.next_request_finished.connect(func(_frontier: Dictionary, result: Dictionary) -> void:
+		notifications.append(result))
+	_profile.caption_variant_witness_changed.connect(func(_witness_id: String, _witnessed: bool) -> void:
+		assert_false(_bridge.can_next_current_line(), "Profile publication cannot admit a second command")
+		assert_false(_bridge.can_skip_current_line())
+		var identical: Dictionary = await _bridge.request_next(proof)
+		observations.append(identical)
+		assert_true(notifications.is_empty(), "nested identical request does not announce completion")
+		var changed := proof.duplicate(true)
+		changed.value.token = "different-source"
+		var conflict: Dictionary = await _bridge.request_next(changed)
+		observations.append(conflict)
+		assert_false(_bridge.acknowledge_current_line_presentation(proof).ok)
+		assert_false(_bridge.request_skip_step().ok)
+		assert_false(_bridge.request_auto_step(proof).ok))
+	_bridge.next_traversal_changed.connect(func() -> void:
+		if _bridge.is_next_traversal_active(): return
+		assert_false(_bridge.can_next_current_line(), "completion publication still belongs to the outer command")
+		var identical: Dictionary = await _bridge.request_next(proof)
+		observations.append(identical)
+		assert_false(_bridge.request_skip_step().ok))
+	var result: Dictionary = await _bridge.request_next(proof)
+	assert_true(result.ok, str(result))
+	assert_eq(observations.size(), 3)
+	if observations.size() == 3:
+		assert_eq(observations[0].code, &"coalesced")
+		assert_eq(observations[1].code, &"reading_next_command_conflict")
+		assert_eq(observations[2].code, &"coalesced")
+	assert_eq(notifications.size(), 2, "only conflict and outer completion are published")
+	assert_eq(_native.applies, 1)
+	assert_true(_profile.is_caption_variant_witnessed(proof.value.caption_variant))
+	assert_true(_bridge.can_next_current_line(), "the next valid action is available after outer completion")
+
 func test_complete_source_seeks_first_unseen_caption_after_both_durable_phases_without_witnessing_target() -> void:
 	_activate()
 	_native.complete = true
@@ -257,6 +295,7 @@ func test_source_write_refusal_keeps_native_source_and_retries_the_same_operatio
 	assert_eq(session.ledger.snapshot(), source)
 	assert_eq(session.next_operation, {})
 	assert_false(_gate.is_active())
+	assert_true(_bridge.can_next_current_line(), "ordinary refusal releases command ownership")
 	var retried: Dictionary = await _bridge.request_next(proof)
 	assert_true(retried.ok, str(retried))
 	assert_eq(_port.calls.size(), 3)

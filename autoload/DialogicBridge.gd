@@ -152,7 +152,7 @@ func validate_scene_entry_authority(capability_id: String, binding: Dictionary,
 func hold_scene_entry_source() -> Dictionary:
 	if _scene_stage_busy or _scene_stage_fatal or not _scene_stage.is_empty() \
 			or not has_reading_session() or _reading_session.family != "scene" \
-			or _next_active or not _pause_handle.is_empty() or _pause_changing \
+			or _progression_phase == ProgressionPhase.NEXT_ACTIVE or not _pause_handle.is_empty() or _pause_changing \
 			or not _reading_restore_pending.is_empty() or _runtime_adapter == null \
 			or not _runtime_adapter.has_method("hold_scene_source"):
 		return _command_failure(&"scene_staging_source_invalid")
@@ -632,8 +632,8 @@ var _reading_resume_frontier: Dictionary = {}
 # Only the restore participant stages this checkpoint; completion starts native adoption.
 var _scene_restore: Dictionary = {}
 const _READING_TRAVERSAL := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
-var _next_active := false
-var _next_command: Dictionary = {}
+enum ProgressionPhase { IDLE, NEXT_ADMITTING, NEXT_ACKNOWLEDGING, NEXT_ACTIVE, AUTO, SKIP, ACKNOWLEDGING }
+var _progression_phase := ProgressionPhase.IDLE
 var _next_runtime_result: Dictionary = {}
 var _next_generation := 0
 ## Acknowledge ledger keyed by receipt_id, with the SaveManagerNarrativeCheckpointPort
@@ -2213,15 +2213,12 @@ const _SKIP_POLICY := preload("res://scripts/narrative/SkipPolicy.gd")
 
 var _skip_profile: Object = null
 var _skip_mode: StringName = _SKIP_POLICY.READ_ONLY
-var _skip_step_in_progress := false
 # A native event executes on the next tick, after request_skip_step returns.
 var _skip_audio_pending := false
 static var _skip_line_owners: Dictionary = {}
 static var _line_witness_stages: Array = []
 var _line_presentation: Dictionary = {}
-var _line_ack_in_progress := false
 var _line_ack_fatal_failure: Dictionary = {}
-var _auto_step_in_progress := false
 
 
 ## Binds the ProfileManager that owns global visited history, plus the active skip mode.
@@ -2264,23 +2261,25 @@ func set_skip_mode(mode: StringName) -> Dictionary:
 ## Read-only UI admission; never reveals, witnesses, or advances an event.
 func can_skip_current_line() -> bool:
 	if has_reading_session() and _reading_session.family in ["hospital", "ending"]: return false
-	return not _next_admitting and not _next_active and _line_presentation_context({}, false).get("ok", false)
+	return _progression_phase not in [ProgressionPhase.NEXT_ADMITTING, ProgressionPhase.NEXT_ACKNOWLEDGING, ProgressionPhase.NEXT_ACTIVE] \
+		and _line_presentation_context({}, false).get("ok", false)
 
 
 ## Next is opt-in to the complete fixed Solo programme and existing durable
 ## checkpoint owner. Capability queries do not allocate History or write Profile.
 func can_next_current_line() -> bool:
+	return _progression_phase == ProgressionPhase.IDLE and _can_prepare_next()
+
+
+func _can_prepare_next() -> bool:
 	if has_reading_session() and _reading_session.family == "scene" and _reading_session.boundary == "control":
-		return not _next_active and not _next_admitting and project_scene_optional_frontier().get("ok", false)
+		return project_scene_optional_frontier().get("ok", false)
 	if _marker_entry_active():
-		return not _next_active and not _next_admitting and capture_next_frontier().get("ok", false)
+		return capture_next_frontier().get("ok", false)
 	if has_reading_session() and _reading_session.family == "scene":
-		if _next_active or _line_ack_in_progress or _auto_step_in_progress or _skip_step_in_progress:
-			return false
 		var marker := capture_scene_pending_marker()
 		return marker.get("ok", false) and _line_presentation_context().get("ok", false)
-	if _next_active or _line_ack_in_progress or _auto_step_in_progress or _skip_step_in_progress \
-			or not _has_exact_caption_source() or _mutation_gate == null \
+	if not _has_exact_caption_source() or _mutation_gate == null \
 			or _reading_session.family != "solo" \
 			or _runtime_adapter == null \
 			or _narrative_checkpoint_port == null \
@@ -2293,7 +2292,7 @@ func can_next_current_line() -> bool:
 
 
 func is_next_traversal_active() -> bool:
-	return _next_active
+	return _progression_phase == ProgressionPhase.NEXT_ACTIVE
 
 
 func request_next(expected_frontier: Dictionary) -> Dictionary:
@@ -2310,9 +2309,11 @@ func request_next(expected_frontier: Dictionary) -> Dictionary:
 
 
 func _perform_next(expected_frontier: Dictionary) -> Dictionary:
-	if _next_admitting:
+	if _progression_phase in [ProgressionPhase.NEXT_ADMITTING, ProgressionPhase.NEXT_ACKNOWLEDGING, ProgressionPhase.NEXT_ACTIVE]:
 		return {"ok": true, "code": &"coalesced"} if expected_frontier == _admitting_frontier else _command_failure(&"reading_next_command_conflict")
-	_next_admitting = true
+	if _progression_phase != ProgressionPhase.IDLE:
+		return _command_failure(&"reading_next_unavailable")
+	_progression_phase = ProgressionPhase.NEXT_ADMITTING
 	_admitting_frontier = expected_frontier.duplicate(true)
 	var result: Dictionary
 	if has_reading_session() and _reading_session.family == "scene" and _reading_session.boundary == "control":
@@ -2326,16 +2327,13 @@ func _perform_next(expected_frontier: Dictionary) -> Dictionary:
 		result = await _perform_marker_next(expected_frontier)
 	else:
 		result = await _perform_caption_next(expected_frontier)
-	_next_admitting = false
+	_progression_phase = ProgressionPhase.IDLE
 	_admitting_frontier = {}
 	return result
 
 
 func _perform_caption_next(expected_frontier: Dictionary) -> Dictionary:
-	if _next_active:
-		return {"ok": true, "code": &"coalesced", "value": {"active": true}} \
-			if expected_frontier == _next_command else _command_failure(&"reading_next_command_conflict")
-	if expected_frontier.is_empty() or not can_next_current_line():
+	if expected_frontier.is_empty() or not _can_prepare_next():
 		return _command_failure(&"reading_next_unavailable")
 	var current := _line_presentation_context(expected_frontier)
 	if not current.ok: return current
@@ -2389,8 +2387,7 @@ func _perform_caption_next(expected_frontier: Dictionary) -> Dictionary:
 	var acquired: Dictionary = _mutation_gate.acquire(&"causal_transaction")
 	if not acquired.get("ok", false): return acquired
 	var lease: String = acquired.value.token
-	_next_active = true
-	_next_command = expected_frontier.duplicate(true)
+	_progression_phase = ProgressionPhase.NEXT_ACTIVE
 	_next_generation += 1
 	_next_runtime_result = {}
 	next_traversal_changed.emit()
@@ -2432,7 +2429,7 @@ func _next_source_matches(frontier: Dictionary, revision: int) -> bool:
 
 
 func _on_next_runtime_finished(result: Dictionary, generation: int) -> void:
-	if not _next_active or generation != _next_generation or not _next_runtime_result.is_empty(): return
+	if _progression_phase != ProgressionPhase.NEXT_ACTIVE or generation != _next_generation or not _next_runtime_result.is_empty(): return
 	_next_runtime_result = result.duplicate(true)
 	_next_runtime_settled.emit()
 
@@ -2450,8 +2447,7 @@ func _finish_next(lease: String, result: Dictionary) -> Dictionary:
 	else:
 		var released: Dictionary = _mutation_gate.release(&"causal_transaction", lease)
 		if not released.get("ok", false): returned = _next_fatal(&"reading_next_lease_lost")
-	_next_active = false
-	_next_command = {}
+	_progression_phase = ProgressionPhase.NEXT_ADMITTING
 	next_traversal_changed.emit()
 	reading_session_changed.emit()
 	return returned
@@ -2503,18 +2499,17 @@ func capture_current_line_presentation_frontier() -> Dictionary:
 
 ## The host timer may advance only an acknowledged, fully revealed ordinary line.
 func can_auto_advance_current_line() -> bool:
-	return not _next_admitting and not _next_active and not _auto_step_in_progress and not _skip_step_in_progress \
-		and not _line_ack_in_progress and _auto_line_context().get("ok", false)
+	return _progression_phase == ProgressionPhase.IDLE and _auto_line_context().get("ok", false)
 
 
 func request_auto_step(expected_frontier: Dictionary) -> Dictionary:
 	if expected_frontier.is_empty(): return _command_failure(&"presentation_frontier_changed")
-	if _next_admitting or _next_active or _auto_step_in_progress or _skip_step_in_progress or _line_ack_in_progress:
+	if _progression_phase != ProgressionPhase.IDLE:
 		return _command_failure(&"reading_command_in_progress")
-	_auto_step_in_progress = true
+	_progression_phase = ProgressionPhase.AUTO
 	var admitted := _auto_line_context(expected_frontier)
 	if not admitted.get("ok", false):
-		_auto_step_in_progress = false
+		_progression_phase = ProgressionPhase.IDLE
 		return admitted
 	var result: Dictionary
 	var marker := capture_scene_pending_marker()
@@ -2522,7 +2517,7 @@ func request_auto_step(expected_frontier: Dictionary) -> Dictionary:
 		result = _scene_event_context_provider.get_object().advance_scene_registered_marker(_scene_playable.get("material", {}).get("event", {}))
 	else:
 		result = _runtime_adapter.advance_one_event()
-	_auto_step_in_progress = false
+	_progression_phase = ProgressionPhase.IDLE
 	return result
 
 
@@ -2547,10 +2542,19 @@ func _auto_line_context(expected_frontier: Dictionary = {}) -> Dictionary:
 ## Called after the renderer accepts a registered line, or on a fresh explicit retry.
 ## The write is the existing atomic Profile mutation, never a per-line run checkpoint.
 func acknowledge_current_line_presentation(expected_frontier: Dictionary) -> Dictionary:
-	if _next_admitting and not _next_acknowledging: return _command_failure(&"reading_command_in_progress")
+	if _progression_phase in [ProgressionPhase.ACKNOWLEDGING, ProgressionPhase.NEXT_ACKNOWLEDGING]:
+		return _command_failure(&"presentation_acknowledgement_in_progress")
+	if _progression_phase not in [ProgressionPhase.IDLE, ProgressionPhase.AUTO, ProgressionPhase.SKIP]:
+		return _command_failure(&"reading_command_in_progress")
+	var parent_phase := _progression_phase
+	_progression_phase = ProgressionPhase.ACKNOWLEDGING
+	var result := _record_line_presentation(expected_frontier)
+	_progression_phase = parent_phase
+	return result
+
+
+func _record_line_presentation(expected_frontier: Dictionary) -> Dictionary:
 	if expected_frontier.is_empty(): return _command_failure(&"presentation_frontier_changed")
-	if _next_active: return _command_failure(&"reading_command_in_progress")
-	if _line_ack_in_progress: return _command_failure(&"presentation_acknowledgement_in_progress")
 	if _reached_replay.has("caption_ledger"): return _acknowledge_reached_caption(expected_frontier)
 	var current := _line_presentation_context(expected_frontier)
 	if not current.get("ok", false): return current
@@ -2558,7 +2562,6 @@ func acknowledge_current_line_presentation(expected_frontier: Dictionary) -> Dic
 	_retain_line_presentation(identity)
 	if _line_presentation.get("restored", false): _line_presentation.acknowledged = true
 	if not _line_presentation.acknowledged:
-		_line_ack_in_progress = true
 		var marked: Dictionary
 		if identity.has("caption_variant") and _reading_session.family == "scene":
 			var beats: Array[Dictionary] = _reading_session.scene_pair_beats(identity.line_id)
@@ -2572,7 +2575,6 @@ func acknowledge_current_line_presentation(expected_frontier: Dictionary) -> Dic
 		else:
 			marked = _skip_profile.mark_caption_variant_witnessed(identity.caption_variant, _reading_session.registry) \
 				if identity.has("caption_variant") else _skip_profile.mark_line_visited(str(identity.line_id))
-		_line_ack_in_progress = false
 		if (marked.get("fatal", false) or marked.get("code") == &"indeterminate_commit") \
 				and is_instance_valid(_skip_profile) and _skip_profile.get_instance_id() == identity.profile_id:
 			_line_ack_fatal_failure = marked.duplicate(true)
@@ -2688,16 +2690,15 @@ func _line_presentation_context(expected_frontier: Dictionary = {}, guard_mutati
 ## One held-skip step, in the exact frozen order: read the PRE-reveal visited state, reveal, mark
 ## visited, classify the next event WITHOUT consuming it, evaluate, advance only when allowed.
 func request_skip_step() -> Dictionary:
-	if _next_admitting or _next_active: return _command_failure(&"reading_command_in_progress")
-	if _auto_step_in_progress:
-		return _command_failure(&"reading_command_in_progress")
-	if _line_ack_in_progress:
+	if _progression_phase in [ProgressionPhase.ACKNOWLEDGING, ProgressionPhase.NEXT_ACKNOWLEDGING]:
 		return _command_failure(&"presentation_acknowledgement_in_progress")
-	if _skip_step_in_progress:
+	if _progression_phase == ProgressionPhase.SKIP:
 		return _command_failure(&"skip_step_in_progress")
-	_skip_step_in_progress = true
+	if _progression_phase != ProgressionPhase.IDLE:
+		return _command_failure(&"reading_command_in_progress")
+	_progression_phase = ProgressionPhase.SKIP
 	var result := _perform_skip_step()
-	_skip_step_in_progress = false
+	_progression_phase = ProgressionPhase.IDLE
 	return result
 
 
@@ -3082,7 +3083,7 @@ func has_reading_session() -> bool:
 ## Cheap UI projection; full catalogue/sequence capture belongs to activation.
 func can_capture_reading_checkpoint() -> bool:
 	if has_reading_session() and _reading_session.family == "scene":
-		if _scene_stage_fatal or _next_active or _pause_changing or not _reading_restore_pending.is_empty() \
+		if _scene_stage_fatal or _progression_phase == ProgressionPhase.NEXT_ACTIVE or _pause_changing or not _reading_restore_pending.is_empty() \
 				or _reading_session.latest_entry.is_empty() or _reading_session.boundary not in ["line", "control"] \
 				or _active_entry.get("entry_id") != _reading_session.latest_entry \
 				or _runtime_adapter == null or not _runtime_adapter.has_method("can_capture_reading_frontier"):
@@ -3100,8 +3101,8 @@ func can_capture_reading_checkpoint() -> bool:
 			return false
 		return _runtime_adapter.can_capture_reading_frontier()
 	if _marker_entry_active() and _runtime_adapter.is_marker_source_held():
-		return not _next_active and not _pause_changing and _reading_restore_pending.is_empty()
-	if _next_active or not has_reading_session() or _reading_session.latest_entry.is_empty() \
+		return _progression_phase != ProgressionPhase.NEXT_ACTIVE and not _pause_changing and _reading_restore_pending.is_empty()
+	if _progression_phase == ProgressionPhase.NEXT_ACTIVE or not has_reading_session() or _reading_session.latest_entry.is_empty() \
 			or not _reading_restore_pending.is_empty(): return false
 	if _reading_session.boundary == "between_entries": return not has_active_playback()
 	return not _active_entry.is_empty() and _active_entry.get("entry_id") == _reading_session.latest_entry \
@@ -3748,7 +3749,7 @@ func _on_reading_publication(result: Dictionary) -> void:
 		return
 	if has_reading_session() and not result.get("ok", false):
 		_on_playback_start_failed(result, true)
-	elif has_reading_session() and not _next_active and not result.get("value", {}).get("duplicate", false):
+	elif has_reading_session() and _progression_phase != ProgressionPhase.NEXT_ACTIVE and not result.get("value", {}).get("duplicate", false):
 		if _reading_session.family == "scene":
 			var reconciled: Dictionary = _runtime_adapter.reconcile_scene_publication(_reading_session)
 			if not reconciled.ok:
@@ -4998,7 +4999,7 @@ func capture_scene_event_boundary() -> Dictionary:
 		return {"ok": true, "value": _marker_context.duplicate(true)}
 	if not has_reading_session() or _reading_session.family not in ["solo", "scene"] or (_reading_session.boundary != "line" and not (_reading_session.family == "scene" and _reading_session.boundary == "control")) \
 			or _active_entry.is_empty() or _active_entry.get("execution_mode") != &"canonical" \
-			or not _pause_handle.is_empty() or _pause_changing or _next_active \
+			or not _pause_handle.is_empty() or _pause_changing or _progression_phase == ProgressionPhase.NEXT_ACTIVE \
 			or not _active_transaction.is_empty() or not _reading_restore_pending.is_empty():
 		return _command_failure(&"event_presentation_held")
 	var captured := capture_reading_checkpoint(false)
@@ -5076,9 +5077,7 @@ func _validate_scene5_event_anchors(anchors: Array[Dictionary], checkpoint: Dict
 
 # One pre-reveal guard covers synchronous renderer/Profile callbacks as well as
 # the later durable lease. It is never itself durable authority.
-var _next_admitting := false
 var _admitting_frontier: Dictionary = {}
-var _next_acknowledging := false
 var _reading_marker_document: Dictionary = {}
 var _marker_issuer: RefCounted
 var _marker_context: Dictionary = {}
@@ -5167,7 +5166,7 @@ func _marker_boundary(checkpoint: Dictionary, anchor: Dictionary) -> Dictionary:
 		"playback_token": str(_active_entry.token)}
 
 func _perform_marker_next(expected: Dictionary) -> Dictionary:
-	if _line_ack_in_progress or _auto_step_in_progress or _skip_step_in_progress or is_pause_restore_pending():
+	if is_pause_restore_pending():
 		return _command_failure(&"reading_next_unavailable")
 	if not _line_ack_fatal_failure.is_empty(): return _line_ack_fatal_failure.duplicate(true)
 	var current := capture_next_frontier()
@@ -5261,8 +5260,7 @@ func _run_marker_next(source: Dictionary, expected: Dictionary) -> Dictionary:
 	var acquired: Dictionary = _mutation_gate.acquire(&"causal_transaction")
 	if not acquired.ok: return acquired
 	_marker_lease = str(acquired.value.token)
-	_next_active = true
-	_next_command = expected.duplicate(true)
+	_progression_phase = ProgressionPhase.NEXT_ACTIVE
 	_next_generation += 1
 	_next_runtime_result = {}
 	next_traversal_changed.emit()
@@ -5303,7 +5301,7 @@ func _run_marker_next(source: Dictionary, expected: Dictionary) -> Dictionary:
 		"destination": plan.destination.kind, "operation_id": operation_id}})
 
 func _validate_marker_dispatch(event: Dictionary, lease: String, seal: Dictionary) -> Dictionary:
-	if not _next_active or not _marker_source_valid() or lease != _marker_lease or _marker_seal_used \
+	if _progression_phase != ProgressionPhase.NEXT_ACTIVE or not _marker_source_valid() or lease != _marker_lease or _marker_seal_used \
 			or seal != _marker_seal or event != seal.get("event") or seal.get("generation") != _next_generation:
 		return _command_failure(&"event_handoff_invalid")
 	_marker_seal_used = true
@@ -5350,9 +5348,11 @@ func validate_scene_marker_snapshot(snapshot: Dictionary) -> Dictionary:
 	return candidate.validate_marker_receipts(reading, entry_id, receipts, str(snapshot.get("run_id", "")))
 
 func _acknowledge_next_source(frontier: Dictionary) -> Dictionary:
-	_next_acknowledging = true
-	var result := acknowledge_current_line_presentation(frontier)
-	_next_acknowledging = false
+	if _progression_phase != ProgressionPhase.NEXT_ADMITTING:
+		return acknowledge_current_line_presentation(frontier)
+	_progression_phase = ProgressionPhase.NEXT_ACKNOWLEDGING
+	var result := _record_line_presentation(frontier)
+	_progression_phase = ProgressionPhase.NEXT_ADMITTING
 	return result
 
 func _marker_reading_identity() -> Dictionary:
