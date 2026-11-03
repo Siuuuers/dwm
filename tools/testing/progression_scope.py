@@ -61,9 +61,27 @@ def is_progression(paths, base):
     if not paths or not paths <= PATHS | MODEL_PATHS:
         return False
     if BRIDGE not in paths:
-        return bool(paths & (MODEL_PATHS | {
+        if paths & (MODEL_PATHS | {
             'tools/testing/run_progression_checks.py', 'tools/testing/test_progression_runner.py',
-        }))
+        }):
+            return True
+        workflow = '.github/workflows/windows-tests.yml'
+        if workflow not in paths or not paths <= {
+            workflow, 'tools/testing/progression_scope.py', 'tools/testing/test_windows_coverage.py',
+            'docs/agent/2026-11-03-ci-efficiency-handoff.md',
+        }:
+            return False
+        remaining = []
+        pattern = rb'(?ms)^  progression:[ \t]*\n.*?(?=^\S|^  \S|\Z)'
+        for ref in (base, 'HEAD'):
+            result = subprocess.run(['git', 'show', ref + ':' + workflow], capture_output=True)
+            if result.returncode:
+                return False
+            rest, count = re.subn(pattern, b'', result.stdout)
+            if count != 1:
+                return False
+            remaining.append(rest)
+        return remaining[0] == remaining[1]
     sources = []
     for ref in (base, 'HEAD'):
         result = subprocess.run(['git', 'show', ref + ':' + BRIDGE], capture_output=True)

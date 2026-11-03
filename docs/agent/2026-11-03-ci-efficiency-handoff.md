@@ -81,3 +81,36 @@ No arbitrary style thresholds, full-repository formatting, new shared fixtures,
 or tool caches were added. Caching and checkout changes remain measurement-led
 follow-ups. Runner-only changes now select the focused progression job; lint-only
 changes do not require gameplay tests.
+
+
+## Progression package setup measurement
+
+Four fresh hosted Ubuntu 24.04 jobs compared the current forced archive mirror
+with the runner's configured mirror. All used image `20261025.353.1`, installed
+exactly the same 66 package names/versions, and enumerated 13,151 native speech
+voices on the first attempt. The experiment uses 15-second acquisition timeouts
+and no acquisition retries equally for both variants; production keeps its
+existing APT timeout/retry settings.
+
+| Mirror | Update seconds | Update + install seconds |
+| --- | ---: | ---: |
+| Runner, repeat 1 | 5 | 17 |
+| Runner, repeat 2 | 4 | 18 |
+| Forced archive, repeat 1 | 7 | 19 |
+| Forced archive, repeat 2 | 9 | 35 |
+
+These are integer-second observations on four separate hosts. Download timing
+varied, so they do not establish a guaranteed speedup. Retaining the runner's
+mirror was faster in both repeats and removes an override. Only the progression
+job changes; the package list, update/install commands and native speech check
+remain intact. Other jobs' mirror choices are outside this slice.
+
+The large codec dependency chain comes from PulseAudio's required ALSA plugins.
+Removing redundant explicit package names produced an identical dependency set,
+so no packages were removed and no cache was introduced.
+
+Experiment: https://github.com/Siuuuers/dwm/actions/runs/41642580060 . Its isolated
+`codex/package-setup-measurement` branch is measurement evidence, not a workflow
+added to master. Workflow-only progression edits now qualify for focused coverage
+only when every part outside that job is unchanged; other workflow edits retain
+the existing coverage decision.

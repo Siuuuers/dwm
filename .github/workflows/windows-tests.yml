@@ -1706,7 +1706,6 @@ jobs:
           git submodule foreach --recursive 'true'
       - name: Install pinned Godot, TLC and software display
         run: |
-          sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/apt-mirrors.txt
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2 speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
           curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$RUNNER_TEMP/godot.zip"
