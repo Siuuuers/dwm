@@ -675,6 +675,32 @@ class ReadabilityCoverageTests(unittest.TestCase):
         for extra in ('autoload/SaveManager.gd', 'scripts/narrative/DialogicRuntimeAdapter.gd'):
             self.assertEqual(select(paths | {extra})['readability'], 'false')
 
+    def test_initial_frame_checkout_preserves_inputs_without_historical_evidence(self):
+        job = WORKFLOW.split('\n  focused-tests:', 1)[1].split('\n  startup-load-comparison:', 1)[0]
+        checkout = job.split('      - name: Check out initial-frame and new-run inputs\n', 1)[1].split('      - name:', 1)[0]
+        self.assertIn("if: matrix.suite != 'scene_current_frames'", job.split('      - name:', 1)[0])
+        self.assertIn("if: matrix.suite == 'scene_current_frames'", checkout)
+        self.assertIn('sparse-checkout-cone-mode: false', checkout)
+        patterns = textwrap.dedent(checkout.split('          sparse-checkout: |\n', 1)[1])
+        keep = {'project.godot', 'evidence/.gdignore', 'assets/nested/image.png',
+                'tools/evidence/print_user_dir.gd', 'tools/testing/Invoke-CloudTests.ps1'}
+        keep.update(root + '/nested/input.gd' for root in ('autoload', 'scripts', 'scenes', 'tests'))
+        omit = {'evidence/archive.zip', 'evidence/phase_2r/old/results.json',
+                'evidence/phase_2r/old/nested/screenshot.png'}
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            subprocess.run(['git', 'init', '-q', str(root)], check=True)
+            for name in keep | omit:
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(name)
+            subprocess.run(['git', '-C', str(root), 'add', '.'], check=True)
+            subprocess.run(['git', '-C', str(root), '-c', 'user.name=Test', '-c', 'user.email=test@example.invalid',
+                            'commit', '-qm', 'fixture'], check=True)
+            subprocess.run(['git', '-C', str(root), 'sparse-checkout', 'set', '--no-cone', '--stdin'],
+                           input=patterns, text=True, check=True)
+            self.assertEqual({name for name in keep | omit if (root / name).exists()}, keep)
+
     def test_initial_frame_batch_preserves_creation_in_narrow_routes(self):
         matrix = next(line for line in WORKFLOW.splitlines() if '        suite: ${{ fromJSON(' in line)
         arrays = [json.loads(value) for value in re.findall(r"'(\[[^']*\])'", matrix)]
