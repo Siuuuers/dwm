@@ -39,6 +39,7 @@ jobs:
     name: Select current change coverage
     runs-on: ubuntu-24.04
     outputs:
+      docs_only: ${{ steps.scope.outputs.docs_only }}
       inventory_only: ${{ steps.scope.outputs.inventory_only }}
       inventory_tooling: ${{ steps.scope.outputs.inventory_tooling }}
       dtl_first: ${{ steps.scope.outputs.dtl_first }}
@@ -128,6 +129,7 @@ jobs:
                       rest = rest.replace(state, b"")
                   bodies.append(rest)
               return bodies[0] == bodies[1]
+          docs_only = False
           inventory_only = False
           inventory_tooling = False
           paths = set()
@@ -154,6 +156,13 @@ jobs:
               if diff.returncode == 0:
                   base = change_base
                   paths = set(diff.stdout.decode().strip("\0").split("\0"))
+                  docs_only = bool(paths) and all(
+                      re.fullmatch(r'docs/agent/[^/]+\.md', path) and path not in {
+                          'docs/agent/2026-09-23-next-session-handoff.md',
+                          'docs/agent/execution-map.md',
+                      } for path in paths)
+                  if docs_only:
+                      subprocess.run(['git', 'diff', '--check', base, 'HEAD', '--', *sorted(paths)], check=True)
                   inventory_sources = {
                       'tools/runtime/PublicSurfaceInventory.gd',
                       'tools/runtime/generate_public_surface_inventory.gd',
@@ -722,6 +731,10 @@ jobs:
                   if keys != saved_keys:
                       comparison = False
                       print("Archived startup/Load measurement is incompatible with " + ref + "; current-build correctness coverage remains required.")
+          if docs_only:
+              print('Documentation only: ' + ', '.join(sorted(paths)))
+              print('Selected: coverage regression tests and changed-document whitespace check')
+              print('Skipped: engine, gameplay, rendering, audio and export; reviewed prose paths only')
           if inventory_tooling:
               print("Inventory scope: " + ("tooling only" if inventory_only else "mixed; retain existing coverage"))
               print("Changed paths: " + ", ".join(sorted(paths)))
@@ -729,8 +742,9 @@ jobs:
               if os.environ["GITHUB_EVENT_NAME"] == "pull_request":
                   print("Source lint runs in its independent PR workflow")
               print("Skipped: gameplay, rendering, audio and export; exact tooling scope" if inventory_only else "Skipped: no groups due to inventory classification")
-          print("Selected " + ("inventory tooling Linux coverage" if inventory_only else "progression Linux coverage" if progression else "self-talk panel Linux coverage" if self_talk_panel else "DTL content and manual-edit recovery coverage" if dtl_content else "DTL compiler/save/runtime coverage" if dtl_first else "readability and display-default coverage" if readability else "reading layout coverage" if reading_layout else "bilingual reading coverage" if bilingual_reading else "runtime resource/Backup coverage" if focused else "full validation"))
+          print("Selected " + ("documentation checks" if docs_only else "inventory tooling Linux coverage" if inventory_only else "progression Linux coverage" if progression else "self-talk panel Linux coverage" if self_talk_panel else "DTL content and manual-edit recovery coverage" if dtl_content else "DTL compiler/save/runtime coverage" if dtl_first else "readability and display-default coverage" if readability else "reading layout coverage" if reading_layout else "bilingual reading coverage" if bilingual_reading else "runtime resource/Backup coverage" if focused else "full validation"))
           with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"docs_only={str(docs_only).lower()}\n")
               output.write(f"inventory_only={str(inventory_only).lower()}\n")
               output.write(f"inventory_tooling={str(inventory_tooling).lower()}\n")
               output.write(f"dtl_first={str(dtl_first).lower()}\n")
@@ -754,7 +768,7 @@ jobs:
     # Independent suites use committed source; inventory verification remains a
     # separate required result and cannot be satisfied by diagnostic regeneration.
     needs: test-scope
-    if: ${{ needs.test-scope.result == 'success' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' }}
+    if: ${{ needs.test-scope.result == 'success' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' }}
     name: Windows / ${{ matrix.suite }}
     runs-on: windows-2022
     timeout-minutes: ${{ matrix.suite == 'current_terminal_fixture' && 35 || 20 }}
@@ -998,7 +1012,7 @@ jobs:
 
   windows-export:
     needs: test-scope
-    if: needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true'
+    if: needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true'
     name: Windows / exported release startup
     runs-on: windows-2022
     timeout-minutes: 35
@@ -1102,7 +1116,7 @@ jobs:
 
   public-surfaces:
     needs: test-scope
-    if: needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true'
+    if: needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true'
     name: Windows / public API surface contracts
     runs-on: windows-2022
     timeout-minutes: 20
@@ -1253,7 +1267,7 @@ jobs:
 
   rendered-journeys:
     needs: test-scope
-    if: needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
+    if: needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
     name: Rendered current Gallery components
     runs-on: ubuntu-24.04
     timeout-minutes: 25
@@ -1354,7 +1368,7 @@ jobs:
           retention-days: 7
   rendered-desktop:
     needs: test-scope
-    if: needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
+    if: needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
     name: Rendered desktop and dialogue / Linux software OpenGL
     runs-on: ubuntu-24.04
     timeout-minutes: 20

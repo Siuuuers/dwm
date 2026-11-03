@@ -24,10 +24,14 @@ GENERATED = {
 }
 
 
-def select(paths, event_name='pull_request', sources=None, selector=SELECTOR, diff_code=0, event_data=None, commands=None):
+def select(paths, event_name='pull_request', sources=None, selector=SELECTOR, diff_code=0, event_data=None, commands=None, check_code=0):
     def git(args, **kwargs):
         if commands is not None:
             commands.append(args)
+        if args[:3] == ['git', 'diff', '--check']:
+            if check_code and kwargs.get('check'):
+                raise subprocess.CalledProcessError(check_code, args)
+            return subprocess.CompletedProcess(args, check_code, b'')
         if args[:3] == ['git', 'diff', '--name-only']:
             return subprocess.CompletedProcess(args, diff_code, ('\0'.join(sorted(paths)) + '\0').encode())
         if args[:2] == ['git', 'show'] and args[2].startswith('HEAD^:'):
@@ -60,6 +64,56 @@ def select(paths, event_name='pull_request', sources=None, selector=SELECTOR, di
 
 
 class WindowsCoverageTests(unittest.TestCase):
+    def test_reviewed_prose_selects_docs_checks_for_pr_and_push(self):
+        paths = {'docs/agent/new-technical-handoff.md', 'docs/agent/2026-11-04-f5-baseline.md'}
+        for event, data, base in (
+            ('pull_request', {'pull_request': {'base': {'sha': 'a' * 40}}}, 'HEAD^'),
+            ('push', {'before': 'a' * 40}, 'a' * 40),
+        ):
+            commands = []
+            result = select(paths, event_name=event, event_data=data, commands=commands)
+            self.assertEqual(result['docs_only'], 'true')
+            self.assertIn(['git', 'diff', '--check', base, 'HEAD', '--', *sorted(paths)], commands)
+            for key in ('inventory_tooling', 'self_talk_panel', 'progression', 'comparison'):
+                self.assertEqual(result[key], 'false', key)
+
+    def test_docs_contracts_other_markdown_and_mixed_changes_retain_coverage(self):
+        prose = 'docs/agent/new-technical-handoff.md'
+        for path in ('docs/agent/execution-map.md', 'docs/agent/2026-09-23-next-session-handoff.md',
+                     'docs/agent/nested/note.md', 'story/README.md', 'README.md', 'AGENTS.md',
+                     'docs/design/rule.md', 'docs/superpowers/plans/plan.md', 'evidence/result.md',
+                     'tests/fixtures/README.md', 'autoload/GameState.gd', 'autoload/SaveManager.gd',
+                     DAY, 'autoload/AudioManager.gd', 'tools/runtime/PublicSurfaceInventory.gd',
+                     'tests/unit/tooling/test_public_surface_inventory.gd',
+                     'tools/testing/test_windows_coverage.py', '.github/workflows/windows-tests.yml',
+                     'docs/agent/result.json'):
+            with self.subTest(path=path):
+                result = select({prose, path})
+                self.assertEqual(result['docs_only'], 'false')
+        for kwargs in ({'event_name': 'workflow_dispatch'}, {'diff_code': 128}, {'event_data': {}}):
+            self.assertEqual(select({prose}, **kwargs)['docs_only'], 'false')
+        self.assertEqual(select(set())['docs_only'], 'false')
+        result = select({prose, 'tests/unit/tooling/test_public_surface_inventory.gd'})
+        self.assertEqual(result['inventory_tooling'], 'true')
+
+    def test_docs_route_gates_broad_jobs_and_reports_whitespace_failure(self):
+        with self.assertRaises(subprocess.CalledProcessError):
+            select({'docs/agent/prose.md'}, check_code=2)
+        for job in ('focused-tests', 'windows-export', 'public-surfaces', 'rendered-journeys', 'rendered-desktop'):
+            section = WORKFLOW.split('  ' + job + ':', 1)[1].split('    steps:', 1)[0]
+            self.assertIn("needs.test-scope.outputs.docs_only != 'true'", section)
+        with tempfile.TemporaryDirectory() as directory:
+            subprocess.run(['git', 'init', '-q', directory], check=True)
+            path = Path(directory, 'docs/agent/prose.md')
+            path.parent.mkdir(parents=True)
+            path.write_text('Clean prose.\n')
+            subprocess.run(['git', '-C', directory, 'add', '.'], check=True)
+            path.write_text('Trailing whitespace.  \n')
+            result = subprocess.run(['git', '-C', directory, 'diff', '--check', '--', 'docs/agent/prose.md'],
+                                    capture_output=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn(b'trailing whitespace', result.stdout)
+
     def test_closed_pr_cancels_its_group_without_starting_validation(self):
         triggers = WORKFLOW.split('\non:\n', 1)[1].split('\npermissions:', 1)[0]
         pull_request = triggers.split('  pull_request:\n', 1)[1].split('  push:', 1)[0]
