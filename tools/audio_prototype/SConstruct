@@ -1,0 +1,15 @@
+import os
+from pathlib import Path
+
+godot_cpp = os.environ['GODOT_CPP']
+gme_source = os.environ['GME_SOURCE']
+gme_build = Path(os.environ['GME_BUILD'])
+env = SConscript(str(Path(godot_cpp) / 'SConstruct'))
+env.Append(CPPPATH=[str(Path(gme_source) / 'gme')])
+if env['platform'] == 'windows':
+    env.Append(LIBPATH=[str(gme_build / 'gme' / 'Release')], LIBS=['gme'])
+else:
+    env.Append(LIBPATH=[str(gme_build / 'gme')], LIBS=['gme'])
+    env.Append(LINKFLAGS=['-Wl,-rpath,$$ORIGIN'])
+name = 'bin/dwm_nsf_release' if env['target'] == 'template_release' else 'bin/dwm_nsf'
+Default(env.SharedLibrary(name, ['native/nsf_stream.cpp']))

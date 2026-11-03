@@ -1,0 +1,42 @@
+{
+  "compiler": {
+    "version": "4.5.3",
+    "archive_sha256": "9133afed2fb384663b0735d8e950cdc2714849f4fd476b16de8d56e5e81da0ad",
+    "dll_sha256": "3cea9acdf40d56e61585747205cece862c14a8c48eb8ad373dc7d0db3c0c79cf"
+  },
+  "fixtures": {
+    "loop_a": {
+      "source_sha256": "5629154a8cf9e661f02a8c6244214f4f8108345003a7a1df63bd5a58d12f6be9",
+      "nsf_sha256": "994de187f9d7958fca347c7993596696159fad8d8a9d57c6cf7914cb553266f0",
+      "tick_us": 16639,
+      "intro_ticks": 96,
+      "loop_ticks": 192,
+      "end_ticks": 0,
+      "intro_seconds": 1.597344,
+      "loop_seconds": 3.194688,
+      "end_seconds": 0.0
+    },
+    "loop_b": {
+      "source_sha256": "568480b2e3111069fde0df64cb371503db326dcc6075ae49ad03a038f05c165c",
+      "nsf_sha256": "cd59503c221ec4e5b7949008642aabd6f4a3f5df748452e2564e80909903eac8",
+      "tick_us": 16639,
+      "intro_ticks": 0,
+      "loop_ticks": 192,
+      "end_ticks": 0,
+      "intro_seconds": 0.0,
+      "loop_seconds": 3.194688,
+      "end_seconds": 0.0
+    },
+    "confirm": {
+      "source_sha256": "065ee4beceb3b12e731e920661aae98aff2478897d5b60166910b6880821cb38",
+      "nsf_sha256": "292753ab51e4d4ccf365d4af1fc88a11db09b8b8bb09a700792c60a54265fffa",
+      "tick_us": 16639,
+      "intro_ticks": 0,
+      "loop_ticks": 0,
+      "end_ticks": 24,
+      "intro_seconds": 0.0,
+      "loop_seconds": 0.0,
+      "end_seconds": 0.399336
+    }
+  }
+}
