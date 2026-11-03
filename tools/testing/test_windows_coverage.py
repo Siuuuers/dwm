@@ -128,6 +128,34 @@ class WindowsCoverageTests(unittest.TestCase):
             self.assertIn("needs.test-scope.outputs.progression != 'true'", section)
         self.assertIn("if: needs.test-scope.outputs.progression == 'true'", WORKFLOW)
 
+    def test_legacy_marker_methods_allow_only_the_reviewed_phase_substitutions(self):
+        path = 'autoload/DialogicBridge.gd'
+        before = (
+            'func _perform_marker_next(expected: Dictionary) -> Dictionary:\n'
+            '\tif _line_ack_in_progress or _auto_step_in_progress or _skip_step_in_progress or is_pause_restore_pending():\n'
+            '\t\treturn _command_failure(&"reading_next_unavailable")\n'
+            '\treturn await _run_marker_next(source, expected)\n'
+            'func _run_marker_next(source: Dictionary, expected: Dictionary) -> Dictionary:\n'
+            '\t_next_active = true\n\t_next_command = expected.duplicate(true)\n'
+            '\tcommitted = _scene_event_port.dispatch_owned(event, _marker_lease, _marker_seal.duplicate(true))\n'
+            '\treturn _narrative_checkpoint_port.commit_reading_next(destination, operation_id, "destination")\n'
+        )
+        after = before.replace(
+            '_line_ack_in_progress or _auto_step_in_progress or _skip_step_in_progress or ', ''
+        ).replace('\t_next_active = true\n\t_next_command = expected.duplicate(true)\n',
+                  '\t_progression_phase = ProgressionPhase.NEXT_ACTIVE\n')
+        sources = {'a' * 40 + ':' + path: before, 'HEAD:' + path: after}
+        self.assertEqual(select({path}, sources=sources)['progression'], 'true')
+        for old, new in (
+            ('dispatch_owned(event,', 'dispatch_owned(other_event,'),
+            ('commit_reading_next(destination,', 'commit_reading_next(source,'),
+            ('if is_pause_restore_pending():', 'if false:'),
+        ):
+            with self.subTest(changed=old):
+                changed = dict(sources)
+                changed['HEAD:' + path] = after.replace(old, new)
+                self.assertEqual(select({path}, sources=changed)['progression'], 'false')
+
     def test_model_only_changes_keep_the_protocol_check(self):
         paths = {'tools/verification/story_progression/StoryProgression.tla',
                  'tools/verification/story_progression/README.md'}

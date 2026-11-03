@@ -21,7 +21,7 @@ METHODS = {
     'is_next_traversal_active', '_perform_next', '_perform_caption_next',
     '_finish_next', 'can_auto_advance_current_line', 'request_auto_step',
     'acknowledge_current_line_presentation', '_record_line_presentation',
-    'request_skip_step', '_perform_marker_next', '_run_marker_next',
+    'request_skip_step',
     '_acknowledge_next_source',
 }
 DECLARATIONS = {
@@ -37,6 +37,16 @@ DECLARATIONS = {
 def unrelated_source(source):
     pattern = r'(?ms)^(?:static )?func (' + '|'.join(sorted(METHODS)) + r')\([^\n]*\n.*?(?=^(?:static )?func |^(?:var |const |enum |signal |class |@)|\Z)'
     source = re.sub(pattern, '', source)
+    for method, before, after in (
+        ('_perform_marker_next',
+         '\tif _line_ack_in_progress or _auto_step_in_progress or _skip_step_in_progress or is_pause_restore_pending():\n',
+         '\tif is_pause_restore_pending():\n'),
+        ('_run_marker_next',
+         '\t_next_active = true\n\t_next_command = expected.duplicate(true)\n',
+         '\t_progression_phase = ProgressionPhase.NEXT_ACTIVE\n'),
+    ):
+        body = r'(?ms)^func ' + method + r'\([^\n]*\n.*?(?=^func |\Z)'
+        source = re.sub(body, lambda match: match[0].replace(before, after), source)
     source = '\n'.join(line for line in source.splitlines() if line not in DECLARATIONS)
     source = source.replace('not _next_active', '_progression_phase != ProgressionPhase.NEXT_ACTIVE')
     source = source.replace('_next_active', '_progression_phase == ProgressionPhase.NEXT_ACTIVE')
