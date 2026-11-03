@@ -1,0 +1,40 @@
+name: Package setup measurement
+on:
+  push:
+    branches: [codex/package-setup-measurement]
+permissions:
+  contents: read
+jobs:
+  measure:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        mirror: [archive, runner]
+        repeat: [1, 2]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: tools/testing
+      - name: Prepare checkout
+        run: |
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+      - name: Measure cold package setup
+        shell: bash
+        env:
+          DWM_MIRROR: ${{ matrix.mirror }}
+        run: |
+          date --iso-8601=ns
+          cat /etc/apt/apt-mirrors.txt
+          if [ "$DWM_MIRROR" = archive ]; then
+            sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/apt-mirrors.txt
+          fi
+          started=$SECONDS
+          sudo apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 update
+          echo "DWM_UPDATE_SECONDS=$((SECONDS-started))"
+          sudo apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2 speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
+          echo "DWM_PACKAGE_SECONDS=$((SECONDS-started))"
+          dpkg-query -W xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2 speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
+      - name: Verify real speech readiness
+        run: bash tools/testing/start_cloud_speech.sh
