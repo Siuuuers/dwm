@@ -32,6 +32,8 @@ jobs:
     name: Select current change coverage
     runs-on: ubuntu-24.04
     outputs:
+      inventory_only: ${{ steps.scope.outputs.inventory_only }}
+      inventory_tooling: ${{ steps.scope.outputs.inventory_tooling }}
       dtl_first: ${{ steps.scope.outputs.dtl_first }}
       dtl_content: ${{ steps.scope.outputs.dtl_content }}
       inline_audio: ${{ steps.scope.outputs.inline_audio }}
@@ -58,6 +60,8 @@ jobs:
             /.github/workflows/windows-tests.yml
             /.github/workflows/dtl-first-preflight.yml
             /tools/testing/test_windows_coverage.py
+            /tools/testing/run_inventory_checks.py
+            /tools/testing/test_inventory_runner.py
             /tools/testing/self_talk_panel_scope.py
             /tools/testing/progression_scope.py
             /tools/testing/Invoke-CloudTests.ps1
@@ -67,7 +71,9 @@ jobs:
           git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
           git submodule foreach --recursive 'true'
       - name: Verify coverage selection
-        run: python tools/testing/test_windows_coverage.py
+        run: |
+          python tools/testing/test_windows_coverage.py
+          python tools/testing/test_inventory_runner.py
       - name: Select narrow runtime coverage or full validation
         id: scope
         shell: python
@@ -115,6 +121,9 @@ jobs:
                       rest = rest.replace(state, b"")
                   bodies.append(rest)
               return bodies[0] == bodies[1]
+          inventory_only = False
+          inventory_tooling = False
+          paths = set()
           dtl_first = False
           dtl_content = False
           inline_audio = False
@@ -133,9 +142,28 @@ jobs:
           comparison = False
           previous = ""
           if os.environ["GITHUB_EVENT_NAME"] != "workflow_dispatch" and base and set(base) != {"0"}:
-              diff = subprocess.run(["git", "diff", "--name-only", "-z", base, "HEAD"], capture_output=True)
+              change_base = "HEAD^" if os.environ["GITHUB_EVENT_NAME"] == "pull_request" else base
+              diff = subprocess.run(["git", "diff", "--name-only", "-z", "--no-renames", change_base, "HEAD"], capture_output=True)
               if diff.returncode == 0:
+                  base = change_base
                   paths = set(diff.stdout.decode().strip("\0").split("\0"))
+                  inventory_sources = {
+                      'tools/runtime/PublicSurfaceInventory.gd',
+                      'tools/runtime/generate_public_surface_inventory.gd',
+                      'tests/unit/tooling/test_public_surface_inventory.gd',
+                  }
+                  inventory_companions = {path + '.uid' for path in inventory_sources} | {
+                      'evidence/phase_2r/runtime/game_state_surface.json',
+                      'evidence/phase_2r/runtime/save_manager_surface.json',
+                      'docs/agent/2026-11-04-inventory-preflight-efficiency.md',
+                  }
+                  inventory_tooling = bool(paths & (inventory_sources | {
+                      'tools/testing/run_inventory_checks.py',
+                      'tools/testing/test_inventory_runner.py',
+                      'tools/testing/test_windows_coverage.py',
+                      '.github/workflows/windows-tests.yml',
+                  }))
+                  inventory_only = bool(paths & inventory_sources) and paths <= inventory_sources | inventory_companions
                   progression = is_progression(paths, base)
                   # DTL authoring changes cross compiler, save and renderer owners.
                   # Only this reviewed file set qualifies; unrelated source gets full coverage.
@@ -687,8 +715,17 @@ jobs:
                   if keys != saved_keys:
                       comparison = False
                       print("Archived startup/Load measurement is incompatible with " + ref + "; current-build correctness coverage remains required.")
-          print("Selected " + ("progression Linux coverage" if progression else "self-talk panel Linux coverage" if self_talk_panel else "DTL content and manual-edit recovery coverage" if dtl_content else "DTL compiler/save/runtime coverage" if dtl_first else "readability and display-default coverage" if readability else "reading layout coverage" if reading_layout else "bilingual reading coverage" if bilingual_reading else "runtime resource/Backup coverage" if focused else "full validation"))
+          if inventory_tooling:
+              print("Inventory scope: " + ("tooling only" if inventory_only else "mixed; retain existing coverage"))
+              print("Changed paths: " + ", ".join(sorted(paths)))
+              print("Selected: inventory tooling tests, import, both read-only inventories")
+              if os.environ["GITHUB_EVENT_NAME"] == "pull_request":
+                  print("Source lint runs in its independent PR workflow")
+              print("Skipped: gameplay, rendering, audio and export; exact tooling scope" if inventory_only else "Skipped: no groups due to inventory classification")
+          print("Selected " + ("inventory tooling Linux coverage" if inventory_only else "progression Linux coverage" if progression else "self-talk panel Linux coverage" if self_talk_panel else "DTL content and manual-edit recovery coverage" if dtl_content else "DTL compiler/save/runtime coverage" if dtl_first else "readability and display-default coverage" if readability else "reading layout coverage" if reading_layout else "bilingual reading coverage" if bilingual_reading else "runtime resource/Backup coverage" if focused else "full validation"))
           with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"inventory_only={str(inventory_only).lower()}\n")
+              output.write(f"inventory_tooling={str(inventory_tooling).lower()}\n")
               output.write(f"dtl_first={str(dtl_first).lower()}\n")
               output.write(f"dtl_content={str(dtl_content).lower()}\n")
               output.write(f"inline_audio={str(inline_audio).lower()}\n")
@@ -710,7 +747,7 @@ jobs:
     # Independent suites use committed source; inventory verification remains a
     # separate required result and cannot be satisfied by diagnostic regeneration.
     needs: test-scope
-    if: ${{ needs.test-scope.result == 'success' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' }}
+    if: ${{ needs.test-scope.result == 'success' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' }}
     name: Windows / ${{ matrix.suite }}
     runs-on: windows-2022
     timeout-minutes: ${{ matrix.suite == 'current_terminal_fixture' && 35 || 20 }}
@@ -954,7 +991,7 @@ jobs:
 
   windows-export:
     needs: test-scope
-    if: needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true'
+    if: needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true'
     name: Windows / exported release startup
     runs-on: windows-2022
     timeout-minutes: 35
@@ -1058,7 +1095,7 @@ jobs:
 
   public-surfaces:
     needs: test-scope
-    if: needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true'
+    if: needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true'
     name: Windows / public API surface contracts
     runs-on: windows-2022
     timeout-minutes: 20
@@ -1209,7 +1246,7 @@ jobs:
 
   rendered-journeys:
     needs: test-scope
-    if: needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
+    if: needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
     name: Rendered current Gallery components
     runs-on: ubuntu-24.04
     timeout-minutes: 25
@@ -1310,7 +1347,7 @@ jobs:
           retention-days: 7
   rendered-desktop:
     needs: test-scope
-    if: needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
+    if: needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
     name: Rendered desktop and dialogue / Linux software OpenGL
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -1741,5 +1778,49 @@ jobs:
             .godot/ci/self-talk-*.json
             .godot/ci/*transition*.png
             .godot/ci/scene-transition-*.json
+          include-hidden-files: true
+          if-no-files-found: error
+
+  inventory-tooling:
+    name: Linux / inventory tooling
+    needs: test-scope
+    if: needs.test-scope.outputs.inventory_tooling == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      XDG_DATA_HOME: ${{ github.workspace }}/.godot/phase2r_tests/inventory-tooling/import/data
+      DWM_TEST_ROOT: ${{ github.workspace }}/.godot/phase2r_tests/inventory-tooling/import/test-root
+    steps:
+      - uses: actions/checkout@v7
+      - name: Prepare disposable checkout
+        run: |
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          git submodule foreach --recursive 'true'
+          mkdir -p .godot/ci/inventory-tooling
+          git rev-parse HEAD > .godot/ci/inventory-tooling/candidate-sha.txt
+      - name: Install Godot 4.6.3 standard
+        run: |
+          archive="$RUNNER_TEMP/godot-4.6.3-linux.zip"
+          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$archive"
+          printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$archive" | sha256sum --check
+          unzip -q "$archive" -d "$RUNNER_TEMP/godot-4.6.3-linux"
+          editor="$RUNNER_TEMP/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64"
+          chmod +x "$editor"
+          echo "GODOT_CONSOLE_PATH=$editor" >> "$GITHUB_ENV"
+          "$editor" --version
+      - name: Import once
+        timeout-minutes: 8
+        run: |
+          mkdir -p "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
+          "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --import --log-file "$GITHUB_WORKSPACE/.godot/ci/inventory-tooling/import.log"
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' .godot/ci/inventory-tooling/import.log; then exit 1; fi
+          git restore -- project.godot
+      - name: Test tooling and check both inventories without regeneration
+        run: python tools/testing/run_inventory_checks.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: inventory-tooling-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/inventory-tooling/
           include-hidden-files: true
           if-no-files-found: error
