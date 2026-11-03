@@ -75,6 +75,31 @@ omitting generated editor docs did not resolve it. A running editor remained
 alive until asked to quit, narrowing this observation to editor shutdown.
 No engine or extension fork was retained, and the exact root cause is unknown.
 
+### Upstream research follow-up, 2026-11-04
+
+Godot [issue #111048](https://github.com/godotengine/godot/issues/111048)
+documents a confirmed cold-import shutdown race involving deferred extension
+documentation callbacks. Its cold/warm behavior resembles this trial; this is
+evidence for an engine-level explanation, not a symbolized diagnosis of our abort.
+The proposed [fix #123658](https://github.com/godotengine/godot/pull/123658)
+was still open when checked. Do not assume upgrading has resolved it.
+
+The issue describes `--frame-delay 800` as a timing workaround. With the same
+unmodified binary and Godot 4.6.3, separate fresh add-on-only temporary projects
+gave these results:
+
+| Import flags | Exit | Elapsed seconds |
+| --- | --- | --- |
+| `--headless --import --frame-delay 0` | SIGABRT | 3.14 |
+| `--headless --import --frame-delay 800` | 0 | 5.04 |
+| `--headless --import --frame-delay 800` | 0 | 5.02 |
+
+These were independent cold imports, not retries against an already-created
+project cache. The delay is a diagnostic workaround, not an engine fix or a
+guarantee under different runner load. No production or CI delay was added.
+The candidate remains unadopted pending target-platform verification and the
+restoration decision below; an extension rewrite is not justified by this evidence.
+
 Before adoption, resolve or identify a supported version combination for the
 fresh-import failure, then run the focused Windows export check. Decide whether
 millisecond endpoint reporting is acceptable and measure the actual temporary

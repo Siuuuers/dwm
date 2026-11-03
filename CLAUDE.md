@@ -14,6 +14,19 @@ Before implementing:
 - If a simpler approach exists, say so. Push back when warranted.
 - If something is unclear, stop. Name what's confusing. Ask.
 
+Before designing a new function, abstraction, or dependency, check the relevant
+code and current master for an existing owner or solution. Prefer that, then an
+engine/platform feature or an installed dependency, before writing custom code.
+For unfamiliar APIs, dependency choices, or compatibility failures, consult
+version-matched official documentation and upstream issues before implementation.
+Check fit against the actual target platform, required behavior, licensing and
+maintenance cost; an existing library is not automatically the simpler option.
+Record consequential choices and evidence briefly in the PR or existing design
+record. Keep this proportional: routine edits need a local code check, not a
+research report. Stop researching when the smallest viable choice is supported.
+Automate only concrete, repeatable violations with clear fixes; research quality
+belongs in design review, not a lint checkbox.
+
 ## 2. Simplicity First
 
 **Minimum code that solves the problem. Nothing speculative.**
