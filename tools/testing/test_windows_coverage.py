@@ -678,8 +678,8 @@ class ReadabilityCoverageTests(unittest.TestCase):
     def test_initial_frame_checkout_preserves_inputs_without_historical_evidence(self):
         job = WORKFLOW.split('\n  focused-tests:', 1)[1].split('\n  startup-load-comparison:', 1)[0]
         checkout = job.split('      - name: Check out initial-frame and new-run inputs\n', 1)[1].split('      - name:', 1)[0]
-        self.assertIn("if: matrix.suite != 'scene_current_frames'", job.split('      - name:', 1)[0])
-        self.assertIn("if: matrix.suite == 'scene_current_frames'", checkout)
+        self.assertIn("if: matrix.suite != 'scene_current_frames' && matrix.suite != 'scene_current_creation'", job.split('      - name:', 1)[0])
+        self.assertIn("if: matrix.suite == 'scene_current_frames' || matrix.suite == 'scene_current_creation'", checkout)
         self.assertIn('sparse-checkout-cone-mode: false', checkout)
         patterns = textwrap.dedent(checkout.split('          sparse-checkout: |\n', 1)[1])
         keep = {'project.godot', 'evidence/.gdignore', 'assets/nested/image.png',
