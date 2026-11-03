@@ -36,6 +36,20 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          sparse-checkout: |
+            addons
+            art
+            assets
+            audio
+            autoload
+            data
+            dialogic
+            localization
+            scenes
+            schemas
+            scripts
+            tests
+            tools
           persist-credentials: true
       - name: Prepare disposable checkout cleanup
         run: git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1

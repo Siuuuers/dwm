@@ -4,6 +4,10 @@ const PlaybackPort = preload("res://scripts/audio/AudioPlaybackPort.gd")
 
 
 func _ready() -> void:
+	_run.call_deferred()
+
+
+func _run() -> void:
 	var port := PlaybackPort.new()
 	var music: Dictionary = port.load_stream("res://audio/bgm/_native_verify.nsf")
 	var effect: Dictionary = port.load_stream("res://audio/sfx/_native_verify.nsfe")
