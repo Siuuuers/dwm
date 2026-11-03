@@ -16,6 +16,7 @@ on:
       - '.github/workflows/dtl-first-preflight.yml'
       - 'tools/testing/self_talk_panel_scope.py'
       - 'tools/testing/progression_scope.py'
+      - 'tools/testing/test_inventory_preflight.py'
       - 'tools/authoring/**'
       - 'autoload/**'
       - 'scripts/**'
@@ -45,10 +46,14 @@ jobs:
           sparse-checkout: |
             /tools/testing/self_talk_panel_scope.py
             /tools/testing/progression_scope.py
+            /tools/testing/test_inventory_preflight.py
+            /.github/workflows/dtl-first-preflight.yml
       - name: Prepare disposable checkout for credential cleanup
         run: |
           git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
           git submodule foreach --recursive 'true'
+      - name: Verify inventory acceptance modes
+        run: python tools/testing/test_inventory_preflight.py
       - name: Retain authoring checks unless this is the proven presentation slice
         id: scope
         shell: python
@@ -184,16 +189,22 @@ jobs:
           timeout 240s xvfb-run -a "$GODOT_CONSOLE_PATH" --path "$GITHUB_WORKSPACE" --rendering-method gl_compatibility --audio-driver Dummy --log-file "$DWM_GALLERY_COLLECTION_OUTPUT/render.log" --script res://tests/ui/render_gallery_caption_collection.gd -- --phase2r-bootstrap-mode=final
           if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_GALLERY_COLLECTION_OUTPUT/render.log"; then exit 1; fi
           grep '^GALLERY_CAPTION_COLLECTION_RENDER_VERIFIED' "$DWM_GALLERY_COLLECTION_OUTPUT/render.log"
-      - name: Generate and check public inventories
+      - name: Verify public inventories or explicitly regenerate
         if: ${{ !cancelled() && steps.import_project.outcome == 'success' && steps.export_story.outcome == 'success' }}
+        env:
+          DWM_CHECK_GENERATED: ${{ inputs.check_generated }}
         run: |
           export XDG_DATA_HOME="$GITHUB_WORKSPACE/.godot/phase2r_tests/dtl-first/inventory/data"
           export DWM_TEST_ROOT="$GITHUB_WORKSPACE/.godot/phase2r_tests/dtl-first/inventory/test-root"
           mkdir -p "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
+          modes=(check)
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ] && [ "$DWM_CHECK_GENERATED" = false ]; then
+            modes=(generate check)
+          fi
           for target in game_state save_manager; do
             owner=GameState
             if [ "$target" = save_manager ]; then owner=SaveManager; fi
-            for mode in generate check; do
+            for mode in "${modes[@]}"; do
               args=()
               if [ "$mode" = check ]; then args+=(--check); fi
               log="$GITHUB_WORKSPACE/.godot/ci/dtl-first/$target-$mode.log"
