@@ -30,6 +30,8 @@ def select(paths, event_name='pull_request', sources=None, selector=SELECTOR):
             return subprocess.CompletedProcess(args, 0, ('\0'.join(sorted(paths)) + '\0').encode())
         if args[:2] == ['git', 'show'] and sources and args[2] in sources:
             return subprocess.CompletedProcess(args, 0, sources[args[2]].encode())
+        if args[:2] == ['git', 'show'] and args[2].endswith(':.github/workflows/windows-tests.yml'):
+            return subprocess.CompletedProcess(args, 1, b'')
         # An unrelated runtime edit may invoke the existing archived benchmark
         # compatibility check. Supply an intentionally incompatible old fixture.
         if args[:2] == ['git', 'show'] and args[2].endswith('.zip'):
@@ -189,6 +191,40 @@ class WindowsCoverageTests(unittest.TestCase):
         progression = WORKFLOW.split('  progression:', 1)[1]
         self.assertIn('speech-dispatcher-espeak-ng', progression)
         self.assertIn('run: bash tools/testing/start_cloud_speech.sh', progression)
+
+    def test_progression_job_only_changes_keep_focused_coverage(self):
+        path = '.github/workflows/windows-tests.yml'
+        prefix = 'jobs:\n  test-scope:\n    run: select\n'
+        block = '  progression:\n    run: old-setup\n'
+        before = prefix + block
+        after = before.replace('old-setup', 'new-setup')
+        sources = {'a' * 40 + ':' + path: before, 'HEAD:' + path: after}
+        paths = {path, 'tools/testing/progression_scope.py',
+                 'tools/testing/test_windows_coverage.py',
+                 'docs/agent/2026-11-03-ci-efficiency-handoff.md'}
+        self.assertEqual(select(paths, sources=sources)['progression'], 'true')
+        self.assertEqual(select(paths, sources=sources)['comparison'], 'false')
+        self.assertEqual(select(paths)['progression'], 'false')
+        for companion in ('.github/workflows/dtl-first-preflight.yml', '.github/workflows/source-lint.yml',
+                          'tests/integration/test_dialogic_skip.gd'):
+            self.assertEqual(select(paths | {companion}, sources=sources)['progression'], 'false')
+        following = '  another-job:\n    run: unchanged\n'
+        followed = {key: value + following for key, value in sources.items()}
+        self.assertEqual(select(paths, sources=followed)['progression'], 'true')
+        for old, new in (
+            (before, after.replace('run: select', 'run: different-selector')),
+            (before, after + following),
+            (before, after + '  another-job: {runs-on: ubuntu-latest}\n'),
+            (before, after + '  "another-job":\n    run: changed\n'),
+            (before, after + 'env:\n  GLOBAL: changed\n'),
+            (before + following, after + following.replace('unchanged', 'changed')),
+            (prefix, after),
+            (before, prefix),
+            (before, after + block),
+        ):
+            with self.subTest(before=old, after=new):
+                changed = {'a' * 40 + ':' + path: old, 'HEAD:' + path: new}
+                self.assertEqual(select(paths, sources=changed)['progression'], 'false')
 
     def test_runner_and_lint_changes_keep_focused_runtime_coverage(self):
         lint = {'.github/workflows/source-lint.yml', 'tools/lint/check_python.py',
