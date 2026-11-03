@@ -68,7 +68,9 @@ func _init() -> void:
 		printerr("SURFACE_REQUIRED_INVALID: " + JSON.stringify(parsed.get("errors", [])))
 		quit(2)
 		return
-	var inventory: Dictionary = INVENTORY.build(script_path, roots, parsed.get("value", {}))
+	var locations := {}
+	var inventory: Dictionary = INVENTORY.build(script_path, roots, parsed.get("value", {}), locations)
+	print("SURFACE_LOCATIONS: " + JSON.stringify(locations))
 	if not inventory.get("ok", false):
 		printerr(JSON.stringify(inventory.get("errors", [])))
 		quit(1)

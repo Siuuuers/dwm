@@ -157,7 +157,7 @@ func test_build_produces_complete_sorted_records() -> void:
 	assert_eq(str(_record(inventory, "retained_query").get("signature", "")), "func retained_query() -> int")
 	var call_sites: Array = _record(inventory, "retained_query").get("call_sites", [])
 	assert_true(call_sites.size() >= 1, "static caller reference must be recorded")
-	assert_true(str(call_sites[0]).begins_with("scripts/Caller.gd:"), str(call_sites))
+	assert_eq(call_sites, ["scripts/Caller.gd"], "caller membership excludes line numbers")
 
 func test_validation_failure_matrix() -> void:
 	var probe := DynamicScriptProbe.load_script(TOOL_PATH)
@@ -431,7 +431,7 @@ func test_read_only_check_detects_call_site_dynamic_reference_and_signature_drif
 	var sealed := FileAccess.get_file_as_bytes(output_path)
 	assert_true(probe.value.check_canonical_json(inventory, output_path).get("ok", false))
 	for mutation: Array in [
-			["call-site line", FIXTURE_SCRIPT, "\n" + FIXTURE_CALLER],
+			["last static occurrence", FIXTURE_SCRIPT, FIXTURE_CALLER.replace("print(target.retained_query())", "pass")],
 			["dynamic reference", FIXTURE_SCRIPT, FIXTURE_CALLER.replace('call("replaced_mutation", 1)', 'call("retained_query")')],
 			["signature", FIXTURE_SCRIPT.replace("retained_query()", "retained_query(value: int = 0)"), FIXTURE_CALLER]]:
 		_write_file(script_path, mutation[1])
@@ -443,3 +443,95 @@ func test_read_only_check_detects_call_site_dynamic_reference_and_signature_drif
 	assert_true(_has_code(probe.value.check_canonical_json({"ok": false}, output_path), "SURFACE_INVALID"))
 	_write_file(output_path, sealed.get_string_from_utf8().trim_suffix("\n"))
 	assert_true(_has_code(probe.value.check_canonical_json(inventory, output_path), "SURFACE_OUTPUT_STALE"), "final newline is part of the byte contract")
+
+
+func test_comments_and_blank_lines_preserve_canonical_bytes_but_move_diagnostics() -> void:
+	var inventory := _build_fixture(_good_required())
+	assert_true(inventory.get("ok", false), str(inventory))
+	if not inventory.get("ok", false): return
+	var tool: Script = load(TOOL_PATH)
+	var script_path: String = inventory.script
+	var root := script_path.get_base_dir().get_base_dir()
+	var roots: Array[String] = [root.path_join("autoload"), root.path_join("scripts"), root.path_join("tests")]
+	var output := root.path_join("surface.json")
+	assert_true(tool.write_canonical_json(inventory, output).get("ok", false))
+	var sealed := FileAccess.get_file_as_bytes(output)
+	var before := {}
+	assert_eq(tool.build(script_path, roots, _good_required(), before), inventory)
+	assert_eq(before["static"].retained_query, ["scripts/Caller.gd:5"])
+	assert_eq(before.dynamic.replaced_mutation, ["scripts/Caller.gd:6"])
+	_write_file(script_path, "\n# func nonexistent_public() -> void:\n" + FIXTURE_SCRIPT
+		.replace("const SAMPLE_MAX := 3", "const SAMPLE_MAX := 3 # retained_query")
+		.replace("func retained_query() -> int:", "func retained_query() -> int: # removable_helper"))
+	_write_file(root.path_join("scripts/Caller.gd"), "\n# removable_helper replaced_mutation\n" + FIXTURE_CALLER
+		.replace("print(target.retained_query())", "print(target.retained_query()) # removable_helper")
+		.replace('target.call("replaced_mutation", 1)', 'target.call("replaced_mutation", 1) # retained_query'))
+	var after := {}
+	var changed: Dictionary = tool.build(script_path, roots, _good_required(), after)
+	assert_eq(changed, inventory, "diagnostic locations never enter the canonical inventory")
+	assert_eq(after["static"].retained_query, ["scripts/Caller.gd:7"])
+	assert_eq(after.dynamic.replaced_mutation, ["scripts/Caller.gd:8"])
+	assert_true(tool.check_canonical_json(changed, output).get("ok", false))
+	assert_eq(FileAccess.get_file_as_bytes(output), sealed, "successful check is read-only")
+	assert_true(tool.write_canonical_json(changed, output).get("ok", false))
+	assert_eq(FileAccess.get_file_as_bytes(output), sealed, "regeneration is byte-identical")
+
+
+func test_caller_membership_is_sorted_unique_and_tracks_last_occurrences() -> void:
+	var inventory := _build_fixture(_good_required())
+	assert_true(inventory.get("ok", false), str(inventory))
+	if not inventory.get("ok", false): return
+	var tool: Script = load(TOOL_PATH)
+	var script_path: String = inventory.script
+	var root := script_path.get_base_dir().get_base_dir()
+	var roots: Array[String] = [root.path_join("tests"), root.path_join("scripts"), root.path_join("autoload")]
+	var caller := root.path_join("scripts/Caller.gd")
+	_write_file(caller, FIXTURE_CALLER + '\nfunc again(target):\n\ttarget.retained_query()\n\ttarget.call("replaced_mutation")\n')
+	assert_eq(tool.build(script_path, roots, _good_required()), inventory, "duplicates do not alter membership")
+	var extra := root.path_join("scripts/A.gd")
+	_write_file(extra, 'extends Node\nfunc exercise(target):\n\ttarget.retained_query(); target.call("retained_query")\n')
+	var added: Dictionary = tool.build(script_path, roots, _good_required())
+	assert_eq(_record(added, "retained_query").call_sites, ["scripts/A.gd", "scripts/Caller.gd"])
+	assert_eq(added.dynamic_references.retained_query, ["scripts/A.gd"], "one file can belong to both categories")
+	assert_ne(added, inventory, "a new caller file changes the inventory")
+	_write_file(extra, "# retained_query\n")
+	assert_eq(tool.build(script_path, roots, _good_required()), inventory, "removing the last occurrence removes membership")
+	_write_file(caller, FIXTURE_CALLER.replace("print(target.retained_query())", "pass"))
+	var removed: Dictionary = tool.build(script_path, roots, _good_required())
+	assert_eq(_record(removed, "retained_query").call_sites, [], "the final caller can disappear")
+
+
+func test_comment_scanning_preserves_quotes_multiline_strings_and_scene_references() -> void:
+	var inventory := _build_fixture(_good_required())
+	assert_true(inventory.get("ok", false), str(inventory))
+	if not inventory.get("ok", false): return
+	var tool: Script = load(TOOL_PATH)
+	var script_path: String = inventory.script
+	var root := script_path.get_base_dir().get_base_dir()
+	var roots: Array[String] = [root.path_join("autoload"), root.path_join("scripts"), root.path_join("tests"), root.path_join("scenes")]
+	var source := [
+		'extends Node',
+		'func exercise(target):',
+		'\tvar hash = "#"; target.retained_query() # removable_helper',
+		'\tvar escaped = "a\\"#b"; target.call("replaced_mutation") # removable_helper',
+		"\ttarget.call('replaced_mutation'); target.replaced_mutation(1)",
+		'\tvar text = """',
+		'# retained_query',
+		'""" # removable_helper',
+		"\tvar other = '''",
+		'# retained_query',
+		"''' # removable_helper",
+	]
+	_write_file(root.path_join("scripts/Caller.gd"), "\n".join(source))
+	_write_file(root.path_join("scenes/Sample.tscn"), '[gd_scene format=3]\n[node name="Sample" type="Node"]\n[connection signal="sample_changed" from="." to="." method="retained_query"]\n')
+	var locations := {}
+	var scanned: Dictionary = tool.build(script_path, roots, _good_required(), locations)
+	assert_true(scanned.get("ok", false), str(scanned.get("errors", [])))
+	assert_eq(_record(scanned, "retained_query").call_sites, ["scripts/Caller.gd"])
+	assert_eq(locations["static"].retained_query, ["scripts/Caller.gd:3", "scripts/Caller.gd:7", "scripts/Caller.gd:10"])
+	assert_eq(_record(scanned, "replaced_mutation").call_sites, ["scripts/Caller.gd"])
+	assert_eq(scanned.dynamic_references.replaced_mutation, ["scripts/Caller.gd"])
+	assert_eq(locations.dynamic.replaced_mutation, ["scripts/Caller.gd:4", "scripts/Caller.gd:5"])
+	assert_eq(scanned.dynamic_references.retained_query, ["scenes/Sample.tscn"])
+	assert_eq(scanned.dynamic_references.sample_changed, ["scenes/Sample.tscn"])
+	assert_eq(_record(scanned, "removable_helper").call_sites, ["tests/TestCaller.gd"], "comments create no production callers")

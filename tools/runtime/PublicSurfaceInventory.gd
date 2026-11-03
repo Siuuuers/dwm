@@ -11,8 +11,10 @@ const SCAN_EXTENSIONS := ["gd", "tscn"]
 static func build(
 	script_path: String,
 	search_roots: Array[String],
-	required_symbols: Dictionary
+	required_symbols: Dictionary,
+	locations: Dictionary = {}
 ) -> Dictionary:
+	locations.clear()
 	var inventory := {
 		"script": script_path,
 		"records": [],
@@ -31,6 +33,16 @@ static func build(
 	for declaration: Dictionary in declared:
 		symbols.append(str(declaration["symbol"]))
 	var references := _scan_references(script_path, search_roots, symbols)
+	locations.merge(references.duplicate(true))
+	for category: String in references:
+		for symbol: String in references[category]:
+			var paths: Array[String] = []
+			for site: String in references[category][symbol]:
+				var path := site.left(site.rfind(":"))
+				if not paths.has(path):
+					paths.append(path)
+			paths.sort()
+			references[category][symbol] = paths
 	var records: Array[Dictionary] = []
 	for declaration: Dictionary in declared:
 		var symbol := str(declaration["symbol"])
@@ -150,7 +162,7 @@ static func write_canonical_json(inventory: Dictionary, output_path: String) -> 
 
 static func _parse_declarations(source: String) -> Array[Dictionary]:
 	var declarations: Array[Dictionary] = []
-	for raw_line: String in source.split("\n"):
+	for raw_line: String in _without_comments(source).split("\n"):
 		if raw_line.is_empty() or raw_line[0] == "\t" or raw_line[0] == " ":
 			continue
 		var line := raw_line.strip_edges(false, true)
@@ -221,21 +233,56 @@ static func _scan_references(
 				continue
 			var display := root.get_file() + "/" + ProjectSettings.globalize_path(file_path) \
 				.trim_prefix(ProjectSettings.globalize_path(root)).trim_prefix("/")
-			var lines := FileAccess.get_file_as_string(file_path).split("\n")
+			var lines := _without_comments(FileAccess.get_file_as_string(file_path)).split("\n")
 			for line_index: int in range(lines.size()):
 				var line := lines[line_index]
 				for symbol: String in symbols:
-					if not line.contains(symbol) or (patterns[symbol] as RegEx).search(line) == null:
+					if not line.contains(symbol):
 						continue
 					var site := "%s:%d" % [display, line_index + 1]
-					if line.contains("\"" + symbol + "\""):
-						(dynamic_sites[symbol] as Array).append(site)
-					else:
-						(static_sites[symbol] as Array).append(site)
+					for occurrence: RegExMatch in (patterns[symbol] as RegEx).search_all(line):
+						var start := occurrence.get_start()
+						var end := occurrence.get_end()
+						var quoted := start > 0 and end < line.length() \
+							and line[start - 1] in ["\"", "'"] and line[end] == line[start - 1]
+						var sites: Array = dynamic_sites[symbol] if quoted else static_sites[symbol]
+						if not sites.has(site):
+							sites.append(site)
 	for symbol: String in symbols:
 		if (dynamic_sites[symbol] as Array).is_empty():
 			dynamic_sites.erase(symbol)
 	return {"static": static_sites, "dynamic": dynamic_sites}
+
+static func _without_comments(source: String) -> String:
+	var parts := PackedStringArray()
+	var segment_start := 0
+	var delimiter := ""
+	var index := 0
+	while index < source.length():
+		var character := source[index]
+		if not delimiter.is_empty():
+			if character == "\\" and index + 1 < source.length():
+				index += 2
+				continue
+			if source.substr(index, delimiter.length()) == delimiter:
+				index += delimiter.length()
+				delimiter = ""
+				continue
+		elif character in ["\"", "'"]:
+			delimiter = character
+			if source.substr(index, 3) == character.repeat(3):
+				delimiter = character.repeat(3)
+			index += delimiter.length()
+			continue
+		elif character == "#":
+			parts.append(source.substr(segment_start, index - segment_start))
+			while index < source.length() and source[index] != "\n":
+				index += 1
+			segment_start = index
+			continue
+		index += 1
+	parts.append(source.substr(segment_start))
+	return "".join(parts)
 
 static func _files_under(root: String) -> Array[String]:
 	var results: Array[String] = []
