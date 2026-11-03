@@ -2,6 +2,7 @@ name: Windows automated tests
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, closed]
     paths-ignore:
       - '.github/workflows/source-lint.yml'
       - 'tools/lint/check_comments.py'
@@ -28,7 +29,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  closed-pr:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo 'Closed PR; obsolete validation superseded.'
   test-scope:
+    if: github.event.action != 'closed'
     name: Select current change coverage
     runs-on: ubuntu-24.04
     outputs:
