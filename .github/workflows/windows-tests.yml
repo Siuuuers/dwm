@@ -173,8 +173,10 @@ jobs:
                       } for p in paths)
                   workflow = '.github/workflows/windows-tests.yml'
                   inventory_test = 'tools/testing/test_inventory_runner.py'
-                  if paths and paths <= {workflow, inventory_test}:
-                      ci_jobs = ['inventory-tooling'] if inventory_test in paths else []
+                  coverage_test = 'tools/testing/test_windows_coverage.py'
+                  if paths and paths <= {workflow, inventory_test, coverage_test}:
+                      ci_jobs = [name for path, name in ((inventory_test, 'inventory-tooling'), (coverage_test, 'test-scope'))
+                                 if path in paths]
                       if workflow in paths:
                           sources = [subprocess.run(['git', 'show', ref + ':' + workflow], capture_output=True)
                                      for ref in (base, 'HEAD')]
