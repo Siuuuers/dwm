@@ -57,7 +57,8 @@ The runner verifies it before using it; these remain original test assets.
 | 120-second restored waveform after four interpolation frames | Exact match |
 | Fresh editor import | SIGABRT on exit, reproducible |
 | Warm editor import | Exit 0; does not resolve fresh-import failure |
-| Windows candidate build/export | Not tested |
+| Windows candidate build/playback | Debug/release built; 34 port checks and in-editor smoke passed |
+| Windows candidate export/startup | Export blocked by missing preset key; exported startup not reached |
 
 The two native assertion failures remain visible. Raw NSF exposes loop count 0
 rather than the expected three completed loops; actual looping works. The finite
@@ -101,7 +102,8 @@ gave these results:
 
 These were independent cold imports, not retries against an already-created
 project cache. The delay is a diagnostic workaround, not an engine fix or a
-guarantee under different runner load. No production or CI delay was added.
+guarantee under different runner load. The isolated comparison now uses the delay
+in CI while retaining an unmodified cold-import control. Production is unchanged.
 The candidate remains unadopted pending target-platform verification and the
 restoration decision below; an extension rewrite is not justified by this evidence.
 
@@ -147,3 +149,25 @@ documented timing workaround. Strict native assertions remain unchanged: exactly
 the two recorded differences are recognized as unresolved diagnostics; additional
 failures stop the trial. Port checks, finite-output smoke, and Windows exported
 startup must pass. No binary package is published and no game backend is changed.
+
+## Windows cloud follow-up, 2026-11-04
+
+[Run 41705709768](https://github.com/Siuuuers/dwm/actions/runs/41705709768)
+built both candidate configurations and passed all 34 playback-port checks on
+Windows. Strict native results remained 16/18 with exactly the known differences.
+The raw cold import exited 3221225477; the independent delayed import passed.
+A 120-second seek took 1,738,491 us in that single run. This is diagnostic timing,
+not a matched benchmark or physical-device result.
+
+Candidate export stopped because its generated preset omitted `exclude_filter`.
+The preset now supplies empty exclusion and export-path fields. Exported startup
+still requires a new successful run; the earlier smoke marker came from the editor.
+
+The custom adapter's Linux import also aborted. On Windows, its compiler `.obj`
+was additionally misidentified as a mesh. The native source directory now has
+`.gdignore`, and the custom verifier uses the same explicitly named import
+workaround as the candidate. Neither change proves the engine race fixed.
+
+No production restoration contract is changed. The current audit supports keeping
+pause, Load and failure rollback separate; expensive recovery alone does not
+justify redesigning normal playback or silently restarting music after a failure.

@@ -57,7 +57,7 @@ def main():
     (REPORTS / "version.txt").write_text(version + "\n")
     shutil.copy2(ROOT.parents[1] / "scripts/audio/AudioPlaybackPort.gd", ROOT / "production_audio_playback_port.gd")
     base = [godot, "--headless", "--audio-driver", "Dummy", "--path", ROOT]
-    run("import", [*base, "--editor", "--import"])
+    run("import-workaround", [*base, "--editor", "--import", "--frame-delay", "800"])
     run("native", [*base, "--script", "res://test_native.gd"], "NSF_NATIVE_CHECKS=18 FAILURES=0")
     run("port", [*base, "--script", "res://test_port.gd"], "PORT_INTEGRATION failures=0")
     run("smoke", base, "EXPORTED_AUDIO_PROTOTYPE_PASS")

@@ -101,6 +101,7 @@ def main():
             (project / "export_presets.cfg").write_text(
                 '[preset.0]\nname="Windows"\nplatform="Windows Desktop"\nrunnable=true\n'
                 'export_filter="all_resources"\ninclude_filter="fixtures/*.nsf,fixtures/*.nsfe,fixtures/*.json"\n'
+                'exclude_filter=""\nexport_path=""\n'
                 '[preset.0.options]\ncustom_template/release="' + template + '"\n'
                 'binary_format/architecture="x86_64"\napplication/modify_resources=false\n')
             exported = verify.REPORTS / "export"
