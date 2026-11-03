@@ -135,10 +135,17 @@ static func prepare_audio_catalogue(authored: Variant, fallback: Dictionary,
 				if not FileAccess.file_exists(row.path):
 					return {"ok": false, "code": &"audio_authoring_media_missing", "reference": row.path}
 				var stream: AudioStream = ResourceLoader.load(row.path) as AudioStream
-				if stream == null or not is_finite(stream.get_length()) or stream.get_length() <= 0.0:
+				var native_music: bool = kind == "music" and row.path.ends_with(".nsf")
+				var native_sfx: bool = kind == "sfx" and row.path.ends_with(".nsfe")
+				if stream == null or not is_finite(stream.get_length()):
+					return {"ok": false, "code": &"audio_authoring_media_invalid", "reference": row.path}
+				if row.path.ends_with(".nsf") or row.path.ends_with(".nsfe"):
+					if not stream.is_class("VGMStream") or not (native_music or native_sfx):
+						return {"ok": false, "code": &"audio_authoring_media_invalid", "reference": row.path}
+				if (native_music and stream.get_length() != 0.0) or (not native_music and stream.get_length() <= 0.0):
 					return {"ok": false, "code": &"audio_authoring_media_invalid", "reference": row.path}
 				if kind == "music":
-					var looping: bool = (stream is AudioStreamOggVorbis and stream.loop) \
+					var looping: bool = native_music or (stream is AudioStreamOggVorbis and stream.loop) \
 							or (stream is AudioStreamWAV and stream.loop_mode != AudioStreamWAV.LOOP_DISABLED) \
 							or (stream is AudioStreamMP3 and stream.loop)
 					if not looping: return {"ok": false, "code": &"audio_authoring_music_not_looping", "reference": row.path}

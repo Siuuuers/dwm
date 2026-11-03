@@ -22,3 +22,4 @@ agent-artifacts/
 .beads/*.log
 debug.log
 /dwm-p2r13-show-full.txt
+/addons/gd_libvgm/

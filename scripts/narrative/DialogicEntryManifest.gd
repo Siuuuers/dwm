@@ -339,7 +339,7 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 	if inline_audio:
 		for plan: Dictionary in bundle.audio_catalogue.plans:
 			if plan.music != null: audio_plans[plan.plan_id] = true
-		for asset: Dictionary in bundle.audio_catalogue.assets: audio_assets[asset.asset_id] = true
+		for asset: Dictionary in bundle.audio_catalogue.assets: audio_assets[asset.asset_id] = asset
 	# Invocation-local only: native parsing is shared across entries in one DTL,
 	# while every entry still reads current bytes and validates its own programme.
 	var parsed_sources := {}
@@ -371,6 +371,8 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 					return _scene_fail("unknown inline music plan: " + cue.id)
 				if cue.kind == "sfx" and not audio_assets.has(cue.id):
 					return _scene_fail("unknown inline sound asset: " + cue.id)
+				if cue.kind == "sfx" and audio_assets[cue.id].duration_ms == 0:
+					return _scene_fail("inline sound requires finite media: " + cue.id)
 		compiled[id] = native.value
 		var native_lines: Array = []
 		var native_signals: Array = []
@@ -1380,5 +1382,3 @@ static func _is_retired_label(entry_id: String, retired_registry: Variant = null
 		if str(record.get("label_id", "")) == entry_id:
 			return record.get("reject_on_restore") == true
 	return false
-
-

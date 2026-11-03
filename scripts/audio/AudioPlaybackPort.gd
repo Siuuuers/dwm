@@ -9,6 +9,7 @@ var _tweens: Dictionary = {}
 var _tween_specs: Dictionary = {}
 var _bus_states: Dictionary = {}
 var _pause_capture: Dictionary = {}
+var _playback_refs: Array[WeakRef] = []
 var _mono_effect: AudioEffectStereoEnhance
 
 
@@ -66,6 +67,10 @@ func play(player_id: StringName, from_position: float = 0.0) -> Dictionary:
 	if player == null:
 		return _failure(&"invalid_audio_runtime")
 	player.play(from_position)
+	if not player.has_stream_playback():
+		return _failure(&"audio_playback_failed")
+	_playback_refs = _playback_refs.filter(func(item: WeakRef) -> bool: return item.get_ref() != null)
+	_playback_refs.append(weakref(player.get_stream_playback()))
 	return _ok({})
 
 
@@ -453,7 +458,8 @@ func restore_runtime(backup: Dictionary) -> Dictionary:
 		player.volume_db = float(record.get("volume_db", 0.0))
 		player.bus = record.get("bus", player.bus)
 		if record.get("playing", false):
-			player.play(float(record.get("playback_position", 0.0)))
+			var started := play(id, float(record.get("playback_position", 0.0)))
+			if not started.ok: return started
 		else:
 			player.stop()
 		player.stream_paused = bool(record.get("stream_paused", false))
@@ -470,6 +476,25 @@ func restore_runtime(backup: Dictionary) -> Dictionary:
 		var recreated := create_parallel_tween(channel_id, tracks, float(transition["remaining"]))
 		if not recreated.get("ok", false):
 			return recreated
+	return _ok({})
+
+
+func shutdown() -> Dictionary:
+	for channel_id in _tweens.keys():
+		kill_tween(channel_id)
+	for id in _players:
+		stop_and_clear(id)
+	_pause_capture.clear()
+	var tree := Engine.get_main_loop() as SceneTree
+	var deadline := Time.get_ticks_msec() + 2000
+	while _playback_refs.any(func(item: WeakRef) -> bool: return item.get_ref() != null) and Time.get_ticks_msec() < deadline:
+		await tree.create_timer(0.01, true).timeout
+	if _playback_refs.any(func(item: WeakRef) -> bool: return item.get_ref() != null):
+		return _failure(&"audio_shutdown_pending")
+	_playback_refs.clear()
+	_players.clear()
+	if is_instance_valid(_root): _root.queue_free()
+	_root = null
 	return _ok({})
 
 

@@ -1,4 +1,5 @@
 """Build and stage unmodified gd_libvgm v0.3 with its pinned dependencies."""
+import argparse
 import hashlib
 import os
 from pathlib import Path
@@ -30,6 +31,9 @@ def dependency(name, repository, revision, digest, destination):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--install", action="store_true", help="Stage the built add-on into the game")
+    args = parser.parse_args()
     BUILD.mkdir(parents=True, exist_ok=True)
     source = BUILD / "gd_libvgm"
     dependency("gd_libvgm", "PurpBatBoi/gd_libvgm", "b9e7d7e21d914f5547a2e51d97ec3abd6edd0495",
@@ -54,6 +58,10 @@ def main():
     shutil.copytree(source / "icons", addon / "icons", dirs_exist_ok=True)
     shutil.copytree(source / "bin" / platform, addon / "bin" / platform, dirs_exist_ok=True)
     shutil.copy2(source / "godot-cpp/LICENSE.md", addon / "godot-cpp-LICENSE.md")
+    if args.install:
+        destination = ROOT.parents[1] / "addons/gd_libvgm"
+        shutil.copytree(addon, destination, dirs_exist_ok=True)
+        shutil.copy2(source / "godot-cpp/LICENSE.md", destination / "godot-cpp-LICENSE.txt")
     print("PASS: pinned gd_libvgm built and staged for " + platform)
 
 

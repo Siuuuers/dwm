@@ -5,8 +5,10 @@ The two music loops and one effect are original test fixtures, not production
 soundtrack choices. The main game keeps its existing audio system and recordings.
 The `.gdignore` prevents the root game from importing this nested project.
 
-[The gd_libvgm comparison](GD_LIBVGM_EVALUATION.md) records a working playback
-trial and a reproducible clean-import blocker; that candidate is not adopted.
+[The gd_libvgm comparison](GD_LIBVGM_EVALUATION.md) records the isolated trial.
+The game integration and build instructions now live in
+[Native game audio](../../docs/audio/native-audio.md). The custom adapter below
+remains an isolated comparison fixture; the game installs gd_libvgm.
 
 To reproduce the isolated candidate comparison, run `build_gd_libvgm.py` then
 `compare_gd_libvgm.py` from this directory with Python. Windows builds debug and

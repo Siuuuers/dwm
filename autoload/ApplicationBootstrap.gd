@@ -146,6 +146,7 @@ const DEVELOPMENT_STAGE_SETS := {
 }
 
 var _started := false
+var _quitting := false
 var _start_begun := false
 var _startup_recovery_busy := false
 var _scene_startup_recovery: Dictionary = {}
@@ -274,7 +275,26 @@ var _state := {
 }
 
 func _ready() -> void:
+	get_tree().auto_accept_quit = false
 	call_deferred("start", _requested_mode_from_debug_args())
+
+func request_quit() -> void:
+	if _quitting: return
+	_quitting = true
+	var was_paused := get_tree().paused
+	get_tree().paused = true
+	var audio := _target(&"AudioManager")
+	if audio != null:
+		var stopped: Dictionary = await audio.call(&"shutdown")
+		if not stopped.ok:
+			_quitting = false
+			get_tree().paused = was_paused
+			if is_instance_valid(_content_error_layer):
+				_content_error_layer.free()
+			_content_error_layer = null
+			show_content_error({"code": stopped.code, "message": "Audio is still stopping. Please try Quit again."})
+			return
+	get_tree().quit()
 
 ## A broken required content reference cannot publish or save another state.
 ## Keep the first diagnosis on screen until the player chooses Quit.
@@ -298,7 +318,7 @@ func show_content_error(result: Dictionary) -> void:
 		if not id.is_empty() and id not in message: message += "\n" + id
 	confirmation.request = {"title": "Cannot continue", "body": message,
 		"confirm": "Quit", "cancelable": false, "warning": false}
-	confirmation.finished.connect(func(_accepted: bool): get_tree().quit())
+	confirmation.finished.connect(func(_accepted: bool): request_quit())
 	_content_error_layer.add_child(confirmation)
 	# This fatal dialog lives outside the active scene. Suspend the other root
 	# branches too. An in-flight Next may still restore its prior focus custody.
@@ -317,6 +337,8 @@ func _exit_tree() -> void:
 	_release_runtime_dependencies()
 
 func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		request_quit()
 	# Off-tree startup fixtures and failed compositions can be freed without ever
 	# receiving _exit_tree. The same release is deliberately idempotent.
 	if what == NOTIFICATION_PREDELETE:

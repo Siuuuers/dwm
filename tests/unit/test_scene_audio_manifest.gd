@@ -18,6 +18,53 @@ func _registration() -> Dictionary:
 func _valid(catalogue: Variant) -> bool:
 	return MANIFEST.validate_scene_catalogue(catalogue, ["scene.test.a", "scene.test.b"]).ok
 
+func test_native_music_preserves_unbounded_duration_and_authored_entrance() -> void:
+	var registration := _registration()
+	var catalogue: Dictionary = registration.audio_catalogue
+	catalogue.schema_version = 3
+	catalogue.assets[0].path = "res://audio/bgm/quiet_room.nsf"
+	catalogue.assets[0].duration_ms = 0
+	catalogue.plans[0].music = catalogue.assets[0].asset_id
+	catalogue.plans[0].ambience_asset_id = null
+	catalogue.plans[0].entrance_ms = 1250
+	catalogue.plans[0].load_anchor_ms = 1250
+	assert_true(_valid(catalogue))
+	var context := MANIFEST.make_scene_context(registration, "scene.test.b", "admission.test")
+	assert_true(context.ok, str(context))
+	if not context.ok: return
+	var resolved := MANIFEST.resolve_scene_context(context.value, registration)
+	assert_true(resolved.ok, str(resolved))
+	if not resolved.ok: return
+	assert_eq(resolved.value.entrance_seconds, 1.25)
+	assert_eq(resolved.value.load_seconds, 1.25)
+	catalogue.plans[0].ambience_asset_id = catalogue.assets[0].asset_id
+	catalogue.plans[0].music = null
+	assert_false(_valid(catalogue), "unbounded native music is not an ambience bed")
+	catalogue.plans[0].music = catalogue.assets[0].asset_id
+	catalogue.plans[0].ambience_asset_id = null
+	catalogue.assets[0].duration_ms = 4000
+	assert_false(_valid(catalogue), "raw NSF has no finite duration to invent")
+	catalogue.assets[0].duration_ms = 0
+	catalogue.schema_version = 2
+	assert_false(_valid(catalogue), "native media requires the inline audio catalogue")
+
+func test_finite_native_sfx_and_recordings_keep_positive_durations() -> void:
+	var catalogue := _catalogue()
+	catalogue.schema_version = 3
+	catalogue.assets.append({"asset_id": "confirm", "path": "res://audio/sfx/confirm.nsfe",
+		"sha256": "b".repeat(64), "duration_ms": 175})
+	assert_true(_valid(catalogue))
+	catalogue.assets[1].duration_ms = 0
+	assert_false(_valid(catalogue), "NSFe cues need a finite endpoint")
+	catalogue.assets[1].path = "res://audio/sfx/confirm.ogg"
+	assert_false(_valid(catalogue), "recorded cues retain their duration requirement")
+	catalogue.assets[1].duration_ms = 175
+	assert_true(_valid(catalogue))
+	catalogue.assets[0].path = "res://audio/sfx/confirm.nsfe"
+	catalogue.plans[0].music = catalogue.assets[0].asset_id
+	catalogue.plans[0].ambience_asset_id = null
+	assert_false(_valid(catalogue), "finite native cues cannot be looping music plans")
+
 func test_catalogue_is_pure_and_returns_detached_value() -> void:
 	var catalogue: Dictionary = _catalogue()
 	var checked: Dictionary = MANIFEST.validate_scene_catalogue(catalogue, ["scene.test.b", "scene.test.a"])
