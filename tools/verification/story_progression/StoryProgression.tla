@@ -6,16 +6,16 @@ Sources == 1..SourceCount
 NextPhases == {"NEXT_ADMITTING", "NEXT_ACTIVE", "NEXT_ACKNOWLEDGING"}
 Phases == NextPhases \cup {"IDLE", "AUTO", "SKIP", "ACKNOWLEDGING"}
 VARIABLES phase, parent, owner, pc, visible, expected, acknowledged,
-          applied, blocked, crossedBlocked, staleAdvance, reached
+          applied, blocked, crossedBlocked, staleAdvance, last_event
 vars == <<phase, parent, owner, pc, visible, expected, acknowledged,
-          applied, blocked, crossedBlocked, staleAdvance, reached>>
+          applied, blocked, crossedBlocked, staleAdvance, last_event>>
 
 Init ==
     /\ phase = "IDLE" /\ parent = "IDLE" /\ owner = {}
     /\ pc = "idle" /\ visible = 1 /\ expected = 0
     /\ acknowledged = FALSE /\ applied = [s \in Sources |-> 0]
     /\ blocked \in BOOLEAN /\ crossedBlocked = FALSE /\ staleAdvance = FALSE
-    /\ reached = {}
+    /\ last_event = ""
 
 Begin(command, request) ==
     /\ phase = "IDLE"
@@ -28,14 +28,14 @@ Begin(command, request) ==
     /\ pc' = "prepare" /\ expected' = request
     /\ acknowledged' \in IF command = "next" THEN BOOLEAN ELSE {command = "auto"}
     /\ UNCHANGED <<parent, visible, applied, blocked, crossedBlocked,
-                   staleAdvance, reached>>
+                   staleAdvance, last_event>>
 
 Prepare ==
     /\ pc = "prepare"
     /\ pc' = IF expected = visible /\ visible \in Sources /\ ~blocked
               THEN "run" ELSE "return"
-    /\ reached' = IF expected # visible THEN reached \cup {"stale-refusal"}
-                   ELSE reached
+    /\ last_event' = IF expected # visible THEN "stale-refusal"
+                   ELSE last_event
     /\ UNCHANGED <<phase, parent, owner, visible, expected, acknowledged,
                    applied, blocked, crossedBlocked, staleAdvance>>
 
@@ -46,7 +46,7 @@ BeginAck ==
     /\ phase' = IF phase = "NEXT_ADMITTING" THEN "NEXT_ACKNOWLEDGING"
                 ELSE "ACKNOWLEDGING"
     /\ owner' = IF phase = "IDLE" THEN {"ack"} ELSE owner
-    /\ reached' = reached \cup {"ack-from-" \o phase}
+    /\ last_event' = "ack-from-" \o phase
     /\ UNCHANGED <<pc, visible, expected, acknowledged, applied, blocked,
                    crossedBlocked, staleAdvance>>
 
@@ -57,13 +57,13 @@ EndAck(success) ==
     /\ acknowledged' = success
     /\ pc' = IF ~success /\ parent # "IDLE" THEN "return" ELSE pc
     /\ UNCHANGED <<visible, expected, applied, blocked,
-                   crossedBlocked, staleAdvance, reached>>
+                   crossedBlocked, staleAdvance, last_event>>
 
 ActivateNext ==
     /\ phase = "NEXT_ADMITTING" /\ pc = "run" /\ acknowledged
     /\ phase' = "NEXT_ACTIVE"
     /\ UNCHANGED <<parent, owner, pc, visible, expected, acknowledged,
-                   applied, blocked, crossedBlocked, staleAdvance, reached>>
+                   applied, blocked, crossedBlocked, staleAdvance, last_event>>
 
 Advance ==
     /\ phase \in {"NEXT_ADMITTING", "NEXT_ACTIVE", "AUTO", "SKIP"}
@@ -73,20 +73,20 @@ Advance ==
     /\ visible' = visible + 1 /\ pc' = "return"
     /\ crossedBlocked' = crossedBlocked \/ blocked
     /\ staleAdvance' = staleAdvance \/ (expected # visible)
-    /\ reached' = reached \cup {"advance-" \o phase}
+    /\ last_event' = "advance-" \o phase
     /\ UNCHANGED <<phase, parent, owner, expected, acknowledged, blocked>>
 
 Refuse ==
     /\ phase \in {"NEXT_ADMITTING", "NEXT_ACTIVE", "AUTO", "SKIP"}
     /\ pc = "run" /\ pc' = "return"
-    /\ reached' = reached \cup {"ordinary-refusal"}
+    /\ last_event' = "ordinary-refusal"
     /\ UNCHANGED <<phase, parent, owner, visible, expected, acknowledged,
                    applied, blocked, crossedBlocked, staleAdvance>>
 
 FinishNext ==
     /\ phase = "NEXT_ACTIVE" /\ pc = "return"
     /\ phase' = "NEXT_ADMITTING"
-    /\ reached' = reached \cup {"next-completion-signals"}
+    /\ last_event' = "next-completion-signals"
     /\ UNCHANGED <<parent, owner, pc, visible, expected, acknowledged,
                    applied, blocked, crossedBlocked, staleAdvance>>
 
@@ -94,21 +94,21 @@ Return ==
     /\ phase \in {"NEXT_ADMITTING", "AUTO", "SKIP"} /\ pc = "return"
     /\ phase' = "IDLE" /\ owner' = {} /\ pc' = "idle" /\ expected' = 0
     /\ UNCHANGED <<parent, visible, acknowledged, applied, blocked,
-                   crossedBlocked, staleAdvance, reached>>
+                   crossedBlocked, staleAdvance, last_event>>
 
 CompetingNext(request) ==
     /\ phase # "IDLE" /\ request \in Sources
-    /\ reached' = reached \cup {
+    /\ last_event' =
           IF phase \in NextPhases THEN
               IF request = expected THEN "next-coalesced" ELSE "next-conflict"
-          ELSE "next-busy"}
+          ELSE "next-busy"
     /\ UNCHANGED <<phase, parent, owner, pc, visible, expected, acknowledged,
                    applied, blocked, crossedBlocked, staleAdvance>>
 
 BoundaryChange ==
     /\ blocked' = ~blocked
     /\ UNCHANGED <<phase, parent, owner, pc, visible, expected, acknowledged,
-                   applied, crossedBlocked, staleAdvance, reached>>
+                   applied, crossedBlocked, staleAdvance, last_event>>
 
 Next == (\E command \in {"next", "auto", "skip"}, request \in Sources : Begin(command, request))
         \/ Prepare \/ BeginAck \/ (\E success \in BOOLEAN : EndAck(success)) \/ ActivateNext \/ Advance

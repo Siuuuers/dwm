@@ -30,7 +30,7 @@ outer phase, including publication of a newly displayed destination before the
 outer method returns.
 
 The model's `parent` represents a synchronous local variable, not another mutable
-production owner. `owner`, `pc`, counters and `reached` are verification bookkeeping.
+production owner. `owner`, `pc`, counters and `last_event` are verification bookkeeping.
 `pc` distinguishes the call location before execution from the return path:
 `NEXT_ADMITTING` occurs both before traversal and while completion signals run.
 
@@ -72,23 +72,43 @@ Use Java 17 or newer. Download the checker outside the repository:
 ```sh
 curl --fail --location https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar --output /tmp/tla2tools.jar
 printf '%s  %s\n' c57d4d7bbee3ed2c89c32cb9c60cac728f751e80e2570bc4b7368ae39291fc21 /tmp/tla2tools.jar | sha256sum --check
-java -XX:+UseParallelGC -cp /tmp/tla2tools.jar tlc2.TLC -workers 2 -coverage 1 -metadir /tmp/dwm-progression-states tools/verification/story_progression/StoryProgression.tla
+java -XX:+UseParallelGC -cp /tmp/tla2tools.jar tlc2.TLC -workers 2 -coverage 1 -dump /tmp/dwm-progression-reachable -metadir /tmp/dwm-progression-states tools/verification/story_progression/StoryProgression.tla
+python tools/verification/story_progression/check_witnesses.py /tmp/dwm-progression-reachable.dump
+python -m unittest discover -s tools/verification/story_progression -p 'test_*.py'
 ```
 
 The release asset used here reports `TLC2 Version 2026.11.02.164701`, revision
 `dc6a944`; the SHA-256 above pins the actual bytes. Do not silently substitute a
 changed asset under the same release URL.
 
-`-coverage 1` reports action coverage. To inspect concrete reachable states, add
-`-dump /tmp/dwm-progression-reachable`; TLC appends `.dump`. `reached` records useful
-behaviors, including each command's advancement, nested acknowledgement,
-coalescing/conflict, stale refusal, and the Next completion-signal phase. These
-witnesses prevent interpreting an inert model as successful progress.
+`-coverage 1` reports action coverage. `-dump` writes reachable states and appends
+`.dump` to the supplied filename. The witness checker requires all 14 event tags
+and a state with both sources completed and command ownership released. It also
+reports the number of model states after dropping `last_event`. Run it only after
+TLC succeeds; the checker does not replace invariant checking.
 
-Checked on 3 November 2026: all eight configured invariants passed; 2,794,946
-states generated, 537,760 distinct states, depth 37, zero states left on the queue.
-The run with a state dump completed in 10 seconds in the cloud Linux environment.
-Inspection of that dump found all 14 behavior tags listed above across reachable
-states, including both direct and active Next advancement, and a state with both
-source occurrences completed and ownership released. This is model evidence,
-not a game performance measurement.
+`last_event` holds the latest instrumented behavior, rather than accumulating
+history. No command guard or safety invariant depends on this field. Across the
+complete state graph it witnesses each command's advancement, nested
+acknowledgement, coalescing/conflict, stale refusal, ordinary refusal, and the Next
+completion-signal phase. The 14 required tags are explicit in
+`check_witnesses.py`; parser self-checks cover the pinned checker's small state-dump
+format. Changes to that format or the two-source completion condition require an
+intentional checker update.
+
+Checked on 3 November 2026: all eight configured invariants passed; 8,366 states
+generated, 1,612 distinct states, depth 16, zero states left on the queue. The
+executable witness check found all 14 tags and completed/released ownership.
+
+| Model instrumentation | Distinct states | States excluding witness instrumentation |
+| --- | ---: | ---: |
+| Accumulated event history | 537,760 | 288 |
+| Latest event only | 1,612 | 288 |
+
+The before/after dumps had exactly equal sets of all remaining field/value
+combinations, with zero missing or extra projections. This was an exact-set
+comparison, not an inference from equal counts. Those projections include the
+protocol and its other verification bookkeeping; they are not an enumeration of
+all game states. The optimization removes witness-history combinations without
+changing the modeled protocol or eight invariants. This is model-checking
+evidence, not a game performance measurement.

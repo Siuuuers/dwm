@@ -84,3 +84,25 @@ shop/audio suite, Windows export, repository-wide comment sweep, save-format
 rewrite, or general CI redesign. Existing data-loss handling remains intact.
 There is no measured latency claim and no native Windows qualification. Fewer
 flags improve the coordination representation; they do not establish a speedup.
+
+## Verification efficiency follow-up
+
+The model now keeps only the latest behavior tag. Its 1,612 reachable states
+project onto exactly the same 288 protocol/bookkeeping states as the original
+537,760-state model. All eight invariants remain; an executable dump check requires
+all 14 behavior witnesses and completed/released ownership. See the model README
+for reproduction and bounded-model limitations.
+
+The source/destination write-refusal methods share one Godot process via the exact
+`write_refusal_keeps_` filter. XML validation requires both full method names once
+each, positive assertion counts, and passing status. A separate/combined then
+combined/separate comparison measured mean wall times of 16.265 versus 8.621 seconds
+for the same two methods and 66 assertions. Fixtures reset their bridge, profile,
+native adapter and file operations between tests. The other nine headless methods
+and all six native journeys retain their previous process isolation, including
+fresh-process save/load evidence. This reduces 17 test launches to 16.
+
+These are verification improvements, with no game, content or save-format changes.
+A possible `stops_` group matches three selected boundary methods, but has not been
+qualified in a shared process and remains separate. Broader test suites and
+checkout redesign are outside this measured change.

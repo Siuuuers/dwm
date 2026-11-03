@@ -6,11 +6,13 @@ MODEL_PATHS = {
     'tools/verification/story_progression/StoryProgression.tla',
     'tools/verification/story_progression/StoryProgression.cfg',
     'tools/verification/story_progression/README.md',
+    'tools/verification/story_progression/check_witnesses.py',
+    'tools/verification/story_progression/test_check_witnesses.py',
 }
 PATHS = {
     BRIDGE, '.github/workflows/windows-tests.yml', '.github/workflows/dtl-first-preflight.yml',
     'tools/testing/progression_scope.py', 'tools/testing/run_progression_checks.py',
-    'tools/testing/test_windows_coverage.py',
+    'tools/testing/test_windows_coverage.py', 'tools/testing/test_progression_runner.py',
     'tests/integration/test_dialogic_next_traversal.gd', 'tests/integration/test_dialogic_skip.gd',
     'tests/integration/test_scene_next_notification.gd',
     'docs/agent/2026-11-03-story-progression-implementation.md',
