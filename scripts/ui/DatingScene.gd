@@ -139,8 +139,6 @@ var _high_contrast: bool = false
 var _colour_preset: String = "standard"
 var _font_style := "pixel"
 var _dispatching: bool = false
-var _terminal_choice_key := ""
-var _terminal_contacts: Dictionary = {}
 var _choice_released := false
 var _preparation_failed := false
 ## dwm-634.2: a refused `settle` waits for Retry instead of being re-sent every frame.
@@ -501,34 +499,6 @@ func _refresh_mode_controls() -> void:
 	else:
 		_rules_button.focus_previous = NodePath()
 		_rules_button.focus_next = NodePath()
-
-func _refresh_terminal_choice() -> void:
-	if _physical_view.get("phase") != "cleared_awaiting_terminal_choice":
-		_terminal_choice_key = ""
-		_terminal_contacts.clear()
-		_choice_released = false
-		_refresh_challenge_input()
-		return
-	var key := str(_presentation_command.physical_token) + ":" + str(_physical_view.board.revision)
-	if key != _terminal_choice_key:
-		_terminal_choice_key = key
-		_terminal_contacts = _input_owner.get_physical_contacts() if is_instance_valid(_input_owner) else {}
-		_choice_released = false
-	_continue_button.focus_next = _continue_button.get_path_to(worksheet.grid)
-	_continue_button.focus_previous = _continue_button.get_path_to(worksheet.grid)
-	worksheet.grid.focus_next = worksheet.grid.get_path_to(_continue_button)
-	worksheet.grid.focus_previous = worksheet.grid.get_path_to(_continue_button)
-	_poll_terminal_release()
-
-func _poll_terminal_release() -> void:
-	if _physical_view.get("phase") != "cleared_awaiting_terminal_choice": return
-	var contacts: Dictionary = _input_owner.get_physical_contacts() if is_instance_valid(_input_owner) else {}
-	for contact: String in _terminal_contacts.keys():
-		if contacts.get(contact) != _terminal_contacts[contact]: _terminal_contacts.erase(contact)
-	var entered: bool = not _choice_released and _terminal_contacts.is_empty()
-	if entered: _choice_released = true
-	_refresh_challenge_input()
-	if entered and not _split_dragging: _continue_button.grab_focus()
 
 func _input(event: InputEvent) -> void:
 	if is_instance_valid(_quick_commands):
