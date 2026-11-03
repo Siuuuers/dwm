@@ -1,0 +1,476 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-04",
+  "starting_head": "8eeac7ceee26f787136689f76b45a83e54f7ac1a",
+  "source_provenance": {
+    "hashes": {
+      "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+      "autoload/SaveManager.gd": "58e060190122729201fb536ffebcc49e379a6d6e8917f47ca52ecb696ffdda0b",
+      "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+    },
+    "when_captured": "After measurements; verified byte-identical to starting_head blobs.",
+    "limitation": "No per-process complete tree hash was captured. Another worker concurrently removed dormant DatingScene draw helpers. This is not certification of an immutable complete source tree."
+  },
+  "environment": {
+    "engine": "Godot 4.6.3-stable official",
+    "renderer": "X11; OpenGL compatibility; Mesa llvmpipe",
+    "display": "1920x1080x24 virtual Xvfb",
+    "audio_driver": "Dummy",
+    "LIBGL_ALWAYS_SOFTWARE": "1",
+    "DWM_F5_PROFILE": "0",
+    "storage": "Fresh process and unique .godot/phase2r_tests/profile-next/<label>/test-root; separate XDG_DATA_HOME, APPDATA, LOCALAPPDATA under /tmp/dwm-profile-next/<label>."
+  },
+  "summary_us": {
+    "fresh": {
+      "input_dispatch_us": {
+        "median": 44352,
+        "min": 42375,
+        "max": 44368
+      },
+      "input_to_saved_draw_us": {
+        "median": 53880,
+        "min": 51861,
+        "max": 64094
+      },
+      "input_to_frame_post_draw_us": {
+        "median": 67175,
+        "min": 64530,
+        "max": 78918
+      },
+      "max_process_frame_gap_us": {
+        "median": 68620,
+        "min": 65588,
+        "max": 98017
+      },
+      "capture_callback_inclusive_us": {
+        "median": 1119,
+        "min": 1036,
+        "max": 1184
+      }
+    },
+    "repeated": {
+      "input_dispatch_us": {
+        "median": 43013,
+        "min": 41271,
+        "max": 59800
+      },
+      "input_to_saved_draw_us": {
+        "median": 52556,
+        "min": 51298,
+        "max": 69188
+      },
+      "input_to_frame_post_draw_us": {
+        "median": 64821,
+        "min": 63396,
+        "max": 82101
+      },
+      "max_process_frame_gap_us": {
+        "median": 65915,
+        "min": 64451,
+        "max": 83573
+      },
+      "capture_callback_inclusive_us": {
+        "median": 1242,
+        "min": 950,
+        "max": 1665
+      }
+    }
+  },
+  "samples": [
+    {
+      "capture_callback_calls": 6,
+      "capture_callback_inclusive_us": 1184,
+      "capture_scope": "fixture canonical reading, run and audio input callback only; excludes enclosing save work",
+      "case": "fresh",
+      "diagnostic_only": false,
+      "engine": "4.6.3-stable (official)",
+      "fixture_limit": "test-authored short scene and empty host; repeated saves do not model longer reading history",
+      "frame_gap_window": "preceding process frame through first process frame after Saved presentation",
+      "input_dispatch_us": 44352,
+      "input_to_frame_post_draw_us": 78918,
+      "input_to_saved_draw_us": 64094,
+      "max_process_frame_gap_us": 98017,
+      "prior_quick_saves": 0,
+      "profile_enabled": false,
+      "quicksave_bytes": 4601,
+      "quicksave_sha256": "e7ec1364dc9f0cce6e28e5f13a621c5a7d79f2e5c114a2cf6ebe5c71976b426c",
+      "reading_history_entries": 1,
+      "recovery_journal_entries": 0,
+      "renderer": "X11",
+      "label": "fresh-sample-0"
+    },
+    {
+      "capture_callback_calls": 6,
+      "capture_callback_inclusive_us": 950,
+      "capture_scope": "fixture canonical reading, run and audio input callback only; excludes enclosing save work",
+      "case": "repeated",
+      "diagnostic_only": false,
+      "engine": "4.6.3-stable (official)",
+      "fixture_limit": "test-authored short scene and empty host; repeated saves do not model longer reading history",
+      "frame_gap_window": "preceding process frame through first process frame after Saved presentation",
+      "input_dispatch_us": 41271,
+      "input_to_frame_post_draw_us": 63396,
+      "input_to_saved_draw_us": 51298,
+      "max_process_frame_gap_us": 64451,
+      "prior_quick_saves": 3,
+      "profile_enabled": false,
+      "quicksave_bytes": 4601,
+      "quicksave_sha256": "1e66c36b4fb095e6d6db9b10c3eb448dafacfffd1dc7066a7f4204d8df2f2e16",
+      "reading_history_entries": 1,
+      "recovery_journal_entries": 0,
+      "renderer": "X11",
+      "label": "repeated-sample-0"
+    },
+    {
+      "capture_callback_calls": 6,
+      "capture_callback_inclusive_us": 1036,
+      "capture_scope": "fixture canonical reading, run and audio input callback only; excludes enclosing save work",
+      "case": "fresh",
+      "diagnostic_only": false,
+      "engine": "4.6.3-stable (official)",
+      "fixture_limit": "test-authored short scene and empty host; repeated saves do not model longer reading history",
+      "frame_gap_window": "preceding process frame through first process frame after Saved presentation",
+      "input_dispatch_us": 42375,
+      "input_to_frame_post_draw_us": 64530,
+      "input_to_saved_draw_us": 51861,
+      "max_process_frame_gap_us": 65588,
+      "prior_quick_saves": 0,
+      "profile_enabled": false,
+      "quicksave_bytes": 4601,
+      "quicksave_sha256": "dd26c3b77bf1e4a9d294d1aa2e5fb9d4ad09ce2322285ae1eff8125f9e695230",
+      "reading_history_entries": 1,
+      "recovery_journal_entries": 0,
+      "renderer": "X11",
+      "label": "fresh-sample-1"
+    },
+    {
+      "capture_callback_calls": 6,
+      "capture_callback_inclusive_us": 1242,
+      "capture_scope": "fixture canonical reading, run and audio input callback only; excludes enclosing save work",
+      "case": "repeated",
+      "diagnostic_only": false,
+      "engine": "4.6.3-stable (official)",
+      "fixture_limit": "test-authored short scene and empty host; repeated saves do not model longer reading history",
+      "frame_gap_window": "preceding process frame through first process frame after Saved presentation",
+      "input_dispatch_us": 43013,
+      "input_to_frame_post_draw_us": 64821,
+      "input_to_saved_draw_us": 52556,
+      "max_process_frame_gap_us": 65915,
+      "prior_quick_saves": 3,
+      "profile_enabled": false,
+      "quicksave_bytes": 4601,
+      "quicksave_sha256": "0a36e03e1c46cc9cced1073b3a5f89a4248affabed431f93fa7ec799d83e04fc",
+      "reading_history_entries": 1,
+      "recovery_journal_entries": 0,
+      "renderer": "X11",
+      "label": "repeated-sample-1"
+    },
+    {
+      "capture_callback_calls": 6,
+      "capture_callback_inclusive_us": 1119,
+      "capture_scope": "fixture canonical reading, run and audio input callback only; excludes enclosing save work",
+      "case": "fresh",
+      "diagnostic_only": false,
+      "engine": "4.6.3-stable (official)",
+      "fixture_limit": "test-authored short scene and empty host; repeated saves do not model longer reading history",
+      "frame_gap_window": "preceding process frame through first process frame after Saved presentation",
+      "input_dispatch_us": 44368,
+      "input_to_frame_post_draw_us": 67175,
+      "input_to_saved_draw_us": 53880,
+      "max_process_frame_gap_us": 68620,
+      "prior_quick_saves": 0,
+      "profile_enabled": false,
+      "quicksave_bytes": 4601,
+      "quicksave_sha256": "a699bd1875f203b20d7e9c04b36f288a58a5516566130fb123049efddde85418",
+      "reading_history_entries": 1,
+      "recovery_journal_entries": 0,
+      "renderer": "X11",
+      "label": "fresh-sample-2"
+    },
+    {
+      "capture_callback_calls": 6,
+      "capture_callback_inclusive_us": 1665,
+      "capture_scope": "fixture canonical reading, run and audio input callback only; excludes enclosing save work",
+      "case": "repeated",
+      "diagnostic_only": false,
+      "engine": "4.6.3-stable (official)",
+      "fixture_limit": "test-authored short scene and empty host; repeated saves do not model longer reading history",
+      "frame_gap_window": "preceding process frame through first process frame after Saved presentation",
+      "input_dispatch_us": 59800,
+      "input_to_frame_post_draw_us": 82101,
+      "input_to_saved_draw_us": 69188,
+      "max_process_frame_gap_us": 83573,
+      "prior_quick_saves": 3,
+      "profile_enabled": false,
+      "quicksave_bytes": 4601,
+      "quicksave_sha256": "8a48dfe6d5297f8bdb33fbf2c2084f5cdabfe5601af0a930ff2ae9cf0504ce7c",
+      "reading_history_entries": 1,
+      "recovery_journal_entries": 0,
+      "renderer": "X11",
+      "label": "repeated-sample-2"
+    }
+  ],
+  "logs": [
+    {
+      "path": "/tmp/dwm-profile-next/fresh-sample-0.log",
+      "sha256": "8c0565517d27a6139ce74f4fae7fa019b52c2f1aee3c17cefe2c22afdc0d6831",
+      "result": "Exit 0, 1 test / 25 assertions passed; no SCRIPT ERROR."
+    },
+    {
+      "path": "/tmp/dwm-profile-next/repeated-sample-0.log",
+      "sha256": "53a83fb8a0201da2d5510e23f1659df6649df07055a3b1a26a549496ca24af56",
+      "result": "Exit 0, 1 test / 25 assertions passed; no SCRIPT ERROR."
+    },
+    {
+      "path": "/tmp/dwm-profile-next/fresh-sample-1.log",
+      "sha256": "066516cdcfff1a3738d88a3554b0b1a35be778b1976111a3428821ddda256214",
+      "result": "Exit 0, 1 test / 25 assertions passed; no SCRIPT ERROR."
+    },
+    {
+      "path": "/tmp/dwm-profile-next/repeated-sample-1.log",
+      "sha256": "451160d2453eb14df4a8799d6d5052e738720c6d2be5501277ecb76237624709",
+      "result": "Exit 0, 1 test / 25 assertions passed; no SCRIPT ERROR."
+    },
+    {
+      "path": "/tmp/dwm-profile-next/fresh-sample-2.log",
+      "sha256": "ca69073aaed9814c4bdb6d809034743718cd262ba63dbeaebb367d48f4f48eaa",
+      "result": "Exit 0, 1 test / 25 assertions passed; no SCRIPT ERROR."
+    },
+    {
+      "path": "/tmp/dwm-profile-next/repeated-sample-2.log",
+      "sha256": "11370bdb66a81c1817e3505c65d46779598bca14abe687d74d31e6d420d5ad1b",
+      "result": "Exit 0, 1 test / 25 assertions passed; no SCRIPT ERROR."
+    }
+  ],
+  "profile_diagnostic": {
+    "excluded_from_baseline": true,
+    "scope_warning": "Nested/inclusive timings; do not sum scopes. Single profiler-enabled observation, not a comparative benchmark.",
+    "events": [
+      {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 94,
+        "locator": "quick",
+        "ok": true,
+        "revision_read_us": 78,
+        "scope": "backup_inspection",
+        "unphased_us": 16
+      },
+      {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 79,
+        "locator": "quick",
+        "ok": true,
+        "revision_read_us": 68,
+        "scope": "backup_inspection",
+        "unphased_us": 11
+      },
+      {
+        "action": "save",
+        "candidate_copy_us": 58,
+        "capture_us": 10100,
+        "code": "",
+        "context": "",
+        "document_build_us": 3683,
+        "elapsed_us": 14553,
+        "inspection_us": 320,
+        "locator": "quick",
+        "ok": true,
+        "scope": "backup_prepare",
+        "stable_hash_us": 375,
+        "unphased_us": 17
+      },
+      {
+        "action": "",
+        "cache_enabled": true,
+        "cache_hit": false,
+        "code": "",
+        "context": "",
+        "elapsed_us": 1604,
+        "locator": "",
+        "ok": true,
+        "scope": "document_parse",
+        "unphased_us": 1604
+      },
+      {
+        "action": "save",
+        "code": "",
+        "context": "",
+        "elapsed_us": 16470,
+        "journal_commit_us": 3744,
+        "locator": "quicksave.json",
+        "metadata_refresh_us": 9,
+        "ok": true,
+        "reread_us": 70,
+        "revision_read_us": 2755,
+        "save_completed_signal_us": 6,
+        "scope": "backup_commit",
+        "serialize_us": 436,
+        "source_recheck_us": 3252,
+        "unphased_us": 26,
+        "write_atomic_us": 6172
+      },
+      {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 96,
+        "locator": "autosave",
+        "ok": true,
+        "revision_read_us": 87,
+        "scope": "backup_inspection",
+        "unphased_us": 9
+      },
+      {
+        "action": "",
+        "cache_enabled": true,
+        "cache_hit": true,
+        "code": "",
+        "context": "",
+        "elapsed_us": 39,
+        "locator": "",
+        "ok": true,
+        "scope": "document_parse",
+        "unphased_us": 39
+      },
+      {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 212,
+        "locator": "quick",
+        "ok": true,
+        "parse_us": 63,
+        "revision_read_us": 116,
+        "scope": "backup_inspection",
+        "unphased_us": 33
+      },
+      {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 64,
+        "locator": "slot:1",
+        "ok": true,
+        "revision_read_us": 57,
+        "scope": "backup_inspection",
+        "unphased_us": 7
+      },
+      {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 68,
+        "locator": "slot:2",
+        "ok": true,
+        "revision_read_us": 61,
+        "scope": "backup_inspection",
+        "unphased_us": 7
+      },
+      {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 64,
+        "locator": "slot:3",
+        "ok": true,
+        "revision_read_us": 57,
+        "scope": "backup_inspection",
+        "unphased_us": 7
+      },
+      {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 77,
+        "locator": "slot:4",
+        "ok": true,
+        "revision_read_us": 71,
+        "scope": "backup_inspection",
+        "unphased_us": 6
+      },
+      {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 142,
+        "locator": "slot:5",
+        "ok": true,
+        "revision_read_us": 135,
+        "scope": "backup_inspection",
+        "unphased_us": 7
+      },
+      {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 58,
+        "locator": "slot:6",
+        "ok": true,
+        "revision_read_us": 52,
+        "scope": "backup_inspection",
+        "unphased_us": 6
+      },
+      {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 93,
+        "locator": "slot:7",
+        "ok": true,
+        "revision_read_us": 87,
+        "scope": "backup_inspection",
+        "unphased_us": 6
+      }
+    ],
+    "timing": {
+      "capture_callback_calls": 6,
+      "capture_callback_inclusive_us": 1493,
+      "capture_scope": "fixture canonical reading, run and audio input callback only; excludes enclosing save work",
+      "case": "fresh",
+      "diagnostic_only": false,
+      "engine": "4.6.3-stable (official)",
+      "fixture_limit": "test-authored short scene and empty host; repeated saves do not model longer reading history",
+      "frame_gap_window": "preceding process frame through first process frame after Saved presentation",
+      "input_dispatch_us": 48800,
+      "input_to_frame_post_draw_us": 70799,
+      "input_to_saved_draw_us": 59380,
+      "max_process_frame_gap_us": 71987,
+      "prior_quick_saves": 0,
+      "profile_enabled": true,
+      "quicksave_bytes": 4601,
+      "quicksave_sha256": "eae64c2b37d2dd8a7af4e3a4868f3787f5c37ab99a42eac5cf1ba3e6ee63b112",
+      "reading_history_entries": 1,
+      "recovery_journal_entries": 0,
+      "renderer": "X11"
+    }
+  },
+  "excluded_attempts": [
+    {
+      "log": "/tmp/dwm-profile-next/fresh-0.log",
+      "reason": "Test storage outside proven project descendant selected final Bootstrap; fixture failed registration_already_selected before measurement."
+    },
+    {
+      "log": "/tmp/dwm-profile-next/fresh-1.log",
+      "reason": "Bundled-library LD_LIBRARY_PATH override caused native free(): invalid pointer abort; no measurement."
+    },
+    {
+      "log": "/tmp/dwm-profile-next/fresh-2.log",
+      "reason": "GUT rejected explicit bootstrap argument; no measurement."
+    },
+    {
+      "log": "/tmp/dwm-profile-next/fresh-3.log",
+      "reason": "Successful setup/feasibility run; not part of the preselected six-sample batch."
+    }
+  ],
+  "limitations": [
+    "No before/after candidate or performance improvement claim.",
+    "Not Windows hardware, real display latency, long history, or full authored-week workload.",
+    "Profiler-enabled diagnostic is separate; nested scopes are inclusive.",
+    "libspeechd unavailable, VSync unsupported and exit ObjectDB/resource warnings present.",
+    "Rejected setup attempts logged separately; no timings accepted from them."
+  ]
+}
