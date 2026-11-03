@@ -30,10 +30,6 @@ const DRAFT_UI_COPY := {
 		"Try again.": "请重试。",
 		"The attempt is saved. Retry to finish saving this point.": "本次尝试已记录。重试以完成此处的保存。",
 		"This moment could not be saved. Try again.": "无法保存此刻。请重试。",
-		"A blank in the previous line": "上一句中的空白",
-		"COMPARE": "比较",
-		"CAPTURE": "记录",
-		"Move the cup": "移动杯子",
 		"Action unavailable. ": "此操作不可用。 "
 	},
 	"zh-HK": {
@@ -46,10 +42,6 @@ const DRAFT_UI_COPY := {
 		"Try again.": "請重試。",
 		"The attempt is saved. Retry to finish saving this point.": "本次嘗試已記錄。重試以完成此處的儲存。",
 		"This moment could not be saved. Try again.": "無法儲存此刻。請重試。",
-		"A blank in the previous line": "上一句中的空白",
-		"COMPARE": "比較",
-		"CAPTURE": "記錄",
-		"Move the cup": "移動杯子",
 		"Action unavailable. ": "此操作不可用。 "
 	},
 	"ja": {
@@ -62,10 +54,6 @@ const DRAFT_UI_COPY := {
 		"Try again.": "再試行してください。",
 		"The attempt is saved. Retry to finish saving this point.": "プレイ結果は保存済みです。再試行してこの時点の保存を完了してください。",
 		"This moment could not be saved. Try again.": "この場面を保存できませんでした。再試行してください。",
-		"A blank in the previous line": "前の行の空白",
-		"COMPARE": "比較",
-		"CAPTURE": "記録",
-		"Move the cup": "カップを動かす",
 		"Action unavailable. ": "この操作は利用できません。 "
 	},
 	"ko": {
@@ -78,10 +66,6 @@ const DRAFT_UI_COPY := {
 		"Try again.": "다시 시도하세요.",
 		"The attempt is saved. Retry to finish saving this point.": "시도는 저장되었습니다. 다시 시도하여 이 지점의 저장을 완료하세요.",
 		"This moment could not be saved. Try again.": "이 장면을 저장하지 못했습니다. 다시 시도하세요.",
-		"A blank in the previous line": "이전 줄의 빈칸",
-		"COMPARE": "비교",
-		"CAPTURE": "기록",
-		"Move the cup": "컵 옮기기",
 		"Action unavailable. ": "이 작업은 사용할 수 없습니다. "
 	}
 }
@@ -175,16 +159,6 @@ var _pre_challenge_reached := false
 var _post_challenge_drawn := false
 var _post_challenge_ack_attempted := false
 var _post_challenge_reached := false
-var _observer_panel: VBoxContainer
-var _observer_action: Button
-var _comparison_overlay: Label
-var _false_cursor: Label
-var _observer_view: Dictionary = {}
-var _observer_rendered := false
-var _observer_drawn := false
-var _comparison_drawn := false
-var _observer_tick_ms := 0.0
-var _observer_close_failed := false
 
 
 var _presentation_port: Object = null
@@ -433,7 +407,6 @@ func _refresh_challenge() -> void:
 		"settlement_retry": _status_label.text = _ui_text("Retry to finish processing the result.")
 		_: _status_label.text = str(copy.value.body)
 	_refresh_challenge_input()
-	_refresh_observer()
 	_queue_challenge_layout()
 
 func _on_challenge_split_changed(right_rect: Rect2) -> void:
@@ -611,75 +584,6 @@ func _acknowledge_post_challenge_draw() -> bool:
 		_continue_button.text = _ui_text("Retry")
 	return _post_challenge_reached
 
-func _build_observer() -> void:
-	if not _presentation_port.has_method("pull_observer"): return
-	var pulled: Dictionary = _presentation_port.pull_observer(_presentation_command)
-	if not pulled.get("ok", false) or pulled.value.is_empty(): return
-	_observer_view = pulled.value.duplicate(true)
-	_observer_panel = VBoxContainer.new()
-	_observer_panel.name = "DatingSceneMoment"
-	_continue_button.get_parent().add_child(_observer_panel)
-	_continue_button.get_parent().move_child(_observer_panel, _continue_button.get_index())
-	var line := Button.new()
-	line.name = "PreviousSceneLine"
-	line.flat = true
-	line.text = "                    " if _observer_view.counterpart else str(_observer_view.text)
-	line.accessibility_name = _ui_text("A blank in the previous line") if _observer_view.counterpart else line.text
-	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	line.custom_minimum_size = Vector2(0, 44)
-	_observer_panel.add_child(line)
-	line.draw.connect(func(): _observer_drawn = true)
-	if _observer_view.scope == "priscilla":
-		_observer_action = Button.new()
-		_observer_action.name = "Compare" if _observer_view.counterpart else "Capture"
-		_observer_action.text = _ui_text("COMPARE") if _observer_view.counterpart else _ui_text("CAPTURE")
-		_observer_action.visible = bool(_observer_view.counterpart)
-		if _observer_view.counterpart:
-			_observer_panel.add_child(_observer_action)
-		else:
-			# Keep Capture within the hovered history line: no disappearing gap between
-			# the source and its affordance. Focus on either retains keyboard access.
-			line.alignment = HORIZONTAL_ALIGNMENT_LEFT
-			for state: String in ["normal", "hover", "pressed", "hover_pressed", "disabled"]:
-				var face: StyleBox = line.get_theme_stylebox(state).duplicate()
-				face.content_margin_right = 132.0
-				line.add_theme_stylebox_override(state, face)
-			line.add_child(_observer_action)
-			_observer_action.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			_observer_action.set_anchors_and_offsets_preset(Control.PRESET_RIGHT_WIDE)
-			_observer_action.offset_left = -120.0
-			_observer_action.offset_right = 0.0
-		if not _observer_view.counterpart:
-			line.mouse_entered.connect(func(): _observer_action.show())
-			line.mouse_exited.connect(_hide_capture_if_unfocused.bind(line))
-			line.focus_entered.connect(func(): _observer_action.show())
-			line.focus_exited.connect(_hide_capture_if_unfocused.bind(line))
-			_observer_action.mouse_exited.connect(_hide_capture_if_unfocused.bind(line))
-			_observer_action.focus_exited.connect(_hide_capture_if_unfocused.bind(line))
-		_observer_action.pressed.connect(_on_observer_action)
-	else:
-		_observer_action = Button.new()
-		_observer_action.name = "MoveCup"
-		_observer_action.text = _ui_text("Move the cup")
-		_observer_panel.add_child(_observer_action)
-		_observer_action.pressed.connect(_on_observer_action)
-		_false_cursor = Label.new()
-		_false_cursor.text = "\u2196"
-		_false_cursor.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_false_cursor.add_theme_font_size_override("font_size", 30)
-		_observer_action.add_child(_false_cursor)
-	_refresh_observer()
-
-func _hide_capture_if_unfocused(line: Control) -> void:
-	# Hover transfers from the designated history line to its Capture affordance;
-	# keyboard focus provides the same gesture without requiring pointer precision.
-	await get_tree().process_frame
-	if not is_instance_valid(_observer_action): return
-	if line.has_focus() or _observer_action.has_focus(): return
-	var pointer := get_global_mouse_position()
-	if line.get_global_rect().has_point(pointer) or _observer_action.get_global_rect().has_point(pointer): return
-	_observer_action.hide()
-
 func _process(_delta: float) -> void:
 	# Quick Load consent retains the exact physical boundary, including a painted
 	# terminal board whose automatic settlement would otherwise run below.
@@ -746,67 +650,6 @@ func _pump_narrative_phase(retry: bool = false) -> void:
 	if refresh_needed: _refresh_challenge()
 	if played.value.get("status") == "completed":
 		_dispatch_action("continue", -1)
-
-func _send_observer(action: String, elapsed_ms: int = 0) -> Dictionary:
-	var result: Dictionary = _presentation_port.dispatch_observer(_presentation_command,
-		str(_observer_view.presentation_atom_id), action, elapsed_ms)
-	if result.get("ok", false):
-		_observer_view = result.value.duplicate(true)
-		_refresh_observer()
-	else:
-		var pulled: Dictionary = _presentation_port.pull_observer(_presentation_command)
-		if pulled.get("ok", false) and not pulled.value.is_empty():
-			_observer_view = pulled.value.duplicate(true)
-			_refresh_observer()
-	return result
-
-func _on_observer_action() -> void:
-	if _split_dragging or not _observer_rendered: return
-	if _observer_view.checkpoint_pending:
-		_send_observer("retry")
-		return
-	if _observer_view.scope == "lavinia":
-		var action := "close" if _observer_close_failed else "intervene"
-		var result := _send_observer(action)
-		if result.get("ok", false): _observer_close_failed = false
-	elif _observer_view.counterpart:
-		var compared := _send_observer("compare")
-		if not compared.get("ok", false): return
-		if not is_instance_valid(_comparison_overlay):
-			_comparison_overlay = Label.new()
-			_comparison_overlay.name = "ComparedLines"
-			_comparison_overlay.text = str(_observer_view.text) + "\n" + str(_observer_view.counterpart_text)
-			_comparison_overlay.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			_comparison_overlay.draw.connect(_on_comparison_drawn)
-			_observer_panel.add_child(_comparison_overlay)
-		elif _comparison_drawn and _comparison_overlay.is_visible_in_tree():
-			_send_observer("compare_rendered")
-	else:
-		_send_observer("capture")
-
-func _on_comparison_drawn() -> void:
-	if _comparison_drawn: return
-	_comparison_drawn = true
-	# CanvasItem.draw proves the actual overlay rendered; process_frame precedes draw.
-	_send_observer("compare_rendered")
-
-func _refresh_observer() -> void:
-	if not is_instance_valid(_observer_panel): return
-	_observer_panel.visible = _physical_view.get("phase") == "pre_challenge"
-	if _observer_view.checkpoint_pending:
-		_observer_action.show()
-		_observer_action.disabled = false
-		_observer_action.text = _ui_text("Retry")
-		return
-	_observer_action.text = (_ui_text("COMPARE") if _observer_view.counterpart else _ui_text("CAPTURE")) if _observer_view.scope == "priscilla" else _ui_text("Move the cup")
-	if _observer_view.scope == "priscilla":
-		_observer_action.disabled = not _observer_view.counterpart and bool(_observer_view.captured)
-	else:
-		_observer_action.disabled = bool(_observer_view.closed) or bool(_observer_view.intervened)
-		if is_instance_valid(_false_cursor):
-			_false_cursor.visible = not _observer_view.closed and not _observer_view.intervened
-			var fraction := float(_observer_view.elapsed_ms) / float(_observer_view.duration_ms)
-			_false_cursor.position = Vector2(30.0 + fraction * 160.0, -40.0 + fraction * 50.0)
 
 func _select_mode(mode: String) -> void:
 	if _split_dragging: return

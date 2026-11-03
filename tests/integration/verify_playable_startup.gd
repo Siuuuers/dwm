@@ -636,9 +636,9 @@ func _dating_quick_key(code: Key) -> void:
 
 func _observer_scene_journey(game: Node, dating: Node, friend_id: String) -> bool:
 	# These preserved CLI aliases now verify the current retirement decision.
-	if not _check(game.day == 2 and dating.get("_observer_view").is_empty(),
-		"Day 2 has no active Observer interaction"): return false
-	for name: String in ["PreviousSceneLine", "ObserverCapture", "ObserverAction"]:
+	if not _check(game.day == 2,
+		"Observer retirement probe reaches Day 2"): return false
+	for name: String in ["DatingSceneMoment", "PreviousSceneLine", "Capture", "Compare", "MoveCup", "ComparedLines", "ObserverCapture", "ObserverAction"]:
 		if not _check(dating.find_child(name, true, false) == null, "retired Observer control absent: " + name): return false
 	var evidence: Dictionary = root.get_node("ProfileManager").get_observer_evidence().value
 	if not _check(evidence.receipts.is_empty(), "no retired interaction manufactured an evidence receipt"): return false
