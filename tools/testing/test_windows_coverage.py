@@ -54,6 +54,22 @@ def select(paths, event_name='pull_request', sources=None, selector=SELECTOR):
 
 
 class WindowsCoverageTests(unittest.TestCase):
+    def test_lint_only_paths_skip_gameplay_for_push_and_pull_request(self):
+        triggers = WORKFLOW.split('\non:\n', 1)[1].split('\npermissions:', 1)[0]
+        expected = {
+            '.github/workflows/source-lint.yml',
+            'tools/lint/check_comments.py',
+            'tools/lint/test_comments.py',
+            'docs/agent/2026-11-03-ci-efficiency-handoff.md',
+        }
+        for event in ('pull_request', 'push'):
+            block = re.search(r'(?ms)^  ' + event + r':\n(.*?)(?=^  \w+:|\Z)', triggers)[1]
+            ignored = re.findall(r"^      - '([^']+)'$", block, re.M)
+            self.assertIn('    paths-ignore:\n', block)
+            self.assertEqual(set(ignored), expected)
+            self.assertEqual(len(ignored), len(expected))
+        self.assertIn('  workflow_dispatch:', triggers)
+
     def test_self_talk_panel_uses_linux_only_for_the_reviewed_shared_methods(self):
         owners = {
             'autoload/DialogicBridge.gd': 'get_reading_history',

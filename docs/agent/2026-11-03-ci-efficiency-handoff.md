@@ -23,13 +23,13 @@ No game state-machine rewrite, save migration, test-framework replacement, or re
 
 ## Lint now implemented
 
-`tools/lint/check_comments.py` rejects new or edited explanatory comments in first-party `.gd` and `.py` files under `scripts`, `autoload`, `tests`, and `tools`. It reads complete source to distinguish comments from strings, including multiline strings. Python uses its standard tokenizer. Existing unchanged comment lines are grandfathered; deleting surrounding string delimiters cannot turn a previously literal line into an exempt legacy comment.
+`tools/lint/check_comments.py` rejects new or edited explanatory comments in first-party `.gd` and `.py` files under `scripts`, `autoload`, `tests`, and `tools`. It reads complete source to distinguish comments from strings, including multiline strings. Python uses its standard tokenizer. Existing unchanged comment lines are grandfathered, including Git-detected renames; deleting surrounding string delimiters cannot turn a previously literal line into an exempt legacy comment.
 
 The rule excludes `addons`, out-of-scope roots, and directories named `generated`, `vendor`, or `third_party`. It preserves SPDX/copyright notices and recognized machine directive prefixes. Preserve any other required legal text when doing a future cleanup; extend narrowly identified exceptions rather than deleting obligations.
 
 This is an incremental enforcement stage, not a completed repository-wide comment ban. Other languages and embedded code are not checked. Existing comments are removed in a separate coordinated cleanup after shared story files settle. The rule does not remove comments automatically.
 
-The focused workflow uses Python and Git, a sparse partial checkout, and no Godot or asset import. It runs rule tests, comment lint, and `git diff --check` on relevant PRs. The PR merge result is compared with its first parent, so changes already in the target branch are not treated as new PR comments. Whitespace checks are limited to GDScript, Python, workflow YAML, and agent Markdown. It is independent of gameplay test jobs and does not replace them. Repository branch protection is not changed by adding the workflow.
+The focused workflow uses Python and Git, a sparse partial checkout, and no Godot or asset import. It runs rule tests, comment lint, and `git diff --check` on relevant PRs. The PR merge result is compared with its first parent, so changes already in the target branch are not treated as new PR comments. Whitespace checks are limited to GDScript, Python, workflow YAML, and agent Markdown. It is independent of gameplay test jobs and does not replace them. The Windows workflow ignores changes limited to the four exact lint implementation/workflow/handoff files; mixed runtime changes and edits to the Windows workflow still run its coverage selector. Manual dispatch remains available. Repository branch protection is not changed by adding the workflow.
 
 Local commands:
 
@@ -40,6 +40,12 @@ git diff --check BASE_SHA HEAD_SHA
 ```
 
 Do not add arbitrary function-length, file-length, or complexity thresholds. Keep rules mechanically decidable. Single ownership, suitable tests, readable names, and justified abstractions remain review criteria; syntactic checks cannot prove them.
+
+## PR 177 completion scope
+
+The source-lint checkout reuses the existing disposable-index workaround for two incomplete skill gitlinks so checkout credential cleanup succeeds. This does not delete tracked repository files. The rename regression uses a temporary real Git repository and verifies both an unchanged rename and a newly added comment after a rename.
+
+PR 176 progression implementation is owned by another conversation. Do not edit its runtime owners here. The no-explanatory-comment policy remains; required legal notices and machine directives retain their existing exceptions. Repository-wide legacy comment removal remains separate.
 
 ## Next session prompt
 

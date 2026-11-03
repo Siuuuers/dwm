@@ -1,3 +1,7 @@
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
 import unittest
 
 from check_comments import comment_lines, owned, violations
@@ -41,6 +45,37 @@ class CommentTests(unittest.TestCase):
             self.assertTrue(owned(path))
         for path in ['addons/plugin.gd', 'scripts/generated/table.gd', 'tools/vendor/lib.py', 'docs/example.py', 'tools/editor.js']:
             self.assertFalse(owned(path))
+
+
+class GitRenameTests(unittest.TestCase):
+    def test_rename_preserves_legacy_and_rejects_new_comments(self):
+        checker = Path(__file__).with_name('check_comments.py').resolve()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            def git(*args):
+                return subprocess.check_output(['git', '-C', directory, *args], stderr=subprocess.STDOUT).decode().strip()
+            git('init')
+            git('config', 'user.name', 'Lint Test')
+            git('config', 'user.email', 'lint@example.invalid')
+            (root / 'scripts').mkdir()
+            old = root / 'scripts/old.gd'
+            old.write_text('# legacy\n' + ''.join(f'var value_{i} = {i}\n' for i in range(20)))
+            git('add', '.')
+            git('commit', '-m', 'base')
+            base = git('rev-parse', 'HEAD')
+            new = root / 'scripts/new name.gd'
+            old.rename(new)
+            git('add', '-A')
+            git('commit', '-m', 'rename')
+            result = subprocess.run([sys.executable, str(checker), '--base', base], cwd=root, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            new.write_text(new.read_text() + '# added\n')
+            git('add', '-A')
+            git('commit', '-m', 'new comment')
+            result = subprocess.run([sys.executable, str(checker), '--base', base], cwd=root, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+            self.assertIn('scripts/new name.gd:22:', result.stdout)
+            self.assertIn('Comment lint: 1 violation(s)', result.stdout)
 
 
 if __name__ == '__main__':

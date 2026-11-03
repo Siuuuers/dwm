@@ -80,13 +80,15 @@ def main():
     args = parser.parse_args()
     base = git('rev-parse', '--verify', args.base + '^{commit}').strip()
     head = git('rev-parse', '--verify', args.head + '^{commit}').strip()
-    paths = git('diff', '--name-only', '--no-renames', '--diff-filter=ACM', '-z', base, head).split('\0')
-    old_paths = set(git('ls-tree', '-r', '--name-only', '-z', base).split('\0'))
+    changes = iter(git('diff', '--name-status', '--find-renames', '--diff-filter=AMR', '-z', base, head).split('\0')[:-1])
     failures = 0
-    for path in filter(None, paths):
+    for status in changes:
+        old_path = path = next(changes)
+        if status.startswith('R'):
+            path = next(changes)
         if not owned(path):
             continue
-        before = git('show', base + ':' + path) if path in old_paths else ''
+        before = git('show', base + ':' + old_path) if status != 'A' else ''
         after = git('show', head + ':' + path)
         for line in violations(before, after, PurePosixPath(path).suffix):
             print(f'{path}:{line}: explanatory comments are banned; use clear names or external design documentation')

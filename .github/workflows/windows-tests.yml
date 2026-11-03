@@ -2,8 +2,18 @@ name: Windows automated tests
 
 on:
   pull_request:
+    paths-ignore:
+      - '.github/workflows/source-lint.yml'
+      - 'tools/lint/check_comments.py'
+      - 'tools/lint/test_comments.py'
+      - 'docs/agent/2026-11-03-ci-efficiency-handoff.md'
   push:
     branches: [master]
+    paths-ignore:
+      - '.github/workflows/source-lint.yml'
+      - 'tools/lint/check_comments.py'
+      - 'tools/lint/test_comments.py'
+      - 'docs/agent/2026-11-03-ci-efficiency-handoff.md'
   workflow_dispatch:
 
 permissions:
