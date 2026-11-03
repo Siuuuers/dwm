@@ -5,7 +5,8 @@ on:
     paths:
       - '**/*.gd'
       - '**/*.py'
-      - '.github/workflows/source-lint.yml'
+      - '.github/workflows/*.yml'
+      - '.github/workflows/*.yaml'
       - 'docs/agent/2026-11-03-ci-efficiency-handoff.md'
 
 permissions:
@@ -23,14 +24,27 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 2
-          sparse-checkout: tools/lint
+          sparse-checkout: |
+            tools/lint
+            .github/workflows
           persist-credentials: true
       - name: Prepare disposable checkout for credential cleanup
         run: |
           git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
           git submodule foreach --recursive 'true'
-      - name: Check the lint rule
+      - name: Check lint rules
         run: python3 -m unittest discover -s tools/lint -p 'test_*.py'
+      - name: Check changed Python syntax
+        run: python3 tools/lint/check_python.py --base HEAD^
+      - name: Check changed workflows
+        shell: bash
+        run: |
+          mapfile -d '' workflows < <(git diff --name-only --diff-filter=AMR -z HEAD^ HEAD -- '.github/workflows/*.yml' '.github/workflows/*.yaml')
+          if [ "${#workflows[@]}" -eq 0 ]; then exit 0; fi
+          curl --fail --location --retry 3 https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz --output "$RUNNER_TEMP/actionlint.tar.gz"
+          printf '%s  %s\n' 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8 "$RUNNER_TEMP/actionlint.tar.gz" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/actionlint.tar.gz" -C "$RUNNER_TEMP" actionlint
+          "$RUNNER_TEMP/actionlint" -shellcheck= -pyflakes= "${workflows[@]}"
       - name: Reject new explanatory comments and whitespace errors
         run: |
           python3 tools/lint/check_comments.py --base HEAD^

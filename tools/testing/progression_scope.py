@@ -13,6 +13,8 @@ PATHS = {
     BRIDGE, '.github/workflows/windows-tests.yml', '.github/workflows/dtl-first-preflight.yml',
     'tools/testing/progression_scope.py', 'tools/testing/run_progression_checks.py',
     'tools/testing/test_windows_coverage.py', 'tools/testing/test_progression_runner.py',
+    '.github/workflows/source-lint.yml', 'tools/lint/check_python.py', 'tools/lint/test_python.py',
+    'docs/agent/2026-11-03-ci-efficiency-handoff.md',
     'tests/integration/test_dialogic_next_traversal.gd', 'tests/integration/test_dialogic_skip.gd',
     'tests/integration/test_scene_next_notification.gd',
     'docs/agent/2026-11-03-story-progression-implementation.md',
@@ -59,7 +61,9 @@ def is_progression(paths, base):
     if not paths or not paths <= PATHS | MODEL_PATHS:
         return False
     if BRIDGE not in paths:
-        return bool(paths & MODEL_PATHS)
+        return bool(paths & (MODEL_PATHS | {
+            'tools/testing/run_progression_checks.py', 'tools/testing/test_progression_runner.py',
+        }))
     sources = []
     for ref in (base, 'HEAD'):
         result = subprocess.run(['git', 'show', ref + ':' + BRIDGE], capture_output=True)

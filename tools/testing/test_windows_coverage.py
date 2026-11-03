@@ -60,6 +60,8 @@ class WindowsCoverageTests(unittest.TestCase):
             '.github/workflows/source-lint.yml',
             'tools/lint/check_comments.py',
             'tools/lint/test_comments.py',
+            'tools/lint/check_python.py',
+            'tools/lint/test_python.py',
             'docs/agent/2026-11-03-ci-efficiency-handoff.md',
         }
         for event in ('pull_request', 'push'):
@@ -187,6 +189,16 @@ class WindowsCoverageTests(unittest.TestCase):
         progression = WORKFLOW.split('  progression:', 1)[1]
         self.assertIn('speech-dispatcher-espeak-ng', progression)
         self.assertIn('run: bash tools/testing/start_cloud_speech.sh', progression)
+
+    def test_runner_and_lint_changes_keep_focused_runtime_coverage(self):
+        lint = {'.github/workflows/source-lint.yml', 'tools/lint/check_python.py',
+                'tools/lint/test_python.py', 'docs/agent/2026-11-03-ci-efficiency-handoff.md'}
+        runner = {'tools/testing/run_progression_checks.py',
+                  'tools/testing/test_progression_runner.py'}
+        self.assertEqual(select(lint)['progression'], 'false')
+        self.assertEqual(select(runner)['progression'], 'true')
+        self.assertEqual(select(lint | runner)['progression'], 'true')
+        self.assertEqual(select(lint | runner | {'autoload/SaveManager.gd'})['progression'], 'false')
 
     def test_dtl_only_and_generated_companions_select_content(self):
         for paths in ({DAY}, {DAY} | GENERATED | {'docs/agent/dtl-story-authoring.md'}):

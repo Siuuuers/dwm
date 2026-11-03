@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 import subprocess
 import xml.etree.ElementTree as ET
@@ -7,10 +8,17 @@ ROOT = Path(__file__).resolve().parents[2]
 OUTPUT = ROOT / '.godot/ci/progression'
 NEXT = 'tests/integration/test_dialogic_next_traversal.gd'
 SKIP = 'tests/integration/test_dialogic_skip.gd'
-WRITE_REFUSAL_METHODS = (
-    'test_source_write_refusal_keeps_native_source_and_retries_the_same_operation',
-    'test_destination_write_refusal_keeps_exact_durable_source_then_retry_uses_identical_plan',
-)
+BATCH_METHODS = {
+    'write_refusal_keeps_': (
+        'test_source_write_refusal_keeps_native_source_and_retries_the_same_operation',
+        'test_destination_write_refusal_keeps_exact_durable_source_then_retry_uses_identical_plan',
+    ),
+    'stops_': (
+        'test_read_only_stops_at_the_first_unread_line',
+        'test_every_boundary_stops_the_skip_without_being_consumed',
+        'test_auto_step_stops_before_every_nontext_boundary_with_preference_on',
+    ),
+}
 CASES = [
     ('next-partial', NEXT, 'test_partial_unseen_next_finishes_and_witnesses_current_line_then_seeks_in_same_activation'),
     ('next-nested', NEXT, 'test_next_acknowledgement_and_completion_signals_keep_outer_command_ownership'),
@@ -18,10 +26,8 @@ CASES = [
     ('next-write-refusal', NEXT, 'write_refusal_keeps_'),
     ('skip-nested', SKIP, 'test_skip_acknowledgement_blocks_competitors_and_returns_to_its_outer_step'),
     ('skip-refusal', SKIP, 'test_profile_write_failure_halts_advancement'),
-    ('skip-unread', SKIP, 'test_read_only_stops_at_the_first_unread_line'),
-    ('skip-boundary', SKIP, 'test_every_boundary_stops_the_skip_without_being_consumed'),
+    ('transport-boundaries', SKIP, 'stops_'),
     ('auto-source', SKIP, 'test_auto_step_requires_acknowledged_complete_exact_source'),
-    ('auto-boundary', SKIP, 'test_auto_step_stops_before_every_nontext_boundary_with_preference_on'),
 ]
 JOURNEYS = [
     ('thought-create', 'tests/ui/render_self_talk_journey.gd',
@@ -39,6 +45,11 @@ JOURNEYS = [
 ]
 
 
+def assert_filter_matches(source, method_filter, expected_methods):
+    names = [name for name in re.findall(r'^func (test_\w+)\(', source, re.M) if method_filter in name]
+    assert len(names) == len(expected_methods) and set(names) == set(expected_methods), (method_filter, names)
+
+
 def assert_tests_pass(report, expected_methods):
     cases = report.findall('.//testcase')
     names = [case.get('name') for case in cases]
@@ -50,6 +61,10 @@ def assert_tests_pass(report, expected_methods):
 
 
 def run():
+    suites = [(name, path, method, name, '', False) for name, path, method in CASES]
+    suites += [(*journey, True) for journey in JOURNEYS]
+    for _name, path, method, _storage, _marker, _rendered in suites:
+        assert_filter_matches((ROOT / path).read_text(), method, BATCH_METHODS.get(method, (method,)))
     OUTPUT.mkdir(parents=True, exist_ok=True)
     godot = os.environ['GODOT_CONSOLE_PATH']
     env = dict(os.environ, XDG_DATA_HOME=str(OUTPUT / 'import-user'))
@@ -58,8 +73,6 @@ def run():
     imported = (OUTPUT / 'import.log').read_text()
     assert 'SCRIPT ERROR:' not in imported and 'ERROR: Failed to load' not in imported, imported
     subprocess.run(['git', 'restore', '--', 'project.godot'], cwd=ROOT, check=True)
-    suites = [(name, path, method, name, '', False) for name, path, method in CASES]
-    suites += [(*journey, True) for journey in JOURNEYS]
     for name, path, method, storage, marker, rendered in suites:
         isolated = ROOT / '.godot/phase2r_tests/progression' / storage
         env = dict(os.environ, XDG_DATA_HOME=str(isolated / 'data'),
@@ -76,7 +89,7 @@ def run():
         assert 'SCRIPT ERROR:' not in log and 'ERROR: Failed to load' not in log, name
         assert not marker or marker in log, name
         report = ET.parse(OUTPUT / (name + '.xml')).getroot()
-        expected = WRITE_REFUSAL_METHODS if method == 'write_refusal_keeps_' else (method,)
+        expected = BATCH_METHODS.get(method, (method,))
         assert_tests_pass(report, expected)
         print('PASS', name, flush=True)
 
