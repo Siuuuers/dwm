@@ -111,6 +111,79 @@ class WindowsCoverageTests(unittest.TestCase):
             section = WORKFLOW.split('  ' + job + ':', 1)[1].split('    steps:', 1)[0]
             self.assertIn("needs.test-scope.outputs.self_talk_panel != 'true'", section)
 
+    def test_progression_selects_linux_and_retains_unrelated_owner_coverage(self):
+        path = 'autoload/DialogicBridge.gd'
+        paths = {path, 'tools/testing/progression_scope.py',
+                 'tools/testing/run_progression_checks.py',
+                 'tools/verification/story_progression/StoryProgression.tla',
+                 'tests/integration/test_dialogic_next_traversal.gd'}
+        before = ('var _next_active := false\nfunc _perform_next():\n\treturn 1\n'
+                  'func capture_reading_checkpoint():\n\treturn not _next_active\n')
+        after = ('var _progression_phase := ProgressionPhase.IDLE\n'
+                 'func _perform_next():\n\treturn 2\n'
+                 'func capture_reading_checkpoint():\n'
+                 '\treturn _progression_phase != ProgressionPhase.NEXT_ACTIVE\n')
+        sources = {'a' * 40 + ':' + path: before, 'HEAD:' + path: after}
+        self.assertEqual(select(paths, sources=sources)['progression'], 'true')
+        self.assertEqual(select(paths, sources=sources)['comparison'], 'false')
+        self.assertEqual(select(paths, 'workflow_dispatch', sources=sources)['progression'], 'false')
+        self.assertEqual(select(paths | {'autoload/SaveManager.gd'}, sources=sources)['progression'], 'false')
+        for addition in ('func unrelated():\n\tpass\n', 'var extra_owner := true\n'):
+            changed = dict(sources)
+            changed['HEAD:' + path] += addition
+            self.assertEqual(select(paths, sources=changed)['progression'], 'false')
+        changed = dict(sources)
+        changed['HEAD:' + path] = after.replace('!= ProgressionPhase.NEXT_ACTIVE', '== ProgressionPhase.IDLE')
+        self.assertEqual(select(paths, sources=changed)['progression'], 'false')
+        dtl = (ROOT / '.github/workflows/dtl-first-preflight.yml').read_text()
+        dtl_selector = textwrap.dedent(dtl.split('        shell: python\n        run: |\n', 1)[1].split('  authoring:', 1)[0])
+        self.assertEqual(select(paths, sources=sources, selector=dtl_selector)['presentation_only'], 'true')
+        self.assertEqual(select(paths | {DAY}, sources=sources, selector=dtl_selector)['presentation_only'], 'false')
+        for job in ('focused-tests', 'windows-export', 'public-surfaces', 'rendered-journeys', 'rendered-desktop'):
+            section = WORKFLOW.split('  ' + job + ':', 1)[1].split('    steps:', 1)[0]
+            self.assertIn("needs.test-scope.outputs.progression != 'true'", section)
+        self.assertIn("if: needs.test-scope.outputs.progression == 'true'", WORKFLOW)
+
+    def test_legacy_marker_methods_allow_only_the_reviewed_phase_substitutions(self):
+        path = 'autoload/DialogicBridge.gd'
+        before = (
+            'func _perform_marker_next(expected: Dictionary) -> Dictionary:\n'
+            '\tif _line_ack_in_progress or _auto_step_in_progress or _skip_step_in_progress or is_pause_restore_pending():\n'
+            '\t\treturn _command_failure(&"reading_next_unavailable")\n'
+            '\treturn await _run_marker_next(source, expected)\n'
+            'func _run_marker_next(source: Dictionary, expected: Dictionary) -> Dictionary:\n'
+            '\t_next_active = true\n\t_next_command = expected.duplicate(true)\n'
+            '\tcommitted = _scene_event_port.dispatch_owned(event, _marker_lease, _marker_seal.duplicate(true))\n'
+            '\treturn _narrative_checkpoint_port.commit_reading_next(destination, operation_id, "destination")\n'
+        )
+        after = before.replace(
+            '_line_ack_in_progress or _auto_step_in_progress or _skip_step_in_progress or ', ''
+        ).replace('\t_next_active = true\n\t_next_command = expected.duplicate(true)\n',
+                  '\t_progression_phase = ProgressionPhase.NEXT_ACTIVE\n')
+        sources = {'a' * 40 + ':' + path: before, 'HEAD:' + path: after}
+        self.assertEqual(select({path}, sources=sources)['progression'], 'true')
+        for old, new in (
+            ('dispatch_owned(event,', 'dispatch_owned(other_event,'),
+            ('commit_reading_next(destination,', 'commit_reading_next(source,'),
+            ('if is_pause_restore_pending():', 'if false:'),
+        ):
+            with self.subTest(changed=old):
+                changed = dict(sources)
+                changed['HEAD:' + path] = after.replace(old, new)
+                self.assertEqual(select({path}, sources=changed)['progression'], 'false')
+
+    def test_model_only_changes_keep_the_protocol_check(self):
+        paths = {'tools/verification/story_progression/StoryProgression.tla',
+                 'tools/verification/story_progression/README.md'}
+        self.assertEqual(select(paths)['progression'], 'true')
+        self.assertEqual(select(paths)['comparison'], 'false')
+        self.assertEqual(select(paths | {'autoload/SaveManager.gd'})['progression'], 'false')
+        self.assertEqual(select({'tools/verification/story_progression/unreviewed.py'})['progression'], 'false')
+        self.assertEqual(select({'tools/testing/progression_scope.py'})['progression'], 'false')
+        progression = WORKFLOW.split('  progression:', 1)[1]
+        self.assertIn('speech-dispatcher-espeak-ng', progression)
+        self.assertIn('run: bash tools/testing/start_cloud_speech.sh', progression)
+
     def test_dtl_only_and_generated_companions_select_content(self):
         for paths in ({DAY}, {DAY} | GENERATED | {'docs/agent/dtl-story-authoring.md'}):
             with self.subTest(paths=paths):

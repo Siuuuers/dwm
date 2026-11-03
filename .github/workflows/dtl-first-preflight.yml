@@ -15,6 +15,7 @@ on:
     paths:
       - '.github/workflows/dtl-first-preflight.yml'
       - 'tools/testing/self_talk_panel_scope.py'
+      - 'tools/testing/progression_scope.py'
       - 'tools/authoring/**'
       - 'autoload/**'
       - 'scripts/**'
@@ -41,7 +42,9 @@ jobs:
         with:
           fetch-depth: 2
           sparse-checkout-cone-mode: false
-          sparse-checkout: /tools/testing/self_talk_panel_scope.py
+          sparse-checkout: |
+            /tools/testing/self_talk_panel_scope.py
+            /tools/testing/progression_scope.py
       - name: Prepare disposable checkout for credential cleanup
         run: |
           git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
@@ -53,6 +56,7 @@ jobs:
           import json, os, subprocess, sys
           sys.path.insert(0, "tools/testing")
           from self_talk_panel_scope import is_self_talk_panel
+          from progression_scope import is_progression
           with open(os.environ['GITHUB_EVENT_PATH']) as source:
               event = json.load(source)
           base = event.get('pull_request', {}).get('base', {}).get('sha')
@@ -61,10 +65,10 @@ jobs:
               diff = subprocess.run(['git', 'diff', '--name-only', '-z', base, 'HEAD'], capture_output=True)
               if diff.returncode == 0:
                   paths = set(diff.stdout.decode().strip('\0').split('\0'))
-                  selected = is_self_talk_panel(paths, base)
+                  selected = is_self_talk_panel(paths, base) or is_progression(paths, base)
           with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
               output.write(f'presentation_only={str(selected).lower()}\n')
-          print('Focused self-talk workflow owns this presentation slice' if selected else 'Authoring preflight required')
+          print('Focused Linux workflow owns this reviewed slice' if selected else 'Authoring preflight required')
   authoring:
     needs: scope
     if: needs.scope.outputs.presentation_only != 'true'

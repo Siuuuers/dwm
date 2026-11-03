@@ -1,6 +1,7 @@
 extends "res://addons/gut/test.gd"
 ## Trusted programme, traversal, receipt and restore contract. The native test
 ## below mounts Dialogic; these detached cases do not claim fresh-process proof.
+const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const FIXTURE := preload("res://tests/support/SceneNextNotificationFixture.gd")
 const SESSION := preload("res://scripts/narrative/SoloReadingSession.gd")
 const OP := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
@@ -433,11 +434,11 @@ func test_connected_bridge_partial_next_commits_marker_and_later_next_preserves_
 	if not proof.ok: return
 	var admission_profile: Dictionary = profile.get_profile_snapshot().duplicate(true)
 	var admission_files: Dictionary = fixture.files.snapshot_persisted()
-	for busy: String in ["_line_ack_in_progress", "_auto_step_in_progress", "_skip_step_in_progress"]:
-		bridge.set(busy, true)
+	for busy: int in [BRIDGE.ProgressionPhase.ACKNOWLEDGING, BRIDGE.ProgressionPhase.AUTO, BRIDGE.ProgressionPhase.SKIP]:
+		bridge._progression_phase = busy
 		var busy_result: Dictionary = await bridge.request_next(proof)
-		bridge.set(busy, false)
-		assert_false(busy_result.ok, busy)
+		bridge._progression_phase = BRIDGE.ProgressionPhase.IDLE
+		assert_false(busy_result.ok, str(busy))
 		assert_false(_adapter.is_current_line_complete(), "busy refusal precedes revealing")
 	bridge._pause_restore = {"applied": false}
 	var pause_refused: Dictionary = await bridge.request_next(proof)
