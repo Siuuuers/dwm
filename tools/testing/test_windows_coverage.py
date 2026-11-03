@@ -64,7 +64,7 @@ def select(paths, event_name='pull_request', sources=None, selector=SELECTOR, di
 
 
 class WindowsCoverageTests(unittest.TestCase):
-    def test_ci_job_edits_select_only_their_owners(self):
+    def test_ci_job_edits_select_only_their_owners_probe(self):
         workflow = '.github/workflows/windows-tests.yml'
         test = 'tools/testing/test_inventory_runner.py'
         coverage = 'tools/testing/test_windows_coverage.py'
