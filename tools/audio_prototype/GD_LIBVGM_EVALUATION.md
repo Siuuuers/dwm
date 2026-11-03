@@ -2,10 +2,11 @@
 
 ## Decision
 
-Do not adopt yet. Unmodified gd_libvgm v0.3 plays the fixtures through the
-existing playback port, but a fresh editor import aborts on exit. Retrying with
-the generated cache succeeds; that is not a clean-checkout pass. The main game
-and the current libgme prototype have not been switched to this candidate.
+Prototype comparison complete; prefer gd_libvgm for the next integration step.
+It passes Windows playback and exported startup/clean exit. Its raw cold editor
+import still crashes, so the documented import delay remains a workaround, not
+an engine fix. The main game has not been switched to either native backend.
+See the final acceptance and user decision below before applying older gates.
 
 ## Evaluated sources and environment
 
@@ -188,3 +189,34 @@ existing controller harness. Upstream [issue #76745](https://github.com/godoteng
 describes audio references surviving extension shutdown. This motivates the
 change but does not establish the root cause of the Windows heap-corruption exit.
 The updated smoke requires cloud verification for both backends.
+
+## Final prototype acceptance, 2026-11-04
+
+[Run 41711933664](https://github.com/Siuuuers/dwm/actions/runs/41711933664)
+is green for custom Linux, custom Windows and gd_libvgm Windows at
+`ff85e50c63e48f2117500cdfbc4bf91e48b56fa5`. Both Windows backends export and
+exit cleanly. The custom adapter now builds a separate `template_release` DLL
+and selects it with `windows.release.x86_64`; that resolved its observed export
+failure in this run. Releasing playback alone had not resolved it. This is not
+a claim that the underlying heap-corruption mechanism was independently proven.
+
+The merged CI selector passed 38 local tests; cloud source lint and selected CI
+tooling checks passed. Broad gameplay, rendering and localization were skipped.
+Two native reporting differences remain explicit gd_libvgm diagnostics, not
+functional playback passes. Raw cold-import failure remains unresolved. Dummy
+audio does not establish physical-device audibility or latency.
+
+The user selected **restart the previous cue at its authored entrance after a
+failed music change**. This supersedes the earlier exact-position recovery
+requirement for that operation. Implement it through the existing music owner
+and authored entrance metadata; do not assume every cue starts at zero. Pause
+continues to retain playback. Successful persistent Load already uses the
+entrance. Other restore transactions are not silently redefined by this decision.
+
+Prefer gd_libvgm for integration because the existing add-on supplies playback
+and finite NSFe completion without maintaining our custom C++ adapter. Integrate
+catalogue/export, native error reporting and shutdown ownership with focused
+checks; update the failed-music-change tests for the approved restart behavior.
+The prototype acceptance does not authorize treating the timing workaround as a
+permanent engine fix. Remove the redundant custom adapter when the chosen
+production integration passes. Test tunes remain disposable authoring fixtures.
