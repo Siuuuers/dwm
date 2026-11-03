@@ -29,7 +29,6 @@ const DRAFT_UI_COPY := {
 		"Board cleared.": "棋盘已完成。",
 		"Try again.": "请重试。",
 		"The attempt is saved. Retry to finish saving this point.": "本次尝试已记录。重试以完成此处的保存。",
-		"This moment could not be saved. Try again.": "无法保存此刻。请重试。",
 		"Action unavailable. ": "此操作不可用。 "
 	},
 	"zh-HK": {
@@ -41,7 +40,6 @@ const DRAFT_UI_COPY := {
 		"Board cleared.": "棋盤已完成。",
 		"Try again.": "請重試。",
 		"The attempt is saved. Retry to finish saving this point.": "本次嘗試已記錄。重試以完成此處的儲存。",
-		"This moment could not be saved. Try again.": "無法儲存此刻。請重試。",
 		"Action unavailable. ": "此操作不可用。 "
 	},
 	"ja": {
@@ -53,7 +51,6 @@ const DRAFT_UI_COPY := {
 		"Board cleared.": "盤面をクリアしました。",
 		"Try again.": "再試行してください。",
 		"The attempt is saved. Retry to finish saving this point.": "プレイ結果は保存済みです。再試行してこの時点の保存を完了してください。",
-		"This moment could not be saved. Try again.": "この場面を保存できませんでした。再試行してください。",
 		"Action unavailable. ": "この操作は利用できません。 "
 	},
 	"ko": {
@@ -65,7 +62,6 @@ const DRAFT_UI_COPY := {
 		"Board cleared.": "보드를 클리어했습니다.",
 		"Try again.": "다시 시도하세요.",
 		"The attempt is saved. Retry to finish saving this point.": "시도는 저장되었습니다. 다시 시도하여 이 지점의 저장을 완료하세요.",
-		"This moment could not be saved. Try again.": "이 장면을 저장하지 못했습니다. 다시 시도하세요.",
 		"Action unavailable. ": "이 작업은 사용할 수 없습니다. "
 	}
 }
@@ -151,12 +147,6 @@ var _narrative_attachment_failed := false
 var _boundary_failed := false
 var _advance_contacts: Dictionary = {}
 var _advance_contact_key := ""
-var _pre_challenge_drawn := false
-var _pre_challenge_ack_attempted := false
-var _pre_challenge_reached := false
-var _post_challenge_drawn := false
-var _post_challenge_ack_attempted := false
-var _post_challenge_reached := false
 
 
 var _presentation_port: Object = null
@@ -297,7 +287,6 @@ func _build_challenge() -> void:
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	panel.add_child(title)
-	title.draw.connect(func(): _pre_challenge_drawn = true)
 	worksheet = WORKSHEET.new()
 	worksheet.name = "DatingWorksheet"
 	worksheet.bind_view_preferences(_view_profile, "challenge")
@@ -337,7 +326,6 @@ func _build_challenge() -> void:
 	toolbar.add_child(_special_mine_button)
 	_status_label = Label.new()
 	_status_label.name = "ChallengeStatus"
-	_status_label.draw.connect(_on_challenge_status_drawn)
 	_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	panel.add_child(_status_label)
@@ -519,40 +507,6 @@ func _input(event: InputEvent) -> void:
 	elif focused == worksheet.grid: _continue_button.grab_focus()
 	else: return
 	get_viewport().set_input_as_handled()
-
-func _acknowledge_pre_challenge_draw() -> bool:
-	if not _presentation_port.has_method("acknowledge_pre_challenge_render"):
-		# The separate Rehearsal facade never owns canonical reach/history capabilities.
-		_pre_challenge_reached = true
-		_pre_challenge_ack_attempted = true
-		return true
-	if not _pre_challenge_drawn: return false
-	_pre_challenge_ack_attempted = true
-	var reached: Dictionary = _presentation_port.acknowledge_pre_challenge_render(_presentation_command)
-	_pre_challenge_reached = bool(reached.get("ok", false))
-	if not _pre_challenge_reached:
-		_status_label.text = _ui_text("This moment could not be saved. Try again.")
-		_continue_button.text = _ui_text("Retry")
-	return _pre_challenge_reached
-
-func _on_challenge_status_drawn() -> void:
-	if _physical_view.get("phase") == "post_challenge" and is_visible_in_tree():
-		_post_challenge_drawn = true
-
-func _acknowledge_post_challenge_draw() -> bool:
-	if not _presentation_port.has_method("acknowledge_post_challenge_render"):
-		# The private Practice owner never receives the canonical history writer.
-		_post_challenge_reached = true
-		_post_challenge_ack_attempted = true
-		return true
-	if not _post_challenge_drawn: return false
-	_post_challenge_ack_attempted = true
-	var reached: Dictionary = _presentation_port.acknowledge_post_challenge_render(_presentation_command)
-	_post_challenge_reached = bool(reached.get("ok", false))
-	if not _post_challenge_reached:
-		_status_label.text = _ui_text("This moment could not be saved. Try again.")
-		_continue_button.text = _ui_text("Retry")
-	return _post_challenge_reached
 
 func _process(_delta: float) -> void:
 	# Quick Load consent retains the exact physical boundary, including a painted
