@@ -697,7 +697,7 @@ jobs:
                   self_talk = bool(paths) and paths <= self_talk_paths and bool(paths & {"scripts/ui/witnessed/WitnessedSelfTalk.gd", "tests/unit/test_scene_self_talk.gd", "tests/ui/render_self_talk_journey.gd"})
                   self_talk_panel = is_self_talk_panel(paths, base)
                   comparison_paths = paths
-                  previous = event.get("before", "") if event.get("action") == "synchronize" else ""
+                  previous = event.get("before", "") if event.get("action") == "synchronize" and not (docs_only or inventory_only) else ""
                   if re.fullmatch(r"[0-9a-f]{40}", previous):
                       available = subprocess.run(["git", "cat-file", "-e", previous], capture_output=True)
                       if available.returncode != 0:
@@ -713,7 +713,7 @@ jobs:
           # Current native Save/Load and terminal fixtures qualify incompatible schemas;
           # skipping this old-input measurement does not establish a speedup.
           comparison = comparison or (focused and not previous)
-          if progression or dtl_content or dtl_first or reading_layout or readability or bilingual_reading or dialogue_library or playtest_polish or self_talk or self_talk_panel or shop_cosmetics or scene_transition or save_ink: comparison = False
+          if docs_only or inventory_only or progression or dtl_content or dtl_first or reading_layout or readability or bilingual_reading or dialogue_library or playtest_polish or self_talk or self_talk_panel or shop_cosmetics or scene_transition or save_ink: comparison = False
           if comparison:
               archive = "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip"
               archive_bytes = subprocess.run(["git", "show", "HEAD:" + archive], capture_output=True, check=True).stdout

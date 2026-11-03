@@ -77,6 +77,17 @@ class WindowsCoverageTests(unittest.TestCase):
             for key in ('inventory_tooling', 'self_talk_panel', 'progression', 'comparison'):
                 self.assertEqual(result[key], 'false', key)
 
+    def test_proven_narrow_scopes_ignore_superseded_runtime_changes(self):
+        event = {'action': 'synchronize', 'before': 'b' * 40,
+                 'pull_request': {'base': {'sha': 'a' * 40}}}
+        for path, scope in (('docs/agent/prose.md', 'docs_only'),
+                            ('tools/runtime/PublicSurfaceInventory.gd', 'inventory_only')):
+            commands = []
+            result = select({path}, event_data=event, commands=commands)
+            self.assertEqual(result[scope], 'true')
+            self.assertEqual(result['comparison'], 'false')
+            self.assertFalse(any('b' * 40 in arg or '.zip' in arg for args in commands for arg in args))
+
     def test_docs_contracts_other_markdown_and_mixed_changes_retain_coverage(self):
         prose = 'docs/agent/new-technical-handoff.md'
         for path in ('docs/agent/execution-map.md', 'docs/agent/2026-09-23-next-session-handoff.md',
