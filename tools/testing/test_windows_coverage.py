@@ -675,6 +675,24 @@ class ReadabilityCoverageTests(unittest.TestCase):
         for extra in ('autoload/SaveManager.gd', 'scripts/narrative/DialogicRuntimeAdapter.gd'):
             self.assertEqual(select(paths | {extra})['readability'], 'false')
 
+    def test_initial_frame_batch_preserves_creation_in_narrow_routes(self):
+        matrix = next(line for line in WORKFLOW.splitlines() if '        suite: ${{ fromJSON(' in line)
+        arrays = [json.loads(value) for value in re.findall(r"'(\[[^']*\])'", matrix)]
+        self.assertIn('scene_current_frames', arrays[-1])
+        for suites in arrays:
+            self.assertEqual(len(suites), len(set(suites)))
+            if 'scene_current_frames' in suites:
+                self.assertNotIn('scene_current_creation', suites)
+        for scope in ('dtl_first', 'inline_audio'):
+            selected = re.search(r"needs.test-scope.outputs." + scope + r" == 'true'\)? && '([^']+)'", matrix)
+            self.assertIsNotNone(selected, scope)
+            self.assertIn('scene_current_creation', json.loads(selected[1]))
+            self.assertNotIn('scene_current_frames', json.loads(selected[1]))
+        step = WORKFLOW.split('      - name: Run new-run creation with a fresh process and profile\n', 1)[1].split('      - name:', 1)[0]
+        self.assertIn("if: ${{ !cancelled() && matrix.suite == 'scene_current_frames' && steps.focused_regression.outcome != 'skipped' }}", step)
+        self.assertIn('run: ./tools/testing/Invoke-CloudTests.ps1 -Suite scene_current_creation', step)
+        self.assertNotIn('continue-on-error', step)
+
     def test_readability_matrix_retains_required_registered_suites(self):
         matrix = re.search(r"needs.test-scope.outputs.readability == 'true' && '([^']+)'", WORKFLOW)
         self.assertIsNotNone(matrix)
