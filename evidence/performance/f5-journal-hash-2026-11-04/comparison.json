@@ -1,0 +1,956 @@
+{
+  "baseline_commit": "372c6f807e81addaa250743613a2d48dc8464c87",
+  "baseline_tree": "7ed9c6d63696c16aebf2e743606b4c4e16942795",
+  "version_sha256": {
+    "baseline": "58e060190122729201fb536ffebcc49e379a6d6e8917f47ca52ecb696ffdda0b",
+    "candidate": "6c5545901a0ef448ff8b9b80d41e7ad8d3b393e443a6196eb18f3d024022380e"
+  },
+  "scope": "Only tracked modification during measurement is SaveManager; six pairs AB/BA, each fresh process/storage, rendered software X11, profiler off.",
+  "samples": [
+    {
+      "capture_callback_calls": 6,
+      "capture_callback_inclusive_us": 1284,
+      "capture_scope": "fixture canonical reading, run and audio input callback only; excludes enclosing save work",
+      "case": "fresh",
+      "diagnostic_only": false,
+      "engine": "4.6.3-stable (official)",
+      "fixture_limit": "test-authored short scene and empty host; repeated saves do not model longer reading history",
+      "frame_gap_window": "preceding process frame through first process frame after Saved presentation",
+      "input_dispatch_us": 47557,
+      "input_to_frame_post_draw_us": 76611,
+      "input_to_saved_draw_us": 59815,
+      "max_process_frame_gap_us": 77911,
+      "prior_quick_saves": 0,
+      "profile_enabled": false,
+      "quicksave_bytes": 4601,
+      "quicksave_sha256": "717dbd387352d960442c759dfa4d9e28329cd81f9bc5eb6f9bfac6a4ff9c38f8",
+      "reading_history_entries": 1,
+      "recovery_journal_entries": 0,
+      "renderer": "X11",
+      "label": "fresh-pair-0-baseline",
+      "variant": "baseline",
+      "pair": 0,
+      "source_sha256_before": {
+        "autoload/SaveManager.gd": "58e060190122729201fb536ffebcc49e379a6d6e8917f47ca52ecb696ffdda0b",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "source_sha256_after": {
+        "autoload/SaveManager.gd": "58e060190122729201fb536ffebcc49e379a6d6e8917f47ca52ecb696ffdda0b",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "tracked_diff_paths": [],
+      "started_epoch": 1793728727.544309,
+      "wall_seconds": 11.4817373752594,
+      "log_sha256": "a7986e6f2e3da6ffd44364b827715da37f715ea98c3dce998952995b97bb5694",
+      "assertions_passed": 25,
+      "warnings": [
+        "WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 24 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "capture_callback_calls": 6,
+      "capture_callback_inclusive_us": 1035,
+      "capture_scope": "fixture canonical reading, run and audio input callback only; excludes enclosing save work",
+      "case": "fresh",
+      "diagnostic_only": false,
+      "engine": "4.6.3-stable (official)",
+      "fixture_limit": "test-authored short scene and empty host; repeated saves do not model longer reading history",
+      "frame_gap_window": "preceding process frame through first process frame after Saved presentation",
+      "input_dispatch_us": 42476,
+      "input_to_frame_post_draw_us": 68968,
+      "input_to_saved_draw_us": 55404,
+      "max_process_frame_gap_us": 70057,
+      "prior_quick_saves": 0,
+      "profile_enabled": false,
+      "quicksave_bytes": 4601,
+      "quicksave_sha256": "5678faeb56afa9112e1f04d8e899bd56ee3af97312d5d7032eb71b6ff951f771",
+      "reading_history_entries": 1,
+      "recovery_journal_entries": 0,
+      "renderer": "X11",
+      "label": "fresh-pair-0-candidate",
+      "variant": "candidate",
+      "pair": 0,
+      "source_sha256_before": {
+        "autoload/SaveManager.gd": "6c5545901a0ef448ff8b9b80d41e7ad8d3b393e443a6196eb18f3d024022380e",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "source_sha256_after": {
+        "autoload/SaveManager.gd": "6c5545901a0ef448ff8b9b80d41e7ad8d3b393e443a6196eb18f3d024022380e",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "tracked_diff_paths": [
+        "autoload/SaveManager.gd"
+      ],
+      "started_epoch": 1793728739.0380998,
+      "wall_seconds": 10.638498544692993,
+      "log_sha256": "8305e0f9330f8126707cf2311d76b4810650d46240219d76948a053262e42b89",
+      "assertions_passed": 25,
+      "warnings": [
+        "WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 24 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "capture_callback_calls": 6,
+      "capture_callback_inclusive_us": 1063,
+      "capture_scope": "fixture canonical reading, run and audio input callback only; excludes enclosing save work",
+      "case": "repeated",
+      "diagnostic_only": false,
+      "engine": "4.6.3-stable (official)",
+      "fixture_limit": "test-authored short scene and empty host; repeated saves do not model longer reading history",
+      "frame_gap_window": "preceding process frame through first process frame after Saved presentation",
+      "input_dispatch_us": 50819,
+      "input_to_frame_post_draw_us": 74279,
+      "input_to_saved_draw_us": 61491,
+      "max_process_frame_gap_us": 75349,
+      "prior_quick_saves": 3,
+      "profile_enabled": false,
+      "quicksave_bytes": 4601,
+      "quicksave_sha256": "4d5ee60b45b9de9165bb24aa1a1b02f39e1d030cee964dd7ac8124b03c821a20",
+      "reading_history_entries": 1,
+      "recovery_journal_entries": 0,
+      "renderer": "X11",
+      "label": "repeated-pair-0-baseline",
+      "variant": "baseline",
+      "pair": 0,
+      "source_sha256_before": {
+        "autoload/SaveManager.gd": "58e060190122729201fb536ffebcc49e379a6d6e8917f47ca52ecb696ffdda0b",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "source_sha256_after": {
+        "autoload/SaveManager.gd": "58e060190122729201fb536ffebcc49e379a6d6e8917f47ca52ecb696ffdda0b",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "tracked_diff_paths": [],
+      "started_epoch": 1793728749.7047799,
+      "wall_seconds": 16.867136478424072,
+      "log_sha256": "68be927ad860df297eb2a0bc1ef3acb43359422eb255205c6b5398581718c422",
+      "assertions_passed": 28,
+      "warnings": [
+        "WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 24 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "capture_callback_calls": 6,
+      "capture_callback_inclusive_us": 1079,
+      "capture_scope": "fixture canonical reading, run and audio input callback only; excludes enclosing save work",
+      "case": "repeated",
+      "diagnostic_only": false,
+      "engine": "4.6.3-stable (official)",
+      "fixture_limit": "test-authored short scene and empty host; repeated saves do not model longer reading history",
+      "frame_gap_window": "preceding process frame through first process frame after Saved presentation",
+      "input_dispatch_us": 42433,
+      "input_to_frame_post_draw_us": 65883,
+      "input_to_saved_draw_us": 52863,
+      "max_process_frame_gap_us": 67062,
+      "prior_quick_saves": 3,
+      "profile_enabled": false,
+      "quicksave_bytes": 4601,
+      "quicksave_sha256": "4f00aba0397c029c509d9bdcc171d8112737d5dd9cbdd50b1e9004798f816177",
+      "reading_history_entries": 1,
+      "recovery_journal_entries": 0,
+      "renderer": "X11",
+      "label": "repeated-pair-0-candidate",
+      "variant": "candidate",
+      "pair": 0,
+      "source_sha256_before": {
+        "autoload/SaveManager.gd": "6c5545901a0ef448ff8b9b80d41e7ad8d3b393e443a6196eb18f3d024022380e",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "source_sha256_after": {
+        "autoload/SaveManager.gd": "6c5545901a0ef448ff8b9b80d41e7ad8d3b393e443a6196eb18f3d024022380e",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "tracked_diff_paths": [
+        "autoload/SaveManager.gd"
+      ],
+      "started_epoch": 1793728766.5847316,
+      "wall_seconds": 16.622605800628662,
+      "log_sha256": "69262e64ad2feeb9836ece0de7c78bf6efc8fb07d5ebdb334e3b0f8e6279a7d6",
+      "assertions_passed": 28,
+      "warnings": [
+        "WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 24 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "capture_callback_calls": 6,
+      "capture_callback_inclusive_us": 1153,
+      "capture_scope": "fixture canonical reading, run and audio input callback only; excludes enclosing save work",
+      "case": "fresh",
+      "diagnostic_only": false,
+      "engine": "4.6.3-stable (official)",
+      "fixture_limit": "test-authored short scene and empty host; repeated saves do not model longer reading history",
+      "frame_gap_window": "preceding process frame through first process frame after Saved presentation",
+      "input_dispatch_us": 49926,
+      "input_to_frame_post_draw_us": 74272,
+      "input_to_saved_draw_us": 60918,
+      "max_process_frame_gap_us": 75502,
+      "prior_quick_saves": 0,
+      "profile_enabled": false,
+      "quicksave_bytes": 4601,
+      "quicksave_sha256": "27028b18af0e2f3e3c14275d650946ad02d4a210a00ce5aad627c35a3bf8022c",
+      "reading_history_entries": 1,
+      "recovery_journal_entries": 0,
+      "renderer": "X11",
+      "label": "fresh-pair-1-candidate",
+      "variant": "candidate",
+      "pair": 1,
+      "source_sha256_before": {
+        "autoload/SaveManager.gd": "6c5545901a0ef448ff8b9b80d41e7ad8d3b393e443a6196eb18f3d024022380e",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "source_sha256_after": {
+        "autoload/SaveManager.gd": "6c5545901a0ef448ff8b9b80d41e7ad8d3b393e443a6196eb18f3d024022380e",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "tracked_diff_paths": [
+        "autoload/SaveManager.gd"
+      ],
+      "started_epoch": 1793728783.2185273,
+      "wall_seconds": 9.962522983551025,
+      "log_sha256": "1bdb15a03aaea37d1b818566defcb5ebf255149c31bc8e62b081f145eae441f4",
+      "assertions_passed": 25,
+      "warnings": [
+        "WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 24 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "capture_callback_calls": 6,
+      "capture_callback_inclusive_us": 1605,
+      "capture_scope": "fixture canonical reading, run and audio input callback only; excludes enclosing save work",
+      "case": "fresh",
+      "diagnostic_only": false,
+      "engine": "4.6.3-stable (official)",
+      "fixture_limit": "test-authored short scene and empty host; repeated saves do not model longer reading history",
+      "frame_gap_window": "preceding process frame through first process frame after Saved presentation",
+      "input_dispatch_us": 77528,
+      "input_to_frame_post_draw_us": 109300,
+      "input_to_saved_draw_us": 90014,
+      "max_process_frame_gap_us": 111936,
+      "prior_quick_saves": 0,
+      "profile_enabled": false,
+      "quicksave_bytes": 4601,
+      "quicksave_sha256": "3ce8e7aefdddc903e473f7802ba5792da683327c77e6fe9e1ebdc245d9c0afbc",
+      "reading_history_entries": 1,
+      "recovery_journal_entries": 0,
+      "renderer": "X11",
+      "label": "fresh-pair-1-baseline",
+      "variant": "baseline",
+      "pair": 1,
+      "source_sha256_before": {
+        "autoload/SaveManager.gd": "58e060190122729201fb536ffebcc49e379a6d6e8917f47ca52ecb696ffdda0b",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "source_sha256_after": {
+        "autoload/SaveManager.gd": "58e060190122729201fb536ffebcc49e379a6d6e8917f47ca52ecb696ffdda0b",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "tracked_diff_paths": [],
+      "started_epoch": 1793728793.209484,
+      "wall_seconds": 10.945903301239014,
+      "log_sha256": "662fb5d3e94dca478da8745c52a5a4b616a50cedea3088a9e3ea27b3b3475882",
+      "assertions_passed": 25,
+      "warnings": [
+        "WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 24 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "capture_callback_calls": 6,
+      "capture_callback_inclusive_us": 977,
+      "capture_scope": "fixture canonical reading, run and audio input callback only; excludes enclosing save work",
+      "case": "repeated",
+      "diagnostic_only": false,
+      "engine": "4.6.3-stable (official)",
+      "fixture_limit": "test-authored short scene and empty host; repeated saves do not model longer reading history",
+      "frame_gap_window": "preceding process frame through first process frame after Saved presentation",
+      "input_dispatch_us": 38925,
+      "input_to_frame_post_draw_us": 58191,
+      "input_to_saved_draw_us": 47559,
+      "max_process_frame_gap_us": 70054,
+      "prior_quick_saves": 3,
+      "profile_enabled": false,
+      "quicksave_bytes": 4601,
+      "quicksave_sha256": "e31bf2afbba670d767e0a2a80abf65590f0e0ba650cdf96553ecab4fee2d2e11",
+      "reading_history_entries": 1,
+      "recovery_journal_entries": 0,
+      "renderer": "X11",
+      "label": "repeated-pair-1-candidate",
+      "variant": "candidate",
+      "pair": 1,
+      "source_sha256_before": {
+        "autoload/SaveManager.gd": "6c5545901a0ef448ff8b9b80d41e7ad8d3b393e443a6196eb18f3d024022380e",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "source_sha256_after": {
+        "autoload/SaveManager.gd": "6c5545901a0ef448ff8b9b80d41e7ad8d3b393e443a6196eb18f3d024022380e",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "tracked_diff_paths": [
+        "autoload/SaveManager.gd"
+      ],
+      "started_epoch": 1793728804.1677063,
+      "wall_seconds": 16.67157506942749,
+      "log_sha256": "2956335f390b4f9d01bdbee2d7d6572fafeca578585f271a80f3302e0ad73255",
+      "assertions_passed": 28,
+      "warnings": [
+        "WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 24 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "capture_callback_calls": 6,
+      "capture_callback_inclusive_us": 1010,
+      "capture_scope": "fixture canonical reading, run and audio input callback only; excludes enclosing save work",
+      "case": "repeated",
+      "diagnostic_only": false,
+      "engine": "4.6.3-stable (official)",
+      "fixture_limit": "test-authored short scene and empty host; repeated saves do not model longer reading history",
+      "frame_gap_window": "preceding process frame through first process frame after Saved presentation",
+      "input_dispatch_us": 44129,
+      "input_to_frame_post_draw_us": 66749,
+      "input_to_saved_draw_us": 55586,
+      "max_process_frame_gap_us": 67862,
+      "prior_quick_saves": 3,
+      "profile_enabled": false,
+      "quicksave_bytes": 4601,
+      "quicksave_sha256": "7598ac8c80e34d708cc1929930407ecec74724ac3047201d9a826d4724ddef98",
+      "reading_history_entries": 1,
+      "recovery_journal_entries": 0,
+      "renderer": "X11",
+      "label": "repeated-pair-1-baseline",
+      "variant": "baseline",
+      "pair": 1,
+      "source_sha256_before": {
+        "autoload/SaveManager.gd": "58e060190122729201fb536ffebcc49e379a6d6e8917f47ca52ecb696ffdda0b",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "source_sha256_after": {
+        "autoload/SaveManager.gd": "58e060190122729201fb536ffebcc49e379a6d6e8917f47ca52ecb696ffdda0b",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "tracked_diff_paths": [],
+      "started_epoch": 1793728820.8657825,
+      "wall_seconds": 16.513184070587158,
+      "log_sha256": "20e7da9c92508c4b4d83febffdf0fc7ece0998e9e10976976b98ba6102714956",
+      "assertions_passed": 28,
+      "warnings": [
+        "WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 24 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "capture_callback_calls": 6,
+      "capture_callback_inclusive_us": 1035,
+      "capture_scope": "fixture canonical reading, run and audio input callback only; excludes enclosing save work",
+      "case": "fresh",
+      "diagnostic_only": false,
+      "engine": "4.6.3-stable (official)",
+      "fixture_limit": "test-authored short scene and empty host; repeated saves do not model longer reading history",
+      "frame_gap_window": "preceding process frame through first process frame after Saved presentation",
+      "input_dispatch_us": 42682,
+      "input_to_frame_post_draw_us": 65349,
+      "input_to_saved_draw_us": 54390,
+      "max_process_frame_gap_us": 66743,
+      "prior_quick_saves": 0,
+      "profile_enabled": false,
+      "quicksave_bytes": 4601,
+      "quicksave_sha256": "ddde10d679a4e0b2108fa943adec5d55644f105d1dbb9d80f365aa56356c835d",
+      "reading_history_entries": 1,
+      "recovery_journal_entries": 0,
+      "renderer": "X11",
+      "label": "fresh-pair-2-baseline",
+      "variant": "baseline",
+      "pair": 2,
+      "source_sha256_before": {
+        "autoload/SaveManager.gd": "58e060190122729201fb536ffebcc49e379a6d6e8917f47ca52ecb696ffdda0b",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "source_sha256_after": {
+        "autoload/SaveManager.gd": "58e060190122729201fb536ffebcc49e379a6d6e8917f47ca52ecb696ffdda0b",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "tracked_diff_paths": [],
+      "started_epoch": 1793728837.4059818,
+      "wall_seconds": 10.269463062286377,
+      "log_sha256": "a9b08a1c20459acbe1e30b4d06d6cbbc2b1a73e4b9b26be3ffa73674c2443ad5",
+      "assertions_passed": 25,
+      "warnings": [
+        "WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 24 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "capture_callback_calls": 6,
+      "capture_callback_inclusive_us": 1100,
+      "capture_scope": "fixture canonical reading, run and audio input callback only; excludes enclosing save work",
+      "case": "fresh",
+      "diagnostic_only": false,
+      "engine": "4.6.3-stable (official)",
+      "fixture_limit": "test-authored short scene and empty host; repeated saves do not model longer reading history",
+      "frame_gap_window": "preceding process frame through first process frame after Saved presentation",
+      "input_dispatch_us": 40574,
+      "input_to_frame_post_draw_us": 63234,
+      "input_to_saved_draw_us": 50406,
+      "max_process_frame_gap_us": 64416,
+      "prior_quick_saves": 0,
+      "profile_enabled": false,
+      "quicksave_bytes": 4601,
+      "quicksave_sha256": "c1456efbcce8f526474fe7371dc30e8a4e2e4f02f19fe37b20ca8bca4e1bdaa5",
+      "reading_history_entries": 1,
+      "recovery_journal_entries": 0,
+      "renderer": "X11",
+      "label": "fresh-pair-2-candidate",
+      "variant": "candidate",
+      "pair": 2,
+      "source_sha256_before": {
+        "autoload/SaveManager.gd": "6c5545901a0ef448ff8b9b80d41e7ad8d3b393e443a6196eb18f3d024022380e",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "source_sha256_after": {
+        "autoload/SaveManager.gd": "6c5545901a0ef448ff8b9b80d41e7ad8d3b393e443a6196eb18f3d024022380e",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "tracked_diff_paths": [
+        "autoload/SaveManager.gd"
+      ],
+      "started_epoch": 1793728847.6898375,
+      "wall_seconds": 10.156725406646729,
+      "log_sha256": "a065b62c4a16d3b31f6e081a120039d770bd2adae8b61de22b1721c49313bb1e",
+      "assertions_passed": 25,
+      "warnings": [
+        "WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 24 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "capture_callback_calls": 6,
+      "capture_callback_inclusive_us": 1278,
+      "capture_scope": "fixture canonical reading, run and audio input callback only; excludes enclosing save work",
+      "case": "repeated",
+      "diagnostic_only": false,
+      "engine": "4.6.3-stable (official)",
+      "fixture_limit": "test-authored short scene and empty host; repeated saves do not model longer reading history",
+      "frame_gap_window": "preceding process frame through first process frame after Saved presentation",
+      "input_dispatch_us": 50339,
+      "input_to_frame_post_draw_us": 74991,
+      "input_to_saved_draw_us": 63511,
+      "max_process_frame_gap_us": 76748,
+      "prior_quick_saves": 3,
+      "profile_enabled": false,
+      "quicksave_bytes": 4601,
+      "quicksave_sha256": "f99e4b7c427c41576e47a95c833162025a130b249771283c32f0e603b97d8f57",
+      "reading_history_entries": 1,
+      "recovery_journal_entries": 0,
+      "renderer": "X11",
+      "label": "repeated-pair-2-baseline",
+      "variant": "baseline",
+      "pair": 2,
+      "source_sha256_before": {
+        "autoload/SaveManager.gd": "58e060190122729201fb536ffebcc49e379a6d6e8917f47ca52ecb696ffdda0b",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "source_sha256_after": {
+        "autoload/SaveManager.gd": "58e060190122729201fb536ffebcc49e379a6d6e8917f47ca52ecb696ffdda0b",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "tracked_diff_paths": [],
+      "started_epoch": 1793728857.8744292,
+      "wall_seconds": 16.723174571990967,
+      "log_sha256": "5922ef07f22a83fbdbd22f5847949406994b45df845d0fcf60e7470a1f5e2246",
+      "assertions_passed": 28,
+      "warnings": [
+        "WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 24 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "capture_callback_calls": 6,
+      "capture_callback_inclusive_us": 953,
+      "capture_scope": "fixture canonical reading, run and audio input callback only; excludes enclosing save work",
+      "case": "repeated",
+      "diagnostic_only": false,
+      "engine": "4.6.3-stable (official)",
+      "fixture_limit": "test-authored short scene and empty host; repeated saves do not model longer reading history",
+      "frame_gap_window": "preceding process frame through first process frame after Saved presentation",
+      "input_dispatch_us": 42854,
+      "input_to_frame_post_draw_us": 64886,
+      "input_to_saved_draw_us": 52429,
+      "max_process_frame_gap_us": 66339,
+      "prior_quick_saves": 3,
+      "profile_enabled": false,
+      "quicksave_bytes": 4601,
+      "quicksave_sha256": "8f22d51ae4c40f80584b5cce5571a8e153cc43f6e2baf8c086b6d30517e669aa",
+      "reading_history_entries": 1,
+      "recovery_journal_entries": 0,
+      "renderer": "X11",
+      "label": "repeated-pair-2-candidate",
+      "variant": "candidate",
+      "pair": 2,
+      "source_sha256_before": {
+        "autoload/SaveManager.gd": "6c5545901a0ef448ff8b9b80d41e7ad8d3b393e443a6196eb18f3d024022380e",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "source_sha256_after": {
+        "autoload/SaveManager.gd": "6c5545901a0ef448ff8b9b80d41e7ad8d3b393e443a6196eb18f3d024022380e",
+        "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56",
+        "scripts/application/backup/BackupPresentationPort.gd": "36b1d5a23b8ef39de573614d50c160d240534d5926fe779a8ee45f66ea37f5cd"
+      },
+      "tracked_diff_paths": [
+        "autoload/SaveManager.gd"
+      ],
+      "started_epoch": 1793728874.609417,
+      "wall_seconds": 16.2700092792511,
+      "log_sha256": "1021450a6d8e1ecf4cbaacac4bb5c43f6d34e261eb717db0dcc7bf5a7f3ef35a",
+      "assertions_passed": 28,
+      "warnings": [
+        "WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 24 resources still in use at exit (run with --verbose for details)."
+      ]
+    }
+  ],
+  "assertions_passed": 318,
+  "summary": {
+    "sample_count": 12,
+    "cases": {
+      "fresh": {
+        "input_dispatch_us": {
+          "variants": {
+            "baseline": {
+              "median": 47557,
+              "min": 42682,
+              "max": 77528
+            },
+            "candidate": {
+              "median": 42476,
+              "min": 40574,
+              "max": 49926
+            }
+          },
+          "candidate_minus_baseline_us": [
+            -5081,
+            -27602,
+            -2108
+          ],
+          "median_paired_delta_us": -5081,
+          "candidate_wins": 3
+        },
+        "input_to_saved_draw_us": {
+          "variants": {
+            "baseline": {
+              "median": 59815,
+              "min": 54390,
+              "max": 90014
+            },
+            "candidate": {
+              "median": 55404,
+              "min": 50406,
+              "max": 60918
+            }
+          },
+          "candidate_minus_baseline_us": [
+            -4411,
+            -29096,
+            -3984
+          ],
+          "median_paired_delta_us": -4411,
+          "candidate_wins": 3
+        },
+        "input_to_frame_post_draw_us": {
+          "variants": {
+            "baseline": {
+              "median": 76611,
+              "min": 65349,
+              "max": 109300
+            },
+            "candidate": {
+              "median": 68968,
+              "min": 63234,
+              "max": 74272
+            }
+          },
+          "candidate_minus_baseline_us": [
+            -7643,
+            -35028,
+            -2115
+          ],
+          "median_paired_delta_us": -7643,
+          "candidate_wins": 3
+        },
+        "max_process_frame_gap_us": {
+          "variants": {
+            "baseline": {
+              "median": 77911,
+              "min": 66743,
+              "max": 111936
+            },
+            "candidate": {
+              "median": 70057,
+              "min": 64416,
+              "max": 75502
+            }
+          },
+          "candidate_minus_baseline_us": [
+            -7854,
+            -36434,
+            -2327
+          ],
+          "median_paired_delta_us": -7854,
+          "candidate_wins": 3
+        },
+        "capture_callback_inclusive_us": {
+          "variants": {
+            "baseline": {
+              "median": 1284,
+              "min": 1035,
+              "max": 1605
+            },
+            "candidate": {
+              "median": 1100,
+              "min": 1035,
+              "max": 1153
+            }
+          },
+          "candidate_minus_baseline_us": [
+            -249,
+            -452,
+            65
+          ],
+          "median_paired_delta_us": -249,
+          "candidate_wins": 2
+        }
+      },
+      "repeated": {
+        "input_dispatch_us": {
+          "variants": {
+            "baseline": {
+              "median": 50339,
+              "min": 44129,
+              "max": 50819
+            },
+            "candidate": {
+              "median": 42433,
+              "min": 38925,
+              "max": 42854
+            }
+          },
+          "candidate_minus_baseline_us": [
+            -8386,
+            -5204,
+            -7485
+          ],
+          "median_paired_delta_us": -7485,
+          "candidate_wins": 3
+        },
+        "input_to_saved_draw_us": {
+          "variants": {
+            "baseline": {
+              "median": 61491,
+              "min": 55586,
+              "max": 63511
+            },
+            "candidate": {
+              "median": 52429,
+              "min": 47559,
+              "max": 52863
+            }
+          },
+          "candidate_minus_baseline_us": [
+            -8628,
+            -8027,
+            -11082
+          ],
+          "median_paired_delta_us": -8628,
+          "candidate_wins": 3
+        },
+        "input_to_frame_post_draw_us": {
+          "variants": {
+            "baseline": {
+              "median": 74279,
+              "min": 66749,
+              "max": 74991
+            },
+            "candidate": {
+              "median": 64886,
+              "min": 58191,
+              "max": 65883
+            }
+          },
+          "candidate_minus_baseline_us": [
+            -8396,
+            -8558,
+            -10105
+          ],
+          "median_paired_delta_us": -8558,
+          "candidate_wins": 3
+        },
+        "max_process_frame_gap_us": {
+          "variants": {
+            "baseline": {
+              "median": 75349,
+              "min": 67862,
+              "max": 76748
+            },
+            "candidate": {
+              "median": 67062,
+              "min": 66339,
+              "max": 70054
+            }
+          },
+          "candidate_minus_baseline_us": [
+            -8287,
+            2192,
+            -10409
+          ],
+          "median_paired_delta_us": -8287,
+          "candidate_wins": 2
+        },
+        "capture_callback_inclusive_us": {
+          "variants": {
+            "baseline": {
+              "median": 1063,
+              "min": 1010,
+              "max": 1278
+            },
+            "candidate": {
+              "median": 977,
+              "min": 953,
+              "max": 1079
+            }
+          },
+          "candidate_minus_baseline_us": [
+            16,
+            -33,
+            -325
+          ],
+          "median_paired_delta_us": -33,
+          "candidate_wins": 2
+        }
+      }
+    },
+    "pairs": [
+      {
+        "case": "fresh",
+        "pair": 0,
+        "input_dispatch_us": {
+          "baseline": 47557,
+          "candidate": 42476,
+          "delta_us": -5081
+        },
+        "input_to_saved_draw_us": {
+          "baseline": 59815,
+          "candidate": 55404,
+          "delta_us": -4411
+        },
+        "input_to_frame_post_draw_us": {
+          "baseline": 76611,
+          "candidate": 68968,
+          "delta_us": -7643
+        },
+        "max_process_frame_gap_us": {
+          "baseline": 77911,
+          "candidate": 70057,
+          "delta_us": -7854
+        },
+        "capture_callback_inclusive_us": {
+          "baseline": 1284,
+          "candidate": 1035,
+          "delta_us": -249
+        }
+      },
+      {
+        "case": "fresh",
+        "pair": 1,
+        "input_dispatch_us": {
+          "baseline": 77528,
+          "candidate": 49926,
+          "delta_us": -27602
+        },
+        "input_to_saved_draw_us": {
+          "baseline": 90014,
+          "candidate": 60918,
+          "delta_us": -29096
+        },
+        "input_to_frame_post_draw_us": {
+          "baseline": 109300,
+          "candidate": 74272,
+          "delta_us": -35028
+        },
+        "max_process_frame_gap_us": {
+          "baseline": 111936,
+          "candidate": 75502,
+          "delta_us": -36434
+        },
+        "capture_callback_inclusive_us": {
+          "baseline": 1605,
+          "candidate": 1153,
+          "delta_us": -452
+        }
+      },
+      {
+        "case": "fresh",
+        "pair": 2,
+        "input_dispatch_us": {
+          "baseline": 42682,
+          "candidate": 40574,
+          "delta_us": -2108
+        },
+        "input_to_saved_draw_us": {
+          "baseline": 54390,
+          "candidate": 50406,
+          "delta_us": -3984
+        },
+        "input_to_frame_post_draw_us": {
+          "baseline": 65349,
+          "candidate": 63234,
+          "delta_us": -2115
+        },
+        "max_process_frame_gap_us": {
+          "baseline": 66743,
+          "candidate": 64416,
+          "delta_us": -2327
+        },
+        "capture_callback_inclusive_us": {
+          "baseline": 1035,
+          "candidate": 1100,
+          "delta_us": 65
+        }
+      },
+      {
+        "case": "repeated",
+        "pair": 0,
+        "input_dispatch_us": {
+          "baseline": 50819,
+          "candidate": 42433,
+          "delta_us": -8386
+        },
+        "input_to_saved_draw_us": {
+          "baseline": 61491,
+          "candidate": 52863,
+          "delta_us": -8628
+        },
+        "input_to_frame_post_draw_us": {
+          "baseline": 74279,
+          "candidate": 65883,
+          "delta_us": -8396
+        },
+        "max_process_frame_gap_us": {
+          "baseline": 75349,
+          "candidate": 67062,
+          "delta_us": -8287
+        },
+        "capture_callback_inclusive_us": {
+          "baseline": 1063,
+          "candidate": 1079,
+          "delta_us": 16
+        }
+      },
+      {
+        "case": "repeated",
+        "pair": 1,
+        "input_dispatch_us": {
+          "baseline": 44129,
+          "candidate": 38925,
+          "delta_us": -5204
+        },
+        "input_to_saved_draw_us": {
+          "baseline": 55586,
+          "candidate": 47559,
+          "delta_us": -8027
+        },
+        "input_to_frame_post_draw_us": {
+          "baseline": 66749,
+          "candidate": 58191,
+          "delta_us": -8558
+        },
+        "max_process_frame_gap_us": {
+          "baseline": 67862,
+          "candidate": 70054,
+          "delta_us": 2192
+        },
+        "capture_callback_inclusive_us": {
+          "baseline": 1010,
+          "candidate": 977,
+          "delta_us": -33
+        }
+      },
+      {
+        "case": "repeated",
+        "pair": 2,
+        "input_dispatch_us": {
+          "baseline": 50339,
+          "candidate": 42854,
+          "delta_us": -7485
+        },
+        "input_to_saved_draw_us": {
+          "baseline": 63511,
+          "candidate": 52429,
+          "delta_us": -11082
+        },
+        "input_to_frame_post_draw_us": {
+          "baseline": 74991,
+          "candidate": 64886,
+          "delta_us": -10105
+        },
+        "max_process_frame_gap_us": {
+          "baseline": 76748,
+          "candidate": 66339,
+          "delta_us": -10409
+        },
+        "capture_callback_inclusive_us": {
+          "baseline": 1278,
+          "candidate": 953,
+          "delta_us": -325
+        }
+      }
+    ]
+  },
+  "candidate_restored_sha256": "6c5545901a0ef448ff8b9b80d41e7ad8d3b393e443a6196eb18f3d024022380e",
+  "limitations": [
+    "Three pairs per case; no tail-latency guarantee.",
+    "Linux X11 llvmpipe, not physical display or native Windows.",
+    "Test-authored short scene; fourth Save is not longer history.",
+    "All full-frame and dispatch pairs improve; one repeated max-process-gap metric regresses 2.192ms.",
+    "One baseline fresh sample is markedly slower; largest delta is not typical.",
+    "Missing speech library, unsupported VSync and exit resource/leak warnings occur in every sample."
+  ]
+}

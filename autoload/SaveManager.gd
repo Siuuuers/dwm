@@ -1748,7 +1748,8 @@ func _prepare_backup_action_profiled(action: String, locator_id: String, profile
 		if not built.get("ok", false):
 			return built
 		candidate["document"] = built["value"]
-		candidate["stable_hash"] = _canonical_sha256(stable["value"]["bundle"])
+		if not candidate.has("journal_candidate"):
+			candidate["stable_hash"] = _canonical_sha256(stable["value"]["bundle"])
 		_save_load_profile_phase(profile, "stable_hash_us")
 	elif action == "load":
 		if not record["loadable"]:
@@ -1821,14 +1822,15 @@ func _commit_backup_action_profiled(token: String, profile: Dictionary) -> Dicti
 				_save_load_profile_phase(profile, "metadata_refresh_us")
 			return removed
 		"save":
-			var stable := get_latest_stable_checkpoint()
-			if not stable.get("ok", false) or _canonical_sha256(stable["value"]["bundle"]) != candidate["stable_hash"]:
-				return _fail(&"stale_backup_source", "")
 			if candidate.has("journal_candidate"):
 				var captured := _capture_backup_inputs()
 				if not captured.get("ok", false):
 					return captured
 				if _canonical_sha256(captured["value"]) != candidate["capture_hash"] or _backup_journal_hash() != candidate["journal_hash"]:
+					return _fail(&"stale_backup_source", "")
+			else:
+				var stable := get_latest_stable_checkpoint()
+				if not stable.get("ok", false) or _canonical_sha256(stable["value"]["bundle"]) != candidate["stable_hash"]:
 					return _fail(&"stale_backup_source", "")
 			_save_load_profile_phase(profile, "source_recheck_us")
 			var canonical := CANONICAL_JSON.stringify(candidate["document"])

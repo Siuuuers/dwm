@@ -219,7 +219,7 @@
     {
       "path": "/tmp/dwm-profile-next/repeated-sample-0.log",
       "sha256": "53a83fb8a0201da2d5510e23f1659df6649df07055a3b1a26a549496ca24af56",
-      "result": "Exit 0, 1 test / 25 assertions passed; no SCRIPT ERROR."
+      "result": "Exit 0, 1 test / 28 assertions passed; no SCRIPT ERROR."
     },
     {
       "path": "/tmp/dwm-profile-next/fresh-sample-1.log",
@@ -229,7 +229,7 @@
     {
       "path": "/tmp/dwm-profile-next/repeated-sample-1.log",
       "sha256": "451160d2453eb14df4a8799d6d5052e738720c6d2be5501277ecb76237624709",
-      "result": "Exit 0, 1 test / 25 assertions passed; no SCRIPT ERROR."
+      "result": "Exit 0, 1 test / 28 assertions passed; no SCRIPT ERROR."
     },
     {
       "path": "/tmp/dwm-profile-next/fresh-sample-2.log",
@@ -239,7 +239,7 @@
     {
       "path": "/tmp/dwm-profile-next/repeated-sample-2.log",
       "sha256": "11370bdb66a81c1817e3505c65d46779598bca14abe687d74d31e6d420d5ad1b",
-      "result": "Exit 0, 1 test / 25 assertions passed; no SCRIPT ERROR."
+      "result": "Exit 0, 1 test / 28 assertions passed; no SCRIPT ERROR."
     }
   ],
   "profile_diagnostic": {
@@ -472,5 +472,6 @@
     "Profiler-enabled diagnostic is separate; nested scopes are inclusive.",
     "libspeechd unavailable, VSync unsupported and exit ObjectDB/resource warnings present.",
     "Rejected setup attempts logged separately; no timings accepted from them."
-  ]
+  ],
+  "assertions_passed": 159
 }
