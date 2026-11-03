@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
+import subprocess
 import tempfile
+import textwrap
 import unittest
 from unittest.mock import patch
 import xml.etree.ElementTree as ET
@@ -9,6 +11,31 @@ import run_inventory_checks as runner
 
 
 class InventoryRunnerTests(unittest.TestCase):
+    def test_checkout_keeps_scanner_inputs_and_only_required_evidence(self):
+        workflow = (runner.ROOT / '.github/workflows/windows-tests.yml').read_text()
+        job = workflow.split('\n  inventory-tooling:', 1)[1]
+        patterns = textwrap.dedent(job.split('          sparse-checkout: |\n', 1)[1].split('      - name:', 1)[0])
+        self.assertIn('sparse-checkout-cone-mode: false', job)
+        keep = {'evidence/.gdignore', 'project.godot', 'assets/nested/image.png', 'tools/testing/run_inventory_checks.py'}
+        keep.update(root + '/nested/input.gd' for root in ('autoload', 'scripts', 'scenes', 'tests'))
+        keep.update(f'evidence/phase_2r/runtime/{target}{suffix}.json'
+                    for target in runner.TARGETS for suffix in ('_surface', '_required_surface'))
+        omit = {'evidence/archive.zip', 'evidence/old/result.json',
+                'evidence/phase_2r/runtime/unrelated.json', 'evidence/phase_2r/old/archive.tar.gz.part01'}
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            subprocess.run(['git', 'init', '-q', str(root)], check=True)
+            for name in keep | omit:
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(name)
+            subprocess.run(['git', '-C', str(root), 'add', '.'], check=True)
+            subprocess.run(['git', '-C', str(root), '-c', 'user.name=Test', '-c', 'user.email=test@example.invalid',
+                            'commit', '-qm', 'fixture'], check=True)
+            subprocess.run(['git', '-C', str(root), 'sparse-checkout', 'set', '--no-cone', '--stdin'],
+                           input=patterns, text=True, check=True)
+            self.assertEqual({name for name in keep | omit if (root / name).exists()}, keep)
+
     def report(self, methods=('test_first', 'test_second')):
         report = ET.Element('testsuites')
         suite = ET.SubElement(report, 'testsuite')
