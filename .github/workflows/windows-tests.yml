@@ -1715,10 +1715,16 @@ jobs:
       - name: Start native speech service for mounted settings refresh
         timeout-minutes: 2
         run: bash tools/testing/start_cloud_speech.sh
+      - name: Check verification tooling
+        run: |
+          python tools/testing/test_progression_runner.py
+          python -m unittest discover -s tools/verification/story_progression -p 'test_*.py'
       - name: Check bounded progression model
+        shell: bash
         run: |
           mkdir -p .godot/ci/progression
-          java -cp "$RUNNER_TEMP/tla2tools.jar" tlc2.TLC -workers 1 -coverage 1 -metadir "$RUNNER_TEMP/progression-states" tools/verification/story_progression/StoryProgression.tla | tee .godot/ci/progression/tlc.log
+          java -cp "$RUNNER_TEMP/tla2tools.jar" tlc2.TLC -workers 1 -coverage 1 -metadir "$RUNNER_TEMP/progression-states" -dump "$RUNNER_TEMP/progression-reachable" tools/verification/story_progression/StoryProgression.tla | tee .godot/ci/progression/tlc.log
+          python tools/verification/story_progression/check_witnesses.py "$RUNNER_TEMP/progression-reachable.dump" | tee .godot/ci/progression/witnesses.log
       - name: Check command phases and connected playback
         run: python tools/testing/run_progression_checks.py
       - uses: actions/upload-artifact@v4

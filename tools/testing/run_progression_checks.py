@@ -7,12 +7,15 @@ ROOT = Path(__file__).resolve().parents[2]
 OUTPUT = ROOT / '.godot/ci/progression'
 NEXT = 'tests/integration/test_dialogic_next_traversal.gd'
 SKIP = 'tests/integration/test_dialogic_skip.gd'
+WRITE_REFUSAL_METHODS = (
+    'test_source_write_refusal_keeps_native_source_and_retries_the_same_operation',
+    'test_destination_write_refusal_keeps_exact_durable_source_then_retry_uses_identical_plan',
+)
 CASES = [
     ('next-partial', NEXT, 'test_partial_unseen_next_finishes_and_witnesses_current_line_then_seeks_in_same_activation'),
     ('next-nested', NEXT, 'test_next_acknowledgement_and_completion_signals_keep_outer_command_ownership'),
     ('next-exclusive', NEXT, 'test_exclusive_next_coalesces_identical_activation_and_blocks_every_intermediate_command'),
-    ('next-source-refusal', NEXT, 'test_source_write_refusal_keeps_native_source_and_retries_the_same_operation'),
-    ('next-destination-refusal', NEXT, 'test_destination_write_refusal_keeps_exact_durable_source_then_retry_uses_identical_plan'),
+    ('next-write-refusal', NEXT, 'write_refusal_keeps_'),
     ('skip-nested', SKIP, 'test_skip_acknowledgement_blocks_competitors_and_returns_to_its_outer_step'),
     ('skip-refusal', SKIP, 'test_profile_write_failure_halts_advancement'),
     ('skip-unread', SKIP, 'test_read_only_stops_at_the_first_unread_line'),
@@ -34,6 +37,16 @@ JOURNEYS = [
     ('transition-auto', 'tests/ui/render_scene_transition_auto.gd',
      'test_auto_waits_for_visible_transition_destination', 'transition-auto', 'SCENE_TRANSITION_AUTO_COMPLETED'),
 ]
+
+
+def assert_tests_pass(report, expected_methods):
+    cases = report.findall('.//testcase')
+    names = [case.get('name') for case in cases]
+    assert len(names) == len(expected_methods) and set(names) == set(expected_methods), names
+    assert not any(report.findall('.//' + tag) for tag in ('failure', 'error', 'skipped'))
+    for case in cases:
+        assert int(case.get('assertions', '0')) > 0, case.attrib
+        assert case.get('status') == 'pass', case.attrib
 
 
 def run():
@@ -63,11 +76,8 @@ def run():
         assert 'SCRIPT ERROR:' not in log and 'ERROR: Failed to load' not in log, name
         assert not marker or marker in log, name
         report = ET.parse(OUTPUT / (name + '.xml')).getroot()
-        cases = report.findall('.//testcase')
-        assert len(cases) == 1 and cases[0].get('name') == method, (name, [case.attrib for case in cases])
-        assert int(cases[0].get('assertions', '0')) > 0, name
-        assert not any(report.findall('.//' + tag) for tag in ('failure', 'error', 'skipped')), name
-        assert cases[0].get('status') == 'pass', name
+        expected = WRITE_REFUSAL_METHODS if method == 'write_refusal_keeps_' else (method,)
+        assert_tests_pass(report, expected)
         print('PASS', name, flush=True)
 
 

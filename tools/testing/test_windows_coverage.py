@@ -174,7 +174,11 @@ class WindowsCoverageTests(unittest.TestCase):
 
     def test_model_only_changes_keep_the_protocol_check(self):
         paths = {'tools/verification/story_progression/StoryProgression.tla',
-                 'tools/verification/story_progression/README.md'}
+                 'tools/verification/story_progression/README.md',
+                 'tools/verification/story_progression/check_witnesses.py',
+                 'tools/verification/story_progression/test_check_witnesses.py',
+                 'tools/testing/run_progression_checks.py',
+                 'tools/testing/test_progression_runner.py'}
         self.assertEqual(select(paths)['progression'], 'true')
         self.assertEqual(select(paths)['comparison'], 'false')
         self.assertEqual(select(paths | {'autoload/SaveManager.gd'})['progression'], 'false')
