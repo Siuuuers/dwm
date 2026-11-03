@@ -74,7 +74,7 @@ func test_day2_scene_does_not_mount_retired_observer_interactions() -> void:
 		add_child_autofree(scene)
 		scene.set_process(false)
 		assert_eq(port.observer_reads, 0, "The live scene never requests the dormant interaction.")
-		for retired_name: String in ["DatingSceneMoment", "PreviousSceneLine", "Capture", "Compare", "FalseCursor"]:
+		for retired_name: String in ["DatingSceneMoment", "PreviousSceneLine", "Capture", "Compare", "MoveCup", "ComparedLines", "FalseCursor"]:
 			assert_null(scene.find_child(retired_name, true, false), retired_name)
 		assert_true(port.commands.is_empty())
 
