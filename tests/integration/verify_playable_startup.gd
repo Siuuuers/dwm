@@ -157,7 +157,7 @@ func _run() -> void:
 	if "--probe-schedule-hospital" in OS.get_cmdline_user_args():
 		await _schedule_hospital_journey(game, desktop)
 		return
-	if "--probe-dating" in OS.get_cmdline_user_args() or "--probe-dating-debug" in OS.get_cmdline_user_args() or "--probe-dating-marked" in OS.get_cmdline_user_args():
+	if "--probe-dating" in OS.get_cmdline_user_args():
 		await _dating_journey(game, desktop)
 		return
 	if "--probe-pause" in OS.get_cmdline_user_args():
@@ -449,9 +449,6 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 	schedule.panel.source_requested.emit(invitation_id)
 	if not _check(schedule.last_result.get("ok", false) and schedule.get("_projection").entries.size() == 1,
 		"invitation added to Schedule: " + JSON.stringify(schedule.last_result)): return
-	if "--probe-dating-debug" in OS.get_cmdline_user_args():
-		# Explicit capability fixture before the real Date owner freezes its inputs.
-		game.inventory = {"debug_key": 1, "lucky_charm": 1}
 	var ports: Dictionary = desktop.get_meta("gameplay_ports")
 	for attempt: int in 5:
 		var done: Dictionary = ports.commands.dispatch_done()
@@ -467,9 +464,6 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 	await _capture_screen("04-dating-entry")
 	if "--probe-observer-priscilla" in OS.get_cmdline_user_args() or "--probe-observer-lavinia" in OS.get_cmdline_user_args():
 		if not await _observer_scene_journey(game, dating, friend_id): return
-	if "--probe-dating-debug" in OS.get_cmdline_user_args() or "--probe-dating-marked" in OS.get_cmdline_user_args():
-		await preload("res://tests/integration/PlayableDatingCapabilityProbe.gd").new().run(self, game, dating, "--probe-dating-debug" in OS.get_cmdline_user_args())
-		return
 	if not await _wait_for_dating_board(dating): return
 	dating.worksheet.cell_action_requested.emit(&"reveal", 0, int(dating.get("_physical_view").board.revision))
 	var record: Dictionary = game.capture_dating_challenge_state().value
