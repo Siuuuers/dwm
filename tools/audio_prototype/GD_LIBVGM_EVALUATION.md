@@ -1,5 +1,10 @@
 # gd_libvgm comparison
 
+> Historical prototype record. The custom adapter was retired after native game
+> integration passed. Its source and reproduction instructions remain at
+> [the archived revision](https://github.com/Siuuuers/dwm/tree/a91b013b51653c6e4830911a650d6730d184ca48/tools/audio_prototype).
+> See [native game audio](../../docs/audio/native-audio.md) for the current implementation.
+
 ## Decision
 
 Prototype comparison complete; prefer gd_libvgm for the next integration step.

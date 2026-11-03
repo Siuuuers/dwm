@@ -517,7 +517,7 @@ func _on_shut_down_pressed() -> void:
 		_on_shut_down_confirmed, func(): _shut_down_button.grab_focus())
 
 func _on_shut_down_confirmed() -> void:
-	get_tree().quit()
+	get_node("/root/ApplicationBootstrap").request_quit()
 
 func _close_backup_app() -> void:
 	if not _source_departure_admitted():

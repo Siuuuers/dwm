@@ -1,5 +1,9 @@
 # Prototype score fixtures
 
+> These fixtures and compiler instructions remain in use. References below to
+> the custom libgme adapter describe historical evidence; current playback uses
+> [gd_libvgm through the game audio owner](../../docs/audio/native-audio.md).
+
 These are original test phrases, not production soundtrack selections. They were
 written directly in FamiStudio text for this prototype; no existing composition,
 recording, demo-song notes, or sampled instrument is included. Edit the `.txt`

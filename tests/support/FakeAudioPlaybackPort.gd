@@ -186,7 +186,11 @@ func _output_failure(code: StringName = &"invalid_audio_runtime") -> Dictionary:
 
 
 func capture_runtime() -> Dictionary:
-	return _record(&"capture_runtime", {}, {"players": players.duplicate(true), "bus_states": bus_states.duplicate(true),
+	var captured_players := players.duplicate(true)
+	for player: Dictionary in captured_players.values():
+		player["volume_db"] = player.db
+		player.erase("db")
+	return _record(&"capture_runtime", {}, {"players": captured_players, "bus_states": bus_states.duplicate(true),
 		"transitions": active_tweens.duplicate(true), "output_mode": output_mode,
 		"owned_mono_present": _owned_mono_present, "owned_mono_created": _owned_mono_created})
 
@@ -195,6 +199,9 @@ func restore_runtime(backup: Dictionary) -> Dictionary:
 	var result := _record(&"restore_runtime", {"backup": backup.duplicate(true)}, {})
 	if not result.get("ok", false): return result
 	players = backup.get("players", {}).duplicate(true)
+	for player: Dictionary in players.values():
+		player["db"] = player.volume_db
+		player.erase("volume_db")
 	bus_states = backup.get("bus_states", {}).duplicate(true)
 	active_tweens = backup.get("transitions", {}).duplicate(true)
 	output_mode = backup.get("output_mode", output_mode)

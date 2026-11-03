@@ -64,6 +64,79 @@ def select(paths, event_name='pull_request', sources=None, selector=SELECTOR, di
 
 
 class WindowsCoverageTests(unittest.TestCase):
+    def test_native_audio_integration_selects_its_own_workflow(self):
+        paths = {
+            '.github/workflows/audio-prototype.yml',
+            'tools/audio_prototype/verify.py',
+            'tools/audio_prototype/NATIVE_NOTES.md',
+            'tools/audio_prototype/GD_LIBVGM_EVALUATION.md',
+            'tools/audio_prototype/FIXTURES.md',
+            'tools/audio_prototype/licenses/README.md',
+            'tools/audio_prototype/native/.gdignore',
+            'tools/audio_prototype/native/nsf_stream.cpp',
+            'tools/audio_prototype/SConstruct',
+            'tools/audio_prototype/build.py',
+            'tools/audio_prototype/build_profile.json',
+            'tools/audio_prototype/nsf.gdextension',
+            'tools/audio_prototype/nsf.gdextension.uid',
+            '.github/workflows/native-audio.yml',
+            '.github/workflows/windows-tests.yml',
+            '.gitignore',
+            'autoload/ApplicationBootstrap.gd',
+            'autoload/AudioManager.gd',
+            'export_presets.cfg',
+            'project.godot',
+            'scripts/audio/AudioPlaybackPort.gd',
+            'scripts/data/AudioManifest.gd',
+            'scripts/narrative/DialogicEntryManifest.gd',
+            'scripts/ui/MenuScene.gd',
+            'tests/support/FakeAudioPlaybackPort.gd',
+            'tests/unit/test_audio_manager.gd',
+            'tests/unit/test_inline_audio_authoring.gd',
+            'tests/unit/test_scene_audio_manager.gd',
+            'tests/unit/test_scene_audio_manifest.gd',
+            'tests/unit/test_scene_audio_playback_port.gd',
+            'tools/audio_prototype/build_gd_libvgm.py',
+            'tools/audio_prototype/game_smoke.gd',
+            'tools/audio_prototype/verify_game.py',
+            'tools/audio_prototype/README.md',
+            'tools/authoring/AuthoredWeekRegistration.gd',
+            'tools/testing/test_windows_coverage.py',
+            'docs/audio/native-audio.md',
+        }
+        for event, data in (
+            ('pull_request', {'pull_request': {'base': {'sha': 'a' * 40}}}),
+            ('push', {'before': 'a' * 40}),
+            ('pull_request', {'action': 'synchronize', 'before': 'b' * 40,
+                              'pull_request': {'base': {'sha': 'a' * 40}}}),
+        ):
+            commands = []
+            result = select(paths, event_name=event, event_data=data, commands=commands)
+            self.assertEqual(result['native_audio'], 'true')
+            self.assertEqual(result['inventory_tooling'], 'false')
+            self.assertEqual(result['comparison'], 'false')
+            self.assertFalse(any('b' * 40 in arg for args in commands for arg in args))
+        self.assertEqual(select(paths | {'tools/audio_prototype/game_smoke.gd.uid'})['native_audio'], 'true')
+        for unrelated in ('autoload/GameState.gd', 'autoload/SaveManager.gd',
+                          'scripts/ui/Other.gd.uid', 'tools/audio_prototype/other.py',
+                          'tools/audio_prototype/native/other.cpp', 'tools/audio_prototype/licenses/other.md',
+                          'docs/audio/other.md', '.github/workflows/other.yml'):
+            sources = {'a' * 40 + ':autoload/ApplicationBootstrap.gd': '',
+                       'HEAD:autoload/ApplicationBootstrap.gd': ''}
+            self.assertEqual(select(paths | {unrelated}, sources=sources)['native_audio'], 'false', unrelated)
+
+    def test_native_audio_requires_its_anchor_and_a_known_diff(self):
+        self.assertEqual(select({'autoload/AudioManager.gd'})['native_audio'], 'false')
+        paths = {'.github/workflows/native-audio.yml', 'autoload/AudioManager.gd'}
+        for kwargs in ({'event_name': 'workflow_dispatch'}, {'diff_code': 128}, {'event_data': {}}):
+            self.assertEqual(select(paths, **kwargs)['native_audio'], 'false')
+
+    def test_native_audio_gates_broad_runtime_export_and_render_jobs(self):
+        for job in ('focused-tests', 'windows-export', 'public-surfaces',
+                    'rendered-journeys', 'rendered-desktop'):
+            section = WORKFLOW.split('  ' + job + ':', 1)[1].split('    steps:', 1)[0]
+            self.assertIn("needs.test-scope.outputs.native_audio != 'true'", section)
+
     def test_ci_job_edits_select_only_their_owners(self):
         workflow = '.github/workflows/windows-tests.yml'
         test = 'tools/testing/test_inventory_runner.py'

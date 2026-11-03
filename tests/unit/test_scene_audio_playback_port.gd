@@ -82,3 +82,38 @@ func test_fake_records_default_and_explicit_positions_and_refuses_invalid_input(
 		assert_false(fake.play(PLAYER, invalid).get("ok", true))
 		assert_eq(fake.players, players)
 		assert_eq(fake.operations.size(), operation_count)
+
+
+func test_shutdown_releases_paused_and_replaced_playbacks() -> void:
+	assert_true(_port.play(PLAYER).ok)
+	var player: AudioStreamPlayer = _port.get("_players")[PLAYER]
+	var retired: WeakRef = weakref(player.get_stream_playback())
+	assert_true(_port.play(PLAYER, 1.0).ok)
+	var current: WeakRef = weakref(player.get_stream_playback())
+	player.stream_paused = true
+	var tracks: Array[Dictionary] = [{"player_id": PLAYER, "from_db": 0.0, "to_db": -10.0}]
+	assert_true(_port.create_parallel_tween(&"shutdown_fixture", tracks, 10.0).ok)
+	var stopped: Dictionary = await _port.shutdown()
+	assert_true(stopped.ok)
+	assert_null(retired.get_ref())
+	assert_null(current.get_ref())
+	assert_null(player.stream)
+	assert_true(_port.get("_players").is_empty())
+	assert_true(_port.get("_playback_refs").is_empty())
+	assert_true(_port.get("_tweens").is_empty())
+	assert_true(_port.get("_tween_specs").is_empty())
+	assert_true((await _port.shutdown()).ok, "shutdown can be repeated")
+
+
+func test_shutdown_refuses_retained_playback_then_allows_retry() -> void:
+	assert_true(_port.play(PLAYER).ok)
+	var player: AudioStreamPlayer = _port.get("_players")[PLAYER]
+	var retained: AudioStreamPlayback = player.get_stream_playback()
+	var stopped: Dictionary = await _port.shutdown()
+	assert_false(stopped.ok)
+	assert_eq(stopped.code, &"audio_shutdown_pending")
+	assert_null(player.stream)
+	assert_false(player.playing)
+	assert_false(_port.get("_playback_refs").is_empty())
+	retained = null
+	assert_true((await _port.shutdown()).ok)

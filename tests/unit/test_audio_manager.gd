@@ -174,16 +174,26 @@ func test_full_sfx_pool_reuses_oldest_playing_after_a_free_slot_was_reused() -> 
 	assert_eq(_manager.play_sfx("button_accept")["value"]["player_slot"], 0)
 
 
-func test_failed_context_change_rolls_back_runtime_and_semantics() -> void:
+func test_failed_music_change_restarts_prior_cue_and_preserves_ambience() -> void:
 	assert_true(_manager.initialize(_profile).get("ok", false))
 	assert_true(_manager.set_music_context("menu").get("ok", false))
+	assert_true(_manager.set_ambience_context("rain").get("ok", false))
+	_port.players[&"MusicB"].playback_position = 120.0
+	_port.players[&"AmbienceB"].playback_position = 19.0
+	var ambience: Dictionary = _port.players[&"AmbienceB"].duplicate(true)
 	var before: Dictionary = _manager.get_semantic_audio_context()
 	_port.fail_after(_port.operations.size() + 3)
 	var failed: Dictionary = _manager.set_music_context("hospital")
 	assert_false(failed.get("ok", false))
 	assert_eq(_manager.get_semantic_audio_context(), before)
 	assert_eq(_port.operations[-1]["operation"], &"restore_runtime")
-	assert_true(_port.active_tweens.has(&"music"))
+	assert_false(_port.active_tweens.has(&"music"))
+	assert_eq(_port.players[&"MusicB"].playback_position, 0.0)
+	assert_eq(_port.players[&"MusicB"].db, 0.0)
+	assert_true(_port.players[&"MusicB"].playing)
+	assert_false(_port.players[&"MusicA"].playing)
+	assert_null(_port.players[&"MusicA"].stream)
+	assert_eq(_port.players[&"AmbienceB"], ambience)
 
 
 func test_every_crossfade_operation_failpoint_preserves_semantics() -> void:

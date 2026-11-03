@@ -43,6 +43,7 @@ jobs:
     name: Select current change coverage
     runs-on: ubuntu-24.04
     outputs:
+      native_audio: ${{ steps.scope.outputs.native_audio }}
       audio_prototype: ${{ steps.scope.outputs.audio_prototype }}
       ci_jobs: ${{ steps.scope.outputs.ci_jobs }}
       docs_only: ${{ steps.scope.outputs.docs_only }}
@@ -135,6 +136,7 @@ jobs:
                       rest = rest.replace(state, b"")
                   bodies.append(rest)
               return bodies[0] == bodies[1]
+          native_audio = False
           audio_prototype = False
           ci_jobs = []
           docs_only = False
@@ -171,6 +173,51 @@ jobs:
                           ".github/workflows/windows-tests.yml",
                           "tools/testing/test_windows_coverage.py",
                       } for p in paths)
+                  native_audio_paths = {
+                      '.github/workflows/audio-prototype.yml',
+                      'tools/audio_prototype/verify.py',
+                      'tools/audio_prototype/NATIVE_NOTES.md',
+                      'tools/audio_prototype/GD_LIBVGM_EVALUATION.md',
+                      'tools/audio_prototype/FIXTURES.md',
+                      'tools/audio_prototype/licenses/README.md',
+                      'tools/audio_prototype/native/.gdignore',
+                      'tools/audio_prototype/native/nsf_stream.cpp',
+                      'tools/audio_prototype/SConstruct',
+                      'tools/audio_prototype/build.py',
+                      'tools/audio_prototype/build_profile.json',
+                      'tools/audio_prototype/nsf.gdextension',
+                      'tools/audio_prototype/nsf.gdextension.uid',
+                      '.github/workflows/native-audio.yml',
+                      '.github/workflows/windows-tests.yml',
+                      '.gitignore',
+                      'autoload/ApplicationBootstrap.gd',
+                      'autoload/AudioManager.gd',
+                      'export_presets.cfg',
+                      'project.godot',
+                      'scripts/audio/AudioPlaybackPort.gd',
+                      'scripts/data/AudioManifest.gd',
+                      'scripts/narrative/DialogicEntryManifest.gd',
+                      'scripts/ui/MenuScene.gd',
+                      'tests/support/FakeAudioPlaybackPort.gd',
+                      'tests/unit/test_audio_manager.gd',
+                      'tests/unit/test_inline_audio_authoring.gd',
+                      'tests/unit/test_scene_audio_manager.gd',
+                      'tests/unit/test_scene_audio_manifest.gd',
+                      'tests/unit/test_scene_audio_playback_port.gd',
+                      'tools/audio_prototype/build_gd_libvgm.py',
+                      'tools/audio_prototype/game_smoke.gd',
+                      'tools/audio_prototype/verify_game.py',
+                      'tools/audio_prototype/README.md',
+                      'tools/authoring/AuthoredWeekRegistration.gd',
+                      'tools/testing/test_windows_coverage.py',
+                      'docs/audio/native-audio.md',
+                  }
+                  native_audio = bool(paths & {
+                      '.github/workflows/native-audio.yml',
+                      'tools/audio_prototype/verify_game.py',
+                      'tools/audio_prototype/game_smoke.gd',
+                  }) and all(p in native_audio_paths or (p.endswith('.gd.uid') and p[:-4] in native_audio_paths)
+                             for p in paths)
                   workflow = '.github/workflows/windows-tests.yml'
                   inventory_test = 'tools/testing/test_inventory_runner.py'
                   coverage_test = 'tools/testing/test_windows_coverage.py'
@@ -666,7 +713,7 @@ jobs:
                       'tools/testing/test_windows_coverage.py',
                       'docs/agent/2026-10-30-shop-sizing-results.md',
                   })
-                  if 'autoload/ApplicationBootstrap.gd' in paths and unchanged_outside_method('autoload/ApplicationBootstrap.gd', '_layout_scene_desktop'):
+                  if not native_audio and 'autoload/ApplicationBootstrap.gd' in paths and unchanged_outside_method('autoload/ApplicationBootstrap.gd', '_layout_scene_desktop'):
                       shop_cosmetic_paths.add('autoload/ApplicationBootstrap.gd')
                   shop_cosmetics = bool(paths) and paths <= shop_cosmetic_paths and bool(paths & {
                       'scripts/data/DataCatalog.gd', 'scripts/ui/ShopApp.gd', 'scripts/ui/ShopItemBox.gd',
@@ -731,7 +778,7 @@ jobs:
                   self_talk = bool(paths) and paths <= self_talk_paths and bool(paths & {"scripts/ui/witnessed/WitnessedSelfTalk.gd", "tests/unit/test_scene_self_talk.gd", "tests/ui/render_self_talk_journey.gd"})
                   self_talk_panel = is_self_talk_panel(paths, base)
                   comparison_paths = paths
-                  previous = event.get("before", "") if event.get("action") == "synchronize" and not (ci_jobs or docs_only or inventory_only) else ""
+                  previous = event.get("before", "") if event.get("action") == "synchronize" and not (native_audio or ci_jobs or docs_only or inventory_only) else ""
                   if re.fullmatch(r"[0-9a-f]{40}", previous):
                       available = subprocess.run(["git", "cat-file", "-e", previous], capture_output=True)
                       if available.returncode != 0:
@@ -747,7 +794,7 @@ jobs:
           # Current native Save/Load and terminal fixtures qualify incompatible schemas;
           # skipping this old-input measurement does not establish a speedup.
           comparison = comparison or (focused and not previous)
-          if audio_prototype or ci_jobs or docs_only or inventory_only or progression or dtl_content or dtl_first or reading_layout or readability or bilingual_reading or dialogue_library or playtest_polish or self_talk or self_talk_panel or shop_cosmetics or scene_transition or save_ink: comparison = False
+          if native_audio or audio_prototype or ci_jobs or docs_only or inventory_only or progression or dtl_content or dtl_first or reading_layout or readability or bilingual_reading or dialogue_library or playtest_polish or self_talk or self_talk_panel or shop_cosmetics or scene_transition or save_ink: comparison = False
           if comparison:
               archive = "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip"
               archive_bytes = subprocess.run(["git", "show", "HEAD:" + archive], capture_output=True, check=True).stdout
@@ -765,6 +812,8 @@ jobs:
                   if keys != saved_keys:
                       comparison = False
                       print("Archived startup/Load measurement is incompatible with " + ref + "; current-build correctness coverage remains required.")
+          if native_audio:
+              inventory_tooling = False
           if ci_jobs:
               inventory_tooling = 'inventory-tooling' in ci_jobs
               print('CI job-only changes: ' + ', '.join(ci_jobs))
@@ -779,9 +828,10 @@ jobs:
               if os.environ["GITHUB_EVENT_NAME"] == "pull_request":
                   print("Source lint runs in its independent PR workflow")
               print("Skipped: gameplay, rendering, audio and export; exact tooling scope" if inventory_only else "Skipped: no groups due to inventory classification")
-          print("Selected " + ("isolated audio prototype coverage" if audio_prototype else ", ".join(ci_jobs) if ci_jobs else "documentation checks" if docs_only else "inventory tooling Linux coverage" if inventory_only else "progression Linux coverage" if progression else "self-talk panel Linux coverage" if self_talk_panel else "DTL content and manual-edit recovery coverage" if dtl_content else "DTL compiler/save/runtime coverage" if dtl_first else "readability and display-default coverage" if readability else "reading layout coverage" if reading_layout else "bilingual reading coverage" if bilingual_reading else "runtime resource/Backup coverage" if focused else "full validation"))
+          print("Selected " + ("native audio integration coverage" if native_audio else "isolated audio prototype coverage" if audio_prototype else ", ".join(ci_jobs) if ci_jobs else "documentation checks" if docs_only else "inventory tooling Linux coverage" if inventory_only else "progression Linux coverage" if progression else "self-talk panel Linux coverage" if self_talk_panel else "DTL content and manual-edit recovery coverage" if dtl_content else "DTL compiler/save/runtime coverage" if dtl_first else "readability and display-default coverage" if readability else "reading layout coverage" if reading_layout else "bilingual reading coverage" if bilingual_reading else "runtime resource/Backup coverage" if focused else "full validation"))
           with open(os.environ["GITHUB_OUTPUT"], "a") as output:
               output.write("ci_jobs=" + json.dumps(ci_jobs) + "\n")
+              output.write(f"native_audio={str(native_audio).lower()}\n")
               output.write(f"audio_prototype={str(audio_prototype).lower()}\n")
               output.write(f"docs_only={str(docs_only).lower()}\n")
               output.write(f"inventory_only={str(inventory_only).lower()}\n")
@@ -807,7 +857,7 @@ jobs:
     # Independent suites use committed source; inventory verification remains a
     # separate required result and cannot be satisfied by diagnostic regeneration.
     needs: test-scope
-    if: ${{ needs.test-scope.result == 'success' && needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' }}
+    if: ${{ needs.test-scope.result == 'success' && needs.test-scope.outputs.native_audio != 'true' && needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' }}
     name: Windows / ${{ matrix.suite }}
     runs-on: windows-2022
     timeout-minutes: ${{ matrix.suite == 'current_terminal_fixture' && 35 || 20 }}
@@ -1067,7 +1117,7 @@ jobs:
 
   windows-export:
     needs: test-scope
-    if: needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true'
+    if: needs.test-scope.outputs.native_audio != 'true' && needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true'
     name: Windows / exported release startup
     runs-on: windows-2022
     timeout-minutes: 35
@@ -1171,7 +1221,7 @@ jobs:
 
   public-surfaces:
     needs: test-scope
-    if: needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true'
+    if: needs.test-scope.outputs.native_audio != 'true' && needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true'
     name: Windows / public API surface contracts
     runs-on: windows-2022
     timeout-minutes: 20
@@ -1322,7 +1372,7 @@ jobs:
 
   rendered-journeys:
     needs: test-scope
-    if: needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
+    if: needs.test-scope.outputs.native_audio != 'true' && needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
     name: Rendered current Gallery components
     runs-on: ubuntu-24.04
     timeout-minutes: 25
@@ -1423,7 +1473,7 @@ jobs:
           retention-days: 7
   rendered-desktop:
     needs: test-scope
-    if: contains(needs.test-scope.outputs.ci_jobs, '"rendered-desktop"') || needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
+    if: contains(needs.test-scope.outputs.ci_jobs, '"rendered-desktop"') || needs.test-scope.outputs.native_audio != 'true' && needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
     name: Rendered desktop and dialogue / Linux software OpenGL
     runs-on: ubuntu-24.04
     timeout-minutes: 20

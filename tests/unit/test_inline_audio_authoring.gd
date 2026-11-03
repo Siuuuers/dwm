@@ -7,10 +7,43 @@ const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const SOURCE := "res://tests/fixtures/dialogic/Day1.dtl"
 const PROBE := "res://tests/fixtures/dialogic/_inline_audio_authoring.dtl"
 const BED := "res://tests/fixtures/audio/scene_test_bed.tres"
+const NATIVE_BED := "res://tests/fixtures/audio/_inline_native_bed.nsf"
+const NATIVE_CUE := "res://tests/fixtures/audio/_inline_native_cue.nsfe"
 
 func after_each() -> void:
 	DirAccess.remove_absolute(PROBE)
+	DirAccess.remove_absolute(NATIVE_BED)
+	DirAccess.remove_absolute(NATIVE_CUE)
 	ADAPTER._scene_compile_cache.erase(PROBE)
+
+func test_native_export_uses_unbounded_music_and_finite_cue_metadata() -> void:
+	if not ClassDB.class_exists("VGMStream"):
+		pending("Run with the staged gd_libvgm extension to verify native authoring")
+		return
+	for pair: Array in [
+		["res://tools/audio_prototype/fixtures/loop_a.nsf", NATIVE_BED],
+		["res://tools/audio_prototype/fixtures/confirm.nsfe", NATIVE_CUE]]:
+		var copied := DirAccess.copy_absolute(pair[0], pair[1])
+		assert_eq(copied, OK)
+		if copied != OK: return
+	var fallback := {"kind": "scene_audio_catalogue", "schema_version": 3,
+		"assets": [], "plans": [], "bindings": []}
+	var authored := {"music": [{"id": "quiet_room", "path": NATIVE_BED, "entrance_ms": 1250}],
+		"sfx": [{"id": "confirm", "path": NATIVE_CUE}], "initial_music": "quiet_room"}
+	var result := WEEK.prepare_audio_catalogue(authored, fallback, ["first"], "first")
+	assert_true(result.ok, str(result))
+	if not result.ok: return
+	assert_gt(result.value.assets[0].duration_ms, 0, "NSFe metadata bounds the one-shot")
+	assert_eq(result.value.assets[1].duration_ms, 0, "raw NSF reports no finite endpoint")
+	assert_eq(result.value.assets[1].sha256, FileAccess.get_sha256(NATIVE_BED))
+	assert_eq(result.value.plans[0].load_anchor_ms, 1250)
+	authored.sfx[0].path = NATIVE_BED
+	assert_false(WEEK.prepare_audio_catalogue(authored, fallback, ["first"], "first").ok,
+		"unbounded NSF cannot be authored as a finite SFX")
+	authored.sfx[0].path = NATIVE_CUE
+	authored.music[0].path = NATIVE_CUE
+	assert_false(WEEK.prepare_audio_catalogue(authored, fallback, ["first"], "first").ok,
+		"timed NSFe cannot stand in for continuously looping music")
 
 func test_export_derives_media_metadata_and_initial_binding() -> void:
 	var fallback := {"kind": "scene_audio_catalogue", "schema_version": 2,
@@ -57,9 +90,12 @@ func test_registration_checks_compiled_cue_references_without_per_cue_lists() ->
 	var labels: Array = []
 	for entry: Dictionary in original.entry_manifest.entries: labels.append(entry.entry_id)
 	for cue: String in ["music " + BASE.MUSIC_PLAN_ID, "music stop", "sfx " + BASE.MUSIC_ASSET_ID,
-		"music missing_plan", "sfx missing_asset"]:
+		"music missing_plan", "sfx missing_asset", "sfx native_unbounded"]:
 		var bundle: Dictionary = original.duplicate(true)
 		bundle.audio_catalogue.schema_version = 3
+		bundle.audio_catalogue.assets.append({"asset_id": "native_unbounded",
+			"path": "res://audio/bgm/quiet_room.nsf", "sha256": "a".repeat(64), "duration_ms": 0})
+		bundle.audio_catalogue.assets.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.asset_id < b.asset_id)
 		var source := FileAccess.get_file_as_string(SOURCE).replace("label Day1\n", "label Day1\n# audio " + cue + "\n")
 		var file := FileAccess.open(PROBE, FileAccess.WRITE)
 		assert_not_null(file)
@@ -78,4 +114,5 @@ func test_registration_checks_compiled_cue_references_without_per_cue_lists() ->
 			for target: Dictionary in bundle.targets:
 				if target.target.get("entry_id") == "Day1": target.target.program_sha256 = compiled.value.program_sha256
 		var checked := MANIFEST.validate_scene_registration(bundle)
-		assert_eq(checked.ok, not "missing_" in cue, cue + ": " + str(checked.get("code", "")))
+		assert_eq(checked.ok, not "missing_" in cue and cue != "sfx native_unbounded",
+			cue + ": " + str(checked.get("code", "")))
