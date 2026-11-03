@@ -5,6 +5,9 @@ The two music loops and one effect are original test fixtures, not production
 soundtrack choices. The main game keeps its existing audio system and recordings.
 The `.gdignore` prevents the root game from importing this nested project.
 
+[The gd_libvgm comparison](GD_LIBVGM_EVALUATION.md) records a working playback
+trial and a reproducible clean-import blocker; that candidate is not adopted.
+
 ## Build and check
 
 Use Python 3.12, a C++ compiler (GCC on Linux or Visual Studio 2022 C++ on Windows),
