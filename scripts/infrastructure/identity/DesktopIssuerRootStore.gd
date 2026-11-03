@@ -1,35 +1,6 @@
 class_name DesktopIssuerRootStore
 extends RefCounted
 
-## Durable external issuer root and closed provenance ledger (Plan 02 Task 1, dwm-p2r.16).
-##
-## Lives outside every selectable run snapshot: no API here lowers, replaces, or restores root
-## state. Writes one strict primitive `desktop-issuer-root.json` through injected atomic storage.
-##
-## FROZEN PUBLIC SURFACE -- `root_store_public_surface_sha256` is derived by parsing these
-## declarations in source order with types stripped, giving exactly:
-##
-##     configure(storage,namespace_source)
-##     load_or_create()
-##     issue(purpose)
-##     issue_deferred(purpose)
-##     flush()
-##     verify_receipt(receipt,expected_purpose)
-##     prepare_allocation(request)
-##     commit_allocation(candidate)
-##     prepare_causal_day_advance(request)
-##     commit_causal_day_advance(candidate)
-##     capture()
-##
-## Parameter names are frozen strings; unused ones keep their exact names and are silenced with
-## @warning_ignore rather than a leading underscore (dwm-p2r.16 DECISION 8.2). Every helper below is
-## underscore-prefixed or static, because the boundary extractor counts only top-level,
-## non-underscore, non-static declarations (DECISION 13.4).
-##
-## VALIDATION SPLIT (DECISION 13.2). The Callable handed to storage parses and nothing else, so
-## storage owns atomicity while this class owns domain law. The schema and the ledger laws run in
-## `load_or_create()` and each carry a precise typed code. No code below is asserted by any test:
-## the plan freezes none for this file, so none may be treated as frozen contract (DECISION 9.9).
 
 const ROOT_DOCUMENT_PATH := "desktop-issuer-root.json"
 const SCHEMA_PATH := "res://data/schemas/desktop-issuer-root.schema.json"
@@ -40,9 +11,6 @@ const _STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 const _CANONICAL_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const _SCHEMA_VALIDATOR := preload("res://scripts/validation/JsonSchemaValidator.gd")
 
-## The closed v1 purpose union, plan line 535. The ROOT accepts all ten: refusing the two allocator
-## purposes is the ISSUER's law (plan line 729), and a root that refused them could never allocate a
-## generation or a causal day at all.
 const PURPOSE_UNION := [
 	"run_id",
 	"branch_id",
@@ -56,13 +24,10 @@ const PURPOSE_UNION := [
 	"receipt_id",
 ]
 
-## The only purpose whose receipt carries a nonnull `numeric_value` (plan line 535).
 const NUMERIC_PURPOSE := "desktop_timeline_generation"
 
-## Exact receipt member set, plan line 535.
 const RECEIPT_KEYS := ["counter", "namespace", "numeric_value", "purpose", "receipt_id", "token"]
 
-## Exact continuation request member set, plan line 729.
 const ALLOCATION_REQUEST_KEYS := [
 	"existing_run_id",
 	"kind",
@@ -74,8 +39,6 @@ const ALLOCATION_REQUEST_KEYS := [
 
 const ALLOCATION_KINDS := ["new_run", "restore"]
 
-## Exact persisted continuation candidate. The root is the sole production owner of this shape so
-## prepare, commit, and durable reconstruction cannot disagree about semantic members.
 const ALLOCATION_CANDIDATE_KEYS := [
 	"branch_id",
 	"branch_id_issuer_receipt",
@@ -94,19 +57,12 @@ const ALLOCATION_CANDIDATE_KEYS := [
 	"transaction_remap",
 ]
 
-## Derived, not frozen: the plan states the day-advance LAW (line 1682) but declares no request
-## interface for the root's half. These three members are the minimum that law needs -- the map key
-## is `resolution_kind + ":" + source_resolution_receipt_id`, and the source receipt must be
-## ledger-proven before a target may be minted.
 const DAY_ADVANCE_REQUEST_KEYS := [
 	"resolution_kind",
 	"source_causal_day_instance_issuer_receipt",
 	"source_resolution_receipt_id",
 ]
 
-## Exact persisted day-advance allocation record, plan lines 750-776 and 1682. Unlike the
-## root-private three-member prepare request above, this is the public receipt emitted by
-## CausalDayAdvanceIdentityPort and therefore the only lawful value in the durable map.
 const DAY_ADVANCE_RECEIPT_KEYS := [
 	"allocation_key",
 	"branch_id",
@@ -136,11 +92,6 @@ const DAY_ADVANCE_DISPOSITION := "causal_day_advance_identity_allocated"
 
 const NAMESPACE_HEX_LENGTH := 64
 
-## Mirrors data/schemas/desktop-issuer-root.schema.json so a load reads exactly one file, matching
-## the ScheduleActionRegistry and MinesweeperShopRegistry precedent. The mini validator supports only
-## const/enum/type/required/properties/additionalProperties/uniqueItems/items/minLength, so it can
-## express neither the 64-character lowercase-hex namespace nor the dynamically keyed receipt maps;
-## those laws live in _validate_document below (DECISION 13.3).
 const _SCHEMA := {
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
 	"type": "object",
@@ -167,20 +118,12 @@ var _storage: Object = null
 var _namespace_source: Object = null
 var _document: Dictionary = {}
 var _loaded := false
-# Atomic writes repeatedly validate the same exact UTF-8 document. Keep only the three
-# most recent texts proven by the strict parser or canonical writer; cold or changed bytes still parse.
 var _validated_write_texts: Array[String] = []
-## dwm-634.1: true while issue_deferred() receipts exist only in _document.
 var _pending_flush := false
-# Canonical fragments for the issue-only append path. A generic write or validated load rebuilds
-# them; issuing one receipt then serializes only that receipt and the changed counter.
 var _canonical_field_values: Dictionary = {}
 var _canonical_receipt_entries: Dictionary = {}
 
 
-# -------------------------------------------------------------------------------------------------
-# Frozen public surface
-# -------------------------------------------------------------------------------------------------
 
 func configure(storage: Object, namespace_source: Object) -> Dictionary:
 	if storage == null or namespace_source == null:
@@ -230,8 +173,6 @@ func load_or_create() -> Dictionary:
 	return {"ok": true, "value": _document.duplicate(true)}
 
 
-## Plan line 535: issuance atomically advances the monotonic root counter BEFORE returning any token,
-## so the durable write happens first and a failure returns no token at all.
 func issue(purpose: StringName) -> Dictionary:
 	var ready := _require_loaded("issue")
 	if not ready.get("ok", false):
@@ -250,15 +191,6 @@ func issue(purpose: StringName) -> Dictionary:
 	}
 
 
-## dwm-634.1: mints in memory only. The receipt verifies at once and the live counter advances,
-## but nothing reaches storage until flush() or the next durable write. Callers use this for
-## commands whose own effects are not yet durable: a crash loses receipt and effect together,
-## and a restart resumes at the last durable counter without reusing one, because every run
-## save flushes this ledger first.
-##
-## dwm-634.3: mints IN PLACE into the live document, so a routine click never copies the whole root.
-## Both refusals are decided before the first mutation. issue() still mints into a copy, because
-## only a durable write can fail after minting and a failed advance must burn no counter.
 func issue_deferred(purpose: StringName) -> Dictionary:
 	var ready := _require_loaded("issue_deferred")
 	if not ready.get("ok", false):
@@ -278,7 +210,6 @@ func issue_deferred(purpose: StringName) -> Dictionary:
 	}
 
 
-## dwm-634.1: writes every receipt minted by issue_deferred() since the last durable write.
 func flush() -> Dictionary:
 	var ready := _require_loaded("flush")
 	if not ready.get("ok", false):
@@ -298,8 +229,6 @@ func verify_receipt(receipt: Dictionary, expected_purpose: StringName) -> Dictio
 	return _verify_receipt_in_document(receipt, expected_purpose, _document)
 
 
-## Mutation-free. Plan line 729: an identical replay of the same allocation transaction returns its
-## recorded bundle, and a different request at an occupied transaction identity conflicts.
 func prepare_allocation(request: Dictionary) -> Dictionary:
 	var ready := _require_loaded("prepare_allocation")
 	if not ready.get("ok", false):
@@ -341,8 +270,6 @@ func commit_allocation(candidate: Dictionary) -> Dictionary:
 	return _commit_candidate(candidate, "allocation_receipts", transaction_id)
 
 
-## Mutation-free. Plan line 1682: preparing a missing key is pure; committing atomically adds its
-## target issuer receipt, map record and one counter increment.
 func prepare_causal_day_advance(request: Dictionary) -> Dictionary:
 	var ready := _require_loaded("prepare_causal_day_advance")
 	if not ready.get("ok", false):
@@ -392,7 +319,6 @@ func commit_causal_day_advance(candidate: Dictionary) -> Dictionary:
 	return {"ok": true, "value": candidate.duplicate(true)}
 
 
-## Detached: mutating the returned document can never reach this store (plan line 797).
 func capture() -> Dictionary:
 	var ready := _require_loaded("capture")
 	if not ready.get("ok", false):
@@ -400,11 +326,7 @@ func capture() -> Dictionary:
 	return {"ok": true, "value": _document.duplicate(true)}
 
 
-# -------------------------------------------------------------------------------------------------
-# Storage seam
-# -------------------------------------------------------------------------------------------------
 
-## The whole validator, per DECISION 13.2. Storage proves atomicity; this class proves domain law.
 func _parse_document(text: String) -> Dictionary:
 	var parsed: Dictionary = _STRICT_JSON.parse_object(text)
 	if parsed.get("ok", false): _remember_write_text(text)
@@ -454,7 +376,6 @@ func _write_issued_document(document: Dictionary, receipt: Dictionary) -> Dictio
 	return {"ok": true}
 
 
-## Adopts a deferred mint, already applied to the live document, into the incremental canonical cache.
 func _adopt_deferred(receipt: Dictionary) -> void:
 	_pending_flush = true
 	if _canonical_field_values.is_empty():
@@ -470,7 +391,6 @@ func _adopt_deferred(receipt: Dictionary) -> void:
 	_canonical_field_values["next_counter"] = str(int(_document["next_counter"]))
 
 
-## Writes the live document, which already carries every deferred receipt.
 func _write_pending_document() -> Dictionary:
 	if _canonical_field_values.is_empty():
 		return _write_document(_document)
@@ -540,8 +460,6 @@ func _rebuild_issue_canonical_cache(document: Dictionary) -> void:
 
 
 func _parse_known_write_document(text: String) -> Dictionary:
-	# Storage needs a validity witness, while this owner retains its detached document.
-	# Read/restart paths always use _parse_document and apply the complete ledger laws.
 	if _validated_write_texts.has(text):
 		_remember_write_text(text)
 		return {"ok": true, "value": {}}
@@ -560,12 +478,7 @@ func _storage_failure(result: Dictionary, fallback: StringName) -> Dictionary:
 	return _failed(StringName(str(code)), str(result.get("message", "storage refused the root document")))
 
 
-# -------------------------------------------------------------------------------------------------
-# Minting
-# -------------------------------------------------------------------------------------------------
 
-## Builds the next document with one receipt per spec, appended from the current counter. Never
-## writes: callers persist the result so a failed durable advance burns no counter.
 func _minted_document(specs: Array) -> Dictionary:
 	var document := _document.duplicate(true)
 	var receipts: Dictionary = document["receipts"]
@@ -595,12 +508,10 @@ static func _mint_receipt(namespace_value: String, counter: int, purpose: String
 	}
 
 
-## The frozen token preimage, plan line 535.
 static func _token_for(namespace_value: String, counter: int, purpose: String) -> String:
 	return "%s.%s" % [purpose, _sha256_hex("%s\n%d\n%s" % [namespace_value, counter, purpose])]
 
 
-## The frozen structural receipt key, plan line 535. It consumes no second counter.
 static func _receipt_id_for(namespace_value: String, counter: int, purpose: String,
 		token: String) -> String:
 	return "issuer_receipt." + _sha256_hex("desktop_issuer_receipt_v1\n%s\n%d\n%s\n%s" % [
@@ -615,13 +526,7 @@ static func _sha256_hex(text: String) -> String:
 	return context.finish().hex_encode()
 
 
-# -------------------------------------------------------------------------------------------------
-# Continuation and day-advance bundles (plan lines 729 and 1682)
-# -------------------------------------------------------------------------------------------------
 
-## The exact proposed bundle. New Run opens generation zero; restore takes the source generation plus
-## one and keeps the existing run. One fresh transaction receipt is minted per remap source, and the
-## whole candidate records the root identity it was prepared against so commit can detect supersession.
 func _continuation_candidate(request: Dictionary) -> Dictionary:
 	var kind := str(request["kind"])
 	var specs: Array = []
@@ -685,8 +590,6 @@ func _day_advance_candidate(request: Dictionary, key: String) -> Dictionary:
 	}
 
 
-## Plan line 729: commit repeats root namespace/counter/request validation, so a candidate prepared
-## against a superseded counter fails rather than silently reusing an abandoned counter.
 func _commit_candidate(candidate: Dictionary, map_name: String, key: String) -> Dictionary:
 	if str(candidate["root_namespace"]) != str(_document["namespace"]):
 		return _failed(&"allocation_root_namespace_mismatch", key)
@@ -710,7 +613,6 @@ func _commit_candidate(candidate: Dictionary, map_name: String, key: String) -> 
 	return {"ok": true, "value": candidate.duplicate(true)}
 
 
-## The newly minted receipts a candidate commits, in the exact order they were minted.
 func _candidate_receipts(candidate: Dictionary) -> Array:
 	var ordered: Array = []
 	if candidate.has("target_causal_day_instance_issuer_receipt"):
@@ -741,9 +643,6 @@ static func _day_advance_record_matches_root_request(record: Dictionary,
 			== request.get("source_causal_day_instance_issuer_receipt", {})
 
 
-# -------------------------------------------------------------------------------------------------
-# Request and candidate validation
-# -------------------------------------------------------------------------------------------------
 
 func _validate_allocation_request(request: Dictionary, document: Dictionary) -> Dictionary:
 	var keys := _exact_keys(request, ALLOCATION_REQUEST_KEYS)
@@ -777,7 +676,6 @@ func _validate_allocation_request(request: Dictionary, document: Dictionary) -> 
 	return _validate_sorted_unique(remap)
 
 
-## Plan line 729: callers submit the already sorted unique complete set; the root repairs nothing.
 func _validate_sorted_unique(values: Array) -> Dictionary:
 	var previous := ""
 	for index in range(values.size()):
@@ -946,9 +844,6 @@ func _exact_keys(value: Dictionary, expected: Array) -> Dictionary:
 	return {"ok": true}
 
 
-# -------------------------------------------------------------------------------------------------
-# Document law (clauses 30, 32, 34, 35)
-# -------------------------------------------------------------------------------------------------
 
 func _validate_document(document: Dictionary) -> Dictionary:
 	var required_keys: Array = _SCHEMA.get("required", [])
@@ -978,8 +873,6 @@ func _validate_document(document: Dictionary) -> Dictionary:
 	if next_counter < 1:
 		return _failed(&"root_counter_invalid", "next_counter must be at least 1")
 	var receipts: Dictionary = document["receipts"]
-	# Clause 34: an append-only ledger holds exactly one receipt per consumed counter, so a deletion
-	# is visible as a size disagreement no matter which receipt was removed.
 	if receipts.size() != next_counter - 1:
 		return _failed(&"root_ledger_incomplete",
 			"receipts %d does not match next_counter %d" % [receipts.size(), next_counter])
@@ -1001,23 +894,16 @@ func _validate_document(document: Dictionary) -> Dictionary:
 		if seen_counters.has(counter):
 			return _failed(&"root_receipt_counter_duplicated", str(counter))
 		seen_counters[counter] = true
-		# Clause 34: replacement is caught by rederiving both frozen preimages from the receipt's own
-		# namespace, counter and purpose.
 		var expected_token := _token_for(namespace_value, counter, str(receipt["purpose"]))
 		if str(receipt["token"]) != expected_token:
 			return _failed(&"root_receipt_token_mismatch", str(key))
 		if str(receipt["receipt_id"]) != _receipt_id_for(namespace_value, counter, str(receipt["purpose"]), expected_token):
 			return _failed(&"root_receipt_id_mismatch", str(key))
-	# Clause 32: the two allocation maps are disjoint, so one key may never occupy both.
 	var allocations: Dictionary = document["allocation_receipts"]
 	var day_advances: Dictionary = document["day_advance_allocation_receipts"]
 	for key in allocations:
 		if day_advances.has(key):
 			return _failed(&"root_allocation_maps_overlap", str(key))
-	# Clause 34: all persisted continuation candidates must be fully reproducible and
-	# byte-equal to a fresh continuation candidate from their own root_next_counter.
-	# A missing map entry is therefore visible as unreferenced receipts in the expected
-	# allocation counter window.
 	var allocation_expected_receipt_counters: Dictionary = {}
 	for key in allocations:
 		if typeof(allocations[key]) != TYPE_DICTIONARY:
@@ -1057,7 +943,6 @@ func _validate_document(document: Dictionary) -> Dictionary:
 		var day_validation := _validate_day_advance_receipt(day_record, document, true)
 		if not day_validation.get("ok", false):
 			return day_validation
-	# Clause 35: every referenced source/target receipt exists byte-identically in `receipts`.
 	var embedded: Array[Dictionary] = []
 	_collect_embedded_receipts(allocations, embedded)
 	_collect_embedded_receipts(day_advances, embedded)
@@ -1107,8 +992,6 @@ func _validate_receipt_members(receipt: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
-## Any nested object carrying exactly the frozen receipt member set is a referenced receipt, whatever
-## member name holds it. Keying the walk on shape rather than on names keeps clause 35 total.
 func _collect_embedded_receipts(value: Variant, out: Array[Dictionary]) -> void:
 	if typeof(value) == TYPE_DICTIONARY:
 		var dictionary: Dictionary = value
@@ -1189,35 +1072,18 @@ func _transaction_remap(remap_sources: Array, remap_receipts: Dictionary) -> Dic
 	return transaction_remap
 
 
-func _day_advance_candidate_from(request: Dictionary, namespace_value: String, root_next_counter: int) -> Dictionary:
-	var minted: Dictionary = _receipts_from_specs(namespace_value, root_next_counter, [{"purpose": "causal_day_instance", "numeric_value": null}])
-	var target: Dictionary = (minted["receipts"] as Array)[0]
-	return {
-		"schema_version": SCHEMA_VERSION,
-		"allocation_key": _day_advance_key(request),
-		"request": request.duplicate(true),
-		"root_namespace": namespace_value,
-		"root_next_counter": root_next_counter,
-		"resolution_kind": str(request["resolution_kind"]),
-		"source_resolution_receipt_id": str(request["source_resolution_receipt_id"]),
-		"source_causal_day_instance_issuer_receipt": (request["source_causal_day_instance_issuer_receipt"] as Dictionary).duplicate(true),
-		"target_causal_day_instance_issuer_receipt": target.duplicate(true),
-	}
-
 
 func _receipts_from_specs(namespace_value: String, start_counter: int, specs: Array) -> Dictionary:
-	var counter := start_counter
-	var minted: Array[Dictionary] = []
+	var next_counter := start_counter
+	var issued_receipts: Array[Dictionary] = []
 	for spec in specs:
-		var entry: Dictionary = spec
-		var receipt := _mint_receipt(namespace_value, counter, str(entry["purpose"]), entry.get("numeric_value"))
-		minted.append(receipt)
-		counter += 1
-	return {"next_counter": counter, "receipts": minted}
+		var receipt_spec: Dictionary = spec
+		var receipt := _mint_receipt(namespace_value, next_counter, str(receipt_spec["purpose"]), receipt_spec.get("numeric_value"))
+		issued_receipts.append(receipt)
+		next_counter += 1
+	return {"next_counter": next_counter, "receipts": issued_receipts}
 
 
-## Clause 34: map entries can only be deleted if the deletion drops no causal-day receipt whose
-## source counter is no older than the oldest map-backed allocation attempt.
 func _minimum_root_next_counter(allocation_receipts: Dictionary, day_advance_receipts: Dictionary) -> int:
 	var minimum_root_next_counter := -1
 	for record in allocation_receipts.values():
@@ -1302,9 +1168,6 @@ func _validate_namespace(namespace_value: String) -> Dictionary:
 	return {"ok": true}
 
 
-# -------------------------------------------------------------------------------------------------
-# Envelopes
-# -------------------------------------------------------------------------------------------------
 
 func _require_loaded(method: String) -> Dictionary:
 	if not _loaded:
@@ -1312,8 +1175,6 @@ func _require_loaded(method: String) -> Dictionary:
 	return {"ok": true}
 
 
-## A rejection never carries `value`: plan line 729 requires a failed durable advance to return no
-## token at all.
 func _failed(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": "DesktopIssuerRootStore: " + message}
 
