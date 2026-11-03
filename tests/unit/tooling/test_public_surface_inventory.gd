@@ -128,7 +128,7 @@ func _has_code(result: Dictionary, code: String) -> bool:
 			return true
 	return false
 
-func test_public_surface_inventory_exists() -> void:
+func test_public_surface_inventory_script_loads() -> void:
 	var probe := DynamicScriptProbe.load_script(TOOL_PATH)
 	assert_true(probe.get("ok", false), "PublicSurfaceInventory must exist")
 
