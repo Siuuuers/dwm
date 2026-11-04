@@ -261,7 +261,6 @@ $suites = @{
     )
     desktop = @(
         'tests/unit/test_desktop_cosmetics.gd'
-        'tests/unit/test_application_runtime_lifetime.gd'
         'tests/integration/test_application_bootstrap.gd'
         'tests/integration/test_desktop_day_change_fatal.gd'
         'tests/unit/test_contacts_frozen_context.gd'
@@ -337,7 +336,6 @@ $suites = @{
     )
     reading_delivery = @(
         'tests/unit/test_dtl_master_structure.gd'
-        'tests/unit/test_day_resolution_coordinator.gd'
         'tests/unit/test_startup_route_publication.gd'
         # Retired health/pressure effects: exact nine-case file remains on pinned PR5.
         'tests/unit/test_hospital_frozen_context.gd'

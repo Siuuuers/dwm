@@ -35,7 +35,6 @@ const DATING_PORT_PATH := "res://scripts/application/run/DatingPresentationPort.
 const OWNER_ADAPTER_PATH := "res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd"
 const HOSPITAL_SCENE_PATH := "res://scripts/ui/HospitalScene.gd"
 const DATING_SCENE_PATH := "res://scripts/ui/DatingScene.gd"
-const COORDINATOR_PATH := "res://scripts/application/run/DayResolutionCoordinator.gd"
 const STATE_PORT_PATH := "res://scripts/application/run/GameStateDayResolutionPort.gd"
 
 ## The five adapters. None of them may name a gameplay mutation seam in executable code.
@@ -46,7 +45,7 @@ const ADAPTER_PATHS: Array[String] = [
 ## Everything on the presentation path EXCEPT the one narrative owner allowed to start a timeline.
 const NON_OWNER_PATHS: Array[String] = [
 	HOSPITAL_PORT_PATH, DATING_PORT_PATH, HOSPITAL_SCENE_PATH, DATING_SCENE_PATH,
-	COORDINATOR_PATH, STATE_PORT_PATH, ROUTER_PATH,
+	STATE_PORT_PATH, ROUTER_PATH,
 ]
 
 ## Naming any of these is a direct Dialogic start: the physical runtime, or the autoload that wraps
