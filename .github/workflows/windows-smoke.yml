@@ -136,6 +136,7 @@ jobs:
             .godot/ci/import.log
             .godot/ci/windows-export/
             .godot/ci/windows-smoke/
+            !.godot/ci/windows-smoke/*/package/**
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 7
