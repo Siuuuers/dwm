@@ -1035,14 +1035,13 @@ func _configure_restore_participants() -> Dictionary:
 		_desktop_board_state = DESKTOP_BOARD_STATE.new()
 		var scene_payments: Dictionary = _desktop_board_state.configure_scene_payments(_desktop_identity_nonce_issuer)
 		if not scene_payments.get("ok", false): return scene_payments
-	var view_configured: Dictionary = _configure_schedule_view_participant()
-	if not view_configured.get("ok", false):
-		return view_configured
+	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_contract_tables()
+	if not selected.get("ok", false) and selected.get("code") != &"scene_registration_absent":
+		return selected
 	var participants := {
 		"run": RUN_RESTORE_PARTICIPANT.new(game_state),
 		"desktop_consequence": DESKTOP_CONSEQUENCE_RESTORE_PARTICIPANT.new(_desktop_consequence_state),
 		"desktop_board": DESKTOP_BOARD_RESTORE_PARTICIPANT.new(_desktop_board_state, _desktop_identity_nonce_issuer),
-		"schedule_view": _retained_schedule_view_restore_participant,
 		"profile": PROFILE_RESTORE_PARTICIPANT.new(profile),
 		"localization": LOCALIZATION_RESTORE_PARTICIPANT.new(localization),
 		"audio": AUDIO_RESTORE_PARTICIPANT.new(audio),
@@ -1054,7 +1053,14 @@ func _configure_restore_participants() -> Dictionary:
 	if window_capability.value.available:
 		var configured_window: Dictionary = participants.profile.configure_window_output(window)
 		if not configured_window.get("ok", false): return configured_window
-	var configured: Dictionary = save_manager.call(&"configure_restore_participants", participants)
+	var configured: Dictionary
+	if selected.get("ok", false):
+		configured = save_manager.configure_scene_restore_participants(participants)
+	else:
+		var view_configured: Dictionary = _configure_schedule_view_participant()
+		if not view_configured.get("ok", false): return view_configured
+		participants["schedule_view"] = _retained_schedule_view_restore_participant
+		configured = save_manager.configure_restore_participants(participants)
 	if configured.get("ok", false):
 		_retained_restore_participants = participants.duplicate()
 		var scene_runtime := _configure_registered_scene_runtime()
@@ -1075,8 +1081,6 @@ func _configure_registered_scene_creation() -> Dictionary:
 	return saves.configure_scene_title_new_run(first_target)
 
 ## Complete existing scene owners only for an explicitly installed registration.
-## The retained participant map still serves historical saves; scene transactions
-## select their own eight-member order and never execute Schedule restoration.
 func _configure_registered_scene_runtime() -> Dictionary:
 	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_contract_tables()
 	if not selected.get("ok", false):
