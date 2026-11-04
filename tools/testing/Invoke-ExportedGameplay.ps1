@@ -462,7 +462,12 @@ function Return-HomeAndQuit {
     $null = Button 'Log out'
     Capture 'computer-home'
     Invoke-UI (Button 'Log out') 'request return to title without saving'
-    Invoke-UI (Button 'Return to Title') 'confirm logout without saving'
+    $confirm = Wait-One 'logout confirmation' {
+        Actions $window 'Return to Title' | Where-Object {
+            $_.Current.BoundingRectangle.Top -gt $window.Current.BoundingRectangle.Top + $window.Current.BoundingRectangle.Height * 0.7
+        }
+    }
+    Invoke-UI $confirm 'confirm logout without saving'
     $null = Button 'New Acc'
     Capture 'return-title'
     End-Process $true
