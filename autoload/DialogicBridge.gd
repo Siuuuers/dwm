@@ -4665,10 +4665,8 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 		var node: Dictionary = _reading_session._scene_nodes[_reading_session.latest_entry][plan.destination.program_index]
 		if not departing and (node.get("marker_id") != event.get("event_id") or event.get("kind") != "challenge.playable"):
 			return _command_failure(&"scene_playable_edge_invalid")
-		var destination := _READING_TRAVERSAL.project(plan, "destination")
-		if not destination.ok: return destination
 		var target_checkpoint := source.duplicate(true)
-		target_checkpoint.reading_session = destination.value
+		target_checkpoint.reading_session = _READING_TRAVERSAL._scene_projection(plan, "destination")
 		var candidate := _prepare_scene_reading_candidate(target_checkpoint)
 		if not candidate.ok: return candidate
 		var snapshot_input: Dictionary = prepared.snapshot_input.duplicate(true)

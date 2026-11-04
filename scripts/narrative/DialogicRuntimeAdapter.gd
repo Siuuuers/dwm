@@ -236,9 +236,6 @@ func install_scene_target(session: RefCounted, checkpoint: Dictionary, target: D
 		return started
 	return {"ok": true, "value": {"pending": is_reading_frontier_restoring()}}
 
-## Nonwired forward-control installer. Bridge must first consume the exact
-## durable destination acknowledgement; this native operation grants no receipt
-## or persistence authority. The original completed caption never restarts.
 func install_scene_control(session: RefCounted, reading: Dictionary,
 		source_token: RefCounted) -> Dictionary:
 	if _scene_control_installing:
@@ -266,19 +263,13 @@ func _install_scene_control(session: RefCounted, reading: Dictionary,
 	var retained: Dictionary = reading.duplicate(true)
 	if typeof(retained.get("schema_version")) != TYPE_INT or retained.schema_version != 5:
 		return _fail(&"scene_control_candidate_invalid", "Reading5 destination required")
-	var operation := traversal.validate(retained, source.entry_id)
-	if not operation.ok: return operation
-	var plan: Dictionary = operation.value.plan
-	if operation.value.phase != "destination" or retained.boundary != "control" \
-			or plan.path.size() != 1 or not plan.traversed_captions.is_empty() \
-			or plan.destination.kind != "control" or plan.destination.caption != null \
-			or plan.destination.program_index != source.program_index + 1 \
-			or not traversal._same(plan.source_reading, traversal.without_operation(source)) \
-			or not traversal._same(retained.ledger, source.ledger):
+	var expected := traversal.without_operation(source)
+	expected.boundary = "control"
+	expected.program_index += 1
+	expected.frontier = {}
+	if not traversal._same(retained, expected):
 		return _fail(&"scene_control_candidate_invalid", "exact immediate destination required")
 	var candidate_ledger: NarrativeCaptionLedger = session.ledger
-	# The retained source's validator recompiles the installed programme. The
-	# candidate's normal validator also checks the complete traversal and ledger.
 	var checked: Dictionary = session.validate_saved(retained.duplicate(true), source.entry_id)
 	if not checked.ok: return checked
 	var captured: Dictionary = session.capture({})
@@ -291,7 +282,7 @@ func _install_scene_control(session: RefCounted, reading: Dictionary,
 			or session.scene_occurrence != _scene_caption_occurrence \
 			or session.fingerprint != source.registration_sha256 \
 			or session.scene_index != retained.program_index or session.boundary != "control" \
-			or not traversal._same(session.next_operation, retained.next_operation) \
+			or not session.next_operation.is_empty() \
 			or not traversal._same(candidate_ledger.snapshot(), retained.ledger) \
 			or not traversal._same(reading, retained):
 		return _fail(&"scene_control_candidate_changed", "candidate changed during preflight")
@@ -315,18 +306,15 @@ func _install_scene_control(session: RefCounted, reading: Dictionary,
 func restore_scene_frontier(session: RefCounted, checkpoint: Dictionary) -> Dictionary:
 	return _install_scene_frontier(session, checkpoint)
 
-## Only a durable exact one-edge control departure can replace a live source.
 func install_scene_continuation(session: RefCounted, checkpoint: Dictionary, source_token: RefCounted) -> Dictionary:
 	var source_session: RefCounted = _scene_source.get("session")
 	var current := validate_scene_source(source_token, source_session)
 	if not current.ok: return current
 	var traversal := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
-	var operation := traversal.validate(checkpoint.get("reading_session", {}), str(checkpoint.get("entry_id", "")))
-	if not operation.ok: return operation
-	var plan: Dictionary = operation.value.plan
-	if operation.value.phase != "destination" or plan.source_reading.boundary != "control" \
-			or plan.path.size() != 1 or plan.destination.kind != "line" or not plan.traversed_captions.is_empty() \
-			or not traversal._same(plan.source_reading, traversal.without_operation(_scene_source.boundary.reading)):
+	var planned: Dictionary = source_session.prepare_scene_control_continuation()
+	if not planned.ok: return planned
+	var expected := traversal._scene_projection(planned.value, "destination")
+	if not traversal._same(checkpoint.get("reading_session", {}), expected):
 		return _fail(&"scene_control_candidate_invalid", "exact control departure required")
 	return _install_scene_frontier(session, checkpoint, source_token)
 

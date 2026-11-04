@@ -34,6 +34,8 @@ func create_playable() -> void:
 	var native: Dictionary = fixture.adapter.capture_scene_control_position(fixture.bridge._reading_session)
 	assert_true(native.ok, str(native))
 	if not native.ok: return
+	assert_null(native.value.next_operation)
+	assert_true(fixture.bridge._reading_session.next_operation.is_empty())
 	assert_eq(native.value.ledger, fixture.before_reading.reading_session.ledger)
 	assert_eq(fixture.native_publications.size(), fixture.before_publications)
 	assert_eq(fixture.native_markers, [])
