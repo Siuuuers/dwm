@@ -9,7 +9,6 @@ extends RefCounted
 const _ENTRIES := {
 	&"minesweeper": {"scene": "res://scenes/apps/MinesweeperApp.tscn", "focus": NodePath("%HideButton")},
 	&"contacts":    {"scene": "res://scenes/apps/ContactListApp.tscn", "focus": NodePath("%HideButton")},
-	&"schedule":    {"scene": "res://scenes/apps/ScheduleApp.tscn", "focus": NodePath("%HideButton")},
 	&"shop":        {"scene": "res://scenes/apps/ShopApp.tscn", "focus": NodePath("%HideButton")},
 	&"backup":      {"scene": "res://scenes/apps/BackupApp.tscn", "focus": NodePath("%HideButton")},
 	&"settings":    {"scene": "res://scenes/apps/SettingsApp.tscn", "focus": NodePath("%HideButton")},
@@ -55,13 +54,8 @@ func validate_all() -> Dictionary:
 	return {"ok": true}
 
 
-## Current scene launcher; legacy calendar consumers retain get_ids().
 func get_scene_ids() -> Array[StringName]:
-	var ids := get_ids()
-	ids.erase(&"schedule")
-	return ids
+	return get_ids()
 
 func get_scene_record(app_id: StringName) -> Dictionary:
-	if app_id not in get_scene_ids():
-		return {"ok": false, "code": &"unknown_app_id"}
 	return get_record(app_id)

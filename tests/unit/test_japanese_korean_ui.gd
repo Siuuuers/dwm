@@ -11,8 +11,6 @@ const ROOT := preload("res://scripts/ui/LocalePresentationRoot.gd")
 const FIXTURES := preload("res://tests/unit/test_localization.gd")
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const GALLERY := preload("res://scripts/ui/gallery/GalleryTypography.gd")
-const WARNING_SHEET := preload("res://scripts/ui/schedule/ScheduleWarningSheet.gd")
-const SCHEDULE_COPY := preload("res://scripts/ui/schedule/ScheduleCopy.gd")
 const LOCALES := ["en", "zh_CN", "zh_HK", "ja", "ko"]
 const MEMORY_ROOT := "japanese-korean-ui.memory"
 
@@ -173,26 +171,6 @@ func test_ui_and_gallery_use_native_pixel_masters_at_their_intended_sizes() -> v
 			assert_eq(font.subpixel_positioning, TextServer.SUBPIXEL_POSITIONING_DISABLED)
 			assert_eq(font.oversampling, 1.0)
 			assert_true(font.resource_path.contains("fusion-pixel-%dpx-proportional-%s" % [int(8 * percent / 100.0), language]))
-
-func test_schedule_warning_copy_and_error_body_fit_all_draft_sizes_and_target_preferences() -> void:
-	var cases := 0
-	var catalog: Dictionary = SCHEDULE_COPY.warning_catalog()
-	for language: String in ["ja", "ko"]:
-		for percent: int in [100, 125, 150]:
-			for large: bool in [false, true]:
-				for kind: String in catalog:
-					var sheet: Control = WARNING_SHEET.new()
-					add_child(sheet)
-					var identity := "%s:%d:%s:%s" % [language, percent, large, kind]
-					assert_true(sheet.configure(language, percent, large), identity)
-					var copy: Dictionary = catalog[kind][language]
-					assert_true(sheet.present(identity, copy, copy.failed_go), identity)
-					await get_tree().process_frame
-					for label: Label in sheet.find_children("*", "Label", true, false):
-						assert_lte(label.get_minimum_size().y, label.size.y + 1, identity + ": " + label.text)
-					cases += 1
-					sheet.free()
-	assert_eq(cases, 36)
 
 func test_legacy_manifest_only_root_restores_original_explicit_font() -> void:
 	var target: Control = autofree(Control.new())

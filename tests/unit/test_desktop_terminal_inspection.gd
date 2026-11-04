@@ -4,7 +4,6 @@ const STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 const PAID_FIXTURE := preload("res://tests/unit/test_desktop_paid_replacement.gd")
 const ROUND_FIXTURE := preload("res://tests/unit/test_minesweeper_round_coordinator.gd")
 const FATE_FIXTURE := preload("res://tests/unit/test_desktop_board_fate_port.gd")
-const WARNING := preload("res://scripts/application/schedule/GameStateScheduleWarningContextPort.gd")
 const GAME_STATE := preload("res://autoload/GameState.gd")
 const REWARD := preload("res://scripts/application/minesweeper/GameStateMinesweeperPort.gd")
 const COORDINATOR := preload("res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd")
@@ -170,20 +169,6 @@ func test_round_and_shop_preserve_inspection_but_schedule_retires_without_forfei
 	assert_true(port.commit(closing.value.board_candidate).ok)
 	assert_eq(fixture.coordinator.get_state().value.phase, "NONE")
 	assert_true(port.commit(closing.value.board_candidate).ok)
-
-func test_schedule_warning_distinguishes_settled_inspection_from_unsettled_terminal() -> void:
-	var setup := _paid()
-	var saved := _settled(setup.fixture)
-	var state: Dictionary = saved.identity.duplicate(true)
-	state["next_app_round_ordinal"] = 2
-	var query := WARNING.new()
-	var settled: Dictionary = query._project_board(state, saved)
-	assert_true(settled.ok, str(settled))
-	assert_false(settled.value.unfinished_base_board)
-	assert_eq(settled.value.board_identity, saved.identity)
-	var unsettled := saved.duplicate(true)
-	unsettled.terminal_receipts = {}
-	assert_true(query._project_board(state, unsettled).value.unfinished_base_board)
 
 func test_real_rewards_are_applied_once_then_cold_settled_completion_skips_preparation_and_commit() -> void:
 	var fixture: Node = autofree(ROUND_FIXTURE.new())

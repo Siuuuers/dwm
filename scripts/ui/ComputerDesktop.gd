@@ -13,17 +13,13 @@ const CONFIRMATION := preload("res://scripts/ui/desktop/DesktopConfirmation.gd")
 const CONFIRMATION_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 const TOUCH_NAVIGATION := preload("res://scripts/ui/desktop/DesktopTouchNavigation.gd")
 const MINESWEEPER_GRID := preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd")
-const QUICK_STATUS_APPS := [&"minesweeper", &"contacts", &"schedule", &"shop", &"settings"]
-const WARNING_NAVIGATION_TARGETS := {
-	&"open_contacts_list": &"contacts",
-	&"open_minesweeper": &"minesweeper",
-}
+const QUICK_STATUS_APPS := [&"minesweeper", &"contacts", &"shop", &"settings"]
 const LABELS := {
-	"en": {&"minesweeper": "Minesweeper", &"contacts": "Contacts", &"schedule": "Schedule", &"shop": "Shop", &"backup": "Backup", &"settings": "Settings", &"logout": "Log out"},
-	"zh-CN": {&"minesweeper": "扫雷", &"contacts": "联系人", &"schedule": "日程", &"shop": "商店", &"backup": "备份", &"settings": "设置", &"logout": "退出登录"},
-	"zh-HK": {&"minesweeper": "踩地雷", &"contacts": "聯絡人", &"schedule": "日程", &"shop": "商店", &"backup": "備份", &"settings": "設定", &"logout": "登出"},
-	"ja": {&"minesweeper": "マインスイーパー", &"contacts": "連絡先", &"schedule": "予定", &"shop": "ショップ", &"backup": "バックアップ", &"settings": "設定", &"logout": "ログアウト"},
-	"ko": {&"minesweeper": "지뢰찾기", &"contacts": "연락처", &"schedule": "일정", &"shop": "상점", &"backup": "백업", &"settings": "설정", &"logout": "로그아웃"},
+	"en": {&"minesweeper": "Minesweeper", &"contacts": "Contacts", &"shop": "Shop", &"backup": "Backup", &"settings": "Settings", &"logout": "Log out"},
+	"zh-CN": {&"minesweeper": "扫雷", &"contacts": "联系人", &"shop": "商店", &"backup": "备份", &"settings": "设置", &"logout": "退出登录"},
+	"zh-HK": {&"minesweeper": "踩地雷", &"contacts": "聯絡人", &"shop": "商店", &"backup": "備份", &"settings": "設定", &"logout": "登出"},
+	"ja": {&"minesweeper": "マインスイーパー", &"contacts": "連絡先", &"shop": "ショップ", &"backup": "バックアップ", &"settings": "設定", &"logout": "ログアウト"},
+	"ko": {&"minesweeper": "지뢰찾기", &"contacts": "연락처", &"shop": "상점", &"backup": "백업", &"settings": "설정", &"logout": "로그아웃"},
 }
 const CONTACT_NAMES := {"priscilla": "Priscilla", "lavinia": "Lavinia", "sylvia": "Sylvia"}
 
@@ -59,10 +55,6 @@ var _minesweeper_port: Object
 var _minesweeper_input: Object
 var _shop_port: Object
 var _session_exit: Object
-var _schedule_port: Object
-var _schedule_done := Callable()
-var _schedule_warning_port: Object
-var _schedule_warning_commands: Object
 var _confirmation: Control
 var _quick_commands: Node
 var _localization: Object
@@ -91,8 +83,6 @@ var _run_configuration_required := false
 var _run_configuration_ready := false
 var _run_configuration_masked := false
 var _show_after_run_configuration := false
-var _warning_navigation_serial := 0
-var _prepared_warning_navigation: Dictionary = {}
 var _message_notification_queue: Array[Dictionary] = []
 var _seen_message_notifications: Dictionary = {}
 var _delivery_generation := 0
@@ -120,7 +110,7 @@ func configure_scene_navigation(host: Object, phase_reader: Callable,
 			and command_dispatch == _scene_command_dispatch and app_prepare == _scene_app_prepare
 			and localization == _localization and profile == _profile, "code": &"scene_navigation_already_configured"}
 	if _host_state != null or not _cached_app_windows.is_empty() or _active_id != &"" \
-			or _presentation_port != null or _minesweeper_port != null or _schedule_port != null or _shop_port != null:
+			or _presentation_port != null or _minesweeper_port != null or _shop_port != null:
 		return {"ok": false, "code": &"scene_navigation_bound_too_late"}
 	_scene_navigation = true
 	_host_state = host
@@ -261,9 +251,7 @@ func _ready() -> void:
 		for event in ["contact_open_committed", "contact_choice_selected", "invitation_reply_committed"]:
 			if state.has_signal(event) and not state.is_connected(event, _on_contacts_changed):
 				state.connect(event, _on_contacts_changed)
-	if _schedule_port != null and _host_state != null and _host_state.get_state().get("active_app_id") == &"schedule":
-		_restore_bound_app(&"schedule")
-	elif _shop_port != null and _host_state != null and _host_state.get_state().get("active_app_id") == &"shop":
+	if _shop_port != null and _host_state != null and _host_state.get_state().get("active_app_id") == &"shop":
 		_restore_bound_app(&"shop")
 	elif _active_id == &"":
 		_focus_initial_launcher.call_deferred()
@@ -427,8 +415,6 @@ func _touch_focus_scope() -> Control:
 			&"settings":
 				# Native popups and binding capture own a different input scope.
 				if not app.can_return_home(): return null
-			&"schedule":
-				if is_instance_valid(app.warning_sheet): return app.warning_sheet
 			&"shop":
 				if is_instance_valid(app._supportz_confirmation): return app._supportz_confirmation
 	return self
@@ -447,7 +433,7 @@ func configure_contacts(port: Object, localization: Object = null, profile: Obje
 		return {"ok": false, "code": &"invalid_contacts_presentation_port"}
 	if _presentation_port != null and _presentation_port != port:
 		return {"ok": false, "code": &"contacts_already_configured"}
-	if (_schedule_port != null or _shop_port != null) and (localization != _localization or profile != _profile or host_state != _host_state or day != _day):
+	if _shop_port != null and (localization != _localization or profile != _profile or host_state != _host_state or day != _day):
 		return {"ok":false,"code":&"desktop_owner_mismatch"}
 	_presentation_port = port
 	_localization = localization
@@ -547,53 +533,6 @@ func configure_shop(provider: Object, localization: Object = null, profile: Obje
 	if is_node_ready():
 		_refresh_launcher()
 		if _host_state.get_state().get("active_app_id") == &"shop": return _restore_bound_app(&"shop")
-	return {"ok":true}
-
-func configure_schedule(port: Object, localization: Object = null, profile: Object = null,
-		host_state: Object = null, day: int = 1, done_handler: Callable = Callable(),
-		warning_presentation: Object = null, warning_commands: Object = null) -> Dictionary:
-	if _scene_navigation: return {"ok": false, "code": &"scene_calendar_configuration_forbidden"}
-	for method: String in ["project", "append", "move", "remove"]:
-		if not is_instance_valid(port) or not port.has_method(method): return {"ok":false,"code":&"invalid_schedule_port"}
-	if not done_handler.is_null() and (not done_handler.is_valid() or done_handler.get_argument_count() != 0):
-		return {"ok":false,"code":&"invalid_schedule_done"}
-	if (warning_presentation == null) != (warning_commands == null): return {"ok":false,"code":&"invalid_schedule_warning"}
-	if warning_presentation != null and (not is_instance_valid(warning_presentation) or not is_instance_valid(warning_commands)
-			or not warning_presentation.has_method("project") or not warning_commands.has_method("resolve_warning")
-			or Callable(warning_presentation,"project").get_argument_count() != 1
-			or Callable(warning_commands,"resolve_warning").get_argument_count() != 2
-			or not port.has_method("project_modal_background")): return {"ok":false,"code":&"invalid_schedule_warning"}
-	if _schedule_port != null and (_schedule_port != port or _schedule_done != done_handler
-			or _schedule_warning_port != warning_presentation or _schedule_warning_commands != warning_commands):
-		return {"ok":false,"code":&"schedule_already_configured"}
-	if (_host_state != null and host_state != null and _host_state != host_state) \
-			or (_localization != null and localization != null and _localization != localization) \
-			or (_profile != null and profile != null and _profile != profile): return {"ok":false,"code":&"desktop_owner_mismatch"}
-	var candidate_host: Object = host_state if host_state != null else _host_state
-	for method: String in ["get_state", "open_app", "close_app"]:
-		if not is_instance_valid(candidate_host) or not candidate_host.has_method(method): return {"ok":false,"code":&"desktop_owner_unavailable"}
-	if day < 1 or int(candidate_host.get_state().get("current_day",0)) != day: return {"ok":false,"code":&"desktop_owner_day_mismatch"}
-	var candidate_locale: Object = localization if localization != null else _localization
-	var candidate_profile: Object = profile if profile != null else _profile
-	if candidate_locale != null and (not is_instance_valid(candidate_locale) or not candidate_locale.has_method("get_locale") or not candidate_locale.has_signal("locale_changed")):
-		return {"ok":false,"code":&"invalid_schedule_preferences"}
-	if candidate_profile != null and (not is_instance_valid(candidate_profile) or not candidate_profile.has_method("get_preference") or not candidate_profile.has_signal("preference_changed")):
-		return {"ok":false,"code":&"invalid_schedule_preferences"}
-	_schedule_port = port
-	_schedule_done = done_handler
-	_schedule_warning_port = warning_presentation
-	_schedule_warning_commands = warning_commands
-	_host_state = candidate_host
-	if localization != null: _localization = localization
-	if profile != null: _profile = profile
-	_day = day
-	if _localization != null and not _localization.is_connected("locale_changed",_on_launcher_locale_changed):
-		_localization.connect("locale_changed",_on_launcher_locale_changed)
-	if _profile != null and not _profile.is_connected("preference_changed",_on_preference_changed):
-		_profile.connect("preference_changed",_on_preference_changed)
-	if is_node_ready():
-		_refresh_launcher()
-		if _host_state.get_state().get("active_app_id") == &"schedule": return _restore_bound_app(&"schedule")
 	return {"ok":true}
 
 func _restore_bound_app(app_id: StringName) -> Dictionary:
@@ -728,7 +667,7 @@ func open_app(app_id: StringName) -> Dictionary:
 		return {"ok": false, "code": &"desktop_modal_active"}
 	if app_id not in _launcher_ids():
 		return _route_failure(&"unknown_app_id")
-	if app_id not in [&"contacts", &"settings", &"backup", &"minesweeper", &"schedule", &"shop", &"logout"] or (not _scene_navigation and app_id == &"minesweeper" and _minesweeper_port == null):
+	if app_id not in [&"contacts", &"settings", &"backup", &"minesweeper", &"shop", &"logout"] or (not _scene_navigation and app_id == &"minesweeper" and _minesweeper_port == null):
 		return _route_failure(&"desktop_app_unavailable")
 	if _active_id != &"" and _active_id != app_id:
 		return _route_failure(&"desktop_app_transition_unavailable")
@@ -743,8 +682,6 @@ func open_app(app_id: StringName) -> Dictionary:
 		return _present_logout_confirmation()
 	if not _scene_navigation and app_id == &"shop" and _shop_port == null:
 		return _route_failure(&"shop_unavailable")
-	if not _scene_navigation and app_id == &"schedule" and _schedule_port == null:
-		return _route_failure(&"schedule_unavailable")
 	if not _scene_navigation and app_id == &"backup" and _backup_port == null:
 		return _route_failure(&"backup_unavailable")
 	if not _scene_navigation and app_id == &"settings" and (_host_state == null or get_node_or_null("/root/ProfileManager") == null or get_node_or_null("/root/LocalizationManager") == null):
@@ -774,11 +711,6 @@ func open_app(app_id: StringName) -> Dictionary:
 		elif app_id == &"shop":
 			app.configure_desktop_home(home_button)
 			configured = app.configure_catalog(_shop_port, _localization, _profile, _run_palette, _day)
-		elif app_id == &"schedule":
-			app.configure_desktop_home(home_button)
-			configured = app.configure_presentation(_schedule_port, _locale, _percent,
-				false, _schedule_done, _run_palette, _schedule_warning_port, _schedule_warning_commands, _day, _font_style)
-			if configured.get("ok",false): configured = app.configure_shared_preferences(_localization, _profile)
 		elif app_id == &"backup":
 			app.set_confirmation_host(self)
 			configured = app.configure_backup(_backup_port, _localization, _profile, _run_palette, _day)
@@ -799,13 +731,9 @@ func open_app(app_id: StringName) -> Dictionary:
 			app.panel.presentation_changed.connect(_on_minesweeper_delivery_presented.bind(app))
 		if app_id == &"shop":
 			app.recovery_requested.connect(func(code: String): _route_failure(StringName(code)))
-		if app_id == &"schedule":
-			app.recovery_requested.connect(_route_failure)
-			app.warning_foreground_changed.connect(func(_active: bool): _refresh_launcher())
-			app.command_custody_changed.connect(func(_active: bool): _refresh_launcher())
 		_cached_app_windows[app_id] = app
 		app.minimum_size_changed.connect(_refresh_app_scroll)
-	elif app_id in [&"backup", &"minesweeper", &"schedule", &"shop"]:
+	elif app_id in [&"backup", &"minesweeper", &"shop"]:
 		var refreshed: Dictionary = app.refresh_view()
 		if not refreshed.get("ok", false):
 			return _route_failure(refreshed.get("code", &"desktop_app_unavailable"))
@@ -825,110 +753,6 @@ func open_app(app_id: StringName) -> Dictionary:
 	_refresh_launcher()
 	app.show_window()
 	return {"ok": true, "value": {"app": app}}
-
-## Preflights the real warning target while Schedule still owns modal custody. The detached receipt
-## is retained by this desktop and is the only value commit_warning_navigation accepts.
-func prepare_warning_navigation(intent: StringName) -> Dictionary:
-	if not WARNING_NAVIGATION_TARGETS.has(intent):
-		return _warning_navigation_fail(&"invalid_warning_navigation_intent")
-	if not _prepared_warning_navigation.is_empty():
-		if str(_prepared_warning_navigation["intent"]) == str(intent):
-			return _warning_navigation_ok(_prepared_warning_navigation)
-		return _warning_navigation_fail(&"warning_navigation_already_prepared")
-	var target: StringName = WARNING_NAVIGATION_TARGETS[intent]
-	var available := _warning_navigation_preflight(target)
-	if not available.get("ok", false):
-		return available
-	_warning_navigation_serial += 1
-	_prepared_warning_navigation = {
-		"navigation_id": "warning-navigation-%d" % _warning_navigation_serial,
-		"intent": str(intent),
-		"source_app_id": "schedule",
-		"target_app_id": str(target),
-		"day": _day,
-	}
-	return _warning_navigation_ok(_prepared_warning_navigation)
-
-
-## Moves the actual foreground scene before the warning controller records navigation_committed.
-## A failed target open restores Schedule with its still-pending modal and returns the real code.
-func commit_warning_navigation(receipt: Dictionary) -> Dictionary:
-	var keys: Array = receipt.keys()
-	keys.sort()
-	if keys != ["day", "intent", "navigation_id", "source_app_id", "target_app_id"] \
-			or receipt != _prepared_warning_navigation:
-		return _warning_navigation_fail(&"invalid_warning_navigation_receipt")
-	var target := StringName(receipt["target_app_id"])
-	var available := _warning_navigation_preflight(target)
-	if not available.get("ok", false):
-		return available
-	var schedule: Node = _cached_app_windows[&"schedule"]
-	var closed: Variant = _host_state.close_app()
-	if typeof(closed) != TYPE_DICTIONARY or not (closed as Dictionary).get("ok", false):
-		return closed as Dictionary if typeof(closed) == TYPE_DICTIONARY \
-			else _warning_navigation_fail(&"desktop_home_rejected")
-	schedule.hide()
-	_active_id = &""
-	icon_grid.show()
-	_refresh_launcher()
-	var opened: Dictionary = open_app(target)
-	if not opened.get("ok", false):
-		var restored: Variant = _host_state.open_app(&"schedule", _day)
-		if typeof(restored) != TYPE_DICTIONARY or not (restored as Dictionary).get("ok", false):
-			_prepared_warning_navigation = {}
-			return _warning_navigation_fail(&"warning_navigation_restore_failed")
-		_active_id = &"schedule"
-		icon_grid.hide()
-		status_label.hide()
-		_refresh_launcher()
-		schedule.show()
-		return opened
-	_prepared_warning_navigation = {}
-	return {
-		"ok": true,
-		"code": &"ok",
-		"value": {"app": opened["value"]["app"], "target_app_id": target},
-		"receipt": receipt.duplicate(true),
-	}
-
-
-func _warning_navigation_preflight(target: StringName) -> Dictionary:
-	if _run_configuration_required and (not _run_configuration_ready or _run_configuration_masked):
-		return _warning_navigation_fail(&"run_configuration_unavailable")
-	if is_instance_valid(_confirmation):
-		return _warning_navigation_fail(&"desktop_modal_active")
-	if _active_id != &"schedule" or not is_instance_valid(_host_state):
-		return _warning_navigation_fail(&"desktop_app_transition_unavailable")
-	var host_view: Dictionary = _host_state.get_state()
-	if host_view.get("active_app_id") != &"schedule" or int(host_view.get("current_day", 0)) != _day:
-		return _warning_navigation_fail(&"desktop_app_transition_unavailable")
-	var schedule: Node = _cached_app_windows.get(&"schedule")
-	if not is_instance_valid(schedule) or not schedule.visible \
-			or not is_instance_valid(schedule.get("warning_sheet")):
-		return _warning_navigation_fail(&"schedule_warning_unavailable")
-	if target == &"contacts" and _presentation_port == null:
-		return _warning_navigation_fail(&"contacts_unavailable")
-	if target == &"minesweeper" and _minesweeper_port == null:
-		return _warning_navigation_fail(&"desktop_app_unavailable")
-	if target not in [&"contacts", &"minesweeper"]:
-		return _warning_navigation_fail(&"desktop_app_unavailable")
-	if not is_instance_valid(_cached_app_windows.get(target)):
-		var record: Dictionary = APP_REGISTRY.new().get_record(target)
-		if not record.get("ok", false):
-			return _warning_navigation_fail(StringName(record.get("code", &"unknown_app_id")))
-		if load(record["scene"]) as PackedScene == null:
-			return _warning_navigation_fail(&"desktop_scene_unavailable")
-	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
-
-
-func _warning_navigation_ok(receipt: Dictionary) -> Dictionary:
-	return {"ok": true, "code": &"ok",
-		"value": {"receipt": receipt.duplicate(true)}, "receipt": receipt.duplicate(true)}
-
-
-func _warning_navigation_fail(code: StringName) -> Dictionary:
-	return {"ok": false, "code": code, "message": "", "details": {}}
-
 
 ## Validate and park the active app before Bootstrap releases reading custody.
 ## The visible window/host state remains unchanged until return_home succeeds.

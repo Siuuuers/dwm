@@ -22,13 +22,11 @@ These are optional, working image slots. Start with a few pictures; the game doe
 | Launcher icon | `art/ui/launcher/<app>.png` | **48 ? 48 exact** | Existing button keeps its text/focus/hit area |
 | Shop card picture | `art/shop/items/<item>-card.png` | **28 ? 28 exact** | Drawn at 2? |
 | Shop inspector picture | `art/shop/items/<item>-inspector.png` | **56 ? 56 exact** | Drawn at 2? |
-| Schedule compact picture | `art/schedule/folios/<name>-compact.png` | **24 ? 24 exact** | Shared across corresponding actions/days |
-| Schedule folio picture | `art/schedule/folios/<name>-folio.png` | **64 ? 64 exact** | Shared across corresponding actions/days |
 | Scene background | `art/environments/<DTL folder>/<scene>.png` | 1280 ? 448 suggested | Above the caption; fills/crops |
 | Ending CG | `art/narrative/cgs/<exact-entry-id>.png` | 1280 ? 448 suggested | Replaces portrait composition; fits without cropping |
 
-Launcher names: `minesweeper`, `contacts`, `schedule`, `shop`, `backup`, `settings`, `logout`.
-Shop and Schedule filenames are listed in [asset-paths.csv](asset-paths.csv); these tables include every exact filename, including reused paths.
+Launcher names: `minesweeper`, `contacts`, `shop`, `backup`, `settings`, `logout`.
+Shop filenames are listed in [asset-paths.csv](asset-paths.csv); these tables include every exact filename, including reused paths.
 
 ## Find a particular DTL scene
 

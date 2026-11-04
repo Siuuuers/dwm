@@ -276,8 +276,6 @@ $suites = @{
         'tests/unit/test_desktop_cold_recovery_preparation.gd'
         'tests/unit/test_scene_day_renewal.gd'
         'tests/integration/test_scene_day_commit_ordering.gd'
-        'tests/integration/test_schedule_desktop_host.gd'
-        'tests/unit/test_schedule_app.gd'
         'tests/integration/test_contacts_run_presentation.gd'
         'tests/scene/test_controls_input_contact_release.gd'
         'tests/unit/test_angela_stat_overlay.gd'

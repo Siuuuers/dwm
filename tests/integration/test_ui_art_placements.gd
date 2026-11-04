@@ -6,8 +6,6 @@ const DESKTOP := preload("res://scenes/desktop/ComputerDesktop.tscn")
 const CONTACTS := preload("res://scripts/ui/contacts/ContactsPanel.gd")
 const MAIN := preload("res://scenes/main/MainGameScene.tscn")
 const SHOP := preload("res://scripts/application/shop/ShopPresentationPort.gd")
-const SCHEDULE_ART := preload("res://scripts/ui/schedule/ScheduleArtRegistry.gd")
-const SCHEDULE_ACTIONS := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
 
 func before_each() -> void:
 	ART.reload_placements()
@@ -88,30 +86,3 @@ func test_shop_art_uses_valid_exact_sizes_and_wrong_size_keeps_procedural_tile()
 	assert_eq(inspector.get_size(), Vector2(56, 56))
 	assert_eq(card.resource_path, "res://tests/fixtures/art/ui-28.svg")
 	assert_true(inspector.resource_path.is_empty(), "wrong-sized optional art retains generated fallback")
-func test_schedule_optional_pair_resolves_or_falls_back_without_weakening_action_admission() -> void:
-	var loaded: Dictionary = SCHEDULE_ACTIONS.load_current()
-	assert_true(loaded.get("ok", false))
-	if not loaded.get("ok", false):
-		return
-	var registry: Object = loaded.value.registry
-	var fingerprint: String = registry.fingerprint()
-	ART.set_overlay_info("", "schedule.training.compact", "res://assets/ui/schedule/neutral-ticket-compact.svg", Vector2i(24, 24), "test")
-	ART.set_overlay_info("", "schedule.training.folio", "res://assets/ui/schedule/neutral-ticket-folio.svg", Vector2i(64, 64), "test")
-	var resolved: Dictionary = SCHEDULE_ART.resolve(registry, "training", fingerprint)
-	assert_true(resolved.get("ok", false))
-	if resolved.get("ok", false):
-		assert_eq((resolved.value.compact as Texture2D).get_size(), Vector2(24, 24))
-		assert_eq((resolved.value.folio as Texture2D).get_size(), Vector2(64, 64))
-
-	_place("schedule.training.compact", "ui-48.svg", Vector2i(48, 48))
-	_place("schedule.training.folio", "ui-48.svg", Vector2i(48, 48))
-	var fallback: Dictionary = SCHEDULE_ART.resolve(registry, "training", fingerprint)
-	assert_true(fallback.get("ok", false))
-	if fallback.get("ok", false):
-		assert_eq((fallback.value.compact as Texture2D).resource_path,
-			"res://assets/ui/schedule/neutral-ticket-compact.svg")
-		assert_eq((fallback.value.folio as Texture2D).resource_path,
-			"res://assets/ui/schedule/neutral-ticket-folio.svg")
-	var unknown: Dictionary = SCHEDULE_ART.resolve(registry, "not-a-schedule-action", fingerprint)
-	assert_false(unknown.get("ok", true))
-	assert_eq(unknown.get("code"), "schedule_art_action_unregistered")

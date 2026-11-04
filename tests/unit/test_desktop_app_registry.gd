@@ -6,7 +6,6 @@ const REGISTRY_PATH := "res://scripts/domain/desktop/DesktopAppRegistry.gd"
 const EXPECTED := {
 	&"minesweeper": {"scene": &"res://scenes/apps/MinesweeperApp.tscn", "focus": NodePath("%HideButton")},
 	&"contacts":    {"scene": &"res://scenes/apps/ContactListApp.tscn", "focus": NodePath("%HideButton")},
-	&"schedule":    {"scene": &"res://scenes/apps/ScheduleApp.tscn", "focus": NodePath("%HideButton")},
 	&"shop":        {"scene": &"res://scenes/apps/ShopApp.tscn", "focus": NodePath("%HideButton")},
 	&"backup":      {"scene": &"res://scenes/apps/BackupApp.tscn", "focus": NodePath("%HideButton")},
 	&"settings":    {"scene": &"res://scenes/apps/SettingsApp.tscn", "focus": NodePath("%HideButton")},
@@ -19,12 +18,12 @@ func _load_registry():
 		return null
 	return loaded["value"].new()
 
-func test_registry_has_exactly_six_known_apps() -> void:
+func test_registry_has_exactly_five_known_apps() -> void:
 	var registry = _load_registry()
 	if registry == null:
 		return
 	var ids: Array = registry.get_ids()
-	assert_eq(ids.size(), 6, "registry must expose exactly six app ids")
+	assert_eq(ids.size(), 5, "registry must expose exactly five app ids")
 	for id in EXPECTED.keys():
 		assert_true(ids.has(id), "registry must contain app id %s" % id)
 

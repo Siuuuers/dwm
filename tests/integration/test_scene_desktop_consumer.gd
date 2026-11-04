@@ -17,15 +17,13 @@ func before_each() -> void:
 func test_scene_launcher_uses_ids_without_schedule() -> void:
 	assert_eq(REGISTRY.new().get_scene_ids(), [&"minesweeper", &"contacts", &"shop", &"backup", &"settings"])
 	assert_false(REGISTRY.new().get_scene_record(&"schedule").ok)
-	assert_true(REGISTRY.new().get_record(&"schedule").ok, "legacy resolver retained")
-	assert_false(desktop.launcher_buttons[&"schedule"].visible)
-	assert_eq(desktop.launcher_buttons[&"schedule"].focus_mode, Control.FOCUS_NONE)
+	assert_false(REGISTRY.new().get_record(&"schedule").ok)
+	assert_false(desktop.launcher_buttons.has(&"schedule"))
 	var expected := {&"minesweeper": "Minesweeper", &"contacts": "Contacts", &"shop": "Shop", &"backup": "Backup", &"settings": "Settings", &"logout": "Log out"}
 	for id: StringName in expected:
 		var button: Button = desktop.launcher_buttons[id]
 		assert_eq(button.icon_id, id)
 		assert_eq(button.get_node("Caption").text, expected[id])
-		assert_ne(button.focus_next, button.get_path_to(desktop.launcher_buttons[&"schedule"]))
 	assert_false(desktop.open_app(&"schedule").ok)
 	assert_null(host.get_state().active_app_id)
 
@@ -75,7 +73,6 @@ func test_calendar_configuration_and_eviction_are_refused() -> void:
 	assert_false(desktop.configure_contacts(null, null, null, host, 1).ok)
 	assert_false(desktop.configure_minesweeper(null, null, null, host, 1).ok)
 	assert_false(desktop.configure_shop(null, null, null, host, 1).ok)
-	assert_false(desktop.configure_schedule(null, null, null, host, 1).ok)
 	assert_false(desktop.dispatch_desktop_eviction({"kind": &"evict_cached_apps", "day": 2}).ok)
 	assert_eq(host.get_state(), before)
 

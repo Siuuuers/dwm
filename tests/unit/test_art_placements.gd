@@ -1,7 +1,6 @@
 extends "res://addons/gut/test.gd"
 
 const ART := preload("res://scripts/data/ArtManifest.gd")
-const TICKET := "res://assets/ui/schedule/neutral-ticket-compact.svg"
 const PORTRAIT := "res://tests/fixtures/art/placement-portrait-left.svg"
 
 func before_each() -> void:
@@ -19,11 +18,11 @@ func test_missing_unknown_and_non_image_assets_return_no_texture() -> void:
 	assert_has(ART.get_missing_art_report(), "missing")
 
 func test_real_imported_texture_obeys_fixed_ui_dimensions() -> void:
-	ART.set_overlay_info("", "ticket", TICKET, Vector2i(24, 24), "preview")
-	assert_not_null(ART.get_texture("ticket", Vector2i(24, 24)))
-	assert_null(ART.get_texture("ticket", Vector2i(64, 64)))
-	assert_eq(ART.get_expected_size(TICKET), Vector2i(24, 24))
-	assert_does_not_have(ART.get_missing_art_report(), "ticket")
+	ART.set_overlay_info("", "portrait", PORTRAIT, Vector2i(320, 448), "preview")
+	assert_not_null(ART.get_texture("portrait", Vector2i(320, 448)))
+	assert_null(ART.get_texture("portrait", Vector2i(64, 64)))
+	assert_eq(ART.get_expected_size(PORTRAIT), Vector2i(320, 448))
+	assert_does_not_have(ART.get_missing_art_report(), "portrait")
 
 func test_solo_and_pair_art_are_fixed_and_return_detached_lists() -> void:
 	var solo := ART.get_scene_art("dating.solo.priscilla.day1.pre_challenge")
