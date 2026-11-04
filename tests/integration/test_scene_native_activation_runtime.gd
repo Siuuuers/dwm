@@ -529,13 +529,14 @@ func test_held_control_actions_revalidate_history_and_preserve_read_only_custody
 	assert_true(gate.release(&"causal_transaction", lease.value.token).ok)
 	assert_true(_bridge.can_next_current_line())
 	var first: Dictionary = held.ledger._sequence[0]
-	var publication: String = first.publication_id
-	first.publication_id = "TEST.changed.old.publication"
+	var changed: Dictionary = first.duplicate(true)
+	changed.publication_id = "TEST.changed.old.publication"
+	held.ledger._sequence[0] = changed
 	assert_true(held.session.capture({}).ok, "the altered historical publication remains valid Reading5")
 	assert_false(_bridge.capture_reading_checkpoint(false).ok, "Save freshly proves the retained control")
 	assert_false(_bridge.get_reading_history().ok, "History freshly proves the retained control")
 	assert_false(_bridge.capture_scene_optional_frontier().ok, "Next admission freshly proves the retained control")
-	first.publication_id = publication
+	held.ledger._sequence[0] = first
 	assert_eq(_bridge.capture_reading_checkpoint(false).value, held.checkpoint)
 	assert_eq(_bridge.get_reading_history(), history)
 	assert_eq(_bridge.capture_scene_optional_frontier(), frontier)

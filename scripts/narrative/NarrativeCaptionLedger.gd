@@ -23,6 +23,21 @@ var _published: Dictionary = {}
 var _sequence: Array[Dictionary] = []
 var _publication_serial := 0
 
+func fork_live() -> NarrativeCaptionLedger:
+	var candidate := NarrativeCaptionLedger.new()
+	candidate._scene = _scene
+	candidate._session_token = _session_token
+	candidate._frozen_context = _frozen_context
+	candidate._entry_contexts_required = _entry_contexts_required
+	candidate._entry_contexts = _entry_contexts.duplicate()
+	candidate._registered = _registered.duplicate()
+	candidate._registered_entries = _registered_entries.duplicate()
+	candidate._by_line = _by_line.duplicate()
+	candidate._published = _published.duplicate()
+	candidate._sequence = _sequence.duplicate()
+	candidate._publication_serial = _publication_serial
+	return candidate
+
 func initialize(session_token: String, frozen_context: Dictionary,
 		entry_manifest: Dictionary, registry: Dictionary, entry_contexts_required: bool = false,
 		scene: bool = false) -> Dictionary:
@@ -202,6 +217,8 @@ func publish_caption(session_token: String, publication_id: String, beat: Dictio
 	if _scene:
 		row["occurrence_id"] = occurrence_id
 		publication["occurrence_id"] = occurrence_id
+	row.make_read_only()
+	publication.make_read_only()
 	_sequence.append(row)
 	_published[publication_id] = publication
 	return {"ok": true, "value": {"duplicate": false, "ordinal": _sequence.size() - 1}}

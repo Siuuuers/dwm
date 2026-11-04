@@ -53,6 +53,54 @@ func test_continuation_plans_one_visible_caption_without_mutating_held_custody()
 	plan.destination.caption.beat.line_id = "TEST.changed.detached.copy"
 	assert_eq(session.capture({}), before)
 
+func test_live_transition_fork_matches_cold_restore_and_preserves_source() -> void:
+	var source := _at_playable()
+	if source == null: return
+	var before: Dictionary = source.capture({})
+	var planned: Dictionary = source.prepare_scene_control_continuation()
+	assert_true(planned.ok, str(planned))
+	if not planned.ok: return
+	var forked: Dictionary = source._fork_scene_transition(planned.value)
+	assert_true(forked.ok, str(forked))
+	if not forked.ok: return
+	var live: RefCounted = forked.value.candidate
+	var reading: Dictionary = forked.value.reading
+	var cold: RefCounted = FIXTURE.SESSION.new()
+	assert_true(cold.configure_scene().ok)
+	assert_true(cold.restore(reading, FIXTURE.B).ok)
+	assert_eq(live.capture(reading.frontier), cold.capture(reading.frontier))
+	assert_eq(live.capture(reading.frontier).value, reading)
+	assert_eq(live._progress_count, reading.ledger.captions.size())
+	assert_eq(live.player_progress, reading.player_progress)
+	assert_eq(live.ledger.snapshot().captions.slice(0, before.value.ledger.captions.size()), before.value.ledger.captions)
+	assert_eq(live.ledger.snapshot().captions.back(), planned.value.destination.caption)
+	assert_true(live.next_operation.is_empty())
+	assert_eq(source.capture({}), before)
+	assert_eq(live.prepare_scene_next(reading.frontier, func(_beat: Dictionary) -> bool: return false),
+		cold.prepare_scene_next(reading.frontier, func(_beat: Dictionary) -> bool: return false))
+	assert_eq(source.capture({}), before)
+
+func test_live_entry_fork_admission_keeps_source_progress_and_history_detached() -> void:
+	var source := _at_playable()
+	if source == null: return
+	var before: Dictionary = source.capture({})
+	var fork: RefCounted = source._fork_scene_live()
+	assert_eq(fork.capture({}), before)
+	assert_false(is_same(fork.player_progress, source.player_progress))
+	assert_false(is_same(fork.ledger, source.ledger))
+	fork.inherit_player_progress(source, true)
+	var entered: Dictionary = FIXTURE.enter(fork, FIXTURE.A, "fork:next-entry")
+	assert_true(entered.ok, str(entered))
+	if not entered.ok: return
+	var captured: Dictionary = fork.capture(FIXTURE.frontier(fork))
+	assert_true(captured.ok, str(captured))
+	assert_eq(fork.latest_entry, FIXTURE.A)
+	assert_eq(fork.scene_occurrence, "fork:next-entry")
+	assert_eq(captured.value.player_progress.recovery_anchor.entry_id, FIXTURE.A)
+	assert_eq(captured.value.ledger.captions.size(), before.value.ledger.captions.size() + 1)
+	assert_eq(source.capture({}), before)
+	assert_eq(source.latest_entry, FIXTURE.B)
+
 func test_ordinary_next_cannot_release_control_and_continuation_refuses_caption_source() -> void:
 	var session := _at_playable()
 	if session == null: return
