@@ -44,9 +44,12 @@ func retain_scene_source(session: RefCounted) -> Dictionary:
 	if _scene_source_token != null:
 		var checked := validate_scene_source(_scene_source_token, session)
 		return {"ok": true, "value": _scene_source_token} if checked.ok else checked
+	var retained: Dictionary = session._retain_scene_live(boundary.value.reading)
+	if not retained.ok: return retained
+	FrozenPresentationContext._freeze(boundary.value.reading)
 	_scene_source_token = RefCounted.new()
 	_scene_source = {"session": session, "ledger": _caption_ledger,
-		"boundary": boundary.value,
+		"boundary": boundary.value, "state": retained.value,
 		"request": _request_id, "generation": _runtime_generation, "event": _caption_event,
 		"execution_generation": _caption_event._execution_generation,
 		"registration_sha256": session.fingerprint, "occurrence": _scene_caption_occurrence}
@@ -62,7 +65,8 @@ func validate_scene_source(token: RefCounted, session: RefCounted) -> Dictionary
 			or _scene_caption_occurrence != _scene_source.occurrence \
 			or session.fingerprint != _scene_source.registration_sha256:
 		return _fail(&"scene_source_changed", "")
-	var boundary := _scene_source_boundary(session)
+	if not session._matches_scene_live(_scene_source.state): return _fail(&"scene_source_changed", "")
+	var boundary := _scene_source_boundary(session, false, _scene_source.boundary.reading)
 	if not boundary.ok or boundary.value != _scene_source.boundary:
 		return _fail(&"scene_source_changed", "")
 	return {"ok": true}
@@ -107,7 +111,7 @@ func reconcile_scene_publication(session: RefCounted) -> Dictionary:
 		return _fail(&"scene_source_boundary_invalid", "live source differs from the authenticated programme")
 	return session.accept_scene_publication(index, frontier.value)
 
-func _scene_source_boundary(session: RefCounted, allow_suspended_read: bool = false) -> Dictionary:
+func _scene_source_boundary(session: RefCounted, allow_suspended_read: bool = false, retained_reading: Dictionary = {}) -> Dictionary:
 	if not _qualified_runtime or not _caption_source_is_current() or session == null \
 			or session.family != "scene" or session.boundary not in ["line", "control"] \
 			or session.ledger != _caption_ledger or session.command_id != _caption_token \
@@ -116,7 +120,8 @@ func _scene_source_boundary(session: RefCounted, allow_suspended_read: bool = fa
 		return _fail(&"scene_source_unavailable", "")
 	var frontier := capture_reading_frontier()
 	if not frontier.ok: return frontier
-	var saved: Dictionary = session.capture({} if session.boundary == "control" else frontier.value)
+	var saved: Dictionary = session.capture({} if session.boundary == "control" else frontier.value) \
+		if retained_reading.is_empty() else {"ok": true, "value": retained_reading}
 	if not saved.ok: return saved
 	var owner := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 	var selected := owner.scene_contract_tables()
@@ -168,7 +173,7 @@ func _scene_source_boundary(session: RefCounted, allow_suspended_read: bool = fa
 	if not native is DialogicLabelEvent or native.name != marker.label:
 		return _fail(&"scene_source_boundary_invalid", "")
 	return {"ok": true, "value": {"frontier": frontier.value.duplicate(true),
-		"reading": saved.value.duplicate(true), "marker": marker.duplicate(true), "native_index": native_index}}
+		"reading": saved.value, "marker": marker.duplicate(true), "native_index": native_index}}
 
 ## Called only after the configured checkpoint adapter confirms the staged target.
 ## Live replacement requires the retained, unchanged held-source capability.
@@ -293,7 +298,8 @@ func _install_scene_control(session: RefCounted, reading: Dictionary,
 	_scene_source = {}
 	_caption_ledger = candidate_ledger
 	_marker_hold.ledger = candidate_ledger
-	_scene_control_restore = {"session": session, "reading": retained.duplicate(true),
+	FrozenPresentationContext._freeze(retained)
+	_scene_control_restore = {"session": session, "state": session._fork_scene_live(), "reading": retained,
 		"marker": marker, "native_index": control_native_index}
 	var adopted := capture_scene_control_position(session)
 	if not adopted.ok:
@@ -326,6 +332,11 @@ func _install_scene_frontier(session: RefCounted, checkpoint: Dictionary, source
 	var saved: Dictionary = checkpoint.reading_session
 	if saved.boundary not in ["line", "control"]:
 		return _fail(&"scene_restore_boundary_unsupported", "only caption and held control positions are released")
+	var control_state: RefCounted
+	if saved.boundary == "control":
+		var retained: Dictionary = session._retain_scene_live(saved)
+		if not retained.ok: return retained
+		control_state = retained.value
 	var frame := NarrativeCaptionLedger.resolve_scene_frame(saved.ledger.entry_contexts, saved.occurrence_id, checkpoint.entry_id)
 	if not frame.ok or frame.value != checkpoint.get("frozen_context"):
 		return _fail(&"scene_restore_native_invalid", "saved context mismatch")
@@ -374,7 +385,9 @@ func _install_scene_frontier(session: RefCounted, checkpoint: Dictionary, source
 	if not frozen.ok: return frozen
 	_scene_control_restore = {}
 	if saved.boundary == "control":
-		_scene_control_restore = {"session": session, "reading": saved.duplicate(true),
+		var retained := saved.duplicate(true)
+		FrozenPresentationContext._freeze(retained)
+		_scene_control_restore = {"session": session, "state": control_state, "reading": retained,
 			"marker": control_marker, "native_index": int(compiled.value.native_indices[saved.program_index])}
 	_caption_restore_frontier = restore_frontier.duplicate(true)
 	_caption_restore_queued = false
@@ -463,11 +476,11 @@ func capture_scene_control_position(session: RefCounted) -> Dictionary:
 		return _fail(&"scene_restore_control_unproven", "")
 	# Read-only Save/History capture retains the same proven session and marker
 	# while sheet custody suspends native playback. Mutation callers stay unpaused.
-	var physical := _scene_source_boundary(session, true)
-	if not physical.ok: return physical
-	if physical.value.reading != _scene_control_restore.reading:
+	if not session._matches_scene_live(_scene_control_restore.state):
 		return _fail(&"scene_restore_control_changed", "")
-	return {"ok": true, "value": physical.value.reading}
+	var physical := _scene_source_boundary(session, true, _scene_control_restore.reading)
+	if not physical.ok: return physical
+	return {"ok": true, "value": physical.value.reading.duplicate(true)}
 
 
 func _start_held_scene_target(path: String, native_index: int) -> Dictionary:

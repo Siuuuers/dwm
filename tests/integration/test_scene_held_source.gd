@@ -259,6 +259,25 @@ func test_caller_transport_mutation_during_ack_cannot_redirect_private_target() 
 	assert_eq(_port.checkpoint, original.value.narrative_checkpoint)
 	assert_eq(_port.consumes, 1)
 
+func test_candidate_history_replacement_during_ack_refuses_adoption() -> void:
+	if not await _start_source(): return
+	var source: RefCounted = _bridge._reading_session
+	var prepared := _prepare()
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	assert_true(_bridge._scene_stage.transport.is_read_only())
+	assert_true(_bridge._scene_stage.transport.narrative_checkpoint.reading_session.ledger.captions.is_read_only())
+	_port.confirmed = true
+	_port.on_consume = func() -> void:
+		var ledger: NarrativeCaptionLedger = _bridge._scene_stage.candidate.ledger
+		var replaced: Dictionary = ledger._sequence[0].duplicate(true)
+		replaced.make_read_only()
+		ledger._sequence[0] = replaced
+	assert_false(_bridge.commit_day_entry(prepared.value).ok)
+	assert_true(_bridge._scene_stage_fatal)
+	assert_eq(_bridge._reading_session, source)
+	assert_eq(_port.consumes, 1)
+
 func test_foreign_native_playback_during_confirmed_ack_retains_target_under_fatal_custody() -> void:
 	if not await _start_source(): return
 	var prepared := _prepare()
