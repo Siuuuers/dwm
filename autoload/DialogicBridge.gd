@@ -404,9 +404,6 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 	if not retained is Dictionary or not retained.get("ok", false):
 		_scene_stage.clear()
 		return _command_failure(&"scene_staging_owner_refused")
-	if not _scene_source_current() or not _scene_candidate_current():
-		_scene_stage.clear()
-		return _command_failure(&"scene_staging_source_invalid")
 	return {"ok": true, "value": transport}
 
 func commit_day_entry(candidate: Dictionary) -> Dictionary:
@@ -423,9 +420,6 @@ func _commit_scene_entry(candidate: Dictionary) -> Dictionary:
 		return _command_failure(&"scene_staging_candidate_invalid")
 	# Never read caller-owned transport again across an external callback.
 	candidate = _scene_stage.transport.duplicate(true)
-	var source: Variant = _scene_stage_source.call(_scene_stage.binding.duplicate(true))
-	if not source is Dictionary or not source.get("ok", false) or not _scene_source_current() or not _scene_candidate_current():
-		return _command_failure(&"scene_staging_source_invalid")
 	var ack: Variant = _scene_stage_port.call("consume_scene_entry_ack", candidate.capability_id)
 	# Missing confirmation is never installation permission. Adapter supplies
 	# committed=false only after proving no write; uncertainty keeps custody.
