@@ -220,18 +220,32 @@ func publish_caption(session_token: String, publication_id: String, beat: Dictio
 		if str(previous.get("occurrence_id", "")) != occurrence_id:
 			return _fail(&"caption_publication_conflict")
 		return {"ok": true, "value": {"duplicate": true, "ordinal": previous.ordinal}}
+	if _scene and not _sequence.is_empty() and publication_id.begins_with("caption:"):
+		var previous_id: String = _sequence.back().publication_id
+		if previous_id.begins_with("caption:") and publication_id.trim_prefix("caption:").is_valid_int() \
+				and previous_id.trim_prefix("caption:").is_valid_int() \
+				and int(publication_id.trim_prefix("caption:")) <= int(previous_id.trim_prefix("caption:")):
+			return _fail(&"caption_publication_expired")
 	if not _registered.has(beat.beat_id): return _fail(&"caption_beat_unregistered")
 	if _registered[beat.beat_id] != beat: return _fail(&"caption_registration_mismatch")
 	var session := check_session(session_token, beat.owning_entry_id, occurrence_id)
 	if not session.ok: return session
 	var admitted: Dictionary = _registered[beat.beat_id]
 	var row := {"publication_id": publication_id, "beat": admitted}
-	var publication := {"beat": admitted, "ordinal": _sequence.size()}
+	var publication := {"beat": admitted, "ordinal": 0 if _scene else _sequence.size()}
 	if _scene:
 		row["occurrence_id"] = occurrence_id
 		publication["occurrence_id"] = occurrence_id
 	row.make_read_only()
 	publication.make_read_only()
+	if _scene:
+		_sequence.clear()
+		_published.clear()
+		var frame_key := scene_frame_key(occurrence_id, beat.owning_entry_id)
+		var frame: Dictionary = _entry_contexts[frame_key]
+		_entry_contexts = {frame_key: frame}
+	if _scene and publication_id.begins_with("caption:") and publication_id.trim_prefix("caption:").is_valid_int():
+		_publication_serial = maxi(_publication_serial, int(publication_id.trim_prefix("caption:")))
 	_sequence.append(row)
 	_published[publication_id] = publication
 	return {"ok": true, "value": {"duplicate": false, "ordinal": _sequence.size() - 1}}

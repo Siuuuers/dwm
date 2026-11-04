@@ -69,3 +69,23 @@ registration and API inventories before final acceptance. Import, unit,
 integration, rendered fresh-process Load and exported-startup checks must pass.
 A smaller file or less historical validation does not establish a speedup.
 No local Godot test qualifies this change.
+
+## Compact local History — 5 November 2026
+
+Local History stores at most three blocks: current checkpoint and the previous
+two. Each record contains `checkpoint_id` (the stable first line ID of the
+selected checkpoint path) and `last_line_id`. The display follows the authored
+programme between those endpoints, including ordinary passage transitions and
+paired thoughts. Mid-block Next reconstructs that selected prefix; it does not
+unlock its skipped text in the global Library. Branch decisions start a new
+block, so another branch is never inferred from catalogue order.
+
+Scene playback retains one current caption publication and its occurrence frame.
+Publication numbering continues across discarded captions. Capture, live forks,
+and current-state comparisons therefore do not grow with reading length.
+Historical display cannot capture or restore playback state, publish captions,
+or write Profile discoveries. Old development saves with line-list History
+records are incompatible; no migration is provided.
+
+Global Library discoveries remain Profile-owned and survive loading an older
+Run save. Only explicit Library/profile reset clears them.

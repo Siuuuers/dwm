@@ -98,7 +98,7 @@ func test_compact_line_and_control_projection_is_idempotent_and_detached() -> vo
 		assert_eq(projected, player, "line and held control retain exact compact state")
 		if not projected.ok: return
 		projected.value.reading_session.captions[0].line_id = "changed.caption"
-		projected.value.reading_session.history_sections[0].append("changed.history")
+		projected.value.reading_session.history_sections[0].last_line_id = "changed.history"
 		projected.value.reading_session.recovery_anchor.line_id = "changed.anchor"
 		projected.value.frozen_context.presentation.fields.entry_id = "changed.context"
 		assert_eq(player.value, before, "mutating a projected checkpoint cannot change its source")
@@ -133,8 +133,7 @@ func test_live_projection_preserves_loop_history_and_multiple_occurrences() -> v
 		assert_eq(saved.captions, [{"line_id": "line.scene.test.b.two", "publication_id": "caption:6"}])
 		assert_eq(saved.occurrence_id, "TEST.second.occurrence")
 		assert_eq(saved.publication_serial, 6)
-		assert_eq(saved.history_sections, [["line.scene.test.a.one", "line.scene.test.a.two",
-			"line.scene.test.b.one", "line.scene.test.b.two"]])
+		assert_eq(saved.history_sections, [{"checkpoint_id": "line.scene.test.a.one", "last_line_id": "line.scene.test.b.two"}])
 		assert_false(saved.has("ledger"))
 		assert_false(saved.has("next_operation"))
 		var restored := SESSION.new()
@@ -148,7 +147,7 @@ func test_live_projection_preserves_loop_history_and_multiple_occurrences() -> v
 			assert_eq(restored.boundary, "control")
 			assert_eq(restored.scene_index, session.scene_index)
 		assert_eq(restored.prepare_scene_control_continuation(), session.prepare_scene_control_continuation())
-		projected.value.reading_session.history_sections[0].append("changed.history")
+		projected.value.reading_session.history_sections[0].last_line_id = "changed.history"
 		assert_eq(live, before, "compact History does not alias the live capture")
 
 func test_live_projection_keeps_wrapper_checks_and_restore_owns_reference_checks() -> void:

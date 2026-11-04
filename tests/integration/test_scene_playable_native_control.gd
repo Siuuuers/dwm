@@ -243,8 +243,8 @@ func test_live_control_continues_to_adjacent_caption_without_operation() -> void
 	assert_eq(captured.value, destination)
 	assert_null(captured.value.next_operation)
 	assert_eq(captured.value.player_progress, destination.player_progress)
-	assert_eq(captured.value.ledger.captions.slice(0, _reading.ledger.captions.size()), _reading.ledger.captions)
-	assert_eq(captured.value.ledger.captions.size(), _reading.ledger.captions.size() + 1)
+	assert_eq(captured.value.ledger.captions.back().beat.line_id, frontier.value.line_id)
+	assert_eq(captured.value.ledger.captions.size(), 1)
 	assert_false(_adapter.validate_scene_source(retained.value, _candidate).ok)
 	assert_eq(_markers, [])
 

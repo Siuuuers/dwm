@@ -141,7 +141,7 @@ func test_compact_player_save_retains_current_caption_and_bounded_encounters() -
 	assert_false(reading.has("next_operation"), "player reading omits temporary traversal plans")
 	assert_eq(reading.captions.size(), 1, "only the native current publication is stored")
 	assert_true(reading.history_sections.size() >= 1 and reading.history_sections.size() <= 3)
-	assert_eq(reading.history_sections.back().back(), reading.position_id, "encounter history reaches the selected caption")
+	assert_eq(reading.history_sections.back().last_line_id, reading.position_id, "encounter history reaches the selected caption")
 	var expanded: Dictionary = READING.expand_player_checkpoint(fixture.snapshot.narrative_checkpoint)
 	assert_true(expanded.ok, str(expanded))
 	if not expanded.ok: return

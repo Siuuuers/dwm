@@ -34,6 +34,8 @@ jobs:
           git submodule foreach --recursive 'true'
       - name: Check lint rules
         run: python3 -m unittest discover -s tools/lint -p 'test_*.py'
+      - name: Check History dependencies
+        run: python3 tools/lint/check_history.py
       - name: Check changed Python syntax
         run: python3 tools/lint/check_python.py --base HEAD^
       - name: Check changed workflows

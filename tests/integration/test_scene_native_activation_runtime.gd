@@ -272,7 +272,7 @@ func test_compact_later_caption_restores_current_publication_without_replay() ->
 	var fixture := _compact_source(BASE.A, 4)
 	if fixture.is_empty(): return
 	var compact: Dictionary = fixture.compact
-	assert_eq(fixture.live.reading_session.ledger.captions.size(), 5)
+	assert_eq(fixture.live.reading_session.ledger.captions.size(), 1)
 	assert_eq(compact.reading_session.schema_version, 7)
 	assert_eq(compact.reading_session.captions.size(), 1)
 	assert_false(compact.reading_session.has("ledger"))
@@ -298,7 +298,7 @@ func test_compact_later_caption_restores_current_publication_without_replay() ->
 	var restored: RefCounted = _bridge._reading_session
 	var frontier: Dictionary = _adapter.capture_reading_frontier().value
 	assert_eq(frontier, fixture.live.reading_session.frontier)
-	assert_eq(restored.ledger.snapshot().captions, fixture.live.reading_session.ledger.captions.slice(4))
+	assert_eq(restored.ledger.snapshot().captions, fixture.live.reading_session.ledger.captions)
 	var memory: Dictionary = restored.project_scene_caption_memory(frontier)
 	assert_true(memory.ok)
 	assert_eq(memory.value.captions.size(), 1)
@@ -343,7 +343,7 @@ func test_compact_control_restores_full_held_predecessor_without_firing_marker()
 	assert_true(held.ok)
 	assert_eq(held.value.boundary, "control")
 	assert_eq(restored.next_operation, {})
-	assert_eq(restored.ledger.snapshot().captions, fixture.live.reading_session.ledger.captions.slice(1))
+	assert_eq(restored.ledger.snapshot().captions, fixture.live.reading_session.ledger.captions)
 	assert_false(_adapter.capture_scene_control_position(fixture.source).ok, "old owner cannot borrow new native custody")
 	var round_trip: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").project_player_checkpoint(
 		_bridge.capture_reading_checkpoint(false).value)

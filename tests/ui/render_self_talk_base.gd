@@ -58,18 +58,9 @@ func _capture_self_talk(label: String) -> void:
 	_captures += 1
 
 func _history_ids() -> Array:
-	var captured: Dictionary = bridge.capture_reading_checkpoint(false)
-	if not _ok(captured): return []
-	var ids: Array = []
-	for section: Array in captured.value.reading_session.player_progress.history_sections:
-		for id: String in section:
-			ids.append(id)
 	var history: Dictionary = bridge.get_reading_history()
-	if not _ok(history): return ids
-	var visible_ids: Array = []
-	for row: Dictionary in history.value.captions: visible_ids.append(row.line_id)
-	assert_eq(visible_ids, ids, "History contains captions and thoughts in encountered DTL order")
-	return ids
+	if not _ok(history): return []
+	return history.value.captions.map(func(row: Dictionary) -> String: return row.line_id)
 
 func _wheel_thought(older: bool) -> void:
 	var panel: Control = _caption().self_talk

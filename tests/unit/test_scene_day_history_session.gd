@@ -46,6 +46,7 @@ func test_reconstructed_day_passage_does_not_create_historical_publications() ->
 func test_day_two_passage_starts_at_day_two() -> void:
 	var session := _position("Day2", 0)
 	if session == null: return
+	session.capture(_frontier(session))
 	var history: Dictionary = session.project_scene_day_history(_frontier(session), {}, {})
 	assert_true(history.ok, str(history))
 	if history.ok:
@@ -65,7 +66,7 @@ func test_fresh_capture_records_encounters_once_and_returns_detached_checkpoint(
 	if not captured.ok: return
 	assert_false(session._pending_checkpoint, "capture consumes the pending section boundary")
 	var expected: Dictionary = captured.value.duplicate(true)
-	assert_eq(expected.player_progress.history_sections, [[first.line_id]])
+	assert_eq(expected.player_progress.history_sections, [{"checkpoint_id": first.line_id, "last_line_id": first.line_id}])
 	assert_eq(expected.player_progress.recovery_anchor, {"entry_id": "Day1", "line_id": first.line_id})
 	assert_eq(session.ledger.snapshot(), published, "capture records progress without allocating a publication")
 	captured.value.ledger.captions.clear()
@@ -94,7 +95,7 @@ func test_fresh_capture_records_encounters_once_and_returns_detached_checkpoint(
 	var following: Dictionary = session.capture(next)
 	assert_true(following.ok, str(following))
 	if not following.ok: return
-	assert_eq(following.value.player_progress.history_sections, [[first.line_id, next.line_id]])
+	assert_eq(following.value.player_progress.history_sections, [{"checkpoint_id": first.line_id, "last_line_id": next.line_id}])
 	assert_eq(following.value.player_progress.recovery_anchor, expected.player_progress.recovery_anchor)
 	assert_eq(following.value.frontier, next)
 	assert_eq(following.value.program_index, 1)
@@ -113,3 +114,19 @@ func test_fresh_capture_records_encounters_once_and_returns_detached_checkpoint(
 	assert_true(restoration.ok, str(restoration))
 	if not restoration.ok: return
 	assert_eq(restored.capture(next).value, following.value, "full restore still accepts and preserves the captured checkpoint")
+
+func test_long_live_session_retains_one_caption_and_one_context() -> void:
+	var session := _position("Day1", 0)
+	if session == null: return
+	var initial: Dictionary = session.capture(_frontier(session)).value
+	for step: int in 1000:
+		var allocated: Dictionary = session.ledger.allocate_publication(session.command_id, "Day1", session.scene_occurrence)
+		assert_true(allocated.ok)
+		assert_true(session.ledger.publish_line(session.command_id, allocated.value, "Day1", "line.Day1.one", session.scene_occurrence).ok)
+		assert_true(session.capture(_frontier(session)).ok)
+		assert_eq(session.ledger._sequence.size(), 1)
+		assert_eq(session.ledger._published.size(), 1)
+		assert_eq(session.ledger._entry_contexts.size(), 1)
+	var current: Dictionary = session.capture(_frontier(session)).value
+	assert_lte(JSON.stringify(current).length(), JSON.stringify(initial).length() + 20)
+	assert_eq(session.player_progress.history_sections.size(), 1)

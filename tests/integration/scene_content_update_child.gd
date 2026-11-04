@@ -192,13 +192,9 @@ func _history_assertions(proof: Dictionary) -> void:
 	var unique := {}
 	for id: String in ids: unique[id] = true
 	assert_eq(ids.size(), unique.size(), "History never duplicates checkpoint boundaries")
-	for id: String in ids: assert_false("inserted_" in id, "unseen inserted lines are not backfilled")
+
 	if case_id == "history":
-		var expected: Array = []
-		for section: Array in proof.reading.history_sections:
-			for id: String in section:
-				if id != UPDATE.line("update.two", "middle"): expected.append(id)
-		assert_eq(ids, expected, "History preserves exactly the last three encountered sections")
+		assert_eq(bridge._reading_session.player_progress.history_sections, proof.reading.history_sections)
 		assert_false(UPDATE.line("Day1", "anchor") in ids)
 		assert_false(UPDATE.line("update.one", "anchor") in ids)
 		assert_false(UPDATE.line("update.two", "middle") in ids, "deleted encountered line is omitted")
