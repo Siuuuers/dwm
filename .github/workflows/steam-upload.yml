@@ -1,5 +1,5 @@
 name: Steam private upload
-run-name: Steam ${{ inputs.mode }} - ${{ github.sha }} - game.exe
+run-name: Steam ${{ inputs.mode || 'validation' }} - ${{ github.sha }} - game.exe
 permissions:
   contents: read
   actions: read
@@ -331,8 +331,14 @@ jobs:
       run: |-
         Remove-Item -LiteralPath "$env:RUNNER_TEMP/dwm-steam" -Recurse -Force -ErrorAction SilentlyContinue
     needs: build
-    if: ${{ !cancelled() && needs.build.result == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && !cancelled() && needs.build.result == 'success' }}
 'on':
+  pull_request:
+    paths:
+    - '.github/workflows/steam-upload.yml'
+    - 'art/pictures/**'
+    - 'data/manifests/art_placements.json'
+    - 'localization/ui/**'
   workflow_dispatch:
     inputs:
       mode:
