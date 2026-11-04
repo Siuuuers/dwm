@@ -1091,6 +1091,8 @@ func _refresh_launcher(refresh_contacts: bool = true) -> void:
 		if ids[index] != &"contacts" or refresh_contacts:
 			button.set_caption(LABELS[_locale][ids[index]])
 	var home: String = {"en": "Home", "zh-CN": "主页", "zh-HK": "主頁", "ja": "ホーム", "ko": "홈"}[_locale]
+	desktop_canvas.move_child($DesktopCanvas/AppStrip, 1)
+	desktop_canvas.move_child(icon_grid if _active_id == &"" else app_scroll, 2)
 	home_button.accessibility_name = home
 	home_button.current_on_launcher = _active_id == &""
 	home_button.disabled = _active_id == &"" or _restoration_failed
