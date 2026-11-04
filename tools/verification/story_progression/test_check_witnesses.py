@@ -19,18 +19,26 @@ class WitnessFormatTests(unittest.TestCase):
                 list(read_states(text))
 
     def test_requires_all_events_and_completed_released_state(self):
-        def dump(events, visible="3"):
+        def dump(events, visible="3", fatal_owned=True, fatal_visible=True):
             state = dict(self.row, visible=visible, applied="<<1, 1>>", phase='"IDLE"',
                          owner="{}", pc='"idle"', expected="0")
+            states = [dict(state, last_event=f'"{event}"') for event in events]
+            if fatal_owned:
+                states.append(dict(state, fatal="TRUE", errorVisible="FALSE", owner='{"skip"}',
+                                   phase='"SKIP"', pc='"return"', acknowledged="FALSE", last_event='"ack-fatal"'))
+            if fatal_visible:
+                states.append(dict(state, fatal="TRUE", errorVisible="TRUE", acknowledged="FALSE",
+                                   last_event='"fatal-error-visible"'))
             return "\n\n".join(
                 f"State {index}:\n" + "\n".join(f"/\\ {key} = {value}" for key, value
-                    in dict(state, last_event=f'"{event}"').items())
-                for index, event in enumerate(events, 1))
+                    in row.items())
+                for index, row in enumerate(states, 1))
 
         events = sorted(EVENTS)
-        self.assertEqual(check(dump(events))["behavior_witnesses"], 14)
+        self.assertEqual(check(dump(events))["behavior_witnesses"], 18)
         self.assertTrue(check(dump(events))["completed_and_released"])
-        for text in (dump(events[:-1]), dump(events, visible="2")):
+        for text in (dump(events[:-1]), dump(events, visible="2"),
+                     dump(events, fatal_owned=False), dump(events, fatal_visible=False)):
             with self.assertRaisesRegex(ValueError, "Witness check failed"):
                 check(text)
 

@@ -1888,7 +1888,7 @@ jobs:
           chmod +x "$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64"
           echo "GODOT_CONSOLE_PATH=$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64" >> "$GITHUB_ENV"
           curl --fail --location --retry 3 'https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar' --output "$RUNNER_TEMP/tla2tools.jar"
-          printf '%s  %s\n' 'c57d4d7bbee3ed2c89c32cb9c60cac728f751e80e2570bc4b7368ae39291fc21' "$RUNNER_TEMP/tla2tools.jar" | sha256sum --check
+          printf '%s  %s\n' 'e20447644bfabd29d6bd0fc2c0eb1473fb301c1a0e4dfe1961938ce5a191edbf' "$RUNNER_TEMP/tla2tools.jar" | sha256sum --check
       - name: Start native speech service for mounted settings refresh
         timeout-minutes: 2
         run: bash tools/testing/start_cloud_speech.sh
