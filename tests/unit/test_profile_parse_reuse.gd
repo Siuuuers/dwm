@@ -6,6 +6,12 @@ const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const READER := preload("res://scripts/validation/StrictJson.gd")
 const SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 
+class CountingProfile extends "res://autoload/ProfileManager.gd":
+	var validated_texts: Array[String] = []
+	func _profile_text_validator(text: String) -> Dictionary:
+		validated_texts.append(text)
+		return super._profile_text_validator(text)
+
 var _entries_before: Dictionary
 
 func before_each() -> void:
@@ -34,6 +40,28 @@ func test_repeated_profile_reads_are_detached_and_preserve_json_types() -> void:
 	assert_eq(typeof(second.value.preferences.audio.music_volume), TYPE_FLOAT)
 	second.value.preferences.clear()
 	assert_eq(manager._profile_text_validator(text).value, profile)
+
+func test_atomic_write_validates_each_distinct_text_once_and_next_write_revalidates() -> void:
+	var manager: Node = autofree(CountingProfile.new())
+	var storage := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new(
+		"profile-write-reuse", preload("res://tests/support/FakeFileOps.gd").new())
+	assert_true(manager.initialize(storage).ok)
+	for volume: float in [0.25, 0.5]:
+		var previous: String = storage.read_text("profile.json").value
+		manager.validated_texts.clear()
+		assert_true(manager.set_preference(&"preferences.audio.music_volume", volume).ok)
+		var current: String = storage.read_text("profile.json").value
+		assert_ne(current, previous)
+		assert_eq(manager.validated_texts.count(previous), 1)
+		assert_eq(manager.validated_texts.count(current), 1)
+		for text: String in manager.validated_texts:
+			assert_eq(manager.validated_texts.count(text), 1)
+		var admitted: Dictionary = manager._profile_text_validator(current)
+		assert_true(admitted.ok)
+		assert_eq(manager.validated_texts.count(current), 2)
+		assert_eq(admitted.value, manager.get_profile_snapshot())
+		admitted.value.preferences.audio.music_volume = 0.0
+		assert_eq(manager.get_preference(&"preferences.audio.music_volume"), volume)
 
 func test_changed_and_malformed_text_cannot_reuse_another_profile() -> void:
 	var manager: Node = autofree(MANAGER.new())

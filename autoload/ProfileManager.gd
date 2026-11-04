@@ -485,7 +485,7 @@ func _commit_profile_candidate(candidate: Dictionary, defer_signals: bool = fals
 		return _failure(&"not_initialized", "ProfileManager is not initialized")
 	if _mutation_blocked:
 		return _failure(&"indeterminate_commit", "Profile mutation is blocked", true)
-	var validation := SCHEMA.validate(candidate.duplicate(true))
+	var validation := SCHEMA.validate(candidate)
 	if not validation.get("ok", false):
 		return validation
 	var detached: Dictionary = validation["value"]
@@ -1566,7 +1566,16 @@ func _persist_candidate(candidate: Dictionary, migrating := false) -> Dictionary
 	var emitted: Dictionary = WRITER.stringify(candidate)
 	if not emitted.get("ok", false):
 		return emitted
-	return _storage.call(&"write_atomic", "profile.json", emitted["value"], _profile_migration_text_validator if migrating else _profile_text_validator)
+	var validator := _profile_migration_text_validator if migrating else _write_profile_text_validator.bind({})
+	return _storage.call(&"write_atomic", "profile.json", emitted["value"], validator)
+
+
+func _write_profile_text_validator(text: String, validated_texts: Dictionary) -> Dictionary:
+	if validated_texts.has(text): return {"ok": true, "code": &"ok", "value": {}}
+	var result := _profile_text_validator(text)
+	if not result.get("ok", false) or typeof(result.get("value")) != TYPE_DICTIONARY: return result
+	validated_texts[text] = true
+	return {"ok": true, "code": &"ok", "value": {}}
 
 
 func _profile_migration_text_validator(text: String) -> Dictionary:
@@ -1591,9 +1600,7 @@ func _profile_text_validator(text: String) -> Dictionary:
 		if text.to_utf8_buffer().size() <= _PROFILE_PARSE_MAX_BYTES:
 			_profile_parsed_text = text
 			_profile_parsed_document = parsed.duplicate(true)
-	# Only syntax is reused. Schema admission still observes current registries,
-	# and neither it nor a caller receives the private parsed tree.
-	return SCHEMA.validate(parsed["value"].duplicate(true))
+	return SCHEMA.validate(parsed["value"])
 
 
 func _import_legacy_input_mappings() -> Dictionary:
