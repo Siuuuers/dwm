@@ -6,9 +6,9 @@ const MIGRATIONS := preload("res://scripts/infrastructure/save/SaveMigrations.gd
 
 # These are wire-boundary unit checks, not substitutes for real owner-backed
 # Run9 admission. Full integration supplies the actual issuer, Profile and B2.
-func test_scene_versions_do_not_replace_or_migrate_legacy_versions() -> void:
-	assert_eq(RUN.SCHEMA_VERSION, 8)
-	assert_eq(SAVE.DOCUMENT_VERSION, 8)
+func test_current_versions_do_not_migrate_legacy_saves() -> void:
+	assert_eq(RUN.SCHEMA_VERSION, 9)
+	assert_eq(SAVE.DOCUMENT_VERSION, 9)
 	assert_eq(RUN.SCENE_SCHEMA_VERSION, 9)
 	assert_eq(SAVE.SCENE_DOCUMENT_VERSION, 9)
 	var locator := {"kind": "quick", "slot_id": null}
@@ -20,10 +20,7 @@ func test_scene_versions_do_not_replace_or_migrate_legacy_versions() -> void:
 	assert_false(MIGRATIONS.migrate_document(malformed, locator).ok)
 	assert_eq(malformed, {"schema_version": 9}, "validation must not synthesize missing Run9 owners")
 
-func test_scene_recovery_cannot_enter_legacy_document_via_proof_family() -> void:
-	assert_eq(SAVE._journal_family_error(8, [{"snapshot": {"schema_version": 8}}]), "")
-	assert_ne(SAVE._journal_family_error(8, [{"snapshot": {"schema_version": 9}}]), "")
-	assert_ne(SAVE._journal_family_error(8, [{"snapshot": {"schema_version": 9.0}}]), "")
+func test_scene_recovery_requires_the_exact_proof_family() -> void:
 	var raw := [{"checkpoint_kind": "line", "snapshot": {"checkpoint_id": "run:1"}}]
 	assert_eq(SAVE._scene_proof_error(raw, raw.duplicate(true)), "")
 	var substituted := raw.duplicate(true)

@@ -4,23 +4,7 @@ const ART := preload("res://scripts/data/ArtManifest.gd")
 const MENU := preload("res://scenes/menu/MenuScene.tscn")
 const DESKTOP := preload("res://scenes/desktop/ComputerDesktop.tscn")
 const MAIN := preload("res://scenes/main/MainGameScene.tscn")
-const DATING := preload("res://scenes/dating/DatingScene.tscn")
 const SCENE_ART := preload("res://scripts/ui/art/SceneArtView.gd")
-
-class PhysicalPort extends RefCounted:
-	func begin(_request: Dictionary) -> Dictionary:
-		return {"ok": true}
-	func complete(_request: Dictionary) -> Dictionary:
-		return {"ok": true}
-	func pull_physical(_command: Dictionary) -> Dictionary:
-		var cells: Array = []
-		for index: int in range(324):
-			cells.append({"index": index, "face": "covered", "mark": "none", "number": 0,
-				"bracketed": false, "inspectable": false, "pressable": false, "actions": []})
-		return {"ok": true, "value": {"phase": "pre_challenge", "host": "canonical_solo",
-			"board": {"width": 18, "height": 18, "revision": 0, "mine_estimate": null,
-				"terminal": false, "custody": true, "cells": cells},
-			"special_mine_visible": false, "special_mine_enabled": false}}
 
 var _viewport: SubViewport
 var _folder := ""
@@ -61,14 +45,6 @@ func _run() -> void:
 	var left := ART.get_texture("evidence.scene.left")
 	var right := ART.get_texture("evidence.scene.right")
 	var cg := ART.get_texture("evidence.scene.cg")
-	var dating := DATING.instantiate()
-	var command := {"context": {"kind": "solo", "day": 1, "participants": ["priscilla"]}}
-	var configured: Dictionary = dating.configure_presentation(PhysicalPort.new(), command)
-	if not configured.get("ok", false):
-		_fail("real DatingScene fixture rejected")
-	else:
-		await _show_and_capture(dating, "04-dating-pre-challenge.png")
-
 	var solo := SCENE_ART.new()
 	solo.configure_textures(background, [left], null, 100)
 	await _show_and_capture(solo, "05-scene-solo.png")
@@ -150,4 +126,4 @@ func _fail(message: String) -> void:
 func _finish() -> void:
 	print("ART_PLACEMENT_RENDER_", "VERIFIED" if _failures.is_empty() else "FAILED",
 		" captures=", _captures, " evidence=", _folder)
-	quit(0 if _failures.is_empty() and _captures == 8 else 1)
+	quit(0 if _failures.is_empty() and _captures == 7 else 1)

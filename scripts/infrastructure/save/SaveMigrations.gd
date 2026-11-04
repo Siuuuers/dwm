@@ -31,23 +31,21 @@ static func migrate_document(raw: Dictionary, expected_locator: Dictionary,
 	var version: Variant = raw.get("schema_version")
 	if typeof(version) == TYPE_FLOAT and is_finite(version) and version == floorf(version): version = int(version)
 	if typeof(version) != TYPE_INT: return _fail(&"invalid_schema_version", "Document version must be integral")
-	if version < SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION:
-		return _fail(&"unsupported_run_configuration_schema", "Captured run configuration is required")
+	if version < SAVE_DOCUMENT_SCHEMA.SCENE_DOCUMENT_VERSION:
+		return _fail(&"unsupported_run_configuration_schema", "Current scene state is required")
 	if version > SAVE_DOCUMENT_SCHEMA.SCENE_DOCUMENT_VERSION:
 		return _fail(&"unsupported_future_schema", str(version))
-	var admitted := raw
-	if version == SAVE_DOCUMENT_SCHEMA.SCENE_DOCUMENT_VERSION:
-		admitted = raw.duplicate(true)
-		if not admitted.get("current_snapshot") is Dictionary or not admitted.get("recovery_journal") is Array:
-			return _fail(&"invalid_document_shape", "Save9 requires current snapshot and journal")
-		var bundles: Array = [admitted.current_snapshot]
-		bundles.append_array(admitted.recovery_journal)
-		for bundle: Variant in bundles:
-			if not bundle is Dictionary or not bundle.get("snapshot") is Dictionary:
-				return _fail(&"invalid_document_shape", "snapshot bundle must contain a snapshot")
-			var normalized := RUN_SNAPSHOT_SCHEMA.normalize_scene_content(bundle.snapshot)
-			if not normalized.ok: return normalized
-			bundle.snapshot = normalized.value
+	var admitted := raw.duplicate(true)
+	if not admitted.get("current_snapshot") is Dictionary or not admitted.get("recovery_journal") is Array:
+		return _fail(&"invalid_document_shape", "Save9 requires current snapshot and journal")
+	var bundles: Array = [admitted.current_snapshot]
+	bundles.append_array(admitted.recovery_journal)
+	for bundle: Variant in bundles:
+		if not bundle is Dictionary or not bundle.get("snapshot") is Dictionary:
+			return _fail(&"invalid_document_shape", "snapshot bundle must contain a snapshot")
+		var normalized := RUN_SNAPSHOT_SCHEMA.normalize_scene_content(bundle.snapshot)
+		if not normalized.ok: return normalized
+		bundle.snapshot = normalized.value
 	var validated := SAVE_DOCUMENT_SCHEMA.validate(admitted, {}, scene_seed_receiver)
 	if not validated.get("ok", false): return validated
 	var document: Dictionary = validated["value"]["candidate"]

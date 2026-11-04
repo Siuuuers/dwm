@@ -1828,7 +1828,7 @@ const _PRESENTATION_SIGNATURE := preload("res://scripts/domain/narrative/Present
 var _replay_profile: Object
 var _reached_replay: Dictionary = {}
 const _REPLAY_CARD := preload("res://scripts/ui/Day7PreludeSurface.gd")
-const _DATING_PRESENTATION := preload("res://scripts/ui/DatingScene.gd")
+const _RECORD_CATALOG := preload("res://scripts/ui/gallery/GalleryRecordCatalog.gd")
 var _replay_counter := 0
 var _reached_caption_catalogue: RefCounted
 var _reached_caption_admissions: Dictionary = {}
@@ -2093,7 +2093,7 @@ func _begin_reached_date_card(signature: Dictionary) -> Dictionary:
 	if localization != null: locale = str(localization.get_locale())
 	if _replay_profile.has_method("get_preference"):
 		locale = str(_replay_profile.get_preference("preferences.language.primary_locale_id", locale))
-	var projected: Dictionary = _DATING_PRESENTATION.reached_presentation_copy(signature, locale)
+	var projected: Dictionary = _RECORD_CATALOG.reached_presentation_copy(signature, locale)
 	if not projected.get("ok", false): return projected
 	if not is_inside_tree(): return _command_failure(&"replay_surface_unavailable")
 	var receipt := {"entry_id": signature.entry_id, "signature_id": _reached_replay.signature_id,

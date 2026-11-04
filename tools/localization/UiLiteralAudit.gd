@@ -70,7 +70,6 @@ const SCENE_LITERAL_OWNERS := {
 const SCRIPT_LOCALIZATION_HELPERS := {
 	"res://scripts/ui/BackupApp.gd": ["_t("],
 	"res://scripts/ui/ComputerDesktop.gd": ["LABELS["],
-	"res://scripts/ui/DatingScene.gd": ["presentation_copy(", "CHROME_COPY.get_copy("],
 	"res://scripts/ui/GalleryScene.gd": ["_localized(", "_record_title("],
 	"res://scripts/ui/SettingsContent.gd": ["text("],
 	"res://scripts/ui/SettingsControlsSheet.gd": ["_text(", "_action_label("],
@@ -125,7 +124,6 @@ const SCRIPT_EXPRESSION_OWNERS := {
 	"res://scripts/ui/minesweeper/MinesweeperScrollRail.gd|accessibility_name|d66da7d74b497a8bc139186b0c0a875ff137c14432d7efdcdefb4ceba4f7371d": {"key": "MinesweeperScrollRail.name.inline", "reason": "exact English branch of the three-locale scroll projection", "group": "scroll"},
 	"res://scripts/ui/minesweeper/MinesweeperScrollRail.gd|accessibility_description|f903b033daa374eb58b1260edd1a2d8f272e578a13a536418ca5b4bc1dca0bf2": {"key": "MinesweeperScrollRail.position.inline", "reason": "exact English branch of the three-locale scroll projection", "group": "scroll"},
 	"res://scripts/ui/witnessed/SceneArtHoldSurface.gd|text|83561c9f5ab0298c37abe120050122aae7b7c879631728d8c61d4e3373462c14": {"key": "SceneArtHoldSurface.continue.inline", "reason": "exact five-locale Continue projection"},
-	"res://scripts/ui/DatingScene.gd|text|bff246e7d990bb1b0c821baf376c255284c95b50393e025236c4e9be876fdcee": {"key": "MinesweeperChromeCopy.rules.inline", "reason": "exact Rules fallback backed by the complete three-locale chrome table", "group": "chrome_rules"},
 	"res://scripts/ui/GalleryScene.gd|text|e5df4ccee93beaf29175e29ebcef126d7c4c26f18a9e7389d16e9af219f7e725": {"key": "GalleryScene.practice.inline", "reason": "exact five-locale Practice caption"},
 	"res://scripts/ui/GalleryScene.gd|add_item|109ef00e3710dd39f76996ddd84bed6cd768befe8e0d1372b7163019b3d453a4": {"key": "GalleryScene.version.inline", "reason": "exact five-locale version caption"},
 	"res://scripts/ui/minesweeper/MinesweeperScrollRail.gd|accessibility_name|92290e40e734d4fb146ed395e523c481bee85c792b65899367b1cdd2c8a0ce98": {"key": "MinesweeperScrollRail.name.inline", "reason": "exact Japanese branch of the five-locale scroll projection", "group": "scroll"},
@@ -489,10 +487,6 @@ static func _script_disposition(path: String, sink: String, expression: String, 
 		return {"disposition": "localized_call", "key": owner.key, "reason": owner.reason}
 	if expression in ['"\\u25c6"', '"\\u2196"', '"◆"', '"↖"']:
 		return {"disposition": "decorative", "key": "", "reason": "symbol-only control glyph"}
-	if path == "res://scripts/ui/DatingScene.gd":
-		var dating_copy := _dating_copy_disposition(expression, source)
-		if not dating_copy.is_empty():
-			return dating_copy
 	if ".t(" in expression or "LocalizationManager" in expression:
 		var translation_key := _literal_translation_key(expression)
 		for literal: String in _string_literals(expression):
@@ -519,44 +513,6 @@ static func _script_disposition(path: String, sink: String, expression: String, 
 	if stable_literals.is_empty():
 		return {"disposition": "runtime_data", "key": "", "reason": "dynamic presenter value or punctuation-only formatting"}
 	return _unclassified("stable script literal requires a demonstrated translation owner or specific disposition")
-
-
-static func _dating_copy_disposition(expression: String, source: String) -> Dictionary:
-	var owned := _remove_owned_helper_spans(expression, "_ui_text(")
-	if not owned.found:
-		return {}
-	var helper := 'func _ui_text(english: String) -> String:\n\treturn str(DRAFT_UI_COPY.get(_locale.replace("_", "-"), {}).get(english, english))'
-	if not _source_contains_code_marker(source, helper):
-		return _unclassified("the Dating copy helper does not match its locale projection")
-	var table: Dictionary = {}
-	var lines := source.split("\n")
-	var prefix := "const DRAFT_UI_COPY := "
-	for index in range(lines.size()):
-		if not lines[index].begins_with(prefix):
-			continue
-		var collected := _collect_expression(lines, index, lines[index].trim_prefix(prefix), false)
-		if not _source_contains_code_marker(source, lines[index]):
-			continue
-		var table_json := JSON.new()
-		if table_json.parse(str(collected.expression)) == OK and table_json.data is Dictionary:
-			table = table_json.data
-		break
-	for argument: String in owned.arguments:
-		var parsed := JSON.new()
-		if parsed.parse(argument) != OK:
-			return _unclassified("Dating UI copy requires a registered literal source phrase")
-		var english: Variant = parsed.data
-		if not english is String or str(english).strip_edges().is_empty():
-			return _unclassified("Dating UI copy requires a registered literal source phrase")
-		for locale: String in ["zh-CN", "zh-HK", "ja", "ko"]:
-			var translated: Variant = table.get(locale, {}).get(english) if table.get(locale) is Dictionary else null
-			if not translated is String or str(translated).strip_edges().is_empty() or translated == english:
-				return _unclassified("Dating UI copy is missing a translated source phrase")
-	for literal: String in _string_literals(owned.remainder):
-		if _is_stable_display_literal(literal) and not _literal_is_structural(owned.remainder, literal):
-			return _unclassified("Dating UI copy does not own its sibling display literal")
-	return {"disposition": "localized_call", "key": "DatingScene.ui.inline",
-		"reason": "literal English source phrase with four complete translations and the exact locale helper"}
 
 
 static func _scroll_locale_group_is_complete(source: String) -> bool:

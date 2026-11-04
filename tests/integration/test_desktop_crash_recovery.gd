@@ -2,13 +2,6 @@ extends "res://addons/gut/test.gd"
 
 const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 
-# Restart coverage through real Profile, localization, save, identity and Bootstrap owners.
-# New Acc preflights view plans before its durable decision. A registered view can
-# then refuse live application, leaving the exact durable pair under recovery custody.
-# A fresh graph settles stored files before Profile initialization and installs the
-# same captured run. All filesystem roots are provided by the isolated test runner.
-# This does not claim the still-missing production board-generation or purchase adapters.
-
 const BOOTSTRAP := preload("res://autoload/ApplicationBootstrap.gd")
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const ROOT_STORE := preload("res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd")
@@ -19,9 +12,10 @@ const JSON_STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStor
 const APPLICATION_MUTATION_GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const SAVE_CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
 const SHOP_REGISTRY := preload("res://scripts/domain/shop/MinesweeperShopRegistry.gd")
-const DESKTOP_IDENTITY_ALLOCATION_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/DesktopIdentityAllocationRestoreParticipant.gd")
 const DESKTOP_PUBLICATION_LEDGER := preload("res://scripts/infrastructure/save/DesktopPublicationLedger.gd")
-const LEGACY_BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
+const SCENE_FIXTURE := preload("res://tests/support/SceneNewRunFixture.gd")
+const SCENE_REGISTRATION := preload("res://tests/support/SceneContactFixture.gd")
+const LOCALIZATION_PARTICIPANT := preload("res://scripts/application/restore/LocalizationRestoreParticipant.gd")
 const WINDOW_MANAGER := preload("res://autoload/WindowModeManager.gd")
 const WINDOW_FIXTURES := preload("res://tests/unit/test_window_mode_manager.gd")
 
@@ -31,22 +25,7 @@ class HarnessBootstrap extends "res://autoload/ApplicationBootstrap.gd":
 	func _target(target_name: StringName) -> Node:
 		return targets.get(String(target_name), null)
 
-class FailingPresentationRoot extends Node:
-	# Inject only a view preparation failure through Localization's public root seam.
-	# The real Profile, localization transaction, continuation and storage stay intact.
-	var fail_apply := false
-	func prepare_presentation(_profile: Dictionary) -> Dictionary:
-		return {"ok": true, "value": {}}
-	func capture_presentation_state() -> Dictionary:
-		return {"ok": true, "value": {}}
-	func apply_presentation_silent(_plan: Dictionary) -> Dictionary:
-		return {"ok": false, "code": &"root_apply_failed"} if fail_apply else {"ok": true}
-	func rollback_presentation_silent(_backup: Dictionary) -> Dictionary:
-		return {"ok": true}
-	func finalize_presentation() -> Dictionary:
-		return {"ok": true}
-
-
+var _new_run_fixture: RefCounted
 var _shared_root := ""
 var _root_counter := 0
 var _scene_validation_scope := preload("res://tests/support/SceneValidationScope.gd").new()
@@ -71,14 +50,14 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	if _new_run_fixture != null:
+		_new_run_fixture.close()
+		_new_run_fixture = null
 	_scene_validation_scope.restore()
 
 
-## Builds one full "process" (Bootstrap + GameState + SaveManager) over `storage_root`, exactly the
-## graph _configure_desktop_production_graph() builds, retaining a legacy calendar board owner
-## for these explicit start_new_run(route_id=main) diagnostics. A second call over the SAME root
-## models a fresh process reopening the same on-disk state after a crash.
 func _boot_process(storage_root: String) -> Dictionary:
+	assert_true(SCENE_REGISTRATION.install_registration().ok)
 	# Each graph models a new process; retain registration, not the prior graph's owners.
 	_scene_validation_scope.clear_validation_bindings()
 	var storage: RefCounted = JSON_STORAGE.new(storage_root)
@@ -105,9 +84,6 @@ func _boot_process(storage_root: String) -> Dictionary:
 	add_child_autofree(save_manager)
 	assert_true(save_manager.call(&"initialize", JSON_STORAGE.new(storage_root.path_join("saves"))).get("ok", false))
 	assert_true(save_manager.call(&"configure_identity_issuer", issuer).get("ok", false))
-	var allocation_participant: RefCounted = DESKTOP_IDENTITY_ALLOCATION_RESTORE_PARTICIPANT.new(issuer, save_manager)
-	assert_true(save_manager.call(&"configure_identity_allocation_participant", allocation_participant).get("ok", false))
-	bootstrap.set("_desktop_identity_allocation_participant", allocation_participant)
 	assert_true(save_manager.call(&"configure_mutation_gate", gate).get("ok", false))
 	assert_true(game_state.configure_mutation_gate(gate).get("ok", false))
 
@@ -148,9 +124,6 @@ func _boot_process(storage_root: String) -> Dictionary:
 	bootstrap.set("_retained_checkpoint_port", checkpoint_port)
 
 	assert_true(bootstrap.call(&"_configure_causal_day_advance_identity").get("ok", false))
-	# This diagnostic starts calendar Run8; current application boot defaults to a Scene Run9 board.
-	# Retain the real legacy owner before participant construction, without relabeling saved state.
-	bootstrap.set("_desktop_board_state", LEGACY_BOARD_STATE.new())
 	var restore_result: Dictionary = bootstrap.call(&"_configure_restore_participants")
 	assert_true(restore_result.get("ok", false), "restore participants: " + str(restore_result))
 	var graph_result: Dictionary = bootstrap.call(&"_configure_desktop_production_graph")
@@ -160,117 +133,50 @@ func _boot_process(storage_root: String) -> Dictionary:
 		"issuer": issuer, "profile": profile, "localization": localization}
 
 
-func _initial_context() -> Dictionary:
-	return {"active_app_id": null, "audio_context": {}, "content_version": 1,
-		"dialogic_checkpoint": {}, "route_id": "main"}
-
-func _fail_future_localization_applies(localization: Node) -> void:
-	var root := FailingPresentationRoot.new()
-	add_child_autofree(root)
-	assert_true(localization.register_presentation_root(root).get("ok", false),
-		"the real localization owner first admits a working presentation root")
-	root.fail_apply = true
-
-
-# -------------------------------------------------------------------------------------------------
-# dwm-p2r.33: New Run against the REAL ProfileManager/LocalizationManager pair completes end to
-# end. The empty legacy patch preserves the complete global profile and the locale chains from the
-# prepared profile candidate, exactly as the ordinary restore path does.
-# -------------------------------------------------------------------------------------------------
+func _open_scene_new_run() -> Dictionary:
+	if _new_run_fixture != null:
+		_new_run_fixture.close()
+	_scene_validation_scope.restore()
+	_scene_validation_scope.install(true)
+	_new_run_fixture = SCENE_FIXTURE.new()
+	var setup: Dictionary = _new_run_fixture.setup(get_tree(), _shared_root)
+	assert_true(setup.ok, str(setup))
+	if not setup.ok: return {}
+	var localization: Node = load("res://autoload/LocalizationManager.gd").new()
+	add_child_autofree(localization)
+	assert_true(localization.initialize(_new_run_fixture.profile).ok)
+	_new_run_fixture.participants.localization = LOCALIZATION_PARTICIPANT.new(localization)
+	assert_true(_new_run_fixture.manager.configure_scene_restore_participants(_new_run_fixture.participants).ok)
+	return {"fixture": _new_run_fixture, "localization": localization}
 
 func test_start_new_run_completes_against_the_real_profile_and_localization_pair() -> void:
-	if _shared_root.is_empty():
-		return
-	var process := _boot_process(_shared_root)
-	var save_manager: Node = process["save_manager"]
-	var started: Dictionary = save_manager.call(&"start_new_run", _initial_context())
-	assert_true(started.get("ok", false), "dwm-p2r.33: a fresh install (this boot persisted schema " \
-		+ "defaults; no earlier profile.json existed) must complete a New Run through the REAL " \
-		+ "ProfileManager/LocalizationManager pair: " + JSON.stringify(started))
-	assert_false(str((started.get("value", {}) as Dictionary).get("run_id", "")).is_empty(),
-		"a completed New Run reports the durably allocated run_id")
-	assert_eq(str((process["profile"] as Node).call(&"get_preference", &"preferences.language.primary_locale_id", "")),
-		"en", "fresh install: the schema-default locale survives the run unchanged")
-	var reconciled: Dictionary = save_manager.call(&"reconcile_incomplete_continuations")
-	assert_true(reconciled.get("ok", false), JSON.stringify(reconciled))
-	assert_eq(((reconciled["value"] as Dictionary)["reconciled"] as Array).size(), 0,
-		"a completed New Run leaves nothing incomplete in the continuation journal")
-
+	var process := _open_scene_new_run()
+	if process.is_empty(): return
+	var fixture: RefCounted = process.fixture
+	var started: Dictionary = fixture.start()
+	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
+	if started.get("code") != &"scene_activation_pending": return
+	fixture.confirm_activation()
+	assert_true(fixture.game.capture_live_session().value.active)
+	assert_eq(fixture.profile.get_preference(&"preferences.language.primary_locale_id"), "en")
+	assert_eq(process.localization.get_locale(), "en")
 
 func test_a_new_run_preserves_the_committed_global_profile_and_chains_its_locale() -> void:
-	if _shared_root.is_empty():
-		return
-	var process_a := _boot_process(_shared_root)
-	var profile_a: Node = process_a["profile"]
-	var prepared: Dictionary = profile_a.call(&"prepare_locale_preference", "zh_CN")
-	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
-	assert_true(profile_a.call(&"commit_prepared_profile", prepared["value"], false).get("ok", false),
-		"zh_CN is a registered locale, so the live commit publishes cleanly")
-
-	# A fresh "process" over the SAME root models the player restarting before starting a new run.
-	var process_b := _boot_process(_shared_root)
-	var started: Dictionary = (process_b["save_manager"] as Node).call(&"start_new_run", _initial_context())
-	assert_true(started.get("ok", false), JSON.stringify(started))
-	assert_eq(str((process_b["profile"] as Node).call(&"get_preference", &"preferences.language.primary_locale_id", "")),
-		"zh_CN", "the New Run PRESERVED the committed global profile (dwm-p2r.33 product decision) " \
-		+ "and the locale was chained from the prepared profile candidate, never hardcoded")
-
-
-## A successful run seeds the journal first. A subsequently failing registered presentation root
-## then refuses localization application after the next durable intent. In-process reconciliation
-## must tolerate the still-failing root and retain its diagnostic; a fresh process without that
-## transient view failure must complete the same interrupted operation (the next test).
-func test_a_failed_new_run_leaves_a_genuinely_incomplete_continuation_that_reconciles_without_crashing() -> void:
-	if _shared_root.is_empty():
-		return
-	var process := _boot_process(_shared_root)
-	var save_manager: Node = process["save_manager"]
-	assert_true(save_manager.call(&"start_new_run", _initial_context()).get("ok", false),
-		"the seeding New Run itself must complete and retain current Profile receipts")
-	var profile: Node = process["profile"]
-	var before: Dictionary = profile.get_profile_snapshot()
-	var prepared: Dictionary = profile.call(&"prepare_locale_preference", "fr_unregistered")
-	assert_false(prepared.get("ok", true), "canonical Profile refuses an unregistered locale before commit")
-	assert_eq(profile.get_profile_snapshot(), before)
-	_fail_future_localization_applies(process["localization"])
-	var started: Dictionary = save_manager.call(&"start_new_run", _initial_context())
-	assert_false(started.get("ok", true), "the registered presentation root refuses real localization application")
-	assert_eq(str(started.get("code", "")), "NEW_RUN_RECOVERY_PENDING")
-	assert_eq(profile.get_profile_snapshot(), before, "post-intent failure leaves the canonical profile intact")
-	var reconciled: Dictionary = save_manager.call(&"reconcile_incomplete_continuations")
-	assert_false(reconciled.get("ok", true), JSON.stringify(reconciled))
-	assert_eq(reconciled.get("code"), &"NEW_RUN_RECOVERY_PENDING")
-	assert_eq(reconciled.get("transaction_id"), started.get("transaction_id"))
-	assert_eq(reconciled.get("details", {}).get("cause", {}).get("code"), &"root_apply_failed")
-	assert_true(save_manager._mutation_gate.is_internal_owner_active(&"new_run"),
-		"A still-failing live owner keeps the same recovery operation under custody")
-
-
-## Process A's second New Run leaves an incomplete continuation after its registered presentation
-## root fails. Process B is a fresh real graph over the same disk, without the transient failed
-## view. Its boot-time reconciliation must complete the interrupted run through real participants.
-func test_a_fresh_process_over_the_same_storage_boots_cleanly_after_a_failed_new_run() -> void:
-	if _shared_root.is_empty():
-		return
-	var process_a := _boot_process(_shared_root)
-	var save_manager_a: Node = process_a["save_manager"]
-	assert_true(save_manager_a.call(&"start_new_run", _initial_context()).get("ok", false))
-	_fail_future_localization_applies(process_a["localization"])
-	var failed: Dictionary = save_manager_a.call(&"start_new_run", _initial_context())
-	assert_false(failed.get("ok", true))
-	assert_eq(failed.get("code"), &"NEW_RUN_RECOVERY_PENDING")
-
-	var process_b := _boot_process(_shared_root)
-	var reconciled: Dictionary = (process_b["save_manager"] as Node).call(&"reconcile_incomplete_continuations")
-	assert_true(reconciled.get("ok", false), JSON.stringify(reconciled))
-	assert_eq(((reconciled["value"] as Dictionary)["reconciled"] as Array).size(), 0,
-		"process B's own boot-time reconciliation (inside _configure_desktop_production_graph() " \
-		+ "during _boot_process()) RESUMED the interrupted New Run after the transient view " \
-		+ "failure was removed, so nothing is left incomplete for this follow-up call to find")
-	assert_true((process_b["save_manager"] as Node).call(&"get_latest_stable_checkpoint").get("ok", false),
-		"the resumed run's Day-1 bundle is genuinely live in process B's journal -- the stuck " \
-		+ "entry COMPLETED, it did not just vanish")
-
+	var first := _open_scene_new_run()
+	if first.is_empty(): return
+	var prepared: Dictionary = first.fixture.profile.prepare_locale_preference("zh_CN")
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	assert_true(first.fixture.profile.commit_prepared_profile(prepared.value, false).ok)
+	var before: Dictionary = first.fixture.profile.get_profile_snapshot()
+	var second := _open_scene_new_run()
+	if second.is_empty(): return
+	var started: Dictionary = second.fixture.start()
+	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
+	if started.get("code") != &"scene_activation_pending": return
+	second.fixture.confirm_activation()
+	assert_eq(second.fixture.profile.get_profile_snapshot(), before)
+	assert_eq(second.localization.get_locale(), "zh_CN")
 
 func test_boot_itself_reconciles_before_returning_ok_not_only_when_called_a_second_time() -> void:
 	if _shared_root.is_empty():

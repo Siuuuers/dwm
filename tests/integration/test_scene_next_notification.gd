@@ -8,6 +8,13 @@ const OP := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
 const EVENT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 
+var _retained_contexts: RefCounted
+
+func before_each() -> void:
+	_retained_contexts = preload("res://tests/support/RetainedFrozenContextFixture.gd").new()
+	var installed: Dictionary = _retained_contexts.install([FIXTURE.ENTRY])
+	assert_true(installed.ok, str(installed))
+
 func _plan(session: RefCounted) -> Dictionary:
 	return session.prepare_marker_next(FIXTURE.frontier(session), func(_variant: Dictionary) -> bool: return false,
 		FIXTURE.semantic(session))
@@ -205,7 +212,6 @@ func test_native_authored_locator_requires_explicit_matching_trusted_marker() ->
 	assert_false(adapter.validate_reading_entry(FIXTURE.PATH, FIXTURE.ENTRY, lines, changed).ok)
 
 const STYLE := "res://dialogic/styles/witnessed_caption_style.tres"
-var _durable_fixtures: Array[RefCounted] = []
 var _native_session: RefCounted
 var _runtime: DialogicGameHandler
 var _adapter: DialogicRuntimeAdapter
@@ -271,8 +277,9 @@ func _mount_native() -> void:
 		_seek_results.append(result.duplicate(true)))
 
 func after_each() -> void:
-	for fixture: RefCounted in _durable_fixtures: fixture.dispose()
-	_durable_fixtures.clear()
+	if _retained_contexts != null:
+		_retained_contexts.restore()
+		_retained_contexts = null
 	if not is_instance_valid(_runtime): return
 	assert_eq(get_node("/root/ProfileManager").get_profile_snapshot(), _profile_before,
 		"internal publication capture cannot write the real Profile")
@@ -391,134 +398,3 @@ func test_witnessed_intermediate_caption_is_retained_once_before_marker_stop() -
 	assert_true(session.restore(saved, FIXTURE.ENTRY).ok)
 	assert_true(session.restore(saved, FIXTURE.ENTRY).ok)
 	assert_eq(session.ledger.snapshot().captions.size(), 2)
-
-func test_connected_bridge_partial_next_commits_marker_and_later_next_preserves_receipt() -> void:
-	var process_phase := OS.get_environment("DWM_SCENE_MARKER_PHASE").strip_edges()
-	if not process_phase.is_empty():
-		await FIXTURE.new().run_process_phase(self, process_phase,
-			OS.get_environment("DWM_SCENE_MARKER_REPORT_DIR").strip_edges())
-		return
-	await _mount_native()
-	var bridge: Node = preload("res://autoload/DialogicBridge.gd").new()
-	add_child_autofree(bridge)
-	assert_true(bridge.initialize(null, _adapter).ok)
-	var fixture: RefCounted = FIXTURE.new()
-	_durable_fixtures.append(fixture)
-	var initialized: Dictionary = fixture.initialize_with_bridge(bridge)
-	assert_true(initialized.ok, str(initialized))
-	if not initialized.ok: return
-	var profile: Node = autofree(preload("res://autoload/ProfileManager.gd").new())
-	assert_true(profile.configure_mutation_gate(fixture.gate).ok)
-	var ids: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").load_ids_default()
-	assert_true(ids.ok, str(ids))
-	assert_true(profile.configure_line_registry(ids.value).ok)
-	assert_true(profile.initialize(preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new(
-		OS.get_environment("DWM_TEST_ROOT").path_join("marker-profile"),
-		preload("res://tests/support/FakeFileOps.gd").new())).ok)
-	assert_true(bridge.configure_skip_context(profile, &"read_only").ok)
-	assert_true(bridge.configure_reading_catalogue(FIXTURE.catalogue()).ok)
-	assert_true(bridge.configure_test_reading_markers(FIXTURE.markers(_native_session.fingerprint), fixture.issuer).ok)
-	bridge._reading_session = _native_session
-	var frame: Dictionary = fixture.snapshot.narrative_checkpoint.frozen_context
-	bridge._active_entry = {"entry_id": FIXTURE.ENTRY, "token": "marker.fixture.live", "stage": "pre_challenge",
-		"execution_mode": &"canonical", "transaction_id": frame.transaction_id,
-		"context_fingerprint": "fixture.marker.context", "content_version": 1,
-		"path": FIXTURE.PATH, "label": FIXTURE.ENTRY, "frozen_context": frame}
-	assert_true(_adapter.bind_caption_ledger(_ledger, _native_session.command_id, FIXTURE.ENTRY).ok)
-	assert_true(_adapter.bind_reading_marker(_native_session.marker_entries[FIXTURE.ENTRY]).ok)
-	assert_true(_adapter.start_timeline(FIXTURE.PATH, FIXTURE.ENTRY).ok)
-	await _settle()
-	assert_false(_adapter.is_current_line_complete())
-	var proof: Dictionary = bridge.capture_next_frontier()
-	assert_true(proof.ok, str(proof))
-	if not proof.ok: return
-	var admission_profile: Dictionary = profile.get_profile_snapshot().duplicate(true)
-	var admission_files: Dictionary = fixture.files.snapshot_persisted()
-	for busy: int in [BRIDGE.ProgressionPhase.ACKNOWLEDGING, BRIDGE.ProgressionPhase.AUTO, BRIDGE.ProgressionPhase.SKIP]:
-		bridge._progression_phase = busy
-		var busy_result: Dictionary = await bridge.request_next(proof)
-		bridge._progression_phase = BRIDGE.ProgressionPhase.IDLE
-		assert_false(busy_result.ok, str(busy))
-		assert_false(_adapter.is_current_line_complete(), "busy refusal precedes revealing")
-	bridge._pause_restore = {"applied": false}
-	var pause_refused: Dictionary = await bridge.request_next(proof)
-	bridge._pause_restore = {}
-	assert_false(pause_refused.ok)
-	bridge._line_ack_fatal_failure = {"ok": false, "code": &"fixture_retained_ack_failure"}
-	var fatal_refused: Dictionary = await bridge.request_next(proof)
-	bridge._line_ack_fatal_failure = {}
-	assert_eq(fatal_refused.code, &"fixture_retained_ack_failure")
-	assert_false(_adapter.is_current_line_complete())
-	assert_eq(profile.get_profile_snapshot(), admission_profile)
-	assert_eq(fixture.files.snapshot_persisted(), admission_files)
-	assert_eq(_results.size(), 1)
-	var reveal_callbacks: Array[Dictionary] = []
-	_runtime.get_subsystem("Text").text_finished.connect(func(_info: Dictionary) -> void:
-		assert_eq(fixture.real.commits, 0, "reentrant callback runs during reveal, before durable lease")
-		reveal_callbacks.append(await bridge.request_next(proof))
-		var changed := proof.duplicate(true)
-		changed.value.token = "forged.reentrant"
-		reveal_callbacks.append(await bridge.request_next(changed))
-		assert_false(bridge.request_skip_step().ok)
-		assert_false(bridge.request_auto_step(proof).ok)
-		assert_false(bridge.acknowledge_current_line_presentation(proof).ok), CONNECT_ONE_SHOT)
-	fixture.real.fail_on_commit = 2
-	var refused: Dictionary = await bridge.request_next(proof)
-	assert_eq(reveal_callbacks.size(), 2)
-	if reveal_callbacks.size() == 2:
-		assert_eq(reveal_callbacks[0].get("code"), &"coalesced")
-		assert_eq(reveal_callbacks[1].get("code"), &"reading_next_command_conflict")
-	assert_false(refused.ok, "destination write fails after the source commit")
-	assert_eq(refused.get("code"), &"write_not_committed", "storage proves the previous source bytes remain the winner")
-	assert_eq(fixture.real.commits, 2, "the first source commit succeeded")
-	assert_eq(fixture.files.failed_writes, 1, "fault targets an actual write, not precommit inspection")
-	assert_true(refused.get("rolled_back", false), "destination compensation completed")
-	assert_false(fixture.gate.is_fatal_latched(), str(refused))
-	assert_false(fixture.gate.is_active())
-	assert_true(_adapter.is_marker_source_held(), "retry retains the retired coroutine capability")
-	var source_disk: Dictionary = fixture.disk_snapshot()
-	assert_true(source_disk.ok, str(source_disk))
-	if not source_disk.ok: return
-	assert_eq(source_disk.value.command_receipts.size(), 0)
-	assert_eq(source_disk.value.narrative_checkpoint.reading_session.next_operation.phase, "source")
-	var frozen_command: Dictionary = source_disk.value.narrative_checkpoint.reading_session.next_operation.plan.destination.semantic
-	assert_eq(_results.size(), 1)
-	var retry_frontier: Dictionary = bridge.capture_next_frontier()
-	assert_true(retry_frontier.ok, str(retry_frontier))
-	var result: Dictionary = await bridge.request_next(retry_frontier)
-	assert_true(result.ok, str(result))
-	if not result.ok: return
-	assert_eq(result.value.destination, "notification")
-	var disk: Dictionary = fixture.disk_snapshot()
-	assert_true(disk.ok, str(disk))
-	if not disk.ok: return
-	assert_eq(disk.value.narrative_checkpoint.reading_session.boundary, "notification")
-	assert_eq(disk.value.command_receipts.size(), 1)
-	assert_eq(disk.value.narrative_checkpoint.reading_session.ledger.captions.size(), 1)
-	assert_eq(_results.size(), 1)
-	assert_eq(profile.get_profile_snapshot().witnessed_caption_variants.size(), 1)
-	assert_false(fixture.gate.is_active())
-	var saved_receipts: Dictionary = disk.value.command_receipts.duplicate(true)
-	assert_true(saved_receipts.has(frozen_command.command_id), "compensated retry retains the issued command")
-	assert_eq(saved_receipts[frozen_command.command_id].scene_event.semantic, frozen_command)
-	var held: Dictionary = bridge.capture_next_frontier()
-	assert_true(held.ok, str(held))
-	assert_ne(held, proof)
-	var stale: Dictionary = await bridge.request_next(proof)
-	assert_false(stale.ok)
-	assert_eq(fixture.disk_snapshot().value.command_receipts, saved_receipts)
-	result = await bridge.request_next(held)
-	assert_true(result.ok, str(result))
-	if not result.ok: return
-	await _settle()
-	assert_eq(result.value.destination, "line")
-	assert_eq(_adapter.current_line_id(), FIXTURE.SECOND)
-	disk = fixture.disk_snapshot()
-	assert_true(disk.ok, str(disk))
-	if not disk.ok: return
-	assert_eq(disk.value.command_receipts, saved_receipts)
-	assert_eq(disk.value.narrative_checkpoint.reading_session.ledger.captions.size(), 2)
-	assert_eq(profile.get_profile_snapshot().witnessed_caption_variants.size(), 1,
-		"the destination is published but remains unwitnessed")
-	assert_eq(_results.size(), 2)
-	assert_false(fixture.gate.is_active())

@@ -16,6 +16,9 @@ compiler, create another flow manager, or change authored story text.
 - Uncalled Dating queue routing methods and the old previous-dialogue list.
 - Unconstructed Dating narrative phase adapter; mixed caption tests use Bridge directly.
 - Gallery Practice, its rehearsal owner/admission/UI, and exclusive runner entries.
+- Standalone DatingScene challenge UI and its exclusive mounted tests. DTL mounts
+  SceneChallengePanel; GalleryRecordCatalog retains the unchanged read-only date
+  presentation copy used by Gallery and Dialogic replay.
 - Tests that required the retired production composition. Current startup,
   shared board identity, restore, Gallery reading, and DTL checks remain.
 
@@ -25,12 +28,17 @@ compiler, create another flow manager, or change authored story text.
 challenges. Their scene-challenge branch, generation owner, checkpoint flushing,
 restore reconciler, and shared saved-data envelope are live dependencies.
 
-The ScheduleView data restore participant remains part of the current snapshot
-contract; it does not schedule or advance the story. This change does not migrate
-that schema. Other legacy domain/scene source remains where retained tests,
-read-only presentation copies, or shared domain APIs still reference it. It is not
-routed or composed as the old production flow. Do not infer deletion safety from
-filenames alone. Historical evidence is retained as history, not current acceptance.
+The eight-participant DTL bootstrap no longer constructs the ScheduleView restore
+participant or day-resolution state/start ports. The dead GameState facade and
+standalone DatingScene have also been removed. Current saves use Run9/Save9 and the eight scene restore participants. The legacy
+calendar save builders, nine-participant restore path, and version4 operation
+journal have been removed. Current creation recovery and selected Load keep
+their existing validation, rollback, and activation owners. Historical sealed
+evidence remains unchanged and is not current acceptance.
+
+The old reading-rail, Hospital-reading, ending-reading, and automatic-ending
+journey runners and their challenge-layout probe required the retired Schedule
+flow and have been removed. Their generated evidence remains historical.
 
 Artwork, read-only dialogue library/replay, DTL challenges, ordinary desktop
 Minesweeper, and current save/load remain supported. No runtime speedup is claimed
@@ -48,3 +56,22 @@ Three failures in the full profile-stage suite also reproduce on unchanged maste
 `test_final_contact_stage_reuses_profile_storage_and_retains_one_identity_graph`,
 and `test_ready_callbacks_are_side_effect_free_or_deferred_only`. They are outside
 this retirement; their assertions are not weakened here.
+
+## Persistence coverage after retirement
+
+SaveManager now admits only the current scene graph. Its old nine-owner restore
+and automatic Autosave/Profile NewRun transactions have no production callers.
+Tests for those contracts are retired rather than rebuilding a compatibility graph.
+
+| Retired contract | Retained current coverage |
+| --- | --- |
+| Schedule participation and raw, caller-built restore plans | `test_scene_direct_load`, `test_scene_restore_activation_protocol`, and `test_scene_native_activation` cover selected current restoration and acknowledged activation; direct narrative preparation and rollback diagnostics remain in the mixed restore suites. |
+| Automatic NewRun Autosave/Profile pair and legacy startup publication | `test_scene_joint_new_run` covers unchanged disk/Profile at creation and later save/load; `test_scene_new_run_journal` and `test_scene_creation_storage_recovery` cover current durable operations. Prepared-title and live-session tests use the existing scene fixture. |
+| Desktop restore identity remapping and pre-board automatic saves | `test_scene_desktop_first_reveal_create/load` and the connected first-reveal suites cover current paid board persistence, preserved selected identities, and no repeated payment. |
+| Legacy desktop quick-command graph | `test_production_pause_controller`, `test_backup_quick_actions`, `test_quick_status_edge`, and `test_scene_pause_quick_load` retain input, focus, status lifetime, and current quick-load coverage. |
+| Earlier-checkpoint fallback history on new saves | `test_scene_backup_inspection` covers current proof history and omission of fallback snapshots. Parse-cache tests retain detached values and exact-write validation using a genuine current scene snapshot. |
+
+The public-boundary suite retains current session-exit checkpoint ownership and
+exact, detached `load_context` reads across slot, quick, and autosave storage.
+Removed legacy NewRun/Dating cases are covered by current creation and DTL
+contact tests; no old progression graph is reconstructed for these checks.

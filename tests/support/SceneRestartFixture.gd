@@ -5,7 +5,6 @@ extends "res://tests/support/SceneNewRunFixture.gd"
 ## this is not shipped Bootstrap, desktop usability, or rendered E2E acceptance.
 const ROUTER := preload("res://autoload/SceneRouter.gd")
 const ROUTE_PARTICIPANT := preload("res://scripts/application/restore/RouteRestoreParticipant.gd")
-const IDENTITY_PARTICIPANT := preload("res://scripts/application/restore/DesktopIdentityAllocationRestoreParticipant.gd")
 const RUNTIME_ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const HOST := "res://tests/fixtures/scene_activation_host.tscn"
 const STYLE := "res://dialogic/styles/witnessed_caption_style.tres"
@@ -39,8 +38,6 @@ func setup_restart(scene_tree: SceneTree) -> Dictionary:
 	participants.route = ROUTE_PARTICIPANT.new(router)
 	participants.narrative = NARRATIVE_PARTICIPANT.new(bridge)
 	checked = manager.configure_scene_restore_participants(participants)
-	if checked.ok:
-		checked = manager.configure_identity_allocation_participant(IDENTITY_PARTICIPANT.new(issuer, manager))
 	if not checked.ok: return checked
 	for key: String in ["dialogic/save/autosave", "dialogic/layout/end_behaviour"]:
 		settings[key] = {"exists": ProjectSettings.has_setting(key), "value": ProjectSettings.get_setting(key)}
@@ -103,3 +100,5 @@ func close_restart() -> void:
 			tree.root.move_child(original, mini(original_owners[name].index, tree.root.get_child_count() - 1))
 	for key: String in settings:
 		ProjectSettings.set_setting(key, settings[key].value if settings[key].exists else null)
+	participants.clear()
+	adapter = null

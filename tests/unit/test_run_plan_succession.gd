@@ -8,17 +8,7 @@ extends "res://addons/gut/test.gd"
 # atomically only by a VALID new plan.
 
 const RUN_LIFECYCLE := preload("res://scripts/domain/run/RunLifecycle.gd")
-const DAY_RESOLUTION_PLAN := preload("res://scripts/domain/run/DayResolutionPlan.gd")
-const DAY_RESOLUTION_PORT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
-
-
-## Minimal owner exposing exactly what the port reads, so production receipts can be generated
-## around a bare lifecycle without standing up the whole GameState autoload.
-class _StubOwner extends RefCounted:
-	var _run_lifecycle: RefCounted
-	var route_context: Dictionary = {"ending_id": "ending.alone"}
-	func _init(lifecycle: RefCounted) -> void:
-		_run_lifecycle = lifecycle
+const RECEIPTS := preload("res://tests/support/DayResolutionReceiptFixtures.gd")
 
 
 ## Plan 02 Task 6 (dwm-p2r.32): branch_id/desktop_timeline_generation/causal_day_instance/receipt
@@ -34,6 +24,7 @@ func _lifecycle() -> RefCounted:
 
 ## Drives every stage of the current plan to completion using the plan's own receipts.
 func _complete_current_plan(lifecycle: RefCounted) -> void:
+	var source_day: int = lifecycle.get_day()
 	# Bounded: a stage that fails to advance must end the walk, never spin.
 	for _iteration in range(64):
 		var cursor: Dictionary = lifecycle.resume_resolution()
@@ -43,11 +34,7 @@ func _complete_current_plan(lifecycle: RefCounted) -> void:
 		if not begun.get("ok", false):
 			return
 		var stage: Dictionary = begun["value"]["stage"]
-		# Reuse PRODUCTION receipt generation so the walk exercises the real owner-receipt contract
-		# rather than hand-rolled shapes that could drift from it.
-		var port: Object = DAY_RESOLUTION_PORT.new(_StubOwner.new(lifecycle))
-		var envelope: Dictionary = port._immediate_receipt(str(stage.get("stage_id", "")))
-		var receipt: Dictionary = DAY_RESOLUTION_PORT._plan_receipt_from_envelope(envelope)
+		var receipt: Dictionary = RECEIPTS.for_stage(str(stage.stage_id), source_day)
 		var completed: Dictionary = lifecycle.complete_active_stage(str(stage["transaction_id"]), receipt)
 		if not completed.get("ok", false):
 			return

@@ -32,7 +32,6 @@ const PROJECTOR := preload("res://scripts/application/transaction/FatalDiagnosti
 ## `request_fingerprint` -- only whoever calls `prepare_intent()`/`commit_intent()` ever sees one), so
 ## SaveManager is the one place all journal advancement happens, for both new_run and restore.
 const CONTINUATION_JOURNAL := preload("res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd")
-const REMAPPER := preload("res://scripts/domain/desktop/DesktopContinuationRemapper.gd")
 
 const _GATE_CONTRACT_METHODS: Array[String] = [
 	"acquire", "release", "guard_external", "is_active", "get_active_owner",
@@ -82,10 +81,8 @@ const _SCENE_PARTICIPANT_ORDER: Array[String] = [
 	"run", "desktop_consequence", "desktop_board", "profile", "localization", "audio", "route", "narrative",
 ]
 var _new_run_transaction_id := ""
-var _new_run_intent: Dictionary = {}
 var _prepared_new_run: Dictionary = {}
 var _prepared_new_run_counter := 0
-var _identity_allocation_participant: Object = null
 var _lock_owner: StringName = &""
 var _pending_deferred_save := false
 var _restore_participants: Dictionary = {}
@@ -121,19 +118,6 @@ func configure_backup_capture_provider(provider: Callable, paused_desktop_admiss
 	_backup_capture_configured = true
 	return {"ok": true}
 
-## The exact 9-item `DesktopContinuationOperationJournal.PARTICIPANT_ORDER` (Plan 02 Task 6,
-## dwm-p2r.32, Phase C2): this array IS already the correct apply order, so a single constant now
-## serves both the exact-key-set validation `configure_restore_participants()` performs and the
-## apply/finalize order below (rollback runs the exact reverse). `identity_allocation` is NOT one of
-## these 9 -- it is applied once, before this loop even starts, only for a restore (see
-## `_begin_restore_continuation()`), through its own separately-configured seam.
-const _PARTICIPANT_KEYS: Array[String] = [
-	"run", "desktop_consequence", "desktop_board", "schedule_view", "profile", "localization", "audio", "route", "narrative",
-]
-const _PARTICIPANT_APPLY_ORDER: Array[String] = [
-	"run", "desktop_consequence", "desktop_board", "schedule_view", "profile", "localization", "audio", "route", "narrative",
-]
-
 func initialize(storage: StorageAdapter = null) -> Dictionary:
 	if storage == null:
 		return _fail(&"invalid_storage", "SaveManager requires an injected StorageAdapter")
@@ -166,24 +150,6 @@ func configure_identity_issuer(identity_issuer: Object) -> Dictionary:
 	return {"ok": true, "code": &"ok",
 		"value": {"issuer_instance_id": _identity_issuer.get_instance_id(), "already_configured": false},
 		"receipt": {}}
-
-## Plan 02 Task 6 (dwm-p2r.32), Phase C2. Separate from `configure_restore_participants()` on
-## purpose: `identity_allocation` is not one of the 9 ordinary participants (it applies once, before
-## their loop, only for a restore -- new_run never touches it), so it is not folded into that
-## exact-9-key validation. Duck-typed to the same prepare/capture/apply_silent/rollback_silent/
-## finalize shape as every other participant.
-func configure_identity_allocation_participant(participant: Object) -> Dictionary:
-	if participant == null:
-		return _fail(&"invalid_identity_allocation_participant", "identity allocation participant is required")
-	for method: String in ["prepare", "capture", "apply_silent", "rollback_silent", "finalize"]:
-		if not participant.has_method(method):
-			return _fail(&"invalid_identity_allocation_participant", "missing " + method)
-	if _identity_allocation_participant != null:
-		if _identity_allocation_participant == participant:
-			return {"ok": true, "code": &"ok", "value": {"already_configured": true}}
-		return _fail(&"identity_allocation_participant_already_configured", "")
-	_identity_allocation_participant = participant
-	return {"ok": true, "code": &"ok", "value": {"already_configured": false}}
 
 func configure_mutation_gate(gate: Object) -> Dictionary:
 	if gate == null or not gate.has_signal("capability_changed"):
@@ -266,224 +232,35 @@ func prepare_restore_quick() -> Dictionary:
 func prepare_restore_autosave() -> Dictionary:
 	return _prepare_restore(_resolve_locator(&"autosave", -1))
 
-## Brief line 209: `commit_prepared_restore()` accepts only the opaque value returned by
-## `prepare_restore_slot|quick|autosave` above. When that value carries a `source_locator` (every
-## real `_prepare_restore()` result does, Phase C2 on), this drives the FULL identity-allocation +
-## remap + external-journal sequence before running the 9-participant transaction; a hand-built
-## `prepared` with no `source_locator` (e.g. a fake-participant orchestration test) skips straight to
-## the participant transaction with whatever "run"/"desktop_consequence"/"desktop_board" plans it
-## already supplied, exactly as this method behaved before Task 6.
+
 func commit_prepared_restore(prepared: Dictionary) -> Dictionary:
-	if _prepared_is_scene_family(prepared):
-		if _scene_restore_commit_busy or not _scene_restore_activation.is_empty():
-			return _fail(&"scene_restore_busy", "a retained scene restore owns custody")
-		_scene_restore_commit_busy = true
-		var scene_result := _commit_prepared_restore_profiled(prepared, {})
-		_scene_restore_commit_busy = false
-		return _content_result(scene_result)
-	var profile := _save_load_profile_begin("restore_commit", "", "")
-	return _content_result(_save_load_profile_finish(profile, _commit_prepared_restore_profiled(prepared, profile)))
+	if _scene_restore_commit_busy or not _scene_restore_activation.is_empty():
+		return _fail(&"scene_restore_busy", "a retained scene restore owns custody")
+	_scene_restore_commit_busy = true
+	var result := _commit_prepared_scene_restore(prepared)
+	_scene_restore_commit_busy = false
+	return _content_result(result)
 
 
-func _commit_prepared_restore_profiled(prepared: Dictionary, profile: Dictionary) -> Dictionary:
+func _commit_prepared_scene_restore(prepared: Dictionary) -> Dictionary:
 	if _restore_participants.is_empty():
-		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "configure_restore_participants first")
+		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "configure_scene_restore_participants first")
 	for key: Variant in prepared.keys():
 		if str(key) not in _PREPARED_RESTORE_ALLOWED_KEYS:
 			return _fail(&"invalid_prepared_restore", "unexpected prepared key: " + str(key))
 	if typeof(prepared.get("participant_plans")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_prepared_restore", "prepared requires participant_plans")
-	var scene_restore: bool = _prepared_is_scene_family(prepared)
-	if scene_restore:
-		var retained := _validate_scene_restore_preparation(prepared)
-		if not retained.get("ok", false): return retained
-		prepared = _scene_restore_preparations[prepared.scene_preparation_token].prepared
+	var retained := _validate_scene_restore_preparation(prepared)
+	if not retained.get("ok", false): return retained
+	prepared = _scene_restore_preparations[prepared.scene_preparation_token].prepared
+	var plans: Dictionary = prepared.participant_plans.duplicate(true)
+	var operation_id := "scene_load:" + str(prepared.scene_preparation_token)
+	_scene_restore_preparations.erase(prepared.scene_preparation_token)
+	_completed_scene_restore.clear()
+	return _run_scene_restore_transaction(plans, prepared.journal_seed,
+		str(prepared.route_id), str(prepared.checkpoint_id), true,
+		{"kind": "memory_restore", "transaction_id": operation_id}, "", false)
 
-	var plans: Dictionary = (prepared["participant_plans"] as Dictionary).duplicate(true)
-	_save_load_profile_phase(profile, "input_copy_us")
-
-	var has_source_locator := typeof(prepared.get("source_locator")) == TYPE_DICTIONARY
-	var gate_token := ""
-	var gate_acquired := false
-	var lock_acquired := false
-	if has_source_locator and not scene_restore:
-		# FIX (dwm-p2r.35.4 remediation, finding B-C1): the save lock and mutation-gate lease are the
-		# transaction's actual anti-interleave guarantee, so both must be held BEFORE the issuer mints
-		# `transaction_id` or the continuation journal commits `intent_committed` -- never after. A busy
-		# gate or an already-held `restore` save lock now fails closed here, before any identity is
-		# burned and before any journal record is ever written.
-		var lock: Dictionary = acquire_save_lock(&"restore")
-		if not lock.get("ok", false):
-			return lock
-		lock_acquired = true
-		if _mutation_gate != null:
-			var acquired: Dictionary = _mutation_gate.acquire(&"restore")
-			if not acquired.get("ok", false):
-				release_save_lock(&"restore")
-				return acquired
-			gate_token = str(acquired["value"]["token"])
-			gate_acquired = true
-
-	_save_load_profile_phase(profile, "lock_us")
-	if scene_restore:
-		var operation_id := "scene_load:" + str(prepared.scene_preparation_token)
-		_scene_restore_preparations.erase(prepared.scene_preparation_token)
-		_completed_scene_restore.clear()
-		return _run_scene_restore_transaction(plans, prepared.journal_seed,
-			str(prepared.route_id), str(prepared.checkpoint_id), true,
-			{"kind": "memory_restore", "transaction_id": operation_id}, gate_token, false)
-	var continuation: Dictionary = {}
-	if has_source_locator:
-		var begun := _begin_restore_continuation(prepared)
-		_save_load_profile_phase(profile, "continuation_us")
-		if not begun.get("ok", false):
-			if gate_acquired:
-				_mutation_gate.release(&"restore", gate_token)
-			if lock_acquired:
-				release_save_lock(&"restore")
-			return begun
-		var remapped_snapshot: Dictionary = (begun["value"] as Dictionary)["remapped_snapshot"]
-		var run_plan: Dictionary = (plans.get("run", {}) as Dictionary).duplicate(true)
-		run_plan["snapshot"] = remapped_snapshot
-		plans["run"] = run_plan
-		var remapped_desktop: Dictionary = remapped_snapshot["desktop"]
-		var consequence_prep: Dictionary = _restore_participants["desktop_consequence"].prepare(
-			{"state": remapped_desktop["consequence"]})
-		if not consequence_prep.get("ok", false):
-			if gate_acquired:
-				_mutation_gate.release(&"restore", gate_token)
-			if lock_acquired:
-				release_save_lock(&"restore")
-			return consequence_prep
-		plans["desktop_consequence"] = (consequence_prep["value"] as Dictionary)["consequence_plan"]
-		var board_prep: Dictionary = _restore_participants["desktop_board"].prepare(
-			{"state": remapped_desktop["board"], "schema_version": remapped_snapshot.get("schema_version")})
-		if not board_prep.get("ok", false):
-			if gate_acquired:
-				_mutation_gate.release(&"restore", gate_token)
-			if lock_acquired:
-				release_save_lock(&"restore")
-			return board_prep
-		plans["desktop_board"] = (board_prep["value"] as Dictionary)["board_plan"]
-		var view_prep: Dictionary = _restore_participants["schedule_view"].prepare(_schedule_view_input(remapped_snapshot))
-		if not view_prep.get("ok", false):
-			if gate_acquired:
-				_mutation_gate.release(&"restore", gate_token)
-			if lock_acquired:
-				release_save_lock(&"restore")
-			return view_prep
-		plans["schedule_view"] = view_prep["value"]["schedule_view_plan"]
-		continuation = (begun["value"] as Dictionary)["continuation"]
-		_save_load_profile_phase(profile, "remapped_prepare_us")
-
-	for key: String in _PARTICIPANT_KEYS:
-		if typeof(plans.get(key)) != TYPE_DICTIONARY:
-			if gate_acquired:
-				_mutation_gate.release(&"restore", gate_token)
-			if lock_acquired:
-				release_save_lock(&"restore")
-			return _fail(&"invalid_prepared_restore", "missing participant plan: " + key)
-	var restored := _run_participant_transaction(&"restore", plans, prepared.get("journal_seed"),
-		str(prepared.get("route_id", "")), str(prepared.get("checkpoint_id", "")), true, continuation, gate_token)
-	_save_load_profile_phase(profile, "participant_transaction_us")
-	return restored
-
-## Drives the identity-allocation participant plus the external continuation journal's
-## `intent_committed -> identity_allocation_committed -> participants_applying` sequence for a
-## restore (Plan 02 Task 6, dwm-p2r.32, Phase C2, brief lines 259-293). Mints the restore transaction
-## token itself. This retained legacy path reloads and verifies its source through
-## the identity participant; current scene Load never enters it.
-func _begin_restore_continuation(prepared: Dictionary) -> Dictionary:
-	if _identity_allocation_participant == null:
-		return _fail(&"identity_allocation_participant_not_configured", "configure_identity_allocation_participant first")
-	if _identity_issuer == null:
-		return _fail(&"identity_issuer_not_configured", "configure_identity_issuer first")
-	var source_locator: Dictionary = prepared["source_locator"]
-	var existing_run_id := str(prepared.get("existing_run_id", ""))
-	var source_generation := int(prepared.get("source_desktop_timeline_generation", 0))
-	var remap_ids: Array = prepared.get("remap_source_transaction_ids", [])
-
-	var issued: Dictionary = _identity_issuer.call(&"issue", &"transaction_id")
-	if not issued.get("ok", false):
-		return issued
-	var restore_transaction_id := str(issued["value"]["token"])
-	var transaction_issuer_receipt: Dictionary = issued["value"]["issuer_receipt"]
-
-	var alloc_request := {
-		"existing_run_id": existing_run_id, "kind": "restore", "remap_source_transaction_ids": remap_ids,
-		"source_desktop_timeline_generation": source_generation, "transaction_id": restore_transaction_id,
-		"transaction_issuer_receipt": transaction_issuer_receipt,
-	}
-	var prepared_alloc: Dictionary = _identity_issuer.call(&"prepare_continuation_allocation", alloc_request)
-	if not prepared_alloc.get("ok", false):
-		return prepared_alloc
-	var raw_candidate: Dictionary = prepared_alloc["value"]
-	var allocation_fingerprint := _canonical_sha256(raw_candidate)
-	if allocation_fingerprint.is_empty():
-		return _fail(&"allocation_candidate_not_canonicalizable", "")
-
-	var kind := "restore"
-	var fingerprint_input := {"kind": kind, "transaction_id": restore_transaction_id, "source_locator": source_locator}
-	var request_fingerprint := _canonical_sha256(fingerprint_input)
-	if request_fingerprint.is_empty(): return _fail(&"continuation_request_not_canonicalizable", "")
-	var intent_request := {
-		"allocation_candidate_fingerprint": allocation_fingerprint, "initial_context": null,
-		"initial_context_sha256": null, "kind": kind, "request_fingerprint": request_fingerprint,
-		"new_run_materials": null, "source_locator": source_locator, "transaction_id": restore_transaction_id,
-		"transaction_issuer_receipt": transaction_issuer_receipt,
-	}
-	var intent_prepared: Dictionary = _continuation_journal.prepare_intent(intent_request)
-	if not intent_prepared.get("ok", false):
-		return intent_prepared
-	var intent_committed: Dictionary = _continuation_journal.commit_intent(intent_prepared["value"])
-	if not intent_committed.get("ok", false):
-		return intent_committed
-
-	var identity_input := {
-		"restore_transaction_id": restore_transaction_id, "transaction_issuer_receipt": transaction_issuer_receipt,
-		"source_locator": source_locator, "existing_run_id": existing_run_id,
-		"source_desktop_timeline_generation": source_generation, "remap_source_transaction_ids": remap_ids,
-		"allocation_candidate_fingerprint": allocation_fingerprint,
-	}
-	var identity_prepared: Dictionary = _identity_allocation_participant.prepare(identity_input)
-	if not identity_prepared.get("ok", false):
-		return identity_prepared
-	var identity_candidate: Dictionary = (identity_prepared["value"] as Dictionary)["candidate"]
-	var identity_applied: Dictionary = _identity_allocation_participant.apply_silent(identity_candidate)
-	if not identity_applied.get("ok", false):
-		return identity_applied
-	var allocation_receipt: Dictionary = (identity_applied["value"] as Dictionary)["allocation_receipt"]
-
-	var advance_to_allocated: Dictionary = _continuation_journal.advance({
-		"transaction_id": restore_transaction_id, "request_fingerprint": request_fingerprint,
-		"expected_stage": CONTINUATION_JOURNAL.STAGE_INTENT, "next_stage": CONTINUATION_JOURNAL.STAGE_ALLOCATED,
-		"expected_next_participant_index": 0, "allocation_receipt": allocation_receipt,
-		"participant_name": null, "participant_receipt": null, "failure": null,
-	})
-	if not advance_to_allocated.get("ok", false):
-		# Root allocation is already durably, irreversibly committed above; recovery must advance
-		# forward from here (brief line 249), never roll back.
-		return advance_to_allocated
-	var advance_to_applying: Dictionary = _continuation_journal.advance({
-		"transaction_id": restore_transaction_id, "request_fingerprint": request_fingerprint,
-		"expected_stage": CONTINUATION_JOURNAL.STAGE_ALLOCATED, "next_stage": CONTINUATION_JOURNAL.STAGE_APPLYING,
-		"expected_next_participant_index": 0, "allocation_receipt": null,
-		"participant_name": null, "participant_receipt": null, "failure": null,
-	})
-	if not advance_to_applying.get("ok", false):
-		return advance_to_applying
-
-	return {"ok": true, "code": &"ok", "value": {
-		"restore_transaction_id": restore_transaction_id,
-		"identity_allocation_bundle": identity_candidate["identity_allocation_bundle"],
-		"remapped_snapshot": identity_candidate["remapped_snapshot"],
-		"continuation": {
-			"kind": kind, "transaction_id": restore_transaction_id, "request_fingerprint": request_fingerprint,
-			"remap": {"restore_transaction_id": restore_transaction_id,
-				"identity_allocation_bundle": identity_candidate["identity_allocation_bundle"],
-				"source_identity": _source_identity_from_lifecycle(prepared["bundle"]["snapshot"]["lifecycle"])},
-		},
-	}}
 
 ## PREPARE_INTENT is the durable decision. Before it, preparation is detached;
 ## after it, errors retain custody and retries finish the same frozen pair forward.
@@ -652,8 +429,8 @@ func _new_run_ready(live: bool) -> Dictionary:
 		return _fail(&"identity_issuer_not_configured", "")
 	if _storage == null or _mutation_gate == null or _new_run_profile_owner == null:
 		return _fail(&"new_run_not_configured", "")
-	if live and _scene_new_run_bundle.is_empty() and (not _restore_participants.has("schedule_view") or not _restore_participants["schedule_view"].has_method("prepare_new_run")):
-		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "schedule_view cannot prepare a new run")
+	if live and _scene_new_run_bundle.is_empty():
+		return _fail(&"scene_new_run_not_configured", "scene registration required")
 	if live and not _restore_participants["profile"].has_method("prepare_frozen_profile"):
 		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "")
 	return {"ok": true}
@@ -674,7 +451,6 @@ func _release_new_run_custody() -> Dictionary:
 	if not released.get("ok", false): return _new_run_failure(released)
 	_new_run_gate_token = ""
 	_new_run_transaction_id = ""
-	_new_run_intent.clear()
 	return {"ok": true}
 
 func _new_run_failure(failure: Dictionary) -> Dictionary:
@@ -708,7 +484,7 @@ func prepare_new_run_action(initial_context: Dictionary) -> Dictionary:
 	if not ready.get("ok", false): return ready
 	var context_error := _validate_new_run_context(initial_context)
 	if not context_error.is_empty(): return _fail(&"invalid_initial_context", context_error)
-	if not _new_run_transaction_id.is_empty() or not _new_run_intent.is_empty():
+	if not _new_run_transaction_id.is_empty():
 		return _new_run_failure(_fail(&"new_run_recovery_required", ""))
 	var admitted: Dictionary = _mutation_gate.guard_external(&"new_run_prepare")
 	if not admitted.get("ok", false): return admitted
@@ -722,31 +498,7 @@ func prepare_new_run_action(initial_context: Dictionary) -> Dictionary:
 		return {"ok": true, "value": {"token": token,
 			"requires_confirmation": replaces_live or occupied,
 			"replaces_live": replaces_live, "replaces_autosave": occupied}}
-	var profile: Dictionary = _new_run_profile_owner.prepare_new_run_consumption(
-		_new_run_profile_owner.get_profile_revision())
-	if not profile.get("ok", false): return profile
-	var autosave := _capture_prepared_autosave_baseline()
-	if not autosave.get("ok", false): return autosave
-	var live := _capture_prepared_live_baseline()
-	if not live.get("ok", false): return live
-	_prepared_new_run_counter += 1
-	var token := "prepared-new-run-%d-%d" % [get_instance_id(), _prepared_new_run_counter]
-	_prepared_new_run = {
-		"token": token,
-		"initial_context": initial_context.duplicate(true) if _scene_title_new_run_target.is_empty() else _scene_title_new_run_context.duplicate(true),
-		"scene_target_id": _scene_title_new_run_target,
-		"profile": (profile["value"] as Dictionary).duplicate(true),
-		"autosave": (autosave["value"] as Dictionary).duplicate(true),
-		"live": (live["value"] as Dictionary).duplicate(true),
-	}
-	var replaces_live: bool = bool(_prepared_new_run["live"]["present"])
-	var replaces_autosave: bool = bool(_prepared_new_run["autosave"]["occupied"])
-	return {"ok": true, "code": &"ok", "value": {
-		"token": token,
-		"requires_confirmation": replaces_live or replaces_autosave,
-		"replaces_live": replaces_live,
-		"replaces_autosave": replaces_autosave,
-	}}
+	return _fail(&"scene_new_run_not_configured", "scene title target required")
 
 func cancel_prepared_new_run(token: String) -> Dictionary:
 	if token.is_empty() or _prepared_new_run.is_empty() or token != str(_prepared_new_run.get("token", "")):
@@ -760,7 +512,7 @@ func commit_prepared_new_run(token: String) -> Dictionary:
 		return _fail(&"invalid_new_run_preparation", "")
 	var ready := _new_run_ready(true)
 	if not ready.get("ok", false): return ready
-	if not _new_run_transaction_id.is_empty() or not _new_run_intent.is_empty():
+	if not _new_run_transaction_id.is_empty():
 		_prepared_new_run.clear()
 		return _new_run_failure(_fail(&"new_run_recovery_required", ""))
 	_new_run_busy = true
@@ -775,7 +527,7 @@ func commit_prepared_new_run_responsive(token: String) -> Dictionary:
 		return _fail(&"invalid_new_run_preparation", "")
 	var ready := _new_run_ready(true)
 	if not ready.get("ok", false): return ready
-	if not _new_run_transaction_id.is_empty() or not _new_run_intent.is_empty():
+	if not _new_run_transaction_id.is_empty():
 		_prepared_new_run.clear()
 		return _new_run_failure(_fail(&"new_run_recovery_required", ""))
 	_new_run_busy = true
@@ -784,131 +536,16 @@ func commit_prepared_new_run_responsive(token: String) -> Dictionary:
 	_new_run_busy = false
 	return result
 
-func _commit_prepared_new_run(responsive: bool = false) -> Dictionary:
+
+func _commit_prepared_new_run(_responsive: bool = false) -> Dictionary:
 	var acquired := _take_new_run_custody()
 	if not acquired.get("ok", false): return acquired
 	var retained := _prepared_new_run.duplicate(true)
-	if not str(retained.get("scene_target_id", "")).is_empty():
-		_prepared_new_run.clear()
-		var result := _start_scene_new_run_in_memory(retained.scene_target_id, retained.initial_context)
-		if not result.ok and _scene_restore_activation.is_empty(): _release_new_run_custody()
-		return result
-	var listed: Dictionary = _continuation_journal.list_incomplete()
-	if not listed.get("ok", false):
-		return _release_prepared_new_run_after_refusal(listed, false)
-	if not listed["value"].is_empty():
-		return _release_prepared_new_run_after_refusal(
-			_fail(&"continuation_recovery_required", "an unresolved operation must recover before New Run"), false)
-	var profile: Dictionary = _new_run_profile_owner.prepare_new_run_consumption(
-		retained["profile"]["profile_revision"])
-	if not profile.get("ok", false):
-		if profile.get("code") in [&"profile_revision_changed", &"profile_source_changed"]:
-			return _release_prepared_new_run_after_refusal(
-				_fail(&"NEW_RUN_PREPARATION_STALE", "Profile changed after preparation"), true)
-		return _release_prepared_new_run_after_refusal(profile, false)
-	if profile["value"] != retained["profile"]:
-		return _release_prepared_new_run_after_refusal(
-			_fail(&"NEW_RUN_PREPARATION_STALE", "Profile changed after preparation"), true)
-	var autosave := _capture_prepared_autosave_baseline()
-	if not autosave.get("ok", false):
-		return _release_prepared_new_run_after_refusal(autosave, false)
-	if autosave["value"] != retained["autosave"]:
-		return _release_prepared_new_run_after_refusal(
-			_fail(&"NEW_RUN_PREPARATION_STALE", "Autosave changed after preparation"), true)
-	var live := _capture_prepared_live_baseline()
-	if not live.get("ok", false):
-		return _release_prepared_new_run_after_refusal(live, false)
-	if live["value"] != retained["live"]:
-		return _release_prepared_new_run_after_refusal(
-			_fail(&"NEW_RUN_PREPARATION_STALE", "Live run changed after preparation"), true)
-	var prepared := _prepare_new_run_decision_from_sources(
-		retained["initial_context"], retained["profile"], retained["autosave"])
-	if not prepared.get("ok", false):
-		return _release_prepared_new_run_after_refusal(prepared, false)
-	# The next write establishes (or ambiguously may establish) the durable decision.
-	# From this point recovery is by transaction id, never by replaying the UI token.
 	_prepared_new_run.clear()
-	return await _commit_new_run_intent(prepared, responsive)
-
-func _release_prepared_new_run_after_refusal(failure: Dictionary, consume: bool) -> Dictionary:
-	if consume: _prepared_new_run.clear()
-	var released := _release_new_run_custody()
-	return failure if released.get("ok", false) else released
-
-func _capture_prepared_autosave_baseline() -> Dictionary:
-	var inspected: Dictionary = _storage.inspect_revision("autosave.json")
-	if not inspected.get("ok", false): return inspected
-	var evidence: Variant = inspected.get("value")
-	if typeof(evidence) != TYPE_DICTIONARY:
-		return _fail(&"invalid_autosave_revision_evidence", "")
-	var source := evidence as Dictionary
-	if typeof(source.get("exists")) != TYPE_BOOL or typeof(source.get("revision")) != TYPE_STRING:
-		return _fail(&"invalid_autosave_revision_evidence", "")
-	var text: Variant = source.get("text")
-	if text != null and typeof(text) != TYPE_STRING:
-		return _fail(&"invalid_autosave_revision_evidence", "")
-	var occupied: bool = bool(source["exists"]) and (text == null or not str(text).is_empty())
-	return {"ok": true, "code": &"ok", "value": {
-		"revision": str(source["revision"]), "occupied": occupied}}
-
-func _capture_prepared_live_baseline() -> Dictionary:
-	var participant: Object = _restore_participants.get("run")
-	if participant == null or not participant.has_method("get_new_run_replacement_baseline"):
-		return _fail(&"new_run_replacement_unavailable", "")
-	var captured: Dictionary = participant.get_new_run_replacement_baseline()
-	if not captured.get("ok", false): return captured
-	var value: Variant = captured.get("value")
-	if typeof(value) != TYPE_DICTIONARY:
-		return _fail(&"new_run_replacement_unavailable", "")
-	var baseline := value as Dictionary
-	var keys: Array = baseline.keys()
-	keys.sort()
-	if keys != ["present", "revision"] or typeof(baseline["present"]) != TYPE_BOOL \
-			or typeof(baseline["revision"]) != TYPE_STRING or not _is_sha256(str(baseline["revision"])):
-		return _fail(&"new_run_replacement_unavailable", "")
-	return {"ok": true, "code": &"ok", "value": baseline.duplicate(true)}
-
-func start_new_run(initial_context: Dictionary) -> Dictionary:
-	if _new_run_busy: return _fail(&"new_run_busy", "")
-	var ready := _new_run_ready(true)
-	if not ready.get("ok", false): return ready
-	var context_error := _validate_new_run_context(initial_context)
-	if not context_error.is_empty(): return _fail(&"invalid_initial_context", context_error)
-	# A fresh Start cannot replace an unresolved decision or resample its preferences.
-	if not _new_run_transaction_id.is_empty():
-		return _new_run_failure(_fail(&"new_run_recovery_required", ""))
-	# An explicit non-UI start supersedes any uncommitted title preparation.
-	_prepared_new_run.clear()
-	var admitted := _admit_new_run_journal_io()
-	if not admitted.get("ok", false): return admitted
-	var listed: Dictionary = _continuation_journal.list_incomplete()
-	if not listed.get("ok", false): return listed
-	if not listed["value"].is_empty():
-		return _fail(&"continuation_recovery_required", "an unresolved operation must recover before New Run")
-	_new_run_busy = true
-	var result := _start_new_run_decision(initial_context)
-	_new_run_busy = false
+	var result := _start_scene_new_run_in_memory(retained.scene_target_id, retained.initial_context)
+	if not result.ok and _scene_restore_activation.is_empty(): _release_new_run_custody()
 	return result
 
-func _start_new_run_decision(initial_context: Dictionary) -> Dictionary:
-	var acquired := _take_new_run_custody()
-	if not acquired.get("ok", false): return acquired
-	var prepared := _prepare_new_run_decision(initial_context)
-	if not prepared.get("ok", false):
-		var released := _release_new_run_custody()
-		return prepared if released.get("ok", false) else released
-	return call("_commit_new_run_intent", prepared, false)
-
-func _commit_new_run_intent(prepared: Dictionary, responsive: bool = false) -> Dictionary:
-	_new_run_intent = prepared["value"].duplicate(true)
-	_new_run_transaction_id = str(_new_run_intent["transaction_id"])
-	# The complete decision is retained for Retry before yielding; it is never resampled.
-	if responsive: await _render_new_run_frame()
-	# Even an uncertain journal write keeps the exact candidate for an explicit retry.
-	var committed: Dictionary = _continuation_journal.commit_intent(_new_run_intent)
-	if not committed.get("ok", false): return _new_run_failure(committed)
-	_new_run_intent.clear()
-	return await _resume_new_run(committed["value"], _new_run_gate_token, responsive)
 
 func retry_new_run(transaction_id: String) -> Dictionary:
 	if _new_run_busy: return _fail(&"new_run_busy", "")
@@ -943,19 +580,14 @@ func _retry_new_run(transaction_id: String, responsive: bool = false) -> Diction
 	var listed: Dictionary = _continuation_journal.list_incomplete()
 	if not listed.get("ok", false): return listed
 	for pending: Dictionary in listed["value"]:
-		if pending["kind"] not in ["new_run", "scene_new_run"] or pending["transaction_id"] != transaction_id:
+		if pending["kind"] != "scene_new_run" or pending["transaction_id"] != transaction_id:
 			return _fail(&"new_run_recovery_conflict", "another unresolved operation exists")
 	var found: Dictionary = _continuation_journal.get_operation(transaction_id)
-	if not found.get("ok", false) and _new_run_intent.is_empty(): return found
-	if found.get("ok", false) and found["value"]["kind"] not in ["new_run", "scene_new_run"]:
+	if not found.get("ok", false): return found
+	if found.get("ok", false) and found["value"]["kind"] != "scene_new_run":
 		return _fail(&"invalid_new_run_transaction", "")
 	var acquired := _take_new_run_custody(transaction_id)
 	if not acquired.get("ok", false): return acquired
-	if not _new_run_intent.is_empty():
-		var committed: Dictionary = _continuation_journal.commit_intent(_new_run_intent)
-		if not committed.get("ok", false): return _new_run_failure(committed)
-		_new_run_intent.clear()
-		found = committed
 	return await _resume_new_run(found["value"], _new_run_gate_token, responsive)
 
 ## Bootstrap invokes this before Profile.initialize: no live participant is touched.
@@ -977,12 +609,12 @@ func _reconcile_new_run_storage() -> Dictionary:
 	if not listed.get("ok", false): return listed
 	var pending: Array[Dictionary] = []
 	for operation: Dictionary in listed["value"]:
-		if operation["kind"] in ["new_run", "scene_new_run"]: pending.append(operation)
+		if operation["kind"] == "scene_new_run": pending.append(operation)
 	if not pending.is_empty() and listed["value"].size() != 1:
 		return _fail(&"new_run_recovery_conflict", "conflicting incomplete continuations")
 	var settled: Array[String] = []
 	for operation: Dictionary in listed["value"]:
-		if operation["kind"] not in ["new_run", "scene_new_run"]: continue
+		if operation["kind"] != "scene_new_run": continue
 		var acquired := _take_new_run_custody(str(operation["transaction_id"]))
 		if not acquired.get("ok", false): return acquired
 		var result: Dictionary = call("_settle_new_run_pair", operation, false)
@@ -992,90 +624,6 @@ func _reconcile_new_run_storage() -> Dictionary:
 		if not released.get("ok", false): return released
 	return {"ok": true, "code": &"ok", "value": {"settled": settled}}
 
-func _prepare_new_run_decision(initial_context: Dictionary) -> Dictionary:
-	var profile: Dictionary = _new_run_profile_owner.prepare_new_run_consumption(_new_run_profile_owner.get_profile_revision())
-	if not profile.get("ok", false): return profile
-	var source: Dictionary = _storage.inspect_revision("autosave.json")
-	if not source.get("ok", false): return source
-	return _prepare_new_run_decision_from_sources(initial_context, profile["value"], {
-		"revision": source["value"]["revision"],
-		"occupied": bool(source["value"]["exists"]) and (source["value"]["text"] == null
-			or not str(source["value"]["text"]).is_empty()),
-	})
-
-func _prepare_new_run_decision_from_sources(initial_context: Dictionary,
-		profile_material: Dictionary, autosave_source: Dictionary) -> Dictionary:
-	var issued: Dictionary = _identity_issuer.issue(&"transaction_id")
-	if not issued.get("ok", false): return issued
-	var transaction_id := str(issued["value"]["token"])
-	var request := {"existing_run_id": null, "kind": "new_run", "remap_source_transaction_ids": [],
-		"source_desktop_timeline_generation": null, "transaction_id": transaction_id,
-		"transaction_issuer_receipt": issued["value"]["issuer_receipt"]}
-	var allocation: Dictionary = _identity_issuer.prepare_continuation_allocation(request)
-	if not allocation.get("ok", false): return allocation
-	var identity: Dictionary = allocation["value"]
-	var context := initial_context.duplicate(true)
-	context["dark_mode"] = profile_material["captured_dark"]
-	var witnessed_forms: Array[String] = []
-	for form: String in profile_material["before"]["pair_form_witness_receipts"].values():
-		if form not in witnessed_forms: witnessed_forms.append(form)
-	witnessed_forms.sort()
-	var run: Dictionary = _restore_participants["run"].prepare_new_run(
-		str(identity["run_id"]), str(identity["branch_id"]), int(identity["desktop_timeline_generation"]),
-		str(identity["causal_day_instance"]), identity["causal_day_instance_issuer_receipt"], context["dark_mode"], witnessed_forms)
-	if not run.get("ok", false): return run
-	var snapshot_input: Dictionary = run["value"]["snapshot_input"]
-	var view: Dictionary = _restore_participants["schedule_view"].prepare_new_run({
-		"run_id": str(identity["run_id"]), "day": 1,
-		"causal_day_instance": str(identity["causal_day_instance"]),
-		"causal_day_instance_issuer_receipt": identity["causal_day_instance_issuer_receipt"],
-		"registry_fingerprint": snapshot_input["committed_schedule"]["registry_fingerprint"]})
-	if not view.get("ok", false): return view
-	snapshot_input["schedule_view"] = view["value"]["schedule_view_plan"]["candidate"]
-	var audio_context := {"ambience_context": {}, "ambience_context_id": "", "music_context": {}, "music_context_id": ""}
-	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(snapshot_input, {}, "main", null,
-		audio_context, int(context["content_version"]), 1)
-	if not built.get("ok", false): return built
-	var snapshot: Dictionary = built["value"]["snapshot"]
-	var plans := _prepare_new_run_plans(snapshot, profile_material["candidate"])
-	if not plans.get("ok", false): return plans
-	var reset: Dictionary = _journal.prepare_reset_with_initial(snapshot, &"day_start")
-	if not reset.get("ok", false): return reset
-	var document: Dictionary = SAVE_DOCUMENT_SCHEMA.build(&"autosave", null, &"day_start",
-		reset["value"]["candidate"]["current"], [], _capture_saved_time())
-	if not document.get("ok", false): return document
-	var serialized: Dictionary = CANONICAL_JSON.stringify(document["value"])
-	if not serialized.get("ok", false): return serialized
-	var outgoing := str(serialized["value"]) + "\n"
-	var materials := {"allocation_candidate": identity, "profile": profile_material,
-		"autosave": {"source_revision": autosave_source["revision"], "outgoing_text": outgoing,
-			"outgoing_hash": outgoing.sha256_text()}}
-	var fingerprint := _canonical_sha256({"kind": "new_run", "transaction_id": transaction_id,
-		"initial_context": context, "new_run_materials": materials})
-	return _continuation_journal.prepare_intent({"allocation_candidate_fingerprint": _canonical_sha256(identity),
-		"initial_context": context, "initial_context_sha256": _canonical_sha256(context), "kind": "new_run",
-		"request_fingerprint": fingerprint, "source_locator": null, "transaction_id": transaction_id,
-		"transaction_issuer_receipt": issued["value"]["issuer_receipt"], "new_run_materials": materials})
-
-func _prepare_new_run_plans(snapshot: Dictionary, profile_candidate: Dictionary) -> Dictionary:
-	var profile: Dictionary = _restore_participants["profile"].prepare_frozen_profile(profile_candidate)
-	if not profile.get("ok", false): return profile
-	var inputs := {"run": {"snapshot": snapshot},
-		"desktop_consequence": {"state": snapshot["desktop"]["consequence"]},
-		"desktop_board": {"state": snapshot["desktop"]["board"], "schema_version": snapshot.get("schema_version")},
-		"schedule_view": _schedule_view_input(snapshot),
-		"localization": {"locale_id": str(profile["value"]["locale_id"]),
-			"font_style": profile["value"].get("font_style", "pixel"), "text_size": profile["value"].get("text_size", 100)},
-		"audio": {"preferences": profile_candidate["preferences"], "audio_context": snapshot["audio_context"]},
-		"route": {"route_id": "main", "route_context": {}, "active_app_id": null, "day": 1}}
-	var plan_keys := {"run": "run_plan", "desktop_consequence": "consequence_plan",
-		"desktop_board": "board_plan", "schedule_view": "schedule_view_plan", "localization": "localization_plan", "audio": "audio_plan", "route": "route_plan"}
-	var plans := {"profile": profile["value"]["profile_plan"], "narrative": {"narrative_checkpoint": {}}}
-	for key: String in inputs:
-		var prepared: Dictionary = _restore_participants[key].prepare(inputs[key])
-		if not prepared.get("ok", false): return prepared
-		plans[key] = prepared["value"][plan_keys[key]]
-	return {"ok": true, "value": plans}
 
 func _advance_new_run(operation: Dictionary, next_stage: String, allocation: Variant = null) -> Dictionary:
 	return _continuation_journal.advance({"transaction_id": operation["transaction_id"],
@@ -1174,187 +722,6 @@ func _persist_new_run_autosave(material: Dictionary, operation: Dictionary = {})
 		validator, material["source_revision"])
 	if not written.get("ok", false): return written
 	return _prove_new_run_autosave(material)
-
-## `continuation` (Plan 02 Task 6, dwm-p2r.32, Phase C2), when non-empty, is `{transaction_id,
-## request_fingerprint, remap: {restore_transaction_id, identity_allocation_bundle} | absent}` --
-## produced by `_begin_restore_continuation()` above. Empty means a
-## caller supplied a hand-built `prepared`/`plans` with no external-journal identity to advance (the
-## pure fake-participant orchestration tests): this method then behaves exactly as it did before
-## Task 6. When present, this drives `DesktopContinuationOperationJournal.advance()` for every
-## participant position PLUS the run-identity remap step, right after "run"'s own ordinary apply.
-## `pre_acquired_gate_token` (dwm-p2r.35.4 remediation, finding B-C1): when nonempty, the caller
-## already holds the `owner` lease (acquired before minting `transaction_id`/committing
-## `intent_committed`, per the frozen continuation law) and this method must NOT try to acquire it
-## again (the gate is exclusive/non-reentrant). Empty means the caller never pre-acquired -- the
-## pure fake-participant orchestration path this method already supported before Task 6 -- so this
-## method acquires it itself, exactly as before.
-## `already_applied` (dwm-p2r.35.4 remediation, finding B-C2): true only when resuming an operation
-## whose journal record is ALREADY at `participants_applied` (every participant already durably
-## recorded before the crash). The journal's own per-participant replay path only accepts a replay
-## while the operation's stage is still `participants_applying` -- once it has moved past that to
-## `participants_applied`, resubmitting an index-N `advance()` call is correctly refused as
-## `illegal_stage`, not silently replayed. So a resume from `participants_applied` still needs every
-## participant's `apply_silent()` called (a fresh process's live participants start empty/default and
-## must be genuinely re-applied), but must skip the per-participant and to-`participants_applied`
-## `advance()` calls entirely -- there is nothing left for either to legitimately record.
-func _run_participant_transaction(
-		owner: StringName, plans: Dictionary, journal_candidate: Variant,
-		route_id: String, checkpoint_id: String, emit_restored: bool, continuation: Dictionary = {},
-		pre_acquired_gate_token: String = "", already_applied: bool = false
-) -> Dictionary:
-	var profile := _save_load_profile_begin("restore_transaction") if owner == &"restore" else {}
-	var result := _run_participant_transaction_profiled(owner, plans, journal_candidate, route_id,
-		checkpoint_id, emit_restored, continuation, pre_acquired_gate_token, already_applied, profile)
-	return _save_load_profile_finish(profile, result)
-
-
-func _run_participant_transaction_profiled(
-		owner: StringName, plans: Dictionary, journal_candidate: Variant,
-		route_id: String, checkpoint_id: String, emit_restored: bool, continuation: Dictionary,
-		pre_acquired_gate_token: String, already_applied: bool, profile: Dictionary
-) -> Dictionary:
-	# `restore` also holds the SaveManager save lock; `new_run` relies on the gate.
-	# acquire_save_lock() is idempotent for an already-held `restore` lock, so this is safe to call
-	# again even when the caller pre-acquired the lock itself before this transaction began.
-	var holds_save_lock := owner == &"restore"
-	if holds_save_lock:
-		var lock: Dictionary = acquire_save_lock(&"restore")
-		if not lock.get("ok", false):
-			return lock
-	var gate_token := pre_acquired_gate_token
-	if gate_token == "" and _mutation_gate != null:
-		var acquired: Dictionary = _mutation_gate.acquire(owner)
-		if not acquired.get("ok", false):
-			if holds_save_lock:
-				release_save_lock(&"restore")
-			return acquired
-		gate_token = str(acquired["value"]["token"])
-
-	var operation_id := str(continuation.get("transaction_id", gate_token))
-	var activation := _prepare_live_session_activation(plans, operation_id)
-	if not activation.get("ok", false):
-		_release_transaction(owner, gate_token, holds_save_lock)
-		return activation
-	var activation_ticket: Dictionary = activation["value"]
-	_save_load_profile_phase(profile, "activation_prepare_us")
-
-	var journal_backup: Variant = null
-	if typeof(journal_candidate) == TYPE_DICTIONARY:
-		var captured_journal: Dictionary = _journal.capture_state()
-		if not captured_journal.get("ok", false):
-			_release_transaction(owner, gate_token, holds_save_lock)
-			return captured_journal
-		journal_backup = captured_journal["value"]["backup"]
-
-	var backups := {}
-	for key: String in _PARTICIPANT_APPLY_ORDER:
-		var captured: Dictionary = _restore_participants[key].capture()
-		if not captured.get("ok", false):
-			_release_transaction(owner, gate_token, holds_save_lock)
-			return captured
-		backups[key] = captured["value"]
-	_save_load_profile_phase(profile, "participant_capture_us")
-
-	var applied: Array[String] = []
-	var route_ready_token: Variant = null
-	for index: int in range(_PARTICIPANT_APPLY_ORDER.size()):
-		var key: String = _PARTICIPANT_APPLY_ORDER[index]
-		var plan: Dictionary = (plans[key] as Dictionary).duplicate(true)
-		if key == "narrative" and route_ready_token != null:
-			plan["route_ready_token"] = route_ready_token
-		var result: Dictionary = _restore_participants[key].apply_silent(plan)
-		_save_load_profile_phase(profile, "participant_apply_us")
-		if not result.get("ok", false):
-			return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, result)
-		if key == "run" and continuation.has("remap"):
-			var remap_info: Dictionary = continuation["remap"]
-			var remapped: Dictionary = _restore_participants["run"].apply_continuation_remap(
-				str(remap_info["restore_transaction_id"]), remap_info["identity_allocation_bundle"],
-				remap_info["source_identity"])
-			if not remapped.get("ok", false):
-				applied.append(key)
-				return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, remapped)
-		_save_load_profile_phase(profile, "run_remap_us")
-		applied.append(key)
-		if key == "route":
-			route_ready_token = (result.get("value", {}) as Dictionary).get("route_ready_token")
-		if not continuation.is_empty() and not already_applied:
-			var receipt_value: Variant = result.get("value", {})
-			var participant_receipt: Dictionary = receipt_value if typeof(receipt_value) == TYPE_DICTIONARY else {}
-			var advanced: Dictionary = _continuation_journal.advance({
-				"transaction_id": continuation["transaction_id"], "request_fingerprint": continuation["request_fingerprint"],
-				"expected_stage": CONTINUATION_JOURNAL.STAGE_APPLYING, "next_stage": CONTINUATION_JOURNAL.STAGE_APPLYING,
-				"expected_next_participant_index": index, "allocation_receipt": null,
-				"participant_name": key, "participant_receipt": participant_receipt, "failure": null,
-			})
-			_save_load_profile_phase(profile, "continuation_advance_us")
-			if not advanced.get("ok", false):
-				return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, advanced)
-
-	if not continuation.is_empty() and not already_applied:
-		var advanced_to_applied: Dictionary = _continuation_journal.advance({
-			"transaction_id": continuation["transaction_id"], "request_fingerprint": continuation["request_fingerprint"],
-			"expected_stage": CONTINUATION_JOURNAL.STAGE_APPLYING, "next_stage": CONTINUATION_JOURNAL.STAGE_APPLIED,
-			"expected_next_participant_index": _PARTICIPANT_APPLY_ORDER.size(), "allocation_receipt": null,
-			"participant_name": null, "participant_receipt": null, "failure": null,
-		})
-		_save_load_profile_phase(profile, "continuation_advance_us")
-		if not advanced_to_applied.get("ok", false):
-			return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, advanced_to_applied)
-
-	if typeof(journal_candidate) == TYPE_DICTIONARY:
-		var committed: Dictionary = _journal.commit_prepared(journal_candidate)
-		if not committed.get("ok", false):
-			return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, committed)
-		if checkpoint_id.is_empty():
-			checkpoint_id = str(committed["value"]["checkpoint_id"])
-	_save_load_profile_phase(profile, "journal_commit_us")
-
-	# Route dispatch queues a physical scene change that rollback cannot cancel.
-	# Finish every other fallible participant before requesting that change.
-	var finalize_order := _PARTICIPANT_APPLY_ORDER.duplicate()
-	finalize_order.erase("route")
-	finalize_order.append("route")
-	for key: String in finalize_order:
-		if key == "route" and not activation_ticket.is_empty():
-			var validated: Dictionary = _restore_participants["run"].validate_live_session_activation(activation_ticket)
-			if not validated.get("ok", false):
-				return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, validated, journal_backup)
-		var finalized: Dictionary = _restore_participants[key].finalize()
-		_save_load_profile_phase(profile, "participant_finalize_us")
-		if not finalized.get("ok", false):
-			return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, finalized, journal_backup)
-	if not activation_ticket.is_empty():
-		var activated: Dictionary = _restore_participants["run"].activate_live_session(activation_ticket)
-		if not activated.get("ok", false):
-			# The route has dispatched: compensating the previous run is no longer safe.
-			return _fatal_transaction_recovery(String(owner), [{"owner_id": "run",
-				"operation": "activate_live_session", "result": activated}])
-	_release_transaction(owner, gate_token, holds_save_lock)
-	if not continuation.is_empty():
-		# Best-effort: participants are already finalized and the checkpoint journal already
-		# committed, so a failure here is NOT rolled back (that would undo genuinely-completed work).
-		# FIX (dwm-p2r.35.4 remediation, finding B-C2/B-C3): this advance's own failure is no longer a
-		# dead end. `reconcile_incomplete_continuations()` -> `_resume_operation()` finds this
-		# transaction still nonterminal on the next boot (stage stays `participants_applied`), reacquires
-		# the `owner` lease, and drives this exact APPLIED -> COMPLETED advance forward through
-		# `_resume_new_run()`/`_resume_restore()` -- see those methods below.
-		var completed: Dictionary = _continuation_journal.advance({
-			"transaction_id": continuation["transaction_id"], "request_fingerprint": continuation["request_fingerprint"],
-			"expected_stage": CONTINUATION_JOURNAL.STAGE_APPLIED, "next_stage": CONTINUATION_JOURNAL.STAGE_COMPLETED,
-			"expected_next_participant_index": _PARTICIPANT_APPLY_ORDER.size(), "allocation_receipt": null,
-			"participant_name": null, "participant_receipt": null, "failure": null,
-		})
-		if completed.get("ok", false):
-			_session_activation_tickets.erase(operation_id)
-	else:
-		_session_activation_tickets.erase(operation_id)
-	_save_load_profile_phase(profile, "completion_us")
-	if not activation_ticket.is_empty(): live_session_ready.emit()
-	if emit_restored:
-		run_restored.emit(checkpoint_id, route_id)
-	_save_load_profile_phase(profile, "restored_signals_us")
-	return {"ok": true, "code": &"ok", "value": {"checkpoint_id": checkpoint_id, "route_id": route_id}}
 
 
 ## Opt-in observations only. Scopes are nested/inclusive; their elapsed times must not be summed.
@@ -1505,7 +872,7 @@ func get_save_metadata(kind: StringName, slot_id: int = -1) -> Dictionary:
 		"slot_id": document["slot_id"],
 		"save_reason": str(document["save_reason"]) if document.has("save_reason") else null,
 		"run_id": str(snapshot["run_id"]),
-		"day": null if snapshot.get("schema_version") == 9 else int(snapshot["lifecycle"]["day"]),
+		"day": null,
 		"state": str(snapshot["lifecycle"]["state"]),
 		"checkpoint_id": str(snapshot["checkpoint_id"]),
 	}}
@@ -1688,10 +1055,7 @@ func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictio
 		return {"ok": true, "value": record}
 	var snapshot: Dictionary = bundle["snapshot"]
 	record["state"] = "occupied"
-	record["family"] = "scene" if snapshot.get("schema_version") == RUN_SNAPSHOT_SCHEMA.SCENE_SCHEMA_VERSION else "legacy_day"
-	if record["family"] == "legacy_day":
-		var day: Variant = snapshot.get("lifecycle", {}).get("day")
-		record["day"] = int(day) if day != null else null
+	record["family"] = "scene"
 	var display_time := SAVE_DOCUMENT_SCHEMA.normalize_optional_saved_time(document.get("saved_time"))
 	record["saved_time"] = display_time.get("hhmm")
 	record["loadable"] = true
@@ -1917,16 +1281,10 @@ func _capture_backup_inputs() -> Dictionary:
 		if not reading.get("ok", false): return reading
 	return {"ok": true, "value": inputs}
 
+
 func _compose_live_checkpoint_input(snapshot_input: Dictionary) -> Dictionary:
-	if snapshot_input.has("scene"):
-		# Manual Save is a producer boundary, just like checkpoint-port Autosave.
-		# Reducer enums remain StringName in live state; normalize only this outgoing
-		# projection with the existing shared conversion, never stored Load input.
-		return preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")._normalize_json_string_types(snapshot_input)
-	var view: Object = _restore_participants.get("schedule_view")
-	if is_instance_valid(view) and view.has_method("compose_live_checkpoint_input"):
-		return view.compose_live_checkpoint_input(snapshot_input)
-	return snapshot_input
+	return preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")._normalize_json_string_types(snapshot_input)
+
 
 func _backup_journal_hash() -> String:
 	return _canonical_sha256(_journal.capture_state()["value"]["backup"])
@@ -2010,24 +1368,6 @@ func get_save_capability() -> Dictionary:
 			return {"enabled": false, "silent": true, "deferred": false}
 	return {"enabled": true, "silent": false, "deferred": false}
 
-func configure_restore_participants(participants: Dictionary) -> Dictionary:
-	var keys: Array = participants.keys()
-	keys.sort()
-	# `_PARTICIPANT_KEYS` is apply order, not alphabetical (Plan 02 Task 6, dwm-p2r.32, Phase C2 --
-	# it doubles as `_PARTICIPANT_APPLY_ORDER`), so the exact-set check needs its own sorted copy.
-	var expected := _PARTICIPANT_KEYS.duplicate()
-	expected.sort()
-	if keys != expected:
-		return _fail(&"invalid_restore_participants", "exactly nine participants required: " + str(keys))
-	for key: String in _PARTICIPANT_KEYS:
-		var participant: Variant = participants[key]
-		if typeof(participant) != TYPE_OBJECT or participant == null:
-			return _fail(&"invalid_restore_participants", key + " must be an object")
-		for method: String in ["prepare", "capture", "apply_silent", "rollback_silent", "finalize"]:
-			if not (participant as Object).has_method(method):
-				return _fail(&"invalid_restore_participants", "%s is missing %s" % [key, method])
-	_restore_participants = participants.duplicate()
-	return {"ok": true, "code": &"ok", "value": {"participant_count": _PARTICIPANT_KEYS.size()}}
 
 # ---- Deprecated wrappers (one issue only; delegate to the new facade) ----
 
@@ -2139,8 +1479,7 @@ func _write_latest(locator: Dictionary, save_reason: String, session_exit: bool 
 	if not validated.get("ok", false):
 		return _fail(&"reread_mismatch", relative_path)
 	var document: Dictionary = validated["value"]["candidate"]
-	if str(document["kind"]) != str(locator["kind"]) or document["slot_id"] != locator["slot_id"] \
-			or (document.schema_version == SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION and document.save_reason != save_reason):
+	if str(document["kind"]) != str(locator["kind"]) or document["slot_id"] != locator["slot_id"]:
 		return _fail(&"reread_mismatch", "locator or reason drift")
 	if _canonical_sha256(document) != _canonical_sha256(built["value"]):
 		return _fail(&"reread_mismatch", "saved candidate drift")
@@ -2170,7 +1509,7 @@ func _prepare_restore_content(locator: Dictionary, expected_revision: String) ->
 	if _storage == null:
 		return _fail(&"not_initialized", "")
 	if _restore_participants.is_empty():
-		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "configure_restore_participants first")
+		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "configure_scene_restore_participants first")
 	var relative_path := str(locator["relative_path"])
 	if not _storage.exists(relative_path):
 		return _fail(&"save_absent", relative_path)
@@ -2195,143 +1534,64 @@ func _prepare_restore_content(locator: Dictionary, expected_revision: String) ->
 ## Prepare the selected Load for the existing restore transaction.
 func _prepare_restore_document(locator: Dictionary, document: Dictionary, migration_output: Dictionary) -> Dictionary:
 	var profile := _save_load_profile_begin("restore_prepare", "", locator)
-	return _save_load_profile_finish(profile, _prepare_restore_document_profiled(locator, document, migration_output, profile))
+	return _save_load_profile_finish(profile, _prepare_restore_document_profiled(document, profile))
 
 
-func _prepare_restore_document_profiled(locator: Dictionary, document: Dictionary, migration_output: Dictionary,
-		profile: Dictionary) -> Dictionary:
+func _prepare_restore_document_profiled(document: Dictionary, profile: Dictionary) -> Dictionary:
 	if _restore_participants.is_empty():
 		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "")
 
 	# Load the selected saved state only. An older checkpoint is never substituted.
-	var prepared := _prepare_bundle_with_all_participants(document["current_snapshot"],
-		migration_output, document, locator, true)
+	var prepared := _prepare_bundle_with_all_participants(document["current_snapshot"])
 	_save_load_profile_phase(profile, "participant_prepare_us")
 	if not prepared.get("ok", false):
 		return prepared
 	return {"ok": true, "code": &"ok", "value": {"prepared": prepared["value"]}}
 
-func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output: Dictionary, document: Dictionary,
-		locator: Dictionary, direct_scene_load: bool = false) -> Dictionary:
-	var snapshot: Dictionary = bundle["snapshot"]
+func _prepare_bundle_with_all_participants(bundle: Dictionary) -> Dictionary:
+	var snapshot: Dictionary = bundle.snapshot
 	var plans := {}
-
-	var run_prep: Dictionary = _restore_participants.run._prepare_admitted_snapshot(snapshot) \
-		if direct_scene_load and snapshot.get("schema_version") == 9 \
-		else _restore_participants.run.prepare({"snapshot": snapshot})
-	if not run_prep.get("ok", false):
-		return run_prep
-	plans["run"] = run_prep["value"]["run_plan"]
-
-	# Direct scene Load installs the saved desktop without remapping identities.
-	# Retained allocation recovery prepares its desktop after remapping instead.
-	if snapshot.get("schema_version") != 9 or direct_scene_load:
-		var consequence_prep: Dictionary = _restore_participants["desktop_consequence"].prepare(
-			{"state": snapshot["desktop"]["consequence"]})
-		if not consequence_prep.get("ok", false):
-			return consequence_prep
-		plans["desktop_consequence"] = consequence_prep["value"]["consequence_plan"]
-		var board_prep: Dictionary = _restore_participants["desktop_board"].prepare(
-			{"state": snapshot["desktop"]["board"], "schema_version": snapshot.get("schema_version")})
-		if not board_prep.get("ok", false):
-			return board_prep
-		plans["desktop_board"] = board_prep["value"]["board_plan"]
-		if snapshot.get("schema_version") != 9:
-			var view_prep: Dictionary = _restore_participants["schedule_view"].prepare(_schedule_view_input(snapshot))
-			if not view_prep.get("ok", false):
-				return view_prep
-			plans["schedule_view"] = view_prep["value"]["schedule_view_plan"]
-
-	var preferences: Dictionary
-	if direct_scene_load and snapshot.get("schema_version") == 9:
-		# Gameplay Load uses the already active application settings.
-		plans["profile"] = {"reuse_current": true}
-		plans["localization"] = {"reuse_current": true}
-		preferences = _new_run_profile_owner.get_profile_snapshot().preferences
-	else:
-		var profile_prep: Dictionary = _restore_participants["profile"].prepare(
-			{"legacy_profile_patch_input": migration_output["legacy_profile_patch_input"]})
-		if not profile_prep.get("ok", false):
-			return profile_prep
-		plans["profile"] = profile_prep["value"]["profile_plan"]
-		var locale_id := str(profile_prep["value"]["locale_id"])
-		preferences = (plans["profile"].get("profile", {}) as Dictionary).get("preferences", {})
-
-		var loc_prep: Dictionary = _restore_participants["localization"].prepare({"locale_id": locale_id,
-			"font_style": profile_prep["value"].get("font_style", "pixel"), "text_size": profile_prep["value"].get("text_size", 100)})
-		if not loc_prep.get("ok", false):
-			return loc_prep
-		plans["localization"] = loc_prep["value"]["localization_plan"]
-	var audio_context: Dictionary
-	if snapshot.get("schema_version") == 9:
-		var derived := RUN_SNAPSHOT_SCHEMA.derive_scene_audio_context(snapshot)
-		if not derived.ok: return derived
-		audio_context = derived.value
-	else:
-		audio_context = snapshot.audio_context
-	var audio_prep: Dictionary = _restore_participants["audio"].prepare(
-		{"preferences": preferences, "audio_context": audio_context})
-	if not audio_prep.get("ok", false):
-		return audio_prep
-	plans["audio"] = audio_prep["value"]["audio_plan"]
-
+	var run_prep: Dictionary = _restore_participants.run._prepare_admitted_snapshot(snapshot)
+	if not run_prep.ok: return run_prep
+	plans.run = run_prep.value.run_plan
+	var consequence_prep: Dictionary = _restore_participants.desktop_consequence.prepare(
+		{"state": snapshot.desktop.consequence})
+	if not consequence_prep.ok: return consequence_prep
+	plans.desktop_consequence = consequence_prep.value.consequence_plan
+	var board_prep: Dictionary = _restore_participants.desktop_board.prepare(
+		{"state": snapshot.desktop.board, "schema_version": snapshot.schema_version})
+	if not board_prep.ok: return board_prep
+	plans.desktop_board = board_prep.value.board_plan
+	plans.profile = {"reuse_current": true}
+	plans.localization = {"reuse_current": true}
+	var preferences: Dictionary = _new_run_profile_owner.get_profile_snapshot().preferences
+	var derived := RUN_SNAPSHOT_SCHEMA.derive_scene_audio_context(snapshot)
+	if not derived.ok: return derived
+	var audio_prep: Dictionary = _restore_participants.audio.prepare(
+		{"preferences": preferences, "audio_context": derived.value})
+	if not audio_prep.ok: return audio_prep
+	plans.audio = audio_prep.value.audio_plan
 	var route_context := RUN_SNAPSHOT_SCHEMA.derive_route_restore_context(snapshot)
-	if not route_context.get("ok", false):
-		return route_context
-	var route_prep: Dictionary = _restore_participants["route"].prepare(
-		{"route_id": str(snapshot["route_id"]), "route_context": route_context["value"]})
-	if not route_prep.get("ok", false):
-		return route_prep
-	plans["route"] = route_prep["value"]["route_plan"]
-
-	var narr_prep: Dictionary
-	if direct_scene_load and snapshot.get("schema_version") == 9:
-		narr_prep = _restore_participants.narrative.prepare_scene_load(snapshot)
-	else:
-		narr_prep = _restore_participants["narrative"].prepare(
-			{"narrative_checkpoint": snapshot["narrative_checkpoint"], "content_version": int(snapshot["content_version"]),
-			"snapshot": snapshot})
-	if not narr_prep.get("ok", false):
-		return narr_prep
-	plans["narrative"] = narr_prep["value"]["narrative_plan"]
-
-	var seed: Dictionary
-	if direct_scene_load and snapshot.get("schema_version") == 9:
-		var diagnostics: Array[Dictionary] = []
-		seed = _journal._prepare_seed_from_valid_bundles([bundle], bundle, diagnostics)
-	else:
-		seed = _journal.prepare_seed(document, bundle)
-	if not seed.get("ok", false):
-		return seed
-
-	var prepared := {
-		"bundle": bundle.duplicate(true),
-		"journal_seed": seed["value"]["candidate"],
-		"participant_plans": plans,
-		"route_id": str(snapshot["route_id"]),
-		"checkpoint_id": str(snapshot["checkpoint_id"]),
-	}
-	if not direct_scene_load or snapshot.get("schema_version") != 9:
-		var remap_ids: Dictionary = REMAPPER.collect_rewindable_transaction_ids(snapshot)
-		if not remap_ids.get("ok", false): return remap_ids
-		prepared["source_locator"] = _build_source_locator(str(locator["kind"]), locator["slot_id"], bundle)
-		prepared["existing_run_id"] = str(snapshot["run_id"])
-		prepared["source_desktop_timeline_generation"] = int(snapshot["lifecycle"]["desktop_timeline_generation"])
-		prepared["remap_source_transaction_ids"] = remap_ids.value.transaction_ids
-	if snapshot.get("schema_version") == 9:
-		_scene_restore_preparation_counter += 1
-		var token := "scene_restore_preparation:%d" % _scene_restore_preparation_counter
-		prepared["scene_preparation_token"] = token
-		_scene_restore_preparations[token] = {"prepared": prepared}
+	if not route_context.ok: return route_context
+	var route_prep: Dictionary = _restore_participants.route.prepare(
+		{"route_id": snapshot.route_id, "route_context": route_context.value})
+	if not route_prep.ok: return route_prep
+	plans.route = route_prep.value.route_plan
+	var narr_prep: Dictionary = _restore_participants.narrative.prepare_scene_load(snapshot)
+	if not narr_prep.ok: return narr_prep
+	plans.narrative = narr_prep.value.narrative_plan
+	var diagnostics: Array[Dictionary] = []
+	var seed: Dictionary = _journal._prepare_seed_from_valid_bundles([bundle], bundle, diagnostics)
+	if not seed.ok: return seed
+	var prepared := {"bundle": bundle.duplicate(true), "journal_seed": seed.value.candidate,
+		"participant_plans": plans, "route_id": snapshot.route_id, "checkpoint_id": snapshot.checkpoint_id}
+	_scene_restore_preparation_counter += 1
+	var token := "scene_restore_preparation:%d" % _scene_restore_preparation_counter
+	prepared.scene_preparation_token = token
+	_scene_restore_preparations[token] = {"prepared": prepared}
 	return {"ok": true, "code": &"ok", "value": prepared.duplicate(true)}
 
-## Plan 02 Task 6 (dwm-p2r.32), Phase C2: SaveManager's own `source_loader` implementation, bound as
-## `DesktopContinuationOperationJournal.configure(storage, self)` (initialize() above) and as
-## `DesktopIdentityAllocationRestoreParticipant.new(issuer, self)`'s second argument wherever
-## Bootstrap/tests construct that participant. Reuses the SAME read/migrate/validate chain
-## `_prepare_restore()` already runs, but returns the bare v4 RunSnapshot ("context") plus its
-## canonical hash rather than participant plans -- exactly the duck-typed `load_context(locator) ->
-## {ok,value:{context,context_sha256}}` contract both callers above already expect.
+
 func load_context(locator: Dictionary) -> Dictionary:
 	if _storage == null:
 		return _fail(&"not_initialized", "")
@@ -2388,18 +1648,6 @@ func _find_bundle_by_checkpoint_id(document: Dictionary, checkpoint_id: String) 
 			return entry
 	return {}
 
-## Builds this restore's `source_locator` (Plan 02 Task 6, dwm-p2r.32, Phase C2 -- own design choice,
-## not literally frozen by the brief). `bundle_id` distinguishes exactly WHICH bundle within a
-## document was selected: the canonical hash of the whole `{checkpoint_kind,snapshot}` bundle record. `document_sha256` is the canonical hash of the
-## bundle's OWN snapshot -- the same value `load_context()` reproduces as `context_sha256`, so a
-## reload can prove it landed on the exact same bytes.
-func _build_source_locator(kind: String, slot_id: Variant, bundle: Dictionary) -> Dictionary:
-	return {
-		"bundle_id": _canonical_sha256(bundle),
-		"checkpoint_id": str((bundle["snapshot"] as Dictionary)["checkpoint_id"]),
-		"document_sha256": _canonical_sha256(bundle["snapshot"]),
-		"slot_id": _slot_id_string(kind, slot_id),
-	}
 
 static func _slot_id_string(kind: String, slot_id: Variant) -> String:
 	if kind == "slot":
@@ -2454,73 +1702,16 @@ func reconcile_incomplete_continuations() -> Dictionary:
 		var transaction_id := str((operation as Dictionary)["transaction_id"])
 		var reconciled: Dictionary = _resume_operation((operation as Dictionary).duplicate(true))
 		results.append({"transaction_id": transaction_id, "result": reconciled})
-		if operation.get("kind") in ["new_run", "scene_new_run"] and not reconciled.get("ok", false):
+		if operation.get("kind") == "scene_new_run" and not reconciled.get("ok", false):
 			return reconciled
 	return {"ok": true, "code": &"ok", "value": {"reconciled": results}}
 
-## FIX (dwm-p2r.35.4 remediation, finding B-C2): the frozen continuation law (plan02-frozen-
-## contracts.md, around line 543) requires startup to, for every nonterminal operation, "reacquire[]
-## the owner implied by kind, reload[]/hash-verif[y] the exact restore locator or rehash[] the
-## retained New-Run initial context, and recompute[] the deterministic allocation candidate."
-## Before allocation, a proven missing/hash-changed source records `aborted` with a typed failure
-## and no live mutation. From `identity_allocation_committed` on, recovery can only advance forward
-## (never abort); when it cannot prove forward progress, it persists a typed diagnostic and latches
-## a fatal recovery failure instead, per `_latch_recovery_diagnostic()` below.
+
 func _resume_operation(operation: Dictionary) -> Dictionary:
 	if operation.get("kind") == "scene_restore":
 		return {"ok": true, "value": {"transaction_id": operation.transaction_id, "outcome": "obsolete_load_ignored"}}
-	if operation.get("kind") in ["new_run", "scene_new_run"]:
-		return retry_new_run(str(operation["transaction_id"]))
-	var transaction_id := str(operation["transaction_id"])
-	var kind := str(operation["kind"])
-	var owner := StringName(kind)
+	return retry_new_run(str(operation.transaction_id))
 
-	var gate_token := ""
-	var gate_acquired := false
-	if _mutation_gate != null:
-		var acquired: Dictionary = _mutation_gate.acquire(owner)
-		if not acquired.get("ok", false):
-			return acquired
-		gate_token = str(acquired["value"]["token"])
-		gate_acquired = true
-
-	var verified: Dictionary = _continuation_journal.reconcile_startup(transaction_id, _identity_issuer)
-	if not verified.get("ok", false):
-		if str(operation.get("stage", "")) == CONTINUATION_JOURNAL.STAGE_INTENT:
-			# Before allocation: a proven missing/hash-changed source or mismatched context records
-			# `aborted` with a typed failure and no live mutation (frozen law) -- nothing was ever
-			# minted yet, so there is nothing to roll back.
-			var abort_failure := {
-				"code": "source_unprovable",
-				"message": "the retained restore source or new-run context could not be reverified at startup",
-				"details": {"transaction_id": transaction_id, "kind": kind, "verify_code": str(verified.get("code", ""))},
-			}
-			var aborted: Dictionary = _continuation_journal.advance({
-				"transaction_id": transaction_id, "request_fingerprint": str(operation["request_fingerprint"]),
-				"expected_stage": CONTINUATION_JOURNAL.STAGE_INTENT, "next_stage": CONTINUATION_JOURNAL.STAGE_ABORTED,
-				"expected_next_participant_index": 0, "allocation_receipt": null,
-				"participant_name": null, "participant_receipt": null, "failure": abort_failure,
-			})
-			if gate_acquired:
-				_mutation_gate.release(owner, gate_token)
-			if not aborted.get("ok", false):
-				return aborted
-			return {"ok": true, "code": &"ok", "value": {"transaction_id": transaction_id, "outcome": "aborted"}}
-		return _latch_recovery_diagnostic(operation, owner, verified)
-
-	var refreshed: Dictionary = _continuation_journal.get_operation(transaction_id)
-	if not refreshed.get("ok", false):
-		if gate_acquired:
-			_mutation_gate.release(owner, gate_token)
-		return refreshed
-	operation = refreshed["value"]
-	var stage := str(operation.get("stage", ""))
-	if stage in [CONTINUATION_JOURNAL.STAGE_COMPLETED, CONTINUATION_JOURNAL.STAGE_ABORTED]:
-		if gate_acquired:
-			_mutation_gate.release(owner, gate_token)
-		return {"ok": true, "code": &"ok", "value": {"transaction_id": transaction_id, "outcome": "already_terminal"}}
-
-	return _resume_restore(operation, gate_token)
 
 ## The retained SaveDocument and Profile candidate drive every live retry. Disk
 ## targets are reproved first; recorded participant prefixes are not process-local state.
@@ -2534,279 +1725,10 @@ func _render_new_run_frame() -> void:
 	await get_tree().process_frame
 	_new_run_slice_started_us = Time.get_ticks_usec()
 
-func _resume_new_run(operation: Dictionary, _gate_token: String, responsive: bool = false) -> Dictionary:
-	if operation.get("kind") == "scene_new_run": return _resume_scene_new_run(operation, _gate_token)
-	if operation["stage"] == CONTINUATION_JOURNAL.STAGE_COMPLETED:
-		var released := _release_new_run_custody()
-		if not released.get("ok", false): return released
-		return {"ok": true, "code": &"ok", "value": {"transaction_id": operation["transaction_id"], "outcome": "already_terminal"}}
-	if responsive: await _render_new_run_frame()
-	var settled: Dictionary = await _settle_new_run_pair(operation, responsive)
-	if not settled.get("ok", false): return _new_run_failure(settled)
-	operation = settled["value"]
-	if responsive: await _render_new_run_frame()
-	if operation["stage"] == CONTINUATION_JOURNAL.STAGE_ALLOCATED:
-		var advanced := _advance_new_run(operation, CONTINUATION_JOURNAL.STAGE_APPLYING)
-		if not advanced.get("ok", false): return _new_run_failure(advanced)
-		operation = advanced["value"]
-	if responsive: await _render_new_run_frame()
-	var materials: Dictionary = operation["new_run_materials"]
-	var parsed: Dictionary = STRICT_JSON.parse_object(str(materials["autosave"]["outgoing_text"]))
-	if not parsed.get("ok", false): return _new_run_failure(parsed)
-	var snapshot: Dictionary = parsed["value"]["current_snapshot"]["snapshot"]
-	var prepared := _prepare_new_run_plans(snapshot, materials["profile"]["candidate"])
-	if not prepared.get("ok", false): return _new_run_failure(prepared)
-	var plans: Dictionary = prepared["value"]
-	var activation := _prepare_live_session_activation(plans, str(operation["transaction_id"]))
-	if not activation.get("ok", false): return _new_run_failure(activation)
-	var activation_ticket: Dictionary = activation["value"]
-	var reset: Dictionary = _journal.prepare_reset_with_initial(snapshot, &"day_start")
-	if not reset.get("ok", false): return _new_run_failure(reset)
-	# Reapply every live owner in a fresh process. Persist only the unrecorded suffix:
-	# the route-ready token is process-local and must never be compared to an old receipt.
-	var route_ready_token: Variant = null
-	for index: int in range(_PARTICIPANT_APPLY_ORDER.size()):
-		if responsive: await _render_new_run_frame()
-		var key: String = _PARTICIPANT_APPLY_ORDER[index]
-		var plan: Dictionary = plans[key].duplicate(true)
-		if key == "narrative" and route_ready_token != null:
-			plan["route_ready_token"] = route_ready_token
-		var applied: Dictionary = _restore_participants[key].apply_silent(plan)
-		if not applied.get("ok", false): return _new_run_failure(applied)
-		if key == "route": route_ready_token = applied.get("value", {}).get("route_ready_token")
-		if operation["stage"] == CONTINUATION_JOURNAL.STAGE_APPLYING and index >= int(operation["next_participant_index"]):
-			var receipt: Variant = applied.get("value", {})
-			var advanced: Dictionary = _continuation_journal.advance({
-				"transaction_id": operation["transaction_id"], "request_fingerprint": operation["request_fingerprint"],
-				"expected_stage": CONTINUATION_JOURNAL.STAGE_APPLYING, "next_stage": CONTINUATION_JOURNAL.STAGE_APPLYING,
-				"expected_next_participant_index": index, "allocation_receipt": null, "participant_name": key,
-				"participant_receipt": receipt if typeof(receipt) == TYPE_DICTIONARY else {}, "failure": null})
-			if not advanced.get("ok", false): return _new_run_failure(advanced)
-			operation = advanced["value"]
-	if responsive: await _render_new_run_frame()
-	if operation["stage"] == CONTINUATION_JOURNAL.STAGE_APPLYING:
-		var advanced := _advance_new_run(operation, CONTINUATION_JOURNAL.STAGE_APPLIED)
-		if not advanced.get("ok", false): return _new_run_failure(advanced)
-		operation = advanced["value"]
-	var checkpoint_candidate: Dictionary = reset["value"]["candidate"]
-	var expected_checkpoint := checkpoint_candidate.duplicate(true)
-	expected_checkpoint.erase("candidate_kind")
-	var captured_checkpoint: Dictionary = _journal.capture_state()
-	if not captured_checkpoint.get("ok", false): return _new_run_failure(captured_checkpoint)
-	if _canonical_sha256(captured_checkpoint["value"]["backup"]) != _canonical_sha256(expected_checkpoint):
-		var checkpoint: Dictionary = _journal.commit_prepared(checkpoint_candidate)
-		if not checkpoint.get("ok", false): return _new_run_failure(checkpoint)
-	if responsive: await _render_new_run_frame()
-	var finalize_order := _PARTICIPANT_APPLY_ORDER.duplicate()
-	finalize_order.erase("route")
-	finalize_order.append("route")
-	for key: String in finalize_order:
-		if key == "route" and not activation_ticket.is_empty():
-			var validated: Dictionary = _restore_participants["run"].validate_live_session_activation(activation_ticket)
-			if not validated.get("ok", false): return _new_run_failure(validated)
-		var finalized: Dictionary = _restore_participants[key].finalize()
-		if not finalized.get("ok", false): return _new_run_failure(finalized)
-	if not activation_ticket.is_empty():
-		var activated: Dictionary = _restore_participants["run"].activate_live_session(activation_ticket)
-		if not activated.get("ok", false):
-			return _fatal_transaction_recovery("new_run", [{"owner_id": "run",
-				"operation": "activate_live_session", "result": activated}])
-	var completed := _advance_new_run(operation, CONTINUATION_JOURNAL.STAGE_COMPLETED)
-	if not completed.get("ok", false): return _new_run_failure(completed)
-	_session_activation_tickets.erase(str(operation["transaction_id"]))
-	var released := _release_new_run_custody()
-	if not released.get("ok", false): return released
-	live_session_ready.emit()
-	return {"ok": true, "code": &"ok", "value": {"transaction_id": operation["transaction_id"],
-		"outcome": "completed", "run_id": snapshot["run_id"], "checkpoint_id": snapshot["checkpoint_id"], "route_id": "main"}}
 
-## Drives a restore operation forward from wherever it stopped. Unlike new_run, restore's
-## participant plans depend on the source save document, so a resumed restore must first
-## reconstruct byte-identical plans through `_reconstruct_restore_materials()` before it can either
-## mint the allocation (at `intent_committed`) or replay/continue the participant loop (at
-## `identity_allocation_committed` or later).
-func _resume_restore(operation: Dictionary, gate_token: String) -> Dictionary:
-	var transaction_id := str(operation["transaction_id"])
-	var lock: Dictionary = acquire_save_lock(&"restore")
-	if not lock.get("ok", false):
-		return _latch_recovery_diagnostic(operation, &"restore", lock)
+func _resume_new_run(operation: Dictionary, gate_token: String, _responsive: bool = false) -> Dictionary:
+	return _resume_scene_new_run(operation, gate_token)
 
-	var materials := _reconstruct_restore_materials(operation)
-	if not materials.get("ok", false):
-		return _latch_recovery_diagnostic(operation, &"restore", materials)
-	var built: Dictionary = materials["value"]
-
-	var stage := str(operation.get("stage", ""))
-	if stage == CONTINUATION_JOURNAL.STAGE_INTENT:
-		var identity_applied: Dictionary = _identity_allocation_participant.apply_silent(built["identity_candidate"])
-		if not identity_applied.get("ok", false):
-			return _latch_recovery_diagnostic(operation, &"restore", identity_applied)
-		var allocation_receipt: Dictionary = (identity_applied["value"] as Dictionary)["allocation_receipt"]
-		var advance_to_allocated: Dictionary = _continuation_journal.advance({
-			"transaction_id": transaction_id, "request_fingerprint": str(operation["request_fingerprint"]),
-			"expected_stage": CONTINUATION_JOURNAL.STAGE_INTENT, "next_stage": CONTINUATION_JOURNAL.STAGE_ALLOCATED,
-			"expected_next_participant_index": 0, "allocation_receipt": allocation_receipt,
-			"participant_name": null, "participant_receipt": null, "failure": null,
-		})
-		if not advance_to_allocated.get("ok", false):
-			return _latch_recovery_diagnostic(operation, &"restore", advance_to_allocated)
-		stage = CONTINUATION_JOURNAL.STAGE_ALLOCATED
-
-	if stage == CONTINUATION_JOURNAL.STAGE_ALLOCATED:
-		var advance_to_applying: Dictionary = _continuation_journal.advance({
-			"transaction_id": transaction_id, "request_fingerprint": str(operation["request_fingerprint"]),
-			"expected_stage": CONTINUATION_JOURNAL.STAGE_ALLOCATED, "next_stage": CONTINUATION_JOURNAL.STAGE_APPLYING,
-			"expected_next_participant_index": 0, "allocation_receipt": null,
-			"participant_name": null, "participant_receipt": null, "failure": null,
-		})
-		if not advance_to_applying.get("ok", false):
-			return _latch_recovery_diagnostic(operation, &"restore", advance_to_applying)
-
-	var result := _run_participant_transaction(&"restore", built["plans"], built["journal_candidate"],
-		str(built["route_id"]), str(built["checkpoint_id"]), true, built["continuation"], gate_token,
-		stage == CONTINUATION_JOURNAL.STAGE_APPLIED)
-	if not result.get("ok", false):
-		return _latch_recovery_diagnostic(operation, &"restore", result)
-	return {"ok": true, "code": &"ok", "value": {
-		"transaction_id": transaction_id, "outcome": "completed", "result": result["value"]}}
-
-## Reconstructs the exact `prepared`/plan bytes `_prepare_restore()` would have produced for this
-## operation's retained `source_locator`, by re-reading, re-migrating, and re-validating the SAME
-## save document and selecting the SAME specific bundle by `checkpoint_id`. The locator names
-## the exact saved bundle that was originally selected; no substitute checkpoint is tried. `existing_run_id`/`source_desktop_
-## timeline_generation`/`remap_source_transaction_ids` are re-derived from the reloaded document,
-## byte-for-byte the same way `_prepare_bundle_with_all_participants()` derives them live; calling
-## `_identity_allocation_participant.prepare()` again is safe and mutation-free (its own doc comment:
-## "Mutation-free"), and its own fingerprint check against `allocation_candidate_fingerprint` is
-## exactly "recompute[ing] the deterministic allocation candidate" the frozen law requires.
-func _reconstruct_restore_materials(operation: Dictionary) -> Dictionary:
-	var locator: Dictionary = operation["source_locator"]
-	var resolved := _resolve_locator_from_slot_id(str(locator.get("slot_id", "")))
-	if resolved.is_empty():
-		return _fail(&"invalid_source_locator", "unrecognized slot_id: " + str(locator.get("slot_id", "")))
-	var relative_path := str(resolved["relative_path"])
-	if not _storage.exists(relative_path):
-		return _fail(&"save_absent", relative_path)
-	var read: Dictionary = _storage.inspect_revision(relative_path)
-	if not read.get("ok", false):
-		return read
-	var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]["text"]))
-	if not parsed.get("ok", false):
-		return _fail(&"corrupt_save_document", relative_path)
-	var migrated: Dictionary = SAVE_MIGRATIONS.migrate_document(parsed["value"],
-		{"kind": str(resolved["kind"]), "slot_id": resolved["slot_id"]})
-	if not migrated.get("ok", false):
-		return migrated
-
-	var document: Dictionary = migrated["value"]["document"]
-
-	var bundle := _find_bundle_by_checkpoint_id(document, str(locator.get("checkpoint_id", "")))
-	if bundle.is_empty():
-		return _fail(&"source_bundle_not_found", str(locator.get("checkpoint_id", "")))
-	var prepared_bundle := _prepare_bundle_with_all_participants(bundle, migrated["value"], document, resolved)
-	if not prepared_bundle.get("ok", false):
-		return prepared_bundle
-	var prepared: Dictionary = prepared_bundle["value"]
-	if prepared.get("source_locator") != locator:
-		return _fail(&"continuation_source_drifted",
-			"the reloaded bundle no longer reproduces the retained source_locator")
-
-	var identity_input := {
-		"restore_transaction_id": str(operation["transaction_id"]),
-		"transaction_issuer_receipt": operation["transaction_issuer_receipt"],
-		"source_locator": locator,
-		"existing_run_id": str(prepared["existing_run_id"]),
-		"source_desktop_timeline_generation": int(prepared["source_desktop_timeline_generation"]),
-		"remap_source_transaction_ids": prepared["remap_source_transaction_ids"],
-		"allocation_candidate_fingerprint": str(operation["allocation_candidate_fingerprint"]),
-	}
-	var identity_prepared: Dictionary = _identity_allocation_participant.prepare(identity_input)
-	if not identity_prepared.get("ok", false):
-		return identity_prepared
-	var identity_candidate: Dictionary = (identity_prepared["value"] as Dictionary)["candidate"]
-	var remapped_snapshot: Dictionary = identity_candidate["remapped_snapshot"]
-
-	var plans: Dictionary = (prepared["participant_plans"] as Dictionary).duplicate(true)
-	var run_plan: Dictionary = (plans.get("run", {}) as Dictionary).duplicate(true)
-	run_plan["snapshot"] = remapped_snapshot
-	plans["run"] = run_plan
-	var remapped_desktop: Dictionary = remapped_snapshot["desktop"]
-	var consequence_prep: Dictionary = _restore_participants["desktop_consequence"].prepare(
-		{"state": remapped_desktop["consequence"]})
-	if not consequence_prep.get("ok", false):
-		return consequence_prep
-	plans["desktop_consequence"] = (consequence_prep["value"] as Dictionary)["consequence_plan"]
-	var board_prep: Dictionary = _restore_participants["desktop_board"].prepare(
-		{"state": remapped_desktop["board"], "schema_version": remapped_snapshot.get("schema_version")})
-	if not board_prep.get("ok", false):
-		return board_prep
-	plans["desktop_board"] = (board_prep["value"] as Dictionary)["board_plan"]
-	if remapped_snapshot.get("schema_version") != 9:
-		var view_prep: Dictionary = _restore_participants["schedule_view"].prepare(_schedule_view_input(remapped_snapshot))
-		if not view_prep.get("ok", false):
-			return view_prep
-		plans["schedule_view"] = view_prep["value"]["schedule_view_plan"]
-
-	return {"ok": true, "code": &"ok", "value": {
-		"plans": plans,
-		"identity_candidate": identity_candidate,
-		"journal_candidate": prepared.get("journal_seed"),
-		"route_id": str(prepared.get("route_id", "")),
-		"checkpoint_id": str(prepared.get("checkpoint_id", "")),
-		"continuation": {
-			"kind": operation["kind"], "transaction_id": str(operation["transaction_id"]),
-			"request_fingerprint": str(operation["request_fingerprint"]),
-			"remap": {"restore_transaction_id": str(operation["transaction_id"]),
-				"identity_allocation_bundle": identity_candidate["identity_allocation_bundle"],
-				"source_identity": _source_identity_from_lifecycle(prepared["bundle"]["snapshot"]["lifecycle"])},
-		},
-	}}
-
-## FIX (dwm-p2r.35.4 remediation, findings B-C2/B-C4): the frozen continuation law requires that once
-## `identity_allocation_committed`, a startup that cannot prove forward progress "persists the typed
-## failure diagnostic without changing that forward stage, latches a fatal recovery failure, and
-## leaves the retained operation/issuer high-water untouched." This is the one place that happens:
-## every resume failure past `intent_committed` funnels through here rather than being silently
-## swallowed (the old `reconcile_incomplete_continuations()` behavior finding B-C2 describes) or
-## left to strand the journal record with no trace and no blocked input. `code` is always
-## `source_unprovable` regardless of the underlying reason: the journal's own `_apply_recovery_
-## diagnostic()` requires exactly that code for a first-time diagnostic at `identity_allocation_
-## committed`, and using it uniformly keeps every stage's diagnostic replay-safe (byte-identical on
-## a retry of the same still-unrecoverable operation) without depending on the failing step's own
-## code staying stable. The real reason is preserved in `details.reason_code` for diagnosis. Always
-## returns `ok:true`: the reconciliation pass itself succeeded at doing its job (recording the
-## diagnostic and blocking further mutation) even though the underlying operation could not complete.
-func _latch_recovery_diagnostic(operation: Dictionary, owner: StringName, raw_failure_context: Dictionary) -> Dictionary:
-	var transaction_id := str(operation["transaction_id"])
-	var stage := str(operation.get("stage", ""))
-	var journal_failure := {
-		"code": "source_unprovable",
-		"message": "continuation recovery could not prove forward progress at startup",
-		"details": {
-			"transaction_id": transaction_id, "kind": String(owner), "stage": stage,
-			"reason_code": str(raw_failure_context.get("code", "")),
-		},
-	}
-	var diagnostic_advance: Dictionary = _continuation_journal.advance({
-		"transaction_id": transaction_id, "request_fingerprint": str(operation["request_fingerprint"]),
-		"expected_stage": stage, "next_stage": stage,
-		"expected_next_participant_index": int(operation.get("next_participant_index", 0)),
-		"allocation_receipt": null, "participant_name": null, "participant_receipt": null,
-		"failure": journal_failure,
-	})
-	var gate_failure := {
-		"source": "continuation_reconciliation", "phase": "resume_" + String(owner),
-		"code": "source_unprovable",
-		"details": {"transaction_id": transaction_id, "stage": stage,
-			"reason_code": str(raw_failure_context.get("code", ""))},
-	}
-	var latched: Dictionary = {"ok": true}
-	if _mutation_gate != null:
-		latched = _mutation_gate.latch_fatal(gate_failure)
-	return {"ok": true, "code": &"ok", "value": {
-		"transaction_id": transaction_id, "outcome": "fatal_latched",
-		"diagnostic": diagnostic_advance, "gate_latch": latched,
-	}}
 
 func _delete(locator: Dictionary) -> Dictionary:
 	if locator.is_empty():
@@ -3170,10 +2092,6 @@ func _drive_scene_restore_activation_owned() -> Dictionary:
 		"route_id": completed.route_id}}
 
 
-static func _schedule_view_input(snapshot: Dictionary) -> Dictionary:
-	return {"schedule_view": snapshot["schedule_view"],
-		"registry_fingerprint": snapshot["committed_schedule"]["registry_fingerprint"]}
-
 ## Freeze the current lifetime before any candidate apply. Pure participant
 ## orchestration without a run snapshot has no live session to replace.
 func _prepare_live_session_activation(plans: Dictionary, operation_id: String) -> Dictionary:
@@ -3244,8 +2162,3 @@ func capture_committed_scene_creation(transaction_id: String) -> Dictionary:
 	return {"ok": true, "value": {"operation": operation.duplicate(true),
 		"allocation_candidate": materials.allocation_candidate.duplicate(true), "profile_material": materials.profile.duplicate(true),
 		"initial_scene": initial_scene.duplicate(true)}}
-
-static func _prepared_is_scene_family(prepared: Dictionary) -> bool:
-	var bundle: Variant = prepared.get("bundle")
-	return bundle is Dictionary and bundle.get("snapshot") is Dictionary \
-		and bundle.snapshot.get("schema_version") == 9

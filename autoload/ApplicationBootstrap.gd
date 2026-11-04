@@ -21,7 +21,6 @@ const CONTACT_COMMAND_PORT := preload("res://scripts/application/contact/Contact
 const CONTACTS_PRESENTATION_PORT := preload("res://scripts/application/contact/ContactsPresentationPort.gd")
 const SAVE_CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
 const CAUSAL_DAY_ADVANCE_IDENTITY_PORT := preload("res://scripts/application/run/CausalDayAdvanceIdentityPort.gd")
-const SCHEDULE_ACTION_REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
 const DATING_PRESENTATION_PORT := preload("res://scripts/application/run/DatingPresentationPort.gd")
 const APPLICATION_MUTATION_GATE_SCRIPT := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const NARRATIVE_CHECKPOINT_PORT := preload("res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd")
@@ -56,12 +55,7 @@ const GAME_STATE_DESKTOP_BOARD_PORT := preload("res://scripts/application/minesw
 const SAVE_MANAGER_DESKTOP_BOARD_PORT := preload("res://scripts/application/minesweeper/SaveManagerDesktopBoardPort.gd")
 const DESKTOP_FIRST_REVEAL_SNAPSHOT_COMPOSER := preload("res://scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd")
 const MINESWEEPER_SHOP_REGISTRY := preload("res://scripts/domain/shop/MinesweeperShopRegistry.gd")
-const DESKTOP_IDENTITY_ALLOCATION_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/DesktopIdentityAllocationRestoreParticipant.gd")
 const RUN_SNAPSHOT_SCHEMA_FOR_PROBE := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
-const SCHEDULE_VIEW_CONTROLLER := preload("res://scripts/application/schedule/ScheduleViewController.gd")
-const SCHEDULE_RULES := preload("res://scripts/domain/schedule/ScheduleRules.gd")
-const SCHEDULE_VIEW_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/ScheduleViewRestoreParticipant.gd")
-const CONTINUATION_REMAPPER := preload("res://scripts/domain/desktop/DesktopContinuationRemapper.gd")
 const SAVE_DOCUMENT_SCHEMA_FOR_PROBE := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 const RUN_SNAPSHOT_SCHEMA_VERSION := RUN_SNAPSHOT_SCHEMA_FOR_PROBE.SCHEMA_VERSION
 const SAVE_DOCUMENT_SCHEMA_VERSION := SAVE_DOCUMENT_SCHEMA_FOR_PROBE.DOCUMENT_VERSION
@@ -128,7 +122,6 @@ var _content_error_layer: CanvasLayer
 var _desktop_issuer_root_store: RefCounted = null
 var _desktop_identity_nonce_issuer: RefCounted = null
 var _retained_causal_day_advance_identity_port: RefCounted = null
-var _retained_schedule_registry: RefCounted = null
 var _retained_dating_presentation_port: RefCounted = null
 var _retained_dating_physical_owner: RefCounted = null
 var _pending_live_continuation: Dictionary = {}
@@ -152,7 +145,6 @@ var _checkpoint_provider_bundle: Dictionary = {}
 var _retained_restore_participants: Dictionary = {}
 ## The identity-allocation restore participant (separate from the 8-key set above; applies once,
 ## before it, only for a restore). Constructed and handed to SaveManager during `initialize_saves`.
-var _desktop_identity_allocation_participant: RefCounted = null
 var _retained_desktop_publication_ledger: RefCounted = null
 ## The Plan-02 application-level round coordinator (no class_name; preload by path). Its base
 ## The real generator and durable checkpoint path share the restored board owner.
@@ -160,8 +152,6 @@ var _retained_minesweeper_round_coordinator_app: RefCounted = null
 var _retained_minesweeper_generation_port: RefCounted = null
 var _retained_game_state_desktop_board_port: RefCounted = null
 var _retained_save_manager_desktop_board_port: RefCounted = null
-var _retained_schedule_view_controller: RefCounted = null
-var _retained_schedule_view_restore_participant: RefCounted = null
 var _desktop_identity_provider := Callable()
 var _state := {
 	"started": false, "ready": false, "mode": &"",
@@ -496,14 +486,6 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 						_desktop_identity_nonce_issuer)
 					if not save_issuer.get("ok", false):
 						return save_issuer
-					if _desktop_identity_allocation_participant == null:
-						_desktop_identity_allocation_participant = DESKTOP_IDENTITY_ALLOCATION_RESTORE_PARTICIPANT.new(
-							_desktop_identity_nonce_issuer, save_manager)
-					var save_allocation: Dictionary = save_manager.call(
-						&"configure_identity_allocation_participant",
-						_desktop_identity_allocation_participant)
-					if not save_allocation.get("ok", false):
-						return save_allocation
 			# Settle a retained New Acc pair before Profile or any preference consumer
 			# reads it. The later continuation pass still installs every live owner.
 			var profile := _target(&"ProfileManager")
@@ -795,8 +777,6 @@ func _can_capture_backup_checkpoint_inputs() -> bool:
 	return _capture_backup_checkpoint_inputs().get("ok", false)
 
 
-## One pure desktop capture. Physical route readiness and narrative inactivity are
-## required; a semantic route token or an old journal entry cannot stand in for them.
 func _capture_backup_checkpoint_inputs() -> Dictionary:
 	if not _state.get("ready", false) or _application_gate == null or _checkpoint_provider_bundle.is_empty():
 		return _failure(&"backup_capture_unavailable", "Application owners are not ready")
@@ -806,31 +786,7 @@ func _capture_backup_checkpoint_inputs() -> Dictionary:
 	var router := _target(&"SceneRouter")
 	if router != null and get_tree().paused:
 		return router.capture_pause_backup_checkpoint_inputs()
-	var scene := get_tree().current_scene
-	var desktop: Object = _contacts_desktop_eviction_port.view.get_ref() if _contacts_desktop_eviction_port != null and _contacts_desktop_eviction_port.view != null else null
-	if scene == null or scene.scene_file_path != "res://scenes/main/MainGameScene.tscn" or desktop == null or not scene.is_ancestor_of(desktop) or not desktop.is_visible_in_tree():
-		return _failure(&"backup_capture_unavailable", "The in-run desktop is not ready")
-	var bridge := _target(&"DialogicBridge")
-	var game_state := _target(&"GameState")
-	if bridge == null or game_state == null or bridge.has_active_playback() or not bridge.get_current_timeline_id().is_empty():
-		return _failure(&"backup_capture_unavailable", "Narrative playback is active or unavailable")
-	if _desktop_board_state == null or _desktop_consequence_state == null:
-		return _failure(&"backup_capture_unavailable", "Desktop state owners are unavailable")
-	var consequence: Dictionary = _desktop_consequence_state.capture()
-	if not consequence.get("ok", false):
-		return consequence
-	var snapshot_input: Dictionary = game_state.capture_run_snapshot_input()
-	# Keep the shared presentation draft alongside the live game state.
-	snapshot_input["desktop"] = {"board": _desktop_board_state.capture(), "consequence": consequence["value"]["state"]}
-	var schedule_view: Dictionary = _retained_schedule_view_controller.snapshot()
-	if not schedule_view.get("ok", false): return schedule_view
-	snapshot_input["schedule_view"] = schedule_view.value.view
-	var inputs := {"snapshot_input": snapshot_input}
-	for key in _checkpoint_provider_bundle:
-		inputs[key] = (_checkpoint_provider_bundle[key] as Callable).call()
-	if inputs["route_id"] != "main" or inputs["active_app_id"] != "backup" or not inputs["dialogic_checkpoint"].is_empty():
-		return _failure(&"backup_capture_unavailable", "Backup is not the stable active desktop app")
-	return {"ok": true, "value": inputs}
+	return _failure(&"backup_capture_unavailable", "The paused scene desktop is not ready")
 
 
 ## SaveManager rechecks the actual retained Pause source rather than trusting a route flag.
@@ -912,7 +868,6 @@ func _desktop_amendment_probe_fields() -> Dictionary:
 	var game_state := _target(&"GameState")
 	var continuation_journal: Object = save_manager.get("_continuation_journal") if save_manager != null else null
 	var restore_participant_ids := {
-		"identity_allocation": _instance_id(_desktop_identity_allocation_participant),
 	}
 	for key: String in ["run", "desktop_consequence", "desktop_board", "schedule_view", "profile",
 			"localization", "audio", "route", "narrative"]:
@@ -966,37 +921,6 @@ func _configure_causal_day_advance_identity() -> Dictionary:
 	return {"ok": true}
 
 
-func _configure_schedule_view_participant() -> Dictionary:
-	if _desktop_identity_nonce_issuer == null:
-		return _failure(&"missing_identity_issuer",
-			"the ScheduleView participant requires the retained production issuer")
-	if _retained_schedule_registry == null:
-		var loaded: Dictionary = SCHEDULE_ACTION_REGISTRY.load_current()
-		if not loaded.get("ok", false):
-			return loaded
-		_retained_schedule_registry = (loaded.get("value", {}) as Dictionary).get("registry")
-	if _retained_schedule_view_controller == null:
-		var controller: RefCounted = SCHEDULE_VIEW_CONTROLLER.new()
-		var configured: Dictionary = controller.configure(_retained_schedule_registry, SCHEDULE_RULES,
-			str(_retained_schedule_registry.fingerprint()))
-		if not configured.get("ok", false):
-			return configured
-		var warning_identity: Dictionary = controller.configure_warning_identity(
-			_desktop_identity_nonce_issuer)
-		if not warning_identity.get("ok", false):
-			return warning_identity
-		_retained_schedule_view_controller = controller
-	if _retained_schedule_view_restore_participant == null:
-		_retained_schedule_view_restore_participant = SCHEDULE_VIEW_RESTORE_PARTICIPANT.new(
-			_retained_schedule_view_controller, _retained_schedule_registry,
-			_desktop_identity_nonce_issuer, CONTINUATION_REMAPPER)
-	return {"ok": true, "code": &"ok", "value": {
-		"controller_instance_id": _retained_schedule_view_controller.get_instance_id(),
-		"participant_instance_id": _retained_schedule_view_restore_participant.get_instance_id(),
-		"registry_fingerprint": str(_retained_schedule_registry.fingerprint()),
-	}, "receipt": {}}
-
-
 func _configure_restore_participants() -> Dictionary:
 	var save_manager := _target(&"SaveManager")
 	var game_state := _target(&"GameState")
@@ -1036,7 +960,7 @@ func _configure_restore_participants() -> Dictionary:
 		var scene_payments: Dictionary = _desktop_board_state.configure_scene_payments(_desktop_identity_nonce_issuer)
 		if not scene_payments.get("ok", false): return scene_payments
 	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_contract_tables()
-	if not selected.get("ok", false) and selected.get("code") != &"scene_registration_absent":
+	if not selected.get("ok", false):
 		return selected
 	var participants := {
 		"run": RUN_RESTORE_PARTICIPANT.new(game_state),
@@ -1053,14 +977,7 @@ func _configure_restore_participants() -> Dictionary:
 	if window_capability.value.available:
 		var configured_window: Dictionary = participants.profile.configure_window_output(window)
 		if not configured_window.get("ok", false): return configured_window
-	var configured: Dictionary
-	if selected.get("ok", false):
-		configured = save_manager.configure_scene_restore_participants(participants)
-	else:
-		var view_configured: Dictionary = _configure_schedule_view_participant()
-		if not view_configured.get("ok", false): return view_configured
-		participants["schedule_view"] = _retained_schedule_view_restore_participant
-		configured = save_manager.configure_restore_participants(participants)
+	var configured: Dictionary = save_manager.configure_scene_restore_participants(participants)
 	if configured.get("ok", false):
 		_retained_restore_participants = participants.duplicate()
 		var scene_runtime := _configure_registered_scene_runtime()
@@ -1072,7 +989,7 @@ func _configure_restore_participants() -> Dictionary:
 func _configure_registered_scene_creation() -> Dictionary:
 	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_contract_tables()
 	if not selected.get("ok", false):
-		return {"ok": true} if selected.get("code") == &"scene_registration_absent" else selected
+		return selected
 	var saves := _target(&"SaveManager")
 	var configured: Dictionary = saves.configure_scene_new_run(_target(&"DialogicBridge"))
 	if not configured.get("ok", false): return configured
@@ -1084,7 +1001,7 @@ func _configure_registered_scene_creation() -> Dictionary:
 func _configure_registered_scene_runtime() -> Dictionary:
 	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_contract_tables()
 	if not selected.get("ok", false):
-		return {"ok": true} if selected.get("code") == &"scene_registration_absent" else selected
+		return selected
 	if not DIALOGIC_ENTRY_MANIFEST.first_target_id().is_empty() and FileAccess.file_exists("res://data/manifests/scene_ending_reading_catalogue.json") and OS.get_environment("DWM_SCENE_READING_FIXTURE") != "1" and not OS.get_cmdline_user_args().has(DIALOGIC_ENTRY_MANIFEST.SCENE_TEST_FLAG) and not OS.get_cmdline_args().has(DIALOGIC_ENTRY_MANIFEST.SCENE_TEST_FLAG):
 		var catalogue: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
 			FileAccess.get_file_as_string("res://data/manifests/scene_ending_reading_catalogue.json"))
@@ -1310,14 +1227,6 @@ func register_desktop_eviction_port(port: Object) -> Dictionary:
 func _on_day_changed(new_day: int) -> void:
 	if _desktop_host_state == null:
 		return
-	if _retained_schedule_view_controller != null:
-		var state := _target(&"GameState")
-		var identity: Dictionary = state.capture_schedule_warning_state()
-		var opened: Dictionary = _retained_schedule_view_controller.open_day(new_day,
-			str(identity.value.state.causal_day_instance))
-		if not opened.get("ok", false):
-			_desktop_day_change_fatal(&"SCHEDULE_DAY_OPEN_FAILED", new_day, [])
-			return
 	if _desktop_eviction_port == null:
 		_desktop_day_change_fatal(&"DESKTOP_EVICTION_PORT_MISSING", new_day, [])
 		return

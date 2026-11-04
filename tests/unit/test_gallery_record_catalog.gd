@@ -181,3 +181,17 @@ func test_version_cues_require_valid_unique_gallery_signatures() -> void:
 	for catalog in invalid:
 		assert_false(catalog.valid)
 		assert_eq(catalog.version_cue("ending.alone", _id(_alone()), "en"), "")
+
+func test_reached_date_copy_keeps_localized_readonly_card() -> void:
+	var signature := {"entry_id": "dating.solo.priscilla.day1.pre_challenge",
+		"schema_version": 1, "fields": {"tier": "friend", "tone": "sweet",
+			"attitude": "ordinary", "echo_ids": []}}
+	var expected := {"en": ["Priscilla / Day 1", "Ready to begin."],
+		"zh_CN": ["Priscilla / 第 1 天", "准备开始。"],
+		"zh_HK": ["Priscilla / 第 1 天", "準備開始。"],
+		"ja": ["Priscilla / 1日目", "開始の準備ができました。"],
+		"ko": ["Priscilla / 1일째", "시작할 준비가 되었습니다."]}
+	for locale: String in expected:
+		var copy: Dictionary = CATALOG.reached_presentation_copy(signature, locale)
+		assert_true(copy.ok)
+		assert_eq(copy.value, {"title": expected[locale][0], "body": expected[locale][1]})

@@ -70,6 +70,12 @@ class FakeOwner extends RefCounted:
 		var g := _guard("apply_route_restore_silent")
 		if not g.is_empty(): return g
 		return {"ok": true, "value": {"route_ready_token": plan.get("route_ready_token", {"route_id": "main", "layout_id": "main_layout", "generation": 1})}}
+	func apply_continuation_remap_silent(transaction: String, allocation: Dictionary, source: Dictionary) -> Dictionary:
+		_r("apply_continuation_remap_silent")
+		return {"ok": true, "value": {"transaction": transaction, "allocation": allocation, "source": source}}
+	func validate_scene_event_snapshot(snapshot: Dictionary) -> Dictionary:
+		_r("validate_scene_event_snapshot")
+		return {"ok": snapshot == {"run_id": "r"}}
 	func capture_restore_state() -> Dictionary:
 		_r("capture_restore_state")
 		return {"ok": true, "value": {"backup": id}}
@@ -117,12 +123,15 @@ func test_run_participant_prepare_and_delegation() -> void:
 	var witnessed_run: Dictionary = participant.prepare_new_run("run-c", "branch-c", 0, "causal-day-b", receipt, true, witnessed_forms)
 	assert_true(witnessed_run["ok"], JSON.stringify(witnessed_run))
 	assert_eq(owner.received_pair_witnessed_forms, witnessed_forms, "Previously witnessed pair forms reach the new-run owner unchanged.")
+	assert_eq(participant.apply_continuation_remap("tx", {"branch": "next"}, {"branch": "prior"}),
+		{"ok": true, "value": {"transaction": "tx", "allocation": {"branch": "next"}, "source": {"branch": "prior"}}})
 	assert_true(participant.capture()["ok"])
 	assert_true(participant.apply_silent({})["ok"])
 	assert_true(participant.rollback_silent({})["ok"])
 	assert_true(participant.finalize()["ok"])
 	assert_eq(log.for_participant("run"), [
-		"prepare_new_run_snapshot_input", "prepare_new_run_snapshot_input", "capture_restore_state",
+		"validate_scene_event_snapshot", "prepare_new_run_snapshot_input", "prepare_new_run_snapshot_input",
+		"apply_continuation_remap_silent", "capture_restore_state",
 		"apply_restore_silent", "rollback_restore_silent", "finalize_restore",
 	])
 

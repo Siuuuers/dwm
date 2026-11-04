@@ -19,16 +19,6 @@ const SAVE_CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManager
 const MINESWEEPER_ROUND_COORDINATOR_APP := preload("res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd")
 const DESKTOP_PUBLICATION_LEDGER := preload("res://scripts/infrastructure/save/DesktopPublicationLedger.gd")
 
-const EXPECTED_RESTORE_ORDER: Array[StringName] = [
-	&"identity_allocation", &"run", &"desktop_consequence", &"desktop_board",
-	&"schedule_view", &"profile", &"localization", &"audio", &"route", &"narrative",
-]
-const EXPECTED_RESTORE_PARTICIPANT_KEYS: Array[String] = [
-	"identity_allocation", "run", "desktop_consequence", "desktop_board",
-	"schedule_view", "profile", "localization", "audio", "route", "narrative",
-]
-
-
 var _bootstrap: Node = null
 var _game_state: Node = null
 var _issuer: RefCounted = null
@@ -104,12 +94,6 @@ func _build_desktop_graph(saved_root: String = "") -> Dictionary:
 	var storage: RefCounted = JSON_STORAGE.new(_isolated_root() if saved_root.is_empty() else saved_root)
 	assert_true(save_manager.call(&"initialize", storage).get("ok", false))
 	assert_true(save_manager.call(&"configure_identity_issuer", _issuer).get("ok", false))
-	var allocation_participant: RefCounted = load(
-		"res://scripts/application/restore/DesktopIdentityAllocationRestoreParticipant.gd").new(
-		_issuer, save_manager)
-	assert_true(save_manager.call(
-		&"configure_identity_allocation_participant", allocation_participant).get("ok", false))
-	_bootstrap.set("_desktop_identity_allocation_participant", allocation_participant)
 	var targets: Dictionary = _bootstrap.get("targets")
 	targets["ProfileManager"] = profile
 	targets["LocalizationManager"] = localization
@@ -206,20 +190,14 @@ func test_snapshot_provider_instance_id_equals_game_state() -> void:
 	assert_eq(int(state["snapshot_provider_instance_id"]), _game_state.get_instance_id())
 	assert_true(_game_state.has_method("capture_run_snapshot_input"))
 
-func test_the_probe_names_identity_allocation_plus_the_nine_participant_keys() -> void:
-	if _root.is_empty():
-		return
+func test_current_restore_graph_retains_exactly_eight_participants() -> void:
 	_build_desktop_graph()
-	var state: Dictionary = _bootstrap.get_desktop_contract_state()
-	assert_eq(state["restore_order"], EXPECTED_RESTORE_ORDER)
-	var participant_ids: Dictionary = state["restore_participant_instance_ids"]
-	var keys: Array = participant_ids.keys()
+	var participants: Dictionary = _bootstrap._retained_restore_participants
+	var keys: Array = participants.keys()
 	keys.sort()
-	var expected := EXPECTED_RESTORE_PARTICIPANT_KEYS.duplicate()
-	expected.sort()
-	assert_eq(keys, expected)
-	for key: String in EXPECTED_RESTORE_PARTICIPANT_KEYS:
-		assert_true(int(participant_ids[key]) != 0, key + " must name a retained participant")
+	assert_eq(keys, ["audio", "desktop_board", "desktop_consequence", "localization", "narrative", "profile", "route", "run"])
+	for participant: Object in participants.values():
+		assert_true(is_instance_valid(participant))
 
 func after_each() -> void:
 	_scene_validation_scope.restore()

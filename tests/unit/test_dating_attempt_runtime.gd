@@ -37,26 +37,6 @@ class PreparationGeneration extends "res://tests/support/FakeMinesweeperGenerati
 			"layout": {"schema_version": 1, "width": int(spec.width), "height": int(spec.height),
 				"mine_indices": mines, "mine_count": mines.size()}}}
 
-class PostRenderPort extends RefCounted:
-	var physical: RefCounted
-	var narrative := preload("res://tests/support/FakeDatingNarrativePlayback.gd").new()
-	func begin(_command: Dictionary) -> Dictionary: return {"ok": true}
-	func complete(_command: Dictionary) -> Dictionary: return {"ok": false}
-	func pull_physical(value: Dictionary) -> Dictionary:
-		return physical.pull_physical(value.physical_token)
-	func dispatch_physical(value: Dictionary, action: String, index: int, revision: int) -> Dictionary:
-		var phase: String = str(physical.pull_physical(value.physical_token).value.phase)
-		var result: Dictionary = physical.dispatch_physical(value.physical_token, action, index, revision)
-		if result.get("ok", false) and action == "continue" and phase in ["pre_challenge", "post_challenge"]:
-			narrative.finish_phase(value, phase)
-		return result
-	func begin_narrative_phase(value: Dictionary, retry: bool = false) -> Dictionary:
-		return narrative.begin_phase(value, str(physical.pull_physical(value.physical_token).value.phase), retry)
-	func pull_narrative_phase(value: Dictionary) -> Dictionary:
-		return narrative.pull_phase(value, str(physical.pull_physical(value.physical_token).value.phase))
-	func acknowledge_post_challenge_render(value: Dictionary) -> Dictionary:
-		return physical.acknowledge_post_challenge_render(value.physical_token)
-
 var state: Node
 var profile: Node
 var storage: ProfileStorage
@@ -1067,38 +1047,6 @@ func test_failed_terminal_checkpoint_cannot_record_post_until_exact_retry_is_sav
 	assert_eq(_record().phase, "post_challenge")
 	assert_true(physical_owner.acknowledge_post_challenge_render(command.physical_token).ok)
 	assert_eq(profile.get_reached_presentations().value.records.size(), 1)
-
-func test_post_dtl_completion_gates_progression_and_start_failure_stays_retryable() -> void:
-	assert_true(_begin().ok)
-	_finish_solo()
-	var port := PostRenderPort.new()
-	port.physical = physical_owner
-	port.narrative.auto_complete = false
-	port.narrative.fail_begin = true
-	var scene: Control = load("res://scenes/dating/DatingScene.tscn").instantiate()
-	assert_true(scene.configure_presentation(port, command).ok)
-	add_child_autofree(scene)
-	scene.set_process(false)
-	scene._process(0.0)
-	assert_eq(_record().phase, "post_challenge")
-	assert_true(scene._narrative_failed)
-	assert_true(scene._continue_button.visible)
-	assert_eq(scene._continue_button.text, "Retry")
-	assert_eq(port.narrative.started.size(), 1)
-	scene._process(0.0)
-	assert_eq(port.narrative.started.size(), 1, "a failed start is not retried every frame")
-	scene._status_label.draw.emit()
-	assert_eq(profile.get_reached_presentations().value.records, [], "a title draw is not witnessed dialogue")
-	port.narrative.fail_begin = false
-	scene._continue_button.pressed.emit()
-	assert_false(scene._narrative_failed)
-	assert_eq(_record().phase, "post_challenge", "a playing DTL cannot be bypassed")
-	assert_false(scene._continue_button.visible)
-	assert_eq(port.narrative.started.size(), 2)
-	port.narrative.finish()
-	scene._process(0.0)
-	assert_eq(_record().phase, "completed", "natural DTL completion advances automatically")
-	assert_eq(profile.get_reached_presentations().value.records, [], "an empty fixture grants no prose receipt")
 
 func _begin_post_ending_preparation(label: String) -> Dictionary:
 	_milestone()

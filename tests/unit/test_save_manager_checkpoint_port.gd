@@ -16,6 +16,20 @@ const CONSEQUENCE_STATE_PATH := "res://scripts/domain/desktop/DesktopConsequence
 const CONSEQUENCE_STATE := preload(CONSEQUENCE_STATE_PATH)
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
+var _scene_fixture: RefCounted
+var _scene_scope: RefCounted
+
+func before_all() -> void:
+	_scene_scope = preload("res://tests/support/SceneValidationScope.gd").new()
+	_scene_scope.install(true)
+	_scene_fixture = preload("res://tests/support/SceneRunSaveFixture.gd").new()
+	var setup: Dictionary = _scene_fixture.setup(get_tree())
+	assert_true(setup.ok, str(setup))
+
+func after_all() -> void:
+	if _scene_fixture != null: _scene_fixture.close()
+	if _scene_scope != null: _scene_scope.restore()
+
 func _canonical_text(value: Variant) -> String:
 	var emitted: Dictionary = CANONICAL_JSON.stringify(value)
 	assert_true(emitted.get("ok", false), str(emitted))
@@ -763,27 +777,31 @@ func test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_
 
 
 func _completion_snapshot() -> Dictionary:
-	var raw: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
-		FileAccess.get_file_as_string("res://tests/fixtures/saves/v7_desktop_prepared.json"))["value"]
-	raw["schema_version"] = preload("res://scripts/domain/run/RunSnapshotSchema.gd").SCHEMA_VERSION
-	return preload("res://scripts/domain/run/RunSnapshotSchema.gd").validate(raw)["value"]["candidate"]
+	return _scene_fixture.snapshot.duplicate(true)
 
 
 func _checkpoint_inputs(snapshot: Dictionary) -> Dictionary:
 	var snapshot_input := {}
-	for key: String in ["lifecycle", "gameplay", "contacts", "committed_schedule", "dating",
-			"applied_effect_transaction_ids", "applied_variable_transaction_ids", "desktop", "schedule_view",
-			"command_receipts"]:
-		snapshot_input[key] = snapshot[key]
-	return {"snapshot_input": snapshot_input, "dialogic_checkpoint": {}, "route_id": "main",
-		"active_app_id": snapshot["active_app_id"], "audio_context": snapshot["audio_context"],
-		"content_version": snapshot["content_version"]}
+	for key: String in ["lifecycle", "gameplay", "contacts", "desktop", "scene"]:
+		snapshot_input[key] = snapshot[key].duplicate(true)
+	snapshot_input.applied_effect_transaction_ids = []
+	snapshot_input.applied_variable_transaction_ids = []
+	snapshot_input.command_receipts = {}
+	var board := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd").new()
+	var prepared: Dictionary = board.prepare_player_restore_scene(snapshot.desktop.board, _scene_fixture.issuer)
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return {}
+	assert_true(board.commit(prepared.value.candidate).ok)
+	snapshot_input.desktop.board = board.capture()
+	return {"snapshot_input": snapshot_input, "dialogic_checkpoint": snapshot.narrative_checkpoint,
+		"route_id": "scene", "active_app_id": null, "audio_context": {},
+		"content_version": snapshot.content_version}
 
 
 func _write_pending_for_snapshot(port: RefCounted, snapshot: Dictionary) -> void:
 	var state := _admitted_state_candidate("completed-round")
 	state["causal_day_instance"] = snapshot["lifecycle"]["causal_day_instance"]
-	state["causal_day_instance_issuer_receipt"] = snapshot["lifecycle"]["causal_day_instance_issuer_receipt"]
+	state["causal_day_instance_issuer_receipt"] = _scene_fixture.identity.causal_day_instance_issuer_receipt
 	state["pending"]["recovery_payload"]["action_receipt"] = snapshot["lifecycle"].duplicate(true)
 	var canonical: Dictionary = preload("res://scripts/validation/CanonicalJsonWriter.gd").stringify(
 		state["pending"]["recovery_payload"])
@@ -884,7 +902,7 @@ func _commit_autosave(wired: Dictionary, snapshot: Dictionary, money: int, dialo
 	var edited := snapshot.duplicate(true)
 	edited["gameplay"]["money"] = money
 	var inputs := _checkpoint_inputs(edited)
-	inputs["dialogic_checkpoint"] = dialogic
+	if not dialogic.is_empty(): inputs.snapshot_input.gameplay.story_flags = dialogic
 	var lease: Dictionary = wired["gate"].acquire(&"causal_transaction")
 	assert_true(lease.get("ok", false), JSON.stringify(lease))
 	var prepared: Dictionary = wired["port"].prepare(inputs, &"post_result",
@@ -909,46 +927,20 @@ func _assert_autosave_matches_full_writer(wired: Dictionary, candidate: Dictiona
 
 func test_autosave_bytes_equal_the_full_canonical_writer_across_three_commits() -> void:
 	var wired := _isolated_wired()
-	if wired.is_empty():
-		return
+	if wired.is_empty(): return
 	var snapshot := _completion_snapshot()
-	assert_true(wired["manager"]._journal.reset(str(snapshot["run_id"])).get("ok", false))
-	var first := _commit_autosave(wired, snapshot, 101)
-	_assert_autosave_matches_full_writer(wired, first, "first autosave")
-	var second := _commit_autosave(wired, snapshot, 202)
-	_assert_autosave_matches_full_writer(wired, second, "second autosave")
-	var third := _commit_autosave(wired, snapshot, 303)
-	var document: Dictionary = third["autosave_document"]
-	assert_eq((document["recovery_journal"] as Array).size(), 2, "the third autosave carries two earlier bundles")
-	# The law: bytes on disk == the whole-document writer over the same inputs the port used.
-	var journal_candidate: Dictionary = third["journal_candidate"]
-	var rebuilt: Dictionary = DOCUMENT_SCHEMA.build(&"autosave", null, &"automatic",
-		journal_candidate["current"], journal_candidate["earlier"])
-	assert_true(rebuilt.get("ok", false), JSON.stringify(rebuilt))
-	var expected := _canonical_text(rebuilt["value"]) + "\n"
-	var written := _written_autosave(wired)
-	_assert_same_bytes(written, expected.to_utf8_buffer(), "third autosave vs SaveDocumentSchema.build + full writer")
-	_assert_autosave_matches_full_writer(wired, third, "third autosave vs candidate document")
-	# Reuse premise on real data: the journal's private duplicates of commits 1 and 2 stringify to
-	# exactly the current_snapshot text regions those commits wrote, and the third document is the
-	# envelope composed around them.
-	var first_current := _canonical_text((first["autosave_document"] as Dictionary)["current_snapshot"])
-	var second_current := _canonical_text((second["autosave_document"] as Dictionary)["current_snapshot"])
-	var third_current := _canonical_text(document["current_snapshot"])
-	assert_ne(first_current, second_current, "consecutive bundles differ, so reuse is observable")
-	assert_true(_canonical_text((document["recovery_journal"] as Array)[0]) == first_current,
-		"recovery_journal[0] text equals the first commit's current_snapshot text")
-	assert_true(_canonical_text((document["recovery_journal"] as Array)[1]) == second_current,
-		"recovery_journal[1] text equals the second commit's current_snapshot text")
-	var composed := "{\"current_snapshot\":" + third_current + ",\"kind\":\"autosave\",\"recovery_journal\":[" \
-		+ first_current + "," + second_current + "],\"save_reason\":\"automatic\",\"schema_version\":8,\"slot_id\":null}\n"
-	_assert_same_bytes(written, composed.to_utf8_buffer(), "third autosave equals the envelope composed around the reused regions")
-	var text := written.get_string_from_utf8()
-	assert_eq(text.count(first_current), 1, "the first bundle's text appears exactly once in the third document")
+	assert_true(wired.manager._journal.reset(snapshot.run_id).ok)
+	for money: int in [101, 202, 303]:
+		var candidate := _commit_autosave(wired, snapshot, money)
+		assert_eq(candidate.autosave_document.recovery_journal, [])
+		var current: Dictionary = candidate.journal_candidate.current
+		var rebuilt: Dictionary = DOCUMENT_SCHEMA.build(&"autosave", null, &"automatic", current, [])
+		assert_true(rebuilt.ok, str(rebuilt))
+		_assert_same_bytes(_written_autosave(wired), (_canonical_text(rebuilt.value) + "\n").to_utf8_buffer(),
+			"current Scene save equals the full canonical writer")
+		_assert_autosave_matches_full_writer(wired, candidate, "current Scene save")
 
 
-## A snapshot whose strings equal the splice sentinels (so every sentinel token appears verbatim
-## inside the reused bundle texts) must still produce bytes equal to the full writer.
 func test_autosave_bytes_survive_snapshot_strings_equal_to_splice_sentinels() -> void:
 	var wired := _isolated_wired()
 	if wired.is_empty():
@@ -967,94 +959,9 @@ func test_autosave_bytes_survive_snapshot_strings_equal_to_splice_sentinels() ->
 	var second := _commit_autosave(wired, snapshot, 22, poisoned)
 	_assert_autosave_matches_full_writer(wired, second, "poisoned second autosave (journal-0 text contains every token)")
 	var third := _commit_autosave(wired, snapshot, 33, poisoned)
-	assert_eq(((third["autosave_document"] as Dictionary)["recovery_journal"] as Array).size(), 2)
+	assert_eq(((third["autosave_document"] as Dictionary)["recovery_journal"] as Array).size(), 0)
 	_assert_autosave_matches_full_writer(wired, third, "poisoned third autosave (both journal texts contain every token)")
 
-
-## A journal seeded from disk holds bundles whose canonical text nobody remembered; the port must
-## still write bytes equal to the full writer. One earlier bundle carries a non-integral float so the
-## whole document is ineligible for the writer's native encoder while the new current bundle is not.
-func test_seeded_journal_without_remembered_texts_writes_full_writer_bytes() -> void:
-	var wired := _isolated_wired()
-	if wired.is_empty():
-		return
-	var snapshot := _completion_snapshot()
-	var bundles: Array = []
-	for sequence: int in [1, 2, 3]:
-		var copy := snapshot.duplicate(true)
-		copy["checkpoint_sequence"] = sequence
-		copy["checkpoint_id"] = "%s:%d" % [str(snapshot["run_id"]), sequence]
-		copy["gameplay"]["money"] = sequence * 100
-		if sequence == 2:
-			copy["narrative_checkpoint"] = {"probe": 0.1}
-		bundles.append({"checkpoint_kind": "post_result", "snapshot": copy})
-	var seed_document: Dictionary = DOCUMENT_SCHEMA.build(&"autosave", null, &"automatic",
-		bundles[2], [bundles[0], bundles[1]])
-	assert_true(seed_document.get("ok", false), JSON.stringify(seed_document))
-	var journal: RefCounted = wired["manager"]._journal
-	var seeded: Dictionary = journal.prepare_seed(seed_document["value"], bundles[2])
-	assert_true(seeded.get("ok", false), JSON.stringify(seeded))
-	assert_true(journal.commit_prepared(seeded["value"]["candidate"]).get("ok", false))
-	assert_eq((journal.get_bundles_for_disk() as Array).size(), 2, "the seed retained both earlier bundles")
-	assert_eq(journal.get_retained_bundle_text(str(snapshot["run_id"]) + ":2"), "",
-		"a cold seed starts without any byte proof")
-	var candidate := _commit_autosave(wired, snapshot, 444)
-	var document: Dictionary = candidate["autosave_document"]
-	assert_eq((document["recovery_journal"] as Array).size(), 2)
-	assert_eq(str((document["recovery_journal"] as Array)[0]["snapshot"]["checkpoint_id"]), str(snapshot["run_id"]) + ":2")
-	assert_eq(str((document["recovery_journal"] as Array)[1]["snapshot"]["checkpoint_id"]), str(snapshot["run_id"]) + ":3")
-	assert_true(CANONICAL_JSON._can_use_native_encoder(document["current_snapshot"]),
-		"the new current bundle is native-eligible")
-	assert_false(CANONICAL_JSON._can_use_native_encoder(document),
-		"the whole document is not native-eligible (float in an earlier bundle)")
-	_assert_autosave_matches_full_writer(wired, candidate, "autosave after a seeded journal")
-	for bundle: Dictionary in document["recovery_journal"]:
-		var checkpoint_id := str(bundle.snapshot.checkpoint_id)
-		assert_eq(journal.get_retained_bundle_text(checkpoint_id), _canonical_text(bundle),
-			"the full durable write proves the cold retained bundle: " + checkpoint_id)
-	var warm := _commit_autosave(wired, snapshot, 555)
-	_assert_autosave_matches_full_writer(wired, warm, "autosave after cold history was durably proven")
-
-
-## The mixed encoding case on the SPLICE side: commit 1 carries a non-integral float (through
-## dialogic_checkpoint, which RunSnapshotSchema records as narrative_checkpoint), so from commit 2
-## on the whole document is ineligible for the writer's native encoder while each new current bundle
-## is eligible. Both earlier bundles still hold a remembered text, so the bytes were composed by the
-## splice -- not by the fallback the seeded test pins -- and must still equal the full writer.
-func test_autosave_bytes_equal_the_full_writer_when_an_earlier_bundle_is_not_native_eligible() -> void:
-	var wired := _isolated_wired()
-	if wired.is_empty():
-		return
-	var snapshot := _completion_snapshot()
-	assert_true(wired["manager"]._journal.reset(str(snapshot["run_id"])).get("ok", false))
-	var first := _commit_autosave(wired, snapshot, 111, {"probe": 0.1})
-	_assert_autosave_matches_full_writer(wired, first, "first autosave carries the non-integral float")
-	var second := _commit_autosave(wired, snapshot, 222)
-	_assert_autosave_matches_full_writer(wired, second, "second autosave splices the float-carrying bundle")
-	var third := _commit_autosave(wired, snapshot, 333)
-	var document: Dictionary = third["autosave_document"]
-	var earlier: Array = document["recovery_journal"]
-	assert_eq(earlier.size(), 2, "the third autosave carries two earlier bundles")
-	var journal: RefCounted = wired["manager"]._journal
-	for bundle: Dictionary in earlier:
-		var checkpoint_id := str((bundle["snapshot"] as Dictionary)["checkpoint_id"])
-		assert_ne(journal.get_retained_bundle_text(checkpoint_id), "",
-			"the splice path, not the fallback, composed these bytes: " + checkpoint_id + " is remembered")
-	assert_true(CANONICAL_JSON._can_use_native_encoder(document["current_snapshot"]),
-		"the new current bundle is native-eligible")
-	assert_false(CANONICAL_JSON._can_use_native_encoder(document),
-		"the whole document is not native-eligible (float in an earlier bundle)")
-	_assert_autosave_matches_full_writer(wired, third, "third autosave vs the whole-document writer")
-
-
-# -------------------------------------------------------------------------------------------------
-# settlement4 Step 2: the prepare side. SaveDocumentSchema.build re-validates and re-normalizes the
-# two retained journal bundles on every autosave (25-62 ms of each 35-76 ms prepare) although each
-# was proven at its own commit, so the journal now remembers the document bundle beside the proven
-# text and prepare hands those back as build()'s per-entry proofs. The bytes are unchanged -- the
-# three byte-equality rows above are that proof -- so what is pinned here is the wiring and the one
-# hazard it adds: a remembered document bundle that does not describe the bundle the journal kept.
-# -------------------------------------------------------------------------------------------------
 
 func test_committed_autosave_remembers_the_document_bundle_under_the_texts_own_gate() -> void:
 	var wired := _isolated_wired()
@@ -1109,29 +1016,6 @@ func test_committed_autosave_remembers_the_document_bundle_under_the_texts_own_g
 		"neither is the document bundle: the next save would compose this entry from a bundle these bytes do not describe")
 
 
-## The wiring produces byte-identical output, so the source is the observable, in the idiom of the
-## profile-record pin below: prepare must compose the journal entries from the journal's own proofs.
-func test_prepare_composes_the_autosave_journal_from_the_journals_own_proofs() -> void:
-	var source := FileAccess.get_file_as_string(CHECKPOINT_PORT_PATH)
-	assert_false(source.is_empty(), "the port source must be readable")
-	assert_true(source.contains("_journal().get_retained_bundle_document("),
-		"prepare() asks the journal for each retained bundle's proven document bundle")
-	assert_true(source.contains("{}, proven_journal, profile)"),
-		"...and hands them to SaveDocumentSchema.build() as its trailing proven journal")
-
-
-# -------------------------------------------------------------------------------------------------
-# Identity-preserving `_normalize_json_string_types` (click-latency Step 2). The normalizer allocates
-# a fresh Dictionary/Array for every node of every preimage even though the recovery_payload subtree
-# contains no StringName at all. Returning the ORIGINAL container when no descendant was converted
-# must change nothing a caller can observe: the result stays deep-equal (int and float provenance
-# included) to its input with every StringName turned into a String, the record the port stores must
-# still be fully detached from the caller's stage_candidate, and the port's own receipt attachment
-# must still be confined to the private tree `_validate_for_preimage()` already detached.
-# -------------------------------------------------------------------------------------------------
-
-## Independent, always-copying StringName -> String conversion. The row below compares the port's
-## normalization against THIS, so an identity-preserving implementation cannot supply its own oracle.
 func _as_json_string_types(value: Variant) -> Variant:
 	match typeof(value):
 		TYPE_STRING_NAME:
@@ -1322,177 +1206,6 @@ func test_spliced_normalization_preserves_validation_and_refusal_results() -> vo
 			wired.port._normalize_outgoing_document(document, false),
 			wired.port._normalize_json_string_types(document)), "cold path is unchanged: " + fault)
 
-
-func test_spliced_commit_uses_proven_history_even_when_caller_journal_is_edited() -> void:
-	var wired := _isolated_wired()
-	if wired.is_empty(): return
-	var snapshot := _completion_snapshot()
-	assert_true(wired.manager._journal.reset(str(snapshot.run_id)).get("ok", false))
-	_commit_autosave(wired, snapshot, 101)
-	_commit_autosave(wired, snapshot, 202)
-	var lease: Dictionary = wired.gate.acquire(&"causal_transaction")
-	assert_true(lease.get("ok", false))
-	var prepared: Dictionary = wired.port.prepare(_checkpoint_inputs(snapshot), &"post_result",
-		{"kind": &"autosave", "reason": &"automatic"})
-	assert_true(prepared.get("ok", false), str(prepared))
-	if prepared.get("ok", false):
-		var candidate: Dictionary = prepared.value.candidate
-		var expected := (_canonical_text(candidate.autosave_document) + "\n").to_utf8_buffer()
-		var forged: Dictionary = candidate.autosave_document.recovery_journal[0]
-		forged.snapshot.gameplay.money = 999
-		forged.snapshot.narrative_checkpoint[&"forged_history"] = &"must_not_be_written"
-		var committed: Dictionary = wired.port.commit(candidate)
-		assert_true(committed.get("ok", false), str(committed))
-		_assert_same_bytes(_written_autosave(wired), expected,
-			"journal-owned bytes and both semantic fallbacks remain exact after caller edits")
-		assert_eq(int(forged.snapshot.gameplay.money), 999, "caller journal stays untouched")
-	assert_true(wired.gate.release(&"causal_transaction", lease.value.token).get("ok", false))
-
-
-class HistoryProofFailureStorage:
-	extends "res://scripts/infrastructure/storage/JsonFileStorage.gd"
-	var failure_mode := ""
-	var completed_write := false
-
-	func _init(root_dir: String) -> void:
-		super(root_dir)
-
-	func write_atomic(relative_path: String, text: String, validator: Callable,
-			keep_backup: bool = true) -> Dictionary:
-		if failure_mode == "write":
-			return {"ok": false, "code": &"injected_write_failure"}
-		var result: Dictionary = super.write_atomic(relative_path, text, validator, keep_backup)
-		completed_write = result.get("ok", false)
-		return result
-
-	func read_text(relative_path: String) -> Dictionary:
-		if completed_write and failure_mode == "read":
-			return {"ok": false, "code": &"injected_read_failure"}
-		var result: Dictionary = super.read_text(relative_path)
-		if completed_write and failure_mode == "mismatch" and result.get("ok", false):
-			result["value"] = str(result["value"]) + "\n"
-		return result
-
-
-func _record_memory_history(wired: Dictionary, snapshot: Dictionary, kind: StringName) -> Dictionary:
-	var inputs := _checkpoint_inputs(snapshot)
-	inputs["dialogic_checkpoint"] = {"history_note": "kept"}
-	inputs["active_app_id"] = &"minesweeper"
-	var lease: Dictionary = wired.gate.acquire(&"causal_transaction")
-	assert_true(lease.get("ok", false), str(lease))
-	var prepared: Dictionary = wired.port.prepare(inputs, kind, {"kind": &"none", "reason": &"stage"})
-	assert_true(prepared.get("ok", false), str(prepared))
-	var bundle := {}
-	if prepared.get("ok", false):
-		assert_true(wired.port.commit(prepared.value.candidate).get("ok", false))
-		bundle = prepared.value.candidate.journal_candidate.current
-	assert_true(wired.gate.release(&"causal_transaction", lease.value.token).get("ok", false))
-	return bundle
-
-
-func test_full_autosave_proves_memory_only_history_for_the_next_splice() -> void:
-	var wired := _isolated_wired()
-	if wired.is_empty(): return
-	var snapshot := _completion_snapshot()
-	assert_true(wired.manager._journal.reset(str(snapshot.run_id)).get("ok", false))
-	for kind: StringName in [&"line", &"manual_save"]:
-		var bundle := _record_memory_history(wired, snapshot, kind)
-		assert_eq(typeof(bundle.snapshot.active_app_id), TYPE_STRING_NAME)
-		assert_eq(wired.manager._journal.get_retained_bundle_text(str(bundle.snapshot.checkpoint_id)), "",
-			"a memory-only record grants no durable proof")
-	var first := _commit_autosave(wired, snapshot, 301)
-	_assert_autosave_matches_full_writer(wired, first, "first durable full write")
-	for bundle: Dictionary in first.autosave_document.recovery_journal:
-		var checkpoint_id := str(bundle.snapshot.checkpoint_id)
-		assert_eq(wired.manager._journal.get_retained_bundle_text(checkpoint_id), _canonical_text(bundle))
-		assert_true(CANONICAL_JSON._deep_same(
-			wired.manager._journal.get_retained_bundle_document(checkpoint_id), bundle))
-		assert_eq(typeof(bundle.snapshot.active_app_id), TYPE_STRING,
-			"normalized written text agrees with retained engine StringName values")
-	var lease: Dictionary = wired.gate.acquire(&"causal_transaction")
-	assert_true(lease.get("ok", false))
-	var prepared: Dictionary = wired.port.prepare(_checkpoint_inputs(snapshot), &"post_result",
-		{"kind": &"autosave", "reason": &"automatic"})
-	assert_true(prepared.get("ok", false), str(prepared))
-	if prepared.get("ok", false):
-		var candidate: Dictionary = prepared.value.candidate
-		var document: Dictionary = candidate.autosave_document
-		var proofs: Array = []
-		var spliced: String = wired.port._splice_autosave_text(document,
-			_canonical_text(document.current_snapshot), proofs)
-		assert_eq(spliced, _canonical_text(document), "every actual retained entry now has an exact splice proof")
-		assert_eq(proofs.size(), document.recovery_journal.size())
-		assert_true(wired.port.commit(candidate).get("ok", false))
-		_assert_autosave_matches_full_writer(wired, candidate, "next write after warming history")
-	assert_true(wired.gate.release(&"causal_transaction", lease.value.token).get("ok", false))
-
-
-func test_history_proofs_require_successful_write_reread_and_journal_commit() -> void:
-	for failure: String in ["write", "read", "mismatch", "journal"]:
-		var wired := _isolated_wired()
-		if wired.is_empty(): return
-		var storage := HistoryProofFailureStorage.new(str(wired.root))
-		wired.manager._storage = storage
-		var snapshot := _completion_snapshot()
-		assert_true(wired.manager._journal.reset(str(snapshot.run_id)).get("ok", false))
-		var bundle := _record_memory_history(wired, snapshot, &"line")
-		var checkpoint_id := str(bundle.snapshot.checkpoint_id)
-		var lease: Dictionary = wired.gate.acquire(&"causal_transaction")
-		assert_true(lease.get("ok", false))
-		var prepared: Dictionary = wired.port.prepare(_checkpoint_inputs(snapshot), &"post_result",
-			{"kind": &"autosave", "reason": &"automatic"})
-		assert_true(prepared.get("ok", false), str(prepared))
-		if prepared.get("ok", false):
-			var candidate: Dictionary = prepared.value.candidate
-			storage.failure_mode = failure
-			if failure == "journal": candidate.journal_candidate.next_sequence += 1
-			var committed: Dictionary = wired.port.commit(candidate)
-			assert_false(committed.get("ok", true), failure)
-			var expected_codes := {"write": &"injected_write_failure", "read": &"injected_read_failure",
-				"mismatch": &"reread_mismatch", "journal": &"invalid_candidate"}
-			assert_eq(committed.get("code"), expected_codes[failure], failure)
-			assert_eq(storage.completed_write, failure != "write", "failure occurs at its intended gate")
-			assert_eq(wired.manager._journal.get_retained_bundle_text(checkpoint_id), "", failure)
-			assert_true(wired.manager._journal.get_retained_bundle_document(checkpoint_id).is_empty(), failure)
-			assert_eq(wired.manager._journal.get_retained_bundle_text(str(candidate.checkpoint_id)), "", failure)
-		assert_true(wired.gate.release(&"causal_transaction", lease.value.token).get("ok", false))
-
-
-func test_full_write_history_edits_never_prove_a_different_retained_bundle() -> void:
-	for edit: String in ["value", "float", "both_float", "malformed", "during_write"]:
-		var wired := _isolated_wired()
-		if wired.is_empty(): return
-		var snapshot := _completion_snapshot()
-		assert_true(wired.manager._journal.reset(str(snapshot.run_id)).get("ok", false))
-		var recorded := _record_memory_history(wired, snapshot, &"line")
-		var checkpoint_id := str(recorded.snapshot.checkpoint_id)
-		var lease: Dictionary = wired.gate.acquire(&"causal_transaction")
-		assert_true(lease.get("ok", false))
-		var prepared: Dictionary = wired.port.prepare(_checkpoint_inputs(snapshot), &"post_result",
-			{"kind": &"autosave", "reason": &"automatic"})
-		assert_true(prepared.get("ok", false), str(prepared))
-		if prepared.get("ok", false):
-			var candidate: Dictionary = prepared.value.candidate
-			var historical: Dictionary = candidate.autosave_document.recovery_journal[0]
-			match edit:
-				"value": historical.snapshot.content_version += 100
-				"float": historical.snapshot.content_version = float(historical.snapshot.content_version)
-				"both_float":
-					historical.snapshot.content_version = float(historical.snapshot.content_version)
-					candidate.journal_candidate.earlier[0].snapshot.content_version = historical.snapshot.content_version
-				"malformed": candidate.autosave_document.recovery_journal[0] = {}
-				"during_write":
-					assert_true(wired.manager._storage.configure_before_write(func() -> Dictionary:
-						historical.snapshot.content_version += 100
-						candidate.journal_candidate.earlier[0].snapshot.content_version += 100
-						return {"ok": true}).get("ok", false))
-			var expected := (_canonical_text(candidate.autosave_document) + "\n").to_utf8_buffer()
-			var committed: Dictionary = wired.port.commit(candidate)
-			assert_true(committed.get("ok", false), edit + ": " + str(committed))
-			_assert_same_bytes(_written_autosave(wired), expected, "full writer stays authoritative: " + edit)
-			assert_eq(wired.manager._journal.get_retained_bundle_text(checkpoint_id), "", edit)
-			assert_true(wired.manager._journal.get_retained_bundle_document(checkpoint_id).is_empty(), edit)
-		assert_true(wired.gate.release(&"causal_transaction", lease.value.token).get("ok", false))
 
 func test_storage_rollback_failure_retains_sparse_owner_diagnostic() -> void:
 	var f := _isolated_wired()

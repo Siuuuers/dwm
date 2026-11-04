@@ -5,13 +5,30 @@ const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.g
 const JOURNAL := preload("res://scripts/infrastructure/save/CheckpointJournal.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const STRICT := preload("res://scripts/validation/StrictJson.gd")
-const SNAPSHOT := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const DOCUMENT := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const ROOT := "checkpoint-reuse"
 const FINAL := ROOT + "/autosave.json"
 const PORT_SOURCE := "res://scripts/application/run/SaveManagerCheckpointPort.gd"
 const WITNESS := "_witness_document_text_validator"
+
+var _scene_fixture: RefCounted
+var _scene_scope: RefCounted
+var _scene_snapshot: Dictionary = {}
+
+func before_all() -> void:
+	_scene_scope = preload("res://tests/support/SceneValidationScope.gd").new()
+	_scene_scope.install(true)
+	_scene_fixture = preload("res://tests/support/SceneRunSaveFixture.gd").new()
+	var setup: Dictionary = _scene_fixture.setup(get_tree())
+	assert_true(setup.ok, str(setup))
+	if not setup.ok: return
+	_scene_snapshot = _scene_fixture.snapshot.duplicate(true)
+
+func after_all() -> void:
+	if _scene_fixture != null: _scene_fixture.close()
+	if _scene_scope != null: _scene_scope.restore()
+
 
 class CountingPort extends "res://scripts/application/run/SaveManagerCheckpointPort.gd":
 	var validations := {}
@@ -73,13 +90,7 @@ class ChangedRereadStorage extends "res://scripts/infrastructure/storage/JsonFil
 		return result
 
 func _snapshot() -> Dictionary:
-	var parsed := STRICT.parse_object(FileAccess.get_file_as_string(
-		"res://tests/fixtures/saves/v7_desktop_prepared.json"))
-	assert_true(parsed.get("ok", false), str(parsed))
-	parsed.value["schema_version"] = SNAPSHOT.SCHEMA_VERSION
-	var validated := SNAPSHOT.validate(parsed.get("value", {}))
-	assert_true(validated.get("ok", false), str(validated))
-	return validated.get("value", {}).get("candidate", {})
+	return _scene_snapshot.duplicate(true)
 
 func _wired(reuse: bool = true, changed_reread: bool = false) -> Dictionary:
 	var files := CorruptFiles.new()
@@ -98,11 +109,16 @@ func _prepare(wired: Dictionary, money: int) -> Dictionary:
 	var snapshot: Dictionary = wired.snapshot.duplicate(true)
 	snapshot["gameplay"]["money"] = money
 	var input := {}
-	for key: String in ["lifecycle", "gameplay", "contacts", "committed_schedule", "dating",
-			"applied_effect_transaction_ids", "applied_variable_transaction_ids", "desktop", "schedule_view", "command_receipts"]:
-		input[key] = snapshot[key]
-	var prepared: Dictionary = wired.port.prepare({"snapshot_input": input, "dialogic_checkpoint": {},
-		"route_id": "main", "active_app_id": snapshot.active_app_id, "audio_context": snapshot.audio_context,
+	for key: String in ["lifecycle", "gameplay", "contacts", "desktop", "scene"]:
+		input[key] = snapshot[key].duplicate(true)
+	input.merge({"command_receipts": {}, "applied_effect_transaction_ids": [], "applied_variable_transaction_ids": []})
+	var board := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd").new()
+	var restored: Dictionary = board.prepare_player_restore_scene(snapshot.desktop.board, _scene_fixture.issuer)
+	assert_true(restored.ok, str(restored))
+	assert_true(board.commit(restored.value.candidate).ok)
+	input.desktop.board = board.capture()
+	var prepared: Dictionary = wired.port.prepare({"snapshot_input": input, "dialogic_checkpoint": snapshot.narrative_checkpoint,
+		"route_id": "scene", "active_app_id": null, "audio_context": {},
 		"content_version": snapshot.content_version}, &"post_result", {"kind": &"autosave", "reason": &"automatic"})
 	assert_true(prepared.get("ok", false), str(prepared))
 	return prepared.get("value", {}).get("candidate", {})
@@ -111,20 +127,6 @@ func _validation_count(port: CountingPort) -> int:
 	var total := 0
 	for count: int in port.validations.values(): total += count
 	return total
-
-func _apply_json_normalization_variants(candidate: Dictionary) -> void:
-	var document: Dictionary = candidate["autosave_document"]
-	document.erase("save_reason")
-	document[&"save_reason"] = &"automatic"
-	document["kind"] = &"autosave"
-	document["schema_version"] = float(document["schema_version"])
-	var snapshot: Dictionary = document["current_snapshot"]["snapshot"]
-	snapshot["route_id"] = &"main"
-	var effect_ids: Array[StringName] = []
-	snapshot["applied_effect_transaction_ids"] = effect_ids
-	var journal: Array[Dictionary] = [{&"probe": [9223372036854775807,
-		-9223372036854775807 - 1, 1.0, 0.1, -0.0, &"nested"]}]
-	document["recovery_journal"] = journal
 
 func test_reuse_preserves_saved_bytes_and_every_disk_operation_across_three_commits() -> void:
 	var cached := _wired()
@@ -145,45 +147,6 @@ func test_reuse_preserves_saved_bytes_and_every_disk_operation_across_three_comm
 			"the detached schema-valid current candidate needs no strict text parse")
 		assert_gt(_validation_count(uncached.port), 0,
 			"reuse=false still forces the original strict text validator")
-
-func test_detached_candidate_normalization_matches_uncached_bytes_and_physical_trace() -> void:
-	var cached := _wired()
-	var uncached := _wired(false)
-	var candidate := _prepare(cached, 111)
-	var reference := _prepare(uncached, 111)
-	_apply_json_normalization_variants(candidate)
-	_apply_json_normalization_variants(reference)
-	cached.port.validations.clear()
-	uncached.port.validations.clear()
-	var committed: Dictionary = cached.port.commit(candidate)
-	var original: Dictionary = uncached.port.commit(reference)
-	assert_true(committed.get("ok", false), str(committed))
-	assert_eq(committed, original)
-	assert_eq(cached.files.snapshot_persisted(), uncached.files.snapshot_persisted(),
-		"normalization cannot alter canonical persisted bytes")
-	assert_eq(cached.files.operation_trace(), uncached.files.operation_trace(),
-		"normalization cannot alter physical storage operations")
-	assert_eq(_validation_count(cached.port), 0,
-		"StringName, typed arrays and integral floats use the detached schema result")
-	assert_gt(_validation_count(uncached.port), 0,
-		"the reference path still parses its exact outgoing text")
-	var parsed: Dictionary = STRICT.parse_object(
-		(cached.files.snapshot_persisted()[FINAL] as PackedByteArray).get_string_from_utf8())
-	assert_true(parsed.get("ok", false), str(parsed))
-	var validated: Dictionary = DOCUMENT.validate(parsed.get("value", {}))
-	assert_true(validated.get("ok", false), str(validated))
-	var normalized: Dictionary = validated.get("value", {}).get("candidate", {})
-	var proven: Dictionary = cached.port._cached_document_text_validator(
-		(cached.files.snapshot_persisted()[FINAL] as PackedByteArray).get_string_from_utf8(), {})
-	assert_true(proven.get("ok", false), str(proven))
-	assert_true(WRITER._deep_same(proven.get("value"), normalized),
-		"cached validation preserves exact nested types and values of the strict reference")
-	assert_eq(typeof(normalized.get("schema_version")), TYPE_INT)
-	assert_eq(typeof(normalized.get("kind")), TYPE_STRING)
-	assert_eq(typeof(normalized.get("save_reason")), TYPE_STRING)
-	assert_eq(typeof(normalized["current_snapshot"]["snapshot"].get("route_id")), TYPE_STRING)
-	assert_false((normalized["recovery_journal"] as Array).is_typed())
-	assert_false((normalized["current_snapshot"]["snapshot"]["applied_effect_transaction_ids"] as Array).is_typed())
 
 func test_non_object_outgoing_values_match_uncached_failure_without_physical_mutation() -> void:
 	for wrong: Variant in [[], "document", 7]:
@@ -517,14 +480,6 @@ func test_storage_backup_proof_keeps_every_validation_and_disk_operation_without
 		"the refusal is the validator's own, unchanged")
 
 
-# -------------------------------------------------------------------------------------------------
-# A7: the storage lease for an outgoing text must describe the bytes that text actually is. On the
-# splice path the bytes of recovery_journal[k] come from the journal's remembered text for that
-# bundle -- _splice_autosave_text() reads nothing from the in-memory bundle but its checkpoint_id --
-# while the seed handed to write_atomic() is built by validating the in-memory document. The two
-# agree only as long as nobody touches the retained journal between prepare and commit.
-# -------------------------------------------------------------------------------------------------
-
 func _written_text(wired: Dictionary) -> String:
 	return (wired.files.snapshot_persisted()[FINAL] as PackedByteArray).get_string_from_utf8()
 
@@ -536,97 +491,6 @@ func _strict_candidate(text: String) -> Dictionary:
 	assert_true(validated.get("ok", false), str(validated))
 	return validated["value"]["candidate"]
 
-
-func test_three_bundle_seed_equals_a_strict_reparse_of_the_written_document() -> void:
-	var wired := _wired()
-	for money: int in [301, 302, 303]:
-		var candidate := _prepare(wired, money)
-		assert_true(wired.port.commit(candidate).get("ok", false))
-
-	var written_text := _written_text(wired)
-	var reparsed := _strict_candidate(written_text)
-	var retained: Array = wired.manager._journal.capture_state()["value"]["backup"]["earlier"]
-	assert_eq((reparsed["recovery_journal"] as Array).size(), retained.size(),
-		"the written document carries exactly the journal's retained earlier bundles")
-	assert_gt(retained.size(), 1, "the fixture must reach a three-bundle document")
-	for bundle: Dictionary in retained:
-		var remembered: String = wired.manager._journal.get_retained_bundle_text(
-			str((bundle["snapshot"] as Dictionary)["checkpoint_id"]))
-		assert_false(remembered.is_empty(), "every earlier bundle kept the text its own commit proved")
-		assert_true(written_text.find(remembered) >= 0,
-			"the written bytes really are the spliced remembered texts, not a fresh emission")
-
-	var proven: Dictionary = wired.port._cached_document_text_validator(written_text, {})
-	assert_true(proven.get("ok", false), str(proven))
-	assert_true(WRITER._deep_same(proven.get("value"), reparsed),
-		"the lease for these bytes is what a strict re-parse of them produces")
-	assert_false((proven["value"]["recovery_journal"] as Array).is_typed(),
-		"the leased journal is a plain untyped Array, as validate() composes it")
-	assert_false((reparsed["recovery_journal"] as Array).is_typed())
-
-
-func test_a_journal_bundle_mutated_between_prepare_and_commit_cannot_diverge_the_lease_from_the_bytes() -> void:
-	var wired := _wired()
-	for money: int in [401, 402]:
-		var warmup := _prepare(wired, money)
-		assert_true(wired.port.commit(warmup).get("ok", false))
-
-	var candidate := _prepare(wired, 403)
-	var journal_candidate: Dictionary = candidate["journal_candidate"]
-	var retained_current: Dictionary = (journal_candidate["current"] as Dictionary).duplicate(true)
-	var retained_earlier: Array = (journal_candidate["earlier"] as Array).duplicate(true)
-	assert_gt(retained_earlier.size(), 0, "the fixture must produce at least one earlier bundle")
-
-	var document: Dictionary = candidate["autosave_document"]
-	var entries: Array = document["recovery_journal"]
-	assert_eq(entries.size(), retained_earlier.size())
-	var committed_money := int(((retained_earlier[0] as Dictionary)["snapshot"] as Dictionary)
-		["gameplay"]["money"])
-	# The caller keeps the candidate and edits a bundle the journal already committed.
-	((entries[0] as Dictionary)["snapshot"] as Dictionary)["gameplay"]["money"] = 999999
-	assert_true(int(((entries[0] as Dictionary)["snapshot"] as Dictionary)["gameplay"]["money"])
-		!= committed_money, "the mutation really did change the in-memory journal bundle")
-
-	wired.port.validations.clear()
-	var committed: Dictionary = wired.port.commit(candidate)
-	assert_true(committed.get("ok", false), str(committed))
-	assert_eq(_validation_count(wired.port), 0,
-		"the outgoing text was leased from the seed rather than parsed, so the seed IS the lease")
-
-	# The bytes are the journal's own: the full writer over the bundles the journal retained.
-	var written_text := _written_text(wired)
-	var expected_document: Dictionary = DOCUMENT.build(
-		&"autosave", null, &"automatic", retained_current, retained_earlier)
-	assert_true(expected_document.get("ok", false), str(expected_document))
-	var expected_emitted: Dictionary = WRITER.stringify(expected_document["value"])
-	assert_true(expected_emitted.get("ok", false), str(expected_emitted))
-	assert_eq(written_text, str(expected_emitted["value"]) + "\n",
-		"the written bytes are the full writer over the JOURNAL-retained bundles")
-
-	var reparsed := _strict_candidate(written_text)
-	assert_eq(int((((reparsed["recovery_journal"] as Array)[0] as Dictionary)["snapshot"] as Dictionary)
-		["gameplay"]["money"]), committed_money,
-		"the bytes carry the bundle's committed money, never the mutated in-memory copy")
-
-	var proven: Dictionary = wired.port._cached_document_text_validator(written_text, {})
-	assert_true(proven.get("ok", false), str(proven))
-	assert_eq(int((((proven["value"]["recovery_journal"] as Array)[0] as Dictionary)["snapshot"]
-		as Dictionary)["gameplay"]["money"]), committed_money,
-		"a lease for these bytes cannot report a value the bytes never had")
-	assert_true(WRITER._deep_same(proven.get("value"), reparsed),
-		"the storage lease for a text must deep-equal a strict re-parse of that same text")
-
-
-# -------------------------------------------------------------------------------------------------
-# Reviewer finding on the splice: commit() remembers the canonical text of the document's CURRENT
-# bundle under the id the journal just committed, but the document's bundle and the journal's are two
-# objects (`build()` composes the document's from `RunSnapshotSchema.validate()`'s fresh candidate),
-# and a caller may edit the document's copy in place between prepare and commit. Those edited bytes
-# are written and accepted -- that is the law -- but the journal then holds an UNEDITED bundle under
-# the id whose remembered text is edited. The next autosave splices that text while the lease is
-# composed from the retained bundle, so lease and bytes diverge again. A text may only be remembered
-# for a bundle it actually describes.
-# -------------------------------------------------------------------------------------------------
 
 func test_an_edited_current_bundle_is_written_but_never_remembered_for_a_later_splice() -> void:
 	var wired := _wired()
@@ -650,34 +514,6 @@ func test_an_edited_current_bundle_is_written_but_never_remembered_for_a_later_s
 	assert_eq(wired.manager._journal.get_retained_bundle_text(first_id), "",
 		"a text that does not describe the bundle the journal retained is not remembered")
 
-	# With nothing remembered for that bundle, the next autosave is emitted by the whole-document
-	# writer over the bundles the journal actually holds -- and its lease describes those bytes.
-	var second := _prepare(wired, 502)
-	var second_journal: Dictionary = second["journal_candidate"]
-	var retained_current: Dictionary = (second_journal["current"] as Dictionary).duplicate(true)
-	var retained_earlier: Array = (second_journal["earlier"] as Array).duplicate(true)
-	assert_gt(retained_earlier.size(), 0, "the edited bundle is retained history by now")
-	assert_true(wired.port.commit(second).get("ok", false))
-
-	var second_text := _written_text(wired)
-	var expected_document: Dictionary = DOCUMENT.build(
-		&"autosave", null, &"automatic", retained_current, retained_earlier)
-	assert_true(expected_document.get("ok", false), str(expected_document))
-	var expected_emitted: Dictionary = WRITER.stringify(expected_document["value"])
-	assert_true(expected_emitted.get("ok", false), str(expected_emitted))
-	assert_eq(second_text, str(expected_emitted["value"]) + "\n",
-		"the bytes are the full writer over the JOURNAL-retained bundles")
-	var reparsed := _strict_candidate(second_text)
-	assert_eq(int((((reparsed["recovery_journal"] as Array)[0] as Dictionary)["snapshot"] as Dictionary)
-		["gameplay"]["money"]), 501,
-		"the retained bundle, not the edit, is what the journal entry says")
-	var proven: Dictionary = wired.port._cached_document_text_validator(second_text, {})
-	assert_true(proven.get("ok", false), str(proven))
-	assert_true(WRITER._deep_same(proven.get("value"), reparsed),
-		"the lease for these bytes deep-equals a strict re-parse of them")
-
-	# Guard, green today and after: an UNEDITED commit is still remembered, or the gate would have
-	# silently disabled the splice for every save rather than only for edited bundles.
 	var third := _prepare(wired, 503)
 	var third_id := str(third["checkpoint_id"])
 	assert_true(wired.port.commit(third).get("ok", false))

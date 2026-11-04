@@ -4,7 +4,6 @@ const FIXTURE := preload("res://tests/support/RetainedFrozenContextFixture.gd")
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const RUN_TEST := preload("res://tests/unit/test_frozen_run_context.gd")
-const SNAPSHOT_TEST := preload("res://tests/unit/test_run_snapshot_schema.gd")
 const ENTRY := "dating.solo.priscilla.day2.pre_challenge"
 var _saved_schemas: Dictionary
 var _saved_ids: Dictionary
@@ -118,22 +117,16 @@ func test_dating_early_return_uses_real_suite_teardown() -> void:
 	_assert_same_cache(schemas, ids)
 	_assert_current_scene_build()
 
-func test_both_historical_suites_restore_before_current_scene_in_same_process() -> void:
+func test_historical_run_suite_restores_before_current_scene_in_same_process() -> void:
 	FROZEN._schemas = {}
 	FROZEN._ids = {}
 	_assert_current_scene_build()
 	var schemas := FROZEN._schemas
 	var ids := FROZEN._ids
-	var run_suite: Node = autofree(RUN_TEST.new())
-	run_suite.gut = gut
-	var snapshot_suite: Node = autofree(SNAPSHOT_TEST.new())
-	snapshot_suite.gut = gut
-	for suite: Node in [run_suite, snapshot_suite]:
-		if suite == run_suite:
-			suite.test_saved_dating_binds_run_board_and_effect_but_keeps_original_branch_and_tier()
-		else:
-			suite.test_v8_requires_generated_contact_context_before_preparing_a_detached_candidate()
-		suite.after_each()
-		assert_null(suite._retained_contexts)
-		_assert_same_cache(schemas, ids)
-		_assert_current_scene_build()
+	var suite: Node = autofree(RUN_TEST.new())
+	suite.gut = gut
+	suite.test_saved_dating_binds_run_board_and_effect_but_keeps_original_branch_and_tier()
+	suite.after_each()
+	assert_null(suite._retained_contexts)
+	_assert_same_cache(schemas, ids)
+	_assert_current_scene_build()

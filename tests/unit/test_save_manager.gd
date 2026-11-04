@@ -6,9 +6,21 @@ const SAVE_MANAGER_PATH := "res://autoload/SaveManager.gd"
 const STORAGE_PATH := "res://scripts/infrastructure/storage/JsonFileStorage.gd"
 const TEMP_PATH := "res://tests/support/TemporaryStorage.gd"
 const GATE_PATH := "res://scripts/application/transaction/ApplicationMutationGate.gd"
-const VALID_FIXTURE := "res://tests/fixtures/snapshots/valid_day3.json"
 
 var _suite_counter := 0
+var _scene_fixture: RefCounted
+var _scene_scope: RefCounted
+
+func before_all() -> void:
+	_scene_scope = preload("res://tests/support/SceneValidationScope.gd").new()
+	_scene_scope.install(true)
+	_scene_fixture = preload("res://tests/support/SceneRunSaveFixture.gd").new()
+	var setup: Dictionary = _scene_fixture.setup(get_tree())
+	assert_true(setup.ok, str(setup))
+
+func after_all() -> void:
+	if _scene_fixture != null: _scene_fixture.close()
+	if _scene_scope != null: _scene_scope.restore()
 
 func _artifacts_exist() -> bool:
 	for path: String in [SAVE_MANAGER_PATH, STORAGE_PATH, TEMP_PATH, GATE_PATH]:
@@ -35,71 +47,22 @@ func _isolated_manager(suite_id: String) -> Dictionary:
 	assert_true(manager.initialize(storage)["ok"])
 	return {"manager": manager, "storage": storage, "root": root}
 
-## Test-authored current snapshot inputs explicitly choose Dark=false.
-## Historical payload reuse is not a production migration.
-func _issuer_receipt(token: String) -> Dictionary:
-	return {"receipt_id": "issuer_receipt.fixture-" + token, "purpose": "causal_day_instance",
-		"namespace": "fixturenamespace", "counter": 1, "token": token, "numeric_value": null}
-
-func _empty_desktop() -> Dictionary:
-	return {
-		"board": {"schema_version": 1, "phase": "NONE", "revision": 0, "identity": null,
-			"candidate": null, "board": null, "settlement": null, "command_receipts": {}, "terminal_receipts": {}},
-		"consequence": {"schema_version": 1, "run_revision": 0, "causal_sequence": 0,
-			"causal_day_instance": "causal-day-1",
-			"causal_day_instance_issuer_receipt": _issuer_receipt("causal-day-1"),
-			"pending": null, "outbox": {}, "shop_ledger": {"supportz_branch_purchase_count": 0,
-				"supportz_last_purchase_causal_day_instance": "", "base_completion_receipts": []}},
-	}
-
-func _checkpoint_inputs(run_id: String, day: int = 3) -> Dictionary:
-	var fixture: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(VALID_FIXTURE))
-	fixture["contacts"] = preload("res://scripts/domain/contact/ContactInvitationState.gd").make_defaults()
-	fixture["gameplay"].erase("opening_seen")
-	fixture["gameplay"].erase("tutorial_seen")
-	var lifecycle: Dictionary = fixture["lifecycle"]
-	lifecycle["dark_mode"] = false
-	lifecycle["run_id"] = run_id
-	lifecycle["day"] = day
-	lifecycle["branch_id"] = "branch-1"
-	lifecycle["desktop_timeline_generation"] = 0
-	lifecycle["causal_day_instance"] = "causal-day-1"
-	lifecycle["causal_day_instance_issuer_receipt"] = _issuer_receipt("causal-day-1")
-	lifecycle["restore_provenance"] = null
-	lifecycle["active_condition_hospital_plan"] = null
-	lifecycle["condition_hospital_history"] = {}
-	lifecycle["terminal_intent_handoff"] = null
-	return {
-		"snapshot_input": {
-			"lifecycle": lifecycle,
-			"gameplay": fixture["gameplay"],
-			"contacts": fixture["contacts"],
-			"committed_schedule": {
-				"schema_version": 1, "day": int(lifecycle["day"]),
-				"registry_fingerprint": null, "entries": [], "commit_receipt": null,
-			},
-			"schedule_view": {
-				"day": int(lifecycle["day"]),
-				"causal_day_instance": lifecycle["causal_day_instance"],
-				"entries": [], "date_entry_seen": false, "pending_warning": null,
-				"consumed_warning_receipts": {}, "condition_departure_receipts": {},
-			},
-			"desktop": _empty_desktop(),
-			"dating": fixture["dating"],
-			"applied_effect_transaction_ids": [],
-			"applied_variable_transaction_ids": [],
-		},
-		"dialogic_checkpoint": {},
-		"route_id": "main",
-		"active_app_id": null,
-		"audio_context": {},
-		"content_version": 1,
-	}
-
-func _seed_checkpoint(manager: Node, run_id: String) -> void:
-	assert_true(manager._journal.reset(run_id)["ok"])
-	var recorded: Dictionary = manager.record_stable_checkpoint(_checkpoint_inputs(run_id), &"day_start")
-	assert_true(recorded.get("ok", false), JSON.stringify(recorded))
+func _seed_checkpoint(manager: Node) -> void:
+	var snapshot: Dictionary = _scene_fixture.snapshot.duplicate(true)
+	var input := {}
+	for key: String in ["lifecycle", "gameplay", "contacts", "desktop", "scene"]:
+		input[key] = snapshot[key].duplicate(true)
+	input.merge({"command_receipts": {}, "applied_effect_transaction_ids": [], "applied_variable_transaction_ids": []})
+	var board := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd").new()
+	var restored: Dictionary = board.prepare_player_restore_scene(snapshot.desktop.board, _scene_fixture.issuer)
+	assert_true(restored.ok, str(restored))
+	assert_true(board.commit(restored.value.candidate).ok)
+	input.desktop.board = board.capture()
+	assert_true(manager._journal.reset(snapshot.run_id).ok)
+	var recorded: Dictionary = manager.record_stable_checkpoint({"snapshot_input": input,
+		"dialogic_checkpoint": snapshot.narrative_checkpoint, "route_id": "scene", "active_app_id": null,
+		"audio_context": {}, "content_version": snapshot.content_version}, &"line")
+	assert_true(recorded.ok, str(recorded))
 
 func test_invalid_save_references_do_not_touch_storage() -> void:
 	for path in [SAVE_MANAGER_PATH, STORAGE_PATH, TEMP_PATH]:
@@ -129,7 +92,7 @@ func test_save_family_writes_closed_relative_names() -> void:
 	if wired.is_empty():
 		return
 	var manager: Node = wired["manager"]
-	_seed_checkpoint(manager, "run-save")
+	_seed_checkpoint(manager)
 	assert_true(manager.save_latest_to_slot(1)["ok"])
 	assert_true(manager.quick_save_latest()["ok"])
 	assert_true(manager.autosave_latest()["ok"])
@@ -142,7 +105,7 @@ func test_save_family_writes_closed_relative_names() -> void:
 		assert_true(name in ["slot_1.json", "quicksave.json", "autosave.json"] \
 			or name.ends_with(".bak"), "unexpected artifact: " + name)
 
-func test_metadata_family_present_absent_corrupt_and_ordering() -> void:
+func test_metadata_family_present_absent_and_ordering() -> void:
 	assert_true(_artifacts_exist(), "save-manager artifacts must exist")
 	if not _artifacts_exist():
 		return
@@ -150,19 +113,31 @@ func test_metadata_family_present_absent_corrupt_and_ordering() -> void:
 	if wired.is_empty():
 		return
 	var manager: Node = wired["manager"]
-	_seed_checkpoint(manager, "run-meta")
+	_seed_checkpoint(manager)
 	assert_true(manager.save_latest_to_slot(1)["ok"])
 	var present: Dictionary = manager.get_save_metadata(&"slot", 1)
 	assert_true(present["ok"], JSON.stringify(present))
 	assert_eq(present["value"], {
-		"exists": true, "kind": "slot", "slot_id": 1, "save_reason": "manual",
-		"run_id": "run-meta", "day": 3, "state": "PLAYING", "checkpoint_id": "run-meta:1",
+		"exists": true, "kind": "slot", "slot_id": 1, "save_reason": null,
+		"run_id": _scene_fixture.snapshot.run_id, "day": null, "state": "PLAYING",
+		"checkpoint_id": _scene_fixture.snapshot.run_id + ":1",
 	})
 	var absent: Dictionary = manager.get_save_metadata(&"slot", 2)
 	assert_true(absent["ok"])
 	assert_eq(absent["value"]["exists"], false)
 	assert_true(absent["value"]["run_id"] == null and absent["value"]["checkpoint_id"] == null,
 		"absent metadata uses JSON null values")
+	var all_records: Array = manager.get_all_save_metadata()
+	assert_eq(all_records.size(), 9, "slots 1-7 then quick then autosave")
+	assert_true(all_records[0].ok and all_records[0].value.exists)
+	assert_true(all_records[1].ok and not all_records[1].value.exists)
+
+func test_corrupt_metadata_preserves_sibling_ordering() -> void:
+	var wired := _isolated_manager("corrupt_metadata")
+	if wired.is_empty(): return
+	var manager: Node = wired.manager
+	_seed_checkpoint(manager)
+	assert_true(manager.save_latest_to_slot(1).ok)
 	var corrupt_file := FileAccess.open(str(wired["root"]).path_join("slot_3.json"), FileAccess.WRITE)
 	corrupt_file.store_string("{not json")
 	corrupt_file.close()
@@ -182,7 +157,7 @@ func test_restore_preparation_and_delete_families() -> void:
 	if wired.is_empty():
 		return
 	var manager: Node = wired["manager"]
-	_seed_checkpoint(manager, "run-restore")
+	_seed_checkpoint(manager)
 	assert_true(manager.save_latest_to_slot(2)["ok"])
 	assert_true(manager.quick_save_latest()["ok"])
 	# prepare_restore now builds participant plans, so it requires configured participants;
@@ -195,8 +170,6 @@ func test_restore_preparation_and_delete_families() -> void:
 	assert_false(manager.save_exists(&"slot", 2), "delete leaves the locator absent")
 	assert_true(manager.delete_quick_save()["ok"])
 	assert_false(manager.save_exists(&"quick", -1))
-	assert_true(manager.start_new_run({}).get("code") == &"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED",
-		"start_new_run stays disabled until Task 7")
 
 func test_configure_mutation_gate_matrix_without_side_effects() -> void:
 	assert_true(_artifacts_exist(), "save-manager artifacts must exist")
@@ -226,7 +199,7 @@ func test_deprecated_wrappers_delegate() -> void:
 	if wired.is_empty():
 		return
 	var manager: Node = wired["manager"]
-	_seed_checkpoint(manager, "run-wrap")
+	_seed_checkpoint(manager)
 	assert_true(manager.save_slot(4)["ok"], "save_slot delegates to save_latest_to_slot")
 	assert_true(manager.has_slot(4), "has_slot delegates to save_exists")
 	assert_true(manager.quick_save()["ok"])

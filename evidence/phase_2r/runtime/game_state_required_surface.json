@@ -359,7 +359,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_restore_after_a_crash_between_checkpoint_commit_and_live_adoption_recovers_the_paid_first_reveal"
+      "contract_test": "test_get_stat_returns_canonical_internal_values_without_mutation"
     },
     {
       "symbol": "friends",
@@ -407,7 +407,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_first_count_draw_is_profile_durable_before_run_candidate_and_retry_reuses_it"
+      "contract_test": "test_selected_pre_pair_save_imports_form_already_reached_in_original_profile_history"
     },
     {
       "symbol": "missed_group_date_counts",
@@ -519,7 +519,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_restore_after_a_crash_between_checkpoint_commit_and_live_adoption_recovers_the_paid_first_reveal"
+      "contract_test": "test_none_reads_selected_tier_and_raw_signed_rounds_without_mutating_real_owner"
     },
     {
       "symbol": "minesweeper_rng_seed",
@@ -1447,7 +1447,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_restore_remaps_board_identity_and_command_receipt_keys"
+      "contract_test": "test_run_participant_prepare_and_delegation"
     },
     {
       "symbol": "day",
@@ -1611,7 +1611,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_reply_full_checkpoint_failure_rolls_back_exactly_then_same_command_retries_once"
+      "contract_test": "test_retained_reply_then_echo_commit_once_through_the_contact_owner"
     },
     {
       "symbol": "commit_ordinary_reply",
@@ -1619,7 +1619,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_reply_full_checkpoint_failure_rolls_back_exactly_then_same_command_retries_once"
+      "contract_test": "test_retained_reply_then_echo_commit_once_through_the_contact_owner"
     },
     {
       "symbol": "get_pending_ordinary_echoes",
@@ -1627,7 +1627,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_echo_accepts_only_oldest_registered_atom_and_failed_full_checkpoint_keeps_it_pending"
+      "contract_test": "test_retained_reply_then_echo_commit_once_through_the_contact_owner"
     },
     {
       "symbol": "commit_ordinary_echo",
@@ -1635,7 +1635,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_echo_accepts_only_oldest_registered_atom_and_failed_full_checkpoint_keeps_it_pending"
+      "contract_test": "test_retained_reply_then_echo_commit_once_through_the_contact_owner"
     },
     {
       "symbol": "get_pending_day7_followups",
@@ -1643,7 +1643,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_followup_ack_uses_registered_source_rolls_back_and_only_advances_read_watermark"
+      "contract_test": "test_retained_followup_commit_advances_only_its_read_watermark"
     },
     {
       "symbol": "require_day7_presentations_complete",
@@ -1651,7 +1651,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_direct_echo_command_cannot_skip_due_followup_even_with_legitimate_current_proof"
+      "contract_test": "test_retained_reply_then_echo_commit_once_through_the_contact_owner"
     },
     {
       "symbol": "commit_day7_followup",
@@ -1659,7 +1659,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_followup_ack_uses_registered_source_rolls_back_and_only_advances_read_watermark"
+      "contract_test": "test_retained_followup_commit_advances_only_its_read_watermark"
     },
     {
       "symbol": "configure_contact_checkpoint_writer",
@@ -1667,7 +1667,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_reply_full_checkpoint_failure_rolls_back_exactly_then_same_command_retries_once"
+      "contract_test": "test_current_ordinary_freeze_is_durable_before_native_projection_and_failed_write_rolls_back"
     },
     {
       "symbol": "prepare_provisional_day7_ending_plan",
@@ -1707,7 +1707,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_daily_reset_without_carried_condition_clears_today_effects"
+      "contract_test": "test_daily_renewal_preserves_cumulative_rewards_purchases_pressure_and_task_claims"
     },
     {
       "symbol": "prepare_dating_challenge_effect",
@@ -1731,7 +1731,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_paused_dating_manual_and_quick_save_restore_exact_board_and_command"
+      "contract_test": "test_continue_freezes_existing_spec_and_first_reveal_freezes_exact_layout"
     },
     {
       "symbol": "store_dating_challenge_state",
@@ -1795,7 +1795,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_desktop_ports_read_the_activated_run_identity_and_refresh_after_load"
+      "contract_test": "test_scene_first_reveal_ignores_storage_failure_and_consumes_allowance_once"
     },
     {
       "symbol": "validate_live_session",
@@ -1851,7 +1851,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_installed_availability_and_dark_are_restored_with_full_rollback"
+      "contract_test": "test_raw_gameplay_load_does_not_create_a_captured_configuration"
     },
     {
       "symbol": "has_new_run_replacement",
@@ -1859,7 +1859,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_new_run_replacement_presence_follows_installed_unfinished_lifecycle"
+      "contract_test": "test_valid_install_publishes_only_presence_and_full_backup_hash"
     },
     {
       "symbol": "get_new_run_replacement_baseline",
@@ -1875,7 +1875,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_cold_day_two_installs_exact_owners_and_journal_without_activating_or_routing"
+      "contract_test": "test_direct_scene_sheets_save_and_load_without_pause_menu"
     },
     {
       "symbol": "configure_dating_restore_reconciler",
@@ -1947,15 +1947,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_restore_preparation_requires_registry_and_active_reading_before_mutation"
-    },
-    {
-      "symbol": "configure_test_scene_event_registry",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_restore_preparation_requires_registry_and_active_reading_before_mutation"
+      "contract_test": "test_new_runs_preserve_disk_and_profile_then_normal_save_load_restores_progress"
     },
     {
       "symbol": "validate_scene_event_snapshot",
@@ -1963,7 +1955,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_restore_preparation_requires_registry_and_active_reading_before_mutation"
+      "contract_test": "test_run_participant_prepare_and_delegation"
     },
     {
       "symbol": "scene_event_registration",
@@ -1971,7 +1963,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_registered_unsupported_kind_and_conflicting_duplicate_refuse_without_save"
+      "contract_test": "test_prepares_exact_receipt_and_only_detached_run_input"
     },
     {
       "symbol": "scene_event_context",
@@ -1979,7 +1971,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_stale_source_token_unregistered_and_out_of_order_refuse_before_storage"
+      "contract_test": "test_genuine_playable_retries_and_commits_control"
     },
     {
       "symbol": "lookup_scene_event",
@@ -1987,7 +1979,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_set_clear_and_duplicate_share_durable_receipts_without_consuming_reading"
+      "contract_test": "test_duplicate_requires_current_authentication_and_produces_no_save_candidate"
     },
     {
       "symbol": "accept_scene_event",
@@ -1995,7 +1987,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_confirmed_commit_interrupted_before_adoption_fences_retry_and_manual_save"
+      "contract_test": "test_exact_duplicate_and_new_port_apply_once_even_after_frontier_moves"
     },
     {
       "symbol": "capture_scene_entry_audio",

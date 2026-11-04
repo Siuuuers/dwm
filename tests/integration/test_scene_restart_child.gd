@@ -28,8 +28,8 @@ func exercise_phase(phase: String) -> void:
 	var previous_profile := {}
 	var started := {}
 	if phase == "create":
-		assert_false(fixture.storage.exists("autosave.json"), "creator starts with a fresh shared root")
-		if fixture.storage.exists("autosave.json"): return
+		assert_false(fixture.storage.exists("slot_1.json"), "creator starts with a fresh shared root")
+		if fixture.storage.exists("slot_1.json"): return
 		started = fixture.start()
 	else:
 		assert_true(FileAccess.file_exists(witness_path), "creator's durable witness must exist")
@@ -40,12 +40,12 @@ func exercise_phase(phase: String) -> void:
 		first_pid = int(witness.value.process_id)
 		assert_ne(OS.get_process_id(), first_pid, "selected Load runs in a different OS process")
 		assert_eq(fixture.storage.describe_root(), witness.value.storage_root)
-		original_hash = witness.value.autosave_sha256
+		original_hash = witness.value.slot_sha256
 		# Observe the selected bytes before this fresh process obtains its read lease.
-		var bytes: Dictionary = fixture.storage.inspect_revision("autosave.json")
+		var bytes: Dictionary = fixture.storage.inspect_revision("slot_1.json")
 		assert_true(bytes.ok, str(bytes))
 		if not bytes.ok: return
-		assert_eq(bytes.value.revision, original_hash, "load opens the creator's exact physical autosave")
+		assert_eq(bytes.value.revision, original_hash, "load opens the creator's exact physical slot")
 		assert_true(bytes.value.text is String)
 		if not bytes.value.text is String: return
 		var document: Dictionary = PARSER.parse_object(bytes.value.text)
@@ -56,14 +56,11 @@ func exercise_phase(phase: String) -> void:
 		assert_eq(snapshot.checkpoint_id, witness.value.checkpoint_id)
 		assert_true(SAVE_SCHEMA.validate(document.value).ok, "fresh process proves saved creation authority")
 		previous_profile = fixture.profile.get_profile_snapshot().duplicate(true)
-		# Direct prepare_restore_autosave requires storage recovery first. Exercise
-		# real reconciliation with SaveManager's strict document validator; this
-		# explicit test bootstrap is not a claim about shipped startup wiring.
-		var reconciled: Dictionary = fixture.storage.reconcile("autosave.json",
+		var reconciled: Dictionary = fixture.storage.reconcile("slot_1.json",
 			Callable(fixture.manager, "_document_text_validator"))
 		assert_true(reconciled.ok, str(reconciled))
 		if not reconciled.ok: return
-		var prepared: Dictionary = fixture.manager.prepare_restore_autosave()
+		var prepared: Dictionary = fixture.manager.prepare_restore_slot(1)
 		assert_true(prepared.ok, str(prepared))
 		if not prepared.ok: return
 		assert_eq(prepared.value.prepared.bundle.snapshot, snapshot, "selected Load chooses the entire saved bundle")
@@ -79,13 +76,7 @@ func exercise_phase(phase: String) -> void:
 	assert_true(activated.ok, str(activated))
 	if not activated.ok: return
 	var operation: Dictionary = fixture.manager._continuation_journal.get_operation(operation_id)
-	if phase == "create":
-		assert_true(operation.ok, str(operation))
-		if not operation.ok: return
-		assert_eq(operation.value.activation_state, "acknowledged")
-		assert_eq(operation.value.kind, "scene_new_run")
-	else:
-		assert_false(operation.ok, "Load has no durable continuation operation")
+	assert_false(operation.ok, "New Run and Load have no durable continuation operation")
 	assert_eq(fixture.ready_count, 1)
 	assert_eq(fixture.route_confirmations, [operation_id])
 	assert_eq(fixture.narrative_confirmations, [operation_id])
@@ -97,12 +88,18 @@ func exercise_phase(phase: String) -> void:
 	assert_true(fixture.game.capture_live_session().value.active)
 	assert_false(fixture.gate.is_active(), "input custody releases only after actual mount and native proof")
 	if phase == "create":
-		var document: Dictionary = fixture.read_autosave()
+		var saved: Dictionary = fixture.manager.save_latest_to_slot(1)
+		assert_true(saved.ok, str(saved))
+		if not saved.ok: return
+		var saved_bytes: Dictionary = fixture.storage.read_text("slot_1.json")
+		assert_true(saved_bytes.ok, str(saved_bytes))
+		if not saved_bytes.ok: return
+		var document: Dictionary = PARSER.parse_object(saved_bytes.value)
 		assert_true(document.ok, str(document))
 		if not document.ok: return
 		snapshot = document.value.current_snapshot.snapshot
 		assert_true(SAVE_SCHEMA.validate(document.value).ok)
-		var bytes: Dictionary = fixture.storage.read_text("autosave.json")
+		var bytes: Dictionary = fixture.storage.read_text("slot_1.json")
 		assert_true(bytes.ok, str(bytes))
 		if not bytes.ok: return
 		original_hash = str(bytes.value).sha256_text()
@@ -111,14 +108,16 @@ func exercise_phase(phase: String) -> void:
 		var restored: Dictionary = fixture.game.capture_run_snapshot_input()
 		assert_eq(restored.lifecycle.run_id, snapshot.run_id)
 		assert_eq(restored.lifecycle, snapshot.lifecycle, "selected Load preserves saved lifecycle")
-		assert_eq(restored.lifecycle.scene_assignment, snapshot.lifecycle.scene_assignment)
 		assert_eq(restored.scene, snapshot.scene)
 		assert_eq(fixture.profile.get_profile_snapshot(), previous_profile, "Load does not consume another form assignment")
-		var after_bytes: Dictionary = fixture.storage.read_text("autosave.json")
+		var after_bytes: Dictionary = fixture.storage.read_text("slot_1.json")
 		assert_true(after_bytes.ok, str(after_bytes))
 		if not after_bytes.ok: return
 		assert_eq(str(after_bytes.value).sha256_text(), original_hash, "selected source file remains unchanged")
-	var checkpoint: Dictionary = snapshot.narrative_checkpoint
+	var expanded: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(snapshot.narrative_checkpoint)
+	assert_true(expanded.ok, str(expanded))
+	if not expanded.ok: return
+	var checkpoint: Dictionary = expanded.value
 	assert_eq(fixture.adapter.capture_reading_frontier().value, checkpoint.reading_session.frontier)
 	assert_eq(fixture.adapter.current_line_id(), checkpoint.reading_session.frontier.line_id)
 	assert_eq(fixture.bridge._reading_session.ledger.snapshot(), checkpoint.reading_session.ledger,
@@ -128,10 +127,11 @@ func exercise_phase(phase: String) -> void:
 		assert_true(publication.ok, str(publication))
 		assert_true(publication.get("value", {}).get("duplicate", false), "native restoration reuses the saved publication")
 	assert_eq(fixture.native_markers, [], "restoring first caption executes no later authored marker")
-	assert_true(fixture.manager.retry_scene_activation(operation_id).ok)
+	if phase == "load":
+		assert_true(fixture.manager.retry_scene_activation(operation_id).ok)
 	assert_eq(fixture.ready_count, 1, "duplicate activation cannot republish readiness")
 	var proof := {"phase": phase, "process_id": OS.get_process_id(), "creator_process_id": first_pid,
-		"storage_root": fixture.storage.describe_root(), "autosave_sha256": original_hash,
+		"storage_root": fixture.storage.describe_root(), "slot_sha256": original_hash,
 		"run_id": snapshot.run_id, "checkpoint_id": snapshot.checkpoint_id,
 		"operation_id": operation_id, "mounted_host": get_tree().current_scene.scene_file_path,
 		"native_frontier": fixture.adapter.capture_reading_frontier().value,

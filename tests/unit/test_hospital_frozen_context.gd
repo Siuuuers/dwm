@@ -14,7 +14,6 @@ const OWNER := preload("res://scripts/application/narrative/DialogicPresentation
 const PORT := preload("res://scripts/application/run/HospitalPresentationPort.gd")
 const SCENE := preload("res://scripts/ui/HospitalScene.gd")
 const CANON := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
-const DAY_PORT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 
 class CheckpointWriter extends RefCounted:
@@ -28,30 +27,6 @@ class CheckpointWriter extends RefCounted:
 		if fail: return {"ok": false, "code": &"fixture_write_failed"}
 		snapshots.append(game.capture_restore_state().value.backup)
 		return {"ok": true}
-
-class Lifecycle extends RefCounted:
-	var activations := 0
-	func to_dict() -> Dictionary:
-		return {"active_resolution_plan": {"resolution_id": "fixture:resolution", "source_day": 1}}
-	func resume_resolution() -> Dictionary:
-		return {"ok": true, "value": {"has_stage": true, "stage": {
-			"stage_id": "hospital_if_triggered", "transaction_id": "fixture:stage", "state": "active"}}}
-	func begin_next_stage() -> Dictionary:
-		activations += 1
-		return {"ok": true, "value": {"stage": resume_resolution().value.stage}}
-
-class RetainedState extends RefCounted:
-	var _run_lifecycle := Lifecycle.new()
-	var request: Dictionary = {}
-	var live_queries := 0
-	var live_requires_hospital := true
-	func read_hospital_presentation_request(_resolution_id: String) -> Dictionary:
-		return {"ok": true, "value": request.duplicate(true)}
-	func retain_hospital_presentation_request(_request: Dictionary) -> Dictionary:
-		return {"ok": false, "code": &"fixture_unexpected_recapture"}
-	func should_route_hospital() -> bool:
-		live_queries += 1
-		return live_requires_hospital
 
 class Bridge extends Node:
 	signal timeline_finished(timeline_id: String, result: Dictionary)
@@ -129,28 +104,6 @@ func test_condition_hospital_names_only_its_already_committed_witness() -> void:
 	assert_false(FROZEN.from_condition(context, fixture.game.contacts, closed.value.output).ok,
 		"planned witness bytes cannot stand in for the committed Contacts witness")
 
-func test_schedule_physical_completion_retains_actual_miss_sources_for_later_contacts() -> void:
-	var fixture := _accepted_sylvia()
-	if fixture.is_empty(): return
-	var context := FROZEN.from_schedule({"kind": "hospital", "day": 1,
-		"source_entry_ids": ["fixture:schedule"], "miss_receipt_ids": ["actual:miss"]}, fixture.game.contacts, [fixture.entry])
-	assert_true(context.ok, str(context))
-	if not context.ok: return
-	var request := _command(context.value, "miss-source")
-	request.erase("command_sha256")
-	var misses := [{"source_receipt_id": fixture.source_id, "action_id": "solo:sylvia:day1"}]
-	var gameplay: Dictionary = fixture.game.capture_run_snapshot_input().gameplay
-	var before := gameplay.duplicate(true)
-	var captured := DAY_PORT._capture_schedule_hospital_misses(gameplay, fixture.game.contacts, request, misses, ["actual:miss"])
-	assert_true(captured.ok, str(captured))
-	if not captured.ok: return
-	assert_eq(gameplay, before)
-	assert_eq(captured.value.missed_invitations[-1], {"friend_id": "sylvia", "source": "solo", "day": 1,
-		"missed_reason": "hospital", "source_receipt_id": fixture.source_id, "hospital_miss_receipt_id": "actual:miss",
-		"schedule_hospital_resolution_id": "fixture:resolution"})
-	assert_eq(DAY_PORT._capture_schedule_hospital_misses(captured.value, fixture.game.contacts, request, misses, ["actual:miss"]).value, captured.value)
-	assert_false(DAY_PORT._capture_schedule_hospital_misses(gameplay, fixture.game.contacts, request, misses, ["invented:miss"]).ok)
-
 func _context(eligible: bool) -> Dictionary:
 	var entry_id := "hospital.faint.day1"
 	var built := CONTEXT.build(entry_id, {"entry_id": entry_id, "entry_role": "hospital", "day": 1,
@@ -210,28 +163,6 @@ func test_context_requires_exact_schema_source_set_and_matching_day() -> void:
 	var extra := context.duplicate(true)
 	extra.presentation.fields["live_game"] = autofree(GAME.new())
 	assert_false(FROZEN.validate(extra).ok)
-
-func test_schedule_resume_uses_saved_request_before_consulting_later_live_state() -> void:
-	var context := _context(false)
-	if context.is_empty(): return
-	var state := RetainedState.new()
-	state.request = _command(context, "retained")
-	state.request.erase("command_sha256")
-	var port := DAY_PORT.new(state)
-	assert_true(port.configure_frozen_hospital_contexts().ok)
-	var resumed := port.begin_next_stage()
-	assert_true(resumed.ok, str(resumed))
-	if not resumed.ok: return
-	assert_eq(resumed.value.command.presentation_request, state.request)
-	assert_eq(state.live_queries, 0, "restore cannot regenerate eligibility from live Hospital state")
-	assert_eq(state._run_lifecycle.activations, 1)
-	state.request = {}
-	state.live_requires_hospital = false
-	var refused := port.begin_next_stage()
-	assert_false(refused.ok)
-	assert_eq(refused.code, &"hospital_frozen_context_required")
-	assert_eq(state.live_queries, 0, "missing snapshots refuse before querying either true or false live eligibility")
-	assert_eq(state._run_lifecycle.activations, 1, "an active presentation missing its snapshot stays refused")
 
 func test_game_owner_hospital_request_is_bound_durable_detached_and_idempotent() -> void:
 	var game: Node = autofree(GAME.new())

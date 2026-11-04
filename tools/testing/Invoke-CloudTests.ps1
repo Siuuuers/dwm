@@ -153,21 +153,19 @@ $suites = @{
     checkpoint_diagnostics = @(
         'tests/unit/test_checkpoint_phase_diagnostics.gd'
         'tests/unit/test_normalization_identity.gd'
-        'tests/unit/test_checkpoint_history_region_search.gd'
-        'tests/integration/test_warm_outgoing_proof_commits.gd'
     )
     persistence = @(
         'tests/unit/test_scene_restore_journal.gd'
         'tests/unit/test_scene_memory_load.gd'
         'tests/integration/test_scene_direct_load.gd'
         'tests/unit/test_scene_load_active_settings.gd'
-        'tests/unit/test_desktop_identity_allocation_restore_participant.gd'
         'tests/unit/test_frozen_run_context.gd'
         'tests/unit/test_profile_presentation_chronology.gd'
         'tests/unit/test_profile_dating_attempts.gd'
         'tests/unit/test_profile_dating_branches.gd'
         'tests/unit/test_profile_pair_form_witness.gd'
         'tests/unit/test_contact_invitation_state.gd'
+        'tests/unit/test_game_state_contact_commands.gd'
         'tests/unit/test_seven_day_calendar.gd'
         'tests/unit/test_pair_deck_draw.gd'
         'tests/unit/test_pair_deck_draw_port.gd'
@@ -180,8 +178,6 @@ $suites = @{
         'tests/unit/test_scene_runtime_remap.gd'
         'tests/unit/test_reading_restore_admission.gd'
         'tests/unit/test_desktop_consequence_source_port.gd'
-        'tests/unit/test_reading_next_checkpoint.gd'
-        'tests/integration/test_unified_restore_contract.gd'
         'tests/integration/test_run_restore_isolation.gd'
         'tests/integration/test_live_run_rollback_isolation.gd'
         'tests/integration/test_save_manager_public_boundaries.gd'
@@ -243,7 +239,6 @@ $suites = @{
         'tests/scene/test_minesweeper_toggle_bindings.gd'
         'tests/scene/test_minesweeper_new_board_bindings.gd'
         'tests/scene/test_minesweeper_view_gestures.gd'
-        'tests/scene/test_minesweeper_challenge_controls.gd'
         'tests/integration/test_minesweeper_desktop_host.gd'
         'tests/unit/test_scene_round_completion.gd'
     )
@@ -269,9 +264,7 @@ $suites = @{
         'tests/unit/test_desktop_touch_navigation.gd'
         'tests/unit/test_desktop_app_host_state.gd'
         'tests/unit/test_desktop_accessibility_contract.gd'
-        'tests/integration/test_desktop_quick_commands.gd'
         'tests/integration/test_desktop_bootstrap_wiring.gd'
-        'tests/unit/test_desktop_cold_recovery_preparation.gd'
         'tests/unit/test_scene_day_renewal.gd'
         'tests/integration/test_scene_day_commit_ordering.gd'
         'tests/integration/test_contacts_run_presentation.gd'
@@ -308,7 +301,6 @@ $suites = @{
         'tests/unit/test_restore_participants.gd'
         'tests/integration/test_restore_preserves_current_profile.gd'
         'tests/integration/test_restore_production_adapters.gd'
-        'tests/integration/test_desktop_board_persistence.gd'
         # Retired motivation transactions remain in the original fixture; current scene create/Load has its own paired suite.
         'tests/integration/test_desktop_first_reveal_adapter.gd'
         'tests/unit/test_save_manager_checkpoint_port.gd'
@@ -323,14 +315,9 @@ $suites = @{
         'tests/unit/test_new_acc_title_lifetime.gd'
         'tests/unit/test_run_dark_configuration.gd'
         'tests/integration/test_prepared_new_run.gd'
-        'tests/integration/test_new_run_transaction.gd'
-        'tests/integration/test_new_run_pair_durability.gd'
-        'tests/integration/test_new_run_startup_publication.gd'
-        'tests/unit/test_new_run_durability_journal.gd'
         'tests/unit/test_json_file_storage.gd'
         'tests/unit/test_temporary_storage.gd'
         'tests/unit/test_save_document_schema.gd'
-        'tests/unit/test_run_snapshot_schema.gd'
         'tests/unit/tooling/test_phase2r_closeout_sentinel.gd'
         'tests/unit/tooling/test_phase2r_schedule_gate.gd'
     )
@@ -599,7 +586,6 @@ if (($contentUpdate -and -not $contentErrorQuit) -or $Suite -in @('scene_desktop
 }
 $sourceTestScript = ''
 $sourceTestName = ''
-$expectedUnreadableDiagnostics = 0
 foreach ($line in Get-Content -LiteralPath $logPath) {
     if ($line.StartsWith('res://tests/', [StringComparison]::Ordinal)) {
         $sourceTestScript = $line
@@ -607,24 +593,8 @@ foreach ($line in Get-Content -LiteralPath $logPath) {
     }
     if ($line.StartsWith('* test_', [StringComparison]::Ordinal)) { $sourceTestName = $line.Substring(2) }
     if ($line -notmatch '^(?:ERROR: )?(?:Unicode parsing error\b|Unexpected NUL character\b)') { continue }
-    # This existing negative fixture deliberately loads exactly one 0xff byte.
-    # Keep its corrupt-save consent coverage; no NUL diagnostic is expected.
-    if ($Suite -eq 'new_account' -and $expectedUnreadableDiagnostics -eq 0 -and
-        $sourceTestScript -ceq 'res://tests/integration/test_prepared_new_run.gd' -and
-        $sourceTestName -ceq 'test_prepare_counts_nonempty_unreadable_autosave_but_not_zero_bytes' -and
-        $line -ceq 'Unicode parsing error, some characters were replaced with � (U+FFFD): Invalid UTF-8 leading byte (ff)') {
-        $expectedUnreadableDiagnostics += 1
-        continue
-    }
     throw "Unexpected Unicode/NUL diagnostic in $sourceTestScript / ${sourceTestName}: $line"
 }
-if ($Suite -eq 'new_account' -and $expectedUnreadableDiagnostics -ne 1) {
-    throw 'The corrupt-save fixture did not produce its one expected 0xff diagnostic.'
-}
-if ($expectedUnreadableDiagnostics -eq 1) {
-    Write-Host 'CORRUPT_SAVE_DIAGNOSTIC_VERIFIED: expected 0xff fixture diagnostic observed once.'
-}
-
 # A zero process status alone is insufficient (GUT can quit early with zero).
 $report = Join-Path $output "$Suite.xml"
 if (-not (Test-Path -LiteralPath $report)) { throw 'GUT did not produce its JUnit report.' }
@@ -835,10 +805,24 @@ if ($Suite -eq 'persistence') {
 # source in canonical-test-disposition.json; current_title covers authored startup.
 
 if ($Suite -eq 'backup_current_build') {
-    # These standalone scene scripts require a dependency-only project without
-    # application autoloads. Reuse the existing isolated fixture runner.
-    python -c "import runpy; from pathlib import Path; runpy.run_path(str(Path('tools/backup_ui/verify.py').resolve()), init_globals={'TEST_SCRIPT':'tests/backup_operations/test_backup_operations.gd','PASS_MARKER':'BACKUP_OPERATIONS_PASS','SCRATCH_PREFIX':'backup-operations-','EVIDENCE_DIR':'.godot/ci/backup-operations','SCOPE':'Real Backup operations over isolated FileOps and diagnostic restore owners.'})"
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    $backupReadingBefore = [Environment]::GetEnvironmentVariable('DWM_SCENE_READING_FIXTURE')
+    $env:DWM_SCENE_READING_FIXTURE = '1'
+    try {
+        & (Join-Path $PSScriptRoot 'Invoke-IsolatedGodot.ps1') `
+            -SuiteId 'cloud-backup-operations' -LogName 'cloud-backup-operations.log' `
+            -EvidenceLogPath '.godot/ci/backup-operations.jsonl' -TimeoutSeconds 180 `
+            -GodotArgs @('-s', 'res://tests/backup_operations/test_backup_operations.gd')
+        $backupResult = $LASTEXITCODE
+    } finally {
+        [Environment]::SetEnvironmentVariable('DWM_SCENE_READING_FIXTURE', $backupReadingBefore)
+    }
+    if ($backupResult -ne 0) { exit $backupResult }
+    $backupLog = Join-Path $repositoryRoot '.godot/phase2r_logs/cloud-backup-operations.log'
+    $markers = @(Get-Content -LiteralPath $backupLog | Where-Object { $_ -ceq 'BACKUP_OPERATIONS_PASS' })
+    if ($markers.Count -ne 1 -or (Select-String -LiteralPath $backupLog -Pattern 'SCRIPT ERROR:|ERROR: Failed to load' -Quiet)) {
+        throw 'Backup operations did not complete their current scene checks.'
+    }
+
     python -c "import runpy; from pathlib import Path; runpy.run_path(str(Path('tools/backup_ui/verify.py').resolve()), init_globals={'EVIDENCE_DIR':'.godot/ci/backup-ui'})"
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }

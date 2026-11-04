@@ -510,3 +510,21 @@ func test_a_restored_start_receipt_must_carry_the_causal_day_the_walk_indexes() 
 func _start_provenance(plan_data: Dictionary) -> Dictionary:
 	return ((plan_data["day_resolution_start_receipt"] as Dictionary)["receipt_provenance"]
 		as Dictionary)
+
+
+func test_active_source_day_predicate_and_error_agree() -> void:
+	for offset: int in ([-1, 0, 1, 2] as Array[int]):
+		var source_day: int = 3
+		var day: int = source_day + offset
+		var plan_data := {"stages": [{"stage_id": "increment_day", "state": "completed"}]}
+		var legal: bool = load(PLAN_PATH).is_active_source_day_legal(source_day, day, plan_data)
+		var schema_error: String = load(PLAN_PATH).active_source_day_error(source_day, day, plan_data)
+		assert_eq(legal, schema_error.is_empty(), "the predicate and the error agree at offset %d" % offset)
+	# STAGE-AWARE: the one-day trail is legal only when increment_day has completed in that plan.
+	var incremented := {"stages": [{"stage_id": "increment_day", "state": "completed"}]}
+	var not_incremented := {"stages": [{"stage_id": "increment_day", "state": "pending"}]}
+	assert_true(load(PLAN_PATH).is_active_source_day_legal(3, 3), "same day is legal")
+	assert_true(load(PLAN_PATH).is_active_source_day_legal(3, 4, incremented), "legal after increment_day completed")
+	assert_false(load(PLAN_PATH).is_active_source_day_legal(3, 4, not_incremented), "NOT legal merely because the numbers differ by one")
+	assert_false(load(PLAN_PATH).is_active_source_day_legal(3, 5, incremented), "a two-day gap is corrupt")
+	assert_false(load(PLAN_PATH).is_active_source_day_legal(3, 2, incremented), "a plan ahead of the day is corrupt")

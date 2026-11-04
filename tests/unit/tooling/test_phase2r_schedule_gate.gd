@@ -609,7 +609,6 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 		{"path": "scripts/application/run/ConditionHospitalContactsAdapter.gd", "call": "issuer.derive_child({\"child_kind\": \"sylvia_hospital_witness\"", "kind": "sylvia_hospital_witness"},
 		{"path": "scripts/application/run/GameStateConditionHospitalPort.gd", "call": "_issuer.derive_child({\"child_kind\": \"day_resolution_stage\"", "kind": "day_resolution_stage"},
 		{"path": "scripts/application/run/GameStateConditionHospitalPort.gd", "call": "_issuer.derive_child({\"child_kind\": \"day_resolution_stage\"", "kind": "day_resolution_stage"},
-		{"path": "scripts/application/run/GameStateDayResolutionPort.gd", "call": "_identity_issuer.derive_child(source.value.derivation_request)", "kind": "day_resolution_stage"},
 		{"path": "scripts/domain/narrative/SceneEventContract.gd", "call": "issuer.derive_child({\"parent_receipt_id\": root_issuer_receipt.receipt_id,", "kind": "continuation_operation"},
 		{"path": "scripts/domain/narrative/SceneEventContract.gd", "call": "issuer.derive_child({\"parent_receipt_id\": root.receipt_id,", "kind": "continuation_operation"},
 		{"path": "scripts/domain/narrative/SceneEventContract.gd", "call": "issuer.derive_child(request)", "kind": "continuation_operation"},
@@ -637,10 +636,6 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 	assert_true(remapper.contains("\"derivation_request\": {")
 		and remapper.contains("\"child_kind\": \"day_resolution_stage\""),
 		"the day-advance source request fixes its registered role")
-	assert_true(_generator.strip_comments(FileAccess.get_file_as_string(
-		"res://scripts/application/run/GameStateDayResolutionPort.gd")).contains(
-		"_identity_issuer.validate_child(derived.value.provenance, &\"day_resolution_stage\")"),
-		"the day-advance continuation child is validated after derivation")
 	var call_paths: Array[String] = []
 	for site: Dictionary in (value["call_sites"] as Array):
 		if not call_paths.has(str(site["path"])):
@@ -681,7 +676,6 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 		"scripts/application/minesweeper/DesktopBoardFatePort.gd",
 		"scripts/application/minesweeper/GameStateDesktopBoardPort.gd",
 		"scripts/application/minesweeper/MinesweeperRoundCoordinator.gd",
-		"scripts/application/run/GameStateDayResolutionPort.gd",
 		"scripts/application/schedule/ScheduleViewController.gd",
 		"scripts/application/shop/MinesweeperShopPurchaseParticipant.gd",
 		"scripts/domain/contact/ContactInvitationState.gd",
@@ -756,18 +750,14 @@ func test_committed_entry_key_law_and_state_schema_agree() -> void:
 	var aggregate_keys: Array = ((aggregate["value"] as Dictionary)["values"] as Array).duplicate()
 	aggregate_keys.sort()
 	assert_eq(aggregate_keys, _generator.COMMITTED_AGGREGATE_KEYS, "the five aggregate keys")
-	# The sealed Plan-01 subject had v3; the live v8 contract also requires frozen
-	# presentation contexts while retaining the Schedule view, condition lifecycle and Dark.
 	var subject_schema: String = _git_blob(str(_record["subject_commit"]),
 		"scripts/domain/run/RunSnapshotSchema.gd").get_string_from_utf8()
 	assert_eq(int((_generator.parse_int_constant(subject_schema, "SCHEMA_VERSION")["value"] as Dictionary)["value"]), 3,
 		"the committed Plan-01 subject still owns the historical v3 boundary")
 	var live_schema: String = FileAccess.get_file_as_string("res://scripts/domain/run/RunSnapshotSchema.gd")
-	assert_eq(int((_generator.parse_int_constant(live_schema, "SCHEMA_VERSION")["value"] as Dictionary)["value"]), 8,
-		"the current RunSnapshotSchema carries the v8 frozen-context contract")
-	assert_true(live_schema.contains("\"committed_schedule\"") and live_schema.contains("\"schedule_view\"")
-		and live_schema.contains("\"dark_mode\""),
-		"v8 retains committed Schedule and captured Dark beside the saved Schedule view")
+	assert_eq(int((_generator.parse_int_constant(live_schema, "SCHEMA_VERSION")["value"] as Dictionary)["value"]), 9,
+		"the current RunSnapshotSchema carries the DTL scene contract")
+
 
 
 func test_stage_arrays_are_frozen_and_the_ending_residue_is_unreachable() -> void:
@@ -782,15 +772,6 @@ func test_stage_arrays_are_frozen_and_the_ending_residue_is_unreachable() -> voi
 	assert_eq(_generator.DAY_7_STAGES, DAY_7_STAGES, "generator and test agree on D7")
 	for retired: String in _generator.RETIRED_ENDING_STAGES:
 		assert_false(DAY_1_6_STAGES.has(retired) or DAY_7_STAGES.has(retired), retired + " is reachable from no stage array")
-	# The retired stages remain unreachable. Their former fallback is historical only:
-	# the live state port now reads the resolved plan or the frozen GameState plan.
-	var state_port: String = _generator.strip_comments(FileAccess.get_file_as_string("res://scripts/application/run/GameStateDayResolutionPort.gd"))
-	assert_true(state_port.contains("func _default_ending_plan() -> Dictionary:")
-		and state_port.contains("_resolved_ending_plan_from_snapshot(_game_state._run_lifecycle.to_dict())")
-		and state_port.contains("return _game_state.get_frozen_ordered_ending_plan()"),
-		"the remaining compatibility seam uses a resolved or frozen plan")
-	assert_false(state_port.contains("\"ending.alone\""),
-		"the live state port cannot invent a default Alone ending")
 	assert_eq(DAY_RESOLUTION_PLAN.stage_allowlist(7), DAY_7_STAGES, "the live allowlist for Day 7 is the frozen five")
 	assert_eq(DAY_RESOLUTION_PLAN.stage_allowlist(3), DAY_1_6_STAGES, "the live allowlist for Days 1-6 is the frozen twelve")
 

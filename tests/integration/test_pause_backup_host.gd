@@ -1,6 +1,6 @@
 extends GutTest
 ## Actual Pause/Backup/confirmation controls and SaveManager/BackupPresentationPort.
-## Storage is memory-only; seeded desktop records do not claim a paused narrative save.
+## Storage is memory-only; seeded scene records do not claim a paused narrative save.
 
 const PAUSE := preload("res://scenes/overlay/PauseSurface.tscn")
 const BACKUP := preload("res://scenes/apps/BackupApp.tscn")
@@ -9,7 +9,17 @@ const PORT := preload("res://scripts/application/backup/BackupPresentationPort.g
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FILES := preload("res://tests/support/FakeFileOps.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
-const SNAPSHOT_FIXTURE := preload("res://tests/support/BackupSnapshotFixture.gd")
+var _scene_fixture := preload("res://tests/support/SceneRunSaveFixture.gd").new()
+var _scope := preload("res://tests/support/SceneValidationScope.gd").new()
+
+func before_all() -> void:
+	_scope.install(true)
+	var result: Dictionary = _scene_fixture.setup(get_tree())
+	assert_true(result.get("ok", false), str(result))
+
+func after_all() -> void:
+	_scene_fixture.close()
+	_scope.restore()
 
 ## Observe the real projection boundary; layout measurements can run more than
 ## once per refresh and do not prove how often records were requested.
@@ -40,22 +50,14 @@ func before_each() -> void:
 	add_child(_manager)
 	assert_true(_manager.initialize(_storage).ok)
 	assert_true(_manager.configure_mutation_gate(GATE.new()).ok)
-	var fixture: Dictionary = SNAPSHOT_FIXTURE.make_snapshot()
-	assert_true(fixture.get("ok",false),str(fixture))
-	if not fixture.get("ok",false): return
-	var snapshot: Dictionary = fixture["value"]["candidate"]
-	_manager._journal.reset(snapshot.run_id)
-	var prepared: Dictionary = _manager._journal.prepare_record(snapshot,&"day_start")
+	var prepared: Dictionary = _manager._journal.prepare_seed(_scene_fixture.document, _scene_fixture.document.current_snapshot)
 	assert_true(prepared.ok,str(prepared))
 	if not prepared.get("ok",false): return
 	assert_true(_manager._journal.commit_prepared(prepared.value.candidate).ok)
 	_port = ObservedPort.new()
 	assert_true(_port.configure(_manager,"in_run",_source_admission).ok)
-	for locator: String in ["slot:1","quick"]:
-		var seed: Dictionary = _port.prepare_action("save",locator)
-		assert_true(seed.ok)
-		assert_true(_port.commit_action(seed.value.token).ok)
-	# Production has no qualified paused-source capture yet. Keep that real refusal.
+	assert_true(_manager.save_latest_to_slot(1).ok)
+	assert_true(_manager.quick_save_latest().ok)
 	assert_true(_manager.configure_backup_capture_provider(_unavailable_capture).ok)
 	_before = _files.snapshot_persisted()
 	_viewport = SubViewport.new()
@@ -262,14 +264,14 @@ func test_confirmation_cancel_then_backup_retreat_then_continue_each_need_their_
 func test_confirmed_delete_uses_real_record_revision_without_resuming_or_changing_quick() -> void:
 	_enter_backup()
 	var journal: Dictionary = _manager._journal.capture_state().duplicate(true)
-	var quick: Dictionary = _storage.inspect_revision("quick.json").duplicate(true)
+	var quick: Dictionary = _storage.inspect_revision("quicksave.json").duplicate(true)
 	var sheet := _request_delete()
 	sheet.confirm_button.grab_focus()
 	_key(KEY_ENTER,true)
 	assert_true(_storage.exists("slot_1.json"),"press alone is not destructive consent")
 	_key(KEY_ENTER,false)
 	assert_false(_storage.exists("slot_1.json"))
-	assert_eq(_storage.inspect_revision("quick.json"),quick)
+	assert_eq(_storage.inspect_revision("quicksave.json"),quick)
 	assert_eq(_manager._journal.capture_state(),journal)
 	assert_true(_backup.last_result.ok)
 	assert_eq(_surface.entered_action,&"backup")

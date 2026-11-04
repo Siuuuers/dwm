@@ -1,10 +1,9 @@
 extends GutTest
 
-# These retained contract fixtures choose their own historical registration scope.
 var _retained_scope := preload("res://tests/support/SceneValidationScope.gd").new()
 
 func before_each() -> void:
-	_retained_scope.install(true)
+	_retained_scope.install()
 
 func after_each() -> void:
 	_retained_scope.restore()
@@ -17,17 +16,19 @@ const AUDIO_PORT := preload("res://tests/support/FakeAudioPlaybackPort.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FILES := preload("res://tests/support/FakeFileOps.gd")
 const WINDOW_TESTS := preload("res://tests/unit/test_window_mode_manager.gd")
-const PARTICIPANT_KEYS := ["audio", "desktop_board", "desktop_consequence", "localization", "narrative", "profile", "route", "run", "schedule_view"]
+const PARTICIPANT_KEYS := ["audio", "desktop_board", "desktop_consequence", "localization", "narrative", "profile", "route", "run"]
 
 class InjectableBootstrap extends "res://autoload/ApplicationBootstrap.gd":
 	var injected_targets: Dictionary = {}
+	func _configure_registered_scene_runtime() -> Dictionary:
+		return {"ok": true}
 	func _target(target_name: StringName) -> Node:
 		return injected_targets.get(target_name)
 
 class SaveCapture extends Node:
 	var configure_count := 0
 	var participants: Dictionary = {}
-	func configure_restore_participants(value: Dictionary) -> Dictionary:
+	func configure_scene_restore_participants(value: Dictionary) -> Dictionary:
 		configure_count += 1
 		participants = value.duplicate()
 		return {"ok": true, "code": &"ok"}
@@ -51,7 +52,7 @@ func _fixture(available: bool = true, mode: String = "windowed") -> Dictionary:
 	autofree(save)
 	var bootstrap := InjectableBootstrap.new()
 	autofree(bootstrap)
-	# This composition test does not allocate IDs; retain the real issuer interface for Schedule.
+	# This composition test does not allocate IDs.
 	bootstrap._desktop_identity_nonce_issuer = preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd").new()
 	bootstrap.injected_targets = {
 		&"ProfileManager": profile, &"AudioManager": audio, &"WindowModeManager": window,

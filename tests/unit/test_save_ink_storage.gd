@@ -1,10 +1,23 @@
 extends GutTest
-## Canonical storage contract with the retained valid snapshot fixture.
+## Canonical storage contract with the current scene snapshot fixture.
 const MANAGER := preload("res://autoload/SaveManager.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const SCHEMA := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
-const FIXTURE := preload("res://tests/support/BackupSnapshotFixture.gd")
+const FIXTURE := preload("res://tests/support/SceneRunSaveFixture.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
+
+var scope := preload("res://tests/support/SceneValidationScope.gd").new()
+var scene_fixture: RefCounted
+
+func before_all() -> void:
+	scope.install(true)
+	scene_fixture = FIXTURE.new()
+	var setup: Dictionary = scene_fixture.setup(get_tree())
+	assert_true(setup.ok, str(setup))
+
+func after_all() -> void:
+	scene_fixture.close()
+	scope.restore()
 
 class WriteRefusal extends "res://tests/support/FakeFileOps.gd":
 	var refuse_write := false
@@ -13,7 +26,7 @@ class WriteRefusal extends "res://tests/support/FakeFileOps.gd":
 		return super.write_bytes(path, bytes)
 
 func test_existing_unmarked_and_ink_bearing_documents_discard_retired_metadata() -> void:
-	var fixture: Dictionary = FIXTURE.make_snapshot()
+	var fixture: Dictionary = preload("res://scripts/domain/run/RunSnapshotSchema.gd").validate(scene_fixture.snapshot)
 	assert_true(fixture.get("ok", false), str(fixture))
 	if not fixture.get("ok", false): return
 	var built: Dictionary = SCHEMA.build(&"slot", 1, &"manual", {
@@ -43,7 +56,7 @@ func test_refused_atomic_overwrite_preserves_progress_and_retry_omits_ink() -> v
 	add_child_autofree(manager)
 	assert_true(manager.initialize(storage).get("ok", false))
 	assert_true(manager.configure_mutation_gate(GATE.new()).get("ok", false))
-	var fixture: Dictionary = FIXTURE.make_snapshot()
+	var fixture: Dictionary = preload("res://scripts/domain/run/RunSnapshotSchema.gd").validate(scene_fixture.snapshot)
 	assert_true(fixture.get("ok", false), str(fixture))
 	if not fixture.get("ok", false): return
 	var snapshot: Dictionary = fixture.value.candidate

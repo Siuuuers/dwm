@@ -12,15 +12,11 @@ const FILES := preload("res://tests/support/FakeFileOps.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const SETTINGS_THEME := preload("res://scripts/ui/SettingsTheme.gd")
 const PRELUDE := preload("res://scripts/ui/Day7PreludeSurface.gd")
-const DATING_FIXTURE := preload("res://tests/unit/test_dating_physical_owner.gd")
 
 class RunOwner extends RefCounted:
-	var dating_state: Object
 	var day := 1
 	var dark_mode := false
 	var session_captures := 0
-	func capture_dating_challenge_state() -> Dictionary:
-		return dating_state.capture_dating_challenge_state()
 	var gate: Object
 	var handle := {"active": true, "generation": 1, "run_id": "pause-run", "owner_id": 42}
 	func capture_live_session() -> Dictionary:
@@ -160,7 +156,19 @@ var focus: Button
 var original: Node
 var input_backup: Dictionary = {}
 var _embed_subwindows_backup := false
-var _retained_context := preload("res://tests/support/RetainedFrozenContextFixture.gd").new()
+var _scene_fixture := preload("res://tests/support/SceneRunSaveFixture.gd").new()
+var _scope := preload("res://tests/support/SceneValidationScope.gd").new()
+
+func before_all() -> void:
+	_scope.install(true)
+	var result: Dictionary = _scene_fixture.setup(get_tree())
+	assert_true(result.get("ok", false), str(result))
+	if result.get("ok", false):
+		assert_true(_scene_fixture.game.apply_restore_silent({"snapshot": _scene_fixture.snapshot}).ok)
+
+func after_all() -> void:
+	_scene_fixture.close()
+	_scope.restore()
 
 func before_each() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -220,7 +228,6 @@ func after_each() -> void:
 		InputMap.action_erase_events(action)
 		for event: InputEvent in input_backup[action].events: InputMap.action_add_event(action, event)
 	input_backup.clear()
-	_retained_context.restore()
 
 func _open_pause() -> bool:
 	var result: Dictionary = await controller.request_pause()
@@ -576,198 +583,42 @@ func test_failed_load_with_changed_session_cannot_resume_either_source() -> void
 	assert_eq(saves.writes, 0)
 
 
-class DatingSaveState extends DATING_FIXTURE.State:
-	var lifecycle: Dictionary
-	func capture_run_snapshot_input() -> Dictionary:
-		return {"lifecycle": lifecycle.duplicate(true)}
-
-
-class DatingCapture extends RefCounted:
-	var snapshot: Dictionary
-	var state: Object
+class SceneCapture extends RefCounted:
+	var result: Dictionary
 	var captures := 0
 	func capture() -> Dictionary:
 		captures += 1
-		var current := snapshot.duplicate(true)
-		current.gameplay["route_context"] = state.route_context.duplicate(true)
-		current.gameplay.route_context["active_dating_challenge"] = state.saved.duplicate(true)
-		return {"ok": true, "value": {"snapshot_input": current, "route_id": "dating",
-			"active_app_id": null, "dialogic_checkpoint": {}, "audio_context": {}, "content_version": 1}}
+		return result.duplicate(true)
 
-
-func _dating_save_fixture(debug: bool = false) -> Dictionary:
-	# This historical dating fixture owns only its explicit frozen-context schemas.
-	var retained: Dictionary = _retained_context.install([
-		"dating.solo.priscilla.day1.pre_challenge",
-		"dating.solo.priscilla.day1.post_challenge",
-	])
-	assert_true(retained.get("ok", false), str(retained))
-	if not retained.get("ok", false): return {}
-	var snapshot_result: Dictionary = preload("res://tests/support/BackupSnapshotFixture.gd").make_snapshot()
-	assert_true(snapshot_result.get("ok", false), str(snapshot_result))
-	if not snapshot_result.get("ok", false): return {}
-	var snapshot: Dictionary = snapshot_result.value.candidate
-	var dating_state := DatingSaveState.new()
-	dating_state.lifecycle = snapshot.lifecycle.duplicate(true)
-	if debug: dating_state.inventory = {"debug_key": 1, "lucky_charm": 1}
-	var dating_profile: RefCounted = DATING_FIXTURE.ReachedProfile.new()
-	var issuer := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd").new()
-	assert_true(issuer.configure(preload("res://tests/support/FakeDesktopIssuerRootStore.gd").new("91".repeat(32), 1)).ok)
-	var generation: RefCounted = preload("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd").new() if debug else preload("res://tests/support/FakeMinesweeperGenerationPort.gd").new()
-	var mines: Array = []
-	for index in 36: mines.append(index)
-	if not debug:
-		generation.arm_materialize({"schema_version": 1, "width": 18, "height": 18,
-			"mine_indices": mines, "mine_count": 36})
-	var physical := preload("res://scripts/application/run/DatingPhysicalOwner.gd").new()
-	assert_true(physical.configure(issuer, dating_state, dating_profile, generation).ok)
-	assert_true(physical.configure_frozen_narrative_contexts().ok)
-	var presentation := preload("res://scripts/application/run/DatingPresentationPort.gd").new()
-	assert_true(presentation.configure(issuer, physical).ok)
-	var context := {"day": 1, "kind": "solo", "participants": ["priscilla"], "schedule_entry_id": "pause-date"}
-	var root_receipt: Dictionary = issuer.issue(&"transaction_id").value.issuer_receipt
-	var request := {"resolution_id": "pause-date-resolution", "resolution_issuer_receipt": root_receipt,
-		"stage_id": "execute_dates", "substage_id": "pause-date", "route_id": "dating",
-		"timeline_id": "dating.solo.priscilla.day1.pre_challenge", "context": context,
-		"completion_transaction_id": "", "completion_transaction_provenance": {}}
-	var canonical := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
-	var sources: Array = []
-	for key: String in ["resolution_id", "stage_id", "substage_id", "route_id", "timeline_id"]:
-		sources.append(key + "=" + str(canonical.canonical_json(request[key]).value.text))
-	sources.append("role=" + str(canonical.canonical_json("presentation.completion").value.text))
-	sources.append("context_sha256=" + str(canonical.canonical_json(canonical.canonical_sha256(context).value.sha256).value.text))
-	sources.sort()
-	var child: Dictionary = issuer.derive_child({"parent_receipt_id": root_receipt.receipt_id,
-		"child_kind": presentation.COMPLETION_CHILD_KIND, "ordinal": 0, "source_ids": sources})
-	assert_true(child.ok)
-	request.completion_transaction_id = child.value.child_id
-	request.completion_transaction_provenance = child.value.provenance
-	var begun: Dictionary = presentation.begin(request)
-	assert_true(begun.get("ok", false), str(begun))
-	if not begun.get("ok", false): return {}
-	source.command = begun.value.presentation_command
-	source.scene_file_path = "res://scenes/dating/DatingScene.tscn"
-	router.route = "dating"
-	run_owner.handle.run_id = snapshot.run_id
-	run_owner.dating_state = dating_state
+func _scene_save_fixture() -> Dictionary:
+	var snapshot: Dictionary = _scene_fixture.snapshot
 	var files := FILES.new()
-	var storage := STORAGE.new("pause-dating-save", files)
+	var storage := STORAGE.new("pause-scene-save", files)
 	var manager: Node = autofree(preload("res://autoload/SaveManager.gd").new())
 	assert_true(manager.initialize(storage).ok)
 	assert_true(manager.configure_mutation_gate(gate).ok)
-	manager._journal.reset(snapshot.run_id)
-	var seeded: Dictionary = manager._journal.prepare_record(snapshot, &"day_start")
+	var seeded: Dictionary = manager._journal.prepare_seed(_scene_fixture.document, _scene_fixture.document.current_snapshot)
 	assert_true(seeded.get("ok", false), str(seeded))
 	if not seeded.get("ok", false): return {}
 	assert_true(manager._journal.commit_prepared(seeded.value.candidate).ok)
-	var capture := DatingCapture.new()
-	capture.state = dating_state
-	capture.snapshot = {}
-	for key: String in ["lifecycle", "gameplay", "contacts", "committed_schedule", "desktop", "dating",
-			"schedule_view", "applied_effect_transaction_ids", "applied_variable_transaction_ids", "command_receipts"]:
-		capture.snapshot[key] = snapshot[key].duplicate(true)
+	var snapshot_input: Dictionary = _scene_fixture.game.capture_run_snapshot_input()
+	snapshot_input.desktop.board["command_receipts"] = {}
+	var expanded: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(snapshot.narrative_checkpoint)
+	assert_true(expanded.get("ok", false), str(expanded))
+	if not expanded.get("ok", false): return {}
+	var capture := SceneCapture.new()
+	capture.result = {"ok": true, "value": {"snapshot_input": snapshot_input,
+		"route_id": "scene", "active_app_id": null, "dialogic_checkpoint": expanded.value,
+		"audio_context": {}, "content_version": snapshot.content_version}}
 	controller.free()
 	controller = CONTROLLER.new()
 	add_child(controller)
 	assert_true(controller.configure({"game_state": run_owner, "saves": manager, "bridge": bridge,
 		"input": input_owner, "audio": audio_owner, "gate": gate, "profile": profile,
-		"localization": localization, "backup_capture": capture.capture, "dating_presentation": presentation,
+		"localization": localization, "backup_capture": capture.capture,
 		"settings_services": {"tts": null, "window": null, "profile_reset_admission": func() -> bool: return false}}, router).ok)
-	assert_true(manager.configure_backup_capture_provider(controller.capture_backup_checkpoint_inputs).ok)
-	return {"state": dating_state, "profile": dating_profile, "issuer": issuer, "generation": generation,
-		"physical": physical, "presentation": presentation, "manager": manager, "files": files, "storage": storage,
-		"capture": capture}
-
-
-func test_paused_dating_manual_and_quick_save_restore_exact_board_and_command() -> void:
-	var fixture := _dating_save_fixture()
-	if fixture.is_empty() or not await _open_pause(): return
-	var held: Dictionary = controller._handle.duplicate(true)
-	var first: Dictionary = controller._backup_port.prepare_action("save", "slot:1")
-	assert_true(first.get("ok", false), str(first))
-	if not first.get("ok", false): return
-	assert_true((await controller._backup_port.commit_action(first.value.token)).ok)
-	assert_eq(controller._handle, held)
-	assert_true(get_tree().paused)
-	assert_false(source.visible)
-	assert_true((await controller.request_continue()).ok)
-	assert_true(fixture.presentation.dispatch_physical(source.command, "continue", -1, 0).ok)
-	assert_true(fixture.presentation.dispatch_physical(source.command, "reveal", 36, 0).ok)
-	assert_true(fixture.presentation.dispatch_physical(source.command, "flag", 18, 0).ok)
-	var exact_record: Dictionary = fixture.state.saved.duplicate(true)
-	if not await _open_pause(): return
-	held = controller._handle.duplicate(true)
-	var quick: Dictionary = controller._backup_port.prepare_quick_action("save")
-	assert_true(quick.get("ok", false), str(quick))
-	if not quick.get("ok", false): return
-	assert_false(quick.value.confirmation_required)
-	assert_true((await controller._backup_port.commit_action(quick.value.token)).ok)
-	assert_eq(controller._handle, held, "saving never releases or replaces Pause custody")
-	assert_true(get_tree().paused)
-	assert_eq(fixture.state.saved, exact_record)
-	assert_eq(input_owner.get_state().value.state, &"Suspended")
-	var loaded_text: Dictionary = fixture.storage.read_text("quicksave.json")
-	assert_true(loaded_text.get("ok", false), str(loaded_text))
-	if not loaded_text.get("ok", false): return
-	var document: Dictionary = preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd").validate(JSON.parse_string(loaded_text.value))
-	assert_true(document.get("ok", false), str(document))
-	if not document.get("ok", false): return
-	var saved: Dictionary = document.value.candidate.current_snapshot.snapshot
-	assert_eq(saved.route_id, "dating")
-	assert_null(saved.active_app_id, "there is no substitute main/Backup foreground app")
-	assert_eq(saved.narrative_checkpoint, {})
-	assert_eq(saved.gameplay.route_context.active_dating_challenge, exact_record)
-	assert_eq(saved.gameplay.route_context.dating_frozen_contexts_v1,
-		fixture.state.route_context.dating_frozen_contexts_v1)
-	var restored: Node = add_child_autofree(preload("res://autoload/GameState.gd").new())
-	restored.reset_game()
-	var participant := preload("res://scripts/application/restore/RunRestoreParticipant.gd").new(restored)
-	var prepared: Dictionary = participant.prepare({"snapshot": saved})
-	assert_true(prepared.ok)
-	var applied: Dictionary = participant.apply_silent(prepared.value.run_plan)
-	assert_true(applied.get("ok", false), str(applied))
-	if not applied.get("ok", false): return
-	var fresh := preload("res://scripts/application/run/DatingPhysicalOwner.gd").new()
-	assert_true(fresh.configure(fixture.issuer, restored, fixture.profile, fixture.generation).ok)
-	assert_true(fresh.configure_frozen_narrative_contexts().ok)
-	assert_true(fresh.begin_physical(source.command).ok)
-	assert_eq(restored.capture_dating_challenge_state().value, exact_record)
-	assert_eq(restored.route_context.dating_frozen_contexts_v1,
-		fixture.state.route_context.dating_frozen_contexts_v1)
-	assert_eq(fresh.pull_physical(source.command.physical_token).value.board,
-		fixture.presentation.pull_physical(source.command).value.board)
-	assert_eq(fixture.generation.call_log.size(), 1, "restore never rerolls the saved board")
-	assert_true((await controller.request_continue()).ok)
-
-
-func test_paused_dating_save_cancellation_and_board_drift_preserve_suspension_and_disk() -> void:
-	var fixture := _dating_save_fixture()
-	if fixture.is_empty(): return
-	assert_true(fixture.presentation.dispatch_physical(source.command, "continue", -1, 0).ok)
-	assert_true(fixture.presentation.dispatch_physical(source.command, "reveal", 36, 0).ok)
-	if not await _open_pause(): return
-	var held: Dictionary = controller._handle.duplicate(true)
-	var disk: Dictionary = fixture.files.snapshot_persisted()
-	var journal: Dictionary = fixture.manager._journal.capture_state()
-	var prepared: Dictionary = controller._backup_port.prepare_action("save", "slot:2")
-	assert_true(prepared.get("ok", false), str(prepared))
-	if not prepared.get("ok", false): return
-	controller._backup_port.cancel_action(prepared.value.token)
-	assert_eq(fixture.files.snapshot_persisted(), disk)
-	assert_eq(fixture.manager._journal.capture_state(), journal)
-	prepared = controller._backup_port.prepare_action("save", "slot:2")
-	assert_true(prepared.ok)
-	# Simulate a concurrent owner change through the public reducer command door.
-	assert_true(fixture.presentation.dispatch_physical(source.command, "flag", 18, 0).ok)
-	var refused: Dictionary = await controller._backup_port.commit_action(prepared.value.token)
-	assert_eq(refused.get("code"), &"stale_backup_source")
-	assert_eq(fixture.files.snapshot_persisted(), disk)
-	assert_eq(fixture.manager._journal.capture_state(), journal)
-	assert_eq(controller._handle, held)
-	assert_true(get_tree().paused)
-	assert_false(source.visible)
-	assert_eq(input_owner.get_state().value.state, &"Suspended")
-	assert_true((await controller.request_continue()).ok)
+	assert_true(manager.configure_backup_capture_provider(capture.capture).ok)
+	return {"manager": manager, "files": files, "storage": storage, "capture": capture}
 
 
 func test_desktop_pause_capture_preserves_the_covered_app_and_suspension() -> void:
@@ -807,39 +658,6 @@ func test_desktop_pause_capture_refuses_route_session_and_narrative_drift() -> v
 	assert_eq(saves.writes, 0)
 
 
-func test_paused_debug_preparation_save_preserves_exact_frontier_without_entering_attempt() -> void:
-	var fixture := _dating_save_fixture(true)
-	if fixture.is_empty(): return
-	var entered: Dictionary = fixture.presentation.dispatch_physical(source.command, "continue", -1, 0)
-	assert_true(entered.get("ok", false), str(entered))
-	if not entered.get("ok", false): return
-	assert_eq(fixture.state.saved.phase, "preparing")
-	assert_true(preload("res://scripts/application/run/DatingChallengeEnvelope.gd").validate(fixture.state.saved))
-	var exact: Dictionary = fixture.state.saved.duplicate(true)
-	var history: Dictionary = fixture.physical._history_state()
-	assert_true(fixture.physical._pending_checkpoint.is_empty())
-	if not await _open_pause(): return
-	var prepared: Dictionary = controller._backup_port.prepare_quick_action("save")
-	assert_true(prepared.get("ok", false), str(prepared))
-	if not prepared.get("ok", false): return
-	var committed: Dictionary = await controller._backup_port.commit_action(prepared.value.token)
-	assert_true(committed.get("ok", false), str(committed))
-	if not committed.get("ok", false): return
-	var stored: Dictionary = fixture.storage.read_text("quicksave.json")
-	assert_true(stored.get("ok", false), str(stored))
-	if not stored.get("ok", false): return
-	var document: Dictionary = preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd").validate(JSON.parse_string(stored.value))
-	assert_true(document.get("ok", false), str(document))
-	if not document.get("ok", false): return
-	assert_eq(document.value.candidate.current_snapshot.snapshot.gameplay.route_context.active_dating_challenge, exact)
-	assert_eq(fixture.state.saved, exact)
-	assert_eq(fixture.physical._history_state(), history, "saving preparation does not enter an irreversible Profile attempt")
-	assert_true(fixture.physical._pending_checkpoint.is_empty())
-	assert_true(get_tree().paused)
-	assert_false(source.visible)
-	assert_true((await controller.request_continue()).ok)
-
-
 func _quick_native_key(code: Key, pressed: bool, echo: bool = false, shift_pressed: bool = false) -> void:
 	var event := InputEventKey.new()
 	event.keycode = code
@@ -877,8 +695,8 @@ func _quick_write_count(files: RefCounted) -> int:
 		if operation.operation == &"write_bytes": count += 1
 	return count
 
-func test_paused_quick_save_uses_real_dating_capture_without_changing_focus_or_backup_selection() -> void:
-	var fixture := _dating_save_fixture()
+func test_paused_quick_save_uses_current_scene_capture_without_changing_focus_or_backup_selection() -> void:
+	var fixture := _scene_save_fixture()
 	if fixture.is_empty() or not await _open_pause(): return
 	var backup: Control = controller.surface._hosts[&"backup"]
 	var selected: String = backup.selected_locator
@@ -925,7 +743,7 @@ func test_paused_quick_save_uses_real_dating_capture_without_changing_focus_or_b
 	_quick_native_key(KEY_F5, false)
 
 func test_paused_quick_rebinding_quarantines_the_held_new_key_until_release() -> void:
-	var fixture := _dating_save_fixture()
+	var fixture := _scene_save_fixture()
 	if fixture.is_empty() or not await _open_pause(): return
 	_quick_native_key(KEY_F6, true)
 	var replacement := InputEventKey.new()
@@ -940,7 +758,7 @@ func test_paused_quick_rebinding_quarantines_the_held_new_key_until_release() ->
 	assert_true(fixture.storage.exists("quicksave.json"), str(controller._quick_commands.last_result))
 
 func test_paused_quick_rejects_unsupported_modifier_binding_and_preserves_default() -> void:
-	var fixture := _dating_save_fixture()
+	var fixture := _scene_save_fixture()
 	if fixture.is_empty(): return
 	var mappings: Dictionary = profile.get_controls_binding_snapshot()
 	var replacement := InputEventKey.new()
@@ -1008,7 +826,7 @@ func test_paused_controller_quick_load_uses_saved_binding_and_compensates_failur
 	assert_true(saves.pending.is_empty())
 
 func test_paused_settings_quick_save_keeps_host_focus_and_exact_canonical_source() -> void:
-	var fixture := _dating_save_fixture()
+	var fixture := _scene_save_fixture()
 	if fixture.is_empty() or not await _open_pause(): return
 	controller.surface._activate(&"settings")
 	for frame in 4: await get_tree().process_frame
@@ -1019,7 +837,7 @@ func test_paused_settings_quick_save_keeps_host_focus_and_exact_canonical_source
 	var focused := get_viewport().gui_get_focus_owner()
 	assert_true(is_instance_valid(focused) and settings.is_ancestor_of(focused))
 	var held: Dictionary = controller._handle.duplicate(true)
-	var exact: Dictionary = fixture.state.saved.duplicate(true)
+	var exact: Dictionary = _scene_fixture.snapshot.narrative_checkpoint.duplicate(true)
 	var profile_before: Dictionary = profile.get_profile_snapshot()
 	var backup: Control = controller.surface._hosts[&"backup"]
 	var selected: String = backup.selected_locator
@@ -1029,14 +847,14 @@ func test_paused_settings_quick_save_keeps_host_focus_and_exact_canonical_source
 	var stored: Dictionary = fixture.storage.read_text("quicksave.json")
 	assert_true(stored.get("ok", false), str(stored))
 	if not stored.get("ok", false): return
-	var document: Dictionary = preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd").validate(JSON.parse_string(stored.value))
+	var document: Dictionary = preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd").validate(preload("res://scripts/validation/StrictJson.gd").parse_object(stored.value).value)
 	assert_true(document.get("ok", false), str(document))
 	if not document.get("ok", false): return
 	var saved: Dictionary = document.value.candidate.current_snapshot.snapshot
-	assert_eq(saved.route_id, "dating")
-	assert_null(saved.active_app_id, "Settings and Pause do not become canonical desktop apps")
-	assert_eq(saved.gameplay.route_context.active_dating_challenge, exact)
-	assert_eq(fixture.state.saved, exact)
+	assert_eq(saved.route_id, "scene")
+	assert_false(saved.has("active_app_id"), "Settings and Pause do not become canonical desktop apps")
+	assert_eq(saved.narrative_checkpoint, exact)
+	assert_eq(_scene_fixture.snapshot.narrative_checkpoint, exact)
 	assert_eq(profile.get_profile_snapshot(), profile_before)
 	assert_eq(controller._handle, held)
 	assert_true(get_tree().paused)
@@ -1152,7 +970,7 @@ func test_paused_quick_refusal_is_visible_and_settings_custody_blocks_shortcuts(
 
 func test_paused_settings_reset_window_forwards_contacts_without_saving_or_queued_replay() -> void:
 	get_viewport().gui_embed_subwindows = true
-	var fixture := _dating_save_fixture()
+	var fixture := _scene_save_fixture()
 	if fixture.is_empty() or not await _open_pause(): return
 	controller.surface._activate(&"settings")
 	var content: Control = controller.surface._hosts[&"settings"].get_content_host()
@@ -1204,7 +1022,7 @@ func test_paused_settings_reset_window_forwards_contacts_without_saving_or_queue
 
 func test_paused_settings_option_popup_forwards_release_and_retires_same_frame_save() -> void:
 	get_viewport().gui_embed_subwindows = true
-	var fixture := _dating_save_fixture()
+	var fixture := _scene_save_fixture()
 	if fixture.is_empty() or not await _open_pause(): return
 	controller.surface._activate(&"settings")
 	var content: Control = controller.surface._hosts[&"settings"].get_content_host()
@@ -1241,7 +1059,7 @@ func test_paused_settings_option_popup_forwards_release_and_retires_same_frame_s
 	assert_true(get_tree().paused)
 
 func test_paused_settings_binding_capture_never_saves_and_requires_fresh_release() -> void:
-	var fixture := _dating_save_fixture()
+	var fixture := _scene_save_fixture()
 	if fixture.is_empty() or not await _open_pause(): return
 	controller.surface._activate(&"settings")
 	var content: Control = controller.surface._hosts[&"settings"].get_content_host()
@@ -1275,7 +1093,7 @@ func test_paused_settings_binding_capture_never_saves_and_requires_fresh_release
 	assert_true(get_tree().paused)
 
 func test_paused_settings_pending_preference_commit_retires_save_until_release() -> void:
-	var fixture := _dating_save_fixture()
+	var fixture := _scene_save_fixture()
 	if fixture.is_empty() or not await _open_pause(): return
 	controller.surface._activate(&"settings")
 	var content: Control = controller.surface._hosts[&"settings"].get_content_host()

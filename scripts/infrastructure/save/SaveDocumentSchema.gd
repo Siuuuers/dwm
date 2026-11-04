@@ -1,23 +1,12 @@
 class_name SaveDocumentSchema
 extends RefCounted
 
-## Discriminated save-document union
-## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 4; v4 desktop durability,
-## Plan 02 Task 6, dwm-p2r.32).
-##
-## `DOCUMENT_VERSION` and `RunSnapshotSchema.SCHEMA_VERSION` are pinned to the same current integer and
-## independently enforced -- this document validator and its delegate `_validate_bundle()` ->
-## `RunSnapshotSchema.validate()` -- so a document/embedded-snapshot version mismatch can never both
-## pass: whichever one carries the wrong integer is rejected by its own owning check.
-
-const DOCUMENT_VERSION := 8
-const SCENE_DOCUMENT_VERSION := 9
+const DOCUMENT_VERSION := 9
+const SCENE_DOCUMENT_VERSION := DOCUMENT_VERSION
 
 const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 
-const DOCUMENT_KEYS: Array[String] = [
-	"current_snapshot", "kind", "recovery_journal", "save_reason", "schema_version", "slot_id",
-]
+const DOCUMENT_KEYS := SCENE_DOCUMENT_KEYS
 const SCENE_DOCUMENT_KEYS: Array[String] = [
 	"current_snapshot", "kind", "recovery_journal", "schema_version", "slot_id",
 ]
@@ -97,7 +86,7 @@ static func build(
 	# which allocates a fresh Dictionary/Array at every container node: the `duplicate(true)`
 	# that used to precede it copied the whole retained history a second time per save.
 	var document := {
-		"schema_version": SCENE_DOCUMENT_VERSION if bundle_error.value.candidate.schema_version == 9 else DOCUMENT_VERSION,
+		"schema_version": SCENE_DOCUMENT_VERSION,
 		"kind": String(kind),
 		"slot_id": RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(slot_id),
 		"current_snapshot": {
@@ -106,25 +95,16 @@ static func build(
 		},
 		"recovery_journal": (_profile_compose_build_journal(journal, proven_journal, proven, profile)),
 	}
-	if document.schema_version == DOCUMENT_VERSION:
-		document["save_reason"] = String(save_reason)
 	tick = _profile_phase(profile, "document_schema_compose_us", tick)
-	var family_error := _journal_family_error(document.schema_version, document.recovery_journal)
-	if not family_error.is_empty(): return _fail(&"invalid_recovery_journal", family_error)
-	if document.schema_version == SCENE_DOCUMENT_VERSION:
-		if proven:
-			var proof_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
-			var proof_error := _scene_proof_error(journal, proven_journal)
-			_profile_phase(profile, "document_schema_proof_equality_us", proof_tick)
-			if not proof_error.is_empty(): return _fail(&"invalid_recovery_journal", proof_error)
-		var scene_error := _profile_scene_journal_error(document.current_snapshot, document.recovery_journal, profile, "document_schema")
-		if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
-	if document.schema_version == SCENE_DOCUMENT_VERSION:
-		var display_time := normalize_optional_saved_time(saved_time)
-		if not display_time.is_empty(): document["saved_time"] = display_time
-	elif not saved_time.is_empty():
-		document["saved_time"] = RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(
-			saved_time.duplicate(true))
+	if proven:
+		var proof_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
+		var proof_error := _scene_proof_error(journal, proven_journal)
+		_profile_phase(profile, "document_schema_proof_equality_us", proof_tick)
+		if not proof_error.is_empty(): return _fail(&"invalid_recovery_journal", proof_error)
+	var scene_error := _profile_scene_journal_error(document.current_snapshot, document.recovery_journal, profile, "document_schema")
+	if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
+	var display_time := normalize_optional_saved_time(saved_time)
+	if not display_time.is_empty(): document["saved_time"] = display_time
 	if document.has("saved_time") and not validate_saved_time(document["saved_time"]):
 		_profile_phase(profile, "document_schema_metadata_us", tick)
 		return _fail(&"invalid_saved_time", "saved_time must bind a UTC instant, original offset, and frozen HH:MM")
@@ -229,12 +209,11 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 	for key: Variant in document:
 		# Retired decoration is accepted from old saves and discarded at this boundary.
 		if key == "ink_marks": continue
-		if document.get("schema_version") == SCENE_DOCUMENT_VERSION:
-			if key == "save_reason": continue
-			if key == "saved_time":
-				var display_time := normalize_optional_saved_time(document[key])
-				if not display_time.is_empty(): candidate[key] = display_time
-				continue
+		if key == "save_reason": continue
+		if key == "saved_time":
+			var display_time := normalize_optional_saved_time(document[key])
+			if not display_time.is_empty(): candidate[key] = display_time
+			continue
 		# The outgoing splice replaces the caller's journal with proven bundles below;
 		# retain only its container here so the existing array check keeps its order.
 		if key == "current_snapshot" or (use_proven_journal and key == "recovery_journal"):
@@ -244,7 +223,7 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 	tick = _profile_phase(profile, "outgoing_schema_envelope_normalize_us", tick)
 	var keys: Array = candidate.keys()
 	keys.sort()
-	var expected := (SCENE_DOCUMENT_KEYS if candidate.get("schema_version") == SCENE_DOCUMENT_VERSION else DOCUMENT_KEYS).duplicate()
+	var expected := SCENE_DOCUMENT_KEYS.duplicate()
 	if candidate.has("saved_time"):
 		expected.append("saved_time")
 	expected.sort()
@@ -256,11 +235,9 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 		return _fail(&"invalid_document_shape", "schema_version must be an integer")
 	if int(candidate["schema_version"]) > SCENE_DOCUMENT_VERSION:
 		return _fail(&"unsupported_schema_version", str(candidate["schema_version"]))
-	if int(candidate["schema_version"]) not in [DOCUMENT_VERSION, SCENE_DOCUMENT_VERSION]:
+	if int(candidate["schema_version"]) != SCENE_DOCUMENT_VERSION:
 		return _fail(&"invalid_document_shape", "schema_version must be %d" % DOCUMENT_VERSION)
 	var discriminator_error := _validate_locator(str(candidate["kind"]), candidate["slot_id"])
-	if candidate.schema_version == DOCUMENT_VERSION:
-		discriminator_error = _validate_discriminators(str(candidate.kind), candidate.slot_id, str(candidate.save_reason))
 	if discriminator_error != "":
 		return _fail(&"invalid_discriminator", discriminator_error)
 	if typeof(candidate["current_snapshot"]) != TYPE_DICTIONARY:
@@ -286,11 +263,10 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 		return _fail(&"invalid_document_shape", "recovery_journal must be an array")
 	tick = _profile_phase(profile, "outgoing_schema_compose_current_us", tick)
 	if use_proven_journal:
-		if candidate.schema_version == SCENE_DOCUMENT_VERSION:
-			var proof_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
-			var proof_error := _scene_proof_error(candidate.recovery_journal, proven_journal)
-			_profile_phase(profile, "outgoing_schema_proof_equality_us", proof_tick)
-			if not proof_error.is_empty(): return _fail(&"invalid_recovery_journal", proof_error)
+		var proof_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
+		var proof_error := _scene_proof_error(candidate.recovery_journal, proven_journal)
+		_profile_phase(profile, "outgoing_schema_proof_equality_us", proof_tick)
+		if not proof_error.is_empty(): return _fail(&"invalid_recovery_journal", proof_error)
 		# The document's own entries are not validated here because they are not what is being
 		# written: the caller's proven bundles are, one per entry, in this order. See
 		# `validate_outgoing()` for the obligation that carries and the equivalence it rests on.
@@ -303,28 +279,22 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 				composed.append(_normalize_engine_text(bundle))
 		candidate["recovery_journal"] = composed
 		_profile_phase(profile, "outgoing_schema_journal_composition_us", composition_tick)
-		var composed_family_error := _journal_family_error(candidate.schema_version, composed)
-		if not composed_family_error.is_empty(): return _fail(&"invalid_recovery_journal", composed_family_error)
-		if candidate.schema_version == SCENE_DOCUMENT_VERSION:
-			var scene_error := _profile_scene_journal_error(candidate.current_snapshot, composed, profile, "outgoing_schema")
-			if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
+		var scene_error := _profile_scene_journal_error(candidate.current_snapshot, composed, profile, "outgoing_schema")
+		if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
 		_profile_phase(profile, "outgoing_schema_compose_proven_journal_us", tick)
 		return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
 	var journal_error := _validate_journal(candidate["recovery_journal"])
 	_profile_phase(profile, "outgoing_schema_validate_journal_us", tick)
 	if journal_error != "":
 		return _fail(&"invalid_recovery_journal", journal_error)
-	var family_error := _journal_family_error(candidate.schema_version, candidate.recovery_journal)
-	if not family_error.is_empty(): return _fail(&"invalid_recovery_journal", family_error)
-	if candidate.schema_version == SCENE_DOCUMENT_VERSION:
-		var admitted_bundles: Array = [candidate.current_snapshot]
-		var scene_error := _scene_journal_error(candidate.current_snapshot, candidate.recovery_journal,
-			{}, "", admitted_bundles if scene_seed_receiver.is_valid() else null)
-		if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
-		# Admission detaches the receiver material from its public candidate.
-		# Legacy admission does not prove complete journal snapshots.
-		if scene_seed_receiver.is_valid():
-			scene_seed_receiver.call(candidate.duplicate(true), admitted_bundles.duplicate(true))
+	var admitted_bundles: Array = [candidate.current_snapshot]
+	var scene_error := _scene_journal_error(candidate.current_snapshot, candidate.recovery_journal,
+		{}, "", admitted_bundles if scene_seed_receiver.is_valid() else null)
+	if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
+	# Admission detaches the receiver material from its public candidate.
+	# Legacy admission does not prove complete journal snapshots.
+	if scene_seed_receiver.is_valid():
+		scene_seed_receiver.call(candidate.duplicate(true), admitted_bundles.duplicate(true))
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
 
 static func _validate_initial_types_before_normalization(document: Dictionary) -> Dictionary:
@@ -338,18 +308,6 @@ static func _validate_initial_types_before_normalization(document: Dictionary) -
 		var error := RUN_SNAPSHOT_SCHEMA._scene_initial_types_error(bundle.snapshot)
 		if not error.is_empty(): return _fail(&"scene_initial_types_invalid", error)
 	return {"ok": true}
-
-## Scene recovery is a complete owner-validated family, including proof/splice
-## paths. Legacy recovery admission remains unchanged above.
-static func _journal_family_error(version: int, journal: Array) -> String:
-	# Preserve legacy recovery screening, but never admit a scene member into a
-	# calendar document, including the caller-owned proof/splice fast path.
-	if version != DOCUMENT_VERSION: return ""
-	for entry: Variant in journal:
-		if entry is Dictionary and entry.get("snapshot") is Dictionary \
-				and entry.snapshot.get("schema_version") == SCENE_DOCUMENT_VERSION:
-			return "Run9 recovery cannot belong to Save8"
-	return ""
 
 static func _scene_journal_error(current: Dictionary, journal: Array,
 		profile: Dictionary = {}, phase: String = "", admitted_bundles: Variant = null) -> String:

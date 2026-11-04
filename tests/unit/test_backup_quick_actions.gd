@@ -5,37 +5,14 @@ const PORT := preload("res://scripts/application/backup/BackupPresentationPort.g
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FILES := preload("res://tests/support/FakeFileOps.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
-const SNAPSHOT_FIXTURE := preload("res://tests/support/BackupSnapshotFixture.gd")
 const CANONICAL := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
-# These policy fixtures explicitly double admission as well as restoration.
-# Their retained Save8 payload exercises token/capture/write behavior only;
-# test_scene_backup_inspection owns real Save9 player admission.
-class AdmittedRecord extends RefCounted:
-	static func project(manager: Node, locator_id: String, result: Dictionary) -> Dictionary:
-		if not result.get("ok", false) or result.value.get("reason") != "older_version": return result
-		var locator: Dictionary = manager._backup_locator(locator_id)
-		var read: Dictionary = manager._storage.inspect_revision(locator.relative_path)
-		var parsed: Dictionary = manager.STRICT_JSON.parse_object(read.get("value", {}).get("text", ""))
-		if not parsed.get("ok", false) or parsed.value.get("schema_version") != 8: return result
-		var record: Dictionary = result.value
-		record.state = "occupied"
-		record.reason = ""
-		record.family = "legacy_day"
-		record.day = int(parsed.value.current_snapshot.snapshot.lifecycle.day)
-		record.saved_time = parsed.value.saved_time.hhmm
-		record.loadable = true
-		record.load_family = record.family
-		record.load_day = record.day
-		record.load_saved_time = record.saved_time
-		return result
+# Restoration is doubled; admission and atomic writes use current scene data.
 class RestoreFixture extends "res://autoload/SaveManager.gd":
 	var restore_unavailable := false
 	var restore_failure_code := &"fixture_restore_unavailable"
 	var restore_prepares := 0
 	var restore_commits := 0
-	func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictionary:
-		return AdmittedRecord.project(self, locator_id, super._inspect_backup_profiled(locator_id, profile))
 	func _prepare_restore(locator: Dictionary, _expected_revision: String = "") -> Dictionary:
 		var read: Dictionary = _storage.read_text(str(locator["relative_path"]))
 		if not read.get("ok", false): return read
@@ -72,8 +49,6 @@ class QuickWriteProbe extends "res://tests/support/ManualSaveWitnessPort.gd":
 		if result.get("ok", false) and result.get("value") is Dictionary and result.value.is_empty():
 			compact_successes += 1
 		return result
-	func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictionary:
-		return AdmittedRecord.project(self, locator_id, super._inspect_backup_profiled(locator_id, profile))
 	func _prepare_restore(locator: Dictionary, _expected_revision: String = "") -> Dictionary:
 		var read: Dictionary = _storage.read_text(str(locator["relative_path"]))
 		if not read.get("ok", false): return read
@@ -109,6 +84,23 @@ class Admission extends RefCounted:
 	func guard() -> Dictionary:
 		return {"ok": allowed, "code": &"ok" if allowed else &"fixture_source_changed"}
 
+var _scene_fixture := preload("res://tests/support/SceneRunSaveFixture.gd").new()
+var _scope := preload("res://tests/support/SceneValidationScope.gd").new()
+var _snapshot := {}
+
+func before_all() -> void:
+	_scope.install(true)
+	var setup: Dictionary = _scene_fixture.setup(get_tree())
+	assert_true(setup.get("ok", false), str(setup))
+	if not setup.get("ok", false): return
+	_snapshot = _scene_fixture.snapshot
+	var adopted: Dictionary = _scene_fixture.game.apply_restore_silent({"snapshot": _snapshot})
+	assert_true(adopted.get("ok", false), str(adopted))
+
+func after_all() -> void:
+	_scene_fixture.close()
+	_scope.restore()
+
 var _manager: Node
 var files: RefCounted
 var storage: RefCounted
@@ -130,15 +122,11 @@ func after_each() -> void:
 	_manager.free()
 
 func _seed() -> void:
-	var fixture: Dictionary = SNAPSHOT_FIXTURE.make_snapshot()
-	assert_true(fixture.get("ok", false), str(fixture))
-	if not fixture.get("ok", false): return
-	var snapshot: Dictionary = fixture["value"]["candidate"]
-	_manager._journal.reset(snapshot["run_id"])
-	var prepared: Dictionary = _manager._journal.prepare_record(snapshot, &"day_start")
+	var bundle: Dictionary = _scene_fixture.document.current_snapshot
+	var prepared: Dictionary = _manager._journal.prepare_seed(_scene_fixture.document, bundle)
 	assert_true(prepared.get("ok", false), str(prepared))
 	if not prepared.get("ok", false): return
-	assert_true(_manager._journal.commit_prepared(prepared["value"]["candidate"]).get("ok", false))
+	assert_true(_manager._journal.commit_prepared(prepared.value.candidate).get("ok", false))
 
 func _save_quick() -> void:
 	var prepared: Dictionary = port.prepare_quick_action("save")
@@ -277,7 +265,7 @@ func test_quick_load_requires_single_use_consent() -> void:
 	if not prepared.get("ok", false): return
 	assert_true(prepared.value.confirmation_required)
 	assert_eq(prepared.value.confirmation_kind, "replace_progress")
-	assert_eq(prepared.value.record.family, "legacy_day")
+	assert_eq(prepared.value.record.family, "scene")
 	assert_eq(_manager.restore_prepares, 1)
 	assert_eq(_manager.restore_commits, 0, "preparation never restores")
 	port.cancel_action(prepared.value.token)
@@ -314,8 +302,7 @@ func test_load_does_not_require_available_capture_but_available_capture_drift_in
 	var load_action: Dictionary = port.prepare_quick_action("load")
 	assert_true(load_action.get("ok", false), "stable source is enough for Load")
 	port.cancel_action(load_action.value.token)
-	capture.result = {"ok": true, "value": {"snapshot_input": {"lifecycle": {"state": "PLAYING"}},
-		"route_id": "main", "active_app_id": "backup", "dialogic_checkpoint": {}, "audio_context": {}, "content_version": 1}}
+	capture.result = _scene_capture().result
 	load_action = port.prepare_quick_action("load")
 	assert_true(load_action.get("ok", false))
 	capture.result["value"]["audio_context"] = {"fixture_changed": true}
@@ -341,108 +328,22 @@ func test_title_and_refused_source_cannot_prepare_or_commit_quick() -> void:
 	assert_false(storage.exists("quicksave.json"))
 
 
-func _paused_desktop_capture() -> Capture:
-	var snapshot: Dictionary = SNAPSHOT_FIXTURE.make_snapshot().value.candidate
-	var snapshot_input := {}
-	for key: String in ["lifecycle", "gameplay", "contacts", "committed_schedule", "desktop", "dating",
-			"schedule_view", "applied_effect_transaction_ids", "applied_variable_transaction_ids", "command_receipts"]:
-		snapshot_input[key] = snapshot[key].duplicate(true)
+func _scene_capture() -> Capture:
+	var snapshot_input: Dictionary = _scene_fixture.game.capture_run_snapshot_input()
+	# This Run-only fixture has no Board restore participant to install its empty retry ledger.
+	snapshot_input.desktop.board["command_receipts"] = {}
+	var expanded: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(_snapshot.narrative_checkpoint)
+	assert_true(expanded.get("ok", false), str(expanded))
 	var capture := Capture.new()
 	capture.result = {"ok": true, "value": {"snapshot_input": snapshot_input,
-		"route_id": "main", "active_app_id": "minesweeper", "dialogic_checkpoint": {},
-		"audio_context": {}, "content_version": 1}}
+		"route_id": "scene", "active_app_id": null,
+		"dialogic_checkpoint": expanded.value,
+		"audio_context": {}, "content_version": _snapshot.content_version}}
 	return capture
 
-func test_reading_marker_alone_cannot_admit_an_unsupported_narrative_save() -> void:
-	var capture := _paused_desktop_capture()
-	capture.result.value.route_id = "dating"
-	capture.result.value.snapshot_input.gameplay["route_context"] = {
-		"active_dating_challenge": {"phase": "pre_challenge", "host": "canonical_solo"}}
-	capture.result.value.dialogic_checkpoint = {"entry_id": "dating.solo.priscilla.day1.pre_challenge",
-		"reading_session": {}}
-	assert_true(_manager.configure_backup_capture_provider(capture.capture).ok)
-	var journal: Dictionary = _manager._journal.capture_state()
-	var persisted: Dictionary = files.snapshot_persisted()
-	assert_false(_manager.get_backup_save_capability().enabled)
-	assert_eq(_manager.prepare_backup_action("save", "quick").code, &"reading_session_invalid")
-	assert_eq(_manager._journal.capture_state(), journal)
-	assert_eq(files.snapshot_persisted(), persisted, "malformed semantic capture writes nothing")
-
-func test_main_minesweeper_without_paused_admission_refuses_before_save_candidate_or_write() -> void:
-	var capture := _paused_desktop_capture()
-	assert_true(_manager.configure_backup_capture_provider(capture.capture).ok)
-	var persisted: Dictionary = files.snapshot_persisted()
-	var journal: Dictionary = _manager._journal.capture_state()
-	var sequence: int = _manager._backup_action_sequence
-	assert_eq(_manager.prepare_backup_action("save", "quick").code, &"backup_capture_unavailable")
-	assert_eq(_manager._backup_action_sequence, sequence)
-	assert_true(_manager._backup_actions.is_empty())
-	assert_eq(_manager._journal.capture_state(), journal)
-	assert_eq(files.snapshot_persisted(), persisted)
-	var late_guard := PausedDesktopAdmission.new()
-	late_guard.expected = capture.result.value.duplicate(true)
-	assert_eq(_manager.configure_backup_capture_provider(capture.capture, late_guard.admit).code,
-		&"backup_capture_already_configured", "binding without an exception cannot be upgraded later")
-
-func test_exact_paused_capture_admission_saves_real_app_and_callback_receives_only_detached_inputs() -> void:
-	var capture := _paused_desktop_capture()
-	var admission := PausedDesktopAdmission.new()
-	admission.expected = capture.result.value.duplicate(true)
-	admission.mutate_argument = true
-	assert_true(_manager.configure_backup_capture_provider(capture.capture, admission.admit).ok)
-	var persisted: Dictionary = files.snapshot_persisted()
-	var prepared: Dictionary = _manager.prepare_backup_action("save", "quick")
-	assert_true(prepared.ok, str(prepared))
-	if not prepared.ok: return
-	assert_eq(files.snapshot_persisted(), persisted)
-	var saved_candidate: Dictionary = _manager._backup_actions[prepared.value.token].document.current_snapshot.snapshot
-	assert_eq(saved_candidate.route_id, "main")
-	assert_eq(saved_candidate.active_app_id, "minesweeper", "Pause never relabels the source as Backup")
-	assert_true(_manager.commit_backup_action(prepared.value.token).ok)
-	assert_gte(admission.calls.size(), 2, "owner rechecks exact capture at prepare and commit")
-	for inputs: Dictionary in admission.calls: assert_eq(inputs, admission.expected)
-	assert_eq(capture.result.value, admission.expected)
-	var current: Dictionary = _manager.get_latest_stable_checkpoint().value.bundle.snapshot
-	assert_eq(current.active_app_id, "minesweeper")
-	assert_true(storage.exists("quicksave.json"))
-
-func test_wrong_false_and_stale_paused_admission_refuse_without_candidate_or_durable_change() -> void:
-	var capture := _paused_desktop_capture()
-	var admission := PausedDesktopAdmission.new()
-	admission.expected = capture.result.value.duplicate(true)
-	assert_true(_manager.configure_backup_capture_provider(capture.capture, admission.admit).ok)
-	var persisted: Dictionary = files.snapshot_persisted()
-	var journal: Dictionary = _manager._journal.capture_state()
-	for refused: Variant in [false, {"ok": true}, 1, "true"]:
-		admission.allowed = refused
-		assert_eq(_manager.prepare_backup_action("save", "quick").code, &"backup_capture_unavailable")
-		assert_true(_manager._backup_actions.is_empty())
-		assert_eq(_manager._backup_action_sequence, 0)
-	admission.allowed = true
-	admission.expected["active_app_id"] = "contacts"
-	assert_eq(_manager.prepare_backup_action("save", "quick").code, &"backup_capture_unavailable")
-	admission.expected = capture.result.value.duplicate(true)
-	var prepared: Dictionary = _manager.prepare_backup_action("save", "quick")
-	assert_true(prepared.ok, str(prepared))
-	if not prepared.ok: return
-	# The callback represents retained Pause ownership, which may go stale after consent.
-	admission.allowed = false
-	assert_eq(_manager.commit_backup_action(prepared.value.token).code, &"backup_capture_unavailable")
-	assert_true(_manager._backup_actions.is_empty())
-	assert_eq(_manager._journal.capture_state(), journal)
-	assert_eq(files.snapshot_persisted(), persisted)
-	admission.allowed = true
-	prepared = _manager.prepare_backup_action("save", "quick")
-	assert_true(prepared.ok, str(prepared))
-	if not prepared.ok: return
-	capture.result["value"]["snapshot_input"]["gameplay"]["money"] += 1
-	assert_eq(_manager.commit_backup_action(prepared.value.token).code, &"backup_capture_unavailable")
-	assert_eq(_manager._journal.capture_state(), journal)
-	assert_eq(files.snapshot_persisted(), persisted)
-
-func test_paused_capture_provider_and_guard_are_immutable_and_guard_arity_is_checked() -> void:
-	var capture := _paused_desktop_capture()
-	var other := _paused_desktop_capture()
+func test_capture_provider_and_guard_are_immutable_and_guard_arity_is_checked() -> void:
+	var capture := _scene_capture()
+	var other := _scene_capture()
 	var admission := PausedDesktopAdmission.new()
 	admission.expected = capture.result.value.duplicate(true)
 	var replacement := PausedDesktopAdmission.new()
@@ -488,10 +389,7 @@ func _quick_equivalence_setup(write_variant: String) -> Capture:
 	_seed()
 	port = PORT.new()
 	assert_true(port.configure(_manager).get("ok", false))
-	var capture := _paused_desktop_capture()
-	# This fixture represents Backup itself; Pause's distinct admission remains
-	# covered by the existing production cases above.
-	capture.result["value"]["active_app_id"] = "backup"
+	var capture := _scene_capture()
 	assert_true(_manager.configure_backup_capture_provider(capture.capture).get("ok", false))
 	return capture
 

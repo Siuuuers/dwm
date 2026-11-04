@@ -2,8 +2,6 @@ extends "res://addons/gut/test.gd"
 
 const GAME_STATE := preload("res://autoload/GameState.gd")
 const LIFECYCLE := preload("res://scripts/domain/run/RunLifecycle.gd")
-const SNAPSHOT := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
-const DOCUMENT := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 const RUN_PARTICIPANT := preload("res://scripts/application/restore/RunRestoreParticipant.gd")
 
 # Explicit structural identity fixture. Issuer allocation/durability is tested by
@@ -23,17 +21,6 @@ func _lifecycle(dark_mode: bool) -> RefCounted:
 	owner.reset("run-dark-test", "branch-dark-test", 0, "causal-dark-test",
 		{"causal_day_instance_issuer_receipt": _receipt()}, dark_mode)
 	return owner
-
-func _snapshot(owner: Node, dark_mode: bool, run_id: String = "run-dark-test") -> Dictionary:
-	var prepared: Dictionary = owner.prepare_new_run_snapshot_input(run_id, "branch-dark-test", 0,
-		"causal-dark-test", _receipt(), dark_mode)
-	assert_true(prepared.get("ok", false), str(prepared))
-	if not prepared.get("ok", false): return {}
-	prepared.value.snapshot_input["schedule_view"] = preload("res://scripts/domain/schedule/ScheduleViewState.gd").make_empty(1, "causal-dark-test").value.view
-	var built: Dictionary = SNAPSHOT.build(prepared.value.snapshot_input, {}, "main", null,
-		{"ambience_context": {}, "ambience_context_id": "", "music_context": {}, "music_context_id": ""}, 1, 1)
-	assert_true(built.get("ok", false), str(built))
-	return built.value.snapshot if built.get("ok", false) else {}
 
 func test_lifecycle_dark_is_required_boolean_and_failed_restore_is_atomic() -> void:
 	for dark: bool in [false, true]:
@@ -71,88 +58,8 @@ func test_new_run_preparation_is_strict_detached_and_does_not_install_configurat
 		assert_false(owner.get_run_configuration().ok)
 	assert_eq(owner.capture_restore_state(), before)
 
-func test_v8_document_round_trip_and_retired_fields_are_rejected() -> void:
-	var owner := _game_state()
+func test_identity_remap_and_ending_preserve_captured_dark() -> void:
 	for dark: bool in [false, true]:
-		var snapshot := _snapshot(owner, dark)
-		if snapshot.is_empty(): continue
-		assert_eq(snapshot.schema_version, 8)
-		assert_eq(snapshot.lifecycle.dark_mode, dark)
-		assert_false(snapshot.gameplay.has("opening_seen"))
-		assert_false(snapshot.gameplay.has("tutorial_seen"))
-		var document: Dictionary = DOCUMENT.build(&"autosave", null, &"day_start",
-			{"checkpoint_kind": "day_start", "snapshot": snapshot}, [])
-		assert_true(document.ok, str(document))
-		if not document.ok: continue
-		assert_eq(document.value.schema_version, 8)
-		var decoded: Dictionary = JSON.parse_string(JSON.stringify(document.value))
-		var validated: Dictionary = DOCUMENT.validate(decoded)
-		assert_true(validated.ok, str(validated))
-		assert_eq(validated.value.candidate.current_snapshot.snapshot.lifecycle.dark_mode, dark)
-		for invalid: Variant in [null, 0, 1, 0.0, "false"]:
-			var bad := snapshot.duplicate(true)
-			bad.lifecycle.dark_mode = invalid
-			assert_false(SNAPSHOT.validate(bad).ok, str(invalid))
-		var missing := snapshot.duplicate(true)
-		missing.lifecycle.erase("dark_mode")
-		assert_false(SNAPSHOT.validate(missing).ok)
-		var old := snapshot.duplicate(true)
-		old.schema_version = 4
-		assert_false(SNAPSHOT.validate(old).ok)
-		for retired: String in ["opening_seen", "tutorial_seen"]:
-			var bad := snapshot.duplicate(true)
-			bad.gameplay[retired] = false
-			assert_false(SNAPSHOT.validate(bad).ok)
-
-func test_installed_availability_and_dark_are_restored_with_full_rollback() -> void:
-	var owner := _game_state()
-	var empty_backup: Dictionary = owner.capture_restore_state().value
-	assert_eq(owner.get_run_configuration(), {"ok": false, "code": &"run_configuration_unavailable"})
-	var dark := _snapshot(owner, true)
-	assert_true(owner.apply_restore_silent({"snapshot": dark}).ok)
-	assert_eq(owner.get_run_configuration(), {"ok": true, "value": {"dark_mode": true}})
-	var dark_backup: Dictionary = owner.capture_restore_state().value
-	var standard := _snapshot(owner, false, "run-standard-test")
-	assert_true(owner.apply_restore_silent({"snapshot": standard}).ok)
-	assert_eq(owner.get_run_configuration().value.dark_mode, false)
-	assert_true(owner.rollback_restore_silent(dark_backup).ok)
-	assert_eq(owner.get_run_configuration().value.dark_mode, true)
-	assert_true(owner.rollback_restore_silent(empty_backup).ok)
-	assert_false(owner.get_run_configuration().ok)
-	assert_true(owner.apply_restore_silent({"snapshot": dark}).ok)
-	owner.reset_game()
-	assert_false(owner.get_run_configuration().ok)
-
-func test_invalid_install_and_missing_rollback_evidence_leave_configuration_unchanged() -> void:
-	var owner := _game_state()
-	var snapshot := _snapshot(owner, true)
-	var invalid := snapshot.duplicate(true)
-	invalid.lifecycle.dark_mode = "true"
-	var initial: Dictionary = owner.capture_restore_state()
-	assert_false(owner.apply_restore_silent({"snapshot": invalid}).ok)
-	assert_eq(owner.capture_restore_state(), initial)
-	assert_false(owner.get_run_configuration().ok)
-	assert_true(owner.apply_restore_silent({"snapshot": snapshot}).ok)
-	var installed: Dictionary = owner.capture_restore_state()
-	var malformed: Dictionary = initial.value.duplicate(true)
-	malformed.backup.erase("run_configuration_installed")
-	assert_false(owner.rollback_restore_silent(malformed).ok)
-	assert_eq(owner.capture_restore_state(), installed)
-	var public: Dictionary = owner.get_run_configuration()
-	public.value.dark_mode = false
-	assert_eq(owner.get_run_configuration().value.dark_mode, true)
-	assert_false(owner.capture_run_snapshot_input().has("run_configuration_installed"))
-
-func test_day_changes_and_identity_remap_preserve_captured_dark() -> void:
-	for dark: bool in [false, true]:
-		var owner := _game_state()
-		var snapshot := _snapshot(owner, dark)
-		assert_true(owner.apply_restore_silent({"snapshot": snapshot}).ok)
-		owner._lifecycle_set_playing_day(3)
-		owner._lifecycle_advance_day()
-		assert_eq(owner.day, 4)
-		assert_eq(owner.get_run_configuration().value.dark_mode, dark)
-		assert_eq(owner.capture_run_snapshot_input().lifecycle.dark_mode, dark)
 		var lifecycle := _lifecycle(dark)
 		var remapped: Dictionary = lifecycle.prepare_continuation_remap("restore-test", {
 			"run_id": "run-dark-test", "branch_id": "branch-restored", "desktop_timeline_generation": 1,
@@ -181,32 +88,3 @@ func test_raw_gameplay_load_does_not_create_a_captured_configuration() -> void:
 	assert_false(owner.to_save_dict().has("dark_mode"))
 	assert_false(owner.to_save_dict().has("opening_seen"))
 	assert_false(owner.to_save_dict().has("tutorial_seen"))
-
-
-func test_new_run_replacement_presence_follows_installed_unfinished_lifecycle() -> void:
-	var owner := _game_state()
-	assert_false(owner.has_new_run_replacement(), "fresh owner has nothing to replace")
-	var snapshot := _snapshot(owner, false)
-	assert_false(owner.has_new_run_replacement(), "detached preparation does not install a run")
-	assert_true(owner.apply_restore_silent({"snapshot": snapshot}).ok)
-	assert_true(owner.has_new_run_replacement(), "installed unfinished run needs consent")
-	var before: Dictionary = owner.capture_restore_state()
-	watch_signals(owner)
-	assert_true(owner.has_new_run_replacement())
-	assert_eq(owner.capture_restore_state(), before, "presence is a read")
-	assert_signal_not_emitted(owner, "save_relevant_state_changed")
-	# Presence must not depend on serializing unrelated gameplay facts.
-	owner._narrative_variables["TEST.unserializable"] = Vector2(1, 2)
-	assert_true(owner.has_new_run_replacement())
-	owner._narrative_variables.erase("TEST.unserializable")
-	owner._lifecycle_set_playing_day(7)
-	var ending_fixture := preload("res://tests/support/DayResolutionReceiptFixtures.gd")
-	assert_true(owner._run_lifecycle.enter_ending(ending_fixture.ending_plan()).ok)
-	assert_true(owner.has_new_run_replacement(), "unfinished ending remains replaceable")
-	for stage: String in ["PRIMARY_PENDING", "PRIMARY_PLAYED", "EPILOGUE_PLAYED"]:
-		assert_true(owner._run_lifecycle.complete_ending_playback_stage("ending:" + stage,
-			StringName(stage), ending_fixture.playback_receipt(stage)).ok)
-	assert_true(owner._complete_run().ok)
-	assert_false(owner.has_new_run_replacement(), "completed run needs no replacement consent")
-	owner.reset_game()
-	assert_false(owner.has_new_run_replacement())

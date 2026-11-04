@@ -2,7 +2,6 @@ extends "res://addons/gut/test.gd"
 
 const ART := preload("res://scripts/data/ArtManifest.gd")
 const VIEW := preload("res://scripts/ui/art/SceneArtView.gd")
-const DATING := preload("res://scripts/ui/DatingScene.gd")
 const HOSPITAL := preload("res://scripts/ui/HospitalScene.gd")
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 
@@ -275,51 +274,6 @@ func test_group_entry_with_one_portrait_uses_the_group_preference() -> void:
 	assert_eq(_profile.values[&"preferences.display.dating_solo_portrait_width"], 400)
 	view.configure_entry("dating.solo.priscilla.day1.pre_challenge")
 	assert_eq(view.get_portrait_width(), 400.0, "switching kind with the same portrait count rereads its own width")
-
-func test_dating_mapping_uses_one_fixed_scene_for_all_phases_and_no_variants() -> void:
-	var solo := {"kind": "solo", "day": 2, "participants": ["priscilla"]}
-	assert_eq(DATING.scene_art_entry(solo), "dating.solo.priscilla.day2.pre_challenge")
-	for kind: String in ["group", "twofriends_if_deferred"]:
-		var context := {"kind": kind, "day": 6, "participants": ["priscilla", "lavinia"]}
-		assert_eq(DATING.scene_art_entry(context), "dating.%s.priscilla_lavinia.day6.pre_challenge" % (
-			"group" if kind == "group" else "twofriends"))
-	assert_eq(DATING.scene_art_entry({"kind": "solo", "day": 2, "participants": ["angela"]}), "")
-
-func test_actual_dating_host_keeps_art_left_and_fits_board_in_right_panel() -> void:
-	_dating_art_fixture(true)
-	var scene: Control = load("res://scenes/dating/DatingScene.tscn").instantiate()
-	var command := {"context": {"kind": "solo", "day": 1, "participants": ["priscilla"]}}
-	assert_true(scene.configure_presentation(PhysicalPort.new(), command).ok)
-	add_child_autofree(scene)
-	await _settle_layout()
-	var art: VIEW = scene._scene_art
-	assert_true(art.bind_view_preferences(_profile))
-	assert_eq(art.get_parent(), scene.challenge_overlay_host)
-	assert_true(scene.challenge_overlay_host.visible)
-	assert_true(art.visible, "the imported fixture portrait is actually loaded")
-	assert_eq(art.size, Vector2(1280, 720))
-	assert_eq(Rect2(scene._challenge_content.position, scene._challenge_content.size), art.get_right_rect())
-	scene._physical_view.phase = "challenge"
-	scene._refresh_challenge()
-	for width: float in [320.0, 640.0]:
-		art.set_portrait_width(width)
-		await _settle_layout()
-		var content: Rect2 = scene._challenge_content.get_global_rect()
-		var worksheet: Rect2 = scene.worksheet.get_global_rect()
-		assert_eq(Rect2(scene._challenge_content.position, scene._challenge_content.size), art.get_right_rect())
-		assert_gte(worksheet.position.x, content.position.x)
-		assert_lte(worksheet.end.x, content.end.x)
-		assert_true(art.is_visible_in_tree(), "the challenge retains its portrait panel")
-		assert_eq(art._portraits[0].size.y, 720.0)
-	assert_lt(art.get_index(), scene._challenge_content.get_index())
-	assert_eq(scene.get_presentation_projection(), command)
-	_dating_art_fixture(false)
-	scene._physical_view.phase = "pre_challenge"
-	scene._refresh_challenge()
-	await _settle_layout()
-	assert_false(art.visible)
-	assert_eq(Rect2(scene._challenge_content.position, scene._challenge_content.size), Rect2(0, 0, 1280, 720),
-		"a portrait-free challenge uses the whole stage")
 
 func test_ordinary_hospital_host_preserves_command_without_a_notice_button() -> void:
 	var port := PhysicalPort.new()

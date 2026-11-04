@@ -11,13 +11,12 @@ const HOST := preload("res://scripts/domain/desktop/DesktopAppHostState.gd")
 const QUICK := preload("res://tests/manual/verify_quick_status_native.gd")
 const MINES := preload("res://tests/unit/test_minesweeper_app.gd")
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
-const CHALLENGE := preload("res://tests/scene/test_minesweeper_challenge_controls.gd")
 const STYLE := "res://dialogic/styles/witnessed_caption_style.tres"
 const LAYER := "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd"
 const ART_LAYER := "res://scripts/ui/witnessed/WitnessedArtLayer.gd"
 const DATING_ENTRY := "dating.solo.priscilla.day1.pre_challenge"
 const PAIR_ENTRY := "dating.group.priscilla_lavinia.day2.pre_challenge"
-const EXPECTED_CAPTURES := 25
+const EXPECTED_CAPTURES := 21
 const COPY := {
 	"en": ["1. We found a quiet place.", "2. The afternoon light filled the room.", "3. I remembered what you said.", "4. There was no need to hurry.", "5. We stayed a little longer.", "6. This caption is still unread."],
 	"zh-CN": ["1. 我们找到一个安静的地方。", "2. 午后的阳光照进房间。", "3. 我记得你说过的话。", "4. 我们不必着急。", "5. 我们又多待了一会儿。", "6. 这条字幕还没有读过。"],
@@ -33,7 +32,6 @@ var runtime: DialogicGameHandler
 var layout: Node
 var caption: Node
 var dating_art: Control
-var challenge_scene: Control
 var original_runtime: Node
 var original_index := 0
 var original_layout: Node
@@ -68,7 +66,6 @@ func capture(name: String, detail: Dictionary) -> void:
 		check(not pixels.is_empty() and pixels.get_size() == Vector2i(1280, 720), name + ": full viewport pixels")
 		if name.begins_with("dating-") or name.begins_with("dialogue-"):
 			await _check_dating_art_pixels(pixels, name)
-		if name.begins_with("challenge-"): await _check_challenge_art_pixels(pixels, name)
 		check(pixels.save_png(folder.path_join(name + ".png")) == OK, name + ": saved screenshot")
 		captures += 1
 	print("DELIVERY_DIALOGUE_SAMPLE ", name, " ", JSON.stringify(detail))
@@ -90,7 +87,6 @@ func _run() -> void:
 		await _dialogue_samples()
 		await _dating_samples()
 		await _restore_runtime()
-	await _challenge_samples()
 	check(samples.size() == EXPECTED_CAPTURES, "all expected sample states checked")
 	if DisplayServer.get_name() != "headless": check(captures == EXPECTED_CAPTURES, "all expected screenshots saved")
 	var report := {"ok": failures.is_empty(), "renderer": DisplayServer.get_name(), "samples": samples.size(),
@@ -380,46 +376,6 @@ func _dating_samples() -> void:
 	root.add_child(original_bridge)
 	root.move_child(original_bridge, original_bridge_index)
 
-func _challenge_samples() -> void:
-	for tuple: Array in [["solo","en",100,480.0,false], ["group","en",100,640.0,false],
-			["group","ja",150,640.0,true], ["group","ko",150,640.0,true]]:
-		var port := CHALLENGE.PublicPort.new()
-		port.view = {"host":"canonical_solo" if tuple[0] == "solo" else "canonical_pair", "phase":"challenge",
-			"board":CHALLENGE.QUERY.desktop(CHALLENGE.STATE.new().capture(),"expert",true).value,
-			"special_mine_visible":false,"special_mine_enabled":false}
-		challenge_scene = CHALLENGE.SCENE.instantiate()
-		var context := {"kind":tuple[0],"day":1 if tuple[0] == "solo" else 2,
-			"participants":["priscilla"] if tuple[0] == "solo" else ["priscilla","lavinia"]}
-		check(challenge_scene.configure_presentation(port,{"physical_token":"render.challenge", "context":context}).ok, "challenge fixture configured")
-		check(challenge_scene.configure_presentation_services(null,tuple[1],tuple[2],tuple[4]).ok, "challenge accessibility configured")
-		viewport.add_child(challenge_scene)
-		challenge_scene.set_process(false)
-		challenge_scene._scene_art.set_portrait_width(tuple[3])
-		await settle()
-		var original: Dictionary = challenge_scene.worksheet.grid.projection.duplicate(true)
-		var worksheet: Control = challenge_scene.worksheet
-		if tuple[4]:
-			challenge_scene.find_child("Rules",true,false).pressed.emit()
-			check(worksheet.information_sheet != null, "large localized Rules opens")
-		await settle()
-		var right: Rect2 = challenge_scene._scene_art.get_right_rect()
-		_check_portrait_panel(challenge_scene._scene_art,tuple[3],1 if tuple[0] == "solo" else 2,720)
-		check(challenge_scene._challenge_content.get_rect() == right, "challenge uses complete right pane")
-		check(worksheet.get_global_rect().position.x >= right.position.x and worksheet.get_global_rect().end.x <= right.end.x, "worksheet stays inside right pane")
-		check(challenge_scene._challenge_panel.get_combined_minimum_size().x <= right.size.x, "challenge chrome fits pane width")
-		check(worksheet.theme.default_font_size == CHALLENGE.TYPOGRAPHY.font_size(tuple[1],tuple[2],20,"pixel"), "challenge keeps full requested font")
-		check(challenge_scene._challenge_content.follow_focus, "overflow keeps keyboard controls reachable")
-		if worksheet.information_sheet != null:
-			for row: Control in worksheet.information_sheet.rows:
-				check(row.size.y <= worksheet.information_sheet.body.size.y, "a complete Rules row fits the scroll page")
-		await capture("challenge-%s-%s%d-%d%s" % [tuple[0],tuple[1],tuple[2],tuple[3],"-rules" if tuple[4] else ""],
-			{"kind":"dating_challenge", "locale":tuple[1], "text_percent":tuple[2], "portrait_width":tuple[3],
-			"right_rect":str(right), "worksheet_rect":str(worksheet.get_global_rect()), "rules":tuple[4]})
-		check(worksheet.grid.projection == original and port.commands.is_empty(), "capture never changes challenge progress")
-		challenge_scene.queue_free()
-		await settle()
-	challenge_scene = null
-
 func _check_portrait_panel(art: Control, width: float, count: int, height: int) -> void:
 	check(art.get_right_rect() == Rect2(width,0,1280-width,height), "dating split uses requested extent")
 	check(art._portrait_background.texture != null and art._portrait_background.texture == art._background.texture, "both panels reuse actual scene background")
@@ -430,25 +386,6 @@ func _check_portrait_panel(art: Control, width: float, count: int, height: int) 
 		check(portrait.texture != null and portrait.is_visible_in_tree(), "actual portrait loaded")
 		check(is_equal_approx(portrait.size.y,height), "portrait height remains fixed")
 		check(is_equal_approx(portrait.get_global_rect().get_center().x,width*(index+0.5)/count), "portraits divide space evenly")
-
-func _check_challenge_art_pixels(pixels: Image, name: String) -> void:
-	var art: Control = challenge_scene._scene_art
-	var saved_modulate: Color = art.modulate
-	art.modulate.a = 0.0
-	for frame in 3: await RenderingServer.frame_post_draw
-	var without_art: Image = viewport.get_texture().get_image()
-	art.modulate = saved_modulate
-	for frame in 3: await RenderingServer.frame_post_draw
-	var width := int(art.get_portrait_width())
-	var portrait_samples := 0
-	var board_changes := 0
-	for y: int in range(8,712,24):
-		for x: int in range(8,width-64,24):
-			if pixels.get_pixel(x,y) != without_art.get_pixel(x,y): portrait_samples += 1
-		for x: int in range(width+16,1264,24):
-			if pixels.get_pixel(x,y) != without_art.get_pixel(x,y): board_changes += 1
-	check(portrait_samples > 100, name + ": actual portrait/background pixels remain visible left")
-	check(board_changes == 0, name + ": opaque challenge fills right pane independently of artwork")
 
 func _check_dating_art_pixels(pixels: Image, name: String) -> void:
 	# Alpha-only reference leaves native text, focus and timeline state untouched.

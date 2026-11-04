@@ -3,7 +3,6 @@ const GAME := preload("res://autoload/GameState.gd")
 const PROFILE := preload("res://autoload/ProfileManager.gd")
 const DRAW := preload("res://scripts/domain/relationship/PairDeckDraw.gd")
 const PORT := preload("res://scripts/application/run/PairDeckDrawPort.gd")
-const DAY := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
 const HOSPITAL := preload("res://scripts/application/run/GameStateConditionHospitalPort.gd")
 const COORDINATOR := preload("res://scripts/application/run/ConditionHospitalCoordinator.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
@@ -18,22 +17,13 @@ class Nonces extends RefCounted:
 		calls += 1
 		return result
 
-class Storage extends "res://scripts/infrastructure/storage/JsonFileStorage.gd":
-	var fail_next := false
-	func _init() -> void:
-		super("pair-deck-profile", preload("res://tests/support/FakeFileOps.gd").new())
-	func write_atomic(path: String, text: String, validator: Callable, backup: bool = true) -> Dictionary:
-		if fail_next:
-			fail_next = false
-			return {"ok": false, "code": &"pair_fixture_write_failure"}
-		return super.write_atomic(path, text, validator, backup)
-
 func _wired() -> Dictionary:
 	var game: Node = autofree(GAME.new())
 	game.reset_game()
 	var gate := GATE.new()
 	assert_true(game.configure_mutation_gate(gate).ok)
-	var storage := Storage.new()
+	var storage := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new(
+		"pair-deck-profile", preload("res://tests/support/FakeFileOps.gd").new())
 	var profile: Node = autofree(PROFILE.new())
 	assert_true(profile.initialize(storage).ok)
 	assert_true(profile.configure_mutation_gate(gate).ok)
@@ -42,73 +32,12 @@ func _wired() -> Dictionary:
 	var nonces := Nonces.new()
 	var draw := PORT.new()
 	assert_true(draw.configure(game, profile, gate, condition, nonces.next).ok)
-	var day := DAY.new(game)
-	assert_true(day.configure_pair_deck(draw).ok)
 	var hospital := HOSPITAL.new()
 	hospital._game = game
 	assert_true(hospital.configure_pair_deck(draw).ok)
 	return {"game": game, "gate": gate, "profile": profile, "storage": storage,
-		"condition": condition, "nonces": nonces, "draw": draw, "day": day, "hospital": hospital,
+		"condition": condition, "nonces": nonces, "draw": draw, "hospital": hospital,
 		"run_id": str(game._run_lifecycle.to_dict().run_id)}
-
-func _count_stage(f: Dictionary) -> Dictionary:
-	f.game._lifecycle_set_playing_day(2)
-	assert_true(f.day.begin_or_resume("pair-count-done").ok)
-	for _index: int in range(16):
-		var begun: Dictionary = f.day.begin_next_stage()
-		assert_true(begun.ok, str(begun))
-		if not begun.ok: return {}
-		if begun.value.stage.stage_id == "invitation_rollover": return begun.value
-		assert_eq(begun.value.mode, &"complete_immediately")
-		if not begun.value.has("receipt"): return {}
-		var prepared: Dictionary = f.day.prepare_completion(begun.value.stage.transaction_id, begun.value.receipt)
-		assert_true(prepared.ok, str(prepared))
-		if not prepared.ok: return {}
-		assert_true(f.day.commit(prepared.value.run_candidate).ok)
-	fail_test("first counted closure was not reached")
-	return {}
-
-func test_first_count_draw_is_profile_durable_before_run_candidate_and_retry_reuses_it() -> void:
-	var f := _wired()
-	var stage := _count_stage(f)
-	if stage.is_empty(): return
-	var before: Dictionary = f.game.capture_restore_state().value.backup
-	var prepared: Dictionary = f.day.prepare_completion(stage.stage.transaction_id, stage.receipt)
-	assert_true(prepared.ok, str(prepared))
-	if not prepared.ok: return
-	var receipt: Dictionary = f.profile.get_pair_deck_draw(f.run_id).value
-	assert_eq(receipt.selection_kind, "draw")
-	assert_eq(f.game.capture_restore_state().value.backup, before, "Run remains unchanged if its checkpoint fails")
-	assert_eq(f.game.get_counted_pair_window_count(), 0)
-	assert_eq(prepared.value.run_candidate.gameplay.inter_friend_route_state.priscilla_lavinia.pair_deck_draw, receipt)
-	assert_eq(prepared.value.snapshot_input.snapshot_input.gameplay.inter_friend_route_state,
-		prepared.value.run_candidate.gameplay.inter_friend_route_state)
-	# A later Profile discovery after the failed Run write cannot reroll this run.
-	assert_true(f.profile.record_pair_form_witness(receipt.form, "later-real-presentation").ok)
-	var retry: Dictionary = f.day.prepare_completion(stage.stage.transaction_id, stage.receipt)
-	assert_true(retry.ok, str(retry))
-	if not retry.ok: return
-	assert_eq(retry.value.run_candidate, prepared.value.run_candidate)
-	assert_eq(f.nonces.calls, 1)
-	assert_true(f.day.commit(retry.value.run_candidate).ok)
-	assert_eq(f.game.get_counted_pair_window_count(), 1)
-	assert_eq(f.game.inter_friend_route_state.priscilla_lavinia.pair_deck_draw, receipt)
-
-func test_profile_failure_refuses_count_and_presentation_projection_until_retry() -> void:
-	var f := _wired()
-	var stage := _count_stage(f)
-	if stage.is_empty(): return
-	var before: Dictionary = f.game.capture_restore_state().value.backup
-	f.storage.fail_next = true
-	var failed: Dictionary = f.day.prepare_completion(stage.stage.transaction_id, stage.receipt)
-	assert_false(failed.ok)
-	assert_null(f.profile.get_pair_deck_draw(f.run_id).value)
-	assert_eq(f.game.capture_restore_state().value.backup, before)
-	assert_false(f.gate.is_active())
-	var retry: Dictionary = f.day.prepare_completion(stage.stage.transaction_id, stage.receipt)
-	assert_true(retry.ok, str(retry))
-	assert_eq(f.game.get_counted_pair_window_count(), 0)
-	assert_not_null(f.profile.get_pair_deck_draw(f.run_id).value)
 
 func test_selected_pre_pair_save_imports_form_already_reached_in_original_profile_history() -> void:
 	var f := _wired()

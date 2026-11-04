@@ -73,13 +73,19 @@ func _applied() -> Dictionary:
 	if not result.get("ok", false): return {}
 	operation = result["value"]
 	for name: String in JOURNAL.SCENE_PARTICIPANT_ORDER:
-		result = journal.advance({"transaction_id": operation["transaction_id"], "request_fingerprint": operation["request_fingerprint"],
+		var request := {"transaction_id": operation["transaction_id"], "request_fingerprint": operation["request_fingerprint"],
 			"expected_stage": JOURNAL.STAGE_APPLYING, "next_stage": JOURNAL.STAGE_APPLYING,
 			"expected_next_participant_index": operation["next_participant_index"], "allocation_receipt": null,
-			"participant_name": name, "participant_receipt": {"applied": name}, "failure": null})
+			"participant_name": name, "participant_receipt": {"applied": name}, "failure": null}
+		result = journal.advance(request)
 		assert_true(result.get("ok", false), str(result))
 		if not result.get("ok", false): return {}
 		operation = result["value"]
+		var writes := storage.writes
+		var replayed: Dictionary = journal.advance(request.duplicate(true))
+		assert_true(replayed.get("ok", false), str(replayed))
+		assert_eq(replayed.get("value"), operation)
+		assert_eq(storage.writes, writes)
 	result = _advance(operation, JOURNAL.STAGE_APPLIED)
 	assert_true(result.get("ok", false), str(result))
 	return result.get("value", {})
@@ -169,3 +175,75 @@ func test_creation_durable_intent_cannot_abort_or_accept_restore_members() -> vo
 	changed = operation.duplicate(true)
 	changed["activation_state"] = "pending"
 	assert_false(journal.commit_intent(changed)["ok"])
+
+func test_exact_text_validation_window_is_bounded_detached_and_never_admits_other_bytes() -> void:
+	var journal: Object = JOURNAL.new()
+	var text := "{\"value\":{\"nested\":[]}}"
+	journal._remember_validated_text(text, {"value": {"nested": []}})
+	var first: Dictionary = journal._parse_document(text)
+	assert_true(first.get("ok", false), str(first))
+	(first.value.value.nested as Array).append("mutated")
+	assert_eq(journal._parse_document(text).value, {"value": {"nested": []}},
+		"a caller cannot mutate the retained exact-text proof")
+	assert_false(journal._parse_known_document(text + " garbage").get("ok", false),
+		"a nearby but distinct byte string still receives strict parsing")
+	for index: int in 4:
+		journal._remember_validated_text("{\"entry\":%d}" % index, {"entry": index})
+	assert_eq((journal.get("_validated_text_order") as Array).size(), 4)
+	assert_false((journal.get("_validated_text_documents") as Dictionary).has(text),
+		"the proof window evicts its oldest exact text")
+
+func test_complete_creation_intent_survives_restart_byte_exact() -> void:
+	var prepared: Dictionary = journal.prepare_intent(_request())
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	assert_eq(storage.writes, 0)
+	assert_true(journal.commit_intent(prepared.value).ok)
+	assert_eq(storage.writes, 1)
+	var restarted := StateMachineOnly.new()
+	assert_true(restarted.configure(storage, loader).ok)
+	var recovered: Dictionary = restarted.get_operation(prepared.value.transaction_id)
+	assert_true(recovered.ok, str(recovered))
+	assert_eq(recovered.get("value"), prepared.value)
+
+func _creation_with_retired_restore() -> Dictionary:
+	var creation := _intent()
+	if creation.is_empty(): return {}
+	var document: Dictionary = STRICT.parse_object(storage.text).value
+	var tx := "transaction_id." + "b".repeat(64)
+	document.operations[tx] = {"kind": "scene_restore", "transaction_id": tx,
+		"selected_document": {"obsolete": "content no longer installed"}}
+	storage.text = WRITER.stringify(document).value
+	return creation
+
+func test_retirement_removes_only_scene_load_records_before_source_admission() -> void:
+	var creation := _creation_with_retired_restore()
+	if creation.is_empty(): return
+	var current := StateMachineOnly.new()
+	assert_true(current.configure(storage, loader).ok)
+	var writes_before: int = storage.writes
+	var retired: Dictionary = current.with_creation_storage_recovery(current.retire_scene_restore_operations)
+	assert_true(retired.ok, str(retired))
+	if not retired.ok: return
+	assert_eq(retired.value.removed, 1)
+	assert_eq(storage.writes, writes_before + 1)
+	assert_eq(storage.write_paths.slice(writes_before), [JOURNAL.JOURNAL_PATH])
+	assert_eq(STRICT.parse_object(storage.text).value.operations, {creation.transaction_id: creation})
+	assert_eq(loader.calls, [])
+	var reads_before: int = storage.retirement_reads
+	assert_eq(current.retire_scene_restore_operations().value.removed, 0)
+	assert_eq(storage.retirement_reads, reads_before)
+	assert_eq(storage.writes, writes_before + 1)
+
+func test_retirement_refusal_preserves_creation_and_can_retry() -> void:
+	var creation := _creation_with_retired_restore()
+	if creation.is_empty(): return
+	var before := storage.text
+	storage.refuse = true
+	var current := StateMachineOnly.new()
+	assert_true(current.configure(storage, loader).ok)
+	assert_false(current.retire_scene_restore_operations().ok)
+	assert_eq(storage.text, before)
+	storage.refuse = false
+	assert_true(current.retire_scene_restore_operations().ok)
+	assert_eq(STRICT.parse_object(storage.text).value.operations, {creation.transaction_id: creation})

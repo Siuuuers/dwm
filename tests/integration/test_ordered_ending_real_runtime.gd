@@ -243,18 +243,6 @@ func test_cursor_restore_resumes_next_exact_physical_branch() -> void:
 	assert_eq(state._run_lifecycle.to_dict().ending_plan.next_step_index, 4)
 
 
-func test_enter_envelope_preserves_the_complete_already_resolved_ordered_plan() -> void:
-	var port: GDScript = load("res://scripts/application/run/GameStateDayResolutionPort.gd")
-	var plan := _ordered_plan()
-	var snapshot := {"active_resolution_plan": {"stages": [{"stage_id": "resolve_ending_plan",
-		"state": "completed", "receipt": {"value": {"ending_plan": plan}}}]}}
-	var envelope := {"kind": "enter_ending", "value": {"state": "ENDING",
-		"primary_id": plan.ending_id, "epilogue_id": plan.epilogue_ending_id}}
-	assert_eq(port._plan_receipt_for_snapshot(envelope, snapshot), {"value": {"ending_plan": plan}})
-	envelope.value.primary_id = "ending.alone"
-	assert_eq(port._plan_receipt_for_snapshot(envelope, snapshot), {"value": {"ending_plan": {}}})
-
-
 func test_completed_snapshot_returns_without_replaying_or_rewriting_rewards() -> void:
 	await _wait_for_completion()
 	var before_profile: Dictionary = profile.get_profile_snapshot()

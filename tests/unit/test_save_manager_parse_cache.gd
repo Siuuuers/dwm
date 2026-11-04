@@ -7,6 +7,24 @@ const SCHEMA := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd
 const CANONICAL := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 var _previous_control := ""
+var _scene_fixture := preload("res://tests/support/SceneNewRunFixture.gd").new()
+var _scope := preload("res://tests/support/SceneValidationScope.gd").new()
+var _snapshot := {}
+
+func before_all() -> void:
+	_scope.install(true)
+	var setup: Dictionary = _scene_fixture.setup(get_tree())
+	assert_true(setup.get("ok", false), str(setup))
+	if not setup.get("ok", false): return
+	var started: Dictionary = _scene_fixture.start()
+	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
+	if started.get("code") != &"scene_activation_pending": return
+	_scene_fixture.confirm_activation()
+	_snapshot = _scene_fixture.manager.get_latest_stable_checkpoint().value.bundle.snapshot
+
+func after_all() -> void:
+	_scene_fixture.close()
+	_scope.restore()
 
 class ReadFaultOps extends "res://tests/support/FakeFileOps.gd":
 	var refuse_reads := false
@@ -47,17 +65,6 @@ class BaselineValidationProbe extends "res://tests/support/ManualSaveWitnessPort
 	func _capture_saved_time() -> Dictionary:
 		return {"unix_seconds": 0, "utc_offset_minutes": 0, "hhmm": "00:00"}
 
-class JournalReadProbe extends "res://scripts/infrastructure/save/CheckpointJournal.gd":
-	var disk_bundle_reads := 0
-	func get_bundles_for_disk() -> Array[Dictionary]:
-		disk_bundle_reads += 1
-		return super.get_bundles_for_disk()
-
-class BackupCapture extends RefCounted:
-	var result: Dictionary = {"ok": false, "code": &"fixture_capture_unavailable"}
-	func capture() -> Dictionary:
-		return result.duplicate(true)
-
 class Participant extends RefCounted:
 	var plan_key := ""
 	var unavailable := false
@@ -83,13 +90,9 @@ func _manager() -> Node:
 	return autofree(SAVE.new())
 
 func _fixture(validation_probe: bool = false, baseline: bool = false) -> Dictionary:
-	var snapshot := STRICT.parse_object(FileAccess.get_file_as_string(
-		"res://tests/fixtures/saves/v7_desktop_prepared.json"))
-	assert_true(snapshot.get("ok", false), str(snapshot))
-	if not snapshot.get("ok", false): return {}
-	snapshot.value["schema_version"] = preload("res://scripts/domain/run/RunSnapshotSchema.gd").SCHEMA_VERSION
+	if _snapshot.is_empty(): return {}
 	var built := SCHEMA.build(&"slot", 1, &"manual",
-		{"checkpoint_kind": "manual_save", "snapshot": snapshot.value}, [])
+		{"checkpoint_kind": "manual_save", "snapshot": _snapshot}, [])
 	assert_true(built.get("ok", false), str(built))
 	if not built.get("ok", false): return {}
 	var emitted := CANONICAL.stringify(built.value)
@@ -118,108 +121,9 @@ func _write_fixture(baseline: bool = false) -> Dictionary:
 	assert_true(f.manager._journal.commit_prepared(prepared.value.candidate).get("ok", false))
 	return f
 
-func _history_write_fixture() -> Dictionary:
-	var f := _fixture(true)
-	if f.is_empty(): return {}
-	var snapshot: Dictionary = STRICT.parse_object(f.text).value.current_snapshot.snapshot
-	var journal := JournalReadProbe.new()
-	f.manager._journal = journal
-	assert_true(journal.reset(snapshot.run_id).get("ok", false))
-	var kinds: Array[StringName] = [&"day_start", &"line", &"manual_save"]
-	for index: int in kinds.size():
-		snapshot.checkpoint_sequence = index + 1
-		snapshot.checkpoint_id = str(snapshot.run_id) + ":" + str(index + 1)
-		var prepared := journal.prepare_record(snapshot, kinds[index])
-		assert_true(prepared.get("ok", false), str(prepared))
-		if not prepared.get("ok", false): return {}
-		assert_true(journal.commit_prepared(prepared.value.candidate).get("ok", false))
-	var capture := BackupCapture.new()
-	capture.result = {"ok": true, "value": {"snapshot_input": snapshot.duplicate(true),
-		"dialogic_checkpoint": {}, "route_id": "main", "active_app_id": "backup",
-		"audio_context": snapshot.audio_context.duplicate(true), "content_version": int(snapshot.content_version)}}
-	f["capture"] = capture
-	return f
-
 func _replace(fixture: Dictionary, path: String, text: String) -> void:
 	assert_true(fixture.ops.write_bytes(path, text.to_utf8_buffer()).get("ok", false))
 	assert_true(fixture.ops.flush_path(path).get("ok", false))
-
-func test_configured_backup_capture_uses_fresh_history_without_reading_discarded_bundles() -> void:
-	for locator: String in ["slot:1", "quick"]:
-		var f := _history_write_fixture()
-		if f.is_empty(): return
-		assert_true(f.manager.configure_backup_capture_provider(f.capture.capture).get("ok", false))
-		var prior: Dictionary = f.manager._journal.capture_state()
-		var persisted: Dictionary = f.ops.snapshot_persisted()
-		var expected_earlier: Array = prior.value.backup.earlier.duplicate(true)
-		expected_earlier.append(prior.value.backup.current.duplicate(true))
-		assert_eq(expected_earlier.size(), 3, "fixture retains semantic, line and manual checkpoints")
-		var prepared: Dictionary = f.manager.prepare_backup_action("save", locator)
-		assert_true(prepared.get("ok", false), str(prepared))
-		if not prepared.get("ok", false): return
-		assert_eq(f.manager._journal.disk_bundle_reads, 0)
-		assert_eq(f.manager._journal.capture_state(), prior, "prepare does not publish the fresh checkpoint")
-		assert_eq(f.ops.snapshot_persisted(), persisted, "prepare cannot write")
-		var candidate: Dictionary = f.manager._backup_actions[prepared.value.token].duplicate(true)
-		assert_true(CANONICAL._deep_same(candidate.document.recovery_journal, expected_earlier))
-		assert_true(CANONICAL._deep_same(candidate.journal_candidate.earlier, expected_earlier))
-		assert_eq(candidate.document.current_snapshot.snapshot.checkpoint_sequence, 4)
-		assert_eq(candidate.document.current_snapshot.snapshot.active_app_id, "backup")
-		assert_eq(prior.value.backup.current.snapshot.active_app_id, null,
-			"the fresh capture differs from the stable source")
-		var committed: Dictionary = f.manager.commit_backup_action(prepared.value.token)
-		assert_true(committed.get("ok", false), str(committed))
-		if not committed.get("ok", false): return
-		var path := "slot_1.json" if locator == "slot:1" else "quicksave.json"
-		assert_eq(f.storage.read_text(path).value, CANONICAL.stringify(candidate.document).value + "\n")
-		var expected_journal: Dictionary = candidate.journal_candidate.duplicate(true)
-		expected_journal.erase("candidate_kind")
-		assert_true(CANONICAL._deep_same(f.manager._journal.capture_state().value.backup, expected_journal))
-		assert_false(f.manager._backup_actions.has(prepared.value.token), "commit consumes consent")
-
-func test_refused_backup_capture_preserves_history_disk_and_existing_consent_without_bundle_read() -> void:
-	var f := _history_write_fixture()
-	if f.is_empty(): return
-	var pending: Dictionary = f.manager.prepare_backup_action("save", "slot:2")
-	assert_true(pending.get("ok", false), str(pending))
-	if not pending.get("ok", false): return
-	f.capture.result = {"ok": false, "code": &"fixture_capture_unavailable"}
-	assert_true(f.manager.configure_backup_capture_provider(f.capture.capture).get("ok", false))
-	f.manager._journal.disk_bundle_reads = 0
-	var prior: Dictionary = f.manager._journal.capture_state()
-	var persisted: Dictionary = f.ops.snapshot_persisted()
-	var actions: Dictionary = f.manager._backup_actions.duplicate(true)
-	var sequence: int = f.manager._backup_action_sequence
-	for locator: String in ["slot:1", "quick"]:
-		assert_eq(f.manager.prepare_backup_action("save", locator).get("code"), &"fixture_capture_unavailable")
-		assert_eq(f.manager._journal.disk_bundle_reads, 0)
-		assert_eq(f.manager._journal.capture_state(), prior)
-		assert_eq(f.ops.snapshot_persisted(), persisted)
-		assert_eq(f.manager._backup_actions, actions, "refusal retains prior consent and creates none")
-		assert_eq(f.manager._backup_action_sequence, sequence)
-	f.manager.cancel_backup_action(pending.value.token)
-
-func test_unconfigured_backup_capture_reads_and_preserves_stable_retained_history() -> void:
-	for locator: String in ["slot:1", "quick"]:
-		var f := _history_write_fixture()
-		if f.is_empty(): return
-		var prior: Dictionary = f.manager._journal.capture_state()
-		var persisted: Dictionary = f.ops.snapshot_persisted()
-		assert_eq(prior.value.backup.earlier.size(), 2)
-		var prepared: Dictionary = f.manager.prepare_backup_action("save", locator)
-		assert_true(prepared.get("ok", false), str(prepared))
-		if not prepared.get("ok", false): return
-		assert_eq(f.manager._journal.disk_bundle_reads, 1)
-		var candidate: Dictionary = f.manager._backup_actions[prepared.value.token]
-		assert_false(candidate.has("journal_candidate"), "unconfigured save never fabricates a capture")
-		assert_true(CANONICAL._deep_same(candidate.document.current_snapshot, prior.value.backup.current))
-		assert_true(CANONICAL._deep_same(candidate.document.recovery_journal, prior.value.backup.earlier))
-		assert_eq(f.manager._journal.capture_state(), prior)
-		assert_eq(f.ops.snapshot_persisted(), persisted)
-		f.manager.cancel_backup_action(prepared.value.token)
-		assert_true(f.manager._backup_actions.is_empty())
-		assert_eq(f.manager._journal.capture_state(), prior, "cancel preserves history")
-		assert_eq(f.ops.snapshot_persisted(), persisted, "cancel preserves disk")
 
 func test_cold_and_warm_results_preserve_types_and_are_detached() -> void:
 	var manager := _manager()
@@ -302,8 +206,8 @@ func test_warm_inspection_does_not_accept_a_changed_external_target() -> void:
 func test_warm_cache_keeps_storage_refusals_absence_and_schema_validation() -> void:
 	var f := _fixture()
 	if f.is_empty(): return
-	assert_eq(f.manager.inspect_backup("slot:1").value.state, "unavailable")
-	assert_eq(f.manager.inspect_backup("slot:1").value.reason, "older_version")
+	assert_eq(f.manager.inspect_backup("slot:1").value.state, "occupied")
+	assert_eq(f.manager.inspect_backup("slot:1").value.reason, "")
 	var validated: Dictionary = f.manager._document_text_validator(f.text)
 	assert_true(validated.get("ok", false))
 	validated.value.schema_version = -1
@@ -326,17 +230,13 @@ func test_warm_cache_keeps_storage_refusals_absence_and_schema_validation() -> v
 func test_warm_inspection_skips_participants_and_keeps_current_guard() -> void:
 	var f := _fixture()
 	if f.is_empty(): return
-	# Metadata-only input, deliberately not a complete/restorable Run9. This
-	# proves listing stays independent of full validation and participants.
-	_replace(f, "parse-cache/slot_1.json",
-		'{"schema_version":9,"current_snapshot":{"snapshot":{"schema_version":9}},"saved_time":{"hhmm":"10:30"}}')
 	var participants := {}
 	for pair: Array in [["run", "run_plan"], ["desktop_consequence", "consequence_plan"],
-		["desktop_board", "board_plan"], ["schedule_view", "schedule_view_plan"],
+		["desktop_board", "board_plan"],
 		["profile", "profile_plan"], ["localization", "localization_plan"],
 		["audio", "audio_plan"], ["route", "route_plan"], ["narrative", "narrative_plan"]]:
 		participants[pair[0]] = Participant.new(pair[1])
-	assert_true(f.manager.configure_restore_participants(participants).get("ok", false))
+	assert_true(f.manager.configure_scene_restore_participants(participants).get("ok", false))
 	var initial: Dictionary = f.manager.inspect_backup("slot:1")
 	assert_true(initial.value.loadable, str(initial))
 	participants.narrative.unavailable = true
@@ -385,7 +285,7 @@ func test_document_text_validator_returns_complete_detached_document() -> void:
 	assert_true(first.get("ok", false), str(first))
 	if not first.get("ok", false): return
 	assert_true(CANONICAL._deep_same(first.value, expected.value.candidate))
-	first.value.current_snapshot.snapshot.lifecycle.day = 99
+	first.value.current_snapshot.snapshot.gameplay.money = 99
 	var second: Dictionary = f.manager._document_text_validator(f.text)
 	assert_true(CANONICAL._deep_same(second.value, expected.value.candidate))
 	second.value.recovery_journal.append({"caller": "edit"})
@@ -399,9 +299,9 @@ func test_frozen_backup_write_validation_results_are_detached_and_refusals_are_n
 	var first: Dictionary = f.manager._write_document_text_validator(f.text, memo)
 	assert_true(first.get("ok", false), str(first))
 	if not first.get("ok", false): return
-	first.value.current_snapshot.snapshot.lifecycle.day = 99
+	first.value.current_snapshot.snapshot.gameplay.money = 99
 	var second: Dictionary = f.manager._write_document_text_validator(f.text, memo)
-	assert_eq(second.value.current_snapshot.snapshot.lifecycle.day, 1)
+	assert_eq(second.value.current_snapshot.snapshot.gameplay.money, _snapshot.gameplay.money)
 	second.value.recovery_journal.append({"caller": "edit"})
 	assert_true(f.manager._write_document_text_validator(f.text, memo).value.recovery_journal.is_empty())
 	assert_eq(f.manager.validation_texts.size(), 1)

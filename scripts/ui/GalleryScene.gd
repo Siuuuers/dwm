@@ -12,7 +12,6 @@ const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
 const ARTWORK_GALLERY := preload("res://scripts/ui/gallery/ArtworkGallery.gd")
 const DIALOGUE_LIBRARY := preload("res://scripts/ui/gallery/DialogueLibrary.gd")
 const REPLAY_OWNER := preload("res://scripts/application/ending/GalleryReplayOwner.gd")
-const DATING_PRESENTATION := preload("res://scripts/ui/DatingScene.gd")
 const RECORD_CATALOG := preload("res://scripts/ui/gallery/GalleryRecordCatalog.gd")
 const STATUS_FALLBACK := {
 	"gallery.history.added": "New dialogue added to History",
@@ -428,7 +427,7 @@ func _trusted_record_title(ending_id: String) -> String:
 		if not public_title.is_empty(): return public_title
 		var available: Dictionary = _replay_owner.get_reached_entry_variants(ending_id)
 		if available.get("ok", false) and not available.value.records.is_empty():
-			var caption: Dictionary = DATING_PRESENTATION.reached_presentation_copy(available.value.records[0].signature, locale)
+			var caption: Dictionary = RECORD_CATALOG.reached_presentation_copy(available.value.records[0].signature, locale)
 			if caption.get("ok", false):
 				var post := ending_id.ends_with(".post_challenge")
 				var phase := "After" if post else "Before"

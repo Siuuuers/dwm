@@ -69,7 +69,7 @@ const SOURCE_BINDING_PATHS: Array[String] = [
 	"tests/unit/test_desktop_app_registry.gd",
 	"tests/unit/test_fatal_diagnostic_projector.gd",
 	"tests/unit/test_logout_policy.gd",
-	"tests/unit/test_run_snapshot_schema.gd",
+	"tests/unit/test_scene_save_schema.gd",
 ]
 
 const REGISTRY_VERSION := 1

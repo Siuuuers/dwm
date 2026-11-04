@@ -258,7 +258,10 @@ func test_current_scene_source_admission_preserves_state_and_rejects_changed_has
 	if not fixture_ready: return
 	var before: Dictionary = _observed()
 	var document: Dictionary = fixture.read_autosave().value
-	var locator: Dictionary = fixture.manager._build_source_locator(document.kind, document.slot_id, document.current_snapshot)
+	var locator := {"bundle_id": fixture.manager._canonical_sha256(document.current_snapshot),
+		"checkpoint_id": document.current_snapshot.snapshot.checkpoint_id,
+		"document_sha256": fixture.manager._canonical_sha256(document.current_snapshot.snapshot),
+		"slot_id": document.kind}
 	# The real created Save9 is the source. This diagnostic exercises only the
 	# journal's source binding, without allocating or committing a new operation.
 	var operation := {"kind": "scene_restore", "transaction_id": "source-binding-diagnostic",

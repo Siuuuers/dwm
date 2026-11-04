@@ -23,6 +23,8 @@ var refusal_pairs := 0
 var distinct_snapshots := 0
 var _outgoing := ""
 var _document: Dictionary = {}
+var scope := preload("res://tests/support/SceneValidationScope.gd").new()
+var scene_fixture: RefCounted
 
 func _init() -> void:
 	call_deferred("_run")
@@ -34,8 +36,12 @@ func _check(condition: bool, label: String) -> bool:
 	return condition
 
 func _run() -> void:
+	scope.install(true)
+	scene_fixture = preload("res://tests/support/SceneRunSaveFixture.gd").new()
+	var setup: Dictionary = scene_fixture.setup(self)
+	_check(setup.ok, str(setup))
 	var previous_control := OS.get_environment("DWM_SAVE_PARSE_CACHE_DISABLED")
-	if _build_document():
+	if setup.ok and _build_document():
 		for disabled: bool in [false, true]:
 			OS.set_environment("DWM_SAVE_PARSE_CACHE_DISABLED", "1" if disabled else "")
 			var cache_label := "cache-disabled" if disabled else "cache-enabled"
@@ -54,15 +60,13 @@ func _run() -> void:
 		"refusal_pairs": refusal_pairs, "failures": failures}))
 	if failures.is_empty():
 		print("MANUAL_WITNESS_REVISION_STORAGE_PASS")
+	scene_fixture.close()
+	scope.restore()
 	quit(0 if failures.is_empty() else 1)
 
 func _build_document() -> bool:
-	var snapshot := STRICT.parse_object(FileAccess.get_file_as_string(
-		"res://tests/fixtures/saves/v7_desktop_prepared.json"))
-	if not _check(snapshot.get("ok", false), "strict fixture parse"): return false
-	snapshot.value["schema_version"] = preload("res://scripts/domain/run/RunSnapshotSchema.gd").SCHEMA_VERSION
 	var built := SCHEMA.build(&"slot", 1, &"manual",
-		{"checkpoint_kind": "manual_save", "snapshot": snapshot.value}, [])
+		{"checkpoint_kind": "manual_save", "snapshot": scene_fixture.snapshot}, [])
 	if not _check(built.get("ok", false), "real save schema build"): return false
 	var emitted := CANONICAL.stringify(built.value)
 	if not _check(emitted.get("ok", false), "canonical save document"): return false

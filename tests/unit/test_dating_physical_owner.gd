@@ -8,7 +8,6 @@ const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceI
 const STORE := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
 const GENERATION := preload("res://tests/support/FakeMinesweeperGenerationPort.gd")
 const CANONICAL := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
-const NARRATIVE := preload("res://tests/support/FakeDatingNarrativePlayback.gd")
 
 class State extends RefCounted:
 	var inventory: Dictionary = {}
@@ -52,27 +51,6 @@ class Profile extends RefCounted:
 	func record_pair_form_witness(form: String, token: String) -> Dictionary:
 		witnesses[token] = form
 		return {"ok": true, "value": {}}
-
-## dwm-634.2: refuses `settle` at the scene's one seam, as a held gate or stale adoption would.
-class RefusingSettlePort extends PORT:
-	var refuse_settle := false
-	var settle_calls := 0
-	func dispatch_physical(presentation_command: Dictionary, action: String, cell_index: int, expected_revision: int) -> Dictionary:
-		if action == "settle":
-			settle_calls += 1
-			if refuse_settle: return {"ok": false, "code": &"TRANSACTION_ACTIVE", "message": "", "details": {}}
-		return super(presentation_command, action, cell_index, expected_revision)
-
-class ReachedProfile extends Profile:
-	const SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
-	var reached: Dictionary = {}
-	func record_reached_presentation(signature: Dictionary) -> Dictionary:
-		var checked: Dictionary = SIGNATURE.validate(signature)
-		if not checked.ok: return checked
-		var signature_id: String = checked.value.signature_id
-		var already: bool = reached.has(signature_id)
-		reached[signature_id] = checked.value.signature.duplicate(true)
-		return {"ok": true, "value": {"signature_id": signature_id, "already_reached": already}}
 
 var state: State
 var profile: Profile
@@ -305,127 +283,6 @@ func test_checkpoint_failure_rolls_back_automatic_settlement_before_retry() -> v
 	assert_eq(completion_results.size(), 1)
 	assert_eq(state.applications, 1)
 
-func test_mounted_scene_mouse_input_reaches_real_board_and_completion_port() -> void:
-	# The mounted scene advances only through the explicit narrative playback adapter.
-	# Chrome never acknowledges a reached narrative presentation.
-	profile = ReachedProfile.new()
-	physical_owner = OWNER.new()
-	assert_true(physical_owner.configure(issuer, state, profile, generation).ok)
-	port = PORT.new()
-	assert_true(port.configure(issuer, physical_owner).ok)
-	var narrative := NARRATIVE.new()
-	assert_true(port.configure_narrative_playback(narrative).ok)
-	port.completion_ready.connect(func(receipt: Dictionary): completion_results.append(receipt.duplicate(true)))
-	_begin("solo")
-	var scene: Control = preload("res://scenes/dating/DatingScene.tscn").instantiate()
-	assert_true(scene.configure_presentation(port, command).ok)
-	add_child_autofree(scene)
-	await get_tree().process_frame
-	await get_tree().process_frame
-	assert_not_null(scene.worksheet)
-	if scene.worksheet == null: return
-	var grid: Control = scene.worksheet.grid
-	assert_eq(grid.projection.width, 18)
-	assert_eq(grid.cell_nodes.size(), 324)
-	var next: Button = scene.find_child("ContinueChallenge", true, false)
-	var special: Button = scene.find_child("SpecialMine", true, false)
-	assert_true(special.disabled)
-	assert_false(special.visible)
-	assert_false(next.visible, "entry needs no Continue confirmation")
-	assert_eq(state.saved.phase, "challenge")
-	assert_eq(narrative.started.size(), 1)
-	assert_eq(narrative.started[0].phase, "pre_challenge")
-	assert_eq((profile as ReachedProfile).reached.size(), 0, "empty DTL and challenge chrome grant no narrative evidence")
-	# A real paired pointer press/release, through the existing public widget input handler.
-	var cell: Control = grid.cell_nodes[36]
-	var down := InputEventMouseButton.new()
-	down.device = 0
-	down.button_index = MOUSE_BUTTON_LEFT
-	down.position = cell.position + cell.size / 2.0
-	down.pressed = true
-	grid._gui_input(down)
-	var up: InputEventMouseButton = down.duplicate()
-	up.pressed = false
-	grid._gui_input(up)
-	assert_true(state.saved.board is Dictionary)
-	assert_eq(generation.call_log.size(), 1)
-	assert_true(state.saved.board.revealed_indices.has(36))
-	assert_false(next.visible)
-	var mine: Control = grid.cell_nodes[0]
-	down.position = mine.position + mine.size / 2.0
-	grid._gui_input(down)
-	up.position = down.position
-	grid._gui_input(up)
-	# dwm-634.2: the terminal click paints first; the scene settles it on its next frame.
-	assert_eq(state.saved.phase, "challenge", "the terminal click paints before settlement")
-	assert_true(bool(state.saved.board.terminal))
-	scene._process(0.0)
-	assert_eq(state.saved.phase, "post_challenge")
-	assert_eq(state.applications, 1)
-	assert_false(next.visible, "settlement needs no Done confirmation")
-	assert_eq(completion_results.size(), 0, "the post DTL has not yet completed")
-	scene._process(0.0)
-	assert_eq(state.saved.phase, "completed")
-	assert_eq(narrative.started.size(), 2)
-	assert_eq(narrative.started[1].phase, "post_challenge")
-	assert_eq((profile as ReachedProfile).reached.size(), 0)
-	assert_eq(completion_results.size(), 1)
-	scene._process(0.0)
-	assert_eq(completion_results.size(), 1, "automatic completion publishes once")
-
-func test_mounted_scene_retries_a_refused_settlement_only_from_retry() -> void:
-	profile = ReachedProfile.new()
-	physical_owner = OWNER.new()
-	assert_true(physical_owner.configure(issuer, state, profile, generation).ok)
-	var refusing := RefusingSettlePort.new()
-	port = refusing
-	assert_true(port.configure(issuer, physical_owner).ok)
-	assert_true(port.configure_narrative_playback(NARRATIVE.new()).ok)
-	_begin("solo")
-	var scene: Control = preload("res://scenes/dating/DatingScene.tscn").instantiate()
-	assert_true(scene.configure_presentation(port, command).ok)
-	add_child_autofree(scene)
-	await get_tree().process_frame
-	await get_tree().process_frame
-	assert_not_null(scene.worksheet)
-	if scene.worksheet == null: return
-	var grid: Control = scene.worksheet.grid
-	var next: Button = scene.find_child("ContinueChallenge", true, false)
-	assert_eq(state.saved.phase, "challenge")
-	assert_false(next.visible)
-	var cell: Control = grid.cell_nodes[36]
-	var down := InputEventMouseButton.new()
-	down.device = 0
-	down.button_index = MOUSE_BUTTON_LEFT
-	down.position = cell.position + cell.size / 2.0
-	down.pressed = true
-	grid._gui_input(down)
-	var up: InputEventMouseButton = down.duplicate()
-	up.pressed = false
-	grid._gui_input(up)
-	var mine: Control = grid.cell_nodes[0]
-	down.position = mine.position + mine.size / 2.0
-	grid._gui_input(down)
-	up.position = down.position
-	grid._gui_input(up)
-	assert_eq(state.saved.phase, "challenge")
-	assert_true(bool(state.saved.board.terminal))
-	# dwm-634.2: the pump tries settlement once; a refusal waits for Retry instead of hot-looping.
-	refusing.refuse_settle = true
-	scene._process(0.0)
-	assert_eq(state.saved.phase, "challenge", "a refused settlement leaves the painted board")
-	assert_eq(refusing.settle_calls, 1)
-	scene._process(0.0)
-	scene._process(0.0)
-	assert_eq(refusing.settle_calls, 1, "a refused settlement is not retried every frame")
-	assert_true(next.visible, "Retry is offered after a refused settlement")
-	assert_eq(next.text, "Retry")
-	refusing.refuse_settle = false
-	next.pressed.emit()
-	assert_eq(refusing.settle_calls, 2)
-	assert_eq(state.saved.phase, "post_challenge")
-	assert_eq(state.applications, 1)
-
 func test_cached_admission_readopts_exact_restored_prior_date_without_new_board_identity() -> void:
 	_begin("solo")
 	var prior_command: Dictionary = command.duplicate(true)
@@ -594,4 +451,3 @@ func test_solving_reveal_paints_before_automatic_loved_settlement() -> void:
 	assert_false(_dispatch_unsettled("settle").ok)
 	assert_false(_dispatch_unsettled("activate", int(state.saved.envelope.special_cell)).ok)
 	assert_eq(state.applications, 1)
-

@@ -2,7 +2,6 @@ extends "res://addons/gut/test.gd"
 ## Real filesystem, Profile, issuer, Run and SaveManager. Route/native activation
 ## use diagnostic participants; rendered and fresh-process Load have separate tests.
 const FIXTURE := preload("res://tests/support/SceneNewRunFixture.gd")
-const IDENTITY := preload("res://scripts/application/restore/DesktopIdentityAllocationRestoreParticipant.gd")
 const JOURNAL := preload("res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd")
 var fixture: RefCounted
 var fixture_ready := false
@@ -10,8 +9,6 @@ var fixture_ready := false
 func before_all() -> void:
 	fixture = FIXTURE.new()
 	var setup: Dictionary = fixture.setup(get_tree())
-	if setup.get("ok", false):
-		setup = fixture.manager.configure_identity_allocation_participant(IDENTITY.new(fixture.issuer, fixture.manager))
 	assert_true(setup.get("ok", false), str(setup))
 	fixture_ready = setup.get("ok", false)
 

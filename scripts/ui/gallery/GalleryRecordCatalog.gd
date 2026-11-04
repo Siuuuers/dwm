@@ -172,3 +172,38 @@ func _invalidate(code: StringName) -> void:
 	_error = code
 	_records.clear()
 	_presentations.clear()
+
+## Shared provisional physical copy: readonly entry replay uses the same visible words.
+static func presentation_copy(context: Dictionary, phase: String, locale: String = "en") -> Dictionary:
+	if phase not in ["pre_challenge", "post_challenge"] or context.get("day") not in range(1, 7) \
+			or not context.get("participants") is Array:
+		return {"ok": false, "code": &"dating_copy_unavailable"}
+	var names := ""
+	if context.get("kind") == "solo" and context.participants.size() == 1 \
+			and context.participants[0] in ["priscilla", "lavinia", "sylvia"]:
+		names = str(context.participants[0]).capitalize()
+	elif context.get("kind") in ["group", "twofriends_if_deferred"] and context.participants == ["priscilla", "lavinia"]:
+		names = "Priscilla & Lavinia"
+	else: return {"ok": false, "code": &"dating_copy_unavailable"}
+	var copy: Array = ["Day %d", "Ready to begin.", "Challenge complete."]
+	var normalized: String = locale.replace("_", "-")
+	if normalized == "zh-CN": copy = ["\u7b2c %d \u5929", "\u51c6\u5907\u5f00\u59cb\u3002", "\u6311\u6218\u5b8c\u6210\u3002"]
+	elif normalized == "zh-HK": copy = ["\u7b2c %d \u5929", "\u6e96\u5099\u958b\u59cb\u3002", "\u6311\u6230\u5b8c\u6210\u3002"]
+	elif normalized == "ja": copy = ["%d日目", "開始の準備ができました。", "チャレンジ完了。"]
+	elif normalized == "ko": copy = ["%d일째", "시작할 준비가 되었습니다.", "도전 완료."]
+	return {"ok": true, "value": {"title": names + " / " + (str(copy[0]) % int(context.day)),
+		"body": str(copy[1 if phase == "pre_challenge" else 2])}}
+
+static func reached_presentation_copy(signature: Dictionary, locale: String = "en") -> Dictionary:
+	var checked: Dictionary = SIGNATURE.validate(signature)
+	if not checked.ok: return checked
+	var entry: Dictionary = SIGNATURE.entry_record(str(signature.entry_id))
+	if not entry.ok: return entry
+	var row: Dictionary = entry.value
+	if row.role not in ["solo_pre_challenge", "solo_post_challenge", "pair_pre_challenge_scene", "pair_post_challenge_scene"]:
+		return {"ok": false, "code": &"dating_copy_unavailable"}
+	var parts: PackedStringArray = str(signature.entry_id).split(".")
+	if parts.size() != 5 or parts[0] != "dating": return {"ok": false, "code": &"dating_copy_unavailable"}
+	var context := {"kind": "twofriends_if_deferred" if parts[1] == "twofriends" else parts[1],
+		"day": int(row.day), "participants": [parts[2]] if parts[1] == "solo" else ["priscilla", "lavinia"]}
+	return presentation_copy(context, parts[4], locale)

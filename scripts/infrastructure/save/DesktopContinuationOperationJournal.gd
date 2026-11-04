@@ -4,8 +4,8 @@ extends RefCounted
 ## Durable New Run / selected Load continuation-operation journal (Plan 02 Task 1, dwm-p2r.16).
 ## External to every selectable snapshot: this uses its injected atomic storage and source-loader.
 const JOURNAL_PATH := "desktop-continuation-operations.json"
-const SCHEMA_VERSION := 4
-const SCENE_SCHEMA_VERSION := 5
+const SCHEMA_VERSION := 5
+const SCENE_SCHEMA_VERSION := SCHEMA_VERSION
 const SCENE_PARTICIPANT_ORDER: Array[String] = [
 	"run", "desktop_consequence", "desktop_board", "profile",
 	"localization", "audio", "route", "narrative",
@@ -51,14 +51,6 @@ const SOURCE_LOCATOR_KEYS: Array[String] = [
 	"slot_id",
 ]
 
-const INITIAL_CONTEXT_KEYS: Array[String] = [
-	"active_app_id",
-	"audio_context",
-	"content_version",
-	"dialogic_checkpoint",
-	"dark_mode",
-	"route_id",
-]
 
 const SCENE_INITIAL_CONTEXT_KEYS: Array[String] = [
 	"active_app_id", "audio_context", "content_version", "dialogic_checkpoint", "route_id",
@@ -88,17 +80,6 @@ const ADVANCE_KEYS: Array[String] = [
 	"transaction_id",
 ]
 
-const PARTICIPANT_ORDER: Array[String] = [
-	"run",
-	"desktop_consequence",
-	"desktop_board",
-	"schedule_view",
-	"profile",
-	"localization",
-	"audio",
-	"route",
-	"narrative",
-]
 const NEW_RUN_TARGET_ORDER: Array[String] = ["identity", "autosave", "profile"]
 
 const STAGE_UNION: Array[String] = [
@@ -110,7 +91,7 @@ const STAGE_UNION: Array[String] = [
 	STAGE_ABORTED,
 ]
 
-const KIND_UNION: Array[String] = ["new_run", "restore", "scene_restore", "scene_new_run"]
+const KIND_UNION: Array[String] = ["scene_restore", "scene_new_run"]
 const DOCUMENT_KEYS: Array[String] = ["operations", "schema_version"]
 
 const _SAVE_DOCUMENT := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
@@ -188,7 +169,7 @@ func with_creation_storage_recovery(work: Callable) -> Dictionary:
 
 
 ## Application startup retires the former durable scene Load protocol before any
-## creation recovery or ordinary journal read. Shared creation/legacy records stay.
+## creation recovery or ordinary journal read. Shared creation records stay.
 ## No migration marker is needed: after one successful write there is nothing to remove.
 func retire_scene_restore_operations() -> Dictionary:
 	var ready := _require_configured("retire_scene_restore_operations")
@@ -207,7 +188,7 @@ func retire_scene_restore_operations() -> Dictionary:
 	var keys: Array = document.keys()
 	keys.sort()
 	if keys != DOCUMENT_KEYS or typeof(document.get("schema_version")) != TYPE_INT \
-			or document.schema_version not in [SCHEMA_VERSION, SCENE_SCHEMA_VERSION] \
+			or document.schema_version != SCHEMA_VERSION \
 			or not document.get("operations") is Dictionary:
 		return _failed(_schema_error, "retirement requires a recognized journal envelope")
 	var removed := 0
@@ -318,7 +299,6 @@ func commit_intent(candidate: Dictionary) -> Dictionary:
 
 	var next_document := _document.duplicate(true)
 	next_document["operations"][txid] = candidate.duplicate(true)
-	if _is_scene(candidate): next_document["schema_version"] = SCENE_SCHEMA_VERSION
 	var written := _write(next_document)
 	if not written.get("ok", false):
 		return written
@@ -568,20 +548,16 @@ func reconcile_startup(transaction_id: String, issuer: Object) -> Dictionary:
 		var locator: Variant = operation.get("source_locator")
 		if typeof(locator) != TYPE_DICTIONARY:
 			return _failed(&"operation_source_locator_invalid", str(operation.get("transaction_id", "")))
-		var loaded_source: Dictionary
-		if operation.get("kind") == "scene_restore":
-			if not _source_loader.has_method(&"load_restore_context"):
-				return _failed(&"scene_source_loader_unbound", transaction_id)
-			loaded_source = _source_loader.call(&"load_restore_context", transaction_id, locator.duplicate(true))
-		else:
-			loaded_source = _source_loader.call(&"load_context", locator)
+		if not _source_loader.has_method(&"load_restore_context"):
+			return _failed(&"scene_source_loader_unbound", transaction_id)
+		var loaded_source: Dictionary = _source_loader.call(&"load_restore_context", transaction_id, locator.duplicate(true))
 		if not loaded_source.get("ok", false):
 			return loaded_source
 		var payload: Dictionary = loaded_source.get("value", {})
 		if not payload.has("context") or not payload.has("context_sha256"):
 			return _failed(&"operation_source_payload_invalid", str(operation.get("transaction_id", "")))
 		if str(payload.get("context_sha256", "")) != str(locator.get("document_sha256", "")) \
-				or (operation.get("kind") == "scene_restore" and _canonical_sha256(payload.get("context")) != str(locator["document_sha256"])):
+				or _canonical_sha256(payload.get("context")) != str(locator["document_sha256"]):
 			return _failed(&"continuation_source_hash_mismatch", str(operation.get("transaction_id", "")))
 
 	if operation.get("failure", null) == null:
@@ -732,7 +708,7 @@ func _validate_document(document: Variant) -> Dictionary:
 	if document_keys != DOCUMENT_KEYS:
 		return _failed(_schema_error, "document has unexpected members: " + str(document_keys))
 	if typeof(document.get("schema_version")) != TYPE_INT \
-			or document.get("schema_version") not in [SCHEMA_VERSION, SCENE_SCHEMA_VERSION]:
+			or document.get("schema_version") != SCHEMA_VERSION:
 		return _failed(_schema_error, "invalid schema_version")
 	if typeof(document.get("operations", {})) != TYPE_DICTIONARY:
 		return _failed(_schema_error, "operations is not a dictionary")
@@ -746,8 +722,6 @@ func _validate_document(document: Variant) -> Dictionary:
 		if typeof(key) != TYPE_STRING or typeof(raw.get("transaction_id")) != TYPE_STRING \
 				or raw.get("transaction_id") != key:
 			return _failed(_schema_error, "creation transaction must match its operations key")
-		if document["schema_version"] == SCHEMA_VERSION and _is_scene(raw):
-			return _failed(_schema_error, "scene operation requires journal5")
 		var creation_ok := _validate_operation(raw)
 		if not creation_ok.get("ok", false): return creation_ok
 		validated_creations[key] = raw.duplicate(true)
@@ -764,8 +738,6 @@ func _validate_document(document: Variant) -> Dictionary:
 			return _failed(_schema_error, "transaction_id must be a string for key " + str(key))
 		if str(operation.get("transaction_id")) != key:
 			return _failed(_schema_error, "transaction_id must match operations key")
-		if document["schema_version"] == SCHEMA_VERSION and _is_scene(operation):
-			return _failed(_schema_error, "scene operation requires journal5")
 		if not validated_creations.has(key):
 			var validated := _validate_operation(operation)
 			if not validated.get("ok", false):
@@ -875,7 +847,7 @@ func _validate_transaction_issuer_receipt(value: Variant, transaction_id: String
 
 
 func _validate_kind_fields(operation: Dictionary, kind: String) -> Dictionary:
-	if kind in ["restore", "scene_restore"]:
+	if kind == "scene_restore":
 		if operation.get("initial_context") != null or operation.get("initial_context_sha256") != null:
 			return _failed(_schema_error, "restore requires null initial context fields")
 		if operation.get("new_run_materials") != null:
@@ -884,31 +856,23 @@ func _validate_kind_fields(operation: Dictionary, kind: String) -> Dictionary:
 			return _failed(_schema_error, "restore requires null new_run_targets")
 		var locator_ok := _validate_source_locator(operation.get("source_locator"))
 		if not locator_ok.get("ok", false): return locator_ok
-		if kind == "scene_restore": return _validate_scene_source(operation)
-		return {"ok": true}
+		return _validate_scene_source(operation)
 	if operation.get("source_locator") != null:
 		return _failed(_schema_error, "new_run requires null source_locator")
 	var context_value: Variant = operation.get("initial_context")
 	if typeof(context_value) != TYPE_DICTIONARY:
 		return _failed(_schema_error, "new_run initial_context must be a dictionary")
 	var context: Dictionary = context_value
-	var context_shape := _exact_keys(context, SCENE_INITIAL_CONTEXT_KEYS if kind == "scene_new_run" else INITIAL_CONTEXT_KEYS)
+	var context_shape := _exact_keys(context, SCENE_INITIAL_CONTEXT_KEYS)
 	if not context_shape.get("ok", false):
 		return _failed(_schema_error, "new_run initial_context has unexpected members")
-	var expected_route := "scene" if kind == "scene_new_run" else "main"
-	if typeof(context.get("route_id")) != TYPE_STRING or context["route_id"] != expected_route:
+	if typeof(context.get("route_id")) != TYPE_STRING or context["route_id"] != "scene":
 		return _failed(_schema_error, "new_run route_id differs from its kind")
-	if kind == "new_run" and typeof(context.get("dark_mode")) != TYPE_BOOL:
-		return _failed(_schema_error, "new_run captured dark_mode must be Boolean")
 	if context.get("active_app_id") != null:
 		return _failed(_schema_error, "new_run active_app_id must be null")
 	if typeof(context.get("dialogic_checkpoint")) != TYPE_DICTIONARY \
 			or typeof(context.get("audio_context")) != TYPE_DICTIONARY:
 		return _failed(_schema_error, "new_run context payloads must be dictionaries")
-	if kind == "new_run" and (not (context["dialogic_checkpoint"] as Dictionary).is_empty() \
-			or not (context["audio_context"] as Dictionary).is_empty()):
-		return _failed(_schema_error,
-			"new_run dialogic_checkpoint and audio_context must both equal {}")
 	if typeof(context.get("content_version")) != TYPE_INT or int(context["content_version"]) < 1:
 		return _failed(_schema_error, "new_run content_version must be an integer >= 1")
 	if not _is_sha256(operation.get("initial_context_sha256")):
@@ -920,14 +884,14 @@ func _validate_kind_fields(operation: Dictionary, kind: String) -> Dictionary:
 		context, str(operation.get("transaction_id", "")),
 		str(operation.get("allocation_candidate_fingerprint", "")),
 		_scene_new_run_bundle, _scene_new_run_issuer,
-		kind == "scene_new_run" and operation.get("stage") == STAGE_COMPLETED
+		operation.get("stage") == STAGE_COMPLETED
 			and operation.get("activation_state") == "acknowledged")
 	if not materials_ok.get("ok", false):
 		return _failed(_schema_error, str(materials_ok.get("message", "new_run_materials are invalid")))
 	var allocation: Dictionary = operation["new_run_materials"]["allocation_candidate"]
 	var allocation_root: Variant = (allocation["request"] as Dictionary).get("transaction_issuer_receipt")
 	if allocation_root != operation.get("transaction_issuer_receipt") \
-			or (kind == "scene_new_run" and not _CANONICAL_WRITER._deep_same(allocation_root, operation.get("transaction_issuer_receipt"))):
+			or not _CANONICAL_WRITER._deep_same(allocation_root, operation.get("transaction_issuer_receipt")):
 		return _failed(_schema_error, "new_run allocation uses another transaction receipt")
 	var expected_request_fingerprint := _canonical_sha256({
 		"kind": kind, "transaction_id": operation["transaction_id"],
@@ -1078,8 +1042,8 @@ func _validate_intent_request(request: Dictionary) -> Dictionary:
 		return _failed(&"invalid_intent_request", "kind must be a string")
 	var kind := str(request["kind"])
 	if not KIND_UNION.has(kind):
-		return _failed(&"invalid_intent_request", "kind must be new_run or restore")
-	if kind in ["new_run", "scene_new_run"]:
+		return _failed(&"invalid_intent_request", "kind must be scene_new_run or scene_restore")
+	if kind == "scene_new_run":
 		if request.get("source_locator") != null:
 			return _failed(&"invalid_intent_request", "new_run requires null source_locator")
 		if typeof(request["initial_context"]) != TYPE_DICTIONARY:
@@ -1688,8 +1652,8 @@ func _pending_conflict(transaction_id: String = "") -> Dictionary:
 	return {"ok": true}
 
 
-func _participant_order(operation: Dictionary) -> Array[String]:
-	return SCENE_PARTICIPANT_ORDER.duplicate() if _is_scene(operation) else PARTICIPANT_ORDER.duplicate()
+func _participant_order(_operation: Dictionary) -> Array[String]:
+	return SCENE_PARTICIPANT_ORDER.duplicate()
 
 
 func _operation_keys(operation: Dictionary) -> Array[String]:
@@ -1801,4 +1765,4 @@ func _is_scene(operation: Dictionary) -> bool:
 
 
 func _is_new_run(operation: Dictionary) -> bool:
-	return operation.get("kind") in ["new_run", "scene_new_run"]
+	return operation.get("kind") == "scene_new_run"

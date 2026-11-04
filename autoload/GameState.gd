@@ -3970,7 +3970,6 @@ func ensure_contact_presentation_contexts(friend_id: String = "") -> Dictionary:
 # content only; the issuer binds each command, and the saved chain binds order.
 const _SCENE_EVENT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
 var _scene_event_bridge: Object
-var _scene_event_registry: Dictionary = {}
 var _scene_event_before_adoption: Callable
 
 func configure_scene_event_owner(bridge: Object) -> Dictionary:
@@ -3982,29 +3981,6 @@ func configure_scene_event_owner(bridge: Object) -> Dictionary:
 	_scene_event_bridge = bridge
 	return {"ok": true}
 
-## No production content is installed by this slice. TEST registries contain
-## fixed authored values, never saved receipts, a projection or a mutable frontier.
-func configure_test_scene_event_registry(registry: Dictionary) -> Dictionary:
-	if not OS.has_feature("debug") or OS.get_environment("DWM_TEST_ROOT").strip_edges().is_empty():
-		return _transaction_failure(&"event_test_registry_forbidden", "isolated debug root required")
-	if not _scene_event_registry.is_empty():
-		return {"ok": true} if registry == _scene_event_registry else _transaction_failure(&"event_registry_conflict", "")
-	for entry: Variant in registry:
-		if typeof(entry) != TYPE_STRING or not registry[entry] is Dictionary:
-			return _transaction_failure(&"event_registration_invalid", "")
-		var row: Dictionary = registry[entry]
-		if not _SCENE_EVENT._keys(row, ["content_version", "events"]) \
-				or typeof(row.content_version) != TYPE_INT or row.content_version < 1 or not row.events is Dictionary:
-			return _transaction_failure(&"event_registration_invalid", "")
-		for event_id: Variant in row.events:
-			var template: Variant = row.events[event_id]
-			var keys: Array = _SCENE_EVENT.RECORD_KEYS.duplicate()
-			keys.erase("command_id")
-			if not _SCENE_EVENT._keys(template, keys) or template.event_id != event_id:
-				return _transaction_failure(&"event_registration_invalid", "")
-	_scene_event_registry = registry.duplicate(true)
-	return {"ok": true}
-
 func scene_event_registration(event: Dictionary) -> Dictionary:
 	if _run_lifecycle.is_scene_run():
 		var registered := _SCENE_MANIFEST.scene_contract_tables()
@@ -4012,18 +3988,7 @@ func scene_event_registration(event: Dictionary) -> Dictionary:
 		var inspected := _SCENE_EVENT.inspect_scene(event, registered.bundle)
 		if not inspected.ok: return inspected
 		return {"ok": true, "value": registered.bundle}
-	var row: Dictionary = _scene_event_registry.get(event.source.entry_id, {})
-	if row.get("content_version") != event.source.content_version:
-		return _transaction_failure(&"event_registration_invalid", "entry revision unavailable")
-	var raw: Variant = row.get("events", {}).get(event.event_id)
-	if not raw is Dictionary: return _transaction_failure(&"event_registration_invalid", "event unavailable")
-	var record: Dictionary = raw.duplicate(true)
-	# Command identity comes from the independently authenticated issuer receipt.
-	# It cannot change a retained occurrence or replay an occupied ordinal.
-	record["command_id"] = event.command_id
-	var matched: Dictionary = _SCENE_EVENT.match_registration(event, record)
-	if not matched.ok: return matched
-	return {"ok": true, "value": record}
+	return _transaction_failure(&"event_registration_invalid", "scene run required")
 
 func scene_event_context() -> Dictionary:
 	if _run_lifecycle.is_scene_run():

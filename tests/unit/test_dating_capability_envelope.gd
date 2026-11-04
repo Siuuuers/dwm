@@ -7,35 +7,6 @@ const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceI
 const STORE := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
 const GENERATION := preload("res://tests/support/FakeMinesweeperGenerationPort.gd")
 const REAL_GENERATION := preload("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd")
-const SCENE := preload("res://scenes/dating/DatingScene.tscn")
-
-class InputOwner extends RefCounted:
-	signal input_bindings_changed
-	signal source_input_custody_changed
-	var contacts: Dictionary = {}
-	func get_physical_contacts() -> Dictionary: return contacts.duplicate()
-	func get_physical_contact_id(_event: InputEvent) -> String: return ""
-	func is_source_input_admitted() -> bool: return true
-
-class ScenePort extends RefCounted:
-	var physical: RefCounted
-	var narrative := preload("res://tests/support/FakeDatingNarrativePlayback.gd").new()
-	func begin(_command: Dictionary) -> Dictionary: return {"ok": true}
-	func complete(_request: Dictionary) -> Dictionary: return {"ok": false}
-	func pull_physical(command: Dictionary) -> Dictionary: return physical.pull_physical(command.physical_token)
-	func begin_narrative_phase(command: Dictionary, retry: bool = false) -> Dictionary:
-		return narrative.begin_phase(command, str(pull_physical(command).value.phase), retry)
-	func pull_narrative_phase(command: Dictionary) -> Dictionary:
-		return narrative.pull_phase(command, str(pull_physical(command).value.phase))
-	func dispatch_physical(command: Dictionary, action: String, index: int, revision: int) -> Dictionary:
-		var phase: String = str(pull_physical(command).value.phase)
-		if action == "continue" and phase in ["pre_challenge", "post_challenge"]:
-			var playback: Dictionary = narrative.pull_phase(command, phase)
-			if not playback.ok or playback.value.status != "completed": return {"ok": false}
-		var result: Dictionary = physical.dispatch_physical(command.physical_token, action, index, revision)
-		if result.ok and action == "continue" and phase in ["pre_challenge", "post_challenge"]:
-			narrative.finish_phase(command, phase)
-		return result
 
 var game: RefCounted
 var profile: RefCounted
@@ -154,40 +125,6 @@ func test_nonperfect_flagged_clear_applies_loved_without_any_marked_or_actionabl
 	assert_eq(game.saved, settled)
 	assert_eq(game.applications, 1)
 
-func test_post_scene_waits_for_all_contacts_to_release_without_any_choice_button() -> void:
-	if not _begin(): return
-	assert_true(_act("continue").ok)
-	assert_true(_act("flag", 0).ok)
-	assert_true(_act("reveal", 323).ok)
-	assert_eq(game.saved.relationship_outcome, "loved")
-	assert_eq(game.applications, 1)
-	var input := InputOwner.new()
-	input.contacts = {"key:0:13": 1}
-	var port := ScenePort.new(); port.physical = physical
-	var scene: Control = SCENE.instantiate()
-	assert_true(scene.configure_presentation(port, command).ok)
-	assert_true(scene.configure_presentation_services(input).ok)
-	add_child_autofree(scene)
-	assert_true(scene.worksheet.grid.can_present(scene._physical_view.board), "the cleared projection retains the actual cell contract")
-	assert_false(scene.worksheet.grid.projection.is_empty())
-	if scene.worksheet.grid.projection.is_empty(): return
-	assert_false(scene.worksheet.visible)
-	assert_false(scene._continue_button.visible)
-	scene._process(0.0)
-	assert_eq(port.narrative.started.size(), 0, "the clearing contact cannot enter or skip post dialogue")
-	scene._on_continue()
-	assert_eq(game.saved.phase, "post_challenge", "a hidden confirmation is not an alternate advance path")
-	# Replacing the original contact still leaves a currently held input: wait for that too.
-	input.contacts = {"key:0:32": 2}
-	scene._process(0.0)
-	assert_eq(port.narrative.started.size(), 0)
-	input.contacts.clear()
-	scene._process(0.0)
-	assert_eq(port.narrative.started.size(), 1)
-	assert_eq(port.narrative.started[0].phase, "post_challenge")
-	assert_eq(game.saved.phase, "completed")
-	assert_eq(game.applications, 1)
-
 func test_debug_preparation_and_shell_flags_resume_without_changing_the_certified_reveal() -> void:
 	game.inventory = {"debug_key": 1, "lucky_charm": 1}
 	generation = REAL_GENERATION.new()
@@ -249,4 +186,3 @@ func test_debug_preparation_and_shell_flags_resume_without_changing_the_certifie
 	assert_eq(game.saved.envelope.prepared_layout, certified)
 	assert_eq(game.saved.spec, saved.spec)
 	assert_true(ENVELOPE.validate(game.saved))
-

@@ -61,12 +61,12 @@ func before_each() -> void:
 	journal = StateMachineOnly.new()
 	assert_true(journal.configure(storage, loader)["ok"])
 
-func _request(suffix: String = "a", scene: bool = true) -> Dictionary:
+func _request(suffix: String = "a") -> Dictionary:
 	var tx := "transaction_id." + suffix.repeat(64)
 	var request := {
 		"allocation_candidate_fingerprint": "b".repeat(64),
 		"initial_context": null, "initial_context_sha256": null,
-		"kind": "scene_restore" if scene else "restore", "new_run_materials": null,
+		"kind": "scene_restore", "new_run_materials": null,
 		"request_fingerprint": "c".repeat(64),
 		"source_locator": {"bundle_id": "d".repeat(64), "checkpoint_id": "selected",
 			"document_sha256": WRITER.stringify(loader.context)["value"].sha256_text(), "slot_id": "slot:1"},
@@ -75,7 +75,7 @@ func _request(suffix: String = "a", scene: bool = true) -> Dictionary:
 			"numeric_value": null, "purpose": "transaction_id",
 			"receipt_id": "issuer_receipt." + "f".repeat(64), "token": tx},
 	}
-	if scene: request["selected_document"] = {"fixture": "journal-transition-only"}
+	request["selected_document"] = {"fixture": "journal-transition-only"}
 	return request
 
 func _intent(request: Dictionary) -> Dictionary:
@@ -200,18 +200,6 @@ func test_conflicting_pending_records_and_schema4_scene_smuggling_refuse() -> vo
 	assert_true(restarted.configure(storage, loader)["ok"])
 	assert_false(restarted.list_incomplete()["ok"])
 
-func test_old_operation_members_and_canonical_bytes_survive_envelope_extension() -> void:
-	var old := _intent(_request("b", false))
-	assert_false(old.has("selected_document"))
-	assert_false(old.has("activation_state"))
-	assert_eq(STRICT.parse_object(storage.text)["value"]["schema_version"], 4)
-	var before: String = WRITER.stringify(old)["value"]
-	var scene := _intent(_request())
-	assert_false(scene.is_empty())
-	var physical: Dictionary = STRICT.parse_object(storage.text)["value"]
-	assert_eq(physical["schema_version"], 5)
-	assert_eq(WRITER.stringify(physical["operations"][old["transaction_id"]])["value"], before)
-
 func test_actual_journal_refuses_primitive_only_save9_and_early_ack() -> void:
 	var actual := JOURNAL.new()
 	assert_true(actual.configure(MemoryStorage.new(), loader)["ok"])
@@ -281,39 +269,6 @@ func test_explicit_reload_observes_physical_change_and_revalidates() -> void:
 	assert_false(journal.reload_operation_from_storage(operation["transaction_id"])["ok"])
 
 
-func test_retirement_removes_only_scene_load_records_before_source_admission() -> void:
-	var old := _intent(_request())
-	var legacy := _intent(_request("b", false))
-	var material_owner := preload("res://tests/unit/test_new_run_materials.gd")
-	var material: Dictionary = material_owner.make_valid_fixture()
-	assert_true(material.ok, str(material))
-	if not material.ok: return
-	var creation := _intent(material_owner.make_intent_request(material.value))
-	assert_false(old.is_empty())
-	assert_false(legacy.is_empty())
-	assert_false(creation.is_empty())
-	var document: Dictionary = STRICT.parse_object(storage.text).value
-	document.operations[old.transaction_id].selected_document = {"obsolete": "content no longer installed"}
-	storage.text = WRITER.stringify(document).value
-	var current := JOURNAL.new()
-	assert_true(current.configure(storage, loader).ok)
-	var writes_before: int = storage.writes
-	var retired: Dictionary = current.with_creation_storage_recovery(current.retire_scene_restore_operations)
-	assert_true(retired.ok, str(retired))
-	if not retired.ok: return
-	assert_eq(retired.value.removed, 1)
-	assert_eq(storage.writes, writes_before + 1)
-	assert_eq(storage.write_paths.slice(writes_before), [JOURNAL.JOURNAL_PATH], "only journal storage is changed")
-	var retained: Dictionary = STRICT.parse_object(storage.text).value
-	assert_eq(retained.operations, {legacy.transaction_id: legacy, creation.transaction_id: creation})
-	assert_eq(loader.calls, [], "retired selected content is never reopened")
-	var reads_before: int = storage.retirement_reads
-	var second: Dictionary = current.retire_scene_restore_operations()
-	assert_true(second.ok)
-	assert_eq(storage.retirement_reads, reads_before, "later startup phase does not reread solely for retirement")
-	assert_eq(second.value.removed, 0)
-	assert_eq(storage.writes, writes_before + 1, "successful transition does not write again")
-
 func test_retirement_drops_obsolete_pending_activation_conflict() -> void:
 	var operation := _applied(_request())
 	assert_false(operation.is_empty())
@@ -331,27 +286,6 @@ func test_retirement_drops_obsolete_pending_activation_conflict() -> void:
 	if not retired.ok: return
 	assert_eq(retired.value.removed, 2)
 	assert_eq(current.list_incomplete().value, [])
-
-func test_retirement_refusal_preserves_old_bytes_and_can_retry() -> void:
-	var old := _intent(_request())
-	var legacy := _intent(_request("b", false))
-	var material_owner := preload("res://tests/unit/test_new_run_materials.gd")
-	var material: Dictionary = material_owner.make_valid_fixture()
-	assert_true(material.ok, str(material))
-	if not material.ok: return
-	var creation := _intent(material_owner.make_intent_request(material.value))
-	assert_false(old.is_empty())
-	assert_false(creation.is_empty())
-	var before := storage.text
-	storage.refuse = true
-	var current := JOURNAL.new()
-	assert_true(current.configure(storage, loader).ok)
-	assert_false(current.retire_scene_restore_operations().ok)
-	assert_eq(storage.text, before, "failed cleanup leaves shared creation and legacy records untouched")
-	storage.refuse = false
-	assert_true(current.retire_scene_restore_operations().ok)
-	assert_eq(STRICT.parse_object(storage.text).value.operations,
-		{legacy.transaction_id: legacy, creation.transaction_id: creation})
 
 func test_retirement_does_not_hide_invalid_shared_records_or_mismatched_identity() -> void:
 	var old := _intent(_request())

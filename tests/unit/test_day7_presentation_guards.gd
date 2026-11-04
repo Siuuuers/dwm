@@ -13,12 +13,10 @@ class State extends RefCounted:
 	var day := 7
 	var contacts: Dictionary = CONTACTS.make_defaults()
 	var missed_invitations: Array = []
-	var _run_lifecycle: RefCounted = RefCounted.new()
 	func require_day7_presentations_complete() -> Dictionary:
 		guard_calls += 1
 		return {"ok": false, "code": &"day7_presentations_pending"} if pending else {"ok": true}
 	func get_stat(_id: String) -> int: return 10
-	func _canonical_committed_schedule() -> Dictionary: return {}
 	func get_contact_view(friend: String) -> Dictionary:
 		return CONTACTS.get_contact_view(contacts, friend, day)
 
@@ -43,13 +41,6 @@ class Dependencies extends RefCounted:
 	func request_reply_invitation(_friend: String) -> Dictionary:
 		mutations += 1
 		return {"ok": false}
-
-class ResolutionProbe extends "res://scripts/application/run/GameStateDayResolutionPort.gd":
-	var saved_plan: Dictionary = {}
-	func _init(state: Object) -> void: super(state)
-	func _active_plan() -> Dictionary: return saved_plan.duplicate(true)
-	func _frozen_route_plan(_aggregate: Dictionary) -> Dictionary:
-		return {"ok": false, "code": &"reached_existing_resolution_validation"}
 
 func test_stale_board_commands_require_presentations_before_any_board_work() -> void:
 	var state := State.new()
@@ -77,20 +68,6 @@ func test_direct_shop_prepare_cannot_bypass_unused_external_guard() -> void:
 	assert_eq(port.prepare_purchase({}, {}, "stale", {}).code, &"day7_presentations_pending")
 	state.pending = false
 	assert_eq(port.prepare_purchase({}, {}, "stale", {}).code, &"invalid_transaction_issuer_receipt")
-
-func test_direct_done_blocks_day7_plan_but_allows_exact_prior_day_continuation() -> void:
-	var state := State.new()
-	var port := ResolutionProbe.new(state)
-	assert_eq(port.begin_or_resume("new").code, &"day7_presentations_pending")
-	port.saved_plan = {"command_id": "saved", "source_day": 7}
-	assert_eq(port.begin_or_resume("saved").code, &"day7_presentations_pending")
-	port.saved_plan["source_day"] = 6
-	assert_eq(port.begin_or_resume("other").code, &"day7_presentations_pending")
-	var before := state.guard_calls
-	assert_eq(port.begin_or_resume("saved").code, &"reached_existing_resolution_validation")
-	assert_eq(state.guard_calls, before, "only exact admitted prior-day continuation reaches existing validation")
-	state.pending = false
-	assert_eq(port.begin_or_resume("new").code, &"reached_existing_resolution_validation")
 
 func _message(friend: String, sequence: int, kind: String = "missed_question", target_day: int = 7) -> Dictionary:
 	return {"message_id": "%s:%s:day%d" % [kind, friend, target_day], "sequence": sequence,

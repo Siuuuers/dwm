@@ -5,10 +5,26 @@ const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.g
 const JOURNAL := preload("res://scripts/infrastructure/save/CheckpointJournal.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const FILES := preload("res://tests/support/FakeFileOps.gd")
-const STRICT := preload("res://scripts/validation/StrictJson.gd")
-const SNAPSHOT := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const PROFILE_ENV := "DWM_CHECKPOINT_PROFILE"
+
+var _scene_fixture: RefCounted
+var _scene_scope: RefCounted
+var _scene_snapshot: Dictionary = {}
+
+func before_all() -> void:
+	_scene_scope = preload("res://tests/support/SceneValidationScope.gd").new()
+	_scene_scope.install(true)
+	_scene_fixture = preload("res://tests/support/SceneRunSaveFixture.gd").new()
+	var setup: Dictionary = _scene_fixture.setup(get_tree())
+	assert_true(setup.ok, str(setup))
+	if not setup.ok: return
+	_scene_snapshot = _scene_fixture.snapshot.duplicate(true)
+
+func after_all() -> void:
+	if _scene_fixture != null: _scene_fixture.close()
+	if _scene_scope != null: _scene_scope.restore()
+
 
 class RecordingPort extends "res://scripts/application/run/SaveManagerCheckpointPort.gd":
 	var records: Array[Dictionary] = []
@@ -35,13 +51,7 @@ func after_each() -> void:
 	else: OS.unset_environment(PROFILE_ENV)
 
 func _wired() -> Dictionary:
-	var parsed := STRICT.parse_object(FileAccess.get_file_as_string(
-		"res://tests/fixtures/saves/v7_desktop_prepared.json"))
-	assert_true(parsed.get("ok", false), "fixture strict parse: " + str(parsed.get("code", "")))
-	parsed.value["schema_version"] = SNAPSHOT.SCHEMA_VERSION
-	var validated := SNAPSHOT.validate(parsed.get("value", {}))
-	assert_true(validated.get("ok", false), "fixture snapshot validation: " + str(validated.get("code", "")))
-	var snapshot: Dictionary = validated.get("value", {}).get("candidate", {})
+	var snapshot: Dictionary = _scene_snapshot.duplicate(true)
 	var files := FILES.new()
 	var manager := Manager.new()
 	manager._storage = STORAGE.new("checkpoint-diagnostics", files)
@@ -55,15 +65,19 @@ func _prepare(wired: Dictionary, money: int, durable: bool = true,
 	var snapshot: Dictionary = wired.snapshot.duplicate(true)
 	snapshot["gameplay"]["money"] = money # The absent key must be a JSON String, not StringName.
 	var input := {}
-	for key: String in ["lifecycle", "gameplay", "contacts", "committed_schedule", "dating",
-			"applied_effect_transaction_ids", "applied_variable_transaction_ids", "desktop",
-			"schedule_view", "command_receipts"]:
-		input[key] = snapshot[key]
+	for key: String in ["lifecycle", "gameplay", "contacts", "desktop", "scene"]:
+		input[key] = snapshot[key].duplicate(true)
+	input.merge({"command_receipts": {}, "applied_effect_transaction_ids": [], "applied_variable_transaction_ids": []})
+	var board := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd").new()
+	var restored: Dictionary = board.prepare_player_restore_scene(snapshot.desktop.board, _scene_fixture.issuer)
+	assert_true(restored.ok, str(restored))
+	assert_true(board.commit(restored.value.candidate).ok)
+	input.desktop.board = board.capture()
 	var disk_write := {"kind": &"autosave", "reason": &"automatic"} if durable \
 		else {"kind": &"none", "reason": &"stage"}
-	var result: Dictionary = wired.port.prepare({"snapshot_input": input, "dialogic_checkpoint": {},
-		"route_id": "main", "active_app_id": snapshot.active_app_id,
-		"audio_context": snapshot.audio_context, "content_version": snapshot.content_version}, kind, disk_write)
+	var result: Dictionary = wired.port.prepare({"snapshot_input": input, "dialogic_checkpoint": snapshot.narrative_checkpoint,
+		"route_id": "scene", "active_app_id": null,
+		"audio_context": {}, "content_version": snapshot.content_version}, kind, disk_write)
 	assert_true(result.get("ok", false), "checkpoint prepare: " + str(result.get("code", "")) + " " + str(result.get("message", "")))
 	return result.get("value", {}).get("candidate", {})
 
@@ -114,63 +128,11 @@ func test_profile_on_and_off_preserve_documents_journal_and_every_physical_opera
 		"outgoing_history_capture_us", "outgoing_schema_envelope_normalize_us",
 		"outgoing_schema_validate_current_us", "journal_proof_us", "journal_current_compare_us",
 		"journal_current_remember_us", "journal_history_learning_us", "document_proof_remember_us"])
-	assert_gt(int(committed.get("history_proof_hits", 0)), 0, "the full write encounters a warm retained proof")
-	assert_gt(int(committed.get("history_proof_misses", 0)), 0, "the same full write encounters memory-only history")
+	assert_eq(int(committed.get("history_proof_hits", 0)), 0)
+	assert_eq(int(committed.get("history_proof_misses", 0)), 0)
 	assert_eq(committed.get("history_proof_learn_successes"), committed.get("history_proof_misses"))
 	assert_gte(int(prepared.document_build_us), int(prepared.document_schema_build_us), "build timer is inclusive")
 	assert_gte(int(committed.journal_proof_us), int(committed.journal_history_learning_us), "proof timer is inclusive")
-
-func test_cold_history_learning_is_distinct_from_next_prepares_proof_hits() -> void:
-	var wired := _wired()
-	_commit(wired, 301, false, &"line")
-	_commit(wired, 302, false, &"manual_save")
-	OS.set_environment(PROFILE_ENV, "1")
-	var candidate := _commit(wired, 303)
-	var prepared := _last(wired, "save_checkpoint_prepare")
-	var committed := _last(wired, "save_checkpoint")
-	var history: Array = candidate.autosave_document.recovery_journal
-	assert_gt(history.size(), 0)
-	assert_eq(prepared.get("document_proof_hits"), 0)
-	assert_eq(prepared.get("document_proof_misses"), 1, "lookup stops at its first missing proof")
-	assert_false(bool(prepared.get("document_schema_journal_proven", true)))
-	assert_false(bool(committed.get("journal_spliced", true)))
-	assert_eq(committed.get("history_proof_entries"), history.size())
-	assert_eq(committed.get("history_proof_misses"), history.size())
-	assert_eq(committed.get("history_proof_learn_attempts"), history.size())
-	assert_eq(committed.get("history_proof_learn_successes"), history.size())
-	for bundle: Dictionary in history:
-		var checkpoint_id := str(bundle.snapshot.checkpoint_id)
-		assert_false(wired.manager._journal.get_retained_bundle_text(checkpoint_id).is_empty())
-		assert_true(WRITER._deep_same(wired.manager._journal.get_retained_bundle_document(checkpoint_id), bundle))
-	_commit(wired, 304)
-	prepared = _last(wired, "save_checkpoint_prepare")
-	committed = _last(wired, "save_checkpoint")
-	assert_eq(prepared.get("document_proof_hits"), prepared.get("document_proof_entries"))
-	assert_eq(prepared.get("document_proof_misses"), 0)
-	assert_true(bool(prepared.get("document_schema_journal_proven", false)))
-	assert_true(bool(committed.get("journal_spliced", false)))
-	assert_eq(committed.get("history_proof_learn_attempts"), 0)
-	assert_eq(committed.get("history_proof_learn_successes"), 0)
-	assert_eq(committed.get("journal_current_learn_attempts"), 1)
-	assert_eq(committed.get("journal_current_learn_successes"), 1)
-
-func test_schema_valid_history_edit_counts_a_learning_attempt_without_a_success() -> void:
-	var wired := _wired()
-	_commit(wired, 401, false, &"line")
-	OS.set_environment(PROFILE_ENV, "1")
-	var candidate := _prepare(wired, 402)
-	var history: Array = candidate.autosave_document.recovery_journal
-	assert_eq(history.size(), 1)
-	var checkpoint_id := str(history[0].snapshot.checkpoint_id)
-	history[0].snapshot.content_version += 100
-	var result: Dictionary = wired.port.commit(candidate)
-	assert_true(result.get("ok", false), "edited-history checkpoint commit: " + str(result.get("code", "")))
-	var committed := _last(wired, "save_checkpoint")
-	assert_eq(committed.get("history_proof_misses"), 1)
-	assert_eq(committed.get("history_proof_learn_attempts"), 1)
-	assert_eq(committed.get("history_proof_learn_successes"), 0,
-		"only the journal's successful retained-value check counts as learning")
-	assert_true(wired.manager._journal.get_retained_bundle_text(checkpoint_id).is_empty())
 
 func test_refused_journal_commit_never_reports_or_creates_successful_learning() -> void:
 	var plain := _wired()

@@ -144,7 +144,6 @@ func test_hospital_rejects_three_friends_in_one_outcome() -> void:
 # byte-for-byte unchanged. dwm-oyo.6 owns the final ordered plan and its forms.
 # -------------------------------------------------------------------------------------------------
 
-const STATE_PORT_PATH := "res://scripts/application/run/GameStateDayResolutionPort.gd"
 const PLAN_PATH := "res://scripts/domain/run/DayResolutionPlan.gd"
 const HOSPITAL_PORT_PATH := "res://scripts/application/run/HospitalPresentationPort.gd"
 const DATING_PORT_PATH := "res://scripts/application/run/DatingPresentationPort.gd"
@@ -172,12 +171,3 @@ func test_the_day7_branch_owns_no_ending_stage() -> void:
 		assert_false(day7.has(forbidden), "Day 7 must not carry " + forbidden)
 	assert_eq(day7[day7.size() - 1], "checkpoint_day7_provenance",
 		"Day 7 ends AT the provenance handoff")
-
-
-func test_the_state_port_never_calls_the_ending_rules_for_a_day7_handoff() -> void:
-	var source := FileAccess.get_file_as_string(STATE_PORT_PATH)
-	var day7_section := source.substr(source.find("func _day7_handoff"))
-	assert_false(day7_section.contains("DATING_ENDING_RULES"),
-		"the Day-7 handoff derives its cause from the committed aggregate, never from ending rules")
-	assert_false(day7_section.contains("date_completed"),
-		"date_completed is not Day-7 proof")
