@@ -53,7 +53,7 @@ func _desktop_samples(language: String) -> void:
 	viewport.add_child(main)
 	desktop._foreground_eligible = true
 	# The shared desktop owner and preferences must be bound before any app opens.
-	var host := SCHEDULE.HOST.new()
+	var host := HOST.new()
 	host.reset(1)
 	var shop_fixture := SHOP.FIXTURES.new()
 	var catalog := SHOP.CatalogFixture.new()

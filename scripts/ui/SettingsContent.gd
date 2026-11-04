@@ -624,7 +624,7 @@ func _locale_name(locale: String) -> String:
 	if localization != null:
 		for record: Dictionary in localization.get_selectable_locales():
 			if record["id"] == locale:
-				return localization.t("locale.release_status.draft", {"native_name": record["native_name"]}) if record["release_status"] == "draft" else record["native_name"]
+				return record["native_name"]
 	return locale
 
 

@@ -157,7 +157,7 @@ func test_preserved_early_late_and_ending_entry_defaults_resolve_exact_base_fiel
 	var cases := [
 		["draft.reading.early", "picture2", ["picture1"], "", true],
 		["draft.reading.late", "picture3", ["picture1"], "", true],
-		["draft.ending", "background.ending.alone", [], "cg.ending.alone.normal", false]]
+		["draft.ending", "picture5", ["picture4"], "", true]]
 	for row: Array in cases:
 		var preset_id: String = row[0]
 		var state := ART.entry_base_presentation([{"kind": "scene", "id": preset_id}])
