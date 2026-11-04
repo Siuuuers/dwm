@@ -149,7 +149,7 @@ func test_seven_day_art_assets_and_split_placement() -> void:
 	assert_true(ART.reload_placements())
 	for index: int in range(1, 6):
 		var id := "picture%d" % index
-		assert_eq(ART.get_asset_path(id), "res://art/pictures/%s.jpg" % id)
+		assert_eq(ART.get_asset_path(id), "res://art/pictures/%s.png" % id)
 		assert_not_null(ART.get_texture(id), "imported authored picture must load: " + id)
 	var view := SCENE_ART.new()
 	view.bind_view_preferences(null)

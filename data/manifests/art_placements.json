@@ -772,19 +772,19 @@
       ]
     },
     "picture1": {
-      "path": "res://art/pictures/picture1.jpg"
+      "path": "res://art/pictures/picture1.png"
     },
     "picture2": {
-      "path": "res://art/pictures/picture2.jpg"
+      "path": "res://art/pictures/picture2.png"
     },
     "picture3": {
-      "path": "res://art/pictures/picture3.jpg"
+      "path": "res://art/pictures/picture3.png"
     },
     "picture4": {
-      "path": "res://art/pictures/picture4.jpg"
+      "path": "res://art/pictures/picture4.png"
     },
     "picture5": {
-      "path": "res://art/pictures/picture5.jpg"
+      "path": "res://art/pictures/picture5.png"
     }
   },
   "scenes": {
@@ -2081,9 +2081,12 @@
       "split_panels": true
     },
     "draft.ending": {
-      "background": "background.ending.alone",
-      "cg": "cg.ending.alone.normal",
-      "portraits": []
+      "background": "picture5",
+      "cg": "",
+      "portraits": [
+        "picture4"
+      ],
+      "split_panels": true
     }
   }
 }
