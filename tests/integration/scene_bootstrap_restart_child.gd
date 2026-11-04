@@ -45,7 +45,7 @@ func _start_services() -> bool:
 	if not _ok(bootstrap.start(&"final")): return false
 	assert_eq(bootstrap.get_startup_state().completed_stages, BOOTSTRAP.STAGE_ORDER)
 	assert_true(bootstrap.get_startup_state().ready)
-	assert_eq(saves._restore_participants.size(), 9)
+	assert_eq(saves._restore_participants.size(), 8)
 	assert_eq(ready_count, 0, "completed prior operations do not fabricate a live Ready")
 	return true
 
