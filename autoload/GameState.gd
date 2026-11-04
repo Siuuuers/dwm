@@ -4358,7 +4358,7 @@ func _prepare_scene_playable_event(event: Dictionary, digest: String, lease: Str
 	if not proven.ok: return proven
 	var registered := scene_event_registration(event.duplicate(true))
 	if not registered.ok: return registered
-	var bundle: Dictionary = registered.value.duplicate(true)
+	var bundle: Dictionary = registered.value
 	var inspected := _SCENE_EVENT.inspect_scene(event, bundle)
 	if not inspected.ok: return inspected
 	if inspected.value.digest != digest: return _transaction_failure(&"event_digest_mismatch", "")
