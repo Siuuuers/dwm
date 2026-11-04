@@ -118,8 +118,6 @@ const _RUN_LIFECYCLE_SCRIPT := preload("res://scripts/domain/run/RunLifecycle.gd
 const _DESKTOP_BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 const _DESKTOP_CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
 const _RUN_SNAPSHOT_SCHEMA_DESKTOP := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
-const _DAY_RESOLUTION_COORDINATOR_SCRIPT := preload("res://scripts/application/run/DayResolutionCoordinator.gd")
-const _DAY_RESOLUTION_PORT_SCRIPT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
 const _CONTACT_INVITATION_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const _ORDINARY_CORRESPONDENCE := preload("res://scripts/domain/contact/OrdinaryReplyEchoState.gd")
 const _DAY7_FOLLOWUPS := preload("res://scripts/domain/contact/Day7FollowupState.gd")
@@ -149,7 +147,6 @@ var _identity_issuer: Object = null
 ## and overwritten wholesale only by restore.
 var _desktop_snapshot: Dictionary = {}
 var _desktop_snapshot_provider := Callable()
-var _day_resolution_coordinator: RefCounted = null
 ## The ONE Bootstrap-owned Minesweeper round coordinator (dwm-p2r.9 Plan 06 Task 2). GameState
 ## never constructs it; the shared begin/complete round methods delegate here.
 var _minesweeper_round_coordinator: RefCounted = null
@@ -2416,70 +2413,7 @@ func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_t
 	}}}
 
 
-func request_schedule_done(command_id: String) -> Dictionary:
-	if _day_resolution_coordinator == null:
-		return {"ok": false, "code": &"day_resolution_unconfigured", "message": ""}
-	return _day_resolution_coordinator.request_schedule_done(command_id)
-
-
-func resume_day_resolution() -> Dictionary:
-	if _day_resolution_coordinator == null:
-		return {"ok": false, "code": &"day_resolution_unconfigured", "message": ""}
-	return _day_resolution_coordinator.resume()
-
-
-func begin_day_resolution_stage() -> Dictionary:
-	if _day_resolution_coordinator == null:
-		return {"ok": false, "code": &"day_resolution_unconfigured", "message": ""}
-	return _day_resolution_coordinator.resume()
-
-
-func complete_day_resolution_stage(transaction_id: String, receipt: Dictionary) -> Dictionary:
-	if _day_resolution_coordinator == null:
-		return {"ok": false, "code": &"day_resolution_unconfigured", "message": ""}
-	return _day_resolution_coordinator.complete_route_stage(transaction_id, receipt)
-
-
 var _narrative_checkpoint_port: Object = null
-
-
-## Installs the day-resolution runtime Bootstrap already constructed and configured
-## (Plan 01 Task 6 Step 6.5, dwm-p2r.13).
-##
-## GameState used to CONSTRUCT the coordinator and the state port itself and keep them in a private
-## bag that Bootstrap then reached back into through `get_state_port()`. Ownership now runs one way:
-## Bootstrap constructs and retains exactly one of each, configures the coordinator through its sole
-## three-owner seam, and passes those four live Objects here as direct arguments.
-##
-## Before installing, this seam asks the coordinator to CONFIRM the three owners rather than to hand
-## any of them back -- `verify_configuration` compares internally and returns only primitives, so no
-## Dictionary crossing this boundary ever carries an Object reference. Installation happens once;
-## a second attempt with the same coordinator is idempotent and with a different one is refused.
-func _install_day_resolution_runtime(state_port: Object, coordinator: Object,
-		checkpoint_port: Object, mutation_gate: Object) -> Dictionary:
-	if _mutation_gate == null:
-		return {"ok": false, "code": &"mutation_gate_not_configured", "message": ""}
-	if mutation_gate != _mutation_gate:
-		return {"ok": false, "code": &"mutation_gate_identity_mismatch", "message": ""}
-	for required: Array in [[state_port, "begin_or_resume"], [coordinator, "verify_configuration"],
-			[checkpoint_port, "preview_checkpoint_id"]]:
-		var candidate: Object = required[0]
-		if candidate == null or not candidate.has_method(str(required[1])):
-			return {"ok": false, "code": &"invalid_day_resolution_runtime",
-				"message": "a supplied owner is missing " + str(required[1])}
-	if _day_resolution_coordinator != null:
-		if _day_resolution_coordinator != coordinator:
-			return {"ok": false, "code": &"day_resolution_runtime_already_installed", "message": ""}
-		return {"ok": true, "code": &"ok", "value": {"installed": true}, "receipt": {}}
-	var verified: Dictionary = coordinator.call(&"verify_configuration", state_port,
-		checkpoint_port, mutation_gate)
-	if not verified.get("ok", false):
-		return verified
-	if verified.get("value", {}) != {"configured": true}:
-		return {"ok": false, "code": &"invalid_day_resolution_runtime",
-			"message": "verify_configuration did not return the exact master envelope"}
-	_day_resolution_coordinator = coordinator
-	return {"ok": true, "code": &"ok", "value": {"installed": true}, "receipt": {}}
 
 
 ## Installs the ONE Bootstrap-constructed, already-configured MinesweeperRoundCoordinator

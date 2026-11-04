@@ -1,66 +1,13 @@
 extends "res://addons/gut/test.gd"
 
-const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
-
-# The NEGATIVE half of dwm-p2r.14's acceptance criteria, in one place (Plan 01 Task 8).
-#
-# WHY THIS FILE EXISTS. The bead's acceptance criteria end with a sentence no suite asserted:
-# "No old nine-key Schedule fields, twofriends pseudo-route, synthetic completion, direct Dialogic
-# start, or presentation-owned mutation remains." The positive half -- valid, stale, duplicate,
-# conflicting, interrupted, Hospital, pair and Day-7 -- is proved elsewhere and is NOT repeated
-# here. What was missing is a check that the retired shapes stayed retired.
-#
-# WHAT THIS FILE DELIBERATELY DOES NOT DUPLICATE, and where that work already lives:
-#
-#   synthetic completion .... test_hospital_presentation_port.gd
-#                             (a_scene_authored_receipt_never_reaches_a_stage),
-#                             test_dating_presentation_port.gd
-#                             (a_scene_authored_challenge_result_never_reaches_a_stage),
-#                             test_dialogic_presentation_owner_adapter.gd
-#                             (a_scene_authored_result_is_refused,
-#                             no_public_bridge_method_can_forge_a_completion) and
-#                             test_dialogic_bridge_contract.gd
-#                             (the_caller_forgeable_finisher_is_gone_from_source_and_from_the
-#                             _instance). Already proved behaviourally, four times over.
-#   scene-owned mutation .... test_hospital_scene.gd / test_dating_scene.gd compare a full owner
-#                             snapshot across _ready() and across button input. The SCENES are
-#                             covered; what was not covered is the ports and the narrative owner,
-#                             which is the half this file adds.
-#   the pair's route id ..... test_committed_schedule_presentation_matrix.gd
-#                             (the_deferred_pair_variant_carries_its_exact_matrix_row) already
-#                             freezes route_id="dating" for the deferred pair.
-#
-# THE COMMENT-STRIPPING SCANS ARE THE POINT, not an implementation detail. Production documentation
-# may name retired seams without executing them, so `_code_lines()` drops full-line comments before
-# scanning. `test_the_comment_stripper_is_doing_real_work` uses a local specimen containing both a
-# forbidden prose token and executable code; it proves the former is removed and the latter retained
-# without coupling this contract to the current wording of a production file.
-#
-# SUBSTRATE. Real throughout: GUID-isolated root, real DesktopIssuerRootStore over real
-# JsonFileStorage, the real DesktopIdentityNonceIssuer, the production ScheduleActionRegistry, the
-# real GameStateScheduleCommitPort and a real GameState in the tree. The only fixture is the
-# Plan-02 desktop-consequence source, authorised by plan line 532 until Plan 02 exists.
-
-const COMMIT_PORT := preload("res://scripts/application/schedule/GameStateScheduleCommitPort.gd")
-const STATE_PORT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
-const START_PORT := preload("res://scripts/application/run/DayResolutionStartPort.gd")
 const GAME_STATE_PATH := "res://autoload/GameState.gd"
-const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
-const ROOT_STORE := preload("res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd")
-const NAMESPACE_SOURCE := preload("res://scripts/infrastructure/identity/CryptoDesktopNamespaceSource.gd")
 const REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
-const LEDGER := preload("res://scripts/infrastructure/save/ScheduleFoundationPublicationLedger.gd")
-const CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
-const CONSEQUENCE_SOURCE := preload("res://tests/support/FakeDesktopConsequenceSource.gd")
 const STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 const PLAN := preload("res://scripts/domain/run/DayResolutionPlan.gd")
 const DATING_PORT := preload("res://scripts/application/run/DatingPresentationPort.gd")
 const HOSPITAL_PORT := preload("res://scripts/application/run/HospitalPresentationPort.gd")
 const ROUTER_PATH := "res://autoload/SceneRouter.gd"
 
-const CAUSAL_DAY := "causal_day_instance.5555555555555555555555555555555555555555555555555555555555555555"
-const VIEW_FINGERPRINT := "schedule_view.55555555555555555555555555555555"
-const MAX_WALK_STEPS := 40
 
 ## The exact nine keys the RETIRED caller-owned Schedule entry carried, read off the pre-Phase-2R
 ## ScheduleRules.ENTRY_KEYS at fb7291680 (plan Step 1.6: "do not port the old nine-key caller
@@ -112,53 +59,6 @@ const MUTATION_TOKENS: Array[String] = [
 	"apply_hospital", "commit_effect_transaction", "complete_active_stage", "route_context",
 ]
 
-var _root := ""
-var _root_counter := 0
-var _registry: RefCounted
-var _fingerprint := ""
-var _issuer: RefCounted
-var _game_state: Node
-var _state_port: RefCounted
-var _consequence: RefCounted
-var _commands: Dictionary = {}
-
-
-func before_each() -> void:
-	_commands = {}
-	_root = ""
-	_root_counter += 1
-	var result: Dictionary = TEMPORARY_STORAGE.create("adapter-negative-%d" % _root_counter)
-	assert_true(result.get("ok", false), result.get("message", ""))
-	if not result.get("ok", false):
-		return
-	_root = str(result["value"])
-
-	var loaded: Dictionary = REGISTRY.load_current()
-	assert_true(loaded.get("ok", false), str(loaded))
-	_registry = (loaded.get("value", {}) as Dictionary).get("registry")
-	_fingerprint = str((loaded.get("value", {}) as Dictionary).get("registry_fingerprint", ""))
-
-	var storage := JsonFileStorage.new(_root)
-	var store: RefCounted = ROOT_STORE.new()
-	assert_true(store.configure(storage, NAMESPACE_SOURCE.new()).get("ok", false))
-	assert_true(store.load_or_create().get("ok", false))
-	_issuer = ISSUER.new()
-	assert_true(_issuer.configure(store).get("ok", false))
-
-	_game_state = load(GAME_STATE_PATH).new()
-	add_child_autofree(_game_state)
-	_game_state.reset_game()
-
-	var ledger: RefCounted = LEDGER.new()
-	assert_true(ledger.configure(storage).get("ok", false))
-	assert_true(ledger.load().get("ok", false))
-	_state_port = STATE_PORT.new(_game_state)
-	_consequence = CONSEQUENCE_SOURCE.new()
-	assert_true(_consequence.configure(_issuer).get("ok", false))
-	assert_true(_state_port.configure_desktop_consequence_source(_consequence).get("ok", false))
-	assert_true(_state_port.configure_resolution_identity(
-		_issuer, START_PORT.new(_state_port, _registry, _issuer, ledger)).get("ok", false))
-
 
 # -------------------------------------------------------------------------------------------------
 # "No old nine-key Schedule fields"
@@ -168,8 +68,6 @@ func before_each() -> void:
 ## set, the three that survive are named rather than assumed, and the set is EXACT -- so this fails
 ## if a tenth caller fact is ever added, not only if one of the six returns.
 func test_the_committed_entry_contract_retired_the_old_nine_key_shape() -> void:
-	if _root.is_empty():
-		return
 	var entry_keys: Array = STATE_SCHEMA.ENTRY_KEYS
 	assert_eq(OLD_NINE_KEY_SHAPE.size(), 9, "the retired shape is the nine-key one")
 	for retired: String in RETIRED_ENTRY_FIELDS:
@@ -182,67 +80,6 @@ func test_the_committed_entry_contract_retired_the_old_nine_key_shape() -> void:
 		"the committed entry member set is exact, so a new caller-owned fact cannot be added")
 
 
-## The behavioural half. Naming the retired keys is not the same as REFUSING them: this drives a
-## real committed aggregate through the production commit port and requires the exact-key validator
-## to reject each retired field, one at a time, on a committed entry.
-func test_every_retired_entry_field_is_refused_by_the_committed_validator() -> void:
-	if _root.is_empty():
-		return
-	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
-	var aggregate: Dictionary = _committed_aggregate()
-	assert_true(STATE_SCHEMA.validate_aggregate(aggregate).get("ok", false),
-		"the untampered real aggregate validates")
-	for retired: String in RETIRED_ENTRY_FIELDS:
-		var tampered: Dictionary = aggregate.duplicate(true)
-		var entry: Dictionary = (tampered["entries"] as Array)[0]
-		entry[retired] = "smuggled"
-		var result: Dictionary = STATE_SCHEMA.validate_aggregate(tampered)
-		assert_false(result.get("ok", true), retired + " must not be accepted on a committed entry")
-		assert_eq(result.get("code"), &"invalid_committed_entry",
-			"the exact-key contract is what refuses " + retired)
-
-
-## Over the REAL committed schedule, end to end: no retired field survives into the aggregate the
-## resolution froze, nor into the frozen context the adapter is handed. route_id is checked
-## separately below, because the presentation REQUEST legitimately carries one.
-func test_no_retired_field_reaches_the_adapter_over_a_real_committed_schedule() -> void:
-	if _root.is_empty():
-		return
-	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
-	var request := _await_presentation()
-	if request.is_empty():
-		return
-	var aggregate_keys := _every_key(_committed_aggregate())
-	var context_keys := _every_key(request["context"])
-	for retired: String in RETIRED_ENTRY_FIELDS:
-		assert_false(aggregate_keys.has(retired),
-			"the frozen committed aggregate carries no " + retired)
-		assert_false(context_keys.has(retired),
-			"the frozen presentation context carries no " + retired)
-
-
-## route_id is the sharpest of the six, because the presentation request DOES carry one: the
-## question is where it came from. A committed entry may not carry a route, and the route the
-## producer emitted must equal the REGISTRY's route for that entry's action -- so the route is a
-## registry fact, not a caller fact that merely moved.
-func test_the_presentation_route_is_a_registry_fact_and_never_an_entry_field() -> void:
-	if _root.is_empty():
-		return
-	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
-	var request := _await_presentation()
-	if request.is_empty():
-		return
-	var entry: Dictionary = (_committed_aggregate()["entries"] as Array)[0]
-	assert_false(entry.has("route_id"), "a committed entry carries no route of its own")
-	var found: Dictionary = _registry.find_record(str(entry["action_id"]))
-	assert_true(found.get("ok", false), str(found))
-	if not found.get("ok", false):
-		return
-	assert_eq(str(request["route_id"]),
-		str(((found["value"] as Dictionary)["record"] as Dictionary)["route_id"]),
-		"the emitted route is the registry's route for this action")
-
-
 # -------------------------------------------------------------------------------------------------
 # "No twofriends pseudo-route"
 # -------------------------------------------------------------------------------------------------
@@ -251,8 +88,6 @@ func test_the_presentation_route_is_a_registry_fact_and_never_an_entry_field() -
 ## its stage and its presentation kind -- which is the distinction that makes the claim meaningful
 ## rather than a blanket ban on the substring.
 func test_twofriends_survives_only_as_a_stage_and_never_as_a_route() -> void:
-	if _root.is_empty():
-		return
 	assert_false((STATE_SCHEMA.ACTION_KINDS as Array).has(PSEUDO_ROUTE),
 		"twofriends is not a committable action kind")
 	var routes: Dictionary = {}
@@ -276,8 +111,6 @@ func test_twofriends_survives_only_as_a_stage_and_never_as_a_route() -> void:
 ## makes "uncalled" a fact instead of a claim: it goes red the moment anyone wires the pseudo-route
 ## back into production.
 func test_the_legacy_pseudo_route_producer_has_no_caller_in_production() -> void:
-	if _root.is_empty():
-		return
 	var callers: Array[String] = []
 	for path: String in _production_scripts("res://scripts") + _production_scripts("res://autoload"):
 		if path == GAME_STATE_PATH:
@@ -297,8 +130,6 @@ func test_the_legacy_pseudo_route_producer_has_no_caller_in_production() -> void
 ## Exactly one object on the presentation path may start a timeline. Ports validate, scenes render,
 ## the router injects, the coordinator advances -- none of them touch the runtime.
 func test_only_the_narrative_owner_may_start_a_dialogic_timeline() -> void:
-	if _root.is_empty():
-		return
 	for path: String in NON_OWNER_PATHS:
 		var code := _code_lines(path)
 		for token: String in DIALOGIC_START_TOKENS:
@@ -314,8 +145,6 @@ func test_only_the_narrative_owner_may_start_a_dialogic_timeline() -> void:
 ## The ports carry the presentation forward, so a start method ON one of them would be a direct
 ## start with extra steps. Neither exposes one.
 func test_neither_presentation_port_exposes_a_timeline_start() -> void:
-	if _root.is_empty():
-		return
 	for port: RefCounted in [HOSPITAL_PORT.new(), DATING_PORT.new()]:
 		for forbidden: String in ["start_timeline", "start_timeline_id", "begin_physical"]:
 			assert_false(port.has_method(forbidden),
@@ -331,8 +160,6 @@ func test_neither_presentation_port_exposes_a_timeline_start() -> void:
 ## This scan pins the narrower structural boundary: no presentation adapter names an actual gameplay
 ## mutation command or private mutable owner state.
 func test_no_presentation_adapter_names_a_gameplay_mutation_seam() -> void:
-	if _root.is_empty():
-		return
 	for path: String in ADAPTER_PATHS:
 		var code := _code_lines(path)
 		for token: String in MUTATION_TOKENS:
@@ -343,8 +170,6 @@ func test_no_presentation_adapter_names_a_gameplay_mutation_seam() -> void:
 ## into a production dependency. It proves full-line comments are removed while executable text is
 ## retained.
 func test_the_comment_stripper_is_doing_real_work() -> void:
-	if _root.is_empty():
-		return
 	var specimen := "# GameState.apply_hospital_recovery_and_advance_day()\nfunc retained_code():\n\tpass\n"
 	var code := _strip_comment_lines(specimen)
 	assert_true(specimen.contains("apply_hospital"), "the specimen contains a forbidden prose token")
@@ -387,24 +212,6 @@ func _production_scripts(root: String) -> Array[String]:
 	return found
 
 
-## Every dictionary key anywhere inside value, at any depth.
-func _every_key(value: Variant) -> Dictionary:
-	var found: Dictionary = {}
-	_collect_keys(value, found)
-	return found
-
-
-func _collect_keys(value: Variant, found: Dictionary) -> void:
-	match typeof(value):
-		TYPE_DICTIONARY:
-			for key: Variant in (value as Dictionary):
-				found[str(key)] = true
-				_collect_keys((value as Dictionary)[key], found)
-		TYPE_ARRAY:
-			for item: Variant in (value as Array):
-				_collect_keys(item, found)
-
-
 func _registry_records() -> Array:
 	var parsed: Variant = JSON.parse_string(
 		FileAccess.get_file_as_string(REGISTRY.MANIFEST_PATH))
@@ -412,106 +219,3 @@ func _registry_records() -> Array:
 	if typeof(parsed) != TYPE_DICTIONARY:
 		return []
 	return (parsed as Dictionary)["records"] as Array
-
-
-func _active_plan() -> Dictionary:
-	var plan: Variant = _game_state._run_lifecycle.to_dict()["active_resolution_plan"]
-	return (plan as Dictionary) if typeof(plan) == TYPE_DICTIONARY else {}
-
-
-func _committed_aggregate() -> Dictionary:
-	return (_active_plan()["committed_schedule"] as Dictionary).duplicate(true)
-
-
-## Drives to the first presentation boundary and returns the producer's exact request.
-func _await_presentation() -> Dictionary:
-	var steps := 0
-	while steps < MAX_WALK_STEPS:
-		steps += 1
-		var cursor: Dictionary = _state_port.inspect_next_stage()
-		if not cursor.get("ok", false) or not bool(cursor["value"]["has_stage"]):
-			assert_true(false, "the walk ended before any presentation")
-			return {}
-		var begun: Dictionary = _state_port.begin_next_stage()
-		assert_true(begun.get("ok", false), JSON.stringify(begun))
-		if not begun.get("ok", false):
-			return {}
-		var value: Dictionary = begun["value"]
-		if str(value["mode"]) == "await_registered_command":
-			return ((value["command"] as Dictionary)["presentation_request"] as Dictionary)
-		var receipt: Dictionary = value["receipt"]
-		assert_true(_game_state._run_lifecycle.complete_active_stage(
-			str((value["stage"] as Dictionary)["transaction_id"]),
-			{"value": (receipt["value"] as Dictionary).duplicate(true)}).get("ok", false))
-	assert_true(false, "the walk stopped advancing before a presentation")
-	return {}
-
-
-func _commit_and_begin(day: int, drafts: Array) -> void:
-	_game_state._lifecycle_set_playing_day(day)
-	var storage := JsonFileStorage.new(_root)
-	var ledger: RefCounted = LEDGER.new()
-	assert_true(ledger.configure(storage).get("ok", false))
-	assert_true(ledger.load().get("ok", false))
-	var commit_port: RefCounted = COMMIT_PORT.new(_game_state, _registry, _issuer, ledger)
-	var command: Dictionary = _command("commit.day%d" % day)
-	var prepared: Dictionary = commit_port.call(&"prepare_commit", {
-		"transaction_id": command["id"],
-		"transaction_issuer_receipt": command["receipt"],
-		"expected_view_fingerprint": VIEW_FINGERPRINT,
-		"day": day,
-		"causal_day_instance": CAUSAL_DAY,
-		"draft_entries": drafts.duplicate(true),
-		"registry_fingerprint": _fingerprint,
-	})
-	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
-	if not prepared.get("ok", false):
-		return
-	var value: Dictionary = (prepared.get("value", {}) as Dictionary).duplicate(true)
-	assert_true(commit_port.call(&"commit", value["game_state_candidate"]).get("ok", false))
-	assert_true(_state_port.begin_or_resume(str(command["id"]) + ":resolution").get("ok", false))
-
-
-func _date(draft_entry_id: String, slot_index: int, friend: String, day: int) -> Dictionary:
-	var action_id := "solo:%s:day%d" % [friend, day]
-	return {
-		"draft_entry_id": draft_entry_id,
-		"day": day,
-		"slot_index": slot_index,
-		"action_id": action_id,
-		"action_kind": "solo",
-		"participants": [friend],
-		"source_receipt_id": _seed_solo_source(friend, day, action_id),
-	}
-
-
-func _seed_solo_source(friend_id: String, day: int, action_id: String) -> String:
-	var offered: Dictionary = CONTACT_STATE.prepare_offer_solo(
-		_game_state.contacts, friend_id, day, action_id, "offer.%s" % action_id)
-	assert_true(offered.get("ok", false), str(offered))
-	if not offered.get("ok", false):
-		return ""
-	var command: Dictionary = _command("open.%s.day%d" % [friend_id, day])
-	var found: Dictionary = _registry.find_record(action_id)
-	assert_true(found.get("ok", false), str(found))
-	if not found.get("ok", false):
-		return ""
-	var opened: Dictionary = CONTACT_STATE.prepare_open_contact(
-		offered["value"]["candidate"], friend_id, day, command["id"], command["receipt"],
-		_issuer, ((found["value"] as Dictionary)["record"] as Dictionary))
-	assert_true(opened.get("ok", false), str(opened))
-	if not opened.get("ok", false):
-		return ""
-	_game_state.contacts = opened["value"]["candidate"]
-	return str(opened["receipt"]["receipt_id"])
-
-
-func _command(label: String) -> Dictionary:
-	if not _commands.has(label):
-		var issued: Dictionary = _issuer.issue(&"transaction_id")
-		assert_true(issued.get("ok", false), str(issued))
-		_commands[label] = {
-			"id": str((issued.get("value", {}) as Dictionary).get("token", "")),
-			"receipt": ((issued.get("value", {}) as Dictionary).get("issuer_receipt", {}) as Dictionary).duplicate(true),
-		}
-	return (_commands[label] as Dictionary).duplicate(true)

@@ -2,7 +2,6 @@ extends "res://addons/gut/test.gd"
 
 const BOARD := preload("res://scripts/application/minesweeper/GameStateDesktopBoardPort.gd")
 const SHOP := preload("res://scripts/application/shop/GameStateMinesweeperShopPort.gd")
-const SCHEDULE := preload("res://scripts/application/schedule/GameStateScheduleCommitPort.gd")
 const CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const FOLLOWUPS := preload("res://scripts/domain/contact/Day7FollowupState.gd")
 const PRESENTATION := preload("res://scripts/application/contact/ContactsPresentationPort.gd")
@@ -20,11 +19,6 @@ class State extends RefCounted:
 		return {"ok": false, "code": &"day7_presentations_pending"} if pending else {"ok": true}
 	func get_stat(_id: String) -> int: return 10
 	func _canonical_committed_schedule() -> Dictionary: return {}
-	func capture_schedule_commit_state() -> Dictionary: return {}
-	func prepare_schedule_commit_candidate(_a: Dictionary, _b: int) -> Dictionary: return {}
-	func commit_schedule_commit_candidate(_a: Dictionary) -> Dictionary: return {}
-	func rollback_schedule_commit_state(_a: Dictionary) -> Dictionary: return {}
-	func publish_schedule_commit(_a: Dictionary) -> Dictionary: return {}
 	func get_contact_view(friend: String) -> Dictionary:
 		return CONTACTS.get_contact_view(contacts, friend, day)
 
@@ -83,19 +77,6 @@ func test_direct_shop_prepare_cannot_bypass_unused_external_guard() -> void:
 	assert_eq(port.prepare_purchase({}, {}, "stale", {}).code, &"day7_presentations_pending")
 	state.pending = false
 	assert_eq(port.prepare_purchase({}, {}, "stale", {}).code, &"invalid_transaction_issuer_receipt")
-
-func test_direct_schedule_prepare_checks_before_memo_or_identity_derivation() -> void:
-	var state := State.new()
-	var dependency := Dependencies.new()
-	var port := SCHEDULE.new(state, dependency, dependency, dependency)
-	var request := {"causal_day_instance": "d", "day": 7, "draft_entries": [],
-		"expected_view_fingerprint": "v", "registry_fingerprint": "fixture",
-		"transaction_id": "stale", "transaction_issuer_receipt": {"token": "stale"}}
-	port._prepared["stale"] = {"prepared": {"stale": true}}
-	assert_eq(port.prepare_commit(request).code, &"day7_presentations_pending")
-	assert_eq(dependency.mutations, 0)
-	state.pending = false
-	assert_eq(port.prepare_commit({}).code, &"invalid_schedule_commit_request")
 
 func test_direct_done_blocks_day7_plan_but_allows_exact_prior_day_continuation() -> void:
 	var state := State.new()
