@@ -46,7 +46,7 @@ relative = "tests/integration/authored_week_child.gd"
 text = (root / relative).read_text()
 start = '\t\tvar started := Time.get_ticks_msec()\n'
 assert text.count(start) == 1
-text = text.replace(start, '\t\tbridge.history_samples = {}\n\t\tbridge.history_spans = []\n'
+text = text.replace(start, '\t\tbridge.history_samples = {}\n\t\tbridge.history_spans.clear()\n'
     '\t\tbridge.history_origin_us = Time.get_ticks_usec()\n\t\tbridge.history_active = true\n' + start)
 end = '\t\t\t"elapsed_ms": Time.get_ticks_msec() - started})\n'
 assert text.count(end) == 1
