@@ -47,7 +47,11 @@ func test_real_bootstrap_scene_text_and_selected_load_keep_owner_authority() -> 
 	router = get_node("/root/SceneRouter")
 	game = get_node("/root/GameState")
 	assert_eq(router._scene_host_path, HOST)
-	assert_eq(saves._restore_participants.size(), 9, "retain historical Schedule participant")
+	assert_eq(saves._restore_participants.size(), 8)
+	assert_false(saves._restore_participants.has("schedule_view"))
+	assert_null(bootstrap._retained_schedule_registry)
+	assert_null(bootstrap._retained_schedule_view_controller)
+	assert_null(bootstrap._retained_schedule_view_restore_participant)
 	assert_same(saves._restore_participants.run, bootstrap._retained_restore_participants.run)
 	assert_same(saves._restore_participants.desktop_board, bootstrap._retained_restore_participants.desktop_board)
 	assert_same(saves._restore_participants.narrative, bootstrap._retained_restore_participants.narrative)
@@ -106,7 +110,9 @@ func test_real_bootstrap_scene_text_and_selected_load_keep_owner_authority() -> 
 	var restored: Dictionary = bridge.capture_reading_checkpoint(false)
 	if not _ok(restored): return
 	assert_eq(restored.value.reading_session.entry_id, reading.entry_id)
-	assert_eq(restored.value.reading_session.program_index, reading.program_index)
+	var projected: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").project_player_checkpoint(restored.value)
+	if not _ok(projected): return
+	assert_eq(projected.value.reading_session.position_id, reading.position_id)
 	assert_eq(game.capture_run_snapshot_input().command_receipts, source.command_receipts)
 	assert_eq(profile.get_profile_snapshot(), profile_before, "selected Load does not replay Profile/history consequences")
 	assert_true(is_instance_valid(pause._find_caption(get_tree().root)))
