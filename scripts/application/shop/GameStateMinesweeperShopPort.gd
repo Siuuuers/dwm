@@ -79,6 +79,7 @@ func capture() -> Dictionary:
 		"causal_day_instance": str(identity_context["causal_day_instance"]),
 		"day": int(_game_state.day),
 		"money": money, "coins": coins,
+		"health": _game_state.get_stat("health"),
 		"pressure": _game_state.get_stat(_STAT_PRESSURE),
 		"carried_sequela": (_game_state.condition_effects_today as Array).has(_CONDITION_SEQUELA),
 		"owned_item_ids": owned_item_ids, "minesweeper_round_floor": round_floor,
