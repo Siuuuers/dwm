@@ -146,6 +146,22 @@ func _fork_scene_live() -> RefCounted:
 	sibling._pending_checkpoint = _pending_checkpoint
 	return sibling
 
+func _matches_scene_live(retained: RefCounted) -> bool:
+	return retained != null and family == "scene" and retained.family == "scene" \
+		and fingerprint == retained.fingerprint and command_id == retained.command_id \
+		and latest_entry == retained.latest_entry and scene_occurrence == retained.scene_occurrence \
+		and scene_index == retained.scene_index and boundary == retained.boundary \
+		and _progress_count == retained._progress_count and _pending_checkpoint == retained._pending_checkpoint \
+		and ledger != null and ledger.matches_live_history(retained.ledger) \
+		and TRAVERSAL._same(next_operation, retained.next_operation) \
+		and TRAVERSAL._same(player_progress, retained.player_progress)
+
+func _retain_scene_live(reading: Dictionary) -> Dictionary:
+	var retained := _fork_scene_live()
+	var captured: Dictionary = retained.capture(reading.get("frontier", {}))
+	if not captured.ok or not TRAVERSAL._same(captured.value, reading): return _fail(&"reading_session_changed")
+	return {"ok": true, "value": retained}
+
 func _fork_scene_transition(plan: Dictionary) -> Dictionary:
 	var sibling := _fork_scene_live()
 	var rows: Array = plan.traversed_captions.duplicate()

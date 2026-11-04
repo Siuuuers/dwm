@@ -16,6 +16,23 @@ func _scene_ledger() -> NarrativeCaptionLedger:
 		fixture.registry, false, true).ok)
 	return ledger
 
+func test_live_history_matches_only_the_retained_immutable_records() -> void:
+	var ledger := _scene_ledger()
+	assert_true(ledger.admit_entry_context(TOKEN, ENTRY, _scene_frame("visit:1"), "visit:1").ok)
+	assert_true(ledger.publish_line(TOKEN, "publication:1", ENTRY, "fixture.caption.alpha", "visit:1").ok)
+	var retained := ledger.fork_live()
+	assert_true(ledger.matches_live_history(retained))
+	var row: Dictionary = ledger._sequence[0]
+	ledger._sequence[0] = row.duplicate(true)
+	assert_false(ledger.matches_live_history(retained))
+	ledger._sequence[0].make_read_only()
+	assert_false(ledger.matches_live_history(retained))
+	ledger._sequence[0] = row
+	assert_true(ledger.matches_live_history(retained))
+	assert_true(ledger.publish_line(TOKEN, "publication:2", ENTRY, "fixture.caption.alpha", "visit:1").ok)
+	assert_false(ledger.matches_live_history(retained))
+	assert_eq(retained.snapshot().captions.size(), 1)
+
 func test_live_fork_preserves_allocations_and_isolates_publications_and_frames() -> void:
 	var ledger := _scene_ledger()
 	assert_true(ledger.admit_entry_context(TOKEN, ENTRY, _scene_frame("visit:1"), "visit:1").ok)

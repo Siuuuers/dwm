@@ -53,6 +53,29 @@ func test_continuation_plans_one_visible_caption_without_mutating_held_custody()
 	plan.destination.caption.beat.line_id = "TEST.changed.detached.copy"
 	assert_eq(session.capture({}), before)
 
+func test_retained_live_state_binds_history_cursor_progress_and_operation() -> void:
+	var session := _at_playable()
+	if session == null: return
+	var reading: Dictionary = session.capture({}).value
+	var retained: Dictionary = session._retain_scene_live(reading)
+	assert_true(retained.ok)
+	if not retained.ok: return
+	assert_true(session._matches_scene_live(retained.value))
+	var changed := reading.duplicate(true)
+	changed.ledger.captions[0].publication_id = "changed"
+	assert_false(session._retain_scene_live(changed).ok)
+	session.scene_index += 1
+	assert_false(session._matches_scene_live(retained.value))
+	session.scene_index -= 1
+	session.player_progress["changed"] = true
+	assert_false(session._matches_scene_live(retained.value))
+	session.player_progress.erase("changed")
+	var operation: Dictionary = session.next_operation.duplicate(true)
+	session.next_operation["changed"] = true
+	assert_false(session._matches_scene_live(retained.value))
+	session.next_operation = operation
+	assert_true(session._matches_scene_live(retained.value))
+
 func test_live_transition_fork_matches_cold_restore_and_preserves_source() -> void:
 	var source := _at_playable()
 	if source == null: return

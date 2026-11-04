@@ -491,7 +491,9 @@ func test_held_control_actions_revalidate_history_and_preserve_read_only_custody
 	assert_true(position.ok)
 	if not position.ok: return
 	assert_eq(position.value, held.checkpoint.reading_session)
-	assert_eq(held.session.captures, 1, "control capture returns the one physically checked reading")
+	assert_eq(held.session.captures, 0, "control capture validates live identity without rebuilding history")
+	position.value.ledger.captions[0].publication_id = "TEST.caller.mutation"
+	assert_eq(_adapter.capture_scene_control_position(held.session).value, held.checkpoint.reading_session)
 	var frontier: Dictionary = _bridge.capture_current_line_presentation_frontier()
 	assert_true(frontier.ok)
 	if not frontier.ok: return

@@ -339,7 +339,7 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 	var candidate: RefCounted
 	var source_session: RefCounted = _reading_session
 	var native_source: RefCounted
-	var source_reading := {}
+	var source_state: RefCounted
 	var source_entry := _active_entry.duplicate(true)
 	if has_reading_session():
 		if _runtime_adapter == null or not _runtime_adapter.has_method("retain_scene_source"):
@@ -349,7 +349,9 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 		native_source = retained_source.value
 		var captured := capture_reading_checkpoint(false)
 		if not captured.ok: return captured
-		source_reading = captured.value.reading_session.duplicate(true)
+		var retained_state: Dictionary = source_session._retain_scene_live(captured.value.reading_session)
+		if not retained_state.ok: return retained_state
+		source_state = retained_state.value
 		candidate = source_session._fork_scene_live()
 		# Caption-held Challenge results also establish a checkpoint at the
 		# first destination caption; they need not expose a control boundary.
@@ -396,9 +398,13 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 	_scene_stage_serial += 1
 	var capability := "scene-stage:%s:%s" % [get_instance_id(), _scene_stage_serial]
 	var transport := {"capability_id": capability, "narrative_checkpoint": checkpoint}
-	_scene_stage = {"candidate": candidate, "transport": transport.duplicate(true), "binding": binding.duplicate(true),
+	var candidate_state: Dictionary = candidate._retain_scene_live(reading.value)
+	if not candidate_state.ok: return candidate_state
+	var retained_transport := transport.duplicate(true)
+	FrozenPresentationContext._freeze(retained_transport)
+	_scene_stage = {"candidate": candidate, "candidate_state": candidate_state.value, "transport": retained_transport, "binding": binding.duplicate(true),
 		"target": target, "binding_sha256": _scene_digest(binding), "checkpoint_sha256": _scene_digest(checkpoint),
-		"source_session": source_session, "native_source": native_source, "source_reading": source_reading,
+		"source_session": source_session, "native_source": native_source, "source_state": source_state,
 		"source_entry": source_entry, "runtime": _runtime_adapter, "path": path}
 	var retained: Variant = _scene_stage_port.call("retain_scene_entry", self, capability, binding.duplicate(true), checkpoint.duplicate(true))
 	if not retained is Dictionary or not retained.get("ok", false):
@@ -484,18 +490,10 @@ func _scene_source_current() -> bool:
 	if _scene_stage.source_session == null: return not has_active_playback()
 	var checked: Dictionary = _runtime_adapter.validate_scene_source(_scene_stage.native_source, _reading_session)
 	if not checked.ok: return false
-	var frontier: Dictionary = _runtime_adapter.capture_reading_frontier()
-	if not frontier.ok: return false
-	# The native cue remains a real caption while Reading5 owns a held control.
-	# validate_scene_source above proves that exact native/control pairing; its
-	# checkpoint frontier is empty, as in capture_reading_checkpoint.
-	var captured: Dictionary = _reading_session.capture({} if _reading_session.boundary == "control" else frontier.value)
-	return captured.ok and _READING_TRAVERSAL._same(captured.value, _scene_stage.source_reading)
+	return _reading_session._matches_scene_live(_scene_stage.source_state)
 
 func _scene_candidate_current() -> bool:
-	var checkpoint: Dictionary = _scene_stage.transport.narrative_checkpoint
-	var captured: Dictionary = _scene_stage.candidate.capture(checkpoint.reading_session.frontier)
-	return captured.ok and _READING_TRAVERSAL._same(captured.value, checkpoint.reading_session)
+	return _scene_stage.candidate._matches_scene_live(_scene_stage.candidate_state)
 
 func _adopt_scene_target() -> Dictionary:
 	if _scene_stage.is_empty() or not _scene_stage.get("installing", false) \

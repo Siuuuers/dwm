@@ -38,6 +38,19 @@ func fork_live() -> NarrativeCaptionLedger:
 	candidate._publication_serial = _publication_serial
 	return candidate
 
+func matches_live_history(retained: NarrativeCaptionLedger) -> bool:
+	if retained == null or _scene != retained._scene or _session_token != retained._session_token \
+			or _entry_contexts_required != retained._entry_contexts_required \
+			or not is_same(_frozen_context, retained._frozen_context) \
+			or _entry_contexts.size() != retained._entry_contexts.size() \
+			or _sequence.size() != retained._sequence.size(): return false
+	for key: Variant in _entry_contexts:
+		if typeof(key) != TYPE_STRING or not _entry_contexts[key].is_read_only() \
+				or not is_same(_entry_contexts[key], retained._entry_contexts.get(key)): return false
+	for index: int in _sequence.size():
+		if not _sequence[index].is_read_only() or not is_same(_sequence[index], retained._sequence[index]): return false
+	return true
+
 func initialize(session_token: String, frozen_context: Dictionary,
 		entry_manifest: Dictionary, registry: Dictionary, entry_contexts_required: bool = false,
 		scene: bool = false) -> Dictionary:
