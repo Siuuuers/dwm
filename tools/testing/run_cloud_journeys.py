@@ -2,8 +2,6 @@
 """Run isolated rendered Linux journeys; retain every case's failures and evidence.
 
 Requires the imported project, GODOT_CONSOLE_PATH, xvfb-run and Mesa software GL.
-The two Practice cases deliberately distinguish an empty canonical DTL from an
-explicitly seeded historical compatibility record. Neither fixture earns an ending.
 """
 
 from __future__ import annotations
@@ -26,14 +24,7 @@ from uuid import uuid4
 
 TIMEOUT_SECONDS = 600
 STARTUP_SCRIPT = "res://tests/integration/verify_playable_startup.gd"
-REHEARSAL_SCRIPT = "res://tests/integration/verify_playable_rehearsal.gd"
 BASE_CAPTURES = ("01-title.png", "02-desktop.png", "03-minesweeper.png")
-PRACTICE_CAPTURES = (
-    "01-title-with-explicit-milestone-fixture.png",
-    "02-canonical-empty-date-board.png",
-    "03-canonical-board-before-pause.png",
-    "04-confirm-return-from-canonical-date.png",
-)
 CASES = (
     {
         "id": "condition-hospital-dialogue-retry",
@@ -78,32 +69,7 @@ CASES = (
             "06-dating-quick-consent.png", "07-dating-quick-restored.png"),
         "fixture_scope": "No prior ending or reached-presentation fixture; empty DTL earns no signature.",
     },
-    {
-        "id": "practice-empty-dtl",
-        "script": REHEARSAL_SCRIPT,
-        "flags": ("--prior-ending-fixture",),
-        "markers": ("PRACTICE_FIXTURE", "PLAYABLE_EMPTY_DTL_PRACTICE_PASS"),
-        "forbidden_markers": ("PRACTICE_LEGACY_FIXTURE", "PLAYABLE_REHEARSAL_LEGACY_PASS"),
-        "evidence_folder": "practice",
-        "captures": PRACTICE_CAPTURES + ("05-empty-practice-picker.png",),
-        "fixture_scope": "Prior-ending milestone only. Canonical empty DTL must leave Practice empty.",
-    },
-    {
-        "id": "practice-legacy-compatibility",
-        "script": REHEARSAL_SCRIPT,
-        "flags": ("--prior-ending-fixture", "--legacy-reached-fixture"),
-        "markers": ("PRACTICE_FIXTURE", "PRACTICE_LEGACY_FIXTURE", "PLAYABLE_REHEARSAL_LEGACY_PASS"),
-        "forbidden_markers": ("PLAYABLE_EMPTY_DTL_PRACTICE_PASS",),
-        "evidence_folder": "practice",
-        "captures": PRACTICE_CAPTURES + (
-            "05-practice-exact-reached-picker.png", "06-practice-board.png",
-            "07-return-to-picker.png", "08-return-gallery.png",
-        ),
-        "fixture_scope": (
-            "Explicit prior-ending and historical reached-signature fixtures. Private-board "
-            "compatibility evidence only; never evidence that empty canonical DTL was witnessed."
-        ),
-    },
+
 )
 ERROR_PATTERN = re.compile(
     r"SCRIPT ERROR:|(?:^|\s)ERROR:|Unicode parsing error|Unexpected NUL character|"

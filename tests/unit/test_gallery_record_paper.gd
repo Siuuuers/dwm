@@ -87,23 +87,18 @@ func test_long_copy_uses_even_natural_layout_and_optional_sentence_gap() -> void
 func test_actions_share_clipped_body_and_reveal_only_the_detached_ring() -> void:
 	_paper.set_copy(_long(), "", "en", true)
 	var selector := OptionButton.new()
-	var practice := Button.new()
-	_paper.set_actions(selector, practice)
-	assert_same(selector.get_parent(), practice.get_parent())
+	_paper.set_actions(selector)
 	assert_ne(selector.get_parent(), _paper)
 	assert_true(_paper.is_ancestor_of(selector))
 	assert_eq(selector.position.x, 16.0)
 	assert_eq(selector.size, Vector2(288, 64))
-	assert_eq(practice.position.x, 328.0)
-	assert_eq(practice.size, Vector2(160, 64))
 	assert_eq(selector.position.y, _paper.title_label.size.y + 32)
 	assert_eq(_paper.content_extent, selector.position.y + 72)
 	_paper.scroll_to(0)
-	_paper.reveal_control(practice)
-	assert_eq(_paper.scroll_offset, practice.position.y + practice.size.y + 8 - 512)
+	_paper.reveal_control(selector)
+	assert_eq(_paper.scroll_offset, selector.position.y + selector.size.y + 8 - 512)
 	var text_extent: float = _paper.title_label.size.y
 	selector.hide()
-	practice.hide()
 	_paper.refresh_layout()
 	assert_eq(_paper.content_extent, text_extent, "hidden actions leave no row or gap")
 
@@ -219,7 +214,7 @@ func test_fractional_wheel_release_touch_and_retained_selector_preserve_focus_an
 	selector.add_item("First")
 	selector.add_item("Second")
 	selector.select(1)
-	_paper.set_actions(selector, Button.new())
+	_paper.set_actions(selector)
 	_other.grab_focus()
 	assert_true(_wheel(MOUSE_BUTTON_WHEEL_DOWN, 0.25))
 	assert_eq(_paper.scroll_offset, 18.0, "fractional wheel factor is retained")
@@ -322,29 +317,26 @@ func test_touch_drag_over_retained_actions_scrolls_without_activation_or_focus_t
 	var selector := OptionButton.new()
 	selector.add_item("First")
 	selector.add_item("Second")
-	var practice := Button.new()
 	var activations: Array[bool] = []
-	practice.pressed.connect(func(): activations.append(true))
 	selector.item_selected.connect(func(_index: int): activations.append(true))
-	_paper.set_actions(selector, practice)
-	for action: Control in [selector, practice]:
-		_paper.reveal_control(action)
-		_other.grab_focus()
-		var point := action.get_global_rect().get_center()
-		var before: float = _paper.scroll_offset
-		var touch := InputEventScreenTouch.new()
-		touch.position = point
-		touch.pressed = true
-		_push(touch)
-		var drag := InputEventScreenDrag.new()
-		drag.position = point + Vector2(0, 24)
-		drag.relative = Vector2(0, 24)
-		_push(drag)
-		touch.position = drag.position
-		touch.pressed = false
-		_push(touch)
-		assert_eq(_paper.scroll_offset, before - 24.0, "touch over retained action reaches paper")
-		assert_true(_other.has_focus(), "touch scrolling over action does not steal focus")
+	_paper.set_actions(selector)
+	_paper.reveal_control(selector)
+	_other.grab_focus()
+	var point := selector.get_global_rect().get_center()
+	var before: float = _paper.scroll_offset
+	var touch := InputEventScreenTouch.new()
+	touch.position = point
+	touch.pressed = true
+	_push(touch)
+	var drag := InputEventScreenDrag.new()
+	drag.position = point + Vector2(0, 24)
+	drag.relative = Vector2(0, 24)
+	_push(drag)
+	touch.position = drag.position
+	touch.pressed = false
+	_push(touch)
+	assert_eq(_paper.scroll_offset, before - 24.0, "touch over retained selector reaches paper")
+	assert_true(_other.has_focus(), "touch scrolling over selector does not steal focus")
 	assert_true(activations.is_empty())
 
 func test_exact_media_is_inert_and_its_absence_removes_the_entire_block() -> void:

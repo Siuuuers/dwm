@@ -48,14 +48,6 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="PreviousDialogueScroll" type="ScrollContainer" parent="DatingRoot" unique_id=285302895]
-layout_mode = 2
-
-[node name="PreviousDialogueList" type="VBoxContainer" parent="DatingRoot/PreviousDialogueScroll" unique_id=888657634]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-
 [node name="DialogueBox" parent="DatingRoot" unique_id=1075976515 instance=ExtResource("2")]
 unique_name_in_owner = true
 layout_mode = 2

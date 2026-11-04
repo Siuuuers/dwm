@@ -12,9 +12,7 @@ const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
 const ARTWORK_GALLERY := preload("res://scripts/ui/gallery/ArtworkGallery.gd")
 const DIALOGUE_LIBRARY := preload("res://scripts/ui/gallery/DialogueLibrary.gd")
 const REPLAY_OWNER := preload("res://scripts/application/ending/GalleryReplayOwner.gd")
-const PRACTICE_HOST := preload("res://scripts/ui/gallery/GalleryRehearsalHost.gd")
 const DATING_PRESENTATION := preload("res://scripts/ui/DatingScene.gd")
-signal practice_visibility_changed(active: bool)
 const RECORD_CATALOG := preload("res://scripts/ui/gallery/GalleryRecordCatalog.gd")
 const STATUS_FALLBACK := {
 	"gallery.history.added": "New dialogue added to History",
@@ -57,11 +55,6 @@ var _versions: Array[Dictionary] = []
 var _version_selector: OptionButton
 var _version_register: Control
 var _selected_version := 0
-var _replay_bridge: Object
-var _practice_game: Object
-var _practice_input: Object
-var _practice_button: Button
-var _practice_host: CanvasLayer
 var _record_title_label: Label
 var _record_paper: Control
 var _replay_return_hidden := false
@@ -124,7 +117,7 @@ func _refresh_artwork_copy() -> void:
 		button.accessibility_name = button.text
 
 func _show_gallery_tab(tab: String) -> void:
-	var blocked: bool = has_active_rehearsal() or (_replay_owner != null and _replay_owner.is_playing())
+	var blocked: bool = _replay_owner != null and _replay_owner.is_playing()
 	if not blocked: _active_tab = tab
 	for button: Button in _gallery_tabs.get_children():
 		button.set_pressed_no_signal(str(button.get_meta(&"copy_key")) == "gallery.tab." + _active_tab)
@@ -167,76 +160,9 @@ func configure_replay(bridge: Object) -> Dictionary:
 	var configured: Dictionary = replay_owner.configure(_profile, bridge)
 	if not configured.get("ok", false): return configured
 	_replay_owner = replay_owner
-	_replay_bridge = bridge
 	_replay_owner.playback_finished.connect(_on_replay_finished)
 	if is_node_ready(): _refresh_tiles()
 	return {"ok":true}
-
-func configure_rehearsal(game_state: Object, input_owner: Object) -> Dictionary:
-	if game_state == null or not game_state.has_method("capture_run_snapshot_input"):
-		return {"ok": false, "code": &"rehearsal_game_unavailable"}
-	if _practice_game != null and [_practice_game, _practice_input] != [game_state, input_owner]:
-		return {"ok": false, "code": &"rehearsal_already_configured"}
-	_practice_game = game_state
-	_practice_input = input_owner
-	if is_node_ready(): _sync_practice_button()
-	return {"ok": true}
-
-func has_active_rehearsal() -> bool:
-	return is_instance_valid(_practice_host)
-
-func _sync_practice_button() -> void:
-	if not is_node_ready(): return
-	if _practice_button == null:
-		_practice_button = Button.new()
-		_practice_button.name = "Practice"
-		_practice_button.theme_type_variation = &"GalleryPaperAction"
-		_practice_button.pressed.connect(_on_practice_pressed)
-		_practice_button.focus_entered.connect(_reveal_paper_action.bind(_practice_button))
-		_canvas.add_child(_practice_button)
-	var locale := str(_localization.get_locale()) if _localization != null else "en"
-	_practice_button.language = locale.replace("_", "-")
-	_practice_button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_practice_button.text = "\u7df4\u7fd2" if locale.replace("_", "-") == "zh-HK" else ("\u7ec3\u4e60" if locale.begins_with("zh") else {"ja": "練習", "ko": "연습"}.get(locale, "Practice"))
-	_practice_button.visible = _practice_game != null and _replay_bridge != null and _profile != null \
-		and _status_key != "gallery.record.unavailable" \
-		and _profile.has_method("has_completed_ending") and _profile.has_completed_ending()
-	# Practice shares the written record paper.
-	for state: String in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
-		_practice_button.add_theme_color_override(state, theme.get_color("paper_ink", "Gallery"))
-	_practice_button.disabled = _replay_owner != null and _replay_owner.is_playing()
-	_practice_button.focus_mode = Control.FOCUS_ALL if _practice_button.visible and not _practice_button.disabled else Control.FOCUS_NONE
-	_ensure_record_paper()
-	_record_paper.set_actions(_version_selector, _practice_button, _version_register)
-	_record_paper.set_interactive(not _practice_button.disabled and _status_key != "gallery.record.unavailable")
-	refresh_return_navigation()
-
-func _on_practice_pressed() -> void:
-	if has_active_rehearsal() or _practice_game == null or _replay_bridge == null \
-		or (_replay_owner != null and _replay_owner.is_playing()): return
-	var host := PRACTICE_HOST.new()
-	var locale := str(_localization.get_locale()) if _localization != null else "en"
-	var configured: Dictionary = host.configure(_profile, _practice_game, _replay_bridge, _practice_input,
-		locale, int(_preference(&"preferences.accessibility.text_size", 100)), theme)
-	if not configured.get("ok", false):
-		host.free()
-		_set_replay_status("gallery.replay.failed")
-		return
-	_practice_host = host
-	host.closed.connect(_on_practice_closed)
-	_canvas.hide()
-	add_child(host)
-	practice_visibility_changed.emit(true)
-
-func _on_practice_closed() -> void:
-	if not has_active_rehearsal(): return
-	remove_child(_practice_host)
-	_practice_host.queue_free()
-	_practice_host = null
-	_canvas.show()
-	practice_visibility_changed.emit(false)
-	_sync_practice_button()
-	_practice_button.grab_focus.call_deferred()
 
 func _ensure_version_selector() -> void:
 	if _version_selector != null: return
@@ -316,9 +242,6 @@ func close_for_title_host() -> bool:
 	if is_instance_valid(_artwork) and _artwork.viewer_is_open():
 		_artwork.close_viewer()
 		return false
-	if has_active_rehearsal():
-		_practice_host.request_return()
-		return false # One Return closes one practice layer.
 	if _replay_owner != null and _replay_owner.is_playing():
 		var closed: Dictionary = _replay_owner.close()
 		if not closed.get("ok", false) or not _selected_id.begins_with("dating."):
@@ -440,13 +363,11 @@ func _refresh_tiles() -> void:
 		else: _on_paper_focus_removed(hide_focus)
 	elif previous_focus == _record_paper and _record_paper.focus_mode != Control.FOCUS_NONE:
 		_record_paper.grab_focus(hide_focus)
-	elif previous_focus == _practice_button and _practice_button.visible and not _practice_button.disabled:
-		_practice_button.grab_focus(hide_focus)
 	elif previous_focus == _replay_button and _replay_button.visible and not _replay_button.disabled:
 		_replay_button.grab_focus(hide_focus)
 	elif previous_focus == _version_selector and _version_selector.visible and not _version_selector.disabled:
 		_version_selector.grab_focus(hide_focus)
-	elif previous_focus in [_record_paper, _practice_button, _replay_button, _version_selector] and (_replay_owner == null or not _replay_owner.is_playing()):
+	elif previous_focus in [_record_paper, _replay_button, _version_selector] and (_replay_owner == null or not _replay_owner.is_playing()):
 		for row: Button in _ending_tile_grid.get_children():
 			if str(row.get_meta(&"gallery_record_id")) == _selected_id:
 				row.grab_focus(hide_focus)
@@ -574,7 +495,10 @@ func _sync_replay_controls() -> void:
 	_version_selector.focus_mode = Control.FOCUS_ALL if _version_selector.visible and not playing else Control.FOCUS_NONE
 	if _version_register != null: _version_register.set_interactive(not playing)
 	for row: Button in _ending_tile_grid.get_children(): row.disabled = playing
-	_sync_practice_button()
+	_ensure_record_paper()
+	_record_paper.set_actions(_version_selector, _version_register)
+	_record_paper.set_interactive(not playing and _status_key != "gallery.record.unavailable")
+	refresh_return_navigation()
 
 func _on_version_selected(index: int) -> void:
 	if index < 0 or index >= _versions.size() or (_replay_owner != null and _replay_owner.is_playing()): return
@@ -788,7 +712,10 @@ func _refresh_presentation() -> void:
 		control.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_refresh_replay_caption()
 	_refresh_artwork_copy()
-	_sync_practice_button()
+	_ensure_record_paper()
+	_record_paper.set_actions(_version_selector, _version_register)
+	_record_paper.set_interactive((_replay_owner == null or not _replay_owner.is_playing()) and _status_key != "gallery.record.unavailable")
+	refresh_return_navigation()
 	_canvas.queue_redraw()
 	queue_redraw()
 
@@ -882,8 +809,6 @@ func refresh_return_navigation() -> void:
 	if _focusable(_replay_button):
 		deeper.append(_replay_button)
 		sequence.append(_replay_button)
-	if is_instance_valid(_practice_button) and _practice_button.visible and not _practice_button.disabled:
-		sequence.append(_practice_button)
 	sequence.append(_return_button)
 	for index: int in range(sequence.size()):
 		sequence[index].focus_previous = sequence[posmod(index - 1, sequence.size())].get_path()

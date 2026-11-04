@@ -26,7 +26,6 @@ var _interactive := true
 var _body: Control
 var _pointer: Control
 var _selector: Control
-var _practice: Control
 var _register: Control
 var _repeat: Timer
 var _stick_direction := 0
@@ -107,11 +106,10 @@ func set_interactive(value: bool) -> void:
 	queue_accessibility_update()
 	presentation_changed.emit()
 
-func set_actions(selector: Control, practice: Control, version_register: Control = null) -> void:
+func set_actions(selector: Control, version_register: Control = null) -> void:
 	_selector = selector
-	_practice = practice
 	_register = version_register
-	for action: Control in [_selector, _practice, _register]:
+	for action: Control in [_selector, _register]:
 		if not is_instance_valid(action): continue
 		if action.get_parent() != _body:
 			if action.get_parent() != null: action.get_parent().remove_child(action)
@@ -145,13 +143,9 @@ func refresh_layout(reset_scroll: bool = false) -> void:
 	if _visible(_register):
 		_register.position = Vector2(0, sentence_label.position.y + sentence_height + 32)
 		content_extent = _even(_register.position.y + _register.size.y)
-		if _visible(_practice):
-			_place_action(_practice, Vector2(328, content_extent + 24), Vector2(160, 64))
-			content_extent = _even(_practice.position.y + 72)
-	elif _visible(_selector) or _visible(_practice):
+	elif _visible(_selector):
 		var row_y := text_bottom + 32
 		_place_action(_selector, Vector2(16, row_y), Vector2(288, 64))
-		_place_action(_practice, Vector2(328, row_y), Vector2(160, 64))
 		content_extent = _even(row_y + 72)
 	else: content_extent = _even(text_bottom)
 	scroll_offset = 0.0 if reset_scroll else _clamped_even(scroll_offset)

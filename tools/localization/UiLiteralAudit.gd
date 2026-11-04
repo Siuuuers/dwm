@@ -71,7 +71,6 @@ const SCRIPT_LOCALIZATION_HELPERS := {
 	"res://scripts/ui/BackupApp.gd": ["_t("],
 	"res://scripts/ui/ComputerDesktop.gd": ["LABELS["],
 	"res://scripts/ui/DatingScene.gd": ["presentation_copy(", "CHROME_COPY.get_copy("],
-	"res://scripts/ui/gallery/GalleryRehearsalHost.gd": ["_copy(", "VIEW_SAVE_COPY["],
 	"res://scripts/ui/GalleryScene.gd": ["_localized(", "_record_title("],
 	"res://scripts/ui/schedule/SchedulePanel.gd": ["COPY["],
 	"res://scripts/ui/SettingsContent.gd": ["text("],

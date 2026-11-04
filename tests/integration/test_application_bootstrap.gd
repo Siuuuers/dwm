@@ -40,7 +40,6 @@ const DIALOGIC_BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const JSON_STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FAKE_AUDIO_PORT := preload("res://tests/support/FakeAudioPlaybackPort.gd")
 const SAVE_CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
-const DAY_RESOLUTION_STATE_PORT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
 const MINESWEEPER_COORDINATOR := preload("res://scripts/domain/minesweeper/MinesweeperRoundCoordinator.gd")
 const FAKE_GATE := preload("res://tests/support/FakeApplicationMutationGate.gd")
 const FAKE_EVICTION := preload("res://tests/support/FakeDesktopEvictionPort.gd")
@@ -66,7 +65,7 @@ const EXPECTED_STAGE_ORDER: Array[StringName] = [
 	&"initialize_window_mode",
 	&"initialize_dialogic_bridge",
 	&"configure_restore_participants",
-	&"configure_day_resolution",
+	&"configure_scene_gameplay",
 	&"configure_minesweeper_rounds",
 	&"publish_application_ready",
 ]
@@ -235,8 +234,7 @@ func test_the_stable_active_app_callable_keeps_its_identity_and_returns_raw_json
 	# BEFORE host injection the stable Callable returns raw JSON null -- never a wrapper.
 	var before: Variant = bootstrap.call(&"_active_app_id_context")
 	assert_null(before, "an uninjected host reports raw JSON null")
-	var day_port: RefCounted = DAY_RESOLUTION_STATE_PORT.new(made["targets"][&"GameState"])
-	assert_true(bootstrap.call(&"_configure_day_resolution_providers", day_port).get("ok", false))
+	bootstrap.call(&"_configure_checkpoint_providers")
 	var first_bundle: Dictionary = bootstrap.get("_checkpoint_provider_bundle")
 	var first_callable: Callable = first_bundle["active_app_id"]
 	assert_true(bootstrap.call(&"_configure_restore_participants").get("ok", false))
@@ -252,39 +250,31 @@ func test_the_stable_active_app_callable_keeps_its_identity_and_returns_raw_json
 	assert_false(typeof(after) == TYPE_DICTIONARY, "never a CommandResult wrapper")
 
 
-func test_the_retained_checkpoint_port_and_gate_are_shared_by_both_coordinators() -> void:
-	var made := _make_graph("shared-coordinators")
+func test_minesweeper_retains_the_scene_checkpoint_port_and_gate() -> void:
+	var made := _make_graph("scene-checkpoint")
 	if made.is_empty():
 		return
 	var bootstrap: Node = made["bootstrap"]
 	var game_state: Node = made["targets"][&"GameState"]
-	# The Schedule foundation inside day resolution reuses the retained issuer, so that stage
-	# has to have run first -- exactly as it does in the production stage order.
-	assert_true(bootstrap.call(&"_construct_identity_issuer_and_contact_commands").get("ok", false))
 	assert_true(bootstrap.call(&"_configure_restore_participants").get("ok", false))
-	var resolved: Dictionary = bootstrap.call(&"configure_day_resolution", game_state,
-		made["targets"][&"SaveManager"])
-	assert_true(resolved.get("ok", false), str(resolved))
-	# Day resolution reused the ONE retained checkpoint port rather than building a second.
+	var configured: Dictionary = bootstrap.call(&"_run_stage", &"configure_scene_gameplay", &"final")
+	assert_true(configured.get("ok", false), str(configured))
 	assert_same(bootstrap.get("_retained_checkpoint_port"), made["checkpoint_port"])
-	var day_coordinator: Object = bootstrap.get("_retained_day_resolution_coordinator")
-	assert_not_null(day_coordinator)
 	var minesweeper: Dictionary = bootstrap.call(&"_configure_minesweeper_rounds", game_state,
 		made["targets"][&"SaveManager"])
 	assert_true(minesweeper.get("ok", false), str(minesweeper))
 	var round_coordinator: Object = bootstrap.get("_retained_minesweeper_coordinator")
 	assert_true(round_coordinator is MINESWEEPER_COORDINATOR)
-	# Both coordinators answer to the SAME fatal fence, and the round adapters to the SAME port.
+	# The round adapters retain the scene checkpoint port and shared fatal fence.
 	var gate: Object = bootstrap.get("_application_gate")
 	assert_eq(int(minesweeper["value"]["gate_instance_id"]), gate.get_instance_id())
 	assert_same(bootstrap.get("_retained_minesweeper_state_port").get("_gate"), gate)
 	assert_same(bootstrap.get("_retained_minesweeper_save_port").get("_checkpoint_port"),
 		made["checkpoint_port"])
 	assert_same(game_state.get("_minesweeper_round_coordinator"), round_coordinator)
-	assert_not_same(round_coordinator, day_coordinator, "two distinct coordinators, one gate")
 
 
-func test_day_resolution_installs_route_independent_eviction_before_desktop_mount() -> void:
+func test_scene_gameplay_installs_route_independent_eviction_before_desktop_mount() -> void:
 	var made := _make_graph("route-independent-eviction")
 	if made.is_empty():
 		return
@@ -295,7 +285,7 @@ func test_day_resolution_installs_route_independent_eviction_before_desktop_moun
 	assert_null(bootstrap.get("_contacts_desktop_eviction_port"))
 	assert_null(bootstrap.get("_desktop_eviction_port"))
 
-	var resolved: Dictionary = bootstrap.call(&"_run_stage", &"configure_day_resolution", &"final")
+	var resolved: Dictionary = bootstrap.call(&"_run_stage", &"configure_scene_gameplay", &"final")
 	assert_true(resolved.get("ok", false), str(resolved))
 	var route_port: RefCounted = bootstrap.get("_contacts_desktop_eviction_port")
 	assert_not_null(route_port, "the adapter exists before any desktop scene")
@@ -308,7 +298,7 @@ func test_day_resolution_installs_route_independent_eviction_before_desktop_moun
 
 	if not _publish_fixture_day_change(bootstrap, game_state, 2): return
 	assert_false(bootstrap.get("_application_gate").is_fatal_latched(),
-		"a direct Hospital completion can change day before the desktop mounts")
+		"a DTL day transition can change day before the desktop mounts")
 	assert_eq(int(host.get_state()["current_day"]), 2)
 	assert_true(host.get_state()["cached_app_ids"].is_empty(),
 		"the retained host clears its cache even before a physical desktop exists")
@@ -323,7 +313,7 @@ func test_day_resolution_installs_route_independent_eviction_before_desktop_moun
 	assert_true(desktop.get("configured"))
 	assert_eq(desktop.get("configured_day"), 2)
 	assert_same(bootstrap.get("_contacts_desktop_eviction_port"), route_port,
-		"desktop mount reuses the adapter that protected direct Hospital Load")
+		"desktop mount reuses the adapter that handled the DTL day transition")
 	assert_same((route_port.get("view") as WeakRef).get_ref(), desktop)
 	assert_true(host.open_app(&"contacts", 2).get("ok", false))
 	if not _publish_fixture_day_change(bootstrap, game_state, 3): return
@@ -359,9 +349,7 @@ func _allocate_fixture_run_identity(bootstrap: Node, game_state: Node) -> bool:
 
 
 func _publish_fixture_day_change(bootstrap: Node, game_state: Node, day: int) -> bool:
-	# This fixture supplies the committed day/identity boundary; the connected Hospital
-	# journey owns the actual day-resolution transaction that precedes publication. Use
-	# the real allocator: causal-day identities cannot be minted by issuer.issue().
+	# Supply a committed day boundary using the real causal-day identity allocator.
 	var issuer: RefCounted = bootstrap.get("_desktop_identity_nonce_issuer")
 	var lifecycle: RefCounted = game_state.get("_run_lifecycle")
 	var identity: Dictionary = lifecycle.get_desktop_identity_context()
@@ -467,7 +455,6 @@ func test_each_stage_failure_returns_one_fatal_result_and_never_reaches_readines
 		&"initialize_window_mode": &"WindowModeManager",
 		&"initialize_saves": &"SaveManager",
 		&"configure_restore_participants": &"SaveManager",
-		&"configure_day_resolution": &"SaveManager",
 		&"configure_minesweeper_rounds": &"SaveManager",
 	}
 	for stage_id: StringName in failures:
