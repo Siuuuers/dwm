@@ -14,7 +14,6 @@ const REQUIRED_SCENE_PATHS := [
 	"res://scenes/apps/ShopApp.tscn",
 	"res://scenes/apps/ScheduleApp.tscn",
 	"res://scenes/apps/SettingsApp.tscn",
-	"res://scenes/apps/LogOutApp.tscn",
 	"res://scenes/apps/BackupApp.tscn",
 	"res://scenes/ending/EndingScene.tscn",
 	"res://scenes/hospital/HospitalScene.tscn",

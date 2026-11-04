@@ -161,7 +161,9 @@ func _activate_launcher(app_id: StringName) -> void:
 	open_app(app_id)
 
 func _launcher_ids() -> Array[StringName]:
-	return APP_REGISTRY.new().get_scene_ids() if _scene_navigation else APP_REGISTRY.new().get_ids()
+	var ids: Array[StringName] = APP_REGISTRY.new().get_scene_ids() if _scene_navigation else APP_REGISTRY.new().get_ids()
+	ids.append(&"logout")
+	return ids
 
 func _scene_navigate(app_id: StringName, home: bool = false) -> Dictionary:
 	var phase: Variant = _scene_phase_reader.call()
@@ -319,6 +321,7 @@ func _build_shell() -> void:
 	icon_grid.add_theme_constant_override("h_separation", 16)
 	icon_grid.add_theme_constant_override("v_separation", 16)
 	var ids: Array[StringName] = APP_REGISTRY.new().get_ids()
+	ids.append(&"logout")
 	for index in ids.size():
 		var id: StringName = ids[index]
 		var button: Button = contacts_button if id == &"contacts" else LAUNCHER_BUTTON.new()

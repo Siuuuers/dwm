@@ -48,7 +48,7 @@
         "properties": {
           "app_id": {
             "type": "string",
-            "enum": ["backup", "contacts", "logout", "minesweeper", "schedule", "settings", "shop"]
+            "enum": ["backup", "contacts", "minesweeper", "schedule", "settings", "shop"]
           },
           "scene": {"type": "string", "minLength": 1},
           "focus_target": {"type": "string", "minLength": 1}

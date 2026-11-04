@@ -13,7 +13,6 @@ const _ENTRIES := {
 	&"shop":        {"scene": "res://scenes/apps/ShopApp.tscn", "focus": NodePath("%HideButton")},
 	&"backup":      {"scene": "res://scenes/apps/BackupApp.tscn", "focus": NodePath("%HideButton")},
 	&"settings":    {"scene": "res://scenes/apps/SettingsApp.tscn", "focus": NodePath("%HideButton")},
-	&"logout":      {"scene": "res://scenes/apps/LogOutApp.tscn", "focus": NodePath("%NoButton")},
 }
 
 

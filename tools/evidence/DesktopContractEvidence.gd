@@ -130,8 +130,8 @@ static func validate_law(artifact: Dictionary) -> Dictionary:
 	if not bindings_valid.get("ok", false):
 		return bindings_valid
 	var records: Variant = artifact["registry_records"]
-	if typeof(records) != TYPE_ARRAY or (records as Array).size() != 7:
-		return _fail(&"artifact_registry_records_invalid", "exactly seven registry records", {})
+	if typeof(records) != TYPE_ARRAY:
+		return _fail(&"artifact_registry_records_invalid", "registry records must be an array", {})
 	if (records as Array) != _registry_records():
 		return _fail(&"artifact_registry_records_invalid",
 			"a registry record differs from the production registry", {})
