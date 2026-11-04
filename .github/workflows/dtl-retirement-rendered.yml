@@ -38,12 +38,9 @@ jobs:
           root = pathlib.Path.cwd()
           output = root / '.godot/ci/retirement'
           cases = [
-              ('authored', 'authored_week_create', ''),
-              ('authored', 'authored_week_load', ''),
-              ('authored', 'authored_week_replay', ''),
-              ('challenge', 'test_scene_caption_challenge', ''),
-              ('challenge', 'test_scene_caption_challenge_load', ''),
-              ('gallery', 'test_menu_gallery_host', 'test_actual_entry_return_back_and_reopen_reuse_one_gallery'),
+              ('computer', 'test_scene_computer_create', ''),
+              ('computer', 'test_scene_computer_load', ''),
+              ('artwork', 'test_artwork_gallery', 'test_gallery_preview_modal_keys_and_return_focus'),
           ]
           failed = []
           for group, suite, method in cases:
