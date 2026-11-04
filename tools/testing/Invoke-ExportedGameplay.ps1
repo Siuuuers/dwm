@@ -457,7 +457,7 @@ function Observe-Artwork($Snapshot) {
 }
 function Return-HomeAndQuit {
     Invoke-UI (Button 'Check Computer') 'open Computer for Home and logout'
-    Invoke-UI (Button 'Settings') 'open an app before returning Home'
+    Invoke-UI (Button 'Contacts') 'open an app before returning Home'
     Invoke-UI (Button 'Home') 'return to Computer Home'
     $null = Button 'Log out'
     Capture 'computer-home'
