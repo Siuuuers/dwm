@@ -2564,6 +2564,10 @@ func _record_line_presentation(expected_frontier: Dictionary) -> Dictionary:
 		if (marked.get("fatal", false) or marked.get("code") == &"indeterminate_commit") \
 				and is_instance_valid(_skip_profile) and _skip_profile.get_instance_id() == identity.profile_id:
 			_line_ack_fatal_failure = marked.duplicate(true)
+			if is_inside_tree():
+				var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
+				if bootstrap != null:
+					bootstrap.show_content_error.call_deferred(marked.duplicate(true))
 		# Profile publication is synchronous: it may replace or pause this source.
 		var after := _line_presentation_context(expected_frontier)
 		if not _line_ack_fatal_failure.is_empty(): return _line_ack_fatal_failure.duplicate(true)

@@ -5,13 +5,14 @@ from pathlib import Path
 
 FIELDS = {
     "phase", "parent", "owner", "pc", "visible", "expected", "acknowledged",
-    "applied", "blocked", "crossedBlocked", "staleAdvance", "last_event",
+    "applied", "blocked", "crossedBlocked", "staleAdvance", "fatal", "errorVisible", "last_event",
 }
 EVENTS = {
     "advance-NEXT_ADMITTING", "advance-NEXT_ACTIVE", "advance-AUTO", "advance-SKIP",
     "ack-from-NEXT_ADMITTING", "ack-from-AUTO", "ack-from-SKIP", "ack-from-IDLE",
     "next-coalesced", "next-conflict", "next-busy", "stale-refusal",
     "ordinary-refusal", "next-completion-signals",
+    "ack-success", "ack-retryable", "ack-fatal", "fatal-error-visible",
 }
 
 
@@ -33,6 +34,7 @@ def read_states(text):
 def check(text):
     events, projections = set(), set()
     completed, count = False, 0
+    fatal_owned, fatal_visible = False, False
     for state in read_states(text):
         count += 1
         events.add(json.loads(state.pop("last_event")))
@@ -40,12 +42,19 @@ def check(text):
         completed |= (state["visible"] == "3" and state["applied"] == "<<1, 1>>"
                       and state["phase"] == '"IDLE"' and state["owner"] == "{}"
                       and state["pc"] == '"idle"' and state["expected"] == "0")
+        fatal_owned |= (state["fatal"] == "TRUE" and state["errorVisible"] == "FALSE"
+                        and state["owner"] != "{}" and state["pc"] == '"return"'
+                        and state["acknowledged"] == "FALSE")
+        fatal_visible |= (state["fatal"] == "TRUE" and state["errorVisible"] == "TRUE"
+                          and state["phase"] == '"IDLE"' and state["owner"] == "{}"
+                          and state["acknowledged"] == "FALSE")
     missing = EVENTS - events
-    if missing or not completed:
+    if missing or not completed or not fatal_owned or not fatal_visible:
         raise ValueError(f"Witness check failed: missing={sorted(missing)}, "
-                         f"completed={completed}")
+                         f"completed={completed}, fatal_owned={fatal_owned}, fatal_visible={fatal_visible}")
     return {"states": count, "production_projections": len(projections),
-            "behavior_witnesses": len(EVENTS), "completed_and_released": completed}
+            "behavior_witnesses": len(EVENTS), "completed_and_released": completed,
+            "fatal_before_release": fatal_owned, "fatal_error_after_release": fatal_visible}
 
 
 if __name__ == "__main__":
