@@ -48,9 +48,12 @@ jobs:
         run: |
           xvfb-run -a -s '-screen 0 1280x1008x24' "$GODOT_CONSOLE_PATH" --path . --rendering-method gl_compatibility --audio-driver Dummy --log-file .godot/ci/gallery-release/capture.log -s res://tests/ui/render_release_artwork.gd
           python -c "import json,pathlib; p=pathlib.Path('.godot/ci/gallery-release'); assert json.loads((p/'checks.json').read_text())['ok']; assert len(list(p.glob('*.png'))) == 19"
-      - name: Run artwork and settings regression tests with rendering
+      - name: Run rendered artwork regression tests
         run: |
-          xvfb-run -a -s '-screen 0 1280x1008x24' "$GODOT_CONSOLE_PATH" --path . --rendering-method gl_compatibility --audio-driver Dummy -s res://addons/gut/gut_cmdln.gd -gconfig= -gtest=res://tests/integration/test_artwork_gallery.gd,res://tests/scene/test_settings_localization_scene.gd -gexit -glog=1 -gjunit_xml_file=res://.godot/ci/gallery-release/tests.xml
+          xvfb-run -a -s '-screen 0 1280x1008x24' "$GODOT_CONSOLE_PATH" --path . --rendering-method gl_compatibility --audio-driver Dummy -s res://addons/gut/gut_cmdln.gd -gconfig= -gtest=res://tests/integration/test_artwork_gallery.gd -gexit -glog=1 -gjunit_xml_file=res://.godot/ci/gallery-release/artwork-tests.xml
+      - name: Run settings regression without a system speech service
+        run: |
+          "$GODOT_CONSOLE_PATH" --headless --path . -s res://addons/gut/gut_cmdln.gd -gconfig= -gtest=res://tests/scene/test_settings_localization_scene.gd -gexit -glog=1 -gjunit_xml_file=res://.godot/ci/gallery-release/settings-tests.xml
       - uses: actions/upload-artifact@v4
         if: always()
         with:
