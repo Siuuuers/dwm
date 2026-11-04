@@ -432,8 +432,11 @@ func test_a09_consequence_accept_returns_the_frozen_value_and_receipt() -> void:
 	var wired := _wired()
 	if wired.is_empty():
 		return
+	wired["gs"].set_stat(GS.STAT_HEALTH, 4)
 	var prepared := _shop_prepared(wired, "lucky_charm")
 	var action_receipt: Dictionary = prepared["action_receipt"]
+	assert_eq(action_receipt["condition_before"]["health"], 4)
+	assert_eq(action_receipt["condition_after"]["health"], 4)
 	var action_txn := str(action_receipt["transaction_id"])
 	# Recover the ordinal-0 checkpoint receipt and the real economy candidate exactly as
 	# test_shop_condition_contract_departure.gd does: participant and coordinator share the same
@@ -475,6 +478,7 @@ func test_a09_consequence_accept_returns_the_frozen_value_and_receipt() -> void:
 		"schedule_view_commit_receipt stays null for an action no_departure")
 	assert_eq(int((wired["gs"] as Node).inventory.get("lucky_charm", 0)), 1,
 		"the real GameState economy candidate committed -- no fake manufactured this success")
+	assert_eq(wired["gs"].get_stat(GS.STAT_HEALTH), 4)
 
 
 ## Review-fix (Minor 3): the nonnull direction of the board-fate -1-iff-null identity law needs a
@@ -486,11 +490,19 @@ func test_a11_board_fate_forfeits_a_started_board_with_nonnull_identity() -> voi
 	if wired.is_empty():
 		return
 	var round_coordinator: Object = wired["round_coordinator"]
-	var mine_indices: Array[int] = [1, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
-	(round_coordinator._generation_port as Object).arm_materialize({"schema_version": 1,
-		"width": 9, "height": 9, "mine_indices": mine_indices, "mine_count": mine_indices.size()})
-	var identity: Dictionary = round_coordinator.get_entry_context("beginner")["value"]["identity"]
 	var reveal_txn := _mint_transaction(wired["issuer"])
+	var prepared: Dictionary = round_coordinator._state_port.prepare_spec("beginner",
+		reveal_txn.transaction_id, reveal_txn.transaction_issuer_receipt)
+	if not _require_ok(prepared, "canonical beginner spec"):
+		return
+	var spec: Dictionary = prepared.value.spec
+	var mine_indices: Array[int] = []
+	for index: int in range(1, int(spec.requested_mine_count) + 1):
+		mine_indices.append(index)
+	(round_coordinator._generation_port as Object).arm_materialize({"schema_version": 1,
+		"width": spec.width, "height": spec.height, "mine_indices": mine_indices,
+		"mine_count": mine_indices.size()})
+	var identity: Dictionary = round_coordinator.get_entry_context("beginner")["value"]["identity"]
 	var revealed: Dictionary = round_coordinator.reveal({
 		"transaction_id": reveal_txn["transaction_id"],
 		"transaction_issuer_receipt": reveal_txn["transaction_issuer_receipt"],
