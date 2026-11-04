@@ -462,7 +462,7 @@ function Return-HomeAndQuit {
     $null = Button 'Log out'
     Capture 'computer-home'
     Invoke-UI (Button 'Log out') 'request return to title without saving'
-    Invoke-UI (Button 'Yes') 'confirm logout without saving'
+    Invoke-UI (Button 'Return to Title') 'confirm logout without saving'
     $null = Button 'New Acc'
     Capture 'return-title'
     End-Process $true
