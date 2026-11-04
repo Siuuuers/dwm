@@ -1,7 +1,4 @@
 extends "res://tests/support/SceneRestartFixture.gd"
-## Real same-files owners and native runtime. TEST-selected content/empty host,
-## diagnostic ancillary restore participants. Faults below only remove authority
-## or refuse an actual filesystem write; no positive receipt/native proof is injected.
 const BASE_READING := preload("res://tests/support/SceneDayReadingFixture.gd")
 const CHALLENGE_DATA := preload("res://tests/support/SceneChallengeFixture.gd")
 const EVENT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
@@ -21,31 +18,9 @@ class WriteRefusal extends "res://scripts/infrastructure/storage/FileOps.gd":
 				return {"ok": false, "code": &"TEST.filesystem_write_refused", "message": path}
 		return super.write_bytes(path, bytes)
 
-# Observe the real lower port's attempted phase; never manufacture a successful prepare.
-class ObservedCheckpoint extends "res://scripts/application/run/SaveManagerCheckpointPort.gd":
-	var last_prepare_phase := ""
-	func _init(owner: Object) -> void:
-		super(owner)
-	func prepare(inputs: Dictionary, kind: StringName, disk_write: Dictionary) -> Dictionary:
-		var operation: Variant = inputs.get("dialogic_checkpoint", {}).get("reading_session", {}).get("next_operation")
-		last_prepare_phase = str(operation.get("phase", "")) if operation is Dictionary else ""
-		return super.prepare(inputs, kind, disk_write)
-
-class AckFault extends "res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd":
-	var drop_ack := false
-	var after_ack: Callable
-	var consumed := 0
-	func consume_scene_control_ack(token: RefCounted) -> Dictionary:
-		var result: Dictionary = super.consume_scene_control_ack(token)
-		if result.get("ok", false):
-			consumed += 1
-			if after_ack.is_valid(): after_ack.call()
-			if drop_ack: return {"ok": false, "code": &"TEST.ack_dropped", "committed": true}
-		return result
-
 var files: WriteRefusal
 var lower: RefCounted
-var checkpoint_port: AckFault
+var checkpoint_port: SaveManagerNarrativeCheckpointPort
 var command_port: RefCounted
 var issued_event: Dictionary = {}
 var before_profile: Dictionary = {}
@@ -99,10 +74,10 @@ func setup_playable(scene_tree: SceneTree) -> Dictionary:
 	if not checked.ok: return checked
 	files = WriteRefusal.new()
 	storage._file_ops = files
-	lower = ObservedCheckpoint.new(manager)
+	lower = preload("res://scripts/application/run/SaveManagerCheckpointPort.gd").new(manager)
 	checked = lower.configure_fatal_latch(gate)
 	if not checked.ok: return checked
-	checkpoint_port = AckFault.new()
+	checkpoint_port = SaveManagerNarrativeCheckpointPort.new()
 	checked = checkpoint_port.configure(lower, {"snapshot_input": snapshot_input, "route_id": route_id,
 		"active_app_id": active_app_id, "audio_context": audio_context, "content_version": content_version,
 		"narrative_checkpoint": narrative_checkpoint})
@@ -166,7 +141,6 @@ func profile_bytes() -> Dictionary:
 
 func close_restart() -> void:
 	await super.close_restart()
-	# Release fixture-bound provider/fault Callables after the real owners retire.
 	checkpoint_port = null
 	command_port = null
 	lower = null

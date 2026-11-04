@@ -118,9 +118,6 @@ func configure_scene_staging(port: Object, source_validator: Callable, context_p
 		_scene_stage_busy = false
 		if not configured is Dictionary or not configured.get("ok", false):
 			return _command_failure(&"scene_staging_configuration_invalid")
-	if port.has_method("configure_scene_control_authority"):
-		var control: Dictionary = port.configure_scene_control_authority(self, validate_scene_control_authority)
-		if not control.get("ok", false): return control
 	_scene_stage_port = port
 	_scene_stage_source = source_validator
 	_scene_stage_context = context_provider
@@ -4624,24 +4621,18 @@ func _playback_failure(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": {}}
 
 
-# Private live custody for the one immediate caption-to-playable edge. Retained
-# on a definite write refusal; never serialized and never a second receipt map.
 var _scene_playable: Dictionary = {}
 var _scene_playable_busy := false
-var _scene_playable_validating := false
 
 func commit_scene_playable(event: Dictionary, prepared: Dictionary, lease: String) -> Dictionary:
 	if _scene_playable_busy or _scene_stage_busy or _scene_stage_fatal \
-			or not _scene_stage.is_empty() or _scene_stage_port != _narrative_checkpoint_port \
+			or not _scene_stage.is_empty() \
 			or not is_instance_valid(_mutation_gate) or not _mutation_gate.is_lease_active(&"causal_transaction", lease) \
 			or not _scene_event_context_provider.is_valid():
 		return _command_failure(&"scene_playable_unavailable")
 	var owner: Object = _scene_event_context_provider.get_object()
 	if not is_instance_valid(owner) or not owner.has_method("_validate_scene_playable_source"):
 		return _command_failure(&"scene_playable_unavailable")
-	for method: String in ["retain_scene_control", "commit_scene_control", "consume_scene_control_ack"]:
-		if _scene_stage_port == null or not _scene_stage_port.has_method(method):
-			return _command_failure(&"scene_playable_unavailable")
 	_scene_playable_busy = true
 	var result := _commit_scene_playable_owned(event.duplicate(true), prepared.duplicate(true), lease, owner)
 	_scene_playable_busy = false
@@ -4674,12 +4665,8 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 		var node: Dictionary = _reading_session._scene_nodes[_reading_session.latest_entry][plan.destination.program_index]
 		if not departing and (node.get("marker_id") != event.get("event_id") or event.get("kind") != "challenge.playable"):
 			return _command_failure(&"scene_playable_edge_invalid")
-		var source_projection := _READING_TRAVERSAL.project(plan, "source")
 		var destination := _READING_TRAVERSAL.project(plan, "destination")
-		if not source_projection.ok: return source_projection
 		if not destination.ok: return destination
-		var source_checkpoint := source.duplicate(true)
-		source_checkpoint.reading_session = source_projection.value
 		var target_checkpoint := source.duplicate(true)
 		target_checkpoint.reading_session = destination.value
 		var candidate := _prepare_scene_reading_candidate(target_checkpoint)
@@ -4697,37 +4684,18 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 			presentation_autosave = visual.value.autosave
 			for cue: Dictionary in node.get("audio_cues", []):
 				if cue.kind == "music": snapshot_input.scene["music_plan_id"] = cue.id
-		var material := {"source_input": prepared.source_input.duplicate(true), "source_checkpoint": source_checkpoint,
-			"snapshot_input": snapshot_input, "checkpoint": target_checkpoint,
-			"event": event.duplicate(true), "plan": plan.duplicate(true)}
-		_scene_playable = {"token": RefCounted.new(), "native_token": native.value, "material": material,
+		var material := {"snapshot_input": snapshot_input, "checkpoint": target_checkpoint, "event": event}
+		_scene_playable = {"native_token": native.value, "material": material,
 			"prepared": prepared.duplicate(true), "source_session": _reading_session, "source_reading": source.reading_session.duplicate(true),
 			"source_entry": _active_entry.duplicate(true), "runtime": _runtime_adapter,
 			"candidate": candidate.value.candidate, "lease": lease, "owner": owner,
 			"presentation_autosave": presentation_autosave}
-		var retained: Dictionary = _scene_stage_port.retain_scene_control(self, _scene_playable.token, material.duplicate(true))
-		if not retained.ok:
-			_scene_playable = {}
-			return retained
 	else:
 		if not _READING_TRAVERSAL._same(_scene_playable.material.event, event) \
 				or not _READING_TRAVERSAL._same(_scene_playable.prepared, prepared) or _scene_playable.owner != owner:
 			return _command_failure(&"scene_playable_retry_mismatch")
 		_scene_playable.lease = lease
 	if not _scene_playable_current(): return _command_failure(&"scene_playable_source_changed")
-	var committed: Dictionary = _scene_stage_port.commit_scene_control(_scene_playable.token)
-	if not committed.get("ok", false): return committed
-	# From here on, every refusal preserves the already committed destination.
-	var ack: Dictionary = _scene_stage_port.consume_scene_control_ack(_scene_playable.token)
-	if not ack.get("ok", false): return {"ok": false, "code": &"scene_playable_ack_unavailable", "committed": true}
-	var value: Variant = ack.get("value")
-	if not value is Dictionary or not _exact_keys(value, ["source_publication", "target_publication", "material_sha256"]) \
-			or not _scene_publication_ref(value.source_publication) or not _scene_publication_ref(value.target_publication) \
-			or value.source_publication.state_sha256 != _scene_digest(_scene_playable.material.source_checkpoint) \
-			or value.target_publication.state_sha256 != _scene_digest(_scene_playable.material.checkpoint) \
-			or not _READING_TRAVERSAL._same(value.target_publication, committed.value.get("publication")) \
-			or value.material_sha256 != _scene_digest(_scene_playable.material) or not _scene_playable_current():
-		return {"ok": false, "code": &"scene_playable_ack_invalid", "committed": true}
 	var checkpoint: Dictionary = _scene_playable.material.checkpoint.duplicate(true)
 	if departing:
 		var candidate: RefCounted = _scene_playable.candidate
@@ -4742,8 +4710,7 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 		var scene: Dictionary = _scene_playable.material.snapshot_input.scene.duplicate(true)
 		var presentation_autosave: bool = _scene_playable.presentation_autosave
 		_scene_playable = {}
-		return {"ok": true, "value": {"checkpoint": checkpoint, "publication": value.target_publication,
-			"scene": scene, "presentation_autosave": presentation_autosave}}
+		return {"ok": true, "value": {"checkpoint": checkpoint, "scene": scene, "presentation_autosave": presentation_autosave}}
 	var installed: Dictionary = _runtime_adapter.install_scene_control(_scene_playable.candidate,
 		checkpoint.reading_session.duplicate(true), _scene_playable.native_token)
 	if not installed.get("ok", false):
@@ -4755,17 +4722,7 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 	_scene_playable = {}
 	# GameState must adopt the receipt before the UI observes this new control.
 	# dispatch_scene_event publishes after the command port releases its lease.
-	return {"ok": true, "value": {"checkpoint": checkpoint, "publication": value.target_publication}}
-
-func validate_scene_control_authority(token: RefCounted, material: Dictionary, phase: String) -> Dictionary:
-	if _scene_playable_validating or not _scene_playable_busy or _scene_playable.is_empty() \
-			or token != _scene_playable.token or phase not in ["retain", "commit", "consume"] \
-			or not _READING_TRAVERSAL._same(material, _scene_playable.material):
-		return _command_failure(&"scene_playable_custody_invalid")
-	_scene_playable_validating = true
-	var current := _scene_playable_current()
-	_scene_playable_validating = false
-	return {"ok": true} if current else _command_failure(&"scene_playable_custody_invalid")
+	return {"ok": true, "value": {"checkpoint": checkpoint}}
 
 func _scene_playable_current() -> bool:
 	if _scene_playable.is_empty() or not _mutation_gate.is_lease_active(&"causal_transaction", _scene_playable.lease) \

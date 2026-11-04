@@ -1971,7 +1971,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_genuine_playable_retries_and_commits_control"
+      "contract_test": "test_genuine_playable_installs_live_control_and_manual_save"
     },
     {
       "symbol": "lookup_scene_event",
@@ -2163,7 +2163,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_genuine_playable_retries_and_commits_control"
+      "contract_test": "test_genuine_playable_installs_live_control_and_manual_save"
     },
     {
       "symbol": "capture_scene_contact_context",
