@@ -244,11 +244,6 @@ func quick_save_latest() -> Dictionary:
 func autosave_latest() -> Dictionary:
 	return _write_latest(_resolve_locator(&"autosave", -1), "automatic")
 
-func save_for_logout() -> Dictionary:
-	if not _journal.get_current_bundle().get("ok", false):
-		return {"ok": true, "code": &"ok", "value": {"written": false, "save_reason": "logout"}}
-	return _write_latest(_resolve_locator(&"autosave", -1), "logout")
-
 ## Only the confirmed session-exit owner may write under abandonment custody.
 func save_session_exit_checkpoint(inputs: Dictionary, handle: Dictionary) -> Dictionary:
 	if _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"session_abandonment"):

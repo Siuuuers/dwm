@@ -40,7 +40,6 @@
     {"symbol": "save_latest_to_slot", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_save_family_writes_closed_relative_names"},
     {"symbol": "quick_save_latest", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_save_family_writes_closed_relative_names"},
     {"symbol": "autosave_latest", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_save_family_writes_closed_relative_names"},
-    {"symbol": "save_for_logout", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_logout_without_checkpoint_reports_unwritten"},
     {"symbol": "save_session_exit_checkpoint", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_session_exit_checkpoint_requires_current_custody_and_preserves_live_session_on_failure"},
     {"symbol": "prepare_restore_slot", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_restore_preparation_and_delete_families"},
     {"symbol": "prepare_restore_quick", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_restore_preparation_and_delete_families"},
