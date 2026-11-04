@@ -210,7 +210,9 @@ function Invoke-UI($Element, [string]$Purpose) {
     ([Windows.Automation.InvokePattern]$pattern).Invoke()
     Start-Sleep -Milliseconds 200
 }
-function Caption([string]$Text) { return Button $Text }
+function Caption([string]$Text) {
+    return Wait-One $Text { Nodes $window | Where-Object { (Visible $_) -and $_.Current.ControlType -eq [Windows.Automation.ControlType]::Text -and $_.Current.Name.TrimEnd() -ceq $Text } }
+}
 function Observe-Line([string]$Text, [string]$Stage) {
     $null = Caption $Text
     Capture "$Stage-first-observed"
@@ -585,7 +587,7 @@ try {
         $watch = [Diagnostics.Stopwatch]::StartNew()
         while ($watch.Elapsed.TotalSeconds -lt $StepTimeoutSeconds) {
             $script:window = Window
-            if (@(Actions $window $opening.text).Count -eq 1) { break }
+            if (@(Nodes $window | Where-Object { (Visible $_) -and $_.Current.ControlType -eq [Windows.Automation.ControlType]::Text -and $_.Current.Name.TrimEnd() -ceq $opening.text }).Count -eq 1) { break }
             $sheets = @(Nodes $window | Where-Object { (Visible $_) -and $_.Current.Name.TrimEnd() -ceq 'Load Slot 1?' -and @(Actions $_ 'Load').Count -eq 1 })
             Require ($sheets.Count -le 1) 'LOAD_CONFIRMATION_AMBIGUOUS'
             if ($sheets.Count -eq 1) { Invoke-UI (@(Actions $sheets[0] 'Load')[0]) 'confirm source slot Load'; break }
