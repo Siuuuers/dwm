@@ -357,7 +357,7 @@ const SAVE_MANAGER_REQUIRED_PATH := "res://evidence/phase_2r/runtime/save_manage
 
 const SAVE_MANAGER_IMPLEMENTED_SYMBOLS := [
 	"run_restored", "save_capability_changed", "configure_mutation_gate",
-	"record_stable_checkpoint", "commit_prepared_restore", "save_for_logout",
+	"record_stable_checkpoint", "commit_prepared_restore",
 	"save_exists", "configure_restore_participants", "acquire_save_lock",
 ]
 

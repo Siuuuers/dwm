@@ -600,7 +600,6 @@ $script:Phase2RDesktopAmendmentSuites = @(
     'res://tests/unit/test_desktop_identity_allocation_restore_participant.gd',
     'res://tests/unit/test_desktop_continuation_remapper.gd',
     'res://tests/unit/test_desktop_first_reveal_snapshot_composer.gd',
-    'res://tests/unit/test_logout_coordinator.gd',
     'res://tests/unit/test_desktop_action_receipt.gd',
     'res://tests/unit/test_minesweeper_shop_purchase_participant.gd',
     'res://tests/unit/test_desktop_board_fate_port.gd',

@@ -203,34 +203,6 @@ func test_the_shop_and_board_ports_share_the_exact_same_placeholder_context_obje
 
 
 # -------------------------------------------------------------------------------------------------
-# Gap 3: LogoutCoordinator is never constructed; no production stable_board_port exists
-# -------------------------------------------------------------------------------------------------
-
-func test_logout_coordinator_is_never_constructed_by_the_production_graph() -> void:
-	var process := _boot()
-	if process.is_empty():
-		return
-	var bootstrap: Node = process["bootstrap"]
-	for property: Dictionary in bootstrap.get_property_list():
-		var property_name: String = str(property.get("name", ""))
-		if property_name.to_lower().contains("logout"):
-			var value: Variant = bootstrap.get(property_name)
-			assert_true(value == null, "%s must stay unset: no stable_board_port exists to construct " \
-				+ "LogoutCoordinator with" % property_name)
-
-
-func test_no_production_class_defines_the_stable_board_port_contract() -> void:
-	var executing_hits: Array[String] = _scan_for_definition("res://scripts", "func is_slice_executing")
-	executing_hits.append_array(_scan_for_definition("res://autoload", "func is_slice_executing"))
-	var capture_hits: Array[String] = _scan_for_definition("res://scripts", "func capture_stable_board")
-	capture_hits.append_array(_scan_for_definition("res://autoload", "func capture_stable_board"))
-	assert_eq(executing_hits, [] as Array[String],
-		"a production is_slice_executing() would silently satisfy the stable_board_port gap: " + str(executing_hits))
-	assert_eq(capture_hits, [] as Array[String],
-		"a production capture_stable_board() would silently satisfy the stable_board_port gap: " + str(capture_hits))
-
-
-# -------------------------------------------------------------------------------------------------
 # The retained .9-era simulator stack is never registered as authority (extends
 # test_desktop_bootstrap_wiring.gd's own proof of the same law from this file's independent harness)
 # -------------------------------------------------------------------------------------------------

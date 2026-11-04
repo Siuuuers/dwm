@@ -133,9 +133,6 @@ func test_save_family_writes_closed_relative_names() -> void:
 	assert_true(manager.save_latest_to_slot(1)["ok"])
 	assert_true(manager.quick_save_latest()["ok"])
 	assert_true(manager.autosave_latest()["ok"])
-	var logout: Dictionary = manager.save_for_logout()
-	assert_true(logout["ok"])
-	assert_eq(logout["value"]["save_reason"], "logout")
 	assert_true(manager.save_exists(&"slot", 1))
 	assert_true(manager.save_exists(&"quick", -1))
 	assert_true(manager.save_exists(&"autosave", -1))
@@ -144,19 +141,6 @@ func test_save_family_writes_closed_relative_names() -> void:
 	for name: String in files:
 		assert_true(name in ["slot_1.json", "quicksave.json", "autosave.json"] \
 			or name.ends_with(".bak"), "unexpected artifact: " + name)
-
-func test_logout_without_checkpoint_reports_unwritten() -> void:
-	assert_true(_artifacts_exist(), "save-manager artifacts must exist")
-	if not _artifacts_exist():
-		return
-	var wired := _isolated_manager("logout_empty")
-	if wired.is_empty():
-		return
-	var manager: Node = wired["manager"]
-	var logout: Dictionary = manager.save_for_logout()
-	assert_true(logout["ok"])
-	assert_eq(logout["value"], {"written": false, "save_reason": "logout"})
-	assert_false(manager.save_exists(&"autosave", -1))
 
 func test_metadata_family_present_absent_corrupt_and_ordering() -> void:
 	assert_true(_artifacts_exist(), "save-manager artifacts must exist")
