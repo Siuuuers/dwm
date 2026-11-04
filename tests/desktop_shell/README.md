@@ -2,8 +2,9 @@
 
 Run `python tools/desktop_shell/verify.py` from this worktree. The runner creates a
 disposable project containing real MainGameScene, ComputerDesktop, Contacts,
-their scene/script dependencies, and the bundled fonts. No game autoloads or
-player persistence run. The Contacts suite is imported only for its external
+their scene/script dependencies, and the bundled fonts. Dependency discovery includes
+Dialogic global classes, relative script resources, and resource paths with spaces.
+No game autoloads or player persistence run. The Contacts suite is imported only for its external
 owner fixture classes; its old standalone scene assertions are not executed.
 One cross-app test explicitly initializes real ProfileManager and
 LocalizationManager scripts with their real mutation gate and in-memory
