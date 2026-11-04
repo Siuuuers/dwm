@@ -1,0 +1,105 @@
+name: Profile write matched comparison
+on:
+  push:
+    branches: [codex/profile-write-reuse]
+permissions:
+  contents: read
+jobs:
+  journey:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+      - name: Prepare checkout and renderer
+        run: |
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2 speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
+          curl --fail --location --retry 3 https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip --output "$RUNNER_TEMP/godot.zip"
+          printf '%s  %s\n' d0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3 "$RUNNER_TEMP/godot.zip" | sha256sum --check
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          chmod +x "$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64"
+          echo "GODOT_CONSOLE_PATH=$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64" >> "$GITHUB_ENV"
+      - name: Start native Linux speech service
+        run: bash tools/testing/start_cloud_speech.sh
+      - name: Prepare matched source and ending seed capture
+        run: |
+          git show a8e37fdfaba9efcd0914c59b1eeb827ab0535896:autoload/ProfileManager.gd > "$RUNNER_TEMP/baseline_ProfileManager.gd"
+          cp autoload/ProfileManager.gd "$RUNNER_TEMP/candidate_ProfileManager.gd"
+          python tools/testing/prepare_profile_match.py .
+      - name: Import once
+        env:
+          DWM_TEST_ROOT: ${{ runner.temp }}/dtl-import/test
+          XDG_DATA_HOME: ${{ runner.temp }}/dtl-import/data
+        run: |
+          mkdir -p "$DWM_TEST_ROOT" "$XDG_DATA_HOME" .godot/ci/retirement
+          "$GODOT_CONSOLE_PATH" --headless --path . --import > .godot/ci/retirement/import.log 2>&1
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load' .godot/ci/retirement/import.log; then exit 1; fi
+          git restore -- project.godot
+      - name: Compare identical first-visit ending journeys
+        shell: python
+        run: |
+          import hashlib, json, os, pathlib, shutil, statistics, subprocess, xml.etree.ElementTree as ET
+          root = pathlib.Path.cwd()
+          output = root / '.godot/ci/profile-match'
+          output.mkdir(parents=True, exist_ok=True)
+          env = os.environ.copy()
+          env['DWM_TEST_ROOT'] = str(root / '.godot/phase2r_tests/profile-match/test')
+          env['XDG_DATA_HOME'] = str(root / '.godot/phase2r_tests/profile-match/data')
+          for key in ['DWM_TEST_ROOT', 'XDG_DATA_HOME']:
+              pathlib.Path(env[key]).mkdir(parents=True, exist_ok=True)
+          owner = root / 'autoload/ProfileManager.gd'
+          variants = {v: (pathlib.Path(env['RUNNER_TEMP']) / (v + '_ProfileManager.gd')).read_bytes() for v in ['baseline', 'candidate']}
+          (output / 'source.json').write_text(json.dumps({'baseline': 'a8e37fdfaba9efcd0914c59b1eeb827ab0535896', 'candidate': env['GITHUB_SHA'], 'owner_sha256': {v: hashlib.sha256(b).hexdigest() for v, b in variants.items()}}, indent=2))
+          def run(suite, label):
+              env['DWM_MATCH_CASE'] = label
+              report = output / (label + '.xml')
+              command = ['xvfb-run', '-a', '-s', '-screen 0 1920x1080x24', env['GODOT_CONSOLE_PATH'], '--path', str(root), '--rendering-method', 'gl_compatibility', '--audio-driver', 'Dummy', '-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/' + suite + '.gd', '-gexit', '-glog=1', '-gjunit_xml_file=' + str(report)]
+              with (output / (label + '.log')).open('w') as log:
+                  result = subprocess.run(command, env=env, stdout=log, stderr=subprocess.STDOUT, timeout=900)
+              cases = ET.parse(report).findall('.//testcase') if report.exists() else []
+              good = result.returncode == 0 and len(cases) == 1 and all(c.find('failure') is None and c.find('error') is None and c.find('skipped') is None for c in cases)
+              print(label, 'PASS' if good else 'FAIL', flush=True)
+              if not good:
+                  print((output / (label + '.log')).read_text()[-18000:], flush=True)
+                  raise SystemExit(label)
+          owner.write_bytes(variants['baseline'])
+          env['DWM_PROFILE_SEED'] = '1'
+          run('authored_week_create', 'seed-create')
+          run('authored_week_load', 'seed-load')
+          env.pop('DWM_PROFILE_SEED')
+          seed = root / '.godot/ci/profile-match-seed'
+          proof = json.loads((seed / 'authored-week-ending.json').read_text())
+          user = pathlib.Path(proof['user_dir'])
+          assert user.is_relative_to(pathlib.Path(env['XDG_DATA_HOME']))
+          reports = []
+          for index, variant in enumerate(['baseline', 'candidate', 'candidate', 'baseline', 'candidate', 'baseline', 'baseline', 'candidate']):
+              shutil.rmtree(user)
+              shutil.copytree(seed, user)
+              owner.write_bytes(variants[variant])
+              label = f'match-{index + 1}-{variant}'
+              run('profile_first_visit', label)
+              report = json.loads((root / '.godot/ci' / (label + '.json')).read_text())
+              report['variant'] = variant
+              report['sample'] = index + 1
+              reports.append(report)
+          owner.write_bytes(variants['candidate'])
+          assert len({r['profile_sha256'] for r in reports}) == 1
+          assert len({r['slot_sha256'] for r in reports}) == 1
+          assert all(r['profile_before'] == reports[0]['profile_before'] for r in reports)
+          assert all([t['line_id'] for t in r['timings']] == [t['line_id'] for t in reports[0]['timings']] for r in reports)
+          summary = {v: {'sample_medians_ms': [statistics.median(t['elapsed_ms'] for t in r['timings']) for r in reports if r['variant'] == v], 'median_ms': statistics.median(t['elapsed_ms'] for r in reports if r['variant'] == v for t in r['timings'])} for v in variants}
+          summary['identical_final_profile_and_source_save'] = True
+          (output / 'summary.json').write_text(json.dumps(summary, indent=2))
+          print(json.dumps(summary, indent=2), flush=True)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: profile-write-comparison
+          path: .godot/ci/
+          include-hidden-files: true
+          retention-days: 7
