@@ -3,6 +3,7 @@ extends SceneTree
 const ART := preload("res://scripts/data/ArtManifest.gd")
 const VIEW := preload("res://scripts/ui/art/SceneArtView.gd")
 const GALLERY := preload("res://scenes/menu/GalleryScene.tscn")
+const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const SOURCE := preload("res://tools/authoring/DtlStorySource.gd")
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 var failures: Array[String] = []
@@ -28,11 +29,13 @@ func _run() -> void:
 		return
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output))
 	root.size = Vector2i(1280, 1008)
-	for frame: int in 180:
-		if root.get_node("ApplicationBootstrap").get_startup_state().get("ready", false): break
-		await process_frame
 	var profile := root.get_node("ProfileManager")
 	var localization := root.get_node("LocalizationManager")
+	check(profile.initialize(STORAGE.new(OS.get_environment("DWM_TEST_ROOT").path_join("profile.json"))).ok, "initialize isolated profile")
+	check(localization.initialize(profile).ok, "initialize localization")
+	if not failures.is_empty():
+		quit(1)
+		return
 	check(profile.reset_gallery().ok, "reset isolated gallery")
 	var home := Button.new()
 	root.add_child(home)
