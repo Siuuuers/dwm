@@ -27,7 +27,6 @@ var _live_line_start := 0
 var _font: Font
 var _font_size := 20
 var _ink := Color.WHITE
-var _surface := Color.TRANSPARENT
 var _border := Color.TRANSPARENT
 var _pane_name := ""
 var _admission: Callable
@@ -78,8 +77,6 @@ func configure(next_theme: Theme, width: float, admission: Callable, pane_name: 
 	_font = next_font
 	_font_size = next_size
 	_ink = next_theme.get_color(&"default_color", &"RichTextLabel")
-	_surface = next_theme.get_color(&"deep", &"WitnessedCaption")
-	_surface.a = 0.35
 	_border = next_theme.get_color(&"rule", &"WitnessedCaption")
 	size.x = width
 	if changed: _shape()
@@ -218,7 +215,6 @@ func get_projection() -> Dictionary:
 func _draw() -> void:
 	# Keep existing text wrapping while giving its frame a small outer inset.
 	var frame := Rect2(Vector2(-6, -6), Vector2(size.x + 12, _text_height + 12))
-	draw_rect(frame, _surface)
 	draw_rect(frame, _border, false)
 	var top := 0.0
 	for row: Dictionary in _visible_rows():
