@@ -10,6 +10,7 @@ const GROUP_WIDTH_PATH := &"preferences.display.dating_group_portrait_width"
 signal split_changed(right_rect: Rect2)
 signal split_drag_changed(active: bool)
 
+var _artwork_observation_pending := false
 var _view_profile: Object
 var _view_preferences_bound := false
 var _background: TextureRect
@@ -28,6 +29,12 @@ var _portrait_count := 0
 var _preference_scope: StringName = &"solo"
 
 func _ready() -> void:
+	visibility_changed.connect(_queue_artwork_observation)
+	var bridge := get_node_or_null("/root/DialogicBridge")
+	if bridge != null:
+		bridge.scene_transition_changed.connect(func(active: bool) -> void:
+			if not active: _queue_artwork_observation())
+	_queue_artwork_observation()
 	if not _view_preferences_bound:
 		bind_view_preferences(get_node_or_null("/root/ProfileManager"))
 
@@ -155,6 +162,31 @@ func configure_textures(background: Texture2D, portraits: Array[Texture2D], cg: 
 		_background.size = size
 	visible = _dating_split or background != null or cg != null or _portraits[0].visible or _portraits[1].visible
 	split_changed.emit(get_right_rect())
+	_queue_artwork_observation()
+
+func _queue_artwork_observation() -> void:
+	if _artwork_observation_pending or not is_inside_tree(): return
+	_artwork_observation_pending = true
+	await RenderingServer.frame_post_draw
+	_artwork_observation_pending = false
+	var bridge := get_node_or_null("/root/DialogicBridge")
+	if bridge != null and bridge.is_scene_transition_active(): return
+	if not is_visible_in_tree() or not is_instance_valid(_view_profile) \
+			or not _view_profile.has_method("record_displayed_artwork") or not is_instance_valid(_background): return
+	var displayed: Array[String] = []
+	var textures: Array = [_background, _cg] + _portraits + _overlays.get_children()
+	for rect: TextureRect in textures:
+		if rect.texture == null or not rect.is_visible_in_tree() or rect.modulate.a <= 0.0 \
+				or not rect.get_global_rect().intersects(get_viewport_rect()): continue
+		for asset_id: String in ART.GALLERY_IDS:
+			if rect.texture.resource_path == ART.get_asset_path(asset_id) \
+					and not _view_profile.has_displayed_artwork(asset_id) and asset_id not in displayed:
+				displayed.append(asset_id)
+	if displayed.is_empty(): return
+	var recorded: Dictionary = _view_profile.record_displayed_artwork(displayed)
+	if not recorded.ok:
+		var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
+		if bootstrap != null: bootstrap.show_content_error.call_deferred(recorded)
 
 func get_right_rect() -> Rect2:
 	var width := get_portrait_width() if _dating_split else 0.0

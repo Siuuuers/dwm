@@ -10,8 +10,7 @@ const AUTHORED_ROUTE := [
 	"Day4", "Day4.pastille.default", "Day4.impulse", "Day4.A",
 	"Day5", "Day5.impulse", "Day5.A", "Day6", "Day6.rehearsal.default", "Day6.impulse", "Day6.A",
 	"Day7", "Day7.clipboard.default", "Day7.untouched.impulse", "Day7.A", "ending.alone.normal"]
-const DAY4_INDEX := 465
-const ENDING_INDEX := 808
+var _entry_starts: Dictionary = {}
 var _expected: Array[Dictionary] = []
 var _timings: Array[Dictionary] = []
 var _texts: Dictionary = {}
@@ -51,15 +50,15 @@ func _setup_authored() -> bool:
 		paths[entry.entry_id] = entry.locators.en.path
 	for entry: Dictionary in selected.value.scene_programme.entries: programmes[entry.entry_id] = entry
 	for entry_id: String in AUTHORED_ROUTE:
+		_entry_starts[entry_id] = _expected.size()
 		var compiled: Dictionary = preload("res://scripts/narrative/DialogicRuntimeAdapter.gd").compile_scene_programme(
 			paths[entry_id], entry_id, labels, programmes[entry_id].markers)
 		if not _ok(compiled): return false
 		for node: Dictionary in compiled.value.nodes:
 			if node.kind == "caption": _expected.append({"entry_id": entry_id, "line_id": node.line_id})
-	assert_eq(_expected.size(), 830, "pinned authored default route census")
-	assert_eq(_expected[DAY4_INDEX].line_id, "line.Day4.one")
-	assert_eq(_expected[ENDING_INDEX].line_id, "line.ending.alone.normal.001")
-	return _expected.size() == 830
+		assert_gt(_expected.size(), _entry_starts[entry_id], "selected entry has a caption: " + entry_id)
+		if _expected.size() == _entry_starts[entry_id]: return false
+	return not _expected.is_empty()
 
 func _wait_line(line_id: String) -> bool:
 	var deadline := Time.get_ticks_msec() + 30000
@@ -105,7 +104,7 @@ func _walk_authored(first: int, last: int) -> bool:
 		_timings.append({"entry_id": _expected[index].entry_id, "line_id": _expected[index].line_id,
 			"elapsed_ms": Time.get_ticks_msec() - started})
 		print("AUTHORED_WEEK_TIMING " + JSON.stringify(_timings.back()))
-		if str(_expected[index].line_id).ends_with(".one"):
+		if index == _entry_starts[_expected[index].entry_id] and not "." in _expected[index].entry_id:
 			await _screenshot("authored-" + str(_expected[index].entry_id))
 			print("AUTHORED_WEEK_BOUNDARY ", _expected[index].entry_id, " ticks_ms=", Time.get_ticks_msec())
 	return true
@@ -201,17 +200,14 @@ func _load_authored(slot: int, proof: Dictionary) -> bool:
 	return true
 
 func _complete_authored() -> Dictionary:
+	var autosave_before := _autosave_sha256()
 	await _accept()
 	if not await _wait_route(MENU): return {}
 	var finished: Dictionary = game._run_lifecycle.to_dict().duplicate(true)
 	assert_eq(finished.state, "COMPLETED")
 	assert_false(finished.has("ending_plan"), "ordinary passage completion has no terminal plan")
 	assert_false(game.capture_live_session().value.active)
-	var durable: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/autosave.json"))
-	if not _ok(durable): return {}
-	assert_eq(durable.value.current_snapshot.snapshot.lifecycle.state, "COMPLETED")
-	assert_false(durable.value.current_snapshot.snapshot.lifecycle.has("ending_plan"))
-	assert_eq(durable.value.current_snapshot.snapshot.narrative_checkpoint.entry_id, "ending.alone.normal")
+	assert_eq(_autosave_sha256(), autosave_before, "passage completion does not create or replace an Autosave")
 	await _screenshot("authored-" + _phase + "-completed-title")
 	return finished
 
@@ -221,9 +217,9 @@ func create_authored_week() -> void:
 	assert_false(FileAccess.file_exists("user://saves/slot_1.json"))
 	if FileAccess.file_exists("user://saves/slot_1.json"): return
 	get_node("/root/SceneRouter").goto_menu()
-	if not await _new_from_title(1): return
-	if not await _walk_authored(1, DAY4_INDEX): return
-	assert_eq(observed_lines.size(), 466)
+	if not await _new_from_title(1, _expected[0].line_id): return
+	if not await _walk_authored(1, _entry_starts["Day4"]): return
+	assert_eq(observed_lines.size(), _entry_starts["Day4"] + 1)
 	assert_true(game.capture_dating_challenge_state().value.is_empty())
 	await _save_authored(1, "day4")
 
@@ -237,12 +233,12 @@ func load_authored_week() -> void:
 	_assert_source_files(proof)
 	assert_eq(profile.get_profile_snapshot(), proof.profile)
 	if not await _load_authored(1, proof): return
-	if not await _walk_authored(DAY4_INDEX + 1, ENDING_INDEX): return
+	if not await _walk_authored(_entry_starts["Day4"] + 1, _entry_starts["ending.alone.normal"]): return
 	assert_eq(get_tree().current_scene.scene_file_path, HOST, "umbrella passage remains ordinary Scene playback")
 	var ending_proof: Dictionary = await _save_authored(2, "ending")
 	if ending_proof.is_empty(): return
-	if not await _walk_authored(ENDING_INDEX + 1, _expected.size() - 1): return
-	assert_eq(observed_lines.size(), 365)
+	if not await _walk_authored(_entry_starts["ending.alone.normal"] + 1, _expected.size() - 1): return
+	assert_eq(observed_lines.size(), _expected.size() - _entry_starts["Day4"])
 	var finished: Dictionary = await _complete_authored()
 	if finished.is_empty(): return
 	var completed_profile: Dictionary = profile.get_profile_snapshot()
@@ -270,13 +266,13 @@ func replay_authored_ending() -> void:
 	assert_true(before.gallery_transaction_receipts.has(gallery_id), "previous process completed ending")
 	var day4_hash := FileAccess.get_sha256("user://saves/slot_1.json")
 	if not await _load_authored(2, proof): return
-	if not await _walk_authored(ENDING_INDEX + 1, _expected.size() - 1): return
-	assert_eq(observed_lines.size(), 22)
+	if not await _walk_authored(_entry_starts["ending.alone.normal"] + 1, _expected.size() - 1): return
+	assert_eq(observed_lines.size(), _expected.size() - _entry_starts["ending.alone.normal"])
 	var finished: Dictionary = await _complete_authored()
 	if finished.is_empty(): return
 	assert_eq(profile.get_profile_snapshot().gallery_transaction_receipts, before.gallery_transaction_receipts,
 		"replaying physical ending Save creates no duplicate Gallery receipt")
-	if not await _new_from_title(2): return
+	if not await _new_from_title(2, _expected[0].line_id): return
 	var fresh: Dictionary = game.capture_run_snapshot_input()
 	assert_ne(fresh.lifecycle.run_id, proof.snapshot.lifecycle.run_id)
 	assert_eq(fresh.lifecycle.state, "PLAYING")

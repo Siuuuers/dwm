@@ -19,38 +19,69 @@ func _profile(storage: RefCounted) -> Node:
 	var profile := PROFILE.new()
 	add_child_autofree(profile)
 	assert_true(profile.initialize(storage).get("ok", false))
-	# Existing line-history owner; registration is not itself an unlock.
-	var lines: Array = []
-	for day: int in range(1, 5): lines.append({"line_id": "line.Day%d.one" % day})
-	assert_true(profile.configure_line_registry({"reply_lines": lines}).get("ok", false))
 	return profile
 
-func test_unlock_projection_persists_without_gallery_writes() -> void:
+func test_older_profile_starts_without_inferred_artwork_discoveries() -> void:
+	var schema := preload("res://scripts/profile/ProfileSchema.gd")
+	var old: Dictionary = schema.make_defaults()
+	old.erase("displayed_artwork_ids")
+	old.visited_line_ids = ["line.Day1.one", "line.Day4.one"]
+	var admitted: Dictionary = schema.validate(old)
+	assert_true(admitted.ok, str(admitted))
+	assert_eq(admitted.value.displayed_artwork_ids, [], "old dialogue history cannot grant displayed artwork")
+	assert_eq(admitted.value.visited_line_ids, old.visited_line_ids)
+
+func test_only_displayed_artwork_persists_and_gallery_owns_its_reset() -> void:
+	if DisplayServer.get_name() == "headless":
+		pending("Actual artwork discovery requires a rendered frame")
+		return
 	var storage := STORAGE.new("artwork-gallery.memory", FILES.new())
 	var profile := _profile(storage)
-	for id: String in ARTWORK.UNLOCK_LINES: assert_false(ARTWORK.unlocked(profile, id))
-	assert_true(profile.mark_line_visited("line.Day1.one").get("ok", false))
+	for id: String in ART.GALLERY_IDS: assert_false(ARTWORK.unlocked(profile, id))
+	var container := Control.new()
+	container.hide()
+	add_child_autofree(container)
+	var view := SCENE_ART.new()
+	view.bind_view_preferences(profile)
+	container.add_child(view)
+	view.configure_textures(ART.get_texture("picture2"), [ART.get_texture("picture1")])
+	await RenderingServer.frame_post_draw
+	assert_false(ARTWORK.unlocked(profile, "picture1"), "hidden configured art is not discovered")
+	assert_false(ARTWORK.unlocked(profile, "picture2"))
+	var bridge := get_node("/root/DialogicBridge")
+	bridge.set("_scene_transition_active", true)
+	container.show()
+	await RenderingServer.frame_post_draw
+	assert_false(ARTWORK.unlocked(profile, "picture1"), "the transition still covers the new artwork")
+	bridge.set("_scene_transition_active", false)
+	bridge.scene_transition_changed.emit(false)
+	await RenderingServer.frame_post_draw
+	await get_tree().process_frame
 	assert_true(ARTWORK.unlocked(profile, "picture1"))
 	assert_true(ARTWORK.unlocked(profile, "picture2"))
-	assert_false(ARTWORK.unlocked(profile, "picture3"))
-	assert_false(ARTWORK.unlocked(profile, "picture4"))
-	assert_false(ARTWORK.unlocked(profile, "picture5"))
-	assert_true(profile.mark_line_visited("line.Day2.one").get("ok", false))
-	assert_true(ARTWORK.unlocked(profile, "picture4"))
-	assert_false(ARTWORK.unlocked(profile, "picture5"))
-	assert_true(profile.mark_line_visited("line.Day3.one").get("ok", false))
-	assert_true(ARTWORK.unlocked(profile, "picture5"))
-	assert_false(ARTWORK.unlocked(profile, "picture3"))
-	assert_true(profile.mark_line_visited("line.Day4.one").get("ok", false))
+	for id: String in ["picture3", "picture4", "picture5"]: assert_false(ARTWORK.unlocked(profile, id))
 	var reopened := _profile(storage)
+	assert_true(ARTWORK.unlocked(reopened, "picture1"), "discovery survives a fresh Profile owner")
+	assert_true(ARTWORK.unlocked(reopened, "picture2"))
+	assert_false(reopened.has_completed_ending(), "displayed artwork is not ending completion")
+	assert_true(reopened.get_eligible_audio_memory_ids(&"title").is_empty())
 	var before: Dictionary = reopened.get_profile_snapshot()
-	for id: String in ARTWORK.UNLOCK_LINES: assert_true(ARTWORK.unlocked(reopened, id))
 	var artwork := ARTWORK.new()
 	artwork.configure(reopened)
 	add_child_autofree(artwork)
 	artwork.refresh()
-	artwork.select_picture("picture3")
-	assert_eq(reopened.get_profile_snapshot(), before)
+	artwork.select_picture("picture1")
+	assert_eq(reopened.get_profile_snapshot(), before, "Gallery projection never grants discoveries")
+	assert_true(reopened.reset_visited_history().ok)
+	assert_true(ARTWORK.unlocked(reopened, "picture1"), "Clear Visited History leaves artwork")
+	assert_true(reopened.reset_gallery().ok)
+	assert_false(ARTWORK.unlocked(reopened, "picture1"), "Clear Gallery clears artwork")
+	assert_true(artwork._rows[0].disabled, "open Gallery observes the reset")
+	var displayed: Array[String] = ["picture1"]
+	assert_true(reopened.record_displayed_artwork(displayed).ok)
+	assert_true(reopened.reset_entire_profile().ok)
+	assert_false(ARTWORK.unlocked(reopened, "picture1"), "full reset also clears artwork")
+
 
 func test_gallery_preview_modal_keys_and_return_focus() -> void:
 	ART.reload_placements()
@@ -60,7 +91,8 @@ func test_gallery_preview_modal_keys_and_return_focus() -> void:
 	var probe := InputLeakProbe.new()
 	add_child_autofree(probe)
 	var profile := _profile(STORAGE.new("artwork-viewer.memory", FILES.new()))
-	assert_true(profile.mark_line_visited("line.Day1.one").get("ok", false))
+	var displayed: Array[String] = ["picture1", "picture2"]
+	assert_true(profile.record_displayed_artwork(displayed).get("ok", false))
 	var before: Dictionary = profile.get_profile_snapshot()
 	var home := Button.new()
 	add_child_autofree(home)
@@ -156,7 +188,8 @@ func test_seven_day_art_assets_and_split_placement() -> void:
 func test_canonical_locales_refresh_artwork_tabs_preview_and_open_viewer_without_writes() -> void:
 	ART.reload_placements()
 	var profile := _profile(STORAGE.new("artwork-locales.memory", FILES.new()))
-	assert_true(profile.mark_line_visited("line.Day1.one").get("ok", false))
+	var displayed: Array[String] = ["picture1", "picture2"]
+	assert_true(profile.record_displayed_artwork(displayed).get("ok", false))
 	var localization := LOCALIZATION.new()
 	add_child_autofree(localization)
 	assert_true(localization.initialize(profile).get("ok", false))

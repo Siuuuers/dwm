@@ -4,6 +4,7 @@ const _SCENE_VALIDATION_TIMING := preload("res://scripts/narrative/SceneValidati
 
 signal profile_restored(profile: Dictionary)
 signal preference_changed(path: StringName, value: Variant)
+signal artwork_changed
 signal gallery_changed(ending_id: String, unlocked: bool)
 signal visited_history_changed(line_id: String, visited: bool)
 signal caption_variant_witness_changed(witness_id: String, witnessed: bool)
@@ -1054,6 +1055,22 @@ func get_pair_form_witnesses() -> Dictionary:
 	return {"ok": true, "value": forms}
 
 
+func has_displayed_artwork(asset_id: String) -> bool:
+	return asset_id in _profile.get("displayed_artwork_ids", [])
+
+func record_displayed_artwork(asset_ids: Array[String]) -> Dictionary:
+	var guarded := _guard(&"profile_commit")
+	if not guarded.ok: return guarded
+	if not _initialized: return _failure(&"not_initialized", "ProfileManager is not initialized")
+	var candidate := _profile.duplicate(true)
+	for asset_id: String in asset_ids:
+		if asset_id not in preload("res://scripts/data/ArtManifest.gd").GALLERY_IDS:
+			return _failure(&"invalid_artwork", "Unknown gallery artwork")
+		if asset_id not in candidate.displayed_artwork_ids: candidate.displayed_artwork_ids.append(asset_id)
+	if candidate.displayed_artwork_ids == _profile.displayed_artwork_ids: return {"ok": true}
+	return _commit_profile_candidate(candidate)
+
+
 func has_gallery_unlock(ending_id: String) -> bool:
 	return ending_id in _profile.get("gallery_unlocks", [])
 
@@ -1437,6 +1454,7 @@ func reset_gallery(expected_revision: int = -1) -> Dictionary:
 	var candidate := _profile.duplicate(true)
 	_preserve_legacy_ending_milestone(candidate)
 	candidate["gallery_unlocks"] = []
+	candidate["displayed_artwork_ids"] = []
 	candidate["reached_presentations"] = {}
 	candidate["reached_presentation_chronology"] = {"first_witnessed": [], "legacy_unordered": []}
 	candidate["preferences"]["exceptional_replay"]["available"] = false
@@ -1659,6 +1677,8 @@ func _build_publication(old: Dictionary, current: Dictionary) -> Dictionary:
 		var after: bool = current.witnessed_caption_variants.has(witness_id)
 		if before != after:
 			changes.append({"kind": &"caption_witness", "id": witness_id, "value": after})
+	if old.displayed_artwork_ids != current.displayed_artwork_ids:
+		changes.append({"kind": &"artwork"})
 	if old.dialogue_library != current.dialogue_library:
 		changes.append({"kind": &"dialogue_library"})
 	return {"changes": changes}
@@ -1679,6 +1699,8 @@ func _publish(publication: Dictionary) -> void:
 				visited_history_changed.emit(change["id"], change["value"])
 			&"caption_witness":
 				caption_variant_witness_changed.emit(change["id"], change["value"])
+			&"artwork":
+				artwork_changed.emit()
 			&"dialogue_library":
 				dialogue_library_changed.emit()
 	if publication.has("reset_section"):

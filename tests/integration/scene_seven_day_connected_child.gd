@@ -55,7 +55,7 @@ func _wait_line(line_id: String) -> bool:
 		+ "; activation=" + str(saves._scene_restore_activation))
 	return false
 
-func _new_from_title(expected_ready: int) -> bool:
+func _new_from_title(expected_ready: int, first_line: String = "line.Day1.one") -> bool:
 	if not await _wait_route(MENU): return false
 	var menu: Node = get_tree().current_scene
 	assert_true(menu._new_acc_button.is_visible_in_tree())
@@ -71,7 +71,7 @@ func _new_from_title(expected_ready: int) -> bool:
 		await get_tree().process_frame
 	assert_eq(ready_count, expected_ready, "New Acc publishes exactly one Ready")
 	if ready_count != expected_ready or not await _wait_route(HOST): return false
-	return await _wait_line("line.Day1.one")
+	return await _wait_line(first_line)
 
 func _walk(first_day: int, first_half: int, last_day: int, last_half: int) -> bool:
 	for day: int in range(first_day, last_day + 1):
