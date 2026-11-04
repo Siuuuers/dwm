@@ -21,8 +21,7 @@ static func build(locale: String, percent: int, palette: StringName, font_style:
 		result.set_stylebox(state, "Button", StyleBoxEmpty.new())
 	result.set_type_variation("GalleryPaperAction", "Button")
 	result.set_type_variation("GalleryDarkAction", "Button")
-	# Opt in only Gallery actions; custom rows and the retained Practice host
-	# keep their existing state paint even when they inherit this theme.
+	# Opt in only Gallery actions; custom rows keep their own state paint.
 	for target: String in ["GalleryDarkAction", "GalleryPaperAction"]:
 		var ink: Color = roles.paper_ink if target == "GalleryPaperAction" else roles.ink
 		var focus_ink: Color = roles.paper_focus if target == "GalleryPaperAction" else roles.focus

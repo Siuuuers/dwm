@@ -30,10 +30,6 @@ class QueryProfile extends PROFILE:
 		return super.get_reached_presentations(entry_id)
 
 
-class PracticeGame extends RefCounted:
-	func capture_run_snapshot_input() -> Dictionary: return {}
-
-
 var _surface: SubViewport
 var _profile: Node
 var _files: RefCounted
@@ -177,22 +173,18 @@ func test_temporarily_unavailable_replay_query_keeps_record_and_history_while_re
 	assert_eq(_bridge.starts.size(), 0)
 
 
-func test_existing_practice_action_remains_in_the_reversible_tab_path() -> void:
+func test_replay_and_return_remain_reversible_without_practice() -> void:
 	_record(_alone(false))
-	assert_true(_profile.unlock_ending("ending.alone", "gallery-navigation:practice").get("ok", false))
+	assert_true(_profile.unlock_ending("ending.alone", "gallery-navigation:reached").get("ok", false))
 	await _mount()
-	assert_true(_gallery.configure_rehearsal(PracticeGame.new(), null).get("ok", false))
-	var practice: Button = _gallery.get("_practice_button")
-	assert_true(practice.visible)
+	assert_null(_gallery.find_child("Practice", true, false))
 	_selected_row().grab_focus()
 	await _tab()
 	assert_true(_replay().has_focus())
 	await _tab()
-	assert_true(practice.has_focus())
-	await _tab()
 	assert_true(_home.has_focus())
 	await _tab(true)
-	assert_true(practice.has_focus())
+	assert_true(_replay().has_focus())
 	assert_eq(_bridge.starts.size(), 0)
 
 

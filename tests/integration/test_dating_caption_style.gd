@@ -7,7 +7,6 @@ var _scene_validation_scope := preload("res://tests/support/SceneValidationScope
 
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
-const DATING_PLAYBACK := preload("res://scripts/application/run/DatingNarrativePlayback.gd")
 const ART := preload("res://scripts/data/ArtManifest.gd")
 const STYLE := "res://dialogic/styles/witnessed_caption_style.tres"
 const LAYER := "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd"
@@ -417,10 +416,10 @@ func test_noncanon_conditional_dtl_keeps_canonical_and_saved_signature_branches_
 func test_frozen_context_drives_real_dtl_without_mutable_source_aliases() -> void:
 	_inject_frozen_context_prose()
 	runtime.current_state_info["variables"] = {"prior_fixture": "preserved"}
-	var playback := _dating_playback()
-	var command := _dating_command()
 	var presentation := _frozen_pre_presentation()
-	var started: Dictionary = playback.begin_phase(command, "pre_challenge", false, presentation)
+	var context := {"expected_stage": "pre_challenge", "playback_id": "frozen-fixture",
+		"role": "dating_phase", "transaction_id": "frozen-fixture", "presentation": presentation}
+	var started: Dictionary = bridge.start_entry(DATING, context)
 	assert_true(started.get("ok", false), str(started))
 	if not started.get("ok", false): return
 	presentation.fields.tier = "love"
@@ -439,7 +438,7 @@ func test_frozen_context_drives_real_dtl_without_mutable_source_aliases() -> voi
 	await _settle()
 	runtime.Inputs.input_block_timer.stop()
 	runtime.Inputs.handle_input()
-	await _wait_for_dating_phase(playback, command)
+	await _wait_for_completion(1)
 	assert_eq(runtime.current_state_info.variables, {"prior_fixture": "preserved"})
 	assert_false(runtime.current_state_info.variables.is_read_only())
 
@@ -580,52 +579,20 @@ func test_resumed_dating_entry_selects_same_style_without_optional_art() -> void
 	assert_eq(completion.calls[0].entry_id, DATING)
 	assert_eq(completion.calls[0].transaction_id, context.transaction_id)
 
-func _dating_command() -> Dictionary:
-	return {"physical_token": "physical:caption-fixture", "completion_transaction_id": "transaction:caption-fixture",
-		"timeline_id": DATING, "command_sha256": "caption-fixture".sha256_text(),
-		"context": {"kind": "solo", "participants": ["priscilla"], "day": 1}}
-
-func _dating_playback() -> RefCounted:
-	# These tests replace the setup recorder before the first playback starts.
-	bridge.set("_playback_completion_port", null)
-	var playback := DATING_PLAYBACK.new()
-	assert_true(playback.configure(bridge).get("ok", false))
-	return playback
-
-func _wait_for_dating_phase(playback: RefCounted, command: Dictionary) -> void:
-	var result: Dictionary = {}
-	for frame in 60:
-		result = playback.pull_phase(command, "pre_challenge")
-		if not result.get("ok", false): break
-		if result.value.status == "completed" and not runtime.Styles.has_active_layout_node(): return
-		await get_tree().create_timer(0.05).timeout
-	assert_true(result.get("ok", false), str(result))
-	assert_eq(result.get("value", {}).get("status"), "completed", "the real runtime must naturally complete the semantic entry")
-
-func _assert_dating_playing(playback: RefCounted, command: Dictionary) -> bool:
-	var result: Dictionary = playback.pull_phase(command, "pre_challenge")
-	assert_true(result.get("ok", false), "dating playback remains admitted: " + str(result))
-	if not result.get("ok", false): return false
-	assert_eq(result.value.status, "playing")
-	return result.value.status == "playing"
-
 func test_return_only_date_with_available_art_completes_without_continue_hold() -> void:
 	ART._placements = {"schema_version": 1,
 		"assets": {"fixture.portrait": {"path": "res://icon.svg", "size": [128, 128]}},
 		"scenes": {DATING: {"background": "", "cg": "", "portraits": ["fixture.portrait"]}}}
 	assert_not_null(ART.get_texture("fixture.portrait"), "art is available, so the old art-hold path would wait for Continue")
-	var playback := _dating_playback()
-	var command := _dating_command()
-	var started: Dictionary = playback.begin_phase(command, "pre_challenge")
+	var started: Dictionary = bridge.start_entry(DATING, _context())
 	assert_true(started.get("ok", false), str(started))
 	assert_null(bridge.get_art_hold_view(), "empty dating prose must not manufacture a Continue screen")
-	await _wait_for_dating_phase(playback, command)
+	await _wait_for_completion(1)
 	assert_null(bridge.get_art_hold_view())
 	assert_true(_text_events.is_empty(), "empty authored prose grants no displayed dialogue")
 	assert_false(bridge.has_active_playback())
-	assert_true(playback.finish_phase(command, "pre_challenge").get("ok", false))
 
-func test_dating_adapter_waits_for_both_real_dialogue_lines_and_natural_end() -> void:
+func test_bridge_waits_for_both_real_dialogue_lines_and_natural_end() -> void:
 	var located: Dictionary = bridge.call("_resolve_entry_for_playback", DATING, -1)
 	assert_true(located.get("ok", false), str(located))
 	if not located.get("ok", false): return
@@ -640,9 +607,7 @@ func test_dating_adapter_waits_for_both_real_dialogue_lines_and_natural_end() ->
 	# The production adapter checks the admitted resource path on native start. Keep
 	# that identity for injected prose, then restore the original cache in after_each.
 	injected.injected_timeline.take_over_path(injected.injected_path)
-	var playback := _dating_playback()
-	var command := _dating_command()
-	assert_true(playback.begin_phase(command, "pre_challenge").get("ok", false))
+	assert_true(bridge.start_entry(DATING, _context()).get("ok", false))
 	await _settle()
 	var texts := get_tree().get_nodes_in_group("dialogic_dialog_text")
 	assert_eq(texts.size(), 1)
@@ -650,7 +615,8 @@ func test_dating_adapter_waits_for_both_real_dialogue_lines_and_natural_end() ->
 	var caption: RichTextLabel = texts[0]
 	assert_eq(caption.get_parsed_text(), "First dating fixture line.", "semantic label skips the root return")
 	assert_eq(_text_events.size(), 1)
-	if not _assert_dating_playing(playback, command): return
+	assert_true(bridge.has_active_playback())
+	assert_true(completion.calls.is_empty(), "dialogue is not complete before natural end")
 	assert_true(get_tree().get_nodes_in_group("dialogic_name_label").is_empty())
 	var first_index := runtime.current_event_idx
 	await _settle()
@@ -663,15 +629,15 @@ func test_dating_adapter_waits_for_both_real_dialogue_lines_and_natural_end() ->
 	await _settle()
 	assert_eq(caption.get_parsed_text(), "Final dating fixture line.")
 	assert_eq(_text_events.size(), 2)
-	if not _assert_dating_playing(playback, command): return
-	assert_false(playback.finish_phase(command, "pre_challenge").get("ok", false), "displaying the final line is not completion")
+	assert_true(bridge.has_active_playback())
+	assert_true(completion.calls.is_empty(), "dialogue is not complete before natural end")
 	runtime.Text.skip_text_reveal()
 	await _settle()
-	if not _assert_dating_playing(playback, command): return
+	assert_true(bridge.has_active_playback())
+	assert_true(completion.calls.is_empty(), "dialogue is not complete before natural end")
 	runtime.Inputs.input_block_timer.stop()
 	runtime.Inputs.handle_input()
-	await _wait_for_dating_phase(playback, command)
-	assert_true(playback.finish_phase(command, "pre_challenge").get("ok", false))
+	await _wait_for_completion(1)
 
 func test_named_dialogue_in_dating_style_keeps_identity_but_has_no_speaker_plate() -> void:
 	# Physical fixture prose exercises the same selector without editing an authored master.

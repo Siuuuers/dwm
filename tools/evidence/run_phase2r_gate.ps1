@@ -645,7 +645,6 @@ $script:Phase2RDialogicGateSuites = @(
 )
 
 $script:Phase2RHandoffGateSuites = @(
-    'res://tests/integration/test_phase2r_schedule_desktop_handoff.gd',
     'res://tests/integration/test_desktop_bootstrap_wiring.gd',
     'res://tests/integration/test_committed_schedule_day_resolution.gd'
 )

@@ -215,16 +215,13 @@ $suites = @{
         'tests/unit/test_audio_settings_transactions.gd'
     )
     dating = @(
-        'tests/unit/test_active_dating_backup_capture.gd'
         'tests/integration/test_dating_quick_commands.gd'
         'tests/unit/test_frozen_presentation_context.gd'
-        'tests/unit/test_dating_narrative_playback.gd'
         'tests/unit/test_canonical_dating_mastery.gd'
         'tests/unit/test_dating_attempt_runtime.gd'
         'tests/unit/test_profile_evidence_v8.gd'
         'tests/unit/test_dating_physical_owner.gd'
         'tests/unit/test_dating_capability_envelope.gd'
-        'tests/unit/test_dating_rehearsal_owner.gd'
         'tests/unit/test_dating_presentation_port.gd'
         'tests/integration/test_ordered_ending_real_runtime.gd'
     )
@@ -233,7 +230,6 @@ $suites = @{
         'tests/unit/test_minesweeper_palette_components.gd'
         'tests/unit/test_minesweeper_app.gd'
         'tests/unit/test_minesweeper_cell.gd'
-        'tests/unit/test_gallery_rehearsal_host.gd'
         'tests/unit/test_minesweeper_dock.gd'
         'tests/unit/test_minesweeper_register.gd'
         'tests/unit/test_minesweeper_panel.gd'
@@ -282,7 +278,6 @@ $suites = @{
         'tests/unit/test_scene_day_renewal.gd'
         'tests/integration/test_scene_day_commit_ordering.gd'
         'tests/integration/test_schedule_desktop_host.gd'
-        'tests/integration/test_phase2r_schedule_desktop_handoff.gd'
         'tests/unit/test_schedule_app.gd'
         'tests/integration/test_contacts_run_presentation.gd'
         'tests/scene/test_controls_input_contact_release.gd'

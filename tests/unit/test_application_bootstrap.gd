@@ -14,7 +14,6 @@ const AUDIO_MANAGER := preload("res://autoload/AudioManager.gd")
 const DIALOGIC_BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const JSON_STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const SAVE_CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
-const DAY_RESOLUTION_STATE_PORT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
 const MINESWEEPER_COORDINATOR := preload("res://scripts/domain/minesweeper/MinesweeperRoundCoordinator.gd")
 
 const RETAINED_MINESWEEPER_FIELDS: Array[String] = [
@@ -68,11 +67,7 @@ func _make_ready_bootstrap() -> Dictionary:
 	var checkpoint_port: RefCounted = SAVE_CHECKPOINT_PORT.new(save_manager)
 	bootstrap.set("_application_gate", gate)
 	bootstrap.set("_retained_checkpoint_port", checkpoint_port)
-	# Build the provider bundle through the REAL day-resolution provider stage, so the Minesweeper
-	# stage consumes the exact Callables Bootstrap already handed the day-resolution port.
-	var day_port: RefCounted = DAY_RESOLUTION_STATE_PORT.new(game_state)
-	var provided: Dictionary = bootstrap.call(&"_configure_day_resolution_providers", day_port)
-	assert_true(provided.get("ok", false), str(provided))
+	bootstrap.call(&"_configure_checkpoint_providers")
 	return {
 		"bootstrap": bootstrap, "gate": gate, "game_state": game_state,
 		"save_manager": save_manager, "checkpoint_port": checkpoint_port,
@@ -84,7 +79,7 @@ func _assert_nothing_retained(bootstrap: Node, context: String) -> void:
 		assert_null(bootstrap.get(field), "%s retained %s" % [context, field])
 
 
-func test_stage_order_runs_minesweeper_after_day_resolution_and_before_readiness() -> void:
+func test_stage_order_runs_minesweeper_after_scene_gameplay_and_before_readiness() -> void:
 	var loaded: Dictionary = PROBE.load_script(BOOTSTRAP_PATH)
 	assert_true(loaded.get("ok", false), "expected implementation; RED=%s" % JSON.stringify(loaded))
 	if not loaded.get("ok", false):
@@ -93,10 +88,11 @@ func test_stage_order_runs_minesweeper_after_day_resolution_and_before_readiness
 	var order: Array = bootstrap.get("STAGE_ORDER")
 	var minesweeper_index: int = order.find(&"configure_minesweeper_rounds")
 	assert_true(minesweeper_index >= 0, "the production stage order owns the Minesweeper stage")
-	assert_eq(minesweeper_index, order.find(&"configure_day_resolution") + 1,
-		"the Minesweeper stage runs immediately after day resolution")
+	assert_eq(minesweeper_index, order.find(&"configure_scene_gameplay") + 1,
+		"the Minesweeper stage runs immediately after scene gameplay")
 	assert_eq(order.find(&"publish_application_ready"), minesweeper_index + 1,
 		"readiness is published only after the Minesweeper stage")
+	assert_false(&"configure_day_resolution" in order, "DTL boot has no automatic day-resolution stage")
 	for stage_set: Array in bootstrap.get("DEVELOPMENT_STAGE_SETS").values():
 		assert_false(&"configure_minesweeper_rounds" in stage_set,
 			"development subsets do not silently widen into round wiring")
@@ -144,7 +140,7 @@ func test_minesweeper_stage_rejects_an_unretained_checkpoint_port_without_partia
 
 
 func test_minesweeper_stage_rejects_unconfigured_checkpoint_providers() -> void:
-	# Out of order: the Minesweeper stage cannot run before day resolution built the bundle.
+	# Out of order: the Minesweeper stage cannot run before scene gameplay built the bundle.
 	var made := _make_ready_bootstrap()
 	if made.is_empty():
 		return
@@ -201,7 +197,7 @@ func test_minesweeper_stage_constructs_exactly_one_coordinator_over_production_a
 	# Installed in GameState exactly once, and reachable through the shared facade methods.
 	assert_same(game_state.get("_minesweeper_round_coordinator"), coordinator)
 	assert_eq(game_state.call(&"get_active_minesweeper_round").get("code"), &"no_active_round")
-	# The state port received the SAME provider Callables the day-resolution port was given.
+	# The state port received the SAME provider Callables the scene gameplay configuration created.
 	var bundle: Dictionary = bootstrap.get("_checkpoint_provider_bundle")
 	var port_providers: Dictionary = state_port.get("_checkpoint_providers")
 	assert_eq(port_providers.keys().size(), bundle.keys().size())

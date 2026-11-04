@@ -1051,8 +1051,6 @@ func _configure_from_bootstrap() -> void:
 				configure_backup_port(port)
 	if _bootstrap.has_method("configure_contacts_desktop"):
 		_bootstrap.configure_contacts_desktop(self)
-	if _bootstrap.has_method("configure_gameplay_desktop"):
-		_bootstrap.configure_gameplay_desktop(self)
 	if _bootstrap.has_method("configure_session_exit_desktop"):
 		_bootstrap.configure_session_exit_desktop(self)
 	if _quick_commands == null and _backup_port != null:

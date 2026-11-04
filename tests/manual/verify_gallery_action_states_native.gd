@@ -2,11 +2,6 @@ extends "res://tests/manual/verify_gallery_retry_native.gd"
 ## Native proof for Gallery action focus, pointer states, and canceled activation.
 
 
-class PracticeGame extends RefCounted:
-	func capture_run_snapshot_input() -> Dictionary:
-		return {}
-
-
 func _sample(locale: String, percent: int, palette: String) -> bool:
 	if not await super._sample(locale, percent, palette):
 		return false
@@ -51,11 +46,11 @@ func _sample(locale: String, percent: int, palette: String) -> bool:
 		"geometry_unchanged": true, "replay_focus_restored": true}
 	_samples[-1] = sample
 	if _samples.size() == 1:
-		await _first_tuple_pointer_and_practice(replay, replay_rect, sample)
+		await _first_tuple_pointer(replay, replay_rect, sample)
 	return _failures.is_empty()
 
 
-func _first_tuple_pointer_and_practice(replay: Button, replay_rect: Rect2, sample: Dictionary) -> void:
+func _first_tuple_pointer(replay: Button, replay_rect: Rect2, sample: Dictionary) -> void:
 	var before_signature := str(_gallery.call("_selected_signature_id"))
 	var before_starts := _bridge.starts.duplicate()
 	var before_profile: Dictionary = _profile.get_profile_snapshot()
@@ -91,34 +86,17 @@ func _first_tuple_pointer_and_practice(replay: Button, replay_rect: Rect2, sampl
 		"Replay pointer states changed the selected signature")
 	_check(_profile.get_profile_snapshot() == before_profile, "Replay pointer states changed Profile")
 	_check(replay.get_global_rect() == replay_rect, "Replay pointer states changed geometry")
-	_check(_gallery.configure_rehearsal(PracticeGame.new(), null).get("ok", false),
-		"Practice fixture was rejected")
-	await _frames()
-	var practice: Button = _gallery.get("_practice_button")
-	var practice_rect := practice.get_global_rect()
-	practice.grab_focus()
-	await _frames()
-	var practice_file := "en-100-AfterHours-action-practice-focus.png"
-	var practice_image := await _capture(practice_file)
-	if practice_image == null: return
-	var practice_pixels := _focus_pixels(practice_image, practice_rect,
-		_gallery.theme.get_color("paper_ink", "Gallery"),
-		_gallery.theme.get_color("paper_focus", "Gallery"),
-		_gallery.theme.get_color("paper", "Gallery"), "Practice")
-	_check(practice.visible and practice.has_focus(), "visible Practice did not own focus")
-	_check(practice.get_global_rect() == practice_rect, "Practice focus changed geometry")
 	replay.grab_focus()
 	await _frames()
 	var files: Dictionary = sample["action_state_files"]
 	files.merge({"replay_hover": hover_file, "replay_pressed": pressed_file,
-		"replay_canceled": cancel_file, "practice_focus": practice_file})
+		"replay_canceled": cancel_file})
 	var checks: Dictionary = sample["action_state_checks"]
 	checks["pointer_cancel"] = {
 		"signature_retained": str(_gallery.call("_selected_signature_id")) == before_signature,
 		"bridge_starts_retained": _bridge.starts == before_starts,
 		"profile_retained": _profile.get_profile_snapshot() == before_profile,
 		"geometry_unchanged": replay.get_global_rect() == replay_rect}
-	checks["practice"] = practice_pixels
 	_samples[-1] = sample
 
 

@@ -24,7 +24,7 @@ const EXPECTED_STAGE_ORDER: Array[StringName] = [
 	&"initialize_window_mode",
 	&"initialize_dialogic_bridge",
 	&"configure_restore_participants",
-	&"configure_day_resolution",
+	&"configure_scene_gameplay",
 	&"configure_minesweeper_rounds",
 	&"publish_application_ready",
 ]

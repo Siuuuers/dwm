@@ -147,7 +147,7 @@ func test_restore_apply_then_rollback_cannot_revalidate_an_old_title_capability(
 	var prepared := _prepare()
 	if prepared.is_empty(): return
 	var before: Dictionary = router.capture_restore_state().value
-	var plan: Dictionary = router.prepare_route_restore("hospital", {})
+	var plan: Dictionary = router.prepare_route_restore("gallery", {})
 	assert_true(plan.ok)
 	assert_true(router.apply_route_restore_silent(plan.value).ok)
 	assert_true(router.rollback_restore_silent(before).ok)
@@ -166,7 +166,7 @@ func test_publication_mounts_same_prepared_instance_once_and_reentrant_routes_re
 	var attempts: Array[Dictionary] = []
 	var observer := func(child: Node):
 		if child == prepared_node:
-			attempts.append(router._change_to("hospital"))
+			attempts.append(router._change_to("gallery"))
 			attempts.append(router.publish_prepared_return_to_title(prepared.token))
 	get_tree().root.child_entered_tree.connect(observer)
 	var result: Dictionary = router.publish_prepared_return_to_title(prepared.token)
@@ -201,13 +201,13 @@ func test_preparation_refuses_missing_source_and_startup_hold_without_publishing
 func test_pending_semantic_restore_blocks_return_preparation_until_rollback() -> void:
 	if not _supported(): return
 	var baseline: Dictionary = router.capture_restore_state().value
-	var plan: Dictionary = router.prepare_route_restore("hospital", {})
+	var plan: Dictionary = router.prepare_route_restore("gallery", {})
 	assert_true(plan.ok)
 	if not plan.ok: return
 	assert_true(router.apply_route_restore_silent(plan.value).ok)
 	var staged: Dictionary = router.capture_restore_state()
 	var pending: String = router._pending_restore_scene_id
-	assert_eq(pending, "hospital", "The route is staged but has not finalized")
+	assert_eq(pending, "gallery", "The route is staged but has not finalized")
 	var refused: Dictionary = router.prepare_return_to_title()
 	assert_false(refused.ok, "Return cannot discard a source with a pending semantic route")
 	assert_eq(router.capture_restore_state(), staged, "Refusal preserves the semantic route backup")
@@ -224,7 +224,7 @@ func test_pending_semantic_restore_blocks_return_preparation_until_rollback() ->
 
 func test_successful_return_invalidates_older_restore_route_tokens_but_accepts_fresh_plans() -> void:
 	if not _supported(): return
-	var old_plan: Dictionary = router.prepare_route_restore("hospital", {})
+	var old_plan: Dictionary = router.prepare_route_restore("gallery", {})
 	assert_true(old_plan.ok)
 	var prepared := _prepare()
 	if prepared.is_empty(): return
@@ -236,7 +236,7 @@ func test_successful_return_invalidates_older_restore_route_tokens_but_accepts_f
 	mounted = prepared_node
 	assert_false(router.apply_route_restore_silent(old_plan.value).ok,
 		"Return must retire route tokens prepared for the abandoned source")
-	var fresh: Dictionary = router.prepare_route_restore("hospital", {})
+	var fresh: Dictionary = router.prepare_route_restore("gallery", {})
 	assert_true(fresh.ok)
 	assert_true(router.apply_route_restore_silent(fresh.value).ok,
 		"A newly prepared route remains usable after Return")

@@ -29,9 +29,6 @@ const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 #   the pair's route id ..... test_committed_schedule_presentation_matrix.gd
 #                             (the_deferred_pair_variant_carries_its_exact_matrix_row) already
 #                             freezes route_id="dating" for the deferred pair.
-#   unknown-route refusal ... test_schedule_presentation_bootstrap_wiring.gd already proves the
-#                             router refuses an unregistered route generically. The case named
-#                             below is the specific retired one, which is the claim being made.
 #
 # THE COMMENT-STRIPPING SCANS ARE THE POINT, not an implementation detail. Production documentation
 # may name retired seams without executing them, so `_code_lines()` drops full-line comments before
@@ -93,8 +90,6 @@ const HOSPITAL_SCENE_PATH := "res://scripts/ui/HospitalScene.gd"
 const DATING_SCENE_PATH := "res://scripts/ui/DatingScene.gd"
 const COORDINATOR_PATH := "res://scripts/application/run/DayResolutionCoordinator.gd"
 const STATE_PORT_PATH := "res://scripts/application/run/GameStateDayResolutionPort.gd"
-const CONDITION_HOSPITAL_PORT_PATH := "res://scripts/application/run/GameStateConditionHospitalPort.gd"
-const BOOTSTRAP_PATH := "res://autoload/ApplicationBootstrap.gd"
 
 ## The five adapters. None of them may name a gameplay mutation seam in executable code.
 const ADAPTER_PATHS: Array[String] = [
@@ -271,85 +266,6 @@ func test_twofriends_survives_only_as_a_stage_and_never_as_a_route() -> void:
 		"the deferred pair keeps its presentation KIND")
 	assert_false((DATING_PORT.CONTEXT_KINDS as Array).has(PSEUDO_ROUTE),
 		"the bare pseudo-route is not an accepted dating context kind")
-
-
-## The router half, stated for the retired name specifically: neither the pseudo-route nor the
-## stage name is routable, because the only two semantic routes are Hospital and Dating.
-func test_the_router_refuses_the_pseudo_route_and_the_stage_name_alike() -> void:
-	if _root.is_empty():
-		return
-	var router: Node = load(ROUTER_PATH).new()
-	add_child_autofree(router)
-	assert_true(router.configure_schedule_presentation_ports(
-		HOSPITAL_PORT.new(), DATING_PORT.new()).get("ok", false))
-	for route: String in [PSEUDO_ROUTE, PAIR_STAGE]:
-		var routed: Dictionary = router.route_presentation(route, {"route_id": route})
-		assert_false(routed.get("ok", true), route + " must not be routable")
-		assert_eq(routed.get("code"), &"invalid_presentation_route",
-			route + " is refused as a route, not as a bad command")
-
-
-## THE MIRROR IMAGE of the scan below, and the last dwm-p2r.18 SCOPE bullet stated as a fact.
-##
-## `SceneRouter.route_presentation()` originally existed with ZERO production callers. There are now
-## exactly two resolution dispatchers: the committed-Schedule walk and the retained condition-
-## Hospital adapter. Bootstrap composes the latter with the router's callable but never dispatches.
-##
-## It goes red if anyone deletes the wire, and it goes red if the caller migrates into a Control
-## node -- which is the failure mode Task 8 spent its whole budget removing.
-func test_only_resolution_owners_dispatch_route_presentation_and_bootstrap_only_injects_it() -> void:
-	if _root.is_empty():
-		return
-	var callers: Array[String] = []
-	for path: String in _production_scripts("res://scripts") + _production_scripts("res://autoload"):
-		if path == ROUTER_PATH:
-			continue
-		if _code_lines(path).contains("route_presentation"):
-			callers.append(path)
-	assert_eq(callers, [COORDINATOR_PATH, CONDITION_HOSPITAL_PORT_PATH, BOOTSTRAP_PATH] as Array[String],
-		"only the two resolution dispatchers and their Bootstrap composition name route_presentation; found: "
-		+ str(callers))
-	for path: String in callers:
-		assert_false(path.begins_with("res://scripts/ui/"),
-			"a presentation Control must not own route dispatch: " + path)
-	# NAMING IT IS NOT CALLING IT. Pin each executable dispatch independently, then pin Bootstrap to
-	# the one injection expression so composition cannot become a third dispatcher.
-	assert_true(_code_lines(COORDINATOR_PATH).contains(".call(&\"route_presentation\""),
-		"the committed-Schedule walk must call its router capability")
-	assert_true(_code_lines(CONDITION_HOSPITAL_PORT_PATH).contains(
-		"_route.call(str(request.route_id), begun.value.presentation_command)"),
-		"the condition-Hospital adapter must call its injected route capability")
-	var bootstrap_code := _code_lines(BOOTSTRAP_PATH)
-	assert_eq(bootstrap_code.count("route_presentation"), 1,
-		"Bootstrap names the route seam exactly once for condition-Hospital composition")
-	assert_true(bootstrap_code.contains(
-		"Callable(_target(&\"SceneRouter\"), \"route_presentation\")"),
-		"Bootstrap injects the router method as a callable")
-	assert_false(bootstrap_code.contains(".call(&\"route_presentation\""),
-		"Bootstrap composes the route owner but never dispatches presentation")
-	assert_true(_code_lines(ROUTER_PATH).contains("func route_presentation"),
-		"and the seam being pinned still exists on the router, so this scan is not vacuous")
-
-
-## The capability the coordinator declares is the one the REAL router offers.
-##
-## The dispatch law is proved against a fake router in `tests/unit/test_day_resolution_coordinator.gd`
-## because the real one instantiates a PackedScene and mutates `tree.current_scene`. That fake is only
-## as good as its agreement with the real object, so the agreement is asserted here rather than
-## assumed: a router method renamed on one side alone fails closed at composition, not at the first
-## faint a player ever sees.
-func test_the_real_router_satisfies_the_capability_the_coordinator_requires() -> void:
-	if _root.is_empty():
-		return
-	var router: Node = load(ROUTER_PATH).new()
-	add_child_autofree(router)
-	var required: Array = load(COORDINATOR_PATH).PRESENTATION_ROUTER_METHODS
-	assert_false(required.is_empty(), "the coordinator declares a route capability at all")
-	for method: String in required:
-		assert_true(router.has_method(method),
-			"SceneRouter must offer " + method + ", which the coordinator requires")
-	assert_true(load(COORDINATOR_PATH).new().configure_presentation_router(router).get("ok", false),
-		"and the real router is adoptable by the real coordinator")
 
 
 ## THE PSEUDO-ROUTE PRODUCER STILL EXISTS, and this pins its containment rather than pretending it

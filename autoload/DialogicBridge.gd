@@ -1960,20 +1960,6 @@ func configure_reached_replay(profile: Object) -> Dictionary:
 	_replay_profile = profile
 	return {"ok": true}
 
-func capture_rehearsal_variables() -> Dictionary:
-	if not _initialized: return _command_failure(&"replay_unconfigured")
-	if has_active_playback(): return _command_failure(&"narrative_playback_active")
-	if _mutation_gate != null:
-		var guarded: Dictionary = _mutation_gate.guard_external(&"gallery_replay")
-		if not guarded.get("ok", false): return guarded
-	var variables: Dictionary = {}
-	var dialogic := get_node_or_null("/root/Dialogic")
-	if dialogic != null:
-		var current: Variant = dialogic.current_state_info.get("variables", {})
-		if not current is Dictionary: return _command_failure(&"invalid_rehearsal_variables")
-		variables = current.duplicate(true)
-	return {"ok": true, "value": {"variables": variables}}
-
 ## Registered linear DTL passages replay as the same read-only native cards
 ## already used by Gallery. Only displayed read marks may change Profile; no Run
 ## save, gameplay owner or command dispatcher runs.

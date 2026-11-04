@@ -323,7 +323,6 @@ const COMMAND_BINDINGS := [
 		"suites": [
 			"res://tests/integration/test_desktop_bootstrap_wiring.gd",
 			"res://tests/integration/test_schedule_foundation_bootstrap_wiring.gd",
-			"res://tests/integration/test_schedule_presentation_bootstrap_wiring.gd",
 		]},
 ]
 

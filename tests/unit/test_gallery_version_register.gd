@@ -161,7 +161,7 @@ func test_oversized_cue_reveal_and_relayout_keep_visible_interior_and_focus_stab
 	paper.theme = THEME.build("en", 100, &"after_hours")
 	_surface.add_child(paper)
 	paper.set_copy("TEST record", "TEST noncanonical sentence", "en")
-	paper.set_actions(null, null, _register)
+	paper.set_actions(null, _register)
 	var entries := _entries()
 	entries[0].cue = "TEST noncanonical oversized cue ".repeat(100)
 	_register.set_versions(entries, "fixture-first", "en", "Other witnessed versions")
