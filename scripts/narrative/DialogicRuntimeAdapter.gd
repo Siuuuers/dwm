@@ -298,6 +298,7 @@ func _install_scene_control(session: RefCounted, reading: Dictionary,
 	_scene_source = {}
 	_caption_ledger = candidate_ledger
 	_marker_hold.ledger = candidate_ledger
+	_marker_hold.live_history = candidate_ledger.fork_live()
 	FrozenPresentationContext._freeze(retained)
 	_scene_control_restore = {"session": session, "state": session._fork_scene_live(), "reading": retained,
 		"marker": marker, "native_index": control_native_index}
@@ -2069,7 +2070,7 @@ func marker_source_identity() -> Dictionary:
 		"frontier": captured.value.duplicate(true)}}
 
 func _marker_hold_current() -> bool:
-	return _marker_hold_identity_current() and _marker_hold.snapshot == _caption_ledger.snapshot() \
+	return _marker_hold_identity_current() and _caption_ledger.matches_live_history(_marker_hold.live_history) \
 		and _marker_hold_identity_current()
 
 func _marker_hold_identity_current() -> bool:
@@ -2130,6 +2131,7 @@ func hold_marker_source(source: Dictionary) -> Dictionary:
 		return failed
 	_marker_hold = {"identity": identity.value.duplicate(true), "source_line": source.line_id,
 		"frontier": {}, "ledger": _caption_ledger, "snapshot": _caption_ledger.snapshot(),
+		"live_history": _caption_ledger.fork_live(),
 		"event": event, "execution_generation": event._execution_generation}
 	return {"ok": true}
 
@@ -2169,6 +2171,7 @@ func install_marker_candidate(plan: Dictionary, candidate: NarrativeCaptionLedge
 	_caption_ledger = candidate
 	_marker_hold.ledger = candidate
 	_marker_hold.snapshot = after
+	_marker_hold.live_history = candidate.fork_live()
 	if frontier.has("anchor"):
 		_marker_hold.frontier = frontier.duplicate(true)
 		_marker_hold.source_line = frontier.anchor.line_id
