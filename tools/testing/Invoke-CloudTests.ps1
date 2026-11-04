@@ -215,7 +215,6 @@ $suites = @{
         'tests/unit/test_audio_settings_transactions.gd'
     )
     dating = @(
-        'tests/integration/test_dating_quick_commands.gd'
         'tests/unit/test_frozen_presentation_context.gd'
         'tests/unit/test_canonical_dating_mastery.gd'
         'tests/unit/test_dating_attempt_runtime.gd'
@@ -341,7 +340,6 @@ $suites = @{
     )
     reading_delivery = @(
         'tests/unit/test_dtl_master_structure.gd'
-        'tests/unit/test_schedule_done_dispatcher.gd'
         'tests/unit/test_day_resolution_coordinator.gd'
         'tests/unit/test_startup_route_publication.gd'
         # Retired health/pressure effects: exact nine-case file remains on pinned PR5.

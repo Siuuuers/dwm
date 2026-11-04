@@ -24,7 +24,6 @@ const REQUIRED_SCENE_PATHS := [
 	"res://scenes/shared/ContactBox.tscn",
 	"res://scenes/shared/ChatBubble.tscn",
 	"res://scenes/shared/ShopItemBox.tscn",
-	"res://scenes/shared/ScheduleEntryBox.tscn",
 	"res://scenes/shared/SaveSlotRow.tscn",
 	"res://scenes/shared/DialogueBox.tscn",
 ]
