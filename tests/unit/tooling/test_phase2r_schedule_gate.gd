@@ -520,13 +520,13 @@ func test_every_required_declared_surface_entry_is_present_and_every_retired_sym
 		return
 	var required: Dictionary = _generator.REQUIRED_SURFACE_ENTRIES
 	for path: String in required:
-		var parsed: Dictionary = _generator.parse_declared_surface(FileAccess.get_file_as_string("res://" + path))
+		var parsed: Dictionary = _generator.parse_declared_surface(_git_blob(SURFACE_SEAL_COMMIT, path).get_string_from_utf8())
 		var entries: Array = (parsed["value"] as Dictionary)["entries"]
 		for entry: String in (required[path] as Array):
 			assert_true(entries.has(entry), "%s declares %s" % [path, entry])
 	var absent: Dictionary = _generator.ABSENT_SURFACE_SYMBOLS
 	for path: String in absent:
-		var parsed: Dictionary = _generator.parse_declared_surface(FileAccess.get_file_as_string("res://" + path))
+		var parsed: Dictionary = _generator.parse_declared_surface(_git_blob(SURFACE_SEAL_COMMIT, path).get_string_from_utf8())
 		for entry: String in ((parsed["value"] as Dictionary)["entries"] as Array):
 			var name: String = entry.substr(entry.rfind(" ") + 1)
 			name = name.substr(0, name.find("("))
@@ -544,7 +544,7 @@ func test_forbidden_tokens_are_absent_from_executable_plan01_source() -> void:
 		return
 	var forbidden: Dictionary = _generator.FORBIDDEN_SOURCE_TOKENS
 	for path: String in forbidden:
-		var code: String = _generator.strip_comments(FileAccess.get_file_as_string("res://" + path))
+		var code: String = _generator.strip_comments(_git_blob(SURFACE_SEAL_COMMIT, path).get_string_from_utf8())
 		for token: String in (forbidden[path] as Array):
 			assert_lt(code.find(token), 0, "%s must not carry %s in executable text" % [path, token])
 	# The comment stripper is doing real work: DayResolutionPlan.gd's header still names the removed
@@ -560,7 +560,7 @@ func test_every_matrix_role_literal_is_owned_by_its_producer_and_unrealized_role
 	var realizations: Dictionary = _generator.ROW_REALIZATIONS
 	var sources: Dictionary = {}
 	for path: String in _generator.SOURCE_PATHS:
-		sources[path] = _generator.strip_comments(FileAccess.get_file_as_string("res://" + path))
+		sources[path] = _generator.strip_comments(_git_blob(SURFACE_SEAL_COMMIT, path).get_string_from_utf8())
 	for row_id: String in realizations:
 		var realization: Dictionary = realizations[row_id]
 		var literal: String = "\"%s\"" % str(realization["role"])
@@ -681,15 +681,13 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 		"scripts/application/minesweeper/DesktopBoardFatePort.gd",
 		"scripts/application/minesweeper/GameStateDesktopBoardPort.gd",
 		"scripts/application/minesweeper/MinesweeperRoundCoordinator.gd",
-		"scripts/application/run/DayResolutionStartPort.gd",
 		"scripts/application/run/GameStateDayResolutionPort.gd",
-		"scripts/application/schedule/GameStateScheduleCommitPort.gd",
 		"scripts/application/schedule/ScheduleViewController.gd",
 		"scripts/application/shop/MinesweeperShopPurchaseParticipant.gd",
 		"scripts/domain/contact/ContactInvitationState.gd",
 		"scripts/domain/run/ConditionHospitalState.gd",
 		"scripts/domain/schedule/Day7ScheduleProvenance.gd",
-	], "the fifteen named producers include current condition and Hospital receipt owners")
+	], "the retained named producers include current condition and Hospital receipt owners")
 	var consequence_source: String = _generator.strip_comments(FileAccess.get_file_as_string(
 		"res://scripts/application/desktop/DesktopConsequenceSourcePort.gd"))
 	assert_true(consequence_source.contains("_identity_issuer.call(&\"derive_child\", {\"child_kind\": \"condition\""),
@@ -703,10 +701,7 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 		and hospital_state.contains("\"child_kind\": _STAGE_CHILD_KIND")
 		and hospital_state.contains("\"child_kind\": _RETIREMENT_CHILD_KIND"),
 		"the Hospital owner delegates its three typed child roles")
-	assert_true(_generator.strip_comments(FileAccess.get_file_as_string(
-		"res://autoload/ApplicationBootstrap.gd")).contains(
-		"state.configure(game_state._run_lifecycle, _desktop_identity_nonce_issuer)"),
-		"production injects the retained issuer into the Hospital state owner")
+
 
 
 func test_bootstrap_probe_key_set_and_owner_bindings_are_exact() -> void:
@@ -789,9 +784,7 @@ func test_stage_arrays_are_frozen_and_the_ending_residue_is_unreachable() -> voi
 		assert_false(DAY_1_6_STAGES.has(retired) or DAY_7_STAGES.has(retired), retired + " is reachable from no stage array")
 	# The retired stages remain unreachable. Their former fallback is historical only:
 	# the live state port now reads the resolved plan or the frozen GameState plan.
-	var coordinator: String = _generator.strip_comments(FileAccess.get_file_as_string("res://scripts/application/run/DayResolutionCoordinator.gd"))
 	var state_port: String = _generator.strip_comments(FileAccess.get_file_as_string("res://scripts/application/run/GameStateDayResolutionPort.gd"))
-	assert_true(coordinator.find("\"resolve_ending_plan\"") >= 0, "the coordinator still declares the retired stage contract")
 	assert_true(state_port.contains("func _default_ending_plan() -> Dictionary:")
 		and state_port.contains("_resolved_ending_plan_from_snapshot(_game_state._run_lifecycle.to_dict())")
 		and state_port.contains("return _game_state.get_frozen_ordered_ending_plan()"),

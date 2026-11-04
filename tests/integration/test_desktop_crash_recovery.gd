@@ -13,8 +13,6 @@ const BOOTSTRAP := preload("res://autoload/ApplicationBootstrap.gd")
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const ROOT_STORE := preload("res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd")
 const NAMESPACE_SOURCE := preload("res://scripts/infrastructure/identity/CryptoDesktopNamespaceSource.gd")
-const STATE_PORT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
-const COORDINATOR := preload("res://scripts/application/run/DayResolutionCoordinator.gd")
 const GAME_STATE_PATH := "res://autoload/GameState.gd"
 const SAVE_MANAGER_PATH := "res://autoload/SaveManager.gd"
 const JSON_STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
@@ -62,7 +60,7 @@ func _isolated_root() -> String:
 
 
 func before_each() -> void:
-	_scene_validation_scope.install()
+	_scene_validation_scope.install(true)
 	_shared_root = ""
 	assert_true(SHOP_REGISTRY.initialize().get("ok", false))
 	var result: Dictionary = TEMPORARY_STORAGE.create("desktop-crash-recovery-shared")
@@ -93,16 +91,12 @@ func _boot_process(storage_root: String) -> Dictionary:
 	var game_state: Node = load(GAME_STATE_PATH).new()
 	autofree(game_state)
 	game_state.reset_game()
-	var state_port: RefCounted = STATE_PORT.new(game_state)
-	var coordinator: RefCounted = COORDINATOR.new()
 
 	var bootstrap: Node = HarnessBootstrap.new()
 	autofree(bootstrap)
 	bootstrap.set("_profile_storage", storage)
 	bootstrap.set("_desktop_issuer_root_store", root_store)
 	bootstrap.set("_desktop_identity_nonce_issuer", issuer)
-	bootstrap.set("_retained_day_resolution_state_port", state_port)
-	bootstrap.set("_retained_day_resolution_coordinator", coordinator)
 
 	var profile: Node = load("res://autoload/ProfileManager.gd").new()
 	add_child_autofree(profile)
@@ -153,8 +147,7 @@ func _boot_process(storage_root: String) -> Dictionary:
 	assert_true(checkpoint_port.configure_fatal_latch(gate).get("ok", false))
 	bootstrap.set("_retained_checkpoint_port", checkpoint_port)
 
-	assert_true(bootstrap.call(&"_configure_causal_day_advance_identity", coordinator).get("ok", false))
-	assert_true(bootstrap.call(&"_construct_schedule_foundation", game_state, state_port).get("ok", false))
+	assert_true(bootstrap.call(&"_configure_causal_day_advance_identity").get("ok", false))
 	# This diagnostic starts calendar Run8; current application boot defaults to a Scene Run9 board.
 	# Retain the real legacy owner before participant construction, without relabeling saved state.
 	bootstrap.set("_desktop_board_state", LEGACY_BOARD_STATE.new())
