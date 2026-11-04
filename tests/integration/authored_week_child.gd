@@ -27,9 +27,11 @@ func _install_content_registration() -> Dictionary:
 		return {"ok": false, "code": "authored_shipped_registration_required"}
 	return selected
 
-func _setup_authored() -> bool:
-	assert_ne(DisplayServer.get_name(), "headless", "authored journey requires rendered evidence")
-	if DisplayServer.get_name() == "headless" or not _start_services(): return false
+func _setup_authored(require_rendered: bool = true) -> bool:
+	if require_rendered:
+		assert_ne(DisplayServer.get_name(), "headless", "authored journey requires rendered evidence")
+		if DisplayServer.get_name() == "headless": return false
+	if not _start_services(): return false
 	assert_eq(DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://.godot/ci")), OK)
 	if _phase == "create":
 		if not _ok(profile.set_preference(&"preferences.reading.auto_enabled", false)): return false
@@ -70,7 +72,7 @@ func _wait_line(line_id: String) -> bool:
 			var inputs: Node = bridge._runtime_adapter._dialogic.get_subsystem("Inputs")
 			if is_instance_valid(caption) and caption.caption_text.is_visible_in_tree() \
 					and not caption.caption_text.revealing and not inputs.is_input_blocked():
-				await RenderingServer.frame_post_draw
+				if DisplayServer.get_name() != "headless": await RenderingServer.frame_post_draw
 				var event: DialogicTextEvent = bridge._runtime_adapter._current_skip_text(true)
 				assert_not_null(event)
 				if event == null: return false
