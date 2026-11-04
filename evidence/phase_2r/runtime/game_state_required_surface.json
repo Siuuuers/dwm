@@ -1077,8 +1077,8 @@
       "symbol": "resolve_day7_ending",
       "kind": "function",
       "availability": "current",
-      "disposition": "replace",
-      "replacement": "func begin_day_resolution_stage() -> Dictionary",
+      "disposition": "retain",
+      "replacement": "",
       "contract_test": "test_day7_terminal_allowlist"
     },
     {
@@ -1149,16 +1149,16 @@
       "symbol": "execute_schedule_sequence_until_route_needed",
       "kind": "function",
       "availability": "current",
-      "disposition": "replace",
-      "replacement": "func request_schedule_done(command_id: String) -> Dictionary",
+      "disposition": "retain",
+      "replacement": "",
       "contract_test": "test_schedule_done_command"
     },
     {
       "symbol": "execute_non_date_schedule_effects",
       "kind": "function",
       "availability": "current",
-      "disposition": "replace",
-      "replacement": "func request_schedule_done(command_id: String) -> Dictionary",
+      "disposition": "retain",
+      "replacement": "",
       "contract_test": "test_schedule_done_command"
     },
     {
@@ -1173,8 +1173,8 @@
       "symbol": "resolve_pressure_health_condition_end_of_day",
       "kind": "function",
       "availability": "current",
-      "disposition": "replace",
-      "replacement": "func begin_day_resolution_stage() -> Dictionary",
+      "disposition": "retain",
+      "replacement": "",
       "contract_test": "test_day_resolution_condition_stage"
     },
     {
@@ -1197,32 +1197,32 @@
       "symbol": "apply_hospital_recovery_and_advance_day",
       "kind": "function",
       "availability": "current",
-      "disposition": "replace",
-      "replacement": "func resume_day_resolution() -> Dictionary",
+      "disposition": "retain",
+      "replacement": "",
       "contract_test": "test_hospital_recovery_resumes_day_resolution"
     },
     {
       "symbol": "advance_day_or_end",
       "kind": "function",
       "availability": "current",
-      "disposition": "replace",
-      "replacement": "func request_schedule_done(command_id: String) -> Dictionary",
+      "disposition": "retain",
+      "replacement": "",
       "contract_test": "test_advance_day_resets_and_ends"
     },
     {
       "symbol": "prepare_dating_queue",
       "kind": "function",
       "availability": "current",
-      "disposition": "replace",
-      "replacement": "func begin_day_resolution_stage() -> Dictionary",
+      "disposition": "retain",
+      "replacement": "",
       "contract_test": "test_dating_stage_receipts"
     },
     {
       "symbol": "prepare_dating_entries",
       "kind": "function",
       "availability": "current",
-      "disposition": "replace",
-      "replacement": "func begin_day_resolution_stage() -> Dictionary",
+      "disposition": "retain",
+      "replacement": "",
       "contract_test": "test_dating_stage_receipts"
     },
     {
@@ -1245,24 +1245,24 @@
       "symbol": "apply_dating_challenge_result",
       "kind": "function",
       "availability": "current",
-      "disposition": "replace",
-      "replacement": "func complete_day_resolution_stage(transaction_id: String, receipt: Dictionary) -> Dictionary",
+      "disposition": "retain",
+      "replacement": "",
       "contract_test": "test_dating_stage_receipts"
     },
     {
       "symbol": "advance_date_queue_or_day",
       "kind": "function",
       "availability": "current",
-      "disposition": "replace",
-      "replacement": "func complete_day_resolution_stage(transaction_id: String, receipt: Dictionary) -> Dictionary",
+      "disposition": "retain",
+      "replacement": "",
       "contract_test": "test_dating_stage_receipts"
     },
     {
       "symbol": "clear_pending_date_state",
       "kind": "function",
       "availability": "current",
-      "disposition": "replace",
-      "replacement": "func begin_day_resolution_stage() -> Dictionary",
+      "disposition": "retain",
+      "replacement": "",
       "contract_test": "test_dating_stage_receipts"
     },
     {
@@ -1328,38 +1328,6 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_prepare_new_run_snapshot_input_is_pure"
-    },
-    {
-      "symbol": "request_schedule_done",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_request_schedule_done_delegates_through_production_port"
-    },
-    {
-      "symbol": "resume_day_resolution",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_request_schedule_done_delegates_through_production_port"
-    },
-    {
-      "symbol": "begin_day_resolution_stage",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_request_schedule_done_delegates_through_production_port"
-    },
-    {
-      "symbol": "complete_day_resolution_stage",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_registered_command_pause_and_completion"
     },
     {
       "symbol": "capture_schedule_commit_state",
@@ -1556,30 +1524,6 @@
       "kind": "function",
       "availability": "target",
       "signature": "func commit_fainting_event(transaction_id: String, source_id: String, active_entry_id: String = \"\") -> Dictionary"
-    },
-    {
-      "symbol": "request_schedule_done",
-      "kind": "function",
-      "availability": "target",
-      "signature": "func request_schedule_done(command_id: String) -> Dictionary"
-    },
-    {
-      "symbol": "resume_day_resolution",
-      "kind": "function",
-      "availability": "target",
-      "signature": "func resume_day_resolution() -> Dictionary"
-    },
-    {
-      "symbol": "begin_day_resolution_stage",
-      "kind": "function",
-      "availability": "target",
-      "signature": "func begin_day_resolution_stage() -> Dictionary"
-    },
-    {
-      "symbol": "complete_day_resolution_stage",
-      "kind": "function",
-      "availability": "target",
-      "signature": "func complete_day_resolution_stage(transaction_id: String, receipt: Dictionary) -> Dictionary"
     },
     {
       "symbol": "complete_ending_playback_stage",

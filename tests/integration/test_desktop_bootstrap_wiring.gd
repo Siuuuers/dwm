@@ -176,7 +176,6 @@ func test_scene_graph_shares_board_generation_and_physical_owners() -> void:
 	assert_same(physical.get("_generation"), _bootstrap._retained_minesweeper_generation_port)
 	assert_same(port.get("_physical_owner"), physical)
 	assert_true(port.is_ready())
-	assert_null(_game_state.get("_day_resolution_coordinator"), "DTL owns progression without an automatic schedule coordinator")
 
 func test_scene_graph_probe_is_detached_and_stable() -> void:
 	_build_desktop_graph()

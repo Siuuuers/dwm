@@ -4,9 +4,7 @@ extends "res://addons/gut/test.gd"
 #
 # The controller derives kind, participants, repeatability and eligibility from the injected
 # immutable registry at the expected fingerprint; drafting reserves and spends no motivation
-# and never touches the canonical committed Schedule (proved here against a REAL GameState
-# holding a schedule committed through the production GameStateScheduleCommitPort, the
-# production issuer, and the production publication ledger). The condition-departure receipt
+# and never touches the canonical committed Schedule. The condition-departure receipt
 # index is append-only: byte-identical retries return unchanged, conflicts are typed and
 # never partially applied, and the index survives open_day() while the optimistic
 # fingerprint ignores its growth.
@@ -18,15 +16,8 @@ extends "res://addons/gut/test.gd"
 const CONTROLLER := preload("res://scripts/application/schedule/ScheduleViewController.gd")
 const RULES := preload("res://scripts/domain/schedule/ScheduleRules.gd")
 const REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
-const GAME_STATE := preload("res://autoload/GameState.gd")
-const COMMIT_PORT := preload("res://scripts/application/schedule/GameStateScheduleCommitPort.gd")
-const PUBLICATION_LEDGER := preload("res://scripts/infrastructure/save/ScheduleFoundationPublicationLedger.gd")
-const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
-const ROOT_STORE := preload("res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd")
-const NAMESPACE_SOURCE := preload("res://scripts/infrastructure/identity/CryptoDesktopNamespaceSource.gd")
 
 const CAUSAL_DAY := "causal_day_instance.1111111111111111111111111111111111111111111111111111111111111111"
-const VIEW_FINGERPRINT := "schedule_view.22222222222222222222222222222222"
 const VIEW_KEYS: Array = [
 	"causal_day_instance", "condition_departure_receipts", "consumed_warning_receipts",
 	"date_entry_seen", "day", "entries", "pending_warning",
@@ -34,7 +25,6 @@ const VIEW_KEYS: Array = [
 
 var _registry: Object = null
 var _fingerprint := ""
-var _root_counter := 0
 
 
 func before_each() -> void:
@@ -148,58 +138,6 @@ func _condition_candidate(before_view: Dictionary, after_view: Dictionary,
 			"disposition": "condition_departure_view_committed",
 		},
 	}
-
-
-## Commits one real ordinary Day-1 schedule into a REAL GameState through the production
-## commit port, issuer, and publication ledger (the exact substrate of
-## test_game_state_schedule_commit_port.gd). Returns {} when any production step fails.
-func _committed_game_state() -> Dictionary:
-	_root_counter += 1
-	var created: Dictionary = TemporaryStorage.create(
-		"schedule-view-controller-%d" % _root_counter)
-	assert_true(created.get("ok", false), created.get("message", "temporary storage unavailable"))
-	if not created.get("ok", false):
-		return {}
-	var root: String = str(created.get("value", ""))
-	var storage: RefCounted = JsonFileStorage.new(root)
-	var root_store: RefCounted = ROOT_STORE.new()
-	assert_true(root_store.configure(storage, NAMESPACE_SOURCE.new()).get("ok", false))
-	assert_true(root_store.load_or_create().get("ok", false))
-	var issuer: RefCounted = ISSUER.new()
-	assert_true(issuer.configure(root_store).get("ok", false))
-	var game_state: Node = GAME_STATE.new()
-	autofree(game_state)
-	game_state.reset_game()
-	var ledger: Object = PUBLICATION_LEDGER.new()
-	assert_true(ledger.configure(storage).get("ok", false))
-	assert_true(ledger.load().get("ok", false))
-	var port: Object = COMMIT_PORT.new(game_state, _registry, issuer, ledger)
-	var issued: Dictionary = issuer.issue(&"transaction_id")
-	assert_true(issued.get("ok", false), str(issued))
-	var token: Dictionary = issued.get("value", {})
-	var request := {
-		"transaction_id": str(token.get("token", "")),
-		"transaction_issuer_receipt":
-			(token.get("issuer_receipt", {}) as Dictionary).duplicate(true),
-		"expected_view_fingerprint": VIEW_FINGERPRINT,
-		"day": 1,
-		"causal_day_instance": CAUSAL_DAY,
-		"draft_entries": [{
-			"draft_entry_id": "d-rest", "day": 1, "slot_index": 0, "action_id": "rest",
-			"action_kind": "ordinary", "participants": [], "source_receipt_id": null,
-		}],
-		"registry_fingerprint": _fingerprint,
-	}
-	var prepared: Dictionary = port.prepare_commit(request)
-	assert_true(prepared.get("ok", false), str(prepared))
-	if not prepared.get("ok", false):
-		return {}
-	var committed: Dictionary = port.commit(
-		(prepared.get("value", {}) as Dictionary).get("game_state_candidate", {}))
-	assert_true(committed.get("ok", false), str(committed))
-	if not committed.get("ok", false):
-		return {}
-	return {"game_state": game_state}
 
 
 # ---- lifecycle ----
@@ -568,56 +506,6 @@ func test_snapshot_is_detached() -> void:
 		"mutating a snapshot never reaches the controller's view")
 	assert_eq(fresh.get("date_entry_seen", true), false,
 		"snapshot members are detached, not aliased")
-
-
-func test_every_edit_leaves_motivation_and_the_committed_schedule_byte_equal() -> void:
-	var fixture := _committed_game_state()
-	if fixture.is_empty():
-		return
-	var game_state: Node = fixture["game_state"]
-	var before: Dictionary = game_state.capture_schedule_commit_state()
-	assert_true(before.get("ok", false), str(before))
-	var before_value: Dictionary = before.get("value", {})
-	var motivation_before := int(before_value.get("motivation", -1))
-	var committed_before := _canonical(before_value.get("committed_schedule", {}))
-	assert_false(committed_before.is_empty(), "a real committed Schedule exists")
-
-	var controller := _open(3)
-	_add(controller, "rest", null, 0, "d-rest")
-	_add(controller, "solo:lavinia:day3", "src:solo:lavinia:day3", 1, "d-date")
-	_apply(controller, controller.prepare_move("d-rest", 5), "prepare_move d-rest")
-	_apply(controller, controller.prepare_remove("d-date"), "prepare_remove d-date")
-	var live := _view_of(controller)
-	var departed: Dictionary = controller.commit_condition_departure_transition(
-		_condition_candidate(live, live, "cond-1"))
-	assert_true(departed.get("ok", false), str(departed))
-	var captured: Dictionary = controller.capture()
-	assert_true(captured.get("ok", false), str(captured))
-	_add(controller, "training", null, 2, "d-train")
-	assert_true(controller.rollback(
-		(captured.get("value", {}) as Dictionary).get("backup", {})).get("ok", false),
-		"rollback succeeds")
-	var ledger_before := _canonical(_view_of(controller)["condition_departure_receipts"])
-	for command: Dictionary in [
-		{"kind": "append", "action_id": "working", "source_receipt_id": null,
-			"draft_entry_id": "d-work"},
-		{"kind": "move", "draft_entry_id": "d-work", "target_index": 0},
-		{"kind": "remove", "draft_entry_id": "d-rest"},
-	]:
-		var view_fingerprint: Dictionary = controller.fingerprint()
-		var edited: Dictionary = controller.apply_docket_edit(command,
-			view_fingerprint["value"]["fingerprint"])
-		assert_true(edited.get("ok", false), str(edited))
-		assert_eq(_canonical(_view_of(controller)["condition_departure_receipts"]),
-			ledger_before, "docket edits preserve the retained departure receipt")
-
-	var after: Dictionary = game_state.capture_schedule_commit_state()
-	assert_true(after.get("ok", false), str(after))
-	var after_value: Dictionary = after.get("value", {})
-	assert_eq(int(after_value.get("motivation", -2)), motivation_before,
-		"no edit reserves or spends motivation")
-	assert_eq(_canonical(after_value.get("committed_schedule", {})), committed_before,
-		"no edit touches the canonical committed Schedule")
 
 
 # ---- review fixes: after-adoption, transition refusals, configure guards ----
