@@ -4,7 +4,7 @@ const DESKTOP := preload("res://scenes/desktop/ComputerDesktop.tscn")
 const HOST := preload("res://scripts/domain/desktop/DesktopAppHostState.gd")
 const FIXTURES := preload("res://tests/unit/test_shop_catalog_projection.gd")
 const COPY := preload("res://scripts/ui/shop/ShopCopy.gd")
-const SHARED := preload("res://tests/manual/verify_schedule_desktop_native.gd")
+const PREFERENCES := preload("res://tests/support/PresentationPreferences.gd")
 const LOCALE := preload("res://tests/manual/verify_quick_status_native.gd")
 class DesktopFixture extends ComputerDesktop:
 	func _configure_from_bootstrap() -> void: pass
@@ -39,7 +39,7 @@ func _run() -> void:
 	viewport.size_2d_override_stretch = true
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(viewport)
-	var profile := SHARED.Preferences.new()
+	var profile := PREFERENCES.new()
 	var locale := LOCALE.CatalogLocale.new()
 	viewport.add_child(profile)
 	viewport.add_child(locale)

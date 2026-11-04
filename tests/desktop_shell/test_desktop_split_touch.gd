@@ -344,8 +344,8 @@ func test_launcher_enlarges_after_resize_without_remounting_or_losing_focus() ->
 	for button: Button in desktop.launcher_buttons.values():
 		assert_true(desktop.get_global_rect().encloses(button.get_global_rect()))
 		assert_lt(button.get_global_rect().end.y, desktop.home_button.get_global_rect().position.y)
-	var ids: Array[StringName] = [&"minesweeper", &"contacts", &"schedule", &"shop", &"backup", &"settings", &"logout"]
-	assert_eq(desktop.launcher_buttons.keys(), ids, "the same seven apps retain their launcher order")
+	var ids: Array[StringName] = [&"minesweeper", &"contacts", &"shop", &"backup", &"settings", &"logout"]
+	assert_eq(desktop.launcher_buttons.keys(), ids, "the six remaining apps retain their launcher order")
 	var original_buttons: Array = desktop.find_children("*", "Button", true, false)
 	var originals: Dictionary = desktop.launcher_buttons.duplicate()
 	var presses: Array[StringName] = []

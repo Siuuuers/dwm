@@ -1,8 +1,8 @@
 extends SceneTree
 ## Captured-run palette evidence. Actual lifecycle/schema installation and app hosts;
-## Shop art/rows, Schedule names and board checkpoint/generation are explicit fixtures.
+## Shop art/rows and board checkpoint/generation are explicit fixtures.
 const FIXTURE := preload("res://tests/integration/test_run_palette_host.gd")
-const PRESENTATION := preload("res://tests/manual/verify_schedule_desktop_native.gd")
+const PREFERENCES := preload("res://tests/support/PresentationPreferences.gd")
 const LOCALE := preload("res://tests/manual/verify_quick_status_native.gd")
 var failures: Array[String] = []
 var samples: Array[Dictionary] = []
@@ -27,7 +27,7 @@ func _run() -> void:
 			continue
 		viewport.add_child(run.value.state)
 		var before: Dictionary = run.value.state.capture_run_snapshot_input()
-		var preferences := PRESENTATION.Preferences.new()
+		var preferences := PREFERENCES.new()
 		viewport.add_child(preferences)
 		var locale := LOCALE.CatalogLocale.new()
 		viewport.add_child(locale)
@@ -56,7 +56,7 @@ func _run() -> void:
 				var filename := "%s-%s-%d-launcher.png" % [palette,language,percent]
 				_check(pixels.save_png(folder.path_join(filename))==OK,"launcher image saved")
 				samples.append({"palette":palette,"captured_dark_mode":dark,"locale":language,"percent":percent,"surface":"launcher","path":filename})
-		for id: StringName in [&"schedule",&"shop",&"minesweeper"]:
+		for id: StringName in [&"shop",&"minesweeper"]:
 			var opened: Dictionary = desktop.open_app(id)
 			if not _check(opened.get("ok",false),"open "+str(id)+": "+str(opened)): continue
 			for frame in 6: await RenderingServer.frame_post_draw

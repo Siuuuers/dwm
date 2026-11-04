@@ -10,14 +10,13 @@ const SHELL := preload("res://tests/desktop_shell/test_desktop_shell.gd")
 const CONTACT := preload("res://tests/contacts_shell/test_contacts_shell.gd")
 const SETTINGS := preload("res://tests/unit/test_settings_panel_resize.gd")
 const SHOP := preload("res://tests/manual/verify_shop_desktop_native.gd")
-const SCHEDULE := preload("res://tests/manual/verify_schedule_desktop_native.gd")
-const SCHEDULE_COPY := preload("res://scripts/ui/schedule/ScheduleCopy.gd")
+const HOST := preload("res://scripts/domain/desktop/DesktopAppHostState.gd")
 const QUICK := preload("res://tests/manual/verify_quick_status_native.gd")
 const MINES := preload("res://tests/unit/test_minesweeper_app.gd")
 const DESKTOP_RENDER := preload("res://tests/ui/render_desktop_scaling.gd")
 const MENU := preload("res://scenes/menu/MenuScene.tscn")
 const GALLERY := preload("res://scenes/menu/GalleryScene.tscn")
-const EXPECTED_CAPTURES := 30
+const EXPECTED_CAPTURES := 28
 
 class ContactPort extends CONTACT.FakePort:
 	func get_projection(friend_id: String, primary: String, secondary: String = "") -> Dictionary:
@@ -76,8 +75,8 @@ func _run() -> void:
 		await _title_and_gallery(language)
 		await _desktop_samples(language)
 	await _caption_samples()
-	check(samples.size() == EXPECTED_CAPTURES, "all 30 UI states checked")
-	if DisplayServer.get_name() != "headless": check(captures == EXPECTED_CAPTURES, "all 30 native screenshots captured")
+	check(samples.size() == EXPECTED_CAPTURES, "all 28 UI states checked")
+	if DisplayServer.get_name() != "headless": check(captures == EXPECTED_CAPTURES, "all 28 native screenshots captured")
 	var report := {"ok": failures.is_empty(), "renderer": DisplayServer.get_name(),
 		"samples": samples.size(), "captures": captures, "failures": failures, "states": samples,
 		"fixture": "Real production UI, active locale/profile providers and Fusion fonts; synthetic shop/contact/board records, empty Gallery, English dialogue fixture. No player commands."}
@@ -231,7 +230,7 @@ func _desktop_samples(language: String) -> void:
 	main.get_node("%ComputerPanel").add_child(desktop)
 	viewport.add_child(main)
 	check(main.get_node_or_null("%StatHud") == null, "mounted shell has no retired HUD")
-	var host := SCHEDULE.HOST.new()
+	var host := HOST.new()
 	host.reset(1)
 	check(desktop.configure_contacts(ContactPort.new(), locale, profile, host).get("ok", false), "Contacts owners")
 	desktop._foreground_eligible = true
@@ -279,26 +278,6 @@ func _desktop_samples(language: String) -> void:
 		await settle()
 		opened.value.app.cards.crystal_stutters.grab_focus()
 		await capture("shop", language, 100, main)
-	desktop.return_home()
-	var registry: Dictionary = SCHEDULE.REGISTRY.load_current()
-	var draft := SCHEDULE.VIEW.new()
-	check(draft.configure(registry.value.registry, SCHEDULE.RULES, registry.value.registry_fingerprint).ok, "real schedule draft")
-	check(draft.open_day(1, "japanese-korean-ui-day").ok, "schedule day")
-	var issuer := SCHEDULE.ISSUER.new()
-	check(issuer.configure(SCHEDULE.ROOT_STORE.new("73".repeat(32), 23)).ok, "isolated schedule issuer")
-	var port := SCHEDULE.PORT.new()
-	var owner := SCHEDULE.DraftSource.new()
-	owner.day = 1
-	var records: Dictionary = registry.value.registry.snapshot(registry.value.registry_fingerprint)
-	check(port.configure(owner, draft, registry.value.registry, registry.value.registry_fingerprint, issuer,
-		SCHEDULE_COPY.action_names(records.value.records)).ok, "real schedule presentation")
-	for id: String in ["training", "working", "rest"]:
-		var projected: Dictionary = port.project(language)
-		check(projected.get("ok", false), "schedule locale " + language)
-		if projected.get("ok", false): check(port.append(id, projected.value.fingerprint, language).ok, "schedule append " + id)
-	check(desktop.configure_schedule(port, locale, profile, host, 1).get("ok", false), "Schedule owners")
-	if check(desktop.open_app(&"schedule").get("ok", false), "Schedule open"):
-		await capture("schedule", language, 100, main)
 	desktop.return_home()
 	var mine_fixture := MINES.new()
 	var mine_port := SPLIT.ShellMinesweeperPort.new()

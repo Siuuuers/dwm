@@ -2,7 +2,7 @@ extends SceneTree
 ## Uses production scenes. External owner doubles are shared with Contacts tests.
 const Fixtures := preload("res://tests/contacts_shell/test_contacts_shell.gd")
 const SettingsFixtures := preload("res://tests/desktop_shell/test_settings_host.gd")
-const APP_IDS := [&"minesweeper", &"contacts", &"schedule", &"shop", &"backup", &"settings", &"logout"]
+const APP_IDS := [&"minesweeper", &"contacts", &"shop", &"backup", &"settings", &"logout"]
 var failures: Array[String] = []
 
 const MAIN_SCENE := preload("res://scenes/main/MainGameScene.tscn")
@@ -98,8 +98,8 @@ func check_font(control: Control, caption: String, label: String) -> void:
 		check(font.has_char(character.unicode_at(0)), label + " has configured glyph: " + character)
 
 func check_grid(desktop: Control) -> void:
-	check(desktop.launcher_buttons.keys() == APP_IDS, "Seven launchers keep the exact registry order")
-	check(desktop.launcher_buttons.size() == 7, "Eighth grid position has no selectable app")
+	check(desktop.launcher_buttons.keys() == APP_IDS, "Six launchers keep the exact registry order")
+	check(desktop.launcher_buttons.size() == 6, "Two final grid positions have no selectable apps")
 	for index in range(APP_IDS.size()):
 		var button: Button = desktop.launcher_buttons[APP_IDS[index]]
 		var expected := Vector2(24 + (index % 4) * 192, 24 + (index / 4) * 192)
@@ -235,20 +235,20 @@ func verify_foundation(main: Control, desktop: Control) -> void:
 	await press_key(KEY_TAB, true)
 	check(first.has_focus(), "Shift Tab at first launcher never wraps to last")
 	var reads_before: int = port.reads
-	var last_top: Button = desktop.launcher_buttons[&"shop"]
+	var last_top: Button = desktop.launcher_buttons[APP_IDS[desktop.icon_grid.columns - 1]]
 	last_top.grab_focus()
 	await press_key(KEY_UP)
 	check(last_top.has_focus(), "First row Up does not leave the launcher grid")
 	await press_key(KEY_RIGHT)
 	check(last_top.has_focus(), "Right edge does not wrap to next launcher row")
-	var first_bottom: Button = desktop.launcher_buttons[&"backup"]
+	var first_bottom: Button = desktop.launcher_buttons[APP_IDS[desktop.icon_grid.columns]]
 	first_bottom.grab_focus()
 	await press_key(KEY_LEFT)
 	check(first_bottom.has_focus(), "Left edge does not wrap to preceding launcher row")
 	var last_bottom: Button = desktop.launcher_buttons[&"logout"]
 	last_bottom.grab_focus()
 	await press_key(KEY_RIGHT)
-	check(last_bottom.has_focus(), "Empty eighth cell does not receive keyboard focus")
+	check(last_bottom.has_focus(), "Empty trailing cells do not receive keyboard focus")
 	await press_key(KEY_DOWN)
 	check(last_bottom.has_focus(), "Bottom edge does not wrap to first launcher row")
 	await press_key(KEY_TAB)

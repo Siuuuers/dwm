@@ -9,15 +9,16 @@ const CONTACT := preload("res://tests/contacts_shell/test_contacts_shell.gd")
 const SETTINGS := preload("res://tests/unit/test_settings_panel_resize.gd")
 const SHOP := preload("res://tests/manual/verify_shop_desktop_native.gd")
 const SHOP_PORT := preload("res://scripts/application/shop/ShopPresentationPort.gd")
-const SCHEDULE := preload("res://tests/manual/verify_schedule_desktop_native.gd")
+const HOST := preload("res://scripts/domain/desktop/DesktopAppHostState.gd")
+const PREFERENCES := preload("res://tests/support/PresentationPreferences.gd")
 const QUICK := preload("res://tests/manual/verify_quick_status_native.gd")
 const MINES := preload("res://tests/unit/test_minesweeper_app.gd")
-const EXPECTED_CAPTURES := 38
+const EXPECTED_CAPTURES := 36
 class VisualLocale extends QUICK.CatalogLocale:
 	func get_selectable_locales() -> Array[Dictionary]:
 		return [{"id":"en","native_name":"English","release_status":"complete"},{"id":"zh_CN","native_name":"简体中文","release_status":"draft"},{"id":"zh_HK","native_name":"繁體中文","release_status":"draft"}]
 
-class VisualPreferences extends SCHEDULE.Preferences:
+class VisualPreferences extends PREFERENCES:
 	var high_contrast := false
 	var font_style := "pixel"
 	func get_preference(path: StringName, fallback: Variant = null) -> Variant:
@@ -136,7 +137,7 @@ func _run() -> void:
 	main.get_node("%ComputerPanel").add_child(desktop)
 	viewport.add_child(main)
 	check(main.get_node_or_null("%StatHud") == null, "mounted shell has no retired HUD")
-	host = SCHEDULE.HOST.new()
+	host = HOST.new()
 	host.reset(1)
 	var contact_port := CONTACT.FakePort.new()
 	check(desktop.configure_contacts(contact_port,locale,profile,host).get("ok",false),"contacts configured")
@@ -211,24 +212,6 @@ func _run() -> void:
 		await _shop_samples(opened.value.app,catalog)
 		desktop.app_scroll.ensure_control_visible(opened.value.app._buy_button)
 		await capture("shop-bottom",960)
-	desktop.return_home()
-	var loaded: Dictionary = SCHEDULE.REGISTRY.load_current()
-	var draft := SCHEDULE.VIEW.new()
-	check(draft.configure(loaded.value.registry,SCHEDULE.RULES,loaded.value.registry_fingerprint).ok,"draft configured")
-	check(draft.open_day(1,"visual-draft-day").ok,"draft opened")
-	var issuer := SCHEDULE.ISSUER.new()
-	check(issuer.configure(SCHEDULE.ROOT_STORE.new("73".repeat(32),23)).ok,"issuer configured")
-	var port := SCHEDULE.PORT.new()
-	var owner := SCHEDULE.DraftSource.new()
-	owner.day = 1
-	check(port.configure(owner,draft,loaded.value.registry,loaded.value.registry_fingerprint,issuer,{"training":{"en":"Training","zh-CN":"训练","zh-HK":"訓練"},"working":{"en":"Working","zh-CN":"工作","zh-HK":"工作"},"rest":{"en":"Rest","zh-CN":"休息","zh-HK":"休息"}}).ok,"schedule port configured")
-	for id: String in ["training","working","rest"]:
-		var projected: Dictionary = port.project("en")
-		check(port.append(id,projected.value.fingerprint,"en").ok,"append "+id)
-	check(desktop.configure_schedule(port,locale,profile,host,1).get("ok",false),"schedule configured")
-	opened = desktop.open_app(&"schedule")
-	check(opened.get("ok",false),"schedule opened")
-	if opened.get("ok",false): await pair("schedule")
 	desktop.return_home()
 	var mine_fixture := MINES.new()
 	var mine_port := SPLIT.ShellMinesweeperPort.new()
@@ -454,7 +437,7 @@ func _capture_overlay(app: Control, kind: String, variant: String, width: int) -
 	check(worksheet.information_sheet == null and worksheet.grid == grid, kind+": Return closes only overlay and retains board")
 
 func _check_launcher_geometry(name: String) -> void:
-	check(desktop.launcher_buttons.keys() == SHELL.APP_IDS, name+": seven original app targets in registry order")
+	check(desktop.launcher_buttons.keys() == SHELL.APP_IDS, name+": six app targets in registry order")
 	for id: StringName in desktop.launcher_buttons:
 		var button: Button = desktop.launcher_buttons[id]
 		var caption: Label = button.caption

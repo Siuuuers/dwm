@@ -14,7 +14,6 @@ const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceI
 const ROOT_STORE := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
 const SHOP_FIXTURE := preload("res://tests/unit/test_shop_catalog_projection.gd")
 const SHOP_RENDERER := preload("res://tests/manual/verify_shop_desktop_native.gd")
-const SCHEDULE := preload("res://tests/manual/verify_schedule_desktop_native.gd")
 const BOARD_PORT := preload("res://scripts/application/minesweeper/GameStateDesktopBoardPort.gd")
 const COORDINATOR := preload("res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd")
 const PANEL_PORT := preload("res://scripts/application/minesweeper/MinesweeperPanelPort.gd")
@@ -84,20 +83,6 @@ static func bind_apps(desktop: Control, state: Node, issuer: RefCounted, locale:
 	shop.rows = shop_fixture._valid_rows()
 	shop_fixture.free()
 	var configured: Dictionary = desktop.configure_shop(shop,locale,profile,host,1)
-	if not configured.ok: return configured
-	var registry := SCHEDULE.REGISTRY.load_current()
-	var draft := SCHEDULE.VIEW.new()
-	configured = draft.configure(registry.value.registry,SCHEDULE.RULES,registry.value.registry_fingerprint)
-	if not configured.ok: return configured
-	configured = draft.open_day(1,state._run_lifecycle.get_desktop_identity_context().causal_day_instance)
-	if not configured.ok: return configured
-	var schedule := SCHEDULE.PORT.new()
-	var names := {}
-	for id: String in ["training","working","rest"]:
-		names[id] = {"en":id.capitalize(),"zh-CN":id.capitalize(),"zh-HK":id.capitalize()}
-	configured = schedule.configure(state,draft,registry.value.registry,registry.value.registry_fingerprint,issuer,names)
-	if not configured.ok: return configured
-	configured = desktop.configure_schedule(schedule,locale,profile,host,1)
 	if not configured.ok: return configured
 	var board := BOARD_PORT.new()
 	var identity: Dictionary = state._run_lifecycle.get_desktop_identity_context()
@@ -205,7 +190,7 @@ func test_captured_palette_reaches_all_hosts_and_survives_pending_profile_locale
 		var face := Color("14201d") if dark else Color("151b25")
 		var before: Dictionary = f.state.capture_run_snapshot_input()
 		assert_eq(f.desktop.theme.get_color("face","Desktop"),face,"Palette is bound before the first visible frame")
-		for id: StringName in [&"schedule",&"shop",&"minesweeper"]:
+		for id: StringName in [&"shop",&"minesweeper"]:
 			var opened: Dictionary = f.desktop.open_app(id)
 			assert_true(opened.get("ok",false),str(opened))
 			if not opened.get("ok",false): continue
@@ -219,7 +204,7 @@ func test_captured_palette_reaches_all_hosts_and_survives_pending_profile_locale
 		await _settle()
 		assert_eq(f.desktop.theme.get_color("face","Desktop"),face)
 		assert_eq(f.desktop.theme.default_font_size,36)
-		for id: StringName in [&"schedule",&"shop",&"minesweeper"]:
+		for id: StringName in [&"shop",&"minesweeper"]:
 			var cached: Control = f.desktop._cached_app_windows[id]
 			var reopened: Dictionary = f.desktop.open_app(id)
 			assert_true(reopened.get("ok",false),str(reopened))
@@ -257,13 +242,9 @@ class StartupFixture extends Node:
 	signal application_ready()
 	var available := false
 	var configured_hosts := 0
-	var configured_gameplay_hosts := 0
 	func get_startup_state() -> Dictionary: return {"ready":available}
 	func configure_contacts_desktop(_desktop: Control) -> Dictionary:
 		configured_hosts += 1
-		return {"ok":true}
-	func configure_gameplay_desktop(_desktop: Control) -> Dictionary:
-		configured_gameplay_hosts += 1
 		return {"ok":true}
 
 class InertQuickFixture extends Node:
@@ -308,8 +289,6 @@ func test_early_production_bootstrap_path_stays_hidden_until_captured_palette_is
 	assert_eq(desktop.theme.get_color("face","Desktop"),Color("14201d"))
 	assert_eq(desktop.theme.get_color("habitat","Desktop"),Color("0d1514"))
 	assert_eq(startup.configured_hosts,1)
-	assert_eq(startup.configured_gameplay_hosts,1,
-		"Gameplay desktop wiring follows the Contacts owner on the same ready signal.")
 	assert_true(desktop._cached_app_windows.is_empty())
 	await _settle()
 	assert_same(desktop.get_viewport().gui_get_focus_owner(), desktop.launcher_buttons[&"minesweeper"], "Delayed readiness gives the visible launcher its initial native focus")
