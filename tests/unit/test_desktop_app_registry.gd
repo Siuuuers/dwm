@@ -3,7 +3,6 @@ extends "res://addons/gut/test.gd"
 const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const REGISTRY_PATH := "res://scripts/domain/desktop/DesktopAppRegistry.gd"
 
-# --- Contract: exact seven-app registry -----------------------------------------
 const EXPECTED := {
 	&"minesweeper": {"scene": &"res://scenes/apps/MinesweeperApp.tscn", "focus": NodePath("%HideButton")},
 	&"contacts":    {"scene": &"res://scenes/apps/ContactListApp.tscn", "focus": NodePath("%HideButton")},
@@ -11,7 +10,6 @@ const EXPECTED := {
 	&"shop":        {"scene": &"res://scenes/apps/ShopApp.tscn", "focus": NodePath("%HideButton")},
 	&"backup":      {"scene": &"res://scenes/apps/BackupApp.tscn", "focus": NodePath("%HideButton")},
 	&"settings":    {"scene": &"res://scenes/apps/SettingsApp.tscn", "focus": NodePath("%HideButton")},
-	&"logout":      {"scene": &"res://scenes/apps/LogOutApp.tscn", "focus": NodePath("%NoButton")},
 }
 
 func _load_registry():
@@ -21,12 +19,12 @@ func _load_registry():
 		return null
 	return loaded["value"].new()
 
-func test_registry_has_exactly_seven_known_apps() -> void:
+func test_registry_has_exactly_six_known_apps() -> void:
 	var registry = _load_registry()
 	if registry == null:
 		return
 	var ids: Array = registry.get_ids()
-	assert_eq(ids.size(), 7, "registry must expose exactly seven app ids")
+	assert_eq(ids.size(), 6, "registry must expose exactly six app ids")
 	for id in EXPECTED.keys():
 		assert_true(ids.has(id), "registry must contain app id %s" % id)
 
@@ -54,3 +52,5 @@ func test_registry_has_app_matches_get_ids() -> void:
 		return
 	assert_true(registry.has_app(&"shop"))
 	assert_false(registry.has_app(&"not_a_real_app"))
+	assert_false(registry.has_app(&"logout"))
+	assert_false(registry.get_record(&"logout").ok)

@@ -99,7 +99,7 @@ func test_prepare_restore_round_trips_null_and_registered_id() -> void:
 	var bad_restore: Dictionary = h.prepare_restore(&"ghost_app", 4)
 	assert_false(bad_restore.get("ok", true), "unknown saved id rejects before apply")
 
-func test_registry_focus_targets_resolve_for_all_seven() -> void:
+func test_registry_focus_targets_resolve_for_all_apps() -> void:
 	for id in REGISTRY.new().get_ids():
 		var rec: Dictionary = REGISTRY.new().get_record(id)
 		assert_true(rec["focus_target"] is NodePath, "%s focus target is a NodePath" % id)

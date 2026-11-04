@@ -15,7 +15,7 @@ func before_each() -> void:
 	assert_true(desktop.configure_scene_navigation(host, ports.read_phase, ports.dispatch, ports.prepare_app).ok)
 
 func test_scene_launcher_uses_ids_without_schedule() -> void:
-	assert_eq(REGISTRY.new().get_scene_ids(), [&"minesweeper", &"contacts", &"shop", &"backup", &"settings", &"logout"])
+	assert_eq(REGISTRY.new().get_scene_ids(), [&"minesweeper", &"contacts", &"shop", &"backup", &"settings"])
 	assert_false(REGISTRY.new().get_scene_record(&"schedule").ok)
 	assert_true(REGISTRY.new().get_record(&"schedule").ok, "legacy resolver retained")
 	assert_false(desktop.launcher_buttons[&"schedule"].visible)
@@ -140,3 +140,16 @@ func test_restored_external_sheet_home_refusal_preserves_host_and_commands() -> 
 		assert_eq(host.get_state(), before)
 		assert_true(ports.commands.is_empty())
 		ports.phase = &"NONE"
+
+func test_logout_launcher_dispatches_action_without_app_scene() -> void:
+	var calls: Array[StringName] = []
+	var dispatch := func(id: StringName) -> Dictionary:
+		calls.append(id)
+		return {"ok": true}
+	assert_true(desktop.configure_scene_shell_actions(dispatch, func() -> bool: return true).ok)
+	desktop.launcher_buttons[&"logout"].pressed.emit()
+	await get_tree().process_frame
+	assert_eq(calls, [&"logout"])
+	assert_null(host.get_state().active_app_id)
+	assert_false(desktop._cached_app_windows.has(&"logout"))
+	assert_false(REGISTRY.new().get_scene_record(&"logout").ok)
