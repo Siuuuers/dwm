@@ -1496,7 +1496,8 @@ func configure_scene_challenges(bundle: Dictionary, authority: Object) -> Dictio
 		return _fail(&"scene_challenge_registration_invalid")
 	if _scene_authority != null:
 		return _ok({}) if _scene_authority == authority and _scene_bundle == bundle else _fail(&"scene_challenge_already_configured")
-	_scene_bundle = bundle.duplicate(true)
+	var prepared: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").prepared_scene_contract(bundle)
+	_scene_bundle = bundle if not prepared.is_empty() else bundle.duplicate(true)
 	_scene_authority = authority
 	return _ok({})
 
@@ -1508,7 +1509,9 @@ func _scene_authorize(command: Dictionary) -> Dictionary:
 		return _fail(&"invalid_scene_challenge_command")
 	if _scene_authority == null or ATTEMPTS.semantic_slot(command.get("context", {})).is_empty():
 		return _fail(&"scene_challenge_unconfigured")
-	return _scene_authority.validate_scene_challenge_command(command.duplicate(true), _scene_bundle.duplicate(true))
+	var prepared: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").prepared_scene_contract(_scene_bundle)
+	return _scene_authority.validate_scene_challenge_command(command.duplicate(true),
+		_scene_bundle if not prepared.is_empty() else _scene_bundle.duplicate(true))
 
 ## Admission alone creates no attempt. Preserve already admitted in-memory moves
 ## before a manual departure; readmission must not replace them with Profile's prefix.

@@ -13,12 +13,50 @@ class SelectedClosedState extends RefCounted:
 	func capture_scene_challenge_closure(_context: Dictionary) -> Dictionary:
 		return {"ok": true, "value": closure.duplicate(true)}
 
+class RegistrationAuthority extends FIXTURE.Authority:
+	var received: Dictionary
+	func validate_scene_challenge_command(candidate: Dictionary, registration: Dictionary) -> Dictionary:
+		received = registration
+		return super.validate_scene_challenge_command(candidate, registration)
+
 var f: RefCounted
 
 func before_each() -> void:
 	f = FIXTURE.new()
 	assert_true(f.setup().ok)
 func after_each() -> void: f.dispose()
+
+func test_canonical_scene_registration_reuses_manifest_identity_through_authorization() -> void:
+	var selected: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_contract_tables()
+	assert_true(selected.ok, str(selected))
+	if not selected.ok: return
+	var authority := RegistrationAuthority.new()
+	authority.command = f.command.duplicate(true)
+	authority.bundle = selected.bundle
+	f.authority = authority
+	assert_true(f.recreate_owner().ok)
+	assert_true(is_same(f.owner._scene_bundle, selected.bundle))
+	assert_true(f.owner._scene_authorize(f.command).ok)
+	assert_true(is_same(authority.received, selected.bundle))
+	assert_true(authority.received.is_read_only())
+
+func test_mutable_scene_registration_stays_detached_from_configurer_and_authority() -> void:
+	var original: Dictionary = f.authority.bundle.duplicate(true)
+	var authority := RegistrationAuthority.new()
+	authority.command = f.command.duplicate(true)
+	authority.bundle = original.duplicate(true)
+	f.authority = authority
+	assert_true(f.recreate_owner().ok)
+	var supplied: Dictionary = authority.bundle
+	assert_false(is_same(f.owner._scene_bundle, supplied))
+	supplied.entry_manifest.TEST = "updated caller copy"
+	authority.bundle = original.duplicate(true)
+	assert_true(f.owner._scene_authorize(f.command).ok)
+	assert_eq(authority.received, original)
+	assert_false(is_same(authority.received, f.owner._scene_bundle))
+	authority.received.entry_manifest.TEST = "updated recipient copy"
+	assert_true(f.owner._scene_authorize(f.command).ok)
+	assert_eq(authority.received, original)
 
 func test_never_started_is_validated_absence_and_closed_occurrence_cannot_reenter() -> void:
 	assert_true(f.begin().ok)

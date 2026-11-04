@@ -4735,7 +4735,8 @@ func validate_scene_challenge_command(command: Dictionary, bundle: Dictionary) -
 	if not current.ok: return current
 	var detached := command.duplicate(true)
 	detached.erase("physical_token")
-	if not _SCENE_EVENT._equal(detached, current.value.command) or not _SCENE_EVENT._equal(bundle, current.value.bundle):
+	if not _SCENE_EVENT._equal(detached, current.value.command) \
+			or (not is_same(bundle, current.value.bundle) and not _SCENE_EVENT._equal(bundle, current.value.bundle)):
 		return _transaction_failure(&"scene_challenge_command_refused", "")
 	return {"ok": true}
 
