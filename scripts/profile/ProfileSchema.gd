@@ -21,7 +21,7 @@ const V5_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction
 const V7_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts"]
 const V8_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts", "observer_evidence", "pair_deck_draws", "reached_presentations"]
 const V9_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts", "observer_evidence", "pair_deck_draws", "reached_presentations", "reached_presentation_chronology"]
-const ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts", "observer_evidence", "pair_deck_draws", "reached_presentations", "reached_presentation_chronology", "witnessed_caption_variants", "dialogue_library"]
+const ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts", "observer_evidence", "pair_deck_draws", "reached_presentations", "reached_presentation_chronology", "witnessed_caption_variants", "dialogue_library", "displayed_artwork_ids"]
 const PAIR_FORMS := ["ambiguous_sweet", "ambiguous_dark", "love_sweet", "love_dark"]
 const MIGRATION_RECEIPT_KEYS := ["legacy_game_state_profile_v1", "legacy_input_bindings_v1", "invalid_persisted_skip_mode_v1"]
 const PREFERENCE_GROUPS := ["language", "reading", "audio", "display", "accessibility", "exceptional_replay", "dark_mode"]
@@ -113,6 +113,7 @@ static func make_defaults() -> Dictionary:
 		"visited_line_ids": [],
 		"witnessed_caption_variants": {},
 		"dialogue_library": {"checkpoints": [], "witnesses": {}},
+		"displayed_artwork_ids": [],
 		"preferences": preferences,
 		"input_mappings": {},
 		"controls_bindings": CONTROLS_RULES.defaults(),
@@ -285,6 +286,11 @@ static func _validate_modern_document(source: Dictionary, version: int, root_key
 	var admitted_library_default := version >= 10 and not profile.has("dialogue_library")
 	if admitted_library_default:
 		profile["dialogue_library"] = {"checkpoints": [], "witnesses": {}}
+	var admitted_artwork_default := version >= 10 and not profile.has("displayed_artwork_ids")
+	if version >= 10:
+		if admitted_artwork_default: profile.displayed_artwork_ids = []
+		var artwork := _validate_unique_strings(profile.displayed_artwork_ids, "displayed_artwork_ids", preload("res://scripts/data/ArtManifest.gd").GALLERY_IDS)
+		if not artwork.ok: return artwork
 	var exact := _require_keys(profile, root_keys, "profile")
 	if not exact.get("ok", false): return exact
 	var gallery := _validate_unique_strings(profile["gallery_unlocks"], "gallery_unlocks", ENDING_IDS)
@@ -349,7 +355,7 @@ static func _validate_modern_document(source: Dictionary, version: int, root_key
 			if beat.line_id not in profile.visited_line_ids:
 				return _invalid("witnessed_caption_variants", "An exact caption witness also retains its base-line visit")
 	var result := {"ok": true, "code": &"ok", "value": profile}
-	if admitted_view_defaults or admitted_steady_default or admitted_window_default or admitted_font_default or admitted_panel_widths or admitted_library_default:
+	if admitted_view_defaults or admitted_steady_default or admitted_window_default or admitted_font_default or admitted_panel_widths or admitted_library_default or admitted_artwork_default:
 		result["migrated"] = true
 	return result
 

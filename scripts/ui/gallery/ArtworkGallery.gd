@@ -1,9 +1,6 @@
 extends Control
 signal viewer_visibility_changed(active: bool)
-## Read-only projection of durable, visibly witnessed lines. Opening art writes nothing.
 const ART := preload("res://scripts/data/ArtManifest.gd")
-const UNLOCK_LINES := {"picture1": "line.Day1.one", "picture2": "line.Day1.one",
-	"picture3": "line.Day4.one", "picture4": "line.Day2.one", "picture5": "line.Day3.one"}
 
 # English fallback for isolated hosts without a LocalizationManager. Production
 # GalleryScene projects every value from the canonical catalogue before display.
@@ -23,14 +20,14 @@ var _hints: Label
 var _return_focus: Control
 
 static func unlocked(profile: Object, picture_id: String) -> bool:
-	return is_instance_valid(profile) and profile.has_method("is_line_visited") \
-		and UNLOCK_LINES.has(picture_id) and profile.is_line_visited(UNLOCK_LINES[picture_id])
+	return is_instance_valid(profile) and profile.has_method("has_displayed_artwork") \
+		and picture_id in ART.GALLERY_IDS and profile.has_displayed_artwork(picture_id)
 
 func configure(profile: Object) -> void:
 	_profile = profile
 	if is_instance_valid(profile):
-		if profile.has_signal("visited_history_changed"):
-			profile.visited_history_changed.connect(_on_history_changed)
+		if profile.has_signal("artwork_changed"):
+			profile.artwork_changed.connect(refresh)
 		if profile.has_signal("profile_restored"):
 			profile.profile_restored.connect(_on_profile_restored)
 
@@ -54,7 +51,7 @@ func _ready() -> void:
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list.add_theme_constant_override("separation", 8)
 	scroll.add_child(list)
-	for id: String in UNLOCK_LINES:
+	for id: String in ART.GALLERY_IDS:
 		var row := Button.new()
 		row.name = id
 		row.custom_minimum_size = Vector2(248, 92)
@@ -97,7 +94,7 @@ func refresh() -> void:
 		close_viewer()
 		_selected = ""
 	if _selected.is_empty():
-		for id: String in UNLOCK_LINES:
+		for id: String in ART.GALLERY_IDS:
 			if unlocked(_profile, id):
 				_selected = id
 				break
@@ -178,9 +175,6 @@ func _input(event: InputEvent) -> void:
 			_hints.visible = not _hints.visible
 	# Modal ownership includes releases and mouse input: nothing reaches the title shell.
 	get_viewport().set_input_as_handled()
-
-func _on_history_changed(_line_id: String, _visited: bool) -> void:
-	refresh()
 
 func _on_profile_restored(_snapshot: Dictionary) -> void:
 	refresh()

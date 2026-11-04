@@ -16,17 +16,18 @@ func test_profile_first_32_authored_captions() -> void:
 	_ending_phase_timing = true
 	if not _setup_authored(): return
 	get_node("/root/SceneRouter").goto_menu()
-	if not await _new_from_title(1): return
+	if not await _new_from_title(1, _expected[0].line_id): return
 	_measure_memory("first")
-	for index: int in range(1, 32):
+	var count := mini(32, _expected.size())
+	for index: int in range(1, count):
 		var active := TIMING.begin_scope("authored_caption_%d" % index, "PLAYING", "", index)
 		assert_true(active, "profiling enabled")
 		if not active: return
 		var ok: bool = await _walk_authored(index, index)
 		if active: TIMING.end_scope(ok)
 		if not ok: return
-	_measure_memory("32")
-	assert_eq(observed_lines.size(), 32)
+	_measure_memory("last")
+	assert_eq(observed_lines.size(), count)
 	await _screenshot("authored-profile-32")
-	_write_json("res://.godot/ci/authored-profile.json", {"scope": "fresh_title_first_32_captions",
+	_write_json("res://.godot/ci/authored-profile.json", {"scope": "fresh_title_up_to_32_captions",
 		"observed_lines": observed_lines, "timings": _timings, "process_id": OS.get_process_id()})

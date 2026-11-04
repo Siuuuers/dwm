@@ -1,6 +1,7 @@
 class_name ArtManifest
 extends RefCounted
 ## Optional artwork is explicit presentation data; it never changes gameplay or saved facts.
+const GALLERY_IDS := ["picture1", "picture2", "picture3", "picture4", "picture5"]
 const PLACEMENTS_PATH := "res://data/manifests/art_placements.json"
 const IMAGE_EXTENSIONS := ["png", "svg", "webp", "jpg", "jpeg"]
 static var _placements: Dictionary = {}
