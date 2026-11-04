@@ -78,7 +78,7 @@ $result = [ordered]@{
     source_commit = $ExpectedCommit.ToLowerInvariant(); archive_sha256 = $ExpectedArchiveSha256.ToLowerInvariant()
     accessibility_request = $Accessibility; audio_request = $Audio
     renderer_request = $Renderer; user_root = $user; output_path = $output
-    scope = 'Ordinary release UI; normal packaged seven-day TEST story; no Challenge registration'
+    scope = 'Ordinary release UI; current authored opening, displayed artwork, manual Save/Load, Computer Home and clean shutdown'
     forced_cleanup = $false; clean_player_exit = $false
 }
 
@@ -210,7 +210,9 @@ function Invoke-UI($Element, [string]$Purpose) {
     ([Windows.Automation.InvokePattern]$pattern).Invoke()
     Start-Sleep -Milliseconds 200
 }
-function Caption([string]$Text) { return Button $Text }
+function Caption([string]$Text) {
+    return Wait-One $Text { Nodes $window | Where-Object { (Visible $_) -and $_.Current.ControlType -eq [Windows.Automation.ControlType]::Text -and $_.Current.Name.TrimEnd() -ceq $Text } }
+}
 function Observe-Line([string]$Text, [string]$Stage) {
     $null = Caption $Text
     Capture "$Stage-first-observed"
@@ -218,10 +220,6 @@ function Observe-Line([string]$Text, [string]$Stage) {
     Start-Sleep -Milliseconds 1600
     $null = Caption $Text
     Capture $Stage
-}
-function Advance([string]$From, [string]$To, [string]$Stage) {
-    Invoke-UI (Caption $From) "advance: $From"
-    Observe-Line $To $Stage
 }
 function Backup-Scope {
     # Prefer a common Backup ancestor. The observed native provider flattens this
@@ -443,6 +441,37 @@ function End-Process([bool]$AtTitle) {
     Require ($child.ExitCode -eq 0) 'PLAYER_EXIT_NONZERO'
     $result.clean_player_exit = $true
 }
+function Observe-Artwork($Snapshot) {
+    $profile = Read-Json $profilePath
+    Require ($profile.Contains('displayed_artwork_ids') -and $profile.displayed_artwork_ids.Count -gt 0) 'DISPLAYED_ARTWORK_NOT_RECORDED'
+    $presentation = $Snapshot.scene.presentation
+    $assets = @($presentation.background, $presentation.cg) + @($presentation.overlays | ForEach-Object { $_.asset_id })
+    if (-not $presentation.cg) { $assets += @($presentation.portraits) }
+    $expected = @($assets | Where-Object {
+        $_ -and $artCatalog.assets.Contains($_) -and $artCatalog.assets[$_].path.StartsWith('res://art/pictures/')
+    } | Select-Object -Unique)
+    Require ($expected.Count -gt 0) 'OPENING_GALLERY_ARTWORK_MISSING'
+    foreach ($asset in $expected) { Require ($asset -cin $profile.displayed_artwork_ids) "DISPLAYED_ARTWORK_MISSING: $asset" }
+    $result.displayed_artwork = $expected
+    Capture 'opening-artwork'
+}
+function Return-HomeAndQuit {
+    Invoke-UI (Button 'Check Computer') 'open Computer for Home and logout'
+    Invoke-UI (Button 'Contacts') 'open an app before returning Home'
+    Invoke-UI (Button 'Home') 'return to Computer Home'
+    $null = Button 'Log out'
+    Capture 'computer-home'
+    Invoke-UI (Button 'Log out') 'request return to title without saving'
+    $confirm = Wait-One 'logout confirmation' {
+        Actions $window 'Return to Title' | Where-Object {
+            $_.Current.BoundingRectangle.Top -gt $window.Current.BoundingRectangle.Top + $window.Current.BoundingRectangle.Height * 0.7
+        }
+    }
+    Invoke-UI $confirm 'confirm logout without saving'
+    $null = Button 'New Acc'
+    Capture 'return-title'
+    End-Process $true
+}
 function Receipt([string]$Path, [string]$ExpectedMode) {
     Require (-not [string]::IsNullOrWhiteSpace($Path)) "$ExpectedMode`_RECEIPT_REQUIRED"
     $r = Read-Json ([IO.Path]::GetFullPath($Path))
@@ -460,6 +489,19 @@ Require (-not (Below $archive $output) -and -not (Below $archive $user)) 'ARCHIV
 New-Item -ItemType Directory -Path $output | Out-Null
 try {
     Require ((Hash $archive) -ceq $result.archive_sha256) 'ARCHIVE_CHECKSUM_MISMATCH'
+    $repository = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
+    Require ((& git -C $repository rev-parse HEAD).Trim() -ceq $result.source_commit) 'CHECKOUT_COMMIT_MISMATCH'
+    $registration = Read-Json (Join-Path $repository 'data/manifests/scene_story_registration.json')
+    $storyStart = Read-Json (Join-Path $repository 'data/manifests/story_start.json')
+    $targets = @($registration.targets | Where-Object { $_.target_id -ceq $storyStart.target_id })
+    Require ($targets.Count -eq 1 -and $targets[0].target.kind -ceq 'scene') 'OPENING_TARGET_UNAVAILABLE'
+    $openingEntry = $targets[0].target.entry_id
+    $captions = @($registration.caption_registry.entries | Where-Object { $_.entry_id -ceq $openingEntry })
+    Require ($captions.Count -eq 1 -and $captions[0].lines.Count -gt 0 -and $targets[0].target.label -ceq $openingEntry) 'OPENING_CAPTION_UNAVAILABLE'
+    $opening = $captions[0].lines[0]
+    $artCatalog = Read-Json (Join-Path $repository 'data/manifests/art_placements.json')
+    $result.opening = @{ entry_id = $openingEntry; line_id = $opening.line_id; text = $opening.text }
+
     if ($Mode -eq 'Create') { $result.capability = Receipt $CapabilityReceipt 'Capability' }
     if ($Mode -eq 'Load') {
         $creator = Receipt $CreatorReceipt 'Create'
@@ -550,15 +592,15 @@ try {
         $watch = [Diagnostics.Stopwatch]::StartNew()
         while ($watch.Elapsed.TotalSeconds -lt $StepTimeoutSeconds) {
             $script:window = Window
-            if (@(Actions $window 'TEST Day4 closing.').Count -eq 1) { break }
+            if (@(Nodes $window | Where-Object { (Visible $_) -and $_.Current.ControlType -eq [Windows.Automation.ControlType]::Text -and $_.Current.Name.TrimEnd() -ceq $opening.text }).Count -eq 1) { break }
             $sheets = @(Nodes $window | Where-Object { (Visible $_) -and $_.Current.Name.TrimEnd() -ceq 'Load Slot 1?' -and @(Actions $_ 'Load').Count -eq 1 })
             Require ($sheets.Count -le 1) 'LOAD_CONFIRMATION_AMBIGUOUS'
             if ($sheets.Count -eq 1) { Invoke-UI (@(Actions $sheets[0] 'Load')[0]) 'confirm source slot Load'; break }
             Start-Sleep -Milliseconds 100
         }
-        Observe-Line 'TEST Day4 closing.' 'restored-day4'
+        Observe-Line $opening.text 'restored-opening'
         $restored = Snapshot (Save-Slot 2)
-        foreach ($key in @('narrative_checkpoint', 'gameplay', 'scene', 'command_receipts', 'applied_effect_transaction_ids', 'applied_variable_transaction_ids')) {
+        foreach ($key in @('narrative_checkpoint', 'gameplay', 'scene', 'contacts', 'desktop', 'run_id', 'route_id', 'schema_version')) {
             Require ($sourceSnapshot.Contains($key) -and $restored.Contains($key)) "RESTORE_WITNESS_FIELD_MISSING: $key"
             Require ((Canonical $sourceSnapshot[$key]) -ceq (Canonical $restored[$key])) "RESTORED_STATE_CHANGED: $key"
         }
@@ -567,42 +609,19 @@ try {
         Require ((Canonical $restoredProfile) -ceq (Canonical $sourceProfile)) 'LOAD_OR_WITNESS_SAVE_CHANGED_PROFILE'
         Copy-Item -LiteralPath $profilePath -Destination (Join-Path $output 'profile-after-load.json')
         Copy-Item -LiteralPath (Join-Path $dataRoot 'saves/slot_2.json') -Destination (Join-Path $output 'restored-slot-2.json')
-        Observe-Line 'TEST Day4 closing.' 'restored-after-witness-save'
-        $previous = 'TEST Day4 closing.'
-        for ($day = 5; $day -le 7; $day++) {
-            foreach ($half in @('opening', 'closing')) {
-                $next = "TEST Day$day $half."
-                Advance $previous $next "day-$day-$half"
-                $previous = $next
-            }
-        }
-        Advance $previous 'TEST Seven-day ending.' 'ending'
-        Invoke-UI (Caption 'TEST Seven-day ending.') 'finish ending'
-        $null = Button 'New Acc'
-        Capture 'ending-return-title'
-        $completed = Snapshot (Read-Json (Join-Path $dataRoot 'saves/autosave.json'))
-        Require ($completed.lifecycle.state -ceq 'COMPLETED' -and $completed.lifecycle.ending_plan.playback_stage -ceq 'GALLERY_RECORDED') 'ENDING_NOT_DURABLY_COMPLETED'
-        $completedProfile = Read-Json $profilePath
-        $galleryKey = 'ending:' + $sourceSnapshot.lifecycle.run_id + ':gallery:ending.alone'
-        Require ($completedProfile.gallery_transaction_receipts.Contains($galleryKey)) 'ENDING_GALLERY_RECEIPT_MISSING'
-        Require ((Canonical $completedProfile.gallery_transaction_receipts[$galleryKey]) -ceq (Canonical @{ ending_id = 'ending.alone'; unlocked = $true })) 'ENDING_GALLERY_RECEIPT_WRONG'
-        Require ($completedProfile.gallery_transaction_receipts.Count -eq $sourceProfile.gallery_transaction_receipts.Count + 1 -and
-            'ending.alone' -cin $completedProfile.gallery_unlocks) 'ENDING_GALLERY_AWARD_COUNT'
-        foreach ($key in $sourceProfile.gallery_transaction_receipts.Keys) {
-            Require ($completedProfile.gallery_transaction_receipts.Contains($key) -and
-                (Canonical $completedProfile.gallery_transaction_receipts[$key]) -ceq (Canonical $sourceProfile.gallery_transaction_receipts[$key])) 'PRIOR_GALLERY_RECEIPT_CHANGED'
-        }
-        Copy-Item -LiteralPath (Join-Path $dataRoot 'saves/autosave.json') -Destination (Join-Path $output 'completed-autosave.json')
+        Observe-Line $opening.text 'restored-after-witness-save'
+        Require ($restored.narrative_checkpoint.reading_session.position_id -ceq $opening.line_id) 'WRONG_RESTORED_FRONTIER'
+        Observe-Artwork $restored
         $result.restored_checkpoint_matches = $true
-        End-Process $true
+        Return-HomeAndQuit
     } else {
         Invoke-UI (Button 'New Acc') 'ordinary New Game'
-        Observe-Line 'TEST Day1 opening.' 'new-game'
+        Observe-Line $opening.text 'new-game'
         Invoke-UI (Button 'Check Computer') 'open Computer'
         $null = Button 'Close Computer'
         Capture 'computer-open'
         Invoke-UI (Button 'Close Computer') 'close Computer'
-        Observe-Line 'TEST Day1 opening.' 'computer-closed-same-caption'
+        Observe-Line $opening.text 'computer-closed-same-caption'
         if ($Mode -eq 'Capability') {
             Invoke-UI (Reading-Save) 'discover Backup without saving'
             $null = Wait-One 'empty slot drawer' { Nodes $window | Where-Object { (Visible $_) -and $_.Current.ControlType -eq [Windows.Automation.ControlType]::Button -and $_.Current.Name.TrimEnd() -ceq 'Slot 1, Empty' } }
@@ -610,23 +629,16 @@ try {
             $null = Backup-Action 'Save'
             Capture 'capability-backup-action'
             Require (-not (Test-Path -LiteralPath $slotPath)) 'CAPABILITY_UNEXPECTED_MANUAL_SAVE'
-            End-Process $false
+            Invoke-UI (Button 'Back') 'close capability Backup host'
+            Return-HomeAndQuit
         } else {
-            $previous = 'TEST Day1 opening.'
-            for ($day = 1; $day -le 4; $day++) {
-                foreach ($half in @('opening', 'closing')) {
-                    if ($day -eq 1 -and $half -ceq 'opening') { continue }
-                    $next = "TEST Day$day $half."
-                    Advance $previous $next "day-$day-$half"
-                    $previous = $next
-                }
-            }
             $sourceSnapshot = Snapshot (Save-Slot 1)
-            Require ($sourceSnapshot.narrative_checkpoint.reading_session.frontier.line_id -ceq 'line.Day4.two') 'WRONG_SAVED_FRONTIER'
+            Require ($sourceSnapshot.narrative_checkpoint.reading_session.position_id -ceq $opening.line_id) 'WRONG_SAVED_FRONTIER'
             $result.source_slot_sha256 = Hash $slotPath
             Copy-Item -LiteralPath $slotPath -Destination (Join-Path $output 'source-slot-1.json')
-            Observe-Line 'TEST Day4 closing.' 'saved-day4'
-            End-Process $false
+            Observe-Line $opening.text 'saved-opening'
+            Observe-Artwork $sourceSnapshot
+            Return-HomeAndQuit
         }
     }
     if ($Mode -eq 'Load') { Require ((Hash $slotPath) -ceq $creator.source_slot_sha256) 'SOURCE_SLOT_MUTATED' }
