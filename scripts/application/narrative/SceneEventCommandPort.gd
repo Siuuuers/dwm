@@ -70,7 +70,7 @@ func _dispatch_owned(event: Dictionary, digest: String, lease: String) -> Dictio
 	if event.get("schema_version") == 2:
 		var installed := _installed_scene_registration()
 		if not installed.get("ok", false): return installed
-		if not CONTRACT._equal(record, installed.value): return _fail(&"event_registration_mismatch")
+		if not is_same(record, installed.value) and not CONTRACT._equal(record, installed.value): return _fail(&"event_registration_mismatch")
 		registered = CONTRACT.inspect_scene(event, installed.value)
 	else:
 		registered = CONTRACT.match_registration(event, record)
@@ -119,7 +119,9 @@ func dispatch_owned(envelope: Dictionary, lease: String, seal: Dictionary) -> Di
 func _installed_scene_registration() -> Dictionary:
 	var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
 	if manifest == null: return _fail(&"event_registration_invalid")
-	return manifest.scene_registration()
+	var selected: Dictionary = manifest.scene_contract_tables()
+	if not selected.get("ok", false): return selected
+	return {"ok": true, "value": selected.bundle}
 
 
 func _inspect_event(envelope: Variant) -> Dictionary:
