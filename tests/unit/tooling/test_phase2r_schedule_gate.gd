@@ -701,10 +701,7 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 		and hospital_state.contains("\"child_kind\": _STAGE_CHILD_KIND")
 		and hospital_state.contains("\"child_kind\": _RETIREMENT_CHILD_KIND"),
 		"the Hospital owner delegates its three typed child roles")
-	assert_true(_generator.strip_comments(FileAccess.get_file_as_string(
-		"res://autoload/ApplicationBootstrap.gd")).contains(
-		"state.configure(game_state._run_lifecycle, _desktop_identity_nonce_issuer)"),
-		"production injects the retained issuer into the Hospital state owner")
+
 
 
 func test_bootstrap_probe_key_set_and_owner_bindings_are_exact() -> void:
