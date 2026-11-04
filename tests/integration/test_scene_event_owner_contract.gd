@@ -3,6 +3,19 @@ extends "res://addons/gut/test.gd"
 const FIXTURE := preload("res://tests/support/SceneEventFixture.gd")
 const PORT := preload("res://scripts/application/narrative/SceneEventCommandPort.gd")
 
+func test_installed_registration_reuses_canonical_immutable_bundle() -> void:
+	var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
+	var selected: Dictionary = manifest.scene_contract_tables()
+	assert_true(selected.ok)
+	var port: RefCounted = PORT.new()
+	var installed: Dictionary = port._installed_scene_registration()
+	assert_true(installed.ok)
+	assert_true(is_same(installed.value, selected.bundle))
+	assert_true(installed.value.is_read_only())
+	var checked: Dictionary = port.CONTRACT.validate_bundle_structure(installed.value)
+	assert_true(checked.ok)
+	assert_true(is_same(checked.value, selected.value))
+
 func test_exact_duplicate_and_new_port_apply_once_even_after_frontier_moves() -> void:
 	var fixture: RefCounted = FIXTURE.new()
 	var port: RefCounted = fixture.make_port()
