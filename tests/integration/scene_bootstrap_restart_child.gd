@@ -130,7 +130,8 @@ func load_saved_text() -> void:
 	var reading: Dictionary = bridge.capture_reading_checkpoint(false)
 	if not _ok(reading): return
 	assert_eq(reading.value.reading_session.entry_id, witness.reading_session.entry_id)
-	assert_eq(reading.value.reading_session.program_index, witness.reading_session.program_index)
+	assert_eq(reading.value.reading_session.frontier.line_id, witness.reading_session.position_id)
+	assert_eq(bridge._runtime_adapter.current_line_id(), witness.reading_session.position_id)
 	var current: Dictionary = game.capture_run_snapshot_input()
 	assert_eq(current.lifecycle.run_id, witness.source_run)
 	assert_eq(current.lifecycle.branch_id, witness.source_branch, "selected Load preserves the saved branch")

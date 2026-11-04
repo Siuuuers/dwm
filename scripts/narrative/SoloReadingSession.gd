@@ -36,7 +36,7 @@ var _scene_display: Dictionary = {}
 var _scene_thought_ids: Dictionary = {}
 var _scene_bundle: Dictionary = {}
 var player_progress: Dictionary = {}
-var _progress_serial := 0
+var _progress_count := 0
 var _pending_checkpoint := false
 # Only immutable semantic data is shared; native playback resources and each
 # session's ledger/cursor stay separate. Installed content is fixed for this process.
@@ -199,9 +199,8 @@ func accept_scene_publication(index: int, frontier: Dictionary) -> Dictionary:
 func _capture_scene(frontier: Dictionary) -> Dictionary:
 	if ledger == null or latest_entry.is_empty(): return _fail(&"reading_session_unavailable")
 	var retained: Dictionary = ledger.snapshot()
-	for row: Dictionary in retained.captions:
-		var serial := _scene_publication_high_water([row])
-		if serial <= _progress_serial: continue
+	for index: int in range(_progress_count, retained.captions.size()):
+		var row: Dictionary = retained.captions[index]
 		if row.occurrence_id == scene_occurrence and row.beat.owning_entry_id == latest_entry:
 			TRAVERSAL.append_player_caption(player_progress, latest_entry, row.beat.line_id,
 				_story_day(latest_entry), _pending_checkpoint)
@@ -209,7 +208,7 @@ func _capture_scene(frontier: Dictionary) -> Dictionary:
 			if not thought.is_empty():
 				TRAVERSAL.append_player_caption(player_progress, latest_entry, thought.line_id, _story_day(latest_entry))
 			_pending_checkpoint = false
-		_progress_serial = serial
+	_progress_count = retained.captions.size()
 	var saved := {"schema_version": 5, "registration_sha256": fingerprint, "entry_id": latest_entry,
 		"occurrence_id": scene_occurrence, "program_index": scene_index, "boundary": boundary,
 		"ledger": retained, "frontier": frontier.duplicate(true), "player_progress": player_progress.duplicate(true),
@@ -1011,7 +1010,7 @@ func restore(saved: Dictionary, entry_id: String) -> Dictionary:
 		next_operation = saved.next_operation.duplicate(true) if saved.next_operation is Dictionary else {}
 		player_progress = saved.get("player_progress", {}).duplicate(true)
 		_pending_checkpoint = player_progress.is_empty()
-		_progress_serial = _scene_publication_high_water(saved.ledger.captions) if not player_progress.is_empty() else 0
+		_progress_count = saved.ledger.captions.size() if not player_progress.is_empty() else 0
 		return {"ok": true}
 	var checked := validate_saved(saved, entry_id)
 	if not checked.ok: return checked

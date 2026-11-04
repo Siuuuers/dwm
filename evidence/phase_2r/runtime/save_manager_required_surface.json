@@ -1,6 +1,7 @@
 {
   "schema": "save_manager_required_surface.v1",
   "symbols": [
+    {"symbol": "flush_profile_reading_history", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_checkpoint_and_manual_saves_flush_staged_caption_history"},
     {"symbol": "capture_scene_restore_activation", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_memory_load_waits_for_ui_and_native_then_retains_only_process_local_readiness"},
     {"symbol": "save_completed", "kind": "signal", "availability": "current", "disposition": "deprecate", "replacement": "signal save_capability_changed(capability: Dictionary)", "contract_test": "test_save_family_writes_closed_relative_names"},
     {"symbol": "load_completed", "kind": "signal", "availability": "current", "disposition": "deprecate", "replacement": "signal run_restored(checkpoint_id: String, route_id: String)", "contract_test": "test_restore_preparation_and_delete_families"},
