@@ -53,6 +53,13 @@ const CONSEQUENCE_RECEIPT_KEYS: Array = [
 ]
 
 
+var _coordinators: Array[RefCounted] = []
+
+func after_each() -> void:
+	for coordinator in _coordinators:
+		coordinator.release_runtime_dependencies()
+	_coordinators.clear()
+
 func before_each() -> void:
 	assert_true(SHOP_REGISTRY.initialize().get("ok", false), "shop registry must load")
 
@@ -135,6 +142,7 @@ func _wired(day: int = DAY) -> Dictionary:
 	assert_true(causal_sequence_port.configure(consequence_state, gate, checkpoint_port).get("ok", false))
 
 	var coordinator: Object = CONSEQUENCE_COORDINATOR.new()
+	_coordinators.append(coordinator)
 	assert_true(coordinator.configure(consequence_state, causal_sequence_port, board_fate_port,
 		checkpoint_port, gate).get("ok", false))
 	assert_true(coordinator.configure_action_source_ports(round_coordinator, shop_participant).get("ok", false))
