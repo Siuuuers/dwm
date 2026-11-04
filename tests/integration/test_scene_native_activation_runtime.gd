@@ -486,6 +486,12 @@ func test_held_control_projection_refuses_replaced_session_and_stale_native_sour
 func test_held_control_actions_revalidate_history_and_preserve_read_only_custody() -> void:
 	var held: Dictionary = await _restore_counted_control()
 	if held.is_empty(): return
+	held.session.captures = 0
+	var position: Dictionary = _adapter.capture_scene_control_position(held.session)
+	assert_true(position.ok)
+	if not position.ok: return
+	assert_eq(position.value, held.checkpoint.reading_session)
+	assert_eq(held.session.captures, 1, "control capture returns the one physically checked reading")
 	var frontier: Dictionary = _bridge.capture_current_line_presentation_frontier()
 	assert_true(frontier.ok)
 	if not frontier.ok: return

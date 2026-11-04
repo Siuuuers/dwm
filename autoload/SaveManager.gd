@@ -414,7 +414,7 @@ func _resume_scene_new_run(operation: Dictionary, gate_token: String) -> Diction
 func configure_new_run_profile_owner(owner: Object) -> Dictionary:
 	if owner == null or not is_instance_valid(owner):
 		return _fail(&"invalid_new_run_profile_owner", "")
-	for method: String in ["prepare_new_run_consumption", "persist_new_run_consumption", "prove_new_run_consumption", "get_profile_revision"]:
+	for method: String in ["prepare_new_run_consumption", "persist_new_run_consumption", "prove_new_run_consumption", "get_profile_revision", "flush_reading_history"]:
 		if not owner.has_method(method):
 			return _fail(&"invalid_new_run_profile_owner", method)
 	if _new_run_profile_owner != null and _new_run_profile_owner != owner:
@@ -1191,6 +1191,8 @@ func _commit_backup_action_profiled(token: String, profile: Dictionary) -> Dicti
 				var stable := get_latest_stable_checkpoint()
 				if not stable.get("ok", false) or _canonical_sha256(stable["value"]["bundle"]) != candidate["stable_hash"]:
 					return _fail(&"stale_backup_source", "")
+			var flushed := flush_profile_reading_history()
+			if not flushed.ok: return flushed
 			_save_load_profile_phase(profile, "source_recheck_us")
 			var canonical := CANONICAL_JSON.stringify(candidate["document"])
 			_save_load_profile_phase(profile, "serialize_us")
@@ -1426,6 +1428,13 @@ func _resolve_locator(kind: StringName, public_slot_id: int) -> Dictionary:
 			return {"kind": "autosave", "slot_id": null, "relative_path": "autosave.json"}
 	return {}
 
+func flush_profile_reading_history() -> Dictionary:
+	if _new_run_profile_owner == null: return {"ok": true}
+	var flushed: Dictionary = _new_run_profile_owner.flush_reading_history()
+	if not flushed.ok: save_failed.emit(flushed)
+	return flushed
+
+
 func _write_latest(locator: Dictionary, save_reason: String, session_exit: bool = false) -> Dictionary:
 	if session_exit and (_mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"session_abandonment")):
 		return _fail(&"session_abandonment_required", "")
@@ -1453,6 +1462,8 @@ func _write_latest(locator: Dictionary, save_reason: String, session_exit: bool 
 	if not built.get("ok", false):
 		save_failed.emit(built)
 		return built
+	var flushed := flush_profile_reading_history()
+	if not flushed.ok: return flushed
 	var relative_path := str(locator["relative_path"])
 	# The previous target is replaceable data, not a restoration prerequisite.
 	# Bind this write to its exact bytes so a competing write is still refused.

@@ -5,6 +5,21 @@ const FIXTURE := preload("res://tests/support/SceneEventFixture.gd")
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const WRITER_CORPUS := preload("res://tests/support/CanonicalWriterCompatibilityCorpus.gd")
 
+func test_scene_comparison_preserves_nested_values_types_and_container_order() -> void:
+	var first := {"captions": [{"line_id": "line.one", "serial": 9007199254740993}],
+		"settings": {"volume": 0.5, "enabled": true}, "target": null}
+	var reordered := {"target": null, "settings": {"enabled": true, "volume": 0.5},
+		"captions": first.captions.duplicate(true)}
+	assert_true(CONTRACT._equal(first, reordered))
+	reordered.captions[0].serial = 9007199254740992
+	assert_false(CONTRACT._equal(first, reordered))
+	assert_false(CONTRACT._equal({"count": 1}, {"count": 1.0}))
+	assert_false(CONTRACT._equal({"line": "one"}, {"line": &"one"}))
+	assert_false(CONTRACT._equal(["one", "two"], ["two", "one"]))
+	assert_false(CONTRACT._equal({"volume": 0.5}, {"volume": 0.500001}))
+	assert_true(CONTRACT._equal({}, {}))
+	assert_true(CONTRACT._equal(null, null))
+
 func test_all_nine_registered_kinds_have_narrow_fixture_payloads() -> void:
 	var fixture: RefCounted = FIXTURE.new()
 	var kinds := {}

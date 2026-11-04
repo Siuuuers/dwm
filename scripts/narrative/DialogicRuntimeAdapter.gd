@@ -46,7 +46,7 @@ func retain_scene_source(session: RefCounted) -> Dictionary:
 		return {"ok": true, "value": _scene_source_token} if checked.ok else checked
 	_scene_source_token = RefCounted.new()
 	_scene_source = {"session": session, "ledger": _caption_ledger,
-		"snapshot": _caption_ledger.snapshot(), "boundary": boundary.value.duplicate(true),
+		"boundary": boundary.value,
 		"request": _request_id, "generation": _runtime_generation, "event": _caption_event,
 		"execution_generation": _caption_event._execution_generation,
 		"registration_sha256": session.fingerprint, "occurrence": _scene_caption_occurrence}
@@ -55,7 +55,7 @@ func retain_scene_source(session: RefCounted) -> Dictionary:
 func validate_scene_source(token: RefCounted, session: RefCounted) -> Dictionary:
 	if token == null or token != _scene_source_token or _scene_source.is_empty() \
 			or session == null or session != _scene_source.session or not _marker_hold_current() \
-			or _caption_ledger != _scene_source.ledger or _caption_ledger.snapshot() != _scene_source.snapshot \
+			or _caption_ledger != _scene_source.ledger \
 			or _request_id != _scene_source.request or _runtime_generation != _scene_source.generation \
 			or _caption_event != _scene_source.event \
 			or _caption_event._execution_generation != _scene_source.execution_generation \
@@ -473,14 +473,13 @@ func capture_scene_control_position(session: RefCounted) -> Dictionary:
 	if _scene_control_restore.is_empty() or session != _scene_control_restore.session \
 			or not _marker_hold_current():
 		return _fail(&"scene_restore_control_unproven", "")
-	var captured: Dictionary = session.capture({})
-	if not captured.ok or captured.value != _scene_control_restore.reading:
-		return _fail(&"scene_restore_control_changed", "")
 	# Read-only Save/History capture retains the same proven session and marker
 	# while sheet custody suspends native playback. Mutation callers stay unpaused.
 	var physical := _scene_source_boundary(session, true)
 	if not physical.ok: return physical
-	return {"ok": true, "value": captured.value}
+	if physical.value.reading != _scene_control_restore.reading:
+		return _fail(&"scene_restore_control_changed", "")
+	return {"ok": true, "value": physical.value.reading}
 
 
 func _start_held_scene_target(path: String, native_index: int) -> Dictionary:
