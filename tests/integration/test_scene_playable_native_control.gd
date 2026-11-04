@@ -1,7 +1,4 @@
 extends "res://addons/gut/test.gd"
-## Real native predecessor -> held playable control, with TEST-only admission.
-## No SaveManager/receipt/issuer/Bridge acknowledgement or rendered acceptance.
-## The future durable producer must call this installer only after its own ack.
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const BASE := preload("res://tests/support/SceneDayReadingFixture.gd")
 const PATH := "res://tests/fixtures/dialogic/scene_playable_native.dtl"
@@ -170,10 +167,7 @@ func _stage(candidate: RefCounted = null) -> bool:
 	var plan: Dictionary = _source.prepare_scene_next(_source_frontier, func(_beat: Dictionary) -> bool: return false)
 	assert_true(plan.ok, str(plan))
 	if not plan.ok: return false
-	var projected: Dictionary = OP.project(plan.value, "destination")
-	assert_true(projected.ok, str(projected))
-	if not projected.ok: return false
-	_reading = projected.value.duplicate(true)
+	_reading = OP._scene_projection(plan.value, "destination")
 	_candidate = BASE.SESSION.new() if candidate == null else candidate
 	var checked: Dictionary = _candidate.configure_scene()
 	if checked.ok: checked = _candidate.restore(_reading, _source.latest_entry)
@@ -218,6 +212,42 @@ func test_real_caption_installs_exact_control_without_replay_and_consumes_source
 	assert_eq(_results.size(), publications)
 	assert_eq(_markers, [])
 
+func test_live_control_continues_to_adjacent_caption_without_operation() -> void:
+	if not await _start_source() or not _stage(): return
+	var installed: Dictionary = _adapter.install_scene_control(_candidate, _reading, _source_token)
+	assert_true(installed.ok, str(installed))
+	if not installed.ok: return
+	var retained: Dictionary = _adapter.retain_scene_source(_candidate)
+	assert_true(retained.ok, str(retained))
+	if not retained.ok: return
+	var planned: Dictionary = _candidate.prepare_scene_control_continuation()
+	assert_true(planned.ok, str(planned))
+	if not planned.ok: return
+	var destination: Dictionary = OP._scene_projection(planned.value, "destination")
+	var next_session: RefCounted = BASE.SESSION.new()
+	assert_true(next_session.configure_scene().ok)
+	assert_true(next_session.restore(destination, BASE.B).ok)
+	var checkpoint := {"entry_id": BASE.B, "reading_session": destination,
+		"frozen_context": BASE.frame(BASE.B, _candidate.scene_occurrence)}
+	var continued: Dictionary = _adapter.install_scene_continuation(next_session, checkpoint, retained.value)
+	assert_true(continued.ok, str(continued))
+	if not continued.ok: return
+	await _settle()
+	var frontier: Dictionary = _adapter.capture_reading_frontier()
+	assert_true(frontier.ok, str(frontier))
+	if not frontier.ok: return
+	assert_eq(frontier.value, destination.frontier)
+	assert_eq(frontier.value.line_id, "line.scene.test.b.two")
+	var captured: Dictionary = next_session.capture(frontier.value)
+	assert_true(captured.ok, str(captured))
+	assert_eq(captured.value, destination)
+	assert_null(captured.value.next_operation)
+	assert_eq(captured.value.player_progress, destination.player_progress)
+	assert_eq(captured.value.ledger.captions.slice(0, _reading.ledger.captions.size()), _reading.ledger.captions)
+	assert_eq(captured.value.ledger.captions.size(), _reading.ledger.captions.size() + 1)
+	assert_false(_adapter.validate_scene_source(retained.value, _candidate).ok)
+	assert_eq(_markers, [])
+
 func test_unheld_and_forged_tokens_cannot_install_or_consume_the_real_source() -> void:
 	if not await _start_source(BASE.B, 0, false) or not _stage(): return
 	assert_false(_adapter.install_scene_control(_candidate, _reading, null).ok)
@@ -235,14 +265,11 @@ func test_malformed_projection_and_valid_but_unplanned_control_refuse_without_co
 	var cases: Array[Dictionary] = []
 	for pair: Array in [["schema_version", 5.0], ["program_index", 1.0],
 		["occurrence_id", "TEST.other"], ["registration_sha256", "0".repeat(64)],
-		["next_operation", null], ["frontier", _source_frontier]]:
+		["frontier", _source_frontier]]:
 		var changed: Dictionary = _reading.duplicate(true)
 		changed[pair[0]] = pair[1]
 		cases.append(changed)
 	var changed: Dictionary = _reading.duplicate(true)
-	changed.next_operation.phase = "source"
-	cases.append(changed)
-	changed = _reading.duplicate(true)
 	changed.extra = true
 	cases.append(changed)
 	for bad: Dictionary in cases:
