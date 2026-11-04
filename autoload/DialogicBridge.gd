@@ -336,9 +336,7 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 	if target.is_empty() or target.entry_id != entry_id or context.get("playback_id") != binding.target_occurrence_id \
 			or context.get("presentation", {}).get("fields", {}).get("admission_receipt_id") != binding.admission_receipt_id:
 		return _command_failure(&"scene_staging_target_invalid")
-	var candidate := _READING_SESSION.new()
-	var configured: Dictionary = candidate.configure_scene()
-	if not configured.ok: return configured
+	var candidate: RefCounted
 	var source_session: RefCounted = _reading_session
 	var native_source: RefCounted
 	var source_reading := {}
@@ -352,8 +350,7 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 		var captured := capture_reading_checkpoint(false)
 		if not captured.ok: return captured
 		source_reading = captured.value.reading_session.duplicate(true)
-		var copied: Dictionary = candidate.restore(captured.value.reading_session, captured.value.entry_id)
-		if not copied.ok: return copied
+		candidate = source_session._fork_scene_live()
 		# Caption-held Challenge results also establish a checkpoint at the
 		# first destination caption; they need not expose a control boundary.
 		var source_marker := capture_scene_pending_marker()
@@ -361,6 +358,9 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 				"challenge.playable", "challenge.end", "challenge.recall"]:
 			candidate.inherit_player_progress(source_session, true)
 	else:
+		candidate = _READING_SESSION.new()
+		var configured: Dictionary = candidate.configure_scene()
+		if not configured.ok: return configured
 		var begun: Dictionary = candidate.begin_scene(str(binding.operation_id))
 		if not begun.ok: return begun
 	var labels: Array = []
@@ -4659,10 +4659,10 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 		var node: Dictionary = _reading_session._scene_nodes[_reading_session.latest_entry][plan.destination.program_index]
 		if not departing and (node.get("marker_id") != event.get("event_id") or event.get("kind") != "challenge.playable"):
 			return _command_failure(&"scene_playable_edge_invalid")
-		var target_checkpoint := source.duplicate(true)
-		target_checkpoint.reading_session = _READING_TRAVERSAL._scene_projection(plan, "destination")
-		var candidate := _prepare_scene_reading_candidate(target_checkpoint)
+		var candidate: Dictionary = _reading_session._fork_scene_transition(plan)
 		if not candidate.ok: return candidate
+		var target_checkpoint := source.duplicate(true)
+		target_checkpoint.reading_session = candidate.value.reading
 		var snapshot_input: Dictionary = prepared.snapshot_input.duplicate(true)
 		var presentation_autosave := false
 		if departing:

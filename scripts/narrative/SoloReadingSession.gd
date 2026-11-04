@@ -116,8 +116,6 @@ func _ensure_scene_programme(entry_id: String) -> Dictionary:
 		return {"ok": true}
 	return _content_error("Missing passage: " + entry_id, {"entry_id": entry_id})
 
-## Same synchronous initial-candidate check only. Share configuration, never the
-## restored ledger/cursor; the sibling must construct its own first publication.
 func _fork_scene_configuration() -> RefCounted:
 	var sibling: RefCounted = get_script().new()
 	sibling.family = family
@@ -133,6 +131,37 @@ func _fork_scene_configuration() -> RefCounted:
 	sibling._scene_bundle = _scene_bundle
 	sibling._caption_variants_by_line = _caption_variants_by_line
 	return sibling
+
+func _fork_scene_live() -> RefCounted:
+	var sibling := _fork_scene_configuration()
+	sibling.ledger = ledger.fork_live()
+	sibling.command_id = command_id
+	sibling.latest_entry = latest_entry
+	sibling.scene_occurrence = scene_occurrence
+	sibling.scene_index = scene_index
+	sibling.boundary = boundary
+	sibling.next_operation = next_operation.duplicate(true)
+	sibling.player_progress = player_progress.duplicate(true)
+	sibling._progress_count = _progress_count
+	sibling._pending_checkpoint = _pending_checkpoint
+	return sibling
+
+func _fork_scene_transition(plan: Dictionary) -> Dictionary:
+	var sibling := _fork_scene_live()
+	var rows: Array = plan.traversed_captions.duplicate()
+	if plan.destination.kind == "line": rows.append(plan.destination.caption)
+	for row: Dictionary in rows:
+		var published: Dictionary = sibling.ledger.publish_caption(command_id, row.publication_id,
+			row.beat, row.occurrence_id)
+		if not published.ok: return published
+	var reading := TRAVERSAL._scene_projection(plan, "destination")
+	sibling.scene_index = reading.program_index
+	sibling.boundary = reading.boundary
+	sibling.next_operation = {}
+	sibling.player_progress = reading.get("player_progress", {}).duplicate(true)
+	sibling._pending_checkpoint = sibling.player_progress.is_empty()
+	sibling._progress_count = reading.ledger.captions.size() if not sibling.player_progress.is_empty() else 0
+	return {"ok": true, "value": {"candidate": sibling, "reading": reading}}
 
 func begin_scene(session_token: String) -> Dictionary:
 	if family != "scene" or ledger != null or session_token.strip_edges().is_empty(): return _fail(&"reading_session_invalid")
@@ -553,11 +582,7 @@ func prepare_scene_control_continuation() -> Dictionary:
 	var target: int = scene_index + 1
 	if node.kind != "control" or target >= nodes.size() or nodes[target].kind != "caption": return _content_error("Cannot continue dialogue in: " + latest_entry, {"entry_id": latest_entry, "program_index": scene_index})
 	var reading: Dictionary = TRAVERSAL.without_operation(source.value)
-	var candidate := LEDGER.new()
-	var retained: Dictionary = reading.ledger
-	var copied := candidate.restore_snapshot(command_id, retained.frozen_context, manifest, registry,
-		retained, retained.entry_contexts, true, true)
-	if not copied.ok: return copied
+	var candidate := ledger.fork_live()
 	if not _caption_variants_by_line.has(nodes[target].line_id):
 		return _content_error("Unregistered dialogue ID: " + nodes[target].line_id,
 			{"entry_id": latest_entry, "line_id": nodes[target].line_id})
@@ -584,11 +609,7 @@ func prepare_scene_next(frontier: Dictionary, is_witnessed: Callable) -> Diction
 	var source := _capture_scene(frontier)
 	if not source.ok: return source
 	var reading: Dictionary = TRAVERSAL.without_operation(source.value)
-	var candidate := LEDGER.new()
-	var retained: Dictionary = reading.ledger
-	var copied := candidate.restore_snapshot(command_id, retained.frozen_context, manifest, registry,
-		retained, retained.entry_contexts, true, true)
-	if not copied.ok: return copied
+	var candidate := ledger.fork_live()
 	var nodes: Array = _scene_nodes[latest_entry]
 	var index: int = scene_index
 	var path: Array = []
