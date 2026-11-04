@@ -448,7 +448,7 @@ func test_scene_operation_path_returns_exact_detached_opposite_for_both_phases()
 		assert_false(OP.validate_scene_operation_path(selected.value, FIXTURE.A,
 			session._scene_nodes[FIXTURE.A]).ok, "each call freshly authenticates the plan hash")
 
-func test_scene_restore_still_refuses_invalid_opposite_endpoint_without_installing() -> void:
+func test_scene_validation_leaves_live_ledger_and_restore_installs_detached_selected_endpoint() -> void:
 	var created := FIXTURE.create_session()
 	assert_true(created.ok, str(created))
 	if not created.ok: return
@@ -458,23 +458,26 @@ func test_scene_restore_still_refuses_invalid_opposite_endpoint_without_installi
 		func(_beat: Dictionary) -> bool: return false)
 	assert_true(planned.ok, str(planned))
 	if not planned.ok: return
+	var original_ledger: RefCounted = session.ledger
 	var before: Dictionary = session.ledger.snapshot()
 	for phase: String in ["source", "destination"]:
-		var forged: Dictionary = planned.value.duplicate(true)
-		if phase == "source":
-			# Valid identity shape and path, but the inactive destination beat is not registered.
-			forged.destination.caption.beat.presentation_signature["forged"] = true
-		else:
-			# The selected destination remains valid, but the source names the wrong programme node.
-			forged.source_reading.program_index = 1
-			forged.path[0].from = 1
-		var selected := OP.project(forged, phase)
-		assert_true(selected.ok, "plan shape/hash alone cannot admit the opposite endpoint")
+		var selected := OP.project(planned.value, phase)
+		assert_true(selected.ok, str(selected))
 		if not selected.ok: return
-		assert_true(session._validate_scene_base(selected.value, FIXTURE.A).ok,
-			"the selected endpoint alone passes before checking its opposite")
-		assert_false(session.restore(selected.value, FIXTURE.A).ok, phase)
-		assert_eq(session.ledger.snapshot(), before, "failed opposite endpoint never installs a prefix")
+		assert_eq(session.validate_saved(selected.value, FIXTURE.A), {"ok": true})
+		assert_same(session.ledger, original_ledger)
+		assert_eq(session.ledger.snapshot(), before)
+		var restored := SESSION.new()
+		assert_true(restored.configure_scene().ok)
+		assert_true(restored.restore(selected.value, FIXTURE.A).ok, phase)
+		assert_eq(restored.ledger.snapshot(), selected.value.ledger)
+		assert_eq(restored.scene_index, selected.value.program_index)
+		var installed: Dictionary = restored.ledger.snapshot()
+		selected.value.ledger.captions.clear()
+		assert_eq(restored.ledger.snapshot(), installed, "restore owns its detached history")
+		var allocated := restored.ledger.allocate_publication(FIXTURE.TOKEN, FIXTURE.A, "a:1")
+		assert_true(allocated.ok, str(allocated))
+		assert_eq(allocated.get("value"), "caption:%d" % (installed.captions.size() + 1))
 
 func test_scene_shape_rechecks_frames_and_keeps_source_suffix_publications_unique() -> void:
 	var created := FIXTURE.create_session()

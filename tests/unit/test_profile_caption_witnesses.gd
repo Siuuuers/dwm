@@ -464,3 +464,43 @@ func test_indeterminate_promotion_preserves_live_profile_and_fences_all_further_
 	assert_eq(f.manager.merge_caption_history(beats, registry).get("code"), &"indeterminate_commit")
 	assert_eq(f.manager.set_preference(&"preferences.audio.music_volume", 0.3).get("code"), &"indeterminate_commit")
 	_merge_assert_no_io(f, fenced)
+
+
+func test_live_caption_history_stays_in_memory_until_one_flush() -> void:
+	var library := preload("res://tests/support/DialogueLibraryFixture.gd")
+	assert_true(library.install().ok)
+	var f := _fixture()
+	watch_signals(f.manager)
+	var writes: int = f.storage.writes
+	var beats: Array[Dictionary] = [library.beat(), library.beat("read", true)]
+	assert_true(f.manager.stage_caption_history(beats, library.CHECKPOINT).ok)
+	var next_beats: Array[Dictionary] = [library.beat("unreached")]
+	assert_true(f.manager.stage_caption_history(next_beats, library.UNREACHED).ok)
+	assert_eq(f.storage.writes, writes)
+	for beat: Dictionary in beats:
+		assert_true(f.manager.is_caption_variant_witnessed(beat))
+	assert_eq(f.manager.get_dialogue_library().checkpoints, [library.CHECKPOINT, library.UNREACHED])
+	assert_eq(f.manager.get_dialogue_library().witnesses.size(), 3)
+	var revision: int = f.manager.get_profile_revision()
+	assert_true(f.manager.stage_caption_history(beats, library.CHECKPOINT).unchanged)
+	assert_eq(f.manager.get_profile_revision(), revision)
+	assert_signal_emit_count(f.manager, "caption_variant_witness_changed", 3)
+	assert_true(f.manager.flush_reading_history().ok)
+	assert_eq(f.storage.writes, writes + 1)
+	assert_true(f.manager.flush_reading_history().unchanged)
+	assert_eq(f.storage.writes, writes + 1)
+	var restarted := _manager(STORAGE.new(STORE_ROOT, OPS.new(f.ops.snapshot_persisted())))
+	assert_eq(restarted.get_dialogue_library(), f.manager.get_dialogue_library())
+	assert_true(restarted.is_caption_variant_witnessed(beats[0]))
+	assert_true(library.CATALOGUE.configure([], [], {}).ok)
+
+
+func test_new_run_preparation_flushes_live_caption_history_before_disk_comparison() -> void:
+	var f := _fixture()
+	var beats: Array[Dictionary] = [_beat()]
+	assert_true(f.manager.stage_caption_history(beats, "").ok)
+	var writes: int = f.storage.writes
+	var prepared: Dictionary = f.manager.prepare_new_run_consumption(f.manager.get_profile_revision())
+	assert_true(prepared.ok, str(prepared))
+	assert_eq(f.storage.writes, writes + 1)
+	assert_true(prepared.value.before.witnessed_caption_variants.has(_key(_beat())))

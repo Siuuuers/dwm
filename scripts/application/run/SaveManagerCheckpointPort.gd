@@ -252,6 +252,8 @@ func commit(candidate: Dictionary) -> Dictionary:
 	var written_history: Array = []
 	var written_document_text := ""
 	if candidate.get("autosave_document") != null:
+		var flushed: Dictionary = _save_manager.flush_profile_reading_history()
+		if not flushed.ok: return _profile_result(profile, flushed)
 		var autosave_document: Variant = candidate["autosave_document"]
 		var document_text := ""
 		# The journal-owned bundles whose committed texts the splice writes, in written order.

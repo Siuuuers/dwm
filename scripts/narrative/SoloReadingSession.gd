@@ -531,11 +531,7 @@ func _validate_scene_base(saved: Dictionary, entry_id: String) -> Dictionary:
 	var retained: Dictionary = saved.ledger
 	if not TRAVERSAL._same(retained.frozen_context, {"family": "scene", "session_token": retained.session_token,
 			"registration_sha256": fingerprint}): return _fail(&"reading_context_invalid")
-	var candidate := LEDGER.new()
-	var restored := candidate.restore_snapshot(retained.session_token, retained.frozen_context, manifest,
-		registry, retained, retained.entry_contexts, true, true)
-	if not restored.ok: return restored
-	return {"ok": true, "value": candidate}
+	return {"ok": true}
 
 func _validate_scene_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 	var checked := _validate_scene_base(saved, entry_id)
@@ -543,8 +539,6 @@ func _validate_scene_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 	if saved.next_operation == null: return checked
 	var operation := TRAVERSAL.validate_scene_operation_path(saved, entry_id, _scene_nodes[entry_id])
 	if not operation.ok: return operation
-	# The operation proves saved is its selected projection. Its base was checked
-	# above, so only the opposite endpoint still needs ledger/catalogue admission.
 	var endpoint := _validate_scene_base(operation.value, entry_id)
 	if not endpoint.ok: return endpoint
 	return checked
@@ -1003,7 +997,12 @@ func restore(saved: Dictionary, entry_id: String) -> Dictionary:
 	if family == "scene":
 		var scene_checked := _validate_scene_saved(saved, entry_id)
 		if not scene_checked.ok: return scene_checked
-		ledger = scene_checked.value
+		var retained: Dictionary = saved.ledger
+		var candidate := LEDGER.new()
+		var restored := candidate.restore_snapshot(retained.session_token, retained.frozen_context, manifest,
+			registry, retained, retained.entry_contexts, true, true)
+		if not restored.ok: return restored
+		ledger = candidate
 		command_id = saved.ledger.session_token
 		latest_entry = entry_id
 		scene_occurrence = saved.occurrence_id

@@ -2526,7 +2526,6 @@ func _auto_line_context(expected_frontier: Dictionary = {}) -> Dictionary:
 
 
 ## Called after the renderer accepts a registered line, or on a fresh explicit retry.
-## The write is the existing atomic Profile mutation, never a per-line run checkpoint.
 func acknowledge_current_line_presentation(expected_frontier: Dictionary) -> Dictionary:
 	if _progression_phase in [ProgressionPhase.ACKNOWLEDGING, ProgressionPhase.NEXT_ACKNOWLEDGING]:
 		return _command_failure(&"presentation_acknowledgement_in_progress")
@@ -2556,8 +2555,7 @@ func _record_line_presentation(expected_frontier: Dictionary) -> Dictionary:
 			var game := get_node_or_null("/root/GameState") if is_inside_tree() else null
 			var presentation: Dictionary = game.get_scene_presentation() if game != null else {}
 			var checkpoint_id: String = presentation.get("checkpoint_id", "")
-			marked = _skip_profile.merge_caption_history(beats, _reading_session.registry, -1, checkpoint_id) if beats.size() > 1 \
-				else _skip_profile.mark_caption_variant_witnessed(identity.caption_variant, _reading_session.registry, checkpoint_id)
+			marked = _skip_profile.stage_caption_history(beats, checkpoint_id)
 		else:
 			marked = _skip_profile.mark_caption_variant_witnessed(identity.caption_variant, _reading_session.registry) \
 				if identity.has("caption_variant") else _skip_profile.mark_line_visited(str(identity.line_id))

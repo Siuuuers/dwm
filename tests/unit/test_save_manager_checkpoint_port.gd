@@ -1247,3 +1247,33 @@ func test_checkpoint_diagnostic_normalization_keeps_malformed_supplied_details_v
 	assert_eq(diagnostic.owner_id, "fatal_diagnostic_projector")
 	assert_eq(diagnostic.details.reason, "malformed_diagnostic")
 	assert_eq(raw, before)
+
+
+func test_checkpoint_and_manual_saves_flush_staged_caption_history() -> void:
+	var wired := _isolated_wired()
+	if wired.is_empty(): return
+	var profile: Node = autofree(load("res://autoload/ProfileManager.gd").new())
+	assert_true(profile.initialize(load(STORAGE_PATH).new(wired.root)).ok)
+	assert_true(wired.manager.configure_new_run_profile_owner(profile).ok)
+	var snapshot := _completion_snapshot()
+	assert_true(wired.manager._journal.reset(snapshot.run_id).ok)
+	var beat := {"beat_id": "TEST.buffered.caption", "line_id": "TEST.buffered.line",
+		"owning_entry_id": "TEST.buffered.entry", "presentation_signature": {"variant_id": "checkpoint"}}
+	var beats: Array[Dictionary] = [beat]
+	for variant: String in ["checkpoint", "slot", "backup"]:
+		beat.presentation_signature.variant_id = variant
+		assert_true(profile.stage_caption_history(beats, "").ok)
+		match variant:
+			"checkpoint":
+				assert_false(_commit_autosave(wired, snapshot, 123).is_empty())
+			"slot":
+				assert_true(wired.manager.save_latest_to_slot(1).ok)
+			"backup":
+				var prepared: Dictionary = wired.manager.prepare_backup_action("save", "slot:2")
+				assert_true(prepared.ok, str(prepared))
+				if not prepared.ok: return
+				var saved: Dictionary = wired.manager.commit_backup_action(prepared.value.token)
+				assert_true(saved.ok, str(saved))
+		var restarted: Node = autofree(load("res://autoload/ProfileManager.gd").new())
+		assert_true(restarted.initialize(load(STORAGE_PATH).new(wired.root)).ok)
+		assert_true(restarted.is_caption_variant_witnessed(beat), variant)

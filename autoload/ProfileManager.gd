@@ -43,6 +43,7 @@ var _new_run_persisting := false
 var _storage: RefCounted
 var _profile: Dictionary = {}
 var _profile_revision := 0
+var _reading_history_dirty := false
 var _initialized := false
 var _fresh_profile_pending := false
 var _profile_existed_at_initialize := false
@@ -155,6 +156,8 @@ func prepare_new_run_consumption(expected_revision: Variant) -> Dictionary:
 		return _failure(&"profile_revision_changed", "New Run preparation no longer matches Profile")
 	if not _supports_new_run_storage(_storage):
 		return _failure(&"invalid_storage", "New Run requires revision-aware Profile storage")
+	var flushed := flush_reading_history()
+	if not flushed.ok: return flushed
 	var checked: Dictionary = _validate_new_run_profile(_profile)
 	if not checked.get("ok", false): return checked
 	var before: Dictionary = checked["value"]
@@ -191,6 +194,8 @@ func prepare_scene_new_run_consumption(expected_revision: Variant, run_id: Strin
 		return _failure(&"invalid_profile_revision", "An exact Profile revision is required")
 	if expected_revision != _profile_revision: return _failure(&"profile_revision_changed", "Profile changed")
 	if not _supports_new_run_storage(_storage): return _failure(&"invalid_storage", "Revision-aware storage is required")
+	var flushed := flush_reading_history()
+	if not flushed.ok: return flushed
 	var checked: Dictionary = SCHEMA.validate(_profile)
 	if not checked.ok: return checked
 	var before: Dictionary = checked.value
@@ -632,6 +637,44 @@ func mark_caption_variant_witnessed(beat: Dictionary, registry: Dictionary, chec
 	if beat.line_id not in candidate.visited_line_ids:
 		candidate.visited_line_ids.append(beat.line_id)
 	return _commit_profile_candidate(candidate)
+
+
+func stage_caption_history(beats: Array[Dictionary], checkpoint_id: String) -> Dictionary:
+	var guarded := _guard(&"profile_commit")
+	if not guarded.ok: return guarded
+	if not _initialized: return _failure(&"not_initialized", "ProfileManager is not initialized")
+	if _mutation_blocked: return _failure(&"indeterminate_commit", "Profile mutation is blocked", true)
+	var descriptions: Array[Dictionary] = []
+	for beat: Dictionary in beats:
+		var described := CAPTION_WITNESSES.describe(beat)
+		if not described.ok: return described
+		descriptions.append(described.value)
+	var changes: Array[Dictionary] = []
+	var library_changed := false
+	for described: Dictionary in descriptions:
+		var beat: Dictionary = described.beat
+		var witness_id: String = described.witness_id
+		var discovery := DIALOGUE_LIBRARY.discovery_for_beat(beat, checkpoint_id)
+		library_changed = _discover_dialogue(_profile.dialogue_library, discovery) or library_changed
+		if _profile.witnessed_caption_variants.has(witness_id): continue
+		_profile.witnessed_caption_variants[witness_id] = beat
+		changes.append({"kind": &"caption_witness", "id": witness_id, "value": true})
+		if beat.line_id not in _profile.visited_line_ids:
+			_profile.visited_line_ids.append(beat.line_id)
+			changes.append({"kind": &"visited", "id": beat.line_id, "value": true})
+	if library_changed: changes.append({"kind": &"dialogue_library"})
+	if changes.is_empty(): return {"ok": true, "unchanged": true}
+	_reading_history_dirty = true
+	_profile_revision += 1
+	_publish({"changes": changes})
+	return {"ok": true}
+
+
+func flush_reading_history() -> Dictionary:
+	if not _reading_history_dirty: return {"ok": true, "unchanged": true}
+	var persisted := _persist_candidate(_profile)
+	if not persisted.ok: profile_write_failed.emit(persisted.duplicate(true))
+	return persisted
 
 
 ## The presentation owner supplies only captions actually presented in its session.
@@ -1567,7 +1610,9 @@ func _persist_candidate(candidate: Dictionary, migrating := false) -> Dictionary
 	if not emitted.get("ok", false):
 		return emitted
 	var validator := _profile_migration_text_validator if migrating else _write_profile_text_validator.bind({})
-	return _storage.call(&"write_atomic", "profile.json", emitted["value"], validator)
+	var written: Dictionary = _storage.call(&"write_atomic", "profile.json", emitted["value"], validator)
+	if written.ok: _reading_history_dirty = false
+	return written
 
 
 func _write_profile_text_validator(text: String, validated_texts: Dictionary) -> Dictionary:
