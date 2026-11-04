@@ -52,14 +52,13 @@ jobs:
           for group, suite, method in cases:
               env = os.environ.copy()
               for key, folder in [('DWM_TEST_ROOT', 'test'), ('XDG_DATA_HOME', 'data')]:
-                  path = pathlib.Path(env['RUNNER_TEMP']) / ('dtl-' + group) / folder
+                  path = root / '.godot/phase2r_tests/retirement' / group / folder
                   path.mkdir(parents=True, exist_ok=True)
                   env[key] = str(path)
               report = output / (suite + '.xml')
               command = ['xvfb-run', '-a', '-s', '-screen 0 1920x1080x24', env['GODOT_CONSOLE_PATH'], '--path', str(root), '--rendering-method', 'gl_compatibility', '--audio-driver', 'Dummy', '-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/' + suite + '.gd', '-gexit', '-glog=1', '-gjunit_xml_file=' + str(report)]
               if method:
                   command.append('-gunit_test_name=' + method)
-              command.extend(['--', '--phase2r-bootstrap-mode=test_manual'])
               with (output / (suite + '.log')).open('w') as log:
                   result = subprocess.run(command, env=env, stdout=log, stderr=subprocess.STDOUT, timeout=600)
               cases_run = ET.parse(report).findall('.//testcase') if report.exists() else []
