@@ -100,6 +100,28 @@ func test_foreign_authority_and_reconfiguration_refuse() -> void:
 	assert_false(PORT.new().consume_scene_entry_ack("cap:1").ok)
 	assert_true(f.port.retain_scene_entry(f.authority, "cap:1", f.binding, f.checkpoint).ok)
 
+func test_changed_history_and_numeric_type_refuse_before_publication() -> void:
+	for mode: String in ["history", "type"]:
+		var f := _fixture()
+		var changed: Dictionary = f.checkpoint.duplicate(true)
+		if mode == "history": changed.reading_session.ledger.captions[0].publication_id = "changed"
+		else: changed.content_version = float(changed.content_version)
+		var phases: Array = f.authority.phases.duplicate()
+		assert_false(f.port.commit_scene_event(_scene_input(f), changed).ok, mode)
+		assert_eq(f.authority.phases, phases, mode)
+		assert_true(f.real.calls.is_empty(), mode)
+		assert_true(f.port.commit_scene_event(_scene_input(f), f.checkpoint).ok, mode)
+		assert_true(f.port.consume_scene_entry_ack("cap:1").ok, mode)
+
+func test_publication_refuses_retained_target_changed_during_callback() -> void:
+	var f := _fixture()
+	f.authority.callback = func() -> void:
+		f.port._scene_entry.checkpoint.reading_session.ledger.captions[0].publication_id = "changed"
+	assert_false(f.port.commit_scene_event(_scene_input(f), f.checkpoint).ok)
+	assert_true(f.real.calls.is_empty())
+	f.authority.callback = Callable()
+	assert_false(f.port.consume_scene_entry_ack("cap:1").ok)
+
 func test_unpublished_candidate_cannot_be_confirmed_with_hash_knowledge() -> void:
 	var f := _fixture()
 	var ack: Dictionary = f.port.consume_scene_entry_ack("cap:1")

@@ -236,7 +236,7 @@ func commit_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary, name
 	var scene_entry := not _scene_entry.is_empty()
 	if scene_entry:
 		if _scene_entry.state != "prepared" \
-				or _fingerprint(checkpoint) != _scene_entry.narrative_checkpoint_sha256 \
+				or not READING_NEXT._same(checkpoint, _scene_entry.checkpoint) \
 				or not _scene_validate(_scene_entry, "commit"):
 			return _fail(&"scene_entry_custody_invalid", "no retained Bridge candidate")
 	_next_commit_in_progress = true
@@ -437,7 +437,13 @@ func _publish_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary) ->
 		return _fail(&"scene_event_input_invalid", "scene input differs from its reading owner")
 	if not _scene_entry.is_empty() and not _scene_validate(_scene_entry, "commit"):
 		return _fail(&"scene_entry_custody_invalid", "Bridge refused publication")
-	var state_hash := _fingerprint(checkpoint)
+	var state_hash: String
+	if _scene_entry.is_empty():
+		state_hash = _fingerprint(checkpoint)
+	else:
+		if not READING_NEXT._same(checkpoint, _scene_entry.checkpoint):
+			return _fail(&"scene_entry_custody_invalid", "target changed before publication")
+		state_hash = _scene_entry.narrative_checkpoint_sha256
 	if state_hash.is_empty(): return _fail(&"scene_event_input_invalid", "reading publication is not serializable")
 	return {"ok": true, "durable": false,
 		"value": {"publication": {"kind": "live", "state_sha256": state_hash}}}
