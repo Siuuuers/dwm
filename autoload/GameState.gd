@@ -5470,7 +5470,6 @@ func _commit_scene_target_owned() -> Dictionary:
 		if not adopted_consequence.get("ok", false): return _scene_event_fatal(&"scene_day_consequence_adoption_failed")
 		var adopted_lifecycle: Dictionary = _run_lifecycle.commit_restore(candidate.lifecycle)
 		if not adopted_lifecycle.get("ok", false): return _scene_event_fatal(&"scene_day_lifecycle_adoption_failed")
-		_apply_gameplay_silent(candidate.gameplay)
 		_desktop_snapshot = candidate.desktop.duplicate(true)
 		unfinished_minesweeper_result = {}
 	_apply_gameplay_silent(candidate.gameplay)
