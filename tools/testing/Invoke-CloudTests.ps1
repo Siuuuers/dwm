@@ -70,7 +70,7 @@ $suites = @{
     scene_owner_composition = @('tests/integration/test_scene_owner_composition.gd')
     named_presentation = @('tests/integration/test_named_presentation_checkpoint.gd')
     scene_checkpoint_ack = @('tests/unit/test_scene_checkpoint_ack.gd', 'tests/unit/test_art_manifest.gd')
-    scene_day_history = @('tests/unit/test_scene_reading_history.gd', 'tests/unit/test_scene_day_history_session.gd')
+    scene_day_history = @('tests/unit/test_scene_reading_history.gd', 'tests/unit/test_scene_day_history_session.gd', 'tests/integration/test_compact_history_create.gd')
     scene_later_caption = @('tests/integration/test_scene_later_caption_create.gd')
     scene_caption_challenge = @('tests/integration/test_scene_caption_challenge.gd')
     scene_multiple_thoughts = @(
@@ -424,6 +424,7 @@ $methodFilters = @{
 if ($methodFilters.ContainsKey($Suite)) { $arguments += "-gunit_test_name=$($methodFilters[$Suite])" }
 # Creator and loader must share storage but never a process/registration registry.
 $loadScripts = @{
+    scene_day_history = 'tests/integration/test_compact_history_load.gd'
     scene_inline_presentation = 'tests/integration/test_scene_inline_presentation_load.gd'
     scene_inline_audio = 'tests/integration/test_scene_inline_audio_load.gd'
     bilingual_reading = 'tests/integration/test_bilingual_reading_load.gd'

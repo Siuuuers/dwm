@@ -84,7 +84,7 @@ func test_current_thought_projection_does_not_change_encountered_history() -> vo
 	var session := ThoughtSession.new()
 	session._scene_display = {"a": {"self_talk": {"line_id": "thought_a", "text": "Thought A."}},
 		"c": {"self_talk": {"line_id": "thought_c", "text": "Thought C."}}}
-	session.player_progress = {"history_sections": [["a", "thought_a", "b", "c", "thought_c"]]}
+	session.player_progress = {"history_sections": [{"checkpoint_id": "a", "last_line_id": "thought_a"}, {"checkpoint_id": "c", "last_line_id": "thought_c"}]}
 	var history: Dictionary = session.player_progress.duplicate(true)
 	var first: Dictionary = session.project_self_talk({"line_id": "a"})
 	assert_eq(first.value.rows, [{"id": "thought_a", "text": "Thought A."}])

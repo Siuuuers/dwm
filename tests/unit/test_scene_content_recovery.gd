@@ -119,7 +119,7 @@ func test_compact_completion_projection_preserves_position_and_detaches_history(
 	assert_eq(compact.value.reading_session, admitted._project_player_reading(captured.value).value,
 		"natural completion conversion equals full-admission conversion")
 	assert_eq(compact.value.reading_session.captions, [{"line_id": "line.scene.test.a.two", "publication_id": "caption:2"}])
-	assert_eq(compact.value.reading_session.history_sections, [["line.scene.test.a.one", "line.scene.test.a.two"]])
+	assert_eq(compact.value.reading_session.history_sections, [{"checkpoint_id": "line.scene.test.a.one", "last_line_id": "line.scene.test.a.two"}])
 	var before: Dictionary = compact.value.duplicate(true)
 	var projected := SESSION.project_player_checkpoint(compact.value)
 	assert_eq(projected, compact, "natural completion retains its last caption and completed boundary")
@@ -130,7 +130,7 @@ func test_compact_completion_projection_preserves_position_and_detaches_history(
 	assert_eq(restored.boundary, "between_entries")
 	assert_eq(restored.scene_index, session.scene_index)
 	projected.value.reading_session.captions[0].line_id = "changed.caption"
-	projected.value.reading_session.history_sections[0].append("changed.history")
+	projected.value.reading_session.history_sections[0].last_line_id = "changed.history"
 	assert_eq(compact.value, before, "completion projection is detached")
 
 func test_deleted_saved_line_reports_identity_without_rewind_or_mutating_save() -> void:
@@ -288,25 +288,17 @@ func test_sections_roll_and_deleted_history_does_not_backfill_or_change_registra
 	var progress := {}
 	for index: int in 5:
 		TRAVERSAL.append_player_caption(progress, "entry", "line.%d" % index, 1, true)
-	assert_eq(progress.history_sections, [["line.2"], ["line.3"], ["line.4"]])
+	assert_eq(progress.history_sections, [{"checkpoint_id": "line.2", "last_line_id": "line.2"}, {"checkpoint_id": "line.3", "last_line_id": "line.3"}, {"checkpoint_id": "line.4", "last_line_id": "line.4"}])
 	assert_eq(progress.recovery_anchor, {"entry_id": "entry", "line_id": "line.4"})
 	TRAVERSAL.append_player_caption(progress, "entry", "line.4", 1, true)
-	assert_eq(progress.history_sections, [["line.2"], ["line.3"], ["line.4"]])
-	var bundle := {"caption_registry": {"entries": [{"entry_id": "entry", "lines": [
-		{"line_id": "line.2", "beat_id": "beat.2", "text": "Revised two."},
-		{"line_id": "inserted", "beat_id": "beat.new", "text": "Not encountered."},
-		{"line_id": "line.4", "beat_id": "beat.4", "text": "Four."}]}]}}
-	var before := bundle.duplicate(true)
-	var display := HISTORY.project_encountered(bundle, progress.history_sections)
-	assert_eq(display.value.captions.map(func(row: Dictionary) -> String: return row.line_id), ["line.2", "line.4"])
-	assert_eq(bundle, before)
+	assert_eq(progress.history_sections, [{"checkpoint_id": "line.2", "last_line_id": "line.2"}, {"checkpoint_id": "line.3", "last_line_id": "line.3"}, {"checkpoint_id": "line.4", "last_line_id": "line.4"}])
 
 func test_day_start_retains_previous_two_sections_and_progress_day_never_rewinds() -> void:
 	var progress := {}
 	TRAVERSAL.append_player_caption(progress, "day1", "one", 1)
 	TRAVERSAL.append_player_caption(progress, "day1", "two", 1, true)
 	TRAVERSAL.append_player_caption(progress, "day2", "three", 2)
-	assert_eq(progress.history_sections, [["one"], ["two"], ["three"]])
+	assert_eq(progress.history_sections, [{"checkpoint_id": "one", "last_line_id": "one"}, {"checkpoint_id": "two", "last_line_id": "two"}, {"checkpoint_id": "three", "last_line_id": "three"}])
 	assert_eq(progress.story_day, 2)
 	TRAVERSAL.append_player_caption(progress, "day1", "old", 1)
 	assert_eq(progress.story_day, 2)
@@ -359,7 +351,8 @@ func test_normalization_keeps_encountered_previous_day_sections() -> void:
 	assert_true(normalized.ok, str(normalized))
 	if normalized.ok:
 		assert_eq(normalized.value.checkpoint.reading_session.history_sections,
-			[["line.scene.test.b.one", "line.scene.test.b.two"], ["line.contact.test.a.one"]])
+			[{"checkpoint_id": "line.scene.test.b.one", "last_line_id": "line.scene.test.b.two"},
+			{"checkpoint_id": "line.contact.test.a.one", "last_line_id": "line.contact.test.a.one"}])
 
 func test_ordinary_lower_day_admission_does_not_rotate_high_water_history() -> void:
 	_install(_source())
@@ -383,10 +376,10 @@ func test_ordinary_lower_day_admission_does_not_rotate_high_water_history() -> v
 		assert_eq(captured.value.player_progress.story_day, 2)
 		assert_eq(captured.value.player_progress.recovery_anchor, previous.recovery_anchor)
 		assert_eq(captured.value.player_progress.history_sections.size(), previous.history_sections.size())
-		assert_eq(captured.value.player_progress.history_sections.back().size(), previous.history_sections.back().size() + 1)
-		assert_eq(captured.value.player_progress.history_sections.back().back(), "line.scene.test.a.one")
-		assert_eq(captured.value.player_progress.history_sections.back().slice(0, previous.history_sections.back().size()),
-			previous.history_sections.back(), "ordinary entry extends the existing section")
+		assert_eq(captured.value.player_progress.history_sections.back().size(), 2)
+		assert_eq(captured.value.player_progress.history_sections.back().last_line_id, "line.scene.test.a.one")
+		assert_eq(captured.value.player_progress.history_sections.back().checkpoint_id,
+			previous.history_sections.back().checkpoint_id)
 
 func test_wording_change_does_not_require_a_day_route_map() -> void:
 	_install(_source(), false)

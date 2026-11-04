@@ -36,7 +36,7 @@ var _scene_display: Dictionary = {}
 var _scene_thought_ids: Dictionary = {}
 var _scene_bundle: Dictionary = {}
 var player_progress: Dictionary = {}
-var _progress_count := 0
+var _progress_publication := 0
 var _pending_checkpoint := false
 # Only immutable semantic data is shared; native playback resources and each
 # session's ledger/cursor stay separate. Installed content is fixed for this process.
@@ -142,7 +142,7 @@ func _fork_scene_live() -> RefCounted:
 	sibling.boundary = boundary
 	sibling.next_operation = next_operation.duplicate(true)
 	sibling.player_progress = player_progress.duplicate(true)
-	sibling._progress_count = _progress_count
+	sibling._progress_publication = _progress_publication
 	sibling._pending_checkpoint = _pending_checkpoint
 	return sibling
 
@@ -151,7 +151,7 @@ func _matches_scene_live(retained: RefCounted) -> bool:
 		and fingerprint == retained.fingerprint and command_id == retained.command_id \
 		and latest_entry == retained.latest_entry and scene_occurrence == retained.scene_occurrence \
 		and scene_index == retained.scene_index and boundary == retained.boundary \
-		and _progress_count == retained._progress_count and _pending_checkpoint == retained._pending_checkpoint \
+		and _progress_publication == retained._progress_publication and _pending_checkpoint == retained._pending_checkpoint \
 		and ledger != null and ledger.matches_live_history(retained.ledger) \
 		and TRAVERSAL._same(next_operation, retained.next_operation) \
 		and TRAVERSAL._same(player_progress, retained.player_progress)
@@ -176,7 +176,7 @@ func _fork_scene_transition(plan: Dictionary) -> Dictionary:
 	sibling.next_operation = {}
 	sibling.player_progress = reading.get("player_progress", {}).duplicate(true)
 	sibling._pending_checkpoint = sibling.player_progress.is_empty()
-	sibling._progress_count = reading.ledger.captions.size() if not sibling.player_progress.is_empty() else 0
+	sibling._progress_publication = _scene_publication_high_water(reading.ledger.captions) if not sibling.player_progress.is_empty() else 0
 	return {"ok": true, "value": {"candidate": sibling, "reading": reading}}
 
 func begin_scene(session_token: String) -> Dictionary:
@@ -244,8 +244,8 @@ func accept_scene_publication(index: int, frontier: Dictionary) -> Dictionary:
 func _capture_scene(frontier: Dictionary) -> Dictionary:
 	if ledger == null or latest_entry.is_empty(): return _fail(&"reading_session_unavailable")
 	var retained: Dictionary = ledger.snapshot()
-	for index: int in range(_progress_count, retained.captions.size()):
-		var row: Dictionary = retained.captions[index]
+	for row: Dictionary in retained.captions:
+		if _scene_publication_high_water([row]) <= _progress_publication: continue
 		if row.occurrence_id == scene_occurrence and row.beat.owning_entry_id == latest_entry:
 			TRAVERSAL.append_player_caption(player_progress, latest_entry, row.beat.line_id,
 				_story_day(latest_entry), _pending_checkpoint)
@@ -253,7 +253,7 @@ func _capture_scene(frontier: Dictionary) -> Dictionary:
 			if not thought.is_empty():
 				TRAVERSAL.append_player_caption(player_progress, latest_entry, thought.line_id, _story_day(latest_entry))
 			_pending_checkpoint = false
-	_progress_count = retained.captions.size()
+	_progress_publication = maxi(_progress_publication, _scene_publication_high_water(retained.captions))
 	var saved := {"schema_version": 5, "registration_sha256": fingerprint, "entry_id": latest_entry,
 		"occurrence_id": scene_occurrence, "program_index": scene_index, "boundary": boundary,
 		"ledger": retained, "frontier": frontier.duplicate(true), "player_progress": player_progress.duplicate(true),
@@ -381,8 +381,7 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, _choices: Dictio
 				var preceding := DialogicRuntimeAdapter._scene_control_authored_predecessor(index, {"nodes": nodes}, programme.markers)
 				if preceding.ok:
 					current.captions[0].line_id = preceding.value.line_id
-					if current.history_sections.back().is_empty() or current.history_sections.back().back() != preceding.value.line_id:
-						current.history_sections.back().append(preceding.value.line_id)
+					current.history_sections.back().last_line_id = preceding.value.line_id
 	# Identity owns restoration. Changed prose or a removed past choice does not
 	# move a saved caption to a recovery anchor or to the start of a day.
 	var restored: Dictionary = session.restore_player(current, current.entry_id)
@@ -677,15 +676,13 @@ func prepare_scene_next(frontier: Dictionary, is_witnessed: Callable) -> Diction
 ## the live ledger or used to authenticate gameplay commands.
 func project_scene_day_history(frontier: Dictionary, _choices: Dictionary, _outcomes: Dictionary) -> Dictionary:
 	if family != "scene": return _fail(&"reading_session_unavailable")
-	var captured := _capture_scene(frontier)
-	if not captured.ok: return captured
-	var captions: Array = captured.value.ledger.captions
-	if captions.is_empty(): return _fail(&"reading_frontier_invalid")
-	var tail: Dictionary = captions.back()
+	if ledger == null or ledger._sequence.is_empty(): return _fail(&"reading_frontier_invalid")
+	var tail: Dictionary = ledger._sequence.back()
 	if tail.occurrence_id != scene_occurrence or tail.beat.owning_entry_id != latest_entry:
 		return _fail(&"reading_frontier_invalid")
-	var projected: Dictionary = load("res://scripts/narrative/SceneReadingHistory.gd").project_encountered(
-		_scene_bundle, captured.value.player_progress.history_sections)
+	var projected: Dictionary = load("res://scripts/narrative/SceneReadingHistory.gd").project_blocks(
+		_scene_bundle, player_progress.get("history_sections", []), _history_programme)
+	if not projected.ok: return projected
 	var rows: Array = projected.value.captions
 	for row: Dictionary in rows:
 		_ensure_scene_programme(row.entry_id)
@@ -702,6 +699,11 @@ func project_scene_day_history(frontier: Dictionary, _choices: Dictionary, _outc
 	return {"ok": true, "value": {"captions": rows, "frontier": frontier.duplicate(true),
 		"session_id": command_id, "occurrence_id": scene_occurrence}}
 
+func _history_programme(entry_id: String) -> Dictionary:
+	var prepared := _ensure_scene_programme(entry_id)
+	if not prepared.ok: return prepared
+	return {"ok": true, "value": _scene_nodes[entry_id]}
+
 ## One native command frontier, with two independent authored read identities.
 func scene_pair_beats(line_id: String) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
@@ -717,7 +719,7 @@ func project_self_talk(frontier: Dictionary) -> Dictionary:
 	var thought: Dictionary = _scene_display.get(frontier.get("line_id", ""), {}).get("self_talk", {})
 	if not thought.is_empty():
 		var encountered: bool = player_progress.get("history_sections", []).any(
-			func(section: Array) -> bool: return thought.line_id in section)
+			func(section: Dictionary) -> bool: return thought.line_id == section.last_line_id)
 		if encountered: rows.append({"id": thought.line_id, "text": thought.text})
 		else: thought = {}
 	return {"ok": true, "value": {"rows": rows, "live_start": 0,
@@ -1047,7 +1049,7 @@ func restore(saved: Dictionary, entry_id: String) -> Dictionary:
 		next_operation = saved.next_operation.duplicate(true) if saved.next_operation is Dictionary else {}
 		player_progress = saved.get("player_progress", {}).duplicate(true)
 		_pending_checkpoint = player_progress.is_empty()
-		_progress_count = saved.ledger.captions.size() if not player_progress.is_empty() else 0
+		_progress_publication = _scene_publication_high_water(saved.ledger.captions) if not player_progress.is_empty() else 0
 		return {"ok": true}
 	var checked := validate_saved(saved, entry_id)
 	if not checked.ok: return checked

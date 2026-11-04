@@ -16,7 +16,7 @@ func test_natural_aged_day7_accept() -> void:
 	var before: Dictionary = bridge._reading_session.ledger.snapshot()
 	var before_run: Dictionary = game.capture_run_snapshot_input()
 	var before_board: Dictionary = game.capture_dating_challenge_state()
-	assert_eq(before.captions.size(), 800)
+	assert_eq(before.captions.size(), 1)
 	var measurements: Array[Dictionary] = []
 	for line_id: String in RESULT_LINES:
 		var started := Time.get_ticks_usec()
@@ -26,8 +26,8 @@ func test_natural_aged_day7_accept() -> void:
 	var after: Dictionary = bridge._reading_session.ledger.snapshot()
 	var after_run: Dictionary = game.capture_run_snapshot_input()
 	var after_board: Dictionary = game.capture_dating_challenge_state()
-	assert_eq(after.captions.size(), 802)
-	assert_eq(after.captions.slice(0, before.captions.size()), before.captions)
+	assert_eq(after.captions.size(), 1)
+	assert_eq(after.captions.back().beat.line_id, RESULT_LINES.back())
 	for command_id: String in before_run.command_receipts:
 		assert_eq(after_run.command_receipts.get(command_id), before_run.command_receipts[command_id])
 	assert_true(before_board.ok and after_board.ok)
@@ -41,6 +41,6 @@ func test_natural_aged_day7_accept() -> void:
 		"outcomes_before": before_run.gameplay.scene_challenge_outcomes,
 		"outcomes_after": after_run.gameplay.scene_challenge_outcomes,
 		"library_witnesses": profile.get_dialogue_library().witnesses.size(),
-		"history_preserved": after.captions.slice(0, before.captions.size()) == before.captions}
+		"history_blocks": bridge._reading_session.player_progress.history_sections}
 	print("AGED_SCENE_ADVANCE " + JSON.stringify(result))
 	_write_json("user://aged-scene-advance.json", result)
