@@ -14,7 +14,7 @@ cache = root / '.godot'
 cache.mkdir(exist_ok=True)
 scratch = Path(tempfile.mkdtemp(prefix='desktop-shell-', dir=cache))
 classes = {}
-for path in (root / 'scripts').rglob('*.gd'):
+for path in sorted(path for directory in ['scripts', 'addons/dialogic'] for path in (root / directory).rglob('*.gd')):
     match = re.search(r'^class_name\s+(\w+)', path.read_text(encoding='utf-8-sig'), re.M)
     if match:
         classes[match.group(1)] = path.relative_to(root).as_posix()
@@ -34,7 +34,11 @@ while pending:
     shutil.copyfile(source, target)
     if source.suffix in {'.gd', '.tscn', '.tres'}:
         content = source.read_text(encoding='utf-8-sig')
-        pending.extend(re.findall(r'res://([^"\s]+)', content))
+        pending.extend(re.findall(r'''res://([^"\'\r\n]+)''', content))
+        for local in re.findall(r'(?:preload|load|@icon)\(\s*[\"\']([^\"\']+)[\"\']', content):
+            if '://' not in local:
+                dependency = (source.parent / local).resolve()
+                pending.append(dependency.relative_to(root).as_posix())
         for name in set(re.findall(r'\b\w+\b', content)).intersection(classes):
             pending.append(classes[name])
 for source in (root / 'assets/ui/contacts/fonts').iterdir():
