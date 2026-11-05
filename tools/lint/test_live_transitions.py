@@ -22,6 +22,8 @@ class LiveTransitionDependencies(unittest.TestCase):
 
     def test_rejects_each_regression(self):
         cases = [
+            (BINDINGS, '_ready', 'set_presentation(fallback, 24, false)'),
+            (BINDINGS, '_ready', 'refresh()'),
             (PAUSE, 'request_pause', '_ensure_hosts()'),
             (BINDINGS, 'set_presentation', '_style_button(button)'),
             (SAVE, '_commit_backup_action_profiled', '_journal.commit_prepared(candidate)'),

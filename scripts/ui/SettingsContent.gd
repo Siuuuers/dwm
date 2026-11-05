@@ -485,8 +485,8 @@ func refresh_labels() -> void:
 		confirmations[id].get_cancel_button().text = text("settings.cancel")
 		confirmations[id].get_ok_button().text = text("settings.reset." + id)
 	_comfort_note.text = COMFORT.first_run_note(current_locale())
-	refresh_binding_labels()
 	if _controller != null:
+		refresh_binding_labels()
 		_controller.refresh()
 
 

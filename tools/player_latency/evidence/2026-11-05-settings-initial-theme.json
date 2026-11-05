@@ -1,0 +1,102 @@
+{
+  "baseline_revision": "bdc942e75e4d9450303aea751ceb2e1ae5f80a9d",
+  "environment": "Godot 4.6.3 standard imported source, Linux headless",
+  "source_sha256": {
+    "scripts/ui/SettingsContent.gd": {
+      "baseline": "581112a0172e73a5db3fc370a03248e924c7c14864bf075922b65dd35a95cddd",
+      "candidate": "bd02ef5c330c4b082ad0e4ce45b397b660e90e592339303643377c7631af4317"
+    },
+    "scripts/ui/SettingsControlsSheet.gd": {
+      "baseline": "4223b9886d6784dafa80e8e2a601ba3fd185c0e607007036660da3c60865b6aa",
+      "candidate": "7d8082b0af441ede6b8307a916165d199c9396f17006142d93e98326758e7637"
+    }
+  },
+  "probe_source": "extends \"res://tests/integration/authored_week_child.gd\"\n\nvar samples: Array[Dictionary] = []\nvar measuring := false\nvar previous_frame := 0\nvar largest_frame := 0\nvar sample_started := 0\nvar presented_us := -1\n\nfunc observe_frame() -> void:\n\tvar now := Time.get_ticks_usec()\n\tif measuring: largest_frame = maxi(largest_frame, now - previous_frame)\n\tprevious_frame = now\n\nfunc begin_sample() -> int:\n\tlargest_frame = 0\n\tprevious_frame = Time.get_ticks_usec()\n\tmeasuring = true\n\tsample_started = previous_frame\n\tpresented_us = -1\n\treturn previous_frame\n\nfunc end_sample(action: String, started: int, detail: String = \"\") -> void:\n\tmeasuring = false\n\tvar row := {\"action\": action, \"detail\": detail, \"elapsed_us\": Time.get_ticks_usec() - started, \"largest_frame_us\": largest_frame}\n\tif presented_us >= 0: row[\"presentation_ack_us\"] = presented_us\n\tsamples.append(row)\n\tprint(\"PLAYER_LATENCY \" + JSON.stringify(row))\n\nfunc draw_complete() -> void:\n\tif DisplayServer.get_name() == \"headless\": await get_tree().process_frame\n\telse: await RenderingServer.frame_post_draw\n\nfunc _wait_line(line_id: String) -> bool:\n\tvar deadline := Time.get_ticks_msec() + 30000\n\twhile Time.get_ticks_msec() < deadline:\n\t\tif bridge._runtime_adapter.current_line_id() == line_id and bridge.is_current_line_presentation_acknowledged():\n\t\t\tvar caption: Node = _caption()\n\t\t\tif is_instance_valid(caption) and caption.caption_text.is_visible_in_tree() and not caption.caption_text.revealing:\n\t\t\t\tawait draw_complete()\n\t\t\t\tpresented_us = Time.get_ticks_usec() - sample_started\n\t\t\t\tbreak\n\t\tawait get_tree().process_frame\n\treturn await super._wait_line(line_id)\n\nfunc _click(control: Control) -> void:\n\tvar overlay := get_tree().root.find_child(\"GutLayer\", true, false)\n\tif overlay is CanvasLayer: overlay.hide()\n\tvar point := control.get_global_transform_with_canvas() * (control.size / 2.0)\n\tfor pressed: bool in [true, false]:\n\t\tvar motion := InputEventMouseMotion.new()\n\t\tmotion.position = point\n\t\tmotion.global_position = point\n\t\tget_viewport().push_input(motion, true)\n\t\tvar event := InputEventMouseButton.new()\n\t\tevent.position = point\n\t\tevent.global_position = point\n\t\tevent.button_index = MOUSE_BUTTON_LEFT\n\t\tevent.pressed = pressed\n\t\tget_viewport().push_input(event, true)\n\tawait get_tree().process_frame\n\tawait draw_complete()\n\nfunc audit_ui(label: String) -> void:\n\tvar caption: Node = _caption()\n\tfor attempt: int in 3:\n\t\tvar started := begin_sample()\n\t\tawait _click(caption.transport_rail._settings_button)\n\t\tend_sample(\"settings\", started, str(attempt))\n\t\tvar host: Node = get_tree().current_scene\n\t\tassert_true(host.is_computer_open())\n\t\tawait _click(host.get_node(\"SceneControlsLayer/Surface/Controls/CheckComputer\"))\n\t\tassert_false(host.is_computer_open())\n\nfunc audit_title() -> void:\n\tif not await _wait_route(MENU): return\n\tfor frame: int in 3: await get_tree().process_frame\n\tvar menu: Node = get_tree().current_scene\n\tfor attempt: int in 3:\n\t\tvar started := begin_sample()\n\t\tawait _click(menu.get_node(\"%GalleryButton\"))\n\t\tvar gallery: Node = menu._gallery_instance\n\t\tassert_not_null(gallery)\n\t\tend_sample(\"gallery\", started, str(attempt))\n\t\tif not is_instance_valid(gallery): return\n\t\tstarted = begin_sample()\n\t\tawait _click(gallery._gallery_tabs.get_child(2))\n\t\tend_sample(\"dialogue_library\", started, str(attempt))\n\t\tawait _click(gallery._gallery_tabs.get_child(1))\n\t\tfor row: Button in gallery._artwork._rows:\n\t\t\tif DisplayServer.get_name() == \"headless\": continue\n\t\t\tassert_false(row.disabled)\n\t\t\tstarted = begin_sample()\n\t\t\tawait _click(row)\n\t\t\tend_sample(\"artwork_select\", started, row.name)\n\t\t\tstarted = begin_sample()\n\t\t\tawait _click(gallery._artwork._preview)\n\t\t\tassert_true(is_instance_valid(gallery._artwork._viewer))\n\t\t\tend_sample(\"artwork_fullscreen\", started, row.name)\n\t\t\tgallery._artwork.close_viewer()\n\t\t\tawait get_tree().process_frame\n\t\tawait menu._close_gallery()\n\tvar started := begin_sample()\n\tawait _click(menu.get_node(\"%LogInButton\"))\n\tend_sample(\"load_menu\", started)\n\tvar app: Control = menu._backup_app_instance\n\tawait _click(app.drawer_buttons[\"slot:1\"])\n\tready_count = 0\n\tstarted = begin_sample()\n\tawait _click(app.action_buttons[\"load\"])\n\tif is_instance_valid(app) and is_instance_valid(app.confirmation): await _click(app.confirmation.confirm_button)\n\tif not await _await_ready(): return\n\tawait draw_complete()\n\tassert_eq(bridge._runtime_adapter.current_line_id(), \"line.Day7.untouched.impulse.004\")\n\tassert_eq(_caption().caption_text.get_parsed_text(), _texts[\"line.Day7.untouched.impulse.004\"])\n\tend_sample(\"load_checkpoint\", started)\n\nfunc test_player_latency() -> void:\n\t_phase = \"create\"\n\tif not _setup_authored(false): return\n\tget_tree().process_frame.connect(observe_frame)\n\tget_node(\"/root/SceneRouter\").goto_menu()\n\tif not await _new_from_title(1, _expected[0].line_id): return\n\tOS.set_environment(\"DWM_SAVE_DEEP_PROFILE\", \"1\")\n\tawait audit_ui(\"Day1\")\n\tOS.set_environment(\"DWM_SAVE_DEEP_PROFILE\", \"0\")\n",
+  "runs": {
+    "before": {
+      "log_sha256": "db57be12b7ef8691d8fd99afd039470e98eacdb0ae970c81b4d0a6d3134a44a9",
+      "samples": [
+        {
+          "action": "settings",
+          "detail": "0",
+          "elapsed_us": 1723125,
+          "largest_frame_us": 1716234
+        },
+        {
+          "action": "settings",
+          "detail": "1",
+          "elapsed_us": 414845,
+          "largest_frame_us": 412003
+        },
+        {
+          "action": "settings",
+          "detail": "2",
+          "elapsed_us": 312398,
+          "largest_frame_us": 306568
+        }
+      ]
+    },
+    "after": {
+      "log_sha256": "7b45d3c10037e7a2499dde01e4d259bba8ac830be5d7500ef9f6eb3cede2d0c2",
+      "samples": [
+        {
+          "action": "settings",
+          "detail": "0",
+          "elapsed_us": 616015,
+          "largest_frame_us": 610279
+        },
+        {
+          "action": "settings",
+          "detail": "1",
+          "elapsed_us": 189762,
+          "largest_frame_us": 188261
+        },
+        {
+          "action": "settings",
+          "detail": "2",
+          "elapsed_us": 205120,
+          "largest_frame_us": 201670
+        }
+      ]
+    }
+  },
+  "checks": {
+    "settings_cold_assertions_per_variant": 84,
+    "theme_geometry_assertions": 4287,
+    "font_binding_assertions": 16,
+    "lazy_pause_assertions": 92,
+    "lint_unit_tests": 22
+  },
+  "limits": [
+    "One cold first opening per variant, followed by two warm openings. Shared-host variability; no robust percentage or Windows latency claim.",
+    "Settings is opened before History/Save in this probe; do not compare its absolute times directly with the earlier History-first experiment."
+  ],
+  "load_diagnostic": {
+    "check": "DialogicBridge._scene_restore_current",
+    "calls_us": [
+      686,
+      530,
+      1121,
+      377,
+      1247,
+      342,
+      350,
+      311,
+      307,
+      953,
+      491,
+      1041,
+      750,
+      327
+    ],
+    "total_us": 8833,
+    "probe_source": "extends \"res://tests/integration/compact_history_restore_child.gd\"\n\nfunc _load_authored(slot: int, proof: Dictionary) -> bool:\n\tvar started := Time.get_ticks_usec()\n\tvar result: bool = await super._load_authored(slot, proof)\n\tprint(\"LOAD_PROBE_US \" + str(Time.get_ticks_usec() - started))\n\treturn result\n\nfunc test_load_cost() -> void:\n\tawait load_older_save_preserves_later_global_discoveries()\n",
+    "log_sha256": "4279b583a4ef2cc875050a776bbf5c9dc295bef0f64b31357989239639c247e9",
+    "qualification": "Timing-only diagnostic, not a passing correctness run: 100/101 assertions passed; the fresh-process PID inequality failed because both saved creator and new process reported PID 6 after environment recovery. No runtime Load failure occurred, but this run is not counted as acceptance. Uses the early compact-history checkpoint, not the prior Day7 checkpoint. Instrumentation removed; no Load production change."
+  },
+  "check_log_sha256": {
+    "theme": "c960f9adfb98f5178e17c1df7b068b8248d49d0d0eb4d1e346f04e51b46b967a",
+    "binding": "ed34d479eb483659c7b55a1fd9ea485d3ca860ecd0ff04c3b8d6bc486ea95e6b",
+    "pause": "2ef1a6619bf706f8489bbbe4a0642ec7c9f04c636fce4cec88377f2e18d269ff"
+  }
+}

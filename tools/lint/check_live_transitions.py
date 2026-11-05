@@ -15,6 +15,9 @@ CONTACTS = 'scripts/domain/contact/ContactInvitationState.gd'
 PAUSE = 'scripts/application/lifecycle/ProductionPauseController.gd'
 BINDINGS = 'scripts/ui/SettingsControlsSheet.gd'
 RULES = (
+    (BINDINGS, ('_ready',),
+     r'\b(?:set_presentation|refresh)\s*\(|\bPRESENTATION\s*\.\s*build\s*\(',
+     'SettingsContent applies the actual player theme; do not initialize a temporary binding theme'),
     (PAUSE, ('request_pause',),
      r'\b_ensure_hosts\s*\(\s*\)',
      'History/direct sheets must not eagerly build unrelated Settings'),

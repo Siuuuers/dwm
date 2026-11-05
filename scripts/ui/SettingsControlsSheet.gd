@@ -160,11 +160,6 @@ func _ready() -> void:
 	Input.joy_connection_changed.connect(_on_joy_connection_changed)
 	if _profile != null and _profile.has_signal("controls_bindings_changed"):
 		_profile.controls_bindings_changed.connect(refresh)
-	var source_theme: Theme = _content.theme
-	if source_theme == null:
-		source_theme = PRESENTATION.build(_content.current_locale(), 100)
-	set_presentation(source_theme, source_theme.default_font_size, false)
-	refresh()
 
 
 func _label() -> Label:
