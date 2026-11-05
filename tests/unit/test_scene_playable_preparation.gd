@@ -31,7 +31,7 @@ class ReadingProof:
 	extends RefCounted
 	var on_validate: Callable
 	var refuse := false
-	func validate_scene_event_anchor(_anchor: Dictionary, _checkpoint: Dictionary) -> Dictionary:
+	func validate_live_scene_event_anchor(_anchor: Dictionary, _checkpoint: Dictionary) -> Dictionary:
 		if on_validate.is_valid(): on_validate.call()
 		return {"ok": not refuse, "code": &"TEST.anchor_refused"}
 

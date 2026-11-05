@@ -202,6 +202,34 @@ func _assert_real_ack(prepared: Dictionary, published: Dictionary) -> void:
 	assert_false(published.get("durable", true))
 	assert_true(_lower.calls.is_empty(), "no storage capture, preparation, write or readback")
 
+func test_live_anchor_reuses_current_session_and_saved_anchor_survives_transition() -> void:
+	if not await _start_source(): return
+	var boundary: Dictionary = _bridge.capture_scene_event_boundary()
+	assert_true(boundary.ok, str(boundary))
+	if not boundary.ok: return
+	var anchor: Dictionary = boundary.value.anchor
+	var checkpoint: Dictionary = boundary.value.checkpoint
+	var live: Dictionary = _bridge.validate_live_scene_event_anchor(anchor, checkpoint)
+	assert_true(live.ok, str(live))
+	assert_same(_bridge._reading_session, _session)
+	_assert_source_unchanged()
+	var saved: Dictionary = _bridge.validate_scene_event_anchor(anchor, checkpoint)
+	assert_true(saved.ok, str(saved))
+	var prepared := _prepare()
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	var published := _save(prepared)
+	assert_true(published.ok, str(published))
+	if not published.ok: return
+	var adopted: Dictionary = _bridge.commit_day_entry(prepared.value)
+	assert_true(adopted.ok, str(adopted))
+	await _settle()
+	if not adopted.ok: return
+	_assert_target(prepared, "line.scene.test.a.one")
+	saved = _bridge.validate_scene_event_anchor(anchor, checkpoint)
+	assert_true(saved.ok, "Detached source checkpoint remains independently valid after live transition")
+	assert_true(_lower.calls.is_empty())
+
 func test_real_owner_chain_adopts_live_publication_once_without_storage() -> void:
 	if not await _start_source(): return
 	var disk_before: Dictionary = _lower.current.duplicate(true)

@@ -4952,6 +4952,16 @@ func capture_scene_event_boundary() -> Dictionary:
 			"catalogue_fingerprint": reading.registration_sha256 if _reading_session.family == "scene" else reading.catalogue_fingerprint,
 			"publication_id": anchor_frontier.publication_id, "line_id": anchor_frontier.line_id}}}
 
+func validate_live_scene_event_anchor(anchor: Dictionary, checkpoint: Dictionary) -> Dictionary:
+	if not has_reading_session() or _reading_session.family != "scene" or not _marker_context.is_empty():
+		return _command_failure(&"event_anchor_invalid")
+	var current := capture_scene_event_boundary()
+	if not current.ok: return current
+	if not _READING_TRAVERSAL._same(anchor, current.value.anchor) \
+			or not _READING_TRAVERSAL._same(checkpoint, current.value.checkpoint):
+		return _command_failure(&"event_anchor_invalid")
+	return _reading_session.validate_scene_event_anchors([anchor])
+
 ## A historical anchor is not the live frontier. The active session proves exact
 ## ledger membership; previous occurrences prove their immutable registered beat.
 func validate_scene_event_anchor(anchor: Dictionary, checkpoint: Dictionary) -> Dictionary:

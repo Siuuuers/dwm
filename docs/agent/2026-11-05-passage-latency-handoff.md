@@ -1,5 +1,17 @@
 # Passage transition performance handoff
 
+## Implementation draft: live Challenge anchor validation
+
+The candidate changes only live Challenge Start to validate its exact current boundary against the existing reading session. It removes temporary session construction/restoration from that path. The detached saved-checkpoint validators remain unchanged. The preparation fake follows the new method, and a real-owner regression covers live validation plus independent validation of the original saved checkpoint after a normal transition.
+
+Baseline runtime: master `be487bb62333dd57ef41b55258a76af59d07bbb4`, tree `fa9eadb5a9ef5ccaff251939f9d9e5c952a8b768`. Two uninstrumented, fresh-process Linux headless journeys each passed 5,052 assertions over 830 caption positions. Day6 result input-ready: 452.108 / 485.033 ms; Day7: 260.065 / 521.895 ms. These are repeated baseline samples, not before/after. The route leaves optional boards unplayed, so a result advance can admit both Start and Finish.
+
+Two separate instrumented journeys also passed 5,052 assertions each. Temporary anchor reconstruction cost 36–82 ms across seven Challenge Starts; Day6 59.235 ms within 88.388 ms preparation, Day7 36.803 ms within 55.774 ms preparation. Inclusive spans must not be added. Shared-host outliers and headless timing do not qualify Windows display or audio latency.
+
+**Candidate validation is pending.** The execution environment disconnected before implementation and recovery timed out. Changes were prepared through GitHub after caller review; no candidate Godot parsing, runtime test, lint execution or matched performance comparison has run. Keep this PR draft and unmerged. Baseline passes above do not validate this candidate.
+
+Resume with focused preparation and real-owner tests (including `test_live_anchor_reuses_current_session_and_saved_anchor_survives_transition`), the existing saved-anchor positive checks, and alternating uninstrumented baseline/candidate authored journeys. Verify the actual selected test/assertion counts and final candidate SHA. Do not add fault-injection suites or a broad matrix. No new lint rule or inventory regeneration is included: the changed GameState method is private and Bridge is not one of the inventoried owners.
+
 ## Assignment
 
 - **Goal:** identify and reduce the largest remaining player-visible passage-transition stall, starting with Challenge-result handoffs after natural play.
