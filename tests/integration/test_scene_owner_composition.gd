@@ -96,25 +96,25 @@ func _start_source(target_id: String = "target_a", hold: bool = true) -> bool:
 	assert_true(created.ok, str(created))
 	if not created.ok: return false
 	_session = created.value
-	# A retained parent visit is admitted by this TEST owner; native playback
-	# below supplies both B captions from actual installed text event objects.
-	assert_true(_session.admit_scene(BASE.A, _frame(BASE.A, "a:parent")).ok)
-	var parent_programme: Dictionary = _session.entry_program(BASE.A, _frame(BASE.A, "a:parent"))
-	assert_true(parent_programme.ok, str(parent_programme))
-	if not parent_programme.ok: return false
-	var parent_allocation: Dictionary = _session.ledger.allocate_publication(_session.command_id, BASE.A, "a:parent")
-	assert_true(parent_allocation.ok, str(parent_allocation))
-	if not parent_allocation.ok: return false
-	assert_true(_session.ledger.publish_line(_session.command_id, parent_allocation.value, BASE.A,
-		parent_programme.value.lines[0].line_id, "a:parent").ok)
-	# Record the encountered parent caption before switching the live occurrence.
-	assert_true(BASE.checkpoint(_session).ok)
+	if target_id == "return_a":
+		assert_true(_session.admit_scene(BASE.A, _frame(BASE.A, "a:parent")).ok)
+		var parent_programme: Dictionary = _session.entry_program(BASE.A, _frame(BASE.A, "a:parent"))
+		assert_true(parent_programme.ok, str(parent_programme))
+		if not parent_programme.ok: return false
+		var parent_allocation: Dictionary = _session.ledger.allocate_publication(_session.command_id, BASE.A, "a:parent")
+		assert_true(parent_allocation.ok, str(parent_allocation))
+		if not parent_allocation.ok: return false
+		assert_true(_session.ledger.publish_line(_session.command_id, parent_allocation.value, BASE.A,
+			parent_programme.value.lines[0].line_id, "a:parent").ok)
+		assert_true(BASE.checkpoint(_session).ok)
+		_session.inherit_player_progress(_session, true)
 	var frame := _frame(BASE.B, "b:held")
 	assert_true(_session.admit_scene(BASE.B, frame).ok)
 	assert_true(_adapter.bind_caption_ledger(_session.ledger, _session.command_id,
 		BASE.B, false, "b:held").ok)
 	assert_true(_adapter.start_timeline(HELD.PATH, BASE.B).ok)
 	await _settle()
+	assert_true(BASE.checkpoint(_session).ok)
 	assert_true(_adapter.reveal_current_line(true).ok)
 	await _settle()
 	assert_true(_adapter.advance_one_event().ok)
@@ -139,6 +139,7 @@ func _start_source(target_id: String = "target_a", hold: bool = true) -> bool:
 		"narrative_checkpoint": _source_snapshot.duplicate(true)}
 	_binding.source_checkpoint = {"checkpoint_id": _lower.current.checkpoint_id,
 		"checkpoint_sequence": _lower.current.checkpoint_sequence, "snapshot_sha256": LOWER.digest(_lower.current)}
+	if target_id == "return_a": _session.inherit_player_progress(_session, true)
 	if not hold: return true
 	var held: Dictionary = _bridge.hold_scene_entry_source()
 	assert_true(held.ok, str(held))
@@ -201,6 +202,34 @@ func _assert_real_ack(prepared: Dictionary, published: Dictionary) -> void:
 	assert_eq(ack.target_publication, {"kind": "live", "state_sha256": LOWER.digest(prepared.value.narrative_checkpoint)})
 	assert_false(published.get("durable", true))
 	assert_true(_lower.calls.is_empty(), "no storage capture, preparation, write or readback")
+
+func test_live_anchor_reuses_current_session_and_saved_anchor_survives_transition() -> void:
+	if not await _start_source(): return
+	var boundary: Dictionary = _bridge.capture_scene_event_boundary()
+	assert_true(boundary.ok, str(boundary))
+	if not boundary.ok: return
+	var anchor: Dictionary = boundary.value.anchor
+	var checkpoint: Dictionary = boundary.value.checkpoint
+	var live: Dictionary = _bridge.validate_live_scene_event_anchor(anchor, checkpoint)
+	assert_true(live.ok, str(live))
+	assert_same(_bridge._reading_session, _session)
+	_assert_source_unchanged()
+	var saved: Dictionary = _bridge.validate_scene_event_anchor(anchor, checkpoint)
+	assert_true(saved.ok, str(saved))
+	var prepared := _prepare()
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	var published := _save(prepared)
+	assert_true(published.ok, str(published))
+	if not published.ok: return
+	var adopted: Dictionary = _bridge.commit_day_entry(prepared.value)
+	assert_true(adopted.ok, str(adopted))
+	await _settle()
+	if not adopted.ok: return
+	_assert_target(prepared, "line.scene.test.a.one")
+	saved = _bridge.validate_scene_event_anchor(anchor, checkpoint)
+	assert_true(saved.ok, "Detached source checkpoint remains independently valid after live transition")
+	assert_true(_lower.calls.is_empty())
 
 func test_real_owner_chain_adopts_live_publication_once_without_storage() -> void:
 	if not await _start_source(): return

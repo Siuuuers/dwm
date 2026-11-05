@@ -4380,7 +4380,7 @@ func _prepare_scene_playable_event(event: Dictionary, digest: String, lease: Str
 		if source_input.get("scene", {}).get("registration_sha256") != inspected.value.registration_fingerprint \
 				or current.anchor.catalogue_fingerprint != inspected.value.registration_fingerprint:
 			return _transaction_failure(&"event_registration_mismatch", "")
-		var anchored: Dictionary = _scene_event_bridge.validate_scene_event_anchor(
+		var anchored: Dictionary = _scene_event_bridge.validate_live_scene_event_anchor(
 			current.anchor.duplicate(true), checkpoint.duplicate(true))
 		if not anchored.get("ok", false): return anchored
 		var result := {"kind": "challenge_playable", "challenge_occurrence":

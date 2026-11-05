@@ -31,7 +31,7 @@ class ReadingProof:
 	extends RefCounted
 	var on_validate: Callable
 	var refuse := false
-	func validate_scene_event_anchor(_anchor: Dictionary, _checkpoint: Dictionary) -> Dictionary:
+	func validate_live_scene_event_anchor(_anchor: Dictionary, _checkpoint: Dictionary) -> Dictionary:
 		if on_validate.is_valid(): on_validate.call()
 		return {"ok": not refuse, "code": &"TEST.anchor_refused"}
 
@@ -104,7 +104,7 @@ func before_each() -> void:
 			"catalogue_fingerprint": fingerprint, "publication_id": "TEST.publication", "line_id": "TEST.line"},
 		"checkpoint": {"stage": "scene", "reading_session": {"schema_version": 5, "boundary": "line",
 			"ledger": {"captions": [{"TEST": "unchanged caption"}]}}}}
-	state.input = {"lifecycle": identity.duplicate(true), "gameplay": {"route_context": {}, "pressure": 0},
+	state.input = {"lifecycle": identity.duplicate(true), "gameplay": {"route_context": {}, "pressure": 0, "scene_challenge_outcomes": {}},
 		"contacts": {}, "desktop": {}, "scene": {"registration_sha256": fingerprint,
 			"active_occurrence_id": admission.transaction_id, "active_admission_receipt_id": admission.transaction_id},
 		"applied_effect_transaction_ids": [], "applied_variable_transaction_ids": []}
@@ -139,7 +139,9 @@ func test_prepares_exact_receipt_and_only_detached_run_input() -> void:
 	assert_eq(material.source_input, before)
 	var restored_input: Dictionary = material.snapshot_input.duplicate(true)
 	restored_input.command_receipts.erase(event.command_id)
-	assert_eq(restored_input, before, "the proposed receipt is the only Run input change")
+	assert_eq(restored_input.scene.active_challenge, {"challenge_id": "TEST.challenge", "playable_command_id": event.command_id})
+	restored_input.scene.erase("active_challenge")
+	assert_eq(restored_input, before, "only the proposed receipt and active Challenge change")
 	assert_eq(material.snapshot_input.command_receipts[event.command_id], material.receipt)
 	assert_true(CONTRACT.validate_scene_receipts(material.snapshot_input.command_receipts, state.bundle, issuer).ok)
 	assert_eq(state.capture_run_snapshot_input(), before)
@@ -213,13 +215,13 @@ func test_frontier_and_registration_mismatch_refuse() -> void:
 	state.context.anchor.catalogue_fingerprint = "0".repeat(64)
 	assert_eq(_prepare().get("code"), &"event_registration_mismatch")
 
-func test_complete_receipt_map_requires_admission_and_rejects_duplicate_marker() -> void:
+func test_prepared_receipts_require_admission_and_unique_marker_at_validation_boundary() -> void:
 	var prepared := _prepare()
 	assert_true(prepared.ok, str(prepared))
 	if not prepared.ok: return
 	var original := state._command_receipts.duplicate(true)
-	state._command_receipts.clear()
-	assert_false(_prepare().ok, "no playable receipt without its admitted occurrence")
+	assert_false(CONTRACT.validate_scene_receipts({event.command_id: prepared.value.receipt},
+		state.bundle, issuer).ok, "no playable receipt without its admitted occurrence")
 	state._command_receipts = original
 	state._command_receipts[event.command_id] = prepared.value.receipt.duplicate(true)
 	var issued: Dictionary = issuer.issue(&"transaction_id")
@@ -233,7 +235,11 @@ func test_complete_receipt_map_requires_admission_and_rejects_duplicate_marker()
 	state.context.next_ordinal = 1
 	state.context.predecessor = event.event_id
 	var replay_digest: String = CONTRACT.inspect_scene(replay, state.bundle).value.digest
-	assert_false(state._prepare_scene_playable_event(replay, replay_digest, lease).ok)
+	var repeated: Dictionary = state._prepare_scene_playable_event(replay, replay_digest, lease)
+	assert_true(repeated.ok, str(repeated))
+	if not repeated.ok: return
+	assert_false(CONTRACT.validate_scene_receipts(repeated.value.snapshot_input.command_receipts,
+		state.bundle, issuer).ok)
 
 func test_duplicate_requires_current_authentication_and_produces_no_save_candidate() -> void:
 	var prepared := _prepare()
