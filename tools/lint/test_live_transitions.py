@@ -1,6 +1,6 @@
 import unittest
 
-from check_live_transitions import ADAPTER, EVENT_PORT, GAME, PROFILE, RULES, SESSION, violations
+from check_live_transitions import ADAPTER, BINDINGS, CAPTION, CONTACTS, EVENT_PORT, GAME, PAUSE, PROFILE, RULES, SAVE, SESSION, violations
 
 
 class LiveTransitionDependencies(unittest.TestCase):
@@ -22,6 +22,15 @@ class LiveTransitionDependencies(unittest.TestCase):
 
     def test_rejects_each_regression(self):
         cases = [
+            (CAPTION, '_ready', 'configure_presentation()\n\t_apply_preferences()'),
+            (CAPTION, '_ready', '_configure_recovery_presentation()'),
+            (BINDINGS, '_ready', 'set_presentation(fallback, 24, false)'),
+            (BINDINGS, '_ready', 'refresh()'),
+            (PAUSE, 'request_pause', '_ensure_hosts()'),
+            (BINDINGS, 'set_presentation', '_style_button(button)'),
+            (SAVE, '_commit_backup_action_profiled', '_journal.commit_prepared(candidate)'),
+            (CONTACTS, 'capture_scene_definitions', '_SCENE_MANIFEST.scene_registration()'),
+            (CONTACTS, 'capture_scene_definitions', '_s_hash(bundle)'),
             (SESSION, '_fork_scene_live', 'reader.restore(saved, entry)'),
             (SESSION, '_fork_scene_transition', 'ledger.restore_snapshot(saved)'),
             (SESSION, 'prepare_scene_next', '_validate_scene_base(saved, entry)'),
@@ -59,3 +68,9 @@ class LiveTransitionDependencies(unittest.TestCase):
     def test_missing_guarded_function_is_not_silently_skipped(self):
         self.sources[GAME] = ''
         self.assertIn('guarded function missing', violations(self.sources)[0])
+
+    def test_static_owner_is_checked(self):
+        self.sources[CONTACTS] = self.sources[CONTACTS].replace("func ", "static func ")
+        self.assertEqual(violations(self.sources), [])
+        self.insert(CONTACTS, "capture_scene_definitions", "_s_hash(bundle)")
+        self.assertEqual(len(violations(self.sources)), 1)

@@ -160,11 +160,6 @@ func _ready() -> void:
 	Input.joy_connection_changed.connect(_on_joy_connection_changed)
 	if _profile != null and _profile.has_signal("controls_bindings_changed"):
 		_profile.controls_bindings_changed.connect(refresh)
-	var source_theme: Theme = _content.theme
-	if source_theme == null:
-		source_theme = PRESENTATION.build(_content.current_locale(), 100)
-	set_presentation(source_theme, source_theme.default_font_size, false)
-	refresh()
 
 
 func _label() -> Label:
@@ -293,8 +288,6 @@ func set_presentation(source_theme: Theme, font_size: int, large_targets: bool) 
 	_large_targets = large_targets
 	if _status == null or capture_dialog == null:
 		return
-	for button: Button in _buttons.values():
-		_style_button(button)
 	for dialog: ConfirmationDialog in [capture_dialog, conflict_dialog, original_dialog, import_dialog]:
 		dialog.theme = PRESENTATION.confirmation_theme(source_theme, font_size, large_targets)
 		dialog.get_label().add_theme_font_size_override("font_size", font_size)

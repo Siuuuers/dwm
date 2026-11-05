@@ -1091,6 +1091,7 @@ func _prepare_backup_action_profiled(action: String, locator_id: String, profile
 			return _fail(&"no_stable_checkpoint", "")
 		var bundle: Dictionary = stable["value"]["bundle"]
 		var earlier: Array
+		var proven_snapshot: Dictionary = {}
 		if _backup_capture_configured:
 			var fresh := _prepare_backup_capture()
 			if not fresh.get("ok", false):
@@ -1098,11 +1099,12 @@ func _prepare_backup_action_profiled(action: String, locator_id: String, profile
 			candidate.merge(fresh["value"])
 			bundle = candidate["journal_candidate"]["current"]
 			earlier = candidate["journal_candidate"]["earlier"]
+			proven_snapshot = bundle.snapshot
 		else:
 			earlier = _journal.get_bundles_for_disk()
 		_save_load_profile_phase(profile, "capture_us")
 		var built := SAVE_DOCUMENT_SCHEMA.build(StringName(locator["kind"]), locator["slot_id"],
-			&"quick" if locator_id == "quick" else &"manual", bundle, earlier, _capture_saved_time())
+			&"quick" if locator_id == "quick" else &"manual", bundle, earlier, _capture_saved_time(), [], {}, proven_snapshot)
 		_save_load_profile_phase(profile, "document_build_us")
 		if not built.get("ok", false):
 			return built
@@ -1199,7 +1201,7 @@ func _commit_backup_action_profiled(token: String, profile: Dictionary) -> Dicti
 			if not canonical.get("ok", false):
 				return canonical
 			var bytes := str(canonical["value"]) + "\n"
-			var validated_texts := {}
+			var validated_texts := {bytes: {"ok": true, "code": &"ok", "value": {}}}
 			var validator := _write_document_text_validator.bind(validated_texts)
 			var written: Dictionary = _storage.write_atomic_if_revision(path, bytes, validator, candidate["revision"])
 			_save_load_profile_phase(profile, "write_atomic_us")
@@ -1213,7 +1215,7 @@ func _commit_backup_action_profiled(token: String, profile: Dictionary) -> Dicti
 			if candidate.has("journal_candidate"):
 				if _backup_journal_hash() != candidate["journal_hash"]:
 					return _fail(&"backup_journal_changed_after_write", "Durable save remains available; journal was not overwritten")
-				var advanced: Dictionary = _journal.commit_prepared(candidate["journal_candidate"])
+				var advanced: Dictionary = _journal._install_prepared(candidate["journal_candidate"])
 				if not advanced.get("ok", false):
 					return _fail(&"backup_journal_commit_failed", "Durable save remains available; checkpoint publication failed")
 			_save_load_profile_phase(profile, "journal_commit_us")
@@ -1755,10 +1757,6 @@ func _delete(locator: Dictionary) -> Dictionary:
 	slot_metadata_changed.emit()
 	return {"ok": true, "code": &"ok", "value": {"deleted": true, "relative_path": relative_path}}
 
-## One synchronous Backup write may validate the same outgoing text before and after promotion.
-## Reuse only a successful validation of that exact String within this call. Storage still reads
-## and proves the physical revision/bytes itself; another write receives a fresh empty memo.
-## The caller consumes a storage witness, not the admitted document; each success is detached.
 func _write_document_text_validator(text: String, validated_texts: Dictionary) -> Dictionary:
 	if validated_texts.has(text):
 		return {"ok": true, "code": &"ok", "value": {}}

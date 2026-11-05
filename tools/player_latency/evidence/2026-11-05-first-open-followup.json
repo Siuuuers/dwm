@@ -1,0 +1,3079 @@
+{
+  "baseline_revision": "07727f340bcf7f3040c712826db06251214ba06e",
+  "environment": "Godot 4.6.3 standard imported source project; Linux headless",
+  "source_sha256": {
+    "scripts/application/lifecycle/ProductionPauseController.gd": {
+      "baseline": "8c1e60517d507fa72f81a4bd43f802c42fa4fe58c421e07d2df17cbdbb70277a",
+      "candidate": "2e0869a52ef4b40c8cac8f4a4a3f6175829161f70ab9719083f2cc01ddec567d"
+    },
+    "scripts/ui/SettingsContent.gd": {
+      "baseline": "0995aa9f233cf3a29cf3fed98031d707707b26ec82ead78b27b666cba3b2b002",
+      "candidate": "581112a0172e73a5db3fc370a03248e924c7c14864bf075922b65dd35a95cddd"
+    },
+    "scripts/ui/SettingsControlsSheet.gd": {
+      "baseline": "dc49fe674a6f991989787948d31eca0fd5c26ad46426521509bb271063be303b",
+      "candidate": "4223b9886d6784dafa80e8e2a601ba3fd185c0e607007036660da3c60865b6aa"
+    }
+  },
+  "runs": {
+    "ui-before": {
+      "log_sha256": "1bbf471a2d7faad8ca6022994ff11d3562e8e038e5fd4cc2924c3cbd88a281dd",
+      "actions": [
+        {
+          "action": "history",
+          "detail": "Day1",
+          "elapsed_us": 949891,
+          "largest_frame_us": 949151
+        },
+        {
+          "action": "save_menu",
+          "detail": "Day1",
+          "elapsed_us": 81797,
+          "largest_frame_us": 80385
+        },
+        {
+          "action": "save_write",
+          "detail": "Day1",
+          "elapsed_us": 156349,
+          "largest_frame_us": 149183
+        },
+        {
+          "action": "settings",
+          "detail": "Day1",
+          "elapsed_us": 606321,
+          "largest_frame_us": 604190
+        },
+        {
+          "action": "computer",
+          "detail": "Day1",
+          "elapsed_us": 23583,
+          "largest_frame_us": 22935
+        },
+        {
+          "action": "history",
+          "detail": "Day1",
+          "elapsed_us": 95021,
+          "largest_frame_us": 94111
+        },
+        {
+          "action": "save_menu",
+          "detail": "Day1",
+          "elapsed_us": 84246,
+          "largest_frame_us": 83715
+        },
+        {
+          "action": "save_write",
+          "detail": "Day1",
+          "elapsed_us": 183627,
+          "largest_frame_us": 133166
+        },
+        {
+          "action": "settings",
+          "detail": "Day1",
+          "elapsed_us": 143655,
+          "largest_frame_us": 142062
+        },
+        {
+          "action": "computer",
+          "detail": "Day1",
+          "elapsed_us": 21252,
+          "largest_frame_us": 20710
+        },
+        {
+          "action": "history",
+          "detail": "Day1",
+          "elapsed_us": 77005,
+          "largest_frame_us": 76574
+        },
+        {
+          "action": "save_menu",
+          "detail": "Day1",
+          "elapsed_us": 81312,
+          "largest_frame_us": 80226
+        },
+        {
+          "action": "save_write",
+          "detail": "Day1",
+          "elapsed_us": 154539,
+          "largest_frame_us": 104542
+        },
+        {
+          "action": "settings",
+          "detail": "Day1",
+          "elapsed_us": 130243,
+          "largest_frame_us": 128379
+        },
+        {
+          "action": "computer",
+          "detail": "Day1",
+          "elapsed_us": 23818,
+          "largest_frame_us": 23312
+        }
+      ],
+      "save_load_profiles": [],
+      "ui_phase_lines": [],
+      "ordinary_caption_samples_omitted": 0
+    },
+    "ui-after": {
+      "log_sha256": "33ea0a980df89342af699fc04a702ec1f4516c83f48536f24957df0c3cfa7bde",
+      "actions": [
+        {
+          "action": "history",
+          "detail": "Day1",
+          "elapsed_us": 110194,
+          "largest_frame_us": 109308
+        },
+        {
+          "action": "save_menu",
+          "detail": "Day1",
+          "elapsed_us": 76133,
+          "largest_frame_us": 74420
+        },
+        {
+          "action": "save_write",
+          "detail": "Day1",
+          "elapsed_us": 149033,
+          "largest_frame_us": 141514
+        },
+        {
+          "action": "settings",
+          "detail": "Day1",
+          "elapsed_us": 1203655,
+          "largest_frame_us": 1201450
+        },
+        {
+          "action": "computer",
+          "detail": "Day1",
+          "elapsed_us": 29004,
+          "largest_frame_us": 27020
+        },
+        {
+          "action": "history",
+          "detail": "Day1",
+          "elapsed_us": 44905,
+          "largest_frame_us": 44519
+        },
+        {
+          "action": "save_menu",
+          "detail": "Day1",
+          "elapsed_us": 69270,
+          "largest_frame_us": 68673
+        },
+        {
+          "action": "save_write",
+          "detail": "Day1",
+          "elapsed_us": 159332,
+          "largest_frame_us": 108146
+        },
+        {
+          "action": "settings",
+          "detail": "Day1",
+          "elapsed_us": 186455,
+          "largest_frame_us": 184842
+        },
+        {
+          "action": "computer",
+          "detail": "Day1",
+          "elapsed_us": 28156,
+          "largest_frame_us": 27526
+        },
+        {
+          "action": "history",
+          "detail": "Day1",
+          "elapsed_us": 59396,
+          "largest_frame_us": 58745
+        },
+        {
+          "action": "save_menu",
+          "detail": "Day1",
+          "elapsed_us": 59808,
+          "largest_frame_us": 59234
+        },
+        {
+          "action": "save_write",
+          "detail": "Day1",
+          "elapsed_us": 176113,
+          "largest_frame_us": 124965
+        },
+        {
+          "action": "settings",
+          "detail": "Day1",
+          "elapsed_us": 158053,
+          "largest_frame_us": 156234
+        },
+        {
+          "action": "computer",
+          "detail": "Day1",
+          "elapsed_us": 22692,
+          "largest_frame_us": 21547
+        }
+      ],
+      "save_load_profiles": [],
+      "ui_phase_lines": [],
+      "ordinary_caption_samples_omitted": 0
+    },
+    "ui-final": {
+      "log_sha256": "3cdebd0825435db361b56b8752d84fb9eea2ff1d8b1754366cac8a0102dd3bad",
+      "actions": [
+        {
+          "action": "new_game_flow",
+          "detail": "",
+          "elapsed_us": 1530249,
+          "largest_frame_us": 1349906,
+          "presentation_ack_us": 1529384
+        },
+        {
+          "action": "history",
+          "detail": "Day1",
+          "elapsed_us": 41113,
+          "largest_frame_us": 40780
+        },
+        {
+          "action": "save_menu",
+          "detail": "Day1",
+          "elapsed_us": 35823,
+          "largest_frame_us": 35241
+        },
+        {
+          "action": "save_write",
+          "detail": "Day1",
+          "elapsed_us": 146109,
+          "largest_frame_us": 139039
+        },
+        {
+          "action": "settings",
+          "detail": "Day1",
+          "elapsed_us": 828576,
+          "largest_frame_us": 826889
+        },
+        {
+          "action": "computer",
+          "detail": "Day1",
+          "elapsed_us": 19972,
+          "largest_frame_us": 19252
+        },
+        {
+          "action": "history",
+          "detail": "Day1",
+          "elapsed_us": 39227,
+          "largest_frame_us": 38454
+        },
+        {
+          "action": "save_menu",
+          "detail": "Day1",
+          "elapsed_us": 47446,
+          "largest_frame_us": 46998
+        },
+        {
+          "action": "save_write",
+          "detail": "Day1",
+          "elapsed_us": 120009,
+          "largest_frame_us": 80106
+        },
+        {
+          "action": "settings",
+          "detail": "Day1",
+          "elapsed_us": 137060,
+          "largest_frame_us": 135544
+        },
+        {
+          "action": "computer",
+          "detail": "Day1",
+          "elapsed_us": 24970,
+          "largest_frame_us": 23998
+        },
+        {
+          "action": "history",
+          "detail": "Day1",
+          "elapsed_us": 35435,
+          "largest_frame_us": 34901
+        },
+        {
+          "action": "save_menu",
+          "detail": "Day1",
+          "elapsed_us": 47098,
+          "largest_frame_us": 46182
+        },
+        {
+          "action": "save_write",
+          "detail": "Day1",
+          "elapsed_us": 132734,
+          "largest_frame_us": 89550
+        },
+        {
+          "action": "settings",
+          "detail": "Day1",
+          "elapsed_us": 124601,
+          "largest_frame_us": 122864
+        },
+        {
+          "action": "computer",
+          "detail": "Day1",
+          "elapsed_us": 21010,
+          "largest_frame_us": 20407
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day1.photo.default.001",
+          "elapsed_us": 115088,
+          "largest_frame_us": 103442,
+          "presentation_ack_us": 110269
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day1.reading.001",
+          "elapsed_us": 118953,
+          "largest_frame_us": 112385,
+          "presentation_ack_us": 117562
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day1.result.A.001",
+          "elapsed_us": 240530,
+          "largest_frame_us": 234248,
+          "presentation_ack_us": 239279
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day1.coda.001",
+          "elapsed_us": 134900,
+          "largest_frame_us": 125207,
+          "presentation_ack_us": 132745
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day2.one",
+          "elapsed_us": 206537,
+          "largest_frame_us": 200063,
+          "presentation_ack_us": 204965
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day2.food.default.001",
+          "elapsed_us": 132033,
+          "largest_frame_us": 125634,
+          "presentation_ack_us": 130521
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day2.answer.001",
+          "elapsed_us": 204286,
+          "largest_frame_us": 198177,
+          "presentation_ack_us": 202005
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day2.result.A.001",
+          "elapsed_us": 180348,
+          "largest_frame_us": 174220,
+          "presentation_ack_us": 178488
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day3.one",
+          "elapsed_us": 206011,
+          "largest_frame_us": 199490,
+          "presentation_ack_us": 204011
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day3.lavinia.001",
+          "elapsed_us": 157878,
+          "largest_frame_us": 151009,
+          "presentation_ack_us": 156042
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day3.lavinia.result.A.001",
+          "elapsed_us": 199000,
+          "largest_frame_us": 192630,
+          "presentation_ack_us": 197564
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day4.one",
+          "elapsed_us": 321763,
+          "largest_frame_us": 314935,
+          "presentation_ack_us": 318921
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day4.pastille.default.001",
+          "elapsed_us": 145156,
+          "largest_frame_us": 137505,
+          "presentation_ack_us": 143701
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day4.impulse.001",
+          "elapsed_us": 158922,
+          "largest_frame_us": 151901,
+          "presentation_ack_us": 157655
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day4.A.001",
+          "elapsed_us": 227724,
+          "largest_frame_us": 221945,
+          "presentation_ack_us": 226502
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day5.one",
+          "elapsed_us": 219779,
+          "largest_frame_us": 213089,
+          "presentation_ack_us": 217862
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day5.impulse.001",
+          "elapsed_us": 152691,
+          "largest_frame_us": 146776,
+          "presentation_ack_us": 151280
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day5.A.001",
+          "elapsed_us": 272573,
+          "largest_frame_us": 261089,
+          "presentation_ack_us": 270427
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day6.one",
+          "elapsed_us": 249448,
+          "largest_frame_us": 242704,
+          "presentation_ack_us": 247332
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day6.rehearsal.default.001",
+          "elapsed_us": 169360,
+          "largest_frame_us": 163058,
+          "presentation_ack_us": 167876
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day6.impulse.001",
+          "elapsed_us": 155815,
+          "largest_frame_us": 147500,
+          "presentation_ack_us": 153158
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day6.A.001",
+          "elapsed_us": 292388,
+          "largest_frame_us": 282994,
+          "presentation_ack_us": 290324
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day7.one",
+          "elapsed_us": 239401,
+          "largest_frame_us": 232804,
+          "presentation_ack_us": 238137
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day7.clipboard.default.001",
+          "elapsed_us": 177468,
+          "largest_frame_us": 168548,
+          "presentation_ack_us": 175165
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day7.untouched.impulse.001",
+          "elapsed_us": 177659,
+          "largest_frame_us": 169378,
+          "presentation_ack_us": 176196
+        },
+        {
+          "action": "history",
+          "detail": "Day7",
+          "elapsed_us": 117097,
+          "largest_frame_us": 116536
+        },
+        {
+          "action": "save_menu",
+          "detail": "Day7",
+          "elapsed_us": 53656,
+          "largest_frame_us": 52688
+        },
+        {
+          "action": "save_write",
+          "detail": "Day7",
+          "elapsed_us": 496962,
+          "largest_frame_us": 369176
+        },
+        {
+          "action": "settings",
+          "detail": "Day7",
+          "elapsed_us": 137783,
+          "largest_frame_us": 136152
+        },
+        {
+          "action": "computer",
+          "detail": "Day7",
+          "elapsed_us": 144085,
+          "largest_frame_us": 141111
+        },
+        {
+          "action": "history",
+          "detail": "Day7",
+          "elapsed_us": 193746,
+          "largest_frame_us": 193164
+        },
+        {
+          "action": "save_menu",
+          "detail": "Day7",
+          "elapsed_us": 62777,
+          "largest_frame_us": 61197
+        },
+        {
+          "action": "save_write",
+          "detail": "Day7",
+          "elapsed_us": 187446,
+          "largest_frame_us": 107129
+        },
+        {
+          "action": "settings",
+          "detail": "Day7",
+          "elapsed_us": 138064,
+          "largest_frame_us": 135778
+        },
+        {
+          "action": "computer",
+          "detail": "Day7",
+          "elapsed_us": 48736,
+          "largest_frame_us": 47770
+        },
+        {
+          "action": "history",
+          "detail": "Day7",
+          "elapsed_us": 139991,
+          "largest_frame_us": 139000
+        },
+        {
+          "action": "save_menu",
+          "detail": "Day7",
+          "elapsed_us": 82037,
+          "largest_frame_us": 81371
+        },
+        {
+          "action": "save_write",
+          "detail": "Day7",
+          "elapsed_us": 191628,
+          "largest_frame_us": 123919
+        },
+        {
+          "action": "settings",
+          "detail": "Day7",
+          "elapsed_us": 126634,
+          "largest_frame_us": 124460
+        },
+        {
+          "action": "computer",
+          "detail": "Day7",
+          "elapsed_us": 42781,
+          "largest_frame_us": 41616
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day7.A.001",
+          "elapsed_us": 176554,
+          "largest_frame_us": 169961,
+          "presentation_ack_us": 174842
+        },
+        {
+          "action": "entry",
+          "detail": "line.ending.alone.normal.001",
+          "elapsed_us": 500877,
+          "largest_frame_us": 493661,
+          "presentation_ack_us": 498910
+        },
+        {
+          "action": "gallery",
+          "detail": "0",
+          "elapsed_us": 47291,
+          "largest_frame_us": 46896
+        },
+        {
+          "action": "dialogue_library",
+          "detail": "0",
+          "elapsed_us": 13417,
+          "largest_frame_us": 6741
+        },
+        {
+          "action": "gallery",
+          "detail": "1",
+          "elapsed_us": 12248,
+          "largest_frame_us": 10841
+        },
+        {
+          "action": "dialogue_library",
+          "detail": "1",
+          "elapsed_us": 13486,
+          "largest_frame_us": 6743
+        },
+        {
+          "action": "gallery",
+          "detail": "2",
+          "elapsed_us": 13794,
+          "largest_frame_us": 13411
+        },
+        {
+          "action": "dialogue_library",
+          "detail": "2",
+          "elapsed_us": 13633,
+          "largest_frame_us": 7203
+        },
+        {
+          "action": "load_menu",
+          "detail": "",
+          "elapsed_us": 29123,
+          "largest_frame_us": 28864
+        },
+        {
+          "action": "load_checkpoint",
+          "detail": "",
+          "elapsed_us": 479817,
+          "largest_frame_us": 471409
+        }
+      ],
+      "save_load_profiles": [],
+      "ui_phase_lines": [],
+      "ordinary_caption_samples_omitted": 802
+    },
+    "ui-profile": {
+      "log_sha256": "1ea3a27495e9a4a671ca9deca2fdbb48c78b644a34d532aa87fa6ba88fc58d2b",
+      "actions": [
+        {
+          "action": "new_game_flow",
+          "detail": "",
+          "elapsed_us": 1561875,
+          "largest_frame_us": 1404565,
+          "presentation_ack_us": 1561097
+        },
+        {
+          "action": "history",
+          "detail": "Day1",
+          "elapsed_us": 913864,
+          "largest_frame_us": 913384
+        },
+        {
+          "action": "save_menu",
+          "detail": "Day1",
+          "elapsed_us": 69486,
+          "largest_frame_us": 68816
+        },
+        {
+          "action": "save_write",
+          "detail": "Day1",
+          "elapsed_us": 148378,
+          "largest_frame_us": 141575
+        },
+        {
+          "action": "settings",
+          "detail": "Day1",
+          "elapsed_us": 597304,
+          "largest_frame_us": 595922
+        },
+        {
+          "action": "computer",
+          "detail": "Day1",
+          "elapsed_us": 22718,
+          "largest_frame_us": 21823
+        },
+        {
+          "action": "history",
+          "detail": "Day1",
+          "elapsed_us": 73961,
+          "largest_frame_us": 71773
+        },
+        {
+          "action": "save_menu",
+          "detail": "Day1",
+          "elapsed_us": 82192,
+          "largest_frame_us": 81334
+        },
+        {
+          "action": "save_write",
+          "detail": "Day1",
+          "elapsed_us": 156097,
+          "largest_frame_us": 101681
+        },
+        {
+          "action": "settings",
+          "detail": "Day1",
+          "elapsed_us": 128221,
+          "largest_frame_us": 126242
+        },
+        {
+          "action": "computer",
+          "detail": "Day1",
+          "elapsed_us": 41540,
+          "largest_frame_us": 40293
+        },
+        {
+          "action": "history",
+          "detail": "Day1",
+          "elapsed_us": 101750,
+          "largest_frame_us": 101312
+        },
+        {
+          "action": "save_menu",
+          "detail": "Day1",
+          "elapsed_us": 80866,
+          "largest_frame_us": 79825
+        },
+        {
+          "action": "save_write",
+          "detail": "Day1",
+          "elapsed_us": 148138,
+          "largest_frame_us": 93003
+        },
+        {
+          "action": "settings",
+          "detail": "Day1",
+          "elapsed_us": 138127,
+          "largest_frame_us": 136305
+        },
+        {
+          "action": "computer",
+          "detail": "Day1",
+          "elapsed_us": 24933,
+          "largest_frame_us": 24236
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day1.photo.default.001",
+          "elapsed_us": 141012,
+          "largest_frame_us": 134843,
+          "presentation_ack_us": 139527
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day1.reading.001",
+          "elapsed_us": 108588,
+          "largest_frame_us": 101239,
+          "presentation_ack_us": 107051
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day1.result.A.001",
+          "elapsed_us": 186492,
+          "largest_frame_us": 179805,
+          "presentation_ack_us": 184796
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day1.coda.001",
+          "elapsed_us": 117409,
+          "largest_frame_us": 111257,
+          "presentation_ack_us": 115672
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day2.one",
+          "elapsed_us": 224889,
+          "largest_frame_us": 215174,
+          "presentation_ack_us": 223088
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day2.food.default.001",
+          "elapsed_us": 147999,
+          "largest_frame_us": 141058,
+          "presentation_ack_us": 146349
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day2.answer.001",
+          "elapsed_us": 167298,
+          "largest_frame_us": 159968,
+          "presentation_ack_us": 165720
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day2.result.A.001",
+          "elapsed_us": 205341,
+          "largest_frame_us": 198215,
+          "presentation_ack_us": 203545
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day3.one",
+          "elapsed_us": 223043,
+          "largest_frame_us": 217014,
+          "presentation_ack_us": 221429
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day3.lavinia.001",
+          "elapsed_us": 138038,
+          "largest_frame_us": 126378,
+          "presentation_ack_us": 136260
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day3.lavinia.result.A.001",
+          "elapsed_us": 199905,
+          "largest_frame_us": 190999,
+          "presentation_ack_us": 197842
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day4.one",
+          "elapsed_us": 329947,
+          "largest_frame_us": 323169,
+          "presentation_ack_us": 327703
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day4.pastille.default.001",
+          "elapsed_us": 131396,
+          "largest_frame_us": 123119,
+          "presentation_ack_us": 129091
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day4.impulse.001",
+          "elapsed_us": 140386,
+          "largest_frame_us": 133402,
+          "presentation_ack_us": 138697
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day4.A.001",
+          "elapsed_us": 203265,
+          "largest_frame_us": 196013,
+          "presentation_ack_us": 201524
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day5.one",
+          "elapsed_us": 192216,
+          "largest_frame_us": 184074,
+          "presentation_ack_us": 190383
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day5.impulse.001",
+          "elapsed_us": 144031,
+          "largest_frame_us": 138085,
+          "presentation_ack_us": 142389
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day5.A.001",
+          "elapsed_us": 213153,
+          "largest_frame_us": 207671,
+          "presentation_ack_us": 211764
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day6.one",
+          "elapsed_us": 238058,
+          "largest_frame_us": 230134,
+          "presentation_ack_us": 236355
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day6.rehearsal.default.001",
+          "elapsed_us": 157479,
+          "largest_frame_us": 150715,
+          "presentation_ack_us": 155390
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day6.impulse.001",
+          "elapsed_us": 197589,
+          "largest_frame_us": 191209,
+          "presentation_ack_us": 195931
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day6.A.001",
+          "elapsed_us": 657454,
+          "largest_frame_us": 649683,
+          "presentation_ack_us": 655180
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day7.one",
+          "elapsed_us": 474527,
+          "largest_frame_us": 459713,
+          "presentation_ack_us": 469533
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day7.clipboard.default.001",
+          "elapsed_us": 228939,
+          "largest_frame_us": 212923,
+          "presentation_ack_us": 226445
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day7.untouched.impulse.001",
+          "elapsed_us": 248593,
+          "largest_frame_us": 241530,
+          "presentation_ack_us": 246555
+        },
+        {
+          "action": "history",
+          "detail": "Day7",
+          "elapsed_us": 157623,
+          "largest_frame_us": 157235
+        },
+        {
+          "action": "save_menu",
+          "detail": "Day7",
+          "elapsed_us": 102861,
+          "largest_frame_us": 102201
+        },
+        {
+          "action": "save_write",
+          "detail": "Day7",
+          "elapsed_us": 513126,
+          "largest_frame_us": 393298
+        },
+        {
+          "action": "settings",
+          "detail": "Day7",
+          "elapsed_us": 141395,
+          "largest_frame_us": 139810
+        },
+        {
+          "action": "computer",
+          "detail": "Day7",
+          "elapsed_us": 150354,
+          "largest_frame_us": 148517
+        },
+        {
+          "action": "history",
+          "detail": "Day7",
+          "elapsed_us": 254791,
+          "largest_frame_us": 254028
+        },
+        {
+          "action": "save_menu",
+          "detail": "Day7",
+          "elapsed_us": 89913,
+          "largest_frame_us": 89225
+        },
+        {
+          "action": "save_write",
+          "detail": "Day7",
+          "elapsed_us": 225995,
+          "largest_frame_us": 140023
+        },
+        {
+          "action": "settings",
+          "detail": "Day7",
+          "elapsed_us": 141493,
+          "largest_frame_us": 139577
+        },
+        {
+          "action": "computer",
+          "detail": "Day7",
+          "elapsed_us": 47901,
+          "largest_frame_us": 46994
+        },
+        {
+          "action": "history",
+          "detail": "Day7",
+          "elapsed_us": 193134,
+          "largest_frame_us": 191519
+        },
+        {
+          "action": "save_menu",
+          "detail": "Day7",
+          "elapsed_us": 93602,
+          "largest_frame_us": 93060
+        },
+        {
+          "action": "save_write",
+          "detail": "Day7",
+          "elapsed_us": 210150,
+          "largest_frame_us": 143687
+        },
+        {
+          "action": "settings",
+          "detail": "Day7",
+          "elapsed_us": 147139,
+          "largest_frame_us": 143946
+        },
+        {
+          "action": "computer",
+          "detail": "Day7",
+          "elapsed_us": 39040,
+          "largest_frame_us": 38367
+        },
+        {
+          "action": "entry",
+          "detail": "line.Day7.A.001",
+          "elapsed_us": 270590,
+          "largest_frame_us": 261105,
+          "presentation_ack_us": 266844
+        },
+        {
+          "action": "entry",
+          "detail": "line.ending.alone.normal.001",
+          "elapsed_us": 558009,
+          "largest_frame_us": 550668,
+          "presentation_ack_us": 556300
+        },
+        {
+          "action": "gallery",
+          "detail": "0",
+          "elapsed_us": 81009,
+          "largest_frame_us": 80213
+        },
+        {
+          "action": "dialogue_library",
+          "detail": "0",
+          "elapsed_us": 12384,
+          "largest_frame_us": 7026
+        },
+        {
+          "action": "gallery",
+          "detail": "1",
+          "elapsed_us": 15845,
+          "largest_frame_us": 15473
+        },
+        {
+          "action": "dialogue_library",
+          "detail": "1",
+          "elapsed_us": 13272,
+          "largest_frame_us": 6911
+        },
+        {
+          "action": "gallery",
+          "detail": "2",
+          "elapsed_us": 16343,
+          "largest_frame_us": 15826
+        },
+        {
+          "action": "dialogue_library",
+          "detail": "2",
+          "elapsed_us": 13351,
+          "largest_frame_us": 6793
+        },
+        {
+          "action": "load_menu",
+          "detail": "",
+          "elapsed_us": 40653,
+          "largest_frame_us": 40364
+        },
+        {
+          "action": "load_checkpoint",
+          "detail": "",
+          "elapsed_us": 584620,
+          "largest_frame_us": 575460
+        }
+      ],
+      "save_load_profiles": [
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 178,
+          "locator": "autosave",
+          "ok": true,
+          "revision_read_us": 133,
+          "scope": "backup_inspection",
+          "unphased_us": 45
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 68,
+          "locator": "quick",
+          "ok": true,
+          "revision_read_us": 55,
+          "scope": "backup_inspection",
+          "unphased_us": 13
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 100,
+          "locator": "slot:1",
+          "ok": true,
+          "revision_read_us": 89,
+          "scope": "backup_inspection",
+          "unphased_us": 11
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 85,
+          "locator": "slot:2",
+          "ok": true,
+          "revision_read_us": 76,
+          "scope": "backup_inspection",
+          "unphased_us": 9
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 104,
+          "locator": "slot:3",
+          "ok": true,
+          "revision_read_us": 65,
+          "scope": "backup_inspection",
+          "unphased_us": 39
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 89,
+          "locator": "slot:4",
+          "ok": true,
+          "revision_read_us": 79,
+          "scope": "backup_inspection",
+          "unphased_us": 10
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 94,
+          "locator": "slot:5",
+          "ok": true,
+          "revision_read_us": 83,
+          "scope": "backup_inspection",
+          "unphased_us": 11
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 258,
+          "locator": "slot:6",
+          "ok": true,
+          "revision_read_us": 246,
+          "scope": "backup_inspection",
+          "unphased_us": 12
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 81,
+          "locator": "slot:7",
+          "ok": true,
+          "revision_read_us": 71,
+          "scope": "backup_inspection",
+          "unphased_us": 10
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 115,
+          "locator": "slot:1",
+          "ok": true,
+          "revision_read_us": 103,
+          "scope": "backup_inspection",
+          "unphased_us": 12
+        },
+        {
+          "action": "save",
+          "candidate_copy_us": 148,
+          "capture_us": 84874,
+          "code": "",
+          "context": "",
+          "document_build_us": 676,
+          "elapsed_us": 85900,
+          "inspection_us": 168,
+          "locator": "slot:1",
+          "ok": true,
+          "scope": "backup_prepare",
+          "stable_hash_us": 5,
+          "unphased_us": 29
+        },
+        {
+          "action": "save",
+          "code": "",
+          "context": "",
+          "elapsed_us": 22686,
+          "journal_commit_us": 681,
+          "locator": "slot_1.json",
+          "metadata_refresh_us": 8,
+          "ok": true,
+          "reread_us": 130,
+          "revision_read_us": 121,
+          "save_completed_signal_us": 8,
+          "scope": "backup_commit",
+          "serialize_us": 659,
+          "source_recheck_us": 20208,
+          "unphased_us": 19,
+          "write_atomic_us": 852
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 127,
+          "locator": "autosave",
+          "ok": true,
+          "revision_read_us": 114,
+          "scope": "backup_inspection",
+          "unphased_us": 13
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 189,
+          "locator": "quick",
+          "ok": true,
+          "revision_read_us": 176,
+          "scope": "backup_inspection",
+          "unphased_us": 13
+        },
+        {
+          "action": "",
+          "cache_enabled": true,
+          "cache_hit": false,
+          "code": "",
+          "context": "",
+          "elapsed_us": 2993,
+          "locator": "",
+          "ok": true,
+          "scope": "document_parse",
+          "unphased_us": 2993
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 3295,
+          "locator": "slot:1",
+          "ok": true,
+          "parse_us": 3054,
+          "revision_read_us": 188,
+          "scope": "backup_inspection",
+          "unphased_us": 53
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 128,
+          "locator": "slot:2",
+          "ok": true,
+          "revision_read_us": 115,
+          "scope": "backup_inspection",
+          "unphased_us": 13
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 108,
+          "locator": "slot:3",
+          "ok": true,
+          "revision_read_us": 97,
+          "scope": "backup_inspection",
+          "unphased_us": 11
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 97,
+          "locator": "slot:4",
+          "ok": true,
+          "revision_read_us": 87,
+          "scope": "backup_inspection",
+          "unphased_us": 10
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 91,
+          "locator": "slot:5",
+          "ok": true,
+          "revision_read_us": 82,
+          "scope": "backup_inspection",
+          "unphased_us": 9
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 158,
+          "locator": "slot:6",
+          "ok": true,
+          "revision_read_us": 145,
+          "scope": "backup_inspection",
+          "unphased_us": 13
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 106,
+          "locator": "slot:7",
+          "ok": true,
+          "revision_read_us": 96,
+          "scope": "backup_inspection",
+          "unphased_us": 10
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 147,
+          "locator": "autosave",
+          "ok": true,
+          "revision_read_us": 132,
+          "scope": "backup_inspection",
+          "unphased_us": 15
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 65,
+          "locator": "quick",
+          "ok": true,
+          "revision_read_us": 58,
+          "scope": "backup_inspection",
+          "unphased_us": 7
+        },
+        {
+          "action": "",
+          "cache_enabled": true,
+          "cache_hit": true,
+          "code": "",
+          "context": "",
+          "elapsed_us": 1066,
+          "locator": "",
+          "ok": true,
+          "scope": "document_parse",
+          "unphased_us": 1066
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 1437,
+          "locator": "slot:1",
+          "ok": true,
+          "parse_us": 1142,
+          "revision_read_us": 223,
+          "scope": "backup_inspection",
+          "unphased_us": 72
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 129,
+          "locator": "slot:2",
+          "ok": true,
+          "revision_read_us": 117,
+          "scope": "backup_inspection",
+          "unphased_us": 12
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 112,
+          "locator": "slot:3",
+          "ok": true,
+          "revision_read_us": 101,
+          "scope": "backup_inspection",
+          "unphased_us": 11
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 97,
+          "locator": "slot:4",
+          "ok": true,
+          "revision_read_us": 86,
+          "scope": "backup_inspection",
+          "unphased_us": 11
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 88,
+          "locator": "slot:5",
+          "ok": true,
+          "revision_read_us": 78,
+          "scope": "backup_inspection",
+          "unphased_us": 10
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 90,
+          "locator": "slot:6",
+          "ok": true,
+          "revision_read_us": 80,
+          "scope": "backup_inspection",
+          "unphased_us": 10
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 79,
+          "locator": "slot:7",
+          "ok": true,
+          "revision_read_us": 70,
+          "scope": "backup_inspection",
+          "unphased_us": 9
+        },
+        {
+          "action": "",
+          "cache_enabled": true,
+          "cache_hit": true,
+          "code": "",
+          "context": "",
+          "elapsed_us": 190,
+          "locator": "",
+          "ok": true,
+          "scope": "document_parse",
+          "unphased_us": 190
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 612,
+          "locator": "slot:1",
+          "ok": true,
+          "parse_us": 255,
+          "revision_read_us": 304,
+          "scope": "backup_inspection",
+          "unphased_us": 53
+        },
+        {
+          "action": "save",
+          "candidate_copy_us": 597,
+          "capture_us": 82682,
+          "code": "",
+          "context": "",
+          "document_build_us": 485,
+          "elapsed_us": 84457,
+          "inspection_us": 652,
+          "locator": "slot:1",
+          "ok": true,
+          "scope": "backup_prepare",
+          "stable_hash_us": 4,
+          "unphased_us": 37
+        },
+        {
+          "action": "save",
+          "code": "",
+          "context": "",
+          "elapsed_us": 10915,
+          "journal_commit_us": 797,
+          "locator": "slot_1.json",
+          "metadata_refresh_us": 7,
+          "ok": true,
+          "reread_us": 97,
+          "revision_read_us": 352,
+          "save_completed_signal_us": 8,
+          "scope": "backup_commit",
+          "serialize_us": 589,
+          "source_recheck_us": 7747,
+          "unphased_us": 14,
+          "write_atomic_us": 1304
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 129,
+          "locator": "autosave",
+          "ok": true,
+          "revision_read_us": 115,
+          "scope": "backup_inspection",
+          "unphased_us": 14
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 69,
+          "locator": "quick",
+          "ok": true,
+          "revision_read_us": 61,
+          "scope": "backup_inspection",
+          "unphased_us": 8
+        },
+        {
+          "action": "",
+          "cache_enabled": true,
+          "cache_hit": false,
+          "code": "",
+          "context": "",
+          "elapsed_us": 4136,
+          "locator": "",
+          "ok": true,
+          "scope": "document_parse",
+          "unphased_us": 4136
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 4430,
+          "locator": "slot:1",
+          "ok": true,
+          "parse_us": 4199,
+          "revision_read_us": 176,
+          "scope": "backup_inspection",
+          "unphased_us": 55
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 121,
+          "locator": "slot:2",
+          "ok": true,
+          "revision_read_us": 109,
+          "scope": "backup_inspection",
+          "unphased_us": 12
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 79,
+          "locator": "slot:3",
+          "ok": true,
+          "revision_read_us": 70,
+          "scope": "backup_inspection",
+          "unphased_us": 9
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 104,
+          "locator": "slot:4",
+          "ok": true,
+          "revision_read_us": 93,
+          "scope": "backup_inspection",
+          "unphased_us": 11
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 79,
+          "locator": "slot:5",
+          "ok": true,
+          "revision_read_us": 70,
+          "scope": "backup_inspection",
+          "unphased_us": 9
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 76,
+          "locator": "slot:6",
+          "ok": true,
+          "revision_read_us": 67,
+          "scope": "backup_inspection",
+          "unphased_us": 9
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 72,
+          "locator": "slot:7",
+          "ok": true,
+          "revision_read_us": 64,
+          "scope": "backup_inspection",
+          "unphased_us": 8
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 157,
+          "locator": "autosave",
+          "ok": true,
+          "revision_read_us": 140,
+          "scope": "backup_inspection",
+          "unphased_us": 17
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 60,
+          "locator": "quick",
+          "ok": true,
+          "revision_read_us": 54,
+          "scope": "backup_inspection",
+          "unphased_us": 6
+        },
+        {
+          "action": "",
+          "cache_enabled": true,
+          "cache_hit": true,
+          "code": "",
+          "context": "",
+          "elapsed_us": 125,
+          "locator": "",
+          "ok": true,
+          "scope": "document_parse",
+          "unphased_us": 125
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 1524,
+          "locator": "slot:1",
+          "ok": true,
+          "parse_us": 194,
+          "revision_read_us": 1276,
+          "scope": "backup_inspection",
+          "unphased_us": 54
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 209,
+          "locator": "slot:2",
+          "ok": true,
+          "revision_read_us": 194,
+          "scope": "backup_inspection",
+          "unphased_us": 15
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 108,
+          "locator": "slot:3",
+          "ok": true,
+          "revision_read_us": 95,
+          "scope": "backup_inspection",
+          "unphased_us": 13
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 175,
+          "locator": "slot:4",
+          "ok": true,
+          "revision_read_us": 163,
+          "scope": "backup_inspection",
+          "unphased_us": 12
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 97,
+          "locator": "slot:5",
+          "ok": true,
+          "revision_read_us": 86,
+          "scope": "backup_inspection",
+          "unphased_us": 11
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 174,
+          "locator": "slot:6",
+          "ok": true,
+          "revision_read_us": 163,
+          "scope": "backup_inspection",
+          "unphased_us": 11
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 94,
+          "locator": "slot:7",
+          "ok": true,
+          "revision_read_us": 84,
+          "scope": "backup_inspection",
+          "unphased_us": 10
+        },
+        {
+          "action": "",
+          "cache_enabled": true,
+          "cache_hit": true,
+          "code": "",
+          "context": "",
+          "elapsed_us": 198,
+          "locator": "",
+          "ok": true,
+          "scope": "document_parse",
+          "unphased_us": 198
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 933,
+          "locator": "slot:1",
+          "ok": true,
+          "parse_us": 266,
+          "revision_read_us": 612,
+          "scope": "backup_inspection",
+          "unphased_us": 55
+        },
+        {
+          "action": "save",
+          "candidate_copy_us": 98,
+          "capture_us": 72890,
+          "code": "",
+          "context": "",
+          "document_build_us": 185,
+          "elapsed_us": 74174,
+          "inspection_us": 972,
+          "locator": "slot:1",
+          "ok": true,
+          "scope": "backup_prepare",
+          "stable_hash_us": 3,
+          "unphased_us": 26
+        },
+        {
+          "action": "save",
+          "code": "",
+          "context": "",
+          "elapsed_us": 10456,
+          "journal_commit_us": 700,
+          "locator": "slot_1.json",
+          "metadata_refresh_us": 8,
+          "ok": true,
+          "reread_us": 136,
+          "revision_read_us": 233,
+          "save_completed_signal_us": 7,
+          "scope": "backup_commit",
+          "serialize_us": 771,
+          "source_recheck_us": 5304,
+          "unphased_us": 12,
+          "write_atomic_us": 3285
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 150,
+          "locator": "autosave",
+          "ok": true,
+          "revision_read_us": 136,
+          "scope": "backup_inspection",
+          "unphased_us": 14
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 64,
+          "locator": "quick",
+          "ok": true,
+          "revision_read_us": 57,
+          "scope": "backup_inspection",
+          "unphased_us": 7
+        },
+        {
+          "action": "",
+          "cache_enabled": true,
+          "cache_hit": false,
+          "code": "",
+          "context": "",
+          "elapsed_us": 3144,
+          "locator": "",
+          "ok": true,
+          "scope": "document_parse",
+          "unphased_us": 3144
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 3746,
+          "locator": "slot:1",
+          "ok": true,
+          "parse_us": 3251,
+          "revision_read_us": 439,
+          "scope": "backup_inspection",
+          "unphased_us": 56
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 110,
+          "locator": "slot:2",
+          "ok": true,
+          "revision_read_us": 98,
+          "scope": "backup_inspection",
+          "unphased_us": 12
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 99,
+          "locator": "slot:3",
+          "ok": true,
+          "revision_read_us": 88,
+          "scope": "backup_inspection",
+          "unphased_us": 11
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 99,
+          "locator": "slot:4",
+          "ok": true,
+          "revision_read_us": 89,
+          "scope": "backup_inspection",
+          "unphased_us": 10
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 101,
+          "locator": "slot:5",
+          "ok": true,
+          "revision_read_us": 90,
+          "scope": "backup_inspection",
+          "unphased_us": 11
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 95,
+          "locator": "slot:6",
+          "ok": true,
+          "revision_read_us": 84,
+          "scope": "backup_inspection",
+          "unphased_us": 11
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 100,
+          "locator": "slot:7",
+          "ok": true,
+          "revision_read_us": 90,
+          "scope": "backup_inspection",
+          "unphased_us": 10
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 356,
+          "locator": "autosave",
+          "ok": true,
+          "revision_read_us": 337,
+          "scope": "backup_inspection",
+          "unphased_us": 19
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 164,
+          "locator": "quick",
+          "ok": true,
+          "revision_read_us": 156,
+          "scope": "backup_inspection",
+          "unphased_us": 8
+        },
+        {
+          "action": "",
+          "cache_enabled": true,
+          "cache_hit": true,
+          "code": "",
+          "context": "",
+          "elapsed_us": 112,
+          "locator": "",
+          "ok": true,
+          "scope": "document_parse",
+          "unphased_us": 112
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 546,
+          "locator": "slot:1",
+          "ok": true,
+          "parse_us": 189,
+          "revision_read_us": 300,
+          "scope": "backup_inspection",
+          "unphased_us": 57
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 141,
+          "locator": "slot:2",
+          "ok": true,
+          "revision_read_us": 129,
+          "scope": "backup_inspection",
+          "unphased_us": 12
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 117,
+          "locator": "slot:3",
+          "ok": true,
+          "revision_read_us": 105,
+          "scope": "backup_inspection",
+          "unphased_us": 12
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 111,
+          "locator": "slot:4",
+          "ok": true,
+          "revision_read_us": 100,
+          "scope": "backup_inspection",
+          "unphased_us": 11
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 91,
+          "locator": "slot:5",
+          "ok": true,
+          "revision_read_us": 81,
+          "scope": "backup_inspection",
+          "unphased_us": 10
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 455,
+          "locator": "slot:6",
+          "ok": true,
+          "revision_read_us": 441,
+          "scope": "backup_inspection",
+          "unphased_us": 14
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 93,
+          "locator": "slot:7",
+          "ok": true,
+          "revision_read_us": 84,
+          "scope": "backup_inspection",
+          "unphased_us": 9
+        },
+        {
+          "action": "",
+          "cache_enabled": true,
+          "cache_hit": true,
+          "code": "",
+          "context": "",
+          "elapsed_us": 126,
+          "locator": "",
+          "ok": true,
+          "scope": "document_parse",
+          "unphased_us": 126
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 481,
+          "locator": "slot:1",
+          "ok": true,
+          "parse_us": 190,
+          "revision_read_us": 235,
+          "scope": "backup_inspection",
+          "unphased_us": 56
+        },
+        {
+          "action": "save",
+          "candidate_copy_us": 136,
+          "capture_us": 99240,
+          "code": "",
+          "context": "",
+          "document_build_us": 248,
+          "elapsed_us": 100186,
+          "inspection_us": 523,
+          "locator": "slot:1",
+          "ok": true,
+          "scope": "backup_prepare",
+          "stable_hash_us": 3,
+          "unphased_us": 36
+        },
+        {
+          "action": "save",
+          "code": "",
+          "context": "",
+          "elapsed_us": 358939,
+          "journal_commit_us": 1075,
+          "locator": "slot_1.json",
+          "metadata_refresh_us": 12,
+          "ok": true,
+          "reread_us": 95,
+          "revision_read_us": 253,
+          "save_completed_signal_us": 15,
+          "scope": "backup_commit",
+          "serialize_us": 2000,
+          "source_recheck_us": 336341,
+          "unphased_us": 23,
+          "write_atomic_us": 19125
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 254,
+          "locator": "autosave",
+          "ok": true,
+          "revision_read_us": 235,
+          "scope": "backup_inspection",
+          "unphased_us": 19
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 70,
+          "locator": "quick",
+          "ok": true,
+          "revision_read_us": 62,
+          "scope": "backup_inspection",
+          "unphased_us": 8
+        },
+        {
+          "action": "",
+          "cache_enabled": true,
+          "cache_hit": false,
+          "code": "",
+          "context": "",
+          "elapsed_us": 4019,
+          "locator": "",
+          "ok": true,
+          "scope": "document_parse",
+          "unphased_us": 4019
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 4373,
+          "locator": "slot:1",
+          "ok": true,
+          "parse_us": 4102,
+          "revision_read_us": 197,
+          "scope": "backup_inspection",
+          "unphased_us": 74
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 117,
+          "locator": "slot:2",
+          "ok": true,
+          "revision_read_us": 105,
+          "scope": "backup_inspection",
+          "unphased_us": 12
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 220,
+          "locator": "slot:3",
+          "ok": true,
+          "revision_read_us": 208,
+          "scope": "backup_inspection",
+          "unphased_us": 12
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 82,
+          "locator": "slot:4",
+          "ok": true,
+          "revision_read_us": 73,
+          "scope": "backup_inspection",
+          "unphased_us": 9
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 88,
+          "locator": "slot:5",
+          "ok": true,
+          "revision_read_us": 79,
+          "scope": "backup_inspection",
+          "unphased_us": 9
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 84,
+          "locator": "slot:6",
+          "ok": true,
+          "revision_read_us": 75,
+          "scope": "backup_inspection",
+          "unphased_us": 9
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 221,
+          "locator": "slot:7",
+          "ok": true,
+          "revision_read_us": 210,
+          "scope": "backup_inspection",
+          "unphased_us": 11
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 359,
+          "locator": "autosave",
+          "ok": true,
+          "revision_read_us": 340,
+          "scope": "backup_inspection",
+          "unphased_us": 19
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 76,
+          "locator": "quick",
+          "ok": true,
+          "revision_read_us": 70,
+          "scope": "backup_inspection",
+          "unphased_us": 6
+        },
+        {
+          "action": "",
+          "cache_enabled": true,
+          "cache_hit": true,
+          "code": "",
+          "context": "",
+          "elapsed_us": 130,
+          "locator": "",
+          "ok": true,
+          "scope": "document_parse",
+          "unphased_us": 130
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 496,
+          "locator": "slot:1",
+          "ok": true,
+          "parse_us": 181,
+          "revision_read_us": 229,
+          "scope": "backup_inspection",
+          "unphased_us": 86
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 144,
+          "locator": "slot:2",
+          "ok": true,
+          "revision_read_us": 129,
+          "scope": "backup_inspection",
+          "unphased_us": 15
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 101,
+          "locator": "slot:3",
+          "ok": true,
+          "revision_read_us": 91,
+          "scope": "backup_inspection",
+          "unphased_us": 10
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 116,
+          "locator": "slot:4",
+          "ok": true,
+          "revision_read_us": 104,
+          "scope": "backup_inspection",
+          "unphased_us": 12
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 111,
+          "locator": "slot:5",
+          "ok": true,
+          "revision_read_us": 99,
+          "scope": "backup_inspection",
+          "unphased_us": 12
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 88,
+          "locator": "slot:6",
+          "ok": true,
+          "revision_read_us": 79,
+          "scope": "backup_inspection",
+          "unphased_us": 9
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 104,
+          "locator": "slot:7",
+          "ok": true,
+          "revision_read_us": 94,
+          "scope": "backup_inspection",
+          "unphased_us": 10
+        },
+        {
+          "action": "",
+          "cache_enabled": true,
+          "cache_hit": true,
+          "code": "",
+          "context": "",
+          "elapsed_us": 140,
+          "locator": "",
+          "ok": true,
+          "scope": "document_parse",
+          "unphased_us": 140
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 518,
+          "locator": "slot:1",
+          "ok": true,
+          "parse_us": 199,
+          "revision_read_us": 263,
+          "scope": "backup_inspection",
+          "unphased_us": 56
+        },
+        {
+          "action": "save",
+          "candidate_copy_us": 384,
+          "capture_us": 118729,
+          "code": "",
+          "context": "",
+          "document_build_us": 935,
+          "elapsed_us": 120778,
+          "inspection_us": 560,
+          "locator": "slot:1",
+          "ok": true,
+          "scope": "backup_prepare",
+          "stable_hash_us": 5,
+          "unphased_us": 165
+        },
+        {
+          "action": "save",
+          "code": "",
+          "context": "",
+          "elapsed_us": 37154,
+          "journal_commit_us": 1131,
+          "locator": "slot_1.json",
+          "metadata_refresh_us": 12,
+          "ok": true,
+          "reread_us": 140,
+          "revision_read_us": 311,
+          "save_completed_signal_us": 10,
+          "scope": "backup_commit",
+          "serialize_us": 797,
+          "source_recheck_us": 15783,
+          "unphased_us": 17,
+          "write_atomic_us": 18953
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 152,
+          "locator": "autosave",
+          "ok": true,
+          "revision_read_us": 113,
+          "scope": "backup_inspection",
+          "unphased_us": 39
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 69,
+          "locator": "quick",
+          "ok": true,
+          "revision_read_us": 61,
+          "scope": "backup_inspection",
+          "unphased_us": 8
+        },
+        {
+          "action": "",
+          "cache_enabled": true,
+          "cache_hit": false,
+          "code": "",
+          "context": "",
+          "elapsed_us": 4182,
+          "locator": "",
+          "ok": true,
+          "scope": "document_parse",
+          "unphased_us": 4182
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 4758,
+          "locator": "slot:1",
+          "ok": true,
+          "parse_us": 4398,
+          "revision_read_us": 219,
+          "scope": "backup_inspection",
+          "unphased_us": 141
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 113,
+          "locator": "slot:2",
+          "ok": true,
+          "revision_read_us": 101,
+          "scope": "backup_inspection",
+          "unphased_us": 12
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 182,
+          "locator": "slot:3",
+          "ok": true,
+          "revision_read_us": 170,
+          "scope": "backup_inspection",
+          "unphased_us": 12
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 100,
+          "locator": "slot:4",
+          "ok": true,
+          "revision_read_us": 90,
+          "scope": "backup_inspection",
+          "unphased_us": 10
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 394,
+          "locator": "slot:5",
+          "ok": true,
+          "revision_read_us": 111,
+          "scope": "backup_inspection",
+          "unphased_us": 283
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 248,
+          "locator": "slot:6",
+          "ok": true,
+          "revision_read_us": 235,
+          "scope": "backup_inspection",
+          "unphased_us": 13
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 111,
+          "locator": "slot:7",
+          "ok": true,
+          "revision_read_us": 100,
+          "scope": "backup_inspection",
+          "unphased_us": 11
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 167,
+          "locator": "autosave",
+          "ok": true,
+          "revision_read_us": 150,
+          "scope": "backup_inspection",
+          "unphased_us": 17
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 84,
+          "locator": "quick",
+          "ok": true,
+          "revision_read_us": 76,
+          "scope": "backup_inspection",
+          "unphased_us": 8
+        },
+        {
+          "action": "",
+          "cache_enabled": true,
+          "cache_hit": true,
+          "code": "",
+          "context": "",
+          "elapsed_us": 347,
+          "locator": "",
+          "ok": true,
+          "scope": "document_parse",
+          "unphased_us": 347
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 802,
+          "locator": "slot:1",
+          "ok": true,
+          "parse_us": 482,
+          "revision_read_us": 252,
+          "scope": "backup_inspection",
+          "unphased_us": 68
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 130,
+          "locator": "slot:2",
+          "ok": true,
+          "revision_read_us": 117,
+          "scope": "backup_inspection",
+          "unphased_us": 13
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 136,
+          "locator": "slot:3",
+          "ok": true,
+          "revision_read_us": 124,
+          "scope": "backup_inspection",
+          "unphased_us": 12
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 111,
+          "locator": "slot:4",
+          "ok": true,
+          "revision_read_us": 99,
+          "scope": "backup_inspection",
+          "unphased_us": 12
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 116,
+          "locator": "slot:5",
+          "ok": true,
+          "revision_read_us": 104,
+          "scope": "backup_inspection",
+          "unphased_us": 12
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 109,
+          "locator": "slot:6",
+          "ok": true,
+          "revision_read_us": 97,
+          "scope": "backup_inspection",
+          "unphased_us": 12
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 101,
+          "locator": "slot:7",
+          "ok": true,
+          "revision_read_us": 91,
+          "scope": "backup_inspection",
+          "unphased_us": 10
+        },
+        {
+          "action": "",
+          "cache_enabled": true,
+          "cache_hit": true,
+          "code": "",
+          "context": "",
+          "elapsed_us": 158,
+          "locator": "",
+          "ok": true,
+          "scope": "document_parse",
+          "unphased_us": 158
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 608,
+          "locator": "slot:1",
+          "ok": true,
+          "parse_us": 220,
+          "revision_read_us": 246,
+          "scope": "backup_inspection",
+          "unphased_us": 142
+        },
+        {
+          "action": "save",
+          "candidate_copy_us": 173,
+          "capture_us": 125785,
+          "code": "",
+          "context": "",
+          "document_build_us": 240,
+          "elapsed_us": 127127,
+          "inspection_us": 887,
+          "locator": "slot:1",
+          "ok": true,
+          "scope": "backup_prepare",
+          "stable_hash_us": 3,
+          "unphased_us": 39
+        },
+        {
+          "action": "save",
+          "code": "",
+          "context": "",
+          "elapsed_us": 20679,
+          "journal_commit_us": 1034,
+          "locator": "slot_1.json",
+          "metadata_refresh_us": 9,
+          "ok": true,
+          "reread_us": 546,
+          "revision_read_us": 329,
+          "save_completed_signal_us": 9,
+          "scope": "backup_commit",
+          "serialize_us": 1087,
+          "source_recheck_us": 16426,
+          "unphased_us": 17,
+          "write_atomic_us": 1222
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 164,
+          "locator": "autosave",
+          "ok": true,
+          "revision_read_us": 147,
+          "scope": "backup_inspection",
+          "unphased_us": 17
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 71,
+          "locator": "quick",
+          "ok": true,
+          "revision_read_us": 62,
+          "scope": "backup_inspection",
+          "unphased_us": 9
+        },
+        {
+          "action": "",
+          "cache_enabled": true,
+          "cache_hit": false,
+          "code": "",
+          "context": "",
+          "elapsed_us": 3769,
+          "locator": "",
+          "ok": true,
+          "scope": "document_parse",
+          "unphased_us": 3769
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 4313,
+          "locator": "slot:1",
+          "ok": true,
+          "parse_us": 3857,
+          "revision_read_us": 364,
+          "scope": "backup_inspection",
+          "unphased_us": 92
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 112,
+          "locator": "slot:2",
+          "ok": true,
+          "revision_read_us": 100,
+          "scope": "backup_inspection",
+          "unphased_us": 12
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 108,
+          "locator": "slot:3",
+          "ok": true,
+          "revision_read_us": 97,
+          "scope": "backup_inspection",
+          "unphased_us": 11
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 98,
+          "locator": "slot:4",
+          "ok": true,
+          "revision_read_us": 88,
+          "scope": "backup_inspection",
+          "unphased_us": 10
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 101,
+          "locator": "slot:5",
+          "ok": true,
+          "revision_read_us": 91,
+          "scope": "backup_inspection",
+          "unphased_us": 10
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 148,
+          "locator": "slot:6",
+          "ok": true,
+          "revision_read_us": 137,
+          "scope": "backup_inspection",
+          "unphased_us": 11
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 97,
+          "locator": "slot:7",
+          "ok": true,
+          "revision_read_us": 87,
+          "scope": "backup_inspection",
+          "unphased_us": 10
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 588,
+          "locator": "autosave",
+          "ok": true,
+          "revision_read_us": 500,
+          "scope": "backup_inspection",
+          "unphased_us": 88
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 102,
+          "locator": "quick",
+          "ok": true,
+          "revision_read_us": 92,
+          "scope": "backup_inspection",
+          "unphased_us": 10
+        },
+        {
+          "action": "",
+          "cache_enabled": true,
+          "cache_hit": true,
+          "code": "",
+          "context": "",
+          "elapsed_us": 305,
+          "locator": "",
+          "ok": true,
+          "scope": "document_parse",
+          "unphased_us": 305
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 916,
+          "locator": "slot:1",
+          "ok": true,
+          "parse_us": 375,
+          "revision_read_us": 244,
+          "scope": "backup_inspection",
+          "unphased_us": 297
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 95,
+          "locator": "slot:2",
+          "ok": true,
+          "revision_read_us": 86,
+          "scope": "backup_inspection",
+          "unphased_us": 9
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 68,
+          "locator": "slot:3",
+          "ok": true,
+          "revision_read_us": 62,
+          "scope": "backup_inspection",
+          "unphased_us": 6
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 65,
+          "locator": "slot:4",
+          "ok": true,
+          "revision_read_us": 59,
+          "scope": "backup_inspection",
+          "unphased_us": 6
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 63,
+          "locator": "slot:5",
+          "ok": true,
+          "revision_read_us": 58,
+          "scope": "backup_inspection",
+          "unphased_us": 5
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 62,
+          "locator": "slot:6",
+          "ok": true,
+          "revision_read_us": 57,
+          "scope": "backup_inspection",
+          "unphased_us": 5
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 63,
+          "locator": "slot:7",
+          "ok": true,
+          "revision_read_us": 58,
+          "scope": "backup_inspection",
+          "unphased_us": 5
+        },
+        {
+          "action": "",
+          "cache_enabled": true,
+          "cache_hit": true,
+          "code": "",
+          "context": "",
+          "elapsed_us": 159,
+          "locator": "",
+          "ok": true,
+          "scope": "document_parse",
+          "unphased_us": 159
+        },
+        {
+          "action": "",
+          "code": "",
+          "context": "",
+          "elapsed_us": 580,
+          "locator": "slot:1",
+          "ok": true,
+          "parse_us": 231,
+          "revision_read_us": 283,
+          "scope": "backup_inspection",
+          "unphased_us": 66
+        },
+        {
+          "action": "",
+          "code": "ok",
+          "context": "",
+          "elapsed_us": 12650,
+          "locator": "slot_1.json",
+          "ok": true,
+          "participant_prepare_us": 12640,
+          "scope": "restore_prepare",
+          "unphased_us": 10
+        },
+        {
+          "action": "load",
+          "candidate_copy_us": 201,
+          "code": "",
+          "context": "",
+          "elapsed_us": 19544,
+          "inspection_us": 698,
+          "locator": "slot:1",
+          "ok": true,
+          "restore_prepare_us": 18596,
+          "scope": "backup_prepare",
+          "unphased_us": 49
+        },
+        {
+          "action": "load",
+          "code": "scene_activation_pending",
+          "context": "",
+          "elapsed_us": 110768,
+          "locator": "slot_1.json",
+          "ok": false,
+          "restore_commit_us": 110465,
+          "revision_read_us": 284,
+          "scope": "backup_commit",
+          "unphased_us": 19
+        }
+      ],
+      "ui_phase_lines": [
+        "UI_PHASE scripts/ui/witnessed/WitnessedHistory.gd::configure 1601",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 4",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 6",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 4595",
+        "UI_PHASE autoload/DialogicBridge.gd::get_reading_history 4972",
+        "UI_PHASE scripts/ui/SettingsContent.gd::_build_content 275446",
+        "UI_PHASE scripts/ui/SettingsContent.gd::apply_text_size 309254",
+        "UI_PHASE scripts/ui/SettingsPanelController.gd::refresh 324103",
+        "UI_PHASE scripts/ui/SettingsPanelController.gd::bind 324386",
+        "UI_PHASE scripts/ui/SettingsContent.gd::apply_text_size 61131",
+        "UI_PHASE scripts/ui/SettingsPanelController.gd::refresh 72920",
+        "UI_PHASE scripts/ui/SettingsContent.gd::refresh_labels 99188",
+        "UI_PHASE scripts/ui/SettingsContent.gd::_ready 703452",
+        "UI_PHASE scripts/ui/SettingsContent.gd::apply_text_size 58551",
+        "UI_PHASE scripts/ui/SettingsPanelController.gd::refresh 71973",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 7",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 9",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 5069",
+        "UI_PHASE autoload/DialogicBridge.gd::get_reading_history 5691",
+        "UI_PHASE scripts/ui/witnessed/WitnessedHistory.gd::present 7713",
+        "UI_PHASE scripts/ui/witnessed/WitnessedCaptionLayer.gd::_on_history_requested 898527",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 3",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 6",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 4456",
+        "UI_PHASE autoload/DialogicBridge.gd::get_reading_history 4809",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 4",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 6",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 3728",
+        "UI_PHASE autoload/DialogicBridge.gd::get_reading_history 4164",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 3",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 5",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 3087",
+        "UI_PHASE autoload/DialogicBridge.gd::get_reading_history 3396",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 3",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 6",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 2896",
+        "UI_PHASE autoload/DialogicBridge.gd::get_reading_history 3092",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 2",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 5",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 3259",
+        "UI_PHASE autoload/DialogicBridge.gd::get_reading_history 3604",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 4",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 5",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 2904",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 5",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 9",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 6846",
+        "UI_PHASE scripts/ui/SettingsContent.gd::_build_content 120084",
+        "UI_PHASE scripts/ui/SettingsContent.gd::apply_text_size 80678",
+        "UI_PHASE scripts/ui/SettingsPanelController.gd::refresh 95018",
+        "UI_PHASE scripts/ui/SettingsPanelController.gd::bind 95365",
+        "UI_PHASE scripts/ui/SettingsContent.gd::apply_text_size 67646",
+        "UI_PHASE scripts/ui/SettingsPanelController.gd::refresh 79618",
+        "UI_PHASE scripts/ui/SettingsContent.gd::refresh_labels 107700",
+        "UI_PHASE scripts/ui/SettingsContent.gd::_ready 328570",
+        "UI_PHASE scripts/ui/SettingsContent.gd::apply_text_size 92939",
+        "UI_PHASE scripts/ui/SettingsPanelController.gd::refresh 105934",
+        "UI_PHASE scripts/ui/SettingsContent.gd::apply_text_size 62830",
+        "UI_PHASE scripts/ui/SettingsPanelController.gd::refresh 73190",
+        "UI_PHASE scripts/ui/SettingsContent.gd::apply_text_size 49542",
+        "UI_PHASE scripts/ui/SettingsPanelController.gd::refresh 62932",
+        "UI_PHASE scripts/ui/witnessed/WitnessedHistory.gd::configure 1664",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 4",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 8",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 5758",
+        "UI_PHASE autoload/DialogicBridge.gd::get_reading_history 6115",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 5",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 7",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 4832",
+        "UI_PHASE autoload/DialogicBridge.gd::get_reading_history 5152",
+        "UI_PHASE scripts/ui/witnessed/WitnessedHistory.gd::present 7687",
+        "UI_PHASE scripts/ui/witnessed/WitnessedCaptionLayer.gd::_on_history_requested 56139",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 5",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 7",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 4336",
+        "UI_PHASE autoload/DialogicBridge.gd::get_reading_history 4661",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 3",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 6",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 3700",
+        "UI_PHASE autoload/DialogicBridge.gd::get_reading_history 4580",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 3",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 6",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 3232",
+        "UI_PHASE autoload/DialogicBridge.gd::get_reading_history 3578",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 3",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 6",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 3395",
+        "UI_PHASE autoload/DialogicBridge.gd::get_reading_history 3880",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 2",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 6",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 3388",
+        "UI_PHASE autoload/DialogicBridge.gd::get_reading_history 3577",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 4",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 9",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 4742",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 5",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 8",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 4951",
+        "UI_PHASE scripts/ui/SettingsContent.gd::apply_text_size 59678",
+        "UI_PHASE scripts/ui/SettingsPanelController.gd::refresh 77584",
+        "UI_PHASE scripts/ui/SettingsContent.gd::apply_text_size 60989",
+        "UI_PHASE scripts/ui/SettingsPanelController.gd::refresh 74276",
+        "UI_PHASE scripts/ui/witnessed/WitnessedHistory.gd::configure 2365",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 5",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 11",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 8253",
+        "UI_PHASE autoload/DialogicBridge.gd::get_reading_history 8764",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 7",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 8",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 5309",
+        "UI_PHASE autoload/DialogicBridge.gd::get_reading_history 5728",
+        "UI_PHASE scripts/ui/witnessed/WitnessedHistory.gd::present 7625",
+        "UI_PHASE scripts/ui/witnessed/WitnessedCaptionLayer.gd::_on_history_requested 87912",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 3",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 7",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 4448",
+        "UI_PHASE autoload/DialogicBridge.gd::get_reading_history 4794",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 4",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 6",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 3158",
+        "UI_PHASE autoload/DialogicBridge.gd::get_reading_history 3412",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 3",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 6",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 3112",
+        "UI_PHASE autoload/DialogicBridge.gd::get_reading_history 3312",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 3",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 6",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 3224",
+        "UI_PHASE autoload/DialogicBridge.gd::get_reading_history 3428",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 2",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 5",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 2977",
+        "UI_PHASE autoload/DialogicBridge.gd::get_reading_history 3167",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 4",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 8",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 4028",
+        "UI_PHASE autoload/DialogicBridge.gd::_scene_day_history 4",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::_history_programme 8",
+        "UI_PHASE scripts/narrative/SoloReadingSession.gd::project_scene_day_history 5327",
+        "UI_PHASE scripts/ui/SettingsContent.gd::apply_text_size 65914",
+        "UI_PHASE scripts/ui/SettingsPanelController.gd::refresh 77956",
+        "UI_PHASE scripts/ui/SettingsContent.gd::apply_text_size 61938",
+        "UI_PHASE scripts/ui/SettingsPanelController.gd::refresh 73104"
+      ],
+      "ordinary_caption_samples_omitted": 802
+    }
+  },
+  "early_probe_source": "extends \"res://tests/integration/authored_week_child.gd\"\n\nvar samples: Array[Dictionary] = []\nvar measuring := false\nvar previous_frame := 0\nvar largest_frame := 0\nvar sample_started := 0\nvar presented_us := -1\n\nfunc observe_frame() -> void:\n\tvar now := Time.get_ticks_usec()\n\tif measuring: largest_frame = maxi(largest_frame, now - previous_frame)\n\tprevious_frame = now\n\nfunc begin_sample() -> int:\n\tlargest_frame = 0\n\tprevious_frame = Time.get_ticks_usec()\n\tmeasuring = true\n\tsample_started = previous_frame\n\tpresented_us = -1\n\treturn previous_frame\n\nfunc end_sample(action: String, started: int, detail: String = \"\") -> void:\n\tmeasuring = false\n\tvar row := {\"action\": action, \"detail\": detail, \"elapsed_us\": Time.get_ticks_usec() - started, \"largest_frame_us\": largest_frame}\n\tif presented_us >= 0: row[\"presentation_ack_us\"] = presented_us\n\tsamples.append(row)\n\tprint(\"PLAYER_LATENCY \" + JSON.stringify(row))\n\nfunc draw_complete() -> void:\n\tif DisplayServer.get_name() == \"headless\": await get_tree().process_frame\n\telse: await RenderingServer.frame_post_draw\n\nfunc _wait_line(line_id: String) -> bool:\n\tvar deadline := Time.get_ticks_msec() + 30000\n\twhile Time.get_ticks_msec() < deadline:\n\t\tif bridge._runtime_adapter.current_line_id() == line_id and bridge.is_current_line_presentation_acknowledged():\n\t\t\tvar caption: Node = _caption()\n\t\t\tif is_instance_valid(caption) and caption.caption_text.is_visible_in_tree() and not caption.caption_text.revealing:\n\t\t\t\tawait draw_complete()\n\t\t\t\tpresented_us = Time.get_ticks_usec() - sample_started\n\t\t\t\tbreak\n\t\tawait get_tree().process_frame\n\treturn await super._wait_line(line_id)\n\nfunc _click(control: Control) -> void:\n\tvar overlay := get_tree().root.find_child(\"GutLayer\", true, false)\n\tif overlay is CanvasLayer: overlay.hide()\n\tvar point := control.get_global_transform_with_canvas() * (control.size / 2.0)\n\tfor pressed: bool in [true, false]:\n\t\tvar motion := InputEventMouseMotion.new()\n\t\tmotion.position = point\n\t\tmotion.global_position = point\n\t\tget_viewport().push_input(motion, true)\n\t\tvar event := InputEventMouseButton.new()\n\t\tevent.position = point\n\t\tevent.global_position = point\n\t\tevent.button_index = MOUSE_BUTTON_LEFT\n\t\tevent.pressed = pressed\n\t\tget_viewport().push_input(event, true)\n\tawait get_tree().process_frame\n\tawait draw_complete()\n\nfunc audit_ui(label: String) -> void:\n\tvar caption: Node = _caption()\n\tfor attempt: int in 3:\n\t\tvar started := begin_sample()\n\t\tawait _click(caption.transport_rail._history_button)\n\t\tassert_true(caption._history_open)\n\t\tend_sample(\"history\", started, label)\n\t\tawait _click(caption._history_overlay.close_button)\n\t\tstarted = begin_sample()\n\t\tawait _click(caption.transport_rail.get_node(\"Save\"))\n\t\tvar sheet: Node = get_node(\"/root/SceneRouter\")._production_pause\n\t\tassert_not_null(sheet)\n\t\tend_sample(\"save_menu\", started, label)\n\t\tif not is_instance_valid(sheet): return\n\t\tvar app: Control = sheet.surface._hosts[&\"backup\"]\n\t\tawait _click(app.drawer_buttons[\"slot:1\"])\n\t\tstarted = begin_sample()\n\t\tawait _click(app.action_buttons[\"save\"])\n\t\tif is_instance_valid(app.confirmation): await _click(app.confirmation.confirm_button)\n\t\twhile app._in_operation: await get_tree().process_frame\n\t\tawait draw_complete()\n\t\tend_sample(\"save_write\", started, label)\n\t\tassert_true(app.last_result.get(\"ok\", false))\n\t\tawait _click(sheet.surface._sheet_back)\n\t\tassert_false(get_tree().paused)\n\t\tstarted = begin_sample()\n\t\tawait _click(caption.transport_rail._settings_button)\n\t\tend_sample(\"settings\", started, label)\n\t\tvar host: Node = get_tree().current_scene\n\t\tvar computer: Control = host.get_node(\"SceneControlsLayer/Surface/Controls/CheckComputer\")\n\t\tassert_true(host.is_computer_open())\n\t\tawait _click(computer)\n\t\tassert_false(host.is_computer_open())\n\t\tstarted = begin_sample()\n\t\tawait _click(computer)\n\t\tassert_true(host.is_computer_open())\n\t\tend_sample(\"computer\", started, label)\n\t\tawait _click(computer)\n\t\tassert_false(host.is_computer_open())\n\nfunc audit_title() -> void:\n\tif not await _wait_route(MENU): return\n\tfor frame: int in 3: await get_tree().process_frame\n\tvar menu: Node = get_tree().current_scene\n\tfor attempt: int in 3:\n\t\tvar started := begin_sample()\n\t\tawait _click(menu.get_node(\"%GalleryButton\"))\n\t\tvar gallery: Node = menu._gallery_instance\n\t\tassert_not_null(gallery)\n\t\tend_sample(\"gallery\", started, str(attempt))\n\t\tif not is_instance_valid(gallery): return\n\t\tstarted = begin_sample()\n\t\tawait _click(gallery._gallery_tabs.get_child(2))\n\t\tend_sample(\"dialogue_library\", started, str(attempt))\n\t\tawait _click(gallery._gallery_tabs.get_child(1))\n\t\tfor row: Button in gallery._artwork._rows:\n\t\t\tif DisplayServer.get_name() == \"headless\": continue\n\t\t\tassert_false(row.disabled)\n\t\t\tstarted = begin_sample()\n\t\t\tawait _click(row)\n\t\t\tend_sample(\"artwork_select\", started, row.name)\n\t\t\tstarted = begin_sample()\n\t\t\tawait _click(gallery._artwork._preview)\n\t\t\tassert_true(is_instance_valid(gallery._artwork._viewer))\n\t\t\tend_sample(\"artwork_fullscreen\", started, row.name)\n\t\t\tgallery._artwork.close_viewer()\n\t\t\tawait get_tree().process_frame\n\t\tawait menu._close_gallery()\n\tvar started := begin_sample()\n\tawait _click(menu.get_node(\"%LogInButton\"))\n\tend_sample(\"load_menu\", started)\n\tvar app: Control = menu._backup_app_instance\n\tawait _click(app.drawer_buttons[\"slot:1\"])\n\tready_count = 0\n\tstarted = begin_sample()\n\tawait _click(app.action_buttons[\"load\"])\n\tif is_instance_valid(app) and is_instance_valid(app.confirmation): await _click(app.confirmation.confirm_button)\n\tif not await _await_ready(): return\n\tawait draw_complete()\n\tassert_eq(bridge._runtime_adapter.current_line_id(), \"line.Day7.untouched.impulse.004\")\n\tassert_eq(_caption().caption_text.get_parsed_text(), _texts[\"line.Day7.untouched.impulse.004\"])\n\tend_sample(\"load_checkpoint\", started)\n\nfunc test_player_latency() -> void:\n\t_phase = \"create\"\n\tif not _setup_authored(false): return\n\tget_tree().process_frame.connect(observe_frame)\n\tget_node(\"/root/SceneRouter\").goto_menu()\n\tif not await _new_from_title(1, _expected[0].line_id): return\n\tOS.set_environment(\"DWM_SAVE_DEEP_PROFILE\", \"1\")\n\tawait audit_ui(\"Day1\")\n\tOS.set_environment(\"DWM_SAVE_DEEP_PROFILE\", \"0\")\n",
+  "full_probe": "tests/manual/benchmark_player_latency.gd",
+  "checks": {
+    "full_authored_journey_assertions": 4285,
+    "lazy_pause_settings_assertions": 92,
+    "settings_font_binding_assertions": 16,
+    "localized_boolean_assertions": 114,
+    "lint_unit_tests": 22
+  },
+  "limits": [
+    "Single cold first-open sample per run; later opens are warm, not independent cold samples.",
+    "Sequential before and candidate runs; shared host noise. Final candidate early UI uses the same sequence before the full authored journey.",
+    "Settings becomes cold when History no longer constructs its unrelated pause instance; first Settings alone is not faster.",
+    "Load and transition diagnostics are single-route observations, not demonstrated speedups or Windows rendered timings.",
+    "UI_PHASE timers are inclusive and overlap. The _scene_day_history timer precedes the returned call and must not be used as its duration."
+  ],
+  "instrumented_probe_source": "extends \"res://tests/integration/authored_week_child.gd\"\n\nvar samples: Array[Dictionary] = []\nvar measuring := false\nvar previous_frame := 0\nvar largest_frame := 0\nvar sample_started := 0\nvar presented_us := -1\n\nfunc observe_frame() -> void:\n\tvar now := Time.get_ticks_usec()\n\tif measuring: largest_frame = maxi(largest_frame, now - previous_frame)\n\tprevious_frame = now\n\nfunc begin_sample() -> int:\n\tlargest_frame = 0\n\tprevious_frame = Time.get_ticks_usec()\n\tmeasuring = true\n\tsample_started = previous_frame\n\tpresented_us = -1\n\treturn previous_frame\n\nfunc end_sample(action: String, started: int, detail: String = \"\") -> void:\n\tmeasuring = false\n\tvar row := {\"action\": action, \"detail\": detail, \"elapsed_us\": Time.get_ticks_usec() - started, \"largest_frame_us\": largest_frame}\n\tif presented_us >= 0: row[\"presentation_ack_us\"] = presented_us\n\tsamples.append(row)\n\tprint(\"PLAYER_LATENCY \" + JSON.stringify(row))\n\nfunc draw_complete() -> void:\n\tif DisplayServer.get_name() == \"headless\": await get_tree().process_frame\n\telse: await RenderingServer.frame_post_draw\n\nfunc _wait_line(line_id: String) -> bool:\n\tvar deadline := Time.get_ticks_msec() + 30000\n\twhile Time.get_ticks_msec() < deadline:\n\t\tif bridge._runtime_adapter.current_line_id() == line_id and bridge.is_current_line_presentation_acknowledged():\n\t\t\tvar caption: Node = _caption()\n\t\t\tif is_instance_valid(caption) and caption.caption_text.is_visible_in_tree() and not caption.caption_text.revealing:\n\t\t\t\tawait draw_complete()\n\t\t\t\tpresented_us = Time.get_ticks_usec() - sample_started\n\t\t\t\tbreak\n\t\tawait get_tree().process_frame\n\treturn await super._wait_line(line_id)\n\nfunc _click(control: Control) -> void:\n\tvar overlay := get_tree().root.find_child(\"GutLayer\", true, false)\n\tif overlay is CanvasLayer: overlay.hide()\n\tvar point := control.get_global_transform_with_canvas() * (control.size / 2.0)\n\tfor pressed: bool in [true, false]:\n\t\tvar motion := InputEventMouseMotion.new()\n\t\tmotion.position = point\n\t\tmotion.global_position = point\n\t\tget_viewport().push_input(motion, true)\n\t\tvar event := InputEventMouseButton.new()\n\t\tevent.position = point\n\t\tevent.global_position = point\n\t\tevent.button_index = MOUSE_BUTTON_LEFT\n\t\tevent.pressed = pressed\n\t\tget_viewport().push_input(event, true)\n\tawait get_tree().process_frame\n\tawait draw_complete()\n\nfunc audit_ui(label: String) -> void:\n\tvar caption: Node = _caption()\n\tfor attempt: int in 3:\n\t\tvar started := begin_sample()\n\t\tawait _click(caption.transport_rail._history_button)\n\t\tassert_true(caption._history_open)\n\t\tend_sample(\"history\", started, label)\n\t\tawait _click(caption._history_overlay.close_button)\n\t\tstarted = begin_sample()\n\t\tawait _click(caption.transport_rail.get_node(\"Save\"))\n\t\tvar sheet: Node = get_node(\"/root/SceneRouter\")._production_pause\n\t\tassert_not_null(sheet)\n\t\tend_sample(\"save_menu\", started, label)\n\t\tif not is_instance_valid(sheet): return\n\t\tvar app: Control = sheet.surface._hosts[&\"backup\"]\n\t\tawait _click(app.drawer_buttons[\"slot:1\"])\n\t\tstarted = begin_sample()\n\t\tawait _click(app.action_buttons[\"save\"])\n\t\tif is_instance_valid(app.confirmation): await _click(app.confirmation.confirm_button)\n\t\twhile app._in_operation: await get_tree().process_frame\n\t\tawait draw_complete()\n\t\tend_sample(\"save_write\", started, label)\n\t\tassert_true(app.last_result.get(\"ok\", false))\n\t\tawait _click(sheet.surface._sheet_back)\n\t\tassert_false(get_tree().paused)\n\t\tstarted = begin_sample()\n\t\tawait _click(caption.transport_rail._settings_button)\n\t\tend_sample(\"settings\", started, label)\n\t\tvar host: Node = get_tree().current_scene\n\t\tvar computer: Control = host.get_node(\"SceneControlsLayer/Surface/Controls/CheckComputer\")\n\t\tassert_true(host.is_computer_open())\n\t\tawait _click(computer)\n\t\tassert_false(host.is_computer_open())\n\t\tstarted = begin_sample()\n\t\tawait _click(computer)\n\t\tassert_true(host.is_computer_open())\n\t\tend_sample(\"computer\", started, label)\n\t\tawait _click(computer)\n\t\tassert_false(host.is_computer_open())\n\nfunc audit_title() -> void:\n\tif not await _wait_route(MENU): return\n\tfor frame: int in 3: await get_tree().process_frame\n\tvar menu: Node = get_tree().current_scene\n\tfor attempt: int in 3:\n\t\tvar started := begin_sample()\n\t\tawait _click(menu.get_node(\"%GalleryButton\"))\n\t\tvar gallery: Node = menu._gallery_instance\n\t\tassert_not_null(gallery)\n\t\tend_sample(\"gallery\", started, str(attempt))\n\t\tif not is_instance_valid(gallery): return\n\t\tstarted = begin_sample()\n\t\tawait _click(gallery._gallery_tabs.get_child(2))\n\t\tend_sample(\"dialogue_library\", started, str(attempt))\n\t\tawait _click(gallery._gallery_tabs.get_child(1))\n\t\tfor row: Button in gallery._artwork._rows:\n\t\t\tif DisplayServer.get_name() == \"headless\": continue\n\t\t\tassert_false(row.disabled)\n\t\t\tstarted = begin_sample()\n\t\t\tawait _click(row)\n\t\t\tend_sample(\"artwork_select\", started, row.name)\n\t\t\tstarted = begin_sample()\n\t\t\tawait _click(gallery._artwork._preview)\n\t\t\tassert_true(is_instance_valid(gallery._artwork._viewer))\n\t\t\tend_sample(\"artwork_fullscreen\", started, row.name)\n\t\t\tgallery._artwork.close_viewer()\n\t\t\tawait get_tree().process_frame\n\t\tawait menu._close_gallery()\n\tvar started := begin_sample()\n\tawait _click(menu.get_node(\"%LogInButton\"))\n\tend_sample(\"load_menu\", started)\n\tvar app: Control = menu._backup_app_instance\n\tawait _click(app.drawer_buttons[\"slot:1\"])\n\tready_count = 0\n\tstarted = begin_sample()\n\tawait _click(app.action_buttons[\"load\"])\n\tif is_instance_valid(app) and is_instance_valid(app.confirmation): await _click(app.confirmation.confirm_button)\n\tif not await _await_ready(): return\n\tawait draw_complete()\n\tassert_eq(bridge._runtime_adapter.current_line_id(), \"line.Day7.untouched.impulse.004\")\n\tassert_eq(_caption().caption_text.get_parsed_text(), _texts[\"line.Day7.untouched.impulse.004\"])\n\tend_sample(\"load_checkpoint\", started)\n\nfunc test_profile_ui_latency() -> void:\n\t_phase = \"create\"\n\tif not _setup_authored(false): return\n\tget_tree().process_frame.connect(observe_frame)\n\tget_node(\"/root/SceneRouter\").goto_menu()\n\tvar started := begin_sample()\n\tif not await _new_from_title(1, _expected[0].line_id): return\n\tend_sample(\"new_game_flow\", started)\n\tOS.set_environment(\"DWM_UI_PROFILE\", \"1\")\n\tOS.set_environment(\"DWM_SAVE_LOAD_PROFILE\", \"1\")\n\tawait audit_ui(\"Day1\")\n\tOS.set_environment(\"DWM_UI_PROFILE\", \"0\")\n\tfor index: int in range(1, _expected.size()):\n\t\tvar caption: Node = _caption()\n\t\tcaption.caption_text.grab_focus()\n\t\tawait get_tree().process_frame\n\t\tstarted = begin_sample()\n\t\tfor pressed: bool in [true, false]:\n\t\t\tvar event := InputEventKey.new()\n\t\t\tevent.keycode = KEY_ENTER\n\t\t\tevent.physical_keycode = KEY_ENTER\n\t\t\tevent.pressed = pressed\n\t\t\tget_viewport().push_input(event, true)\n\t\tif not await _wait_line(_expected[index].line_id): return\n\t\tend_sample(\"entry\" if index == _entry_starts[_expected[index].entry_id] else \"caption\", started, _expected[index].line_id)\n\t\tif _expected[index].line_id == \"line.Day7.untouched.impulse.004\": await audit_ui(\"Day7\")\n\tawait _complete_authored()\n\tawait audit_title()\n\t_write_json(\"res://.godot/ci/player-latency.json\", {\"revision\": OS.get_environment(\"DWM_BENCHMARK_REVISION\"), \"display\": DisplayServer.get_name(), \"artwork_samples_excluded\": DisplayServer.get_name() == \"headless\", \"samples\": samples})\n",
+  "check_log_sha256": {
+    "lazy": "fc9d5386191cfb260ee46334826aa07253c1fc8c1cc82ab2b02d48ceca729c00",
+    "settings": "e955b6c10db3bbd07ccb476ec3daefa6d45859aacdaea51ccc8a420f3edacdf6",
+    "labels": "cf0d474b9da69bb44fa86dd5f0ada22cfd20ed47a193e7e9efe4233f9e8589e9"
+  }
+}

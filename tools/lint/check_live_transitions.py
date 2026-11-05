@@ -10,7 +10,30 @@ LIVE_FUNCTIONS = (
     '_fork_scene_live', '_fork_scene_transition',
     'prepare_scene_next', 'prepare_scene_control_continuation',
 )
+SAVE = 'autoload/SaveManager.gd'
+CONTACTS = 'scripts/domain/contact/ContactInvitationState.gd'
+PAUSE = 'scripts/application/lifecycle/ProductionPauseController.gd'
+BINDINGS = 'scripts/ui/SettingsControlsSheet.gd'
+CAPTION = 'scripts/ui/witnessed/WitnessedCaptionLayer.gd'
 RULES = (
+    (CAPTION, ('_ready',),
+     r'\bconfigure_presentation\s*\([\s\S]*?\b_apply_preferences\s*\(|\b_configure_recovery_presentation\s*\(',
+     'Apply actual caption preferences first and defer recovery styling until requested'),
+    (BINDINGS, ('_ready',),
+     r'\b(?:set_presentation|refresh)\s*\(|\bPRESENTATION\s*\.\s*build\s*\(',
+     'SettingsContent applies the actual player theme; do not initialize a temporary binding theme'),
+    (PAUSE, ('request_pause',),
+     r'\b_ensure_hosts\s*\(\s*\)',
+     'History/direct sheets must not eagerly build unrelated Settings'),
+    (BINDINGS, ('set_presentation',),
+     r'\b_style_button\s*\(',
+     'Refresh owns binding-button styling; do not style the same buttons twice'),
+    (SAVE, ('_commit_backup_action_profiled',),
+     r'\bcommit_prepared\s*\(|\b(?:RUN_SNAPSHOT_SCHEMA|SAVE_DOCUMENT_SCHEMA)\s*\.\s*validate\s*\(',
+     'Commit the owned Save candidate without repeating snapshot/document validation'),
+    (CONTACTS, ('capture_scene_definitions',),
+     r'\b(?:scene_registration|_s_hash|canonical_sha256|sha256_text)\s*\(',
+     'Reuse the immutable registration owner bundle and fingerprint'),
     (SESSION, LIVE_FUNCTIONS,
      r'\b(?:restore|restore_player|restore_snapshot|_validate_scene_saved|_validate_scene_base)\s*\(',
      'Live planning must fork admitted state; serialized restoration belongs to Load'),

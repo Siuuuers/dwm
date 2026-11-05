@@ -177,6 +177,7 @@ func _open_scene_sheet(host: StringName, mode: StringName) -> Dictionary:
 			await request_continue()
 			last_result = prepared
 			return prepared
+	if host == &"settings": _ensure_settings_host()
 	if not surface.open_direct_host(host, mode):
 		await request_continue()
 		last_result = _failure(&"scene_sheet_unavailable")
@@ -356,7 +357,7 @@ func request_pause(show_surface: bool = true) -> Dictionary:
 		_handle = state.value.handle.duplicate(true)
 	else:
 		_handle = last_result.value.duplicate(true)
-	_ensure_hosts()
+	_ensure_hosts(show_surface or not last_result.get("ok", false))
 	_refresh_presentation()
 	if show_surface or not last_result.get("ok", false): surface.open_surface()
 	return last_result
@@ -531,19 +532,14 @@ func _find_caption(node: Node, recovery_only: bool = false) -> Node:
 		if found != null: return found
 	return null
 
-func _ensure_hosts() -> void:
+func _ensure_hosts(include_settings: bool = true) -> void:
+	if include_settings: _ensure_settings_host()
 	if _backup_port != null: return
 	_backup_port = BACKUP_PORT.new()
 	_backup_port.configure_pause(_services.saves, self)
 	var backup: Control = BACKUP.instantiate()
 	surface.set_host(&"backup", backup)
 	backup.configure_backup(_backup_port, _services.localization, _services.profile, &"after_hours", 1, false)
-	var settings: Control = SETTINGS.instantiate()
-	var settings_services: Dictionary = _services.get("settings_services", {}).duplicate()
-	settings_services.merge({"profile": _services.profile, "localization": _services.localization,
-		"input": _services.input, "audio": _services.audio, "volume": _services.audio}, true)
-	settings.get_node("SettingsContent").configure_services(settings_services)
-	surface.set_host(&"settings", settings)
 	_quick_commands = QUICK.new()
 	if _quick_commands.configure(surface, _backup_port, _services.input, _quick_input_admitted, _quick_source_snapshot):
 		add_child(_quick_commands)
@@ -552,6 +548,16 @@ func _ensure_hosts() -> void:
 	else:
 		_quick_commands.free()
 		_quick_commands = null
+
+func _ensure_settings_host() -> void:
+	if surface._hosts.has(&"settings"): return
+	var settings: Control = SETTINGS.instantiate()
+	var settings_services: Dictionary = _services.get("settings_services", {}).duplicate()
+	settings_services.merge({"profile": _services.profile, "localization": _services.localization,
+		"input": _services.input, "audio": _services.audio, "volume": _services.audio}, true)
+	settings.get_node("SettingsContent").configure_services(settings_services)
+	surface.set_host(&"settings", settings)
+
 
 func _backup_admission() -> Dictionary:
 	if _history_caption != null: return _failure(&"pause_backup_unavailable")

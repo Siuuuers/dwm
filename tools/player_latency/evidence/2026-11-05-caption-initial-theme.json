@@ -1,0 +1,67 @@
+{
+  "baseline_revision": "3170eef69033624f3a24e6f0c6f64121606f39ae",
+  "environment": "Godot 4.6.3 standard imported source project, Linux headless",
+  "production_file": "scripts/ui/witnessed/WitnessedCaptionLayer.gd",
+  "baseline_sha256": "e5a3195f7858348972495d64c096017718a9c00cb783ab96db89b4912b8ddd76",
+  "candidate_sha256": "e3fac2dcfd06cd41d0c8e27e17056e420ccffb47df4da2a59e7853f3a183175a",
+  "comparison_probe_source": "extends \"res://tests/integration/compact_history_restore_child.gd\"\n\nfunc _load_authored(slot: int, proof: Dictionary) -> bool:\n\tassert_eq(ProjectSettings.globalize_path(\"user://\"), proof.user_dir)\n\tassert_eq(AUTHORED_MANIFEST.scene_registration_fingerprint(), proof.registration_sha256)\n\tvar path := \"user://saves/slot_%d.json\" % slot\n\tassert_eq(FileAccess.get_sha256(path), proof.slot_sha256)\n\tvar profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)\n\tget_node(\"/root/SceneRouter\").goto_menu()\n\tif not await _wait_route(MENU): return false\n\tvar menu: Node = get_tree().current_scene\n\tsaves.live_session_ready.connect(func() -> void: _ready_observation = _native_observation())\n\tif not await _press_authored(menu.get_node(\"%LogInButton\")): return false\n\tvar app: Control = menu._backup_app_instance\n\tassert_not_null(app, \"Title LogIn mounts Backup\")\n\tif not is_instance_valid(app): return false\n\tif not await _press_authored(app.drawer_buttons.get(\"slot:%d\" % slot)): return false\n\tvar load_started := Time.get_ticks_usec()\n\tif not await _press_authored(app.action_buttons.get(\"load\")): return false\n\tif is_instance_valid(app) and is_instance_valid(app.confirmation):\n\t\tif not await _press_authored(app.confirmation.confirm_button): return false\n\tif not await _await_ready(): return false\n\tvar expanded: Dictionary = preload(\"res://scripts/narrative/SoloReadingSession.gd\").expand_player_checkpoint(proof.checkpoint)\n\tif not _ok(expanded): return false\n\tvar line_id: String = expanded.value.reading_session.frontier.line_id\n\tif not await _wait_line(line_id): return false\n\tprint(\"CHECKPOINT_LOAD_US \" + str(Time.get_ticks_usec() - load_started))\n\tassert_eq(_ready_observation.line_id, line_id)\n\tassert_true(_ready_observation.visible)\n\tassert_false(_ready_observation.revealing)\n\tassert_true(_ready_observation.event_done)\n\tassert_eq(float(_ready_observation.visible_ratio), 1.0)\n\tassert_eq(_ready_observation.ledger, expanded.value.reading_session.ledger)\n\tassert_eq(bridge.capture_reading_checkpoint(false).value, expanded.value)\n\tvar current: Dictionary = game.capture_run_snapshot_input()\n\tassert_eq(current.lifecycle.run_id, proof.snapshot.lifecycle.run_id)\n\tassert_eq(current.lifecycle.branch_id, proof.snapshot.lifecycle.branch_id)\n\tfor key: String in [\"gameplay\", \"scene\"]:\n\t\tassert_eq(current[key], proof.snapshot[key], \"Load preserves \" + key)\n\tassert_eq(profile.get_profile_snapshot(), profile_before, \"Load preserves current profile\")\n\tassert_eq(FileAccess.get_sha256(path), proof.slot_sha256)\n\tawait _screenshot(\"authored-restored-slot-%d\" % slot)\n\treturn true\n\n\nfunc test_checkpoint_load_cost() -> void:\n\tawait load_older_save_preserves_later_global_discoveries()\n",
+  "runner_source": "from pathlib import Path\nimport subprocess,os,sys,shutil\nroot=Path('.godot/phase2r_tests/load-leaf').resolve()\nshutil.rmtree(root/'data')\nshutil.copytree('/tmp/dwm-load-compare-seed',root/'data')\nenv=dict(os.environ,XDG_DATA_HOME=str(root/'data'),DWM_TEST_ROOT=str(root/'test-root'))\nsubprocess.run(['true'])\nwith open('/tmp/dwm-load-compare-'+sys.argv[1]+'.log','w') as out:\n result=subprocess.run(['/tmp/dwm-audit-godot/Godot_v4.6.3-stable_linux.x86_64','--headless','--path','.','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://.godot/ci/checkpoint-load-probe.gd','-gexit'],env=env,stdout=out,stderr=subprocess.STDOUT)\nprint(result.returncode)\n",
+  "comparison": {
+    "before-qualified": {
+      "elapsed_us": [
+        1397195
+      ],
+      "assertions": 100,
+      "log_sha256": "4c501766b250d7a5dee7da3d73f02ea5e4103819d8ec42a7b1f3215a24d8d6fa"
+    },
+    "after": {
+      "elapsed_us": [
+        1038425
+      ],
+      "assertions": 100,
+      "log_sha256": "e6f243af81c64ca1b542e47842784c31c42677d4b19a7cfd7b933d4bd7c74de6"
+    }
+  },
+  "limits": [
+    "One cold Load per variant on a shared host; do not infer a robust percentage.",
+    "Early compact-history checkpoint in fresh processes, not the earlier warm Day7 workload.",
+    "Harness restores the identical isolated user-data seed before each process. It measures actual Load-button press through full caption/input readiness.",
+    "Freshness is established by subprocess execution, not PID inequality: the environment reuses IDs. No production/test-suite validation was weakened."
+  ],
+  "diagnostic_phases": {
+    "load-leaf-load": [
+      "LOAD_LEAF autoload/SceneRouter.gd::begin_scene_activation 5246",
+      "LOAD_LEAF scripts/ui/SceneHost.gd::_ready 153721",
+      "LOAD_LEAF autoload/DialogicBridge.gd::_prepare_witnessed_style 14643",
+      "LOAD_LEAF scripts/narrative/DialogicRuntimeAdapter.gd::_install_scene_frontier 7705",
+      "LOAD_LEAF autoload/DialogicBridge.gd::_start_scene_restore_native 26047"
+    ],
+    "caption-profile": [
+      "CAPTION_PHASE configure_presentation 98392 size=100",
+      "CAPTION_PHASE configure_presentation 67908 size=125",
+      "CAPTION_PHASE configure_presentation 15932 size=125",
+      "CAPTION_PHASE _ready 469639",
+      "CAPTION_PHASE configure_presentation 12858 size=125",
+      "CAPTION_PHASE configure_presentation 11978 size=125",
+      "CHECKPOINT_LOAD_US 1379136"
+    ]
+  },
+  "checks": {
+    "fresh_create_assertions": 3792,
+    "fresh_load_assertions": 101,
+    "comparison_assertions_each": 100,
+    "lint_tests": 22,
+    "candidate_full_week_assertions": 4285,
+    "candidate_full_week_log_sha256": "49c7027cb5ed36a54236a9c8a0603827bbc050b1e406913d93057e51ccd5309f"
+  },
+  "preexisting_fixture_failures": {
+    "suite": "tests/integration/test_witnessed_run_presentation.gd",
+    "reason": "MemoryLocale lacks t/get_readiness used by current UI. The fresh-layout case reproduces on unchanged baseline; these runs are not passing evidence.",
+    "baseline_log_sha256": "963ec4a372d0b31265f00bed93b99fb7b47b035318f428ad8313cef1a746dfa7",
+    "candidate_logs": {
+      "mount": "209e8f3bcc742423a277cd4c5042924148d456aaf2becd75f5371ee1d35aa7c1",
+      "accessibility": "de75fa64664b5c7b30efc687f11fb3c55faeb8c7db65b1ed8f38867cfad95637",
+      "preview": "6a410f12f82c8ce361f4fb8d270c4bc1e0a425c7fda0d2a2570b7909e65aac6b"
+    }
+  }
+}

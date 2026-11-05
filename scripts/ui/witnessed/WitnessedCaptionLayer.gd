@@ -149,7 +149,6 @@ func _ready() -> void:
 	self_talk.review_changed.connect(_on_self_talk_review_changed)
 	self_talk.return_to_live_requested.connect(self_talk.return_to_live)
 	self_talk.input_started.connect(accept_input.cancel_pending_accept)
-	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets, _day, _font_style)
 	_profile = get_node_or_null("/root/ProfileManager")
 	_localization = get_node_or_null("/root/LocalizationManager")
 	_speech_status = load("res://scripts/ui/witnessed/WitnessedSpeechStatus.gd").new()
@@ -165,6 +164,8 @@ func _ready() -> void:
 		_localization.connect("locale_changed", _on_locale_changed)
 	var run_owner: Object = _run_owner if is_instance_valid(_run_owner) else get_node_or_null("/root/GameState")
 	_apply_preferences()
+	if _caption_theme == null:
+		configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets, _day, _font_style)
 	configure_run_presentation(run_owner)
 	_scene_art_bridge = get_node_or_null("/root/DialogicBridge")
 	if _scene_art_bridge != null and _scene_art_bridge.has_signal("scene_art_changed"):
@@ -210,7 +211,6 @@ func _ready() -> void:
 	_recovery_bound = recovery_overlay.bind_owners(_localization, input_owner, _recovery_action_admitted)
 	recovery_overlay.retry_requested.connect(_retry_reading_command)
 	recovery_overlay.cancel_requested.connect(_cancel_reading_recovery)
-	_configure_recovery_presentation()
 	_transport_input_bound = transport_rail.bind_admission(_transport_admitted, input_owner)
 	_auto_input_bound = transport_rail.bind_auto_admission(_auto_button_admitted, input_owner)
 	_load_input_bound = transport_rail.bind_load_admission(_load_admitted, input_owner)
@@ -952,6 +952,7 @@ func _dismiss_reading_recovery(restore_focus: bool = true, allow_caption_focus: 
 		elif caption_text.focus_mode != Control.FOCUS_NONE: caption_text.grab_focus()
 
 func _configure_recovery_presentation() -> void:
+	if _reading_recovery.is_empty(): return
 	if is_instance_valid(recovery_overlay) and _recovery_bound:
 		recovery_overlay.configure_presentation(_locale, _text_percent, _palette,
 			_high_contrast, _colour_preset, _large_targets, _font_style)
@@ -977,8 +978,9 @@ func _notification(what: int) -> void:
 func configure_run_presentation(owner: Object) -> bool:
 	var context := RUN_PRESENTATION.read(owner)
 	if context.is_empty(): return false
-	if not configure_presentation(_locale, _text_percent, context.palette,
-			_high_contrast, _colour_preset, _large_targets, context.day, _font_style): return false
+	if _caption_theme == null or _palette != context.palette or _day != context.day:
+		if not configure_presentation(_locale, _text_percent, context.palette,
+				_high_contrast, _colour_preset, _large_targets, context.day, _font_style): return false
 	_run_owner = owner
 	return true
 

@@ -143,12 +143,12 @@ func _ready() -> void:
 		var application := get_node_or_null("/root/ApplicationBootstrap")
 		_services["profile_reset_admission"] = Callable(application, "is_profile_reset_admitted") if application != null else Callable()
 	_build_content()
+	refresh_labels()
 	_controller = CONTROLLER.new()
 	_controller.bind(self, _services)
 	var profile: Variant = _services.get("profile")
 	if is_instance_valid(profile) and profile.has_signal("profile_write_failed"):
 		profile.profile_write_failed.connect(_on_profile_write_failed)
-	refresh_labels()
 	select_category("language")
 	visibility_changed.connect(_on_visibility_changed)
 	call_deferred("focus_rail")
@@ -485,8 +485,8 @@ func refresh_labels() -> void:
 		confirmations[id].get_cancel_button().text = text("settings.cancel")
 		confirmations[id].get_ok_button().text = text("settings.reset." + id)
 	_comfort_note.text = COMFORT.first_run_note(current_locale())
-	refresh_binding_labels()
 	if _controller != null:
+		refresh_binding_labels()
 		_controller.refresh()
 
 
