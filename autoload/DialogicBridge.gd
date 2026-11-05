@@ -4960,7 +4960,8 @@ func validate_live_scene_event_anchor(anchor: Dictionary, checkpoint: Dictionary
 	if not _READING_TRAVERSAL._same(anchor, current.value.anchor) \
 			or not _READING_TRAVERSAL._same(checkpoint, current.value.checkpoint):
 		return _command_failure(&"event_anchor_invalid")
-	return _reading_session.validate_scene_event_anchors([anchor])
+	var anchors: Array[Dictionary] = [anchor]
+	return _reading_session.validate_scene_event_anchors(anchors)
 
 ## A historical anchor is not the live frontier. The active session proves exact
 ## ledger membership; previous occurrences prove their immutable registered beat.
