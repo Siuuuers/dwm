@@ -978,8 +978,9 @@ func _notification(what: int) -> void:
 func configure_run_presentation(owner: Object) -> bool:
 	var context := RUN_PRESENTATION.read(owner)
 	if context.is_empty(): return false
-	if not configure_presentation(_locale, _text_percent, context.palette,
-			_high_contrast, _colour_preset, _large_targets, context.day, _font_style): return false
+	if _caption_theme == null or _palette != context.palette or _day != context.day:
+		if not configure_presentation(_locale, _text_percent, context.palette,
+				_high_contrast, _colour_preset, _large_targets, context.day, _font_style): return false
 	_run_owner = owner
 	return true
 

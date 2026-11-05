@@ -172,3 +172,17 @@ Three older `test_witnessed_run_presentation.gd` cases encountered missing `t`/`
 Exact comparison source/runner, diagnostic phase values, candidate source hash, and limits: [caption initial-theme evidence](../../tools/player_latency/evidence/2026-11-05-caption-initial-theme.json).
 
 Final candidate: the complete 830-caption authored journey, early/late UI, and checkpoint Load passed all 4,285 assertions. All 22 lint unit tests, structural lint, comment lint, and whitespace checks passed.
+
+## Global preferences and unchanged run presentation
+
+Load already marks Profile and Localization plans `reuse_current`; current global preferences are not rolled back from a checkpoint. Fresh UI must still apply those current preferences, and restored audio context must use current global audio preferences. The redundant operation was instead `configure_run_presentation`: it built a new caption theme even when the admitted run palette and day already matched the applied theme.
+
+The method now retains the existing theme when present and matching palette/day. It still reads and validates the run context, updates the owner reference, and rebuilds when the palette/day changes or no theme exists. Actual preference changes continue through `_apply_preferences`, independently of this run-context fast path.
+
+Matched cold Load observations from `11051f3ee60d8141cfe2f04327f63bffc2c16aa7`: **1701.049 → 1204.069 ms**, one sample per variant, 100 state assertions each. Shared-host variability means the full difference cannot be attributed to this small change or expressed as a reliable speedup percentage. Both use the same saved user-data seed in independently launched processes.
+
+The new positive manual check saves a checkpoint, changes global text size/high contrast, loads the older checkpoint through the actual in-game Load owner, and verifies the newer global settings survive and appear on the caption. It also verifies unchanged run context keeps the same theme object and a subsequent text-size change still replaces/applies the theme. All 119 assertions passed. The full-week probe additionally checks the applied day at every passage-entry boundary.
+
+Exact probes, runner, source/log hashes, raw timings, and limitations: [run presentation reuse evidence](../../tools/player_latency/evidence/2026-11-05-run-presentation-reuse.json).
+
+Final candidate week: all 4,312 assertions passed, including 27 applied-day checks, 830 captions, early/late UI, and checkpoint Load. All 22 lint tests, structural checks, comment lint, and whitespace checks passed.
