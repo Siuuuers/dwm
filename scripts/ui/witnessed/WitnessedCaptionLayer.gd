@@ -149,7 +149,6 @@ func _ready() -> void:
 	self_talk.review_changed.connect(_on_self_talk_review_changed)
 	self_talk.return_to_live_requested.connect(self_talk.return_to_live)
 	self_talk.input_started.connect(accept_input.cancel_pending_accept)
-	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets, _day, _font_style)
 	_profile = get_node_or_null("/root/ProfileManager")
 	_localization = get_node_or_null("/root/LocalizationManager")
 	_speech_status = load("res://scripts/ui/witnessed/WitnessedSpeechStatus.gd").new()
@@ -165,6 +164,8 @@ func _ready() -> void:
 		_localization.connect("locale_changed", _on_locale_changed)
 	var run_owner: Object = _run_owner if is_instance_valid(_run_owner) else get_node_or_null("/root/GameState")
 	_apply_preferences()
+	if _caption_theme == null:
+		configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets, _day, _font_style)
 	configure_run_presentation(run_owner)
 	_scene_art_bridge = get_node_or_null("/root/DialogicBridge")
 	if _scene_art_bridge != null and _scene_art_bridge.has_signal("scene_art_changed"):

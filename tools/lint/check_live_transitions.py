@@ -14,7 +14,11 @@ SAVE = 'autoload/SaveManager.gd'
 CONTACTS = 'scripts/domain/contact/ContactInvitationState.gd'
 PAUSE = 'scripts/application/lifecycle/ProductionPauseController.gd'
 BINDINGS = 'scripts/ui/SettingsControlsSheet.gd'
+CAPTION = 'scripts/ui/witnessed/WitnessedCaptionLayer.gd'
 RULES = (
+    (CAPTION, ('_ready',),
+     r'\bconfigure_presentation\s*\([\s\S]*?\b_apply_preferences\s*\(',
+     'Apply actual caption preferences before constructing a fallback presentation'),
     (BINDINGS, ('_ready',),
      r'\b(?:set_presentation|refresh)\s*\(|\bPRESENTATION\s*\.\s*build\s*\(',
      'SettingsContent applies the actual player theme; do not initialize a temporary binding theme'),

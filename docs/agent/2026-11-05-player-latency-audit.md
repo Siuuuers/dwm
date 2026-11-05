@@ -156,3 +156,19 @@ Candidate checks: the existing 18 locale/text-size/target-size geometry and font
 For Load, a timing overlay counted 14 `_scene_restore_current` calls totaling **8.833 ms**, maximum 1.247 ms, on the early compact-history checkpoint. This does not justify treating those repeated checks as the main remaining stall. No Load checks were removed. This diagnostic is not a fresh-Load correctness pass: its PID-inequality fixture assertion failed because the recovered environment reused PID 6; the other 100 assertions passed. The overlay was removed. The earlier accepted fresh-process Load and full journey evidence remain separate. Next Load attribution should time route mounting, native frontier installation, style preparation, and deferred presentation individually.
 
 Exact probes, raw samples, source/log hashes, and limitations: [initial-theme evidence](../../tools/player_latency/evidence/2026-11-05-settings-initial-theme.json).
+
+## Caption initial-theme follow-up
+
+From `3170eef69033624f3a24e6f0c6f64121606f39ae`, fresh Load attribution found route begin 5.246 ms, SceneHost `_ready` 153.721 ms, style creation 14.643 ms, and native frontier installation 7.705 ms. The latter are nested/deferred stages, not additive portions of a single synchronous stack. A subsequent caption overlay measured its deferred `_ready` at 469.639 ms, including a default 100% presentation build at 98.392 ms followed by the actual 125% preferences at 67.908 ms. These are separate diagnostic runs and cannot be summed into one Load.
+
+The caption now applies real preferences before constructing a fallback presentation. If no valid theme results, the existing default construction remains. Installed-run palette/day application, native caption setup, restore validation, and publication/input readiness are unchanged. The source lint now guards against moving default presentation construction back ahead of preference application.
+
+Matched uninstrumented cold-process comparison, identical isolated user-data seed and checkpoint: **1397.195 → 1038.425 ms**, one successful sample per variant, both 100 state assertions passed. The timer starts at the actual Load button command and ends after the expected full caption is input-ready. This early compact-history checkpoint is not the earlier warm Day7 Load workload. Shared-host noise and one sample do not support a robust percentage or Windows-display claim.
+
+The runner starts a separate Godot process for every sample and restores the same user-data seed. Its temporary comparison wrapper omits the unreliable numeric PID-inequality assertion: this recovered environment reused PID 7 for separately launched processes. All checkpoint bytes, global-discovery, local-history, caption, and input-readiness assertions remain. The existing source tests were not weakened. A creator and loader launched sequentially by one supervisor also passed the original 3,792/101 assertions.
+
+Three older `test_witnessed_run_presentation.gd` cases encountered missing `t`/`get_readiness` methods on their MemoryLocale fake; the fresh-layout case reproduced the same failure on the unchanged baseline. These are excluded from passing evidence and left outside the production optimization.
+
+Exact comparison source/runner, diagnostic phase values, candidate source hash, and limits: [caption initial-theme evidence](../../tools/player_latency/evidence/2026-11-05-caption-initial-theme.json).
+
+Final candidate: the complete 830-caption authored journey, early/late UI, and checkpoint Load passed all 4,285 assertions. All 22 lint unit tests, structural lint, comment lint, and whitespace checks passed.
