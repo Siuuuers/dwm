@@ -390,10 +390,7 @@ class WindowsCoverageTests(unittest.TestCase):
             '.github/workflows/audio-prototype.yml',
             'tools/audio_prototype/**',
             '.github/workflows/source-lint.yml',
-            'tools/lint/check_comments.py',
-            'tools/lint/test_comments.py',
-            'tools/lint/check_python.py',
-            'tools/lint/test_python.py',
+            'tools/lint/**',
             'docs/agent/2026-11-03-ci-efficiency-handoff.md',
         }
         for event in ('pull_request', 'push'):
