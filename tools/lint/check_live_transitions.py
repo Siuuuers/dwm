@@ -12,7 +12,15 @@ LIVE_FUNCTIONS = (
 )
 SAVE = 'autoload/SaveManager.gd'
 CONTACTS = 'scripts/domain/contact/ContactInvitationState.gd'
+PAUSE = 'scripts/application/lifecycle/ProductionPauseController.gd'
+BINDINGS = 'scripts/ui/SettingsControlsSheet.gd'
 RULES = (
+    (PAUSE, ('request_pause',),
+     r'\b_ensure_hosts\s*\(\s*\)',
+     'History/direct sheets must not eagerly build unrelated Settings'),
+    (BINDINGS, ('set_presentation',),
+     r'\b_style_button\s*\(',
+     'Refresh owns binding-button styling; do not style the same buttons twice'),
     (SAVE, ('_commit_backup_action_profiled',),
      r'\bcommit_prepared\s*\(|\b(?:RUN_SNAPSHOT_SCHEMA|SAVE_DOCUMENT_SCHEMA)\s*\.\s*validate\s*\(',
      'Commit the owned Save candidate without repeating snapshot/document validation'),

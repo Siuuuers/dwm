@@ -1,6 +1,6 @@
 import unittest
 
-from check_live_transitions import ADAPTER, CONTACTS, EVENT_PORT, GAME, PROFILE, RULES, SAVE, SESSION, violations
+from check_live_transitions import ADAPTER, BINDINGS, CONTACTS, EVENT_PORT, GAME, PAUSE, PROFILE, RULES, SAVE, SESSION, violations
 
 
 class LiveTransitionDependencies(unittest.TestCase):
@@ -22,6 +22,8 @@ class LiveTransitionDependencies(unittest.TestCase):
 
     def test_rejects_each_regression(self):
         cases = [
+            (PAUSE, 'request_pause', '_ensure_hosts()'),
+            (BINDINGS, 'set_presentation', '_style_button(button)'),
             (SAVE, '_commit_backup_action_profiled', '_journal.commit_prepared(candidate)'),
             (CONTACTS, 'capture_scene_definitions', '_SCENE_MANIFEST.scene_registration()'),
             (CONTACTS, 'capture_scene_definitions', '_s_hash(bundle)'),

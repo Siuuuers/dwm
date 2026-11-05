@@ -120,3 +120,27 @@ Compared with the Contacts-fixed revision `657c393e0158291ff2eafdaa0b3dc6490bd33
 Validation: focused probe 102 assertions per variant; document schema 74; full authored week 4,285; saved checkpoint creator 3,792; fresh-process Load 101. The initial Load process was interrupted by workspace loss; the recovered workspace rerun passed all 101 assertions. Global discoveries and local checkpoint restoration are covered by that existing positive create/load pair. The exact probe, samples, source hashes, and log hashes are in [candidate reuse evidence](../../tools/player_latency/evidence/2026-11-05-save-candidate-reuse.json).
 
 The existing fast source-lint job now guards the Save commit against reintroducing full document/snapshot validation or public journal revalidation, and guards Contacts definition capture against rebuilding/hashing the immutable registration. Its function selector also recognizes static owners. All 22 lint unit checks passed. These are narrow structural checks, not a general ban on validation and not proof of a runtime timing budget.
+
+## First History, Settings, transitions, and Load follow-up
+
+The recovered Save candidate was published as `07727f340bcf7f3040c712826db06251214ba06e`. The following investigation starts from that revision.
+
+An instrumented native first History command took 913.864 ms. Inside that operation, the unrelated pause Settings instance spent 703.452 ms in `_ready`; History projection itself took 4.595 ms. The Settings instance used by the Scene computer was then built separately on the actual Settings command. The expensive first History opening was therefore primarily unrelated UI construction, not its caption projection.
+
+`ProductionPauseController.request_pause` now asks for Settings only when opening the full Pause surface or recovery. A direct Settings sheet still constructs its host explicitly, and the existing host is reused. History and direct Save still retain their original pause/backup custody. `SettingsContent` populates labels before binding its controller, eliminating an initial refresh that was immediately repeated after labeling. `SettingsControlsSheet.set_presentation` no longer styles all binding buttons immediately before `refresh` styles those same buttons. Dynamic bindings, labels, accessibility, confirmation themes, and control refresh remain intact.
+
+| First-open observation | Before | Final candidate |
+| --- | ---: | ---: |
+| First History | 949.891 ms | 41.113 ms |
+| First Settings after History/Save | 606.321 ms | 828.576 ms |
+| Combined first History + Settings | 1556.212 ms | 869.689 ms |
+
+Each first opening has **one cold sample per run**, not three independent cold repetitions. The preliminary candidate measured History 110.194 ms and Settings 1203.655 ms before removing the duplicate binding styling pass; host variability means that difference cannot be attributed entirely to the deletion. First Settings is now cold rather than accidentally warmed by History. Do not claim Settings itself got faster. Later early-session Settings opens in the final run were 137.060 and 124.601 ms. The final full journey's early UI sequence is identical to the focused baseline sequence.
+
+The instrumented full-route investigation recorded 27 passage-entry transitions at median 199.905 ms, with the largest 657.454 ms at `line.Day6.A.001`, an authored Challenge-result handoff. Checkpoint Load took 584.620 ms: preparation 19.544 ms (including participant preparation 12.640 ms), synchronous commit 110.768 ms, followed by pending scene activation/presentation. Those nested phases are not additive. The successful route completes the pending activation; its intermediate `scene_activation_pending` result is not a failed final Load.
+
+Final uninstrumented candidate: 27 passage entries, median 180.348 ms, range 115.088–500.877 ms; one Day7 checkpoint Load 479.817 ms. These are diagnostic observations, **not established transition/Load speedups**. No transition, Challenge, restore validation, authored effect, or input guard was removed. Next attribution should split Challenge-result preparation and deferred scene activation/presentation; another broad assertion deletion is not supported by these results.
+
+Validation: full native-input authored journey and Load 4,285 assertions; positive lazy pause-host check 92; existing font-change/binding preservation check 16; existing localized Boolean-caption/commit check 114. The new manual check proves History and Save leave Settings unconstructed, Settings still opens, its instance is reused, and the caption remains unchanged. Existing lint now also rejects unconditional default host construction in `request_pause` and duplicate binding styling in `set_presentation`; all 22 lint tests passed. Comment and whitespace checks passed.
+
+Raw action observations, phase records, reproduction probes, source hashes, check log hashes, and interpretation limits: [first-open evidence](../../tools/player_latency/evidence/2026-11-05-first-open-followup.json). All timings are Linux headless state-observation timings, not exported Windows input-to-photon measurements.

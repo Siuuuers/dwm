@@ -293,8 +293,6 @@ func set_presentation(source_theme: Theme, font_size: int, large_targets: bool) 
 	_large_targets = large_targets
 	if _status == null or capture_dialog == null:
 		return
-	for button: Button in _buttons.values():
-		_style_button(button)
 	for dialog: ConfirmationDialog in [capture_dialog, conflict_dialog, original_dialog, import_dialog]:
 		dialog.theme = PRESENTATION.confirmation_theme(source_theme, font_size, large_targets)
 		dialog.get_label().add_theme_font_size_override("font_size", font_size)
