@@ -4676,7 +4676,7 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 				if cue.kind == "music": snapshot_input.scene["music_plan_id"] = cue.id
 		var material := {"snapshot_input": snapshot_input, "checkpoint": target_checkpoint, "event": event}
 		_scene_playable = {"native_token": native.value, "material": material,
-			"prepared": prepared.duplicate(true), "source_session": _reading_session, "source_reading": source.reading_session.duplicate(true),
+			"prepared": prepared.duplicate(true), "source_session": _reading_session,
 			"source_entry": _active_entry.duplicate(true), "runtime": _runtime_adapter,
 			"candidate": candidate.value.candidate, "lease": lease, "owner": owner,
 			"presentation_autosave": presentation_autosave}
@@ -4722,10 +4722,8 @@ func _scene_playable_current() -> bool:
 	if not owner.get("ok", false): return false
 	var native: Dictionary = _runtime_adapter.validate_scene_source(_scene_playable.native_token, _reading_session)
 	if not native.ok: return false
-	var source: Dictionary = _reading_session.capture(_scene_playable.source_reading.frontier)
 	var candidate: Dictionary = _scene_playable.candidate.capture(_scene_playable.material.checkpoint.reading_session.frontier)
-	return source.ok and candidate.ok \
-		and _READING_TRAVERSAL._same(source.value, _scene_playable.source_reading) \
+	return candidate.ok \
 		and _READING_TRAVERSAL._same(candidate.value, _scene_playable.material.checkpoint.reading_session)
 
 

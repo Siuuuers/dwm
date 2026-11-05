@@ -4341,7 +4341,7 @@ func _prepare_scene_playable_event(event: Dictionary, digest: String, lease: Str
 	# Callback arguments and returned material must not alias the caller or owners.
 	event = event.duplicate(true)
 	var prior := _command_receipts.duplicate(true)
-	var source_input := capture_run_snapshot_input().duplicate(true)
+	var source_input := capture_run_snapshot_input()
 	if not _SCENE_EVENT._equal(source_input.get("command_receipts"), prior):
 		return _transaction_failure(&"event_adoption_source_changed", "")
 	var captured := _scene_runtime_event_context()
