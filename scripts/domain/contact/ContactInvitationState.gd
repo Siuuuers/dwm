@@ -2337,12 +2337,12 @@ static func validate_scene_definitions(definitions: Variant) -> Dictionary:
 		"definitions_sha256": _s_hash(definitions)}}
 
 static func capture_scene_definitions(registration_sha256: String) -> Dictionary:
-	var loaded: Dictionary = _SCENE_MANIFEST.scene_registration()
+	var loaded: Dictionary = _SCENE_MANIFEST.scene_contract_tables()
 	if not loaded.get("ok", false): return loaded
-	var bundle: Variant = loaded.get("value")
+	var bundle: Variant = loaded.get("bundle")
 	if not bundle is Dictionary or typeof(bundle.get("schema_version")) != TYPE_INT or bundle.schema_version not in [2, 3] \
 			or not bundle.has("contact_definitions") or not _s_digest(registration_sha256) \
-			or _s_hash(bundle) != registration_sha256: return _s_fail("scene_contact_registration_unbound")
+			or _SCENE_MANIFEST.scene_registration_fingerprint() != registration_sha256: return _s_fail("scene_contact_registration_unbound")
 	return validate_scene_definitions(bundle.contact_definitions)
 
 static func validate_scene_state(state: Dictionary, registration_sha256: String, identity_issuer: Object) -> Dictionary:

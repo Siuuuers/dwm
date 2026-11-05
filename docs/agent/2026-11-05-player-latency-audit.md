@@ -1,6 +1,6 @@
 # Player latency audit — 2026-11-05
 
-Save is the strongest repeated in-play optimization candidate in this run. Its median action duration was 889 ms and its largest observed engine-frame interval was 1,048 ms. This is a Linux headless diagnostic, not a measurement of the Windows release's display or audio latency.
+Save was the strongest repeated in-play optimization candidate in the baseline run. Its median action duration was 889 ms and its largest observed engine-frame interval was 1,048 ms. The Contacts registration follow-up below records the resulting implementation and matched comparison. These are Linux headless diagnostics, not measurements of the Windows release's display or audio latency.
 
 ## Revision and proof
 
@@ -57,7 +57,28 @@ The saved slot was approximately 6.2 KiB by Day 7. Serialization and raw bytes a
 
 `SaveManager._commit_backup_action_profiled` validates outgoing document text through `_document_text_validator`; `CheckpointJournal.commit_prepared` also calls `_validate_candidate`, which validates the current snapshot. These are concrete targets for deeper profiling and checking whether already admitted validation results can be reused. The audit does not prove every repeated check is redundant.
 
-Next bounded optimization: isolate repeated snapshot validation during Save and carry valid preparation results through the owning transaction where justified, retaining source-revision checks and durable publication. Compare the same action and largest-frame metrics on one host before and after, with the authored Save/Load checks still passing. Investigate first-use History/Settings separately; this audit does not identify their exact internal cost owner.
+The follow-up isolated repeated Contacts registration work inside snapshot validation. Further reuse of prepared snapshot validation remains a separate investigation. First-use History/Settings also needs separate attribution; this audit does not identify its exact internal cost owner.
+
+## Contacts registration follow-up
+
+`ContactInvitationState.capture_scene_definitions` previously requested a deep copy of the entire installed story registration and canonicalized/hashed that copy every time it validated Contacts. Source tracing and temporary instrumentation found five such copies/hashes per Save: one live-input validation and four complete snapshot validations. A three-Save early-game probe produced 15 calls of each kind despite having zero Contacts messages or transaction receipts. The instrumented median was 9.65 ms per registration copy and 98.85 ms per canonicalization/hash. These nested samples are attribution evidence, not an uninstrumented speed comparison.
+
+The production change replaces three lines: use `scene_contract_tables().bundle`, which is already recursively immutable, and compare `scene_registration_fingerprint()`, which the registration owner already computed. The installed-registration reader still selects the active registration on each call, and the requested fingerprint must still match it. Contact definition validation, detached returned definition rows, message/read/reply state validation, source freshness checks, atomic writes and journal validation remain in place. No new cache or caller-provided trust flag was added.
+
+Matched, uninstrumented, sequential runs used the same probe, fresh processes and isolated profiles on this Linux host:
+
+| Metric | Before | After |
+|---|---:|---:|
+| Save samples, ms | 893.837 / 931.370 / 850.018 | 306.504 / 357.859 / 327.995 |
+| Median Save, ms | 893.837 | 327.995 |
+| Largest observed Save frame interval, ms | 887.139 | 300.030 |
+| Focused assertions | 102 passed | 102 passed |
+
+The observed median reduction is 63.3%; three samples per variant do not establish a Windows release guarantee. [Comparison evidence](../../tools/player_latency/evidence/2026-11-05-contacts-registration-reuse.json) includes the exact probe source, raw action samples, production-file hashes and limits. The probe intentionally uses the early portion of the original authored journey; it does not add a permanent duplicate test suite.
+
+Candidate verification also passed the complete authored journey through same-process checkpoint Load (4,285 assertions) and the existing message/read/reply positive test (12 assertions). The complete journey is correctness evidence here; its timings were not used in the matched comparison. Comment lint and whitespace checks passed.
+
+Reproduce by writing `probe_source` from that JSON to `.godot/ci/contacts-save-probe.gd`, then use the journey command above with `-gtest=res://.godot/ci/contacts-save-probe.gd`, a new isolated root, and `DWM_SAVE_LOAD_PROFILE` unset. Run before and after sequentially on the same host. The original 4,285-assertion journey count consists largely of five checks repeated over 830 captions (4,150 checks); it is not 4,285 runtime Save assertions.
 
 ## Limits
 
