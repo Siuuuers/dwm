@@ -186,3 +186,28 @@ The new positive manual check saves a checkpoint, changes global text size/high 
 Exact probes, runner, source/log hashes, raw timings, and limitations: [run presentation reuse evidence](../../tools/player_latency/evidence/2026-11-05-run-presentation-reuse.json).
 
 Final candidate week: all 4,312 assertions passed, including 27 applied-day checks, 830 captions, early/late UI, and checkpoint Load. All 22 lint tests, structural checks, comment lint, and whitespace checks passed.
+
+## Remaining Checkpoint Load attribution
+
+Investigated tree `3419c39febe5fd3ffbc28a9d039762404001d791` (published runtime revision `49c435f16b3cd6b0da1c4a7cd872d0bf9656bb0c`). No production changes in this investigation. Temporary synchronous wrappers were removed after measuring; asynchronous activation remained asynchronous.
+
+Three independent Linux headless processes restored identical compact-history user-data seed bytes. Each loaded the same checkpoint once from Title, then three times through the in-game pause Backup. First-Load harness samples: 1243.122, 2099.226, 1082.141 ms; median **1243.122 ms**. Nine subsequent samples: median **811.637 ms**, range **597.956–2525.681 ms**. Warm samples are correlated within each process, and the two entry surfaces differ. These are small noisy samples, not a cache-only causal comparison or a Windows performance claim.
+
+The harness timer includes five input-helper frame waits and checkpoint expansion/verification after activation. The four diagnostic runs also recorded the readiness observer separately. Expansion alone cost 28–79 ms in those traces, so the harness totals must not be presented as exact game-only latency. Move expected-checkpoint expansion before the timed operation in future performance comparisons; retain correctness checks after timing.
+
+Leaf attribution in the final diagnostic run (inclusive spans; nested rows must not be added):
+
+| Operation | First Load | Subsequent Loads | Purpose |
+| --- | ---: | ---: | --- |
+| Actual texture `load` calls | 327.185 ms | 199.225–226.419 ms | Load the selected picture1/picture2 resources |
+| Resource existence checks | 0.229 ms | 0.167–0.294 ms | Preserve the optional-art missing-resource behavior |
+| Hidden recovery presentation | 294.952 ms | 1.826–3.963 ms | Prepare Retry/Cancel styling using SettingsTheme |
+| SceneHost presentation | 100.582 ms | Warm low-single-digit ms in prior traces | Apply current locale/fonts to scene chrome |
+| File read, parse, content resolution and all participant preparation | 24.536 ms | 10.432–17.599 ms | Prepare the selected saved state for restoration |
+| Synchronous Backup commit | 130.655 ms | 80.428–106.167 ms | Install state and begin deferred activation |
+
+The earlier broad activation callback cost was mostly art refresh, not readiness listeners or JSON. The final overlay queried `ResourceLoader.has_cached` immediately before each texture load: picture1 and picture2 were **uncached again on every subsequent Load**, followed by cheap cached accesses within that Load. This proves repeated resource loading on this workload. Source tracing shows the art layer belongs to the replaced Dialogic layout; resource-lifetime retention is the next bounded candidate. Measure a bounded retained-resource solution and its memory cost before choosing a persistent cache or claiming saved milliseconds. Do not remove the negligible existence check.
+
+Recovery uses the full SettingsTheme, whose builder prepares fallback fonts for all five supported locales. Across four traces, its first presentation cost roughly 280–457 ms; subsequent presentations were much cheaper. Candidate: defer hidden recovery styling until needed, or use an appropriately scoped existing presentation owner, while preserving immediate usable Retry/Cancel, focus, current preferences, and localization. First-use font/layout work is not wholly removable.
+
+Verification: all seven processes passed **172 assertions each (1,204 total)**; 516 assertions belong to the three uninstrumented runs, 688 to the four diagnostic runs. No assertion checks timing. Exact samples, per-call spans, texture cache observations, probe/runner source, final observation patch, and log hashes are retained in [Load stage evidence](../../tools/player_latency/evidence/2026-11-05-load-stage-investigation.json). Production files match the tested base tree after removing instrumentation. This investigation identifies the next cuts; it does not claim they have been implemented or that all remaining latency is attributed.
