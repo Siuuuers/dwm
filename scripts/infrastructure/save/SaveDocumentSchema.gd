@@ -43,7 +43,8 @@ static func build(
 		journal: Array,
 		saved_time: Dictionary = {},
 		proven_journal: Array = [],
-		profile: Dictionary = {}
+		profile: Dictionary = {},
+		proven_current_snapshot: Dictionary = {}
 ) -> Dictionary:
 	# Optional caller-owned diagnostics only. Timers never enter the returned document.
 	var tick := Time.get_ticks_usec() if not profile.is_empty() else 0
@@ -55,12 +56,14 @@ static func build(
 	tick = _profile_phase(profile, "document_schema_proof_selection_us", tick)
 	if not profile.is_empty(): profile["document_schema_journal_proven"] = proven
 	# Only the internal builder converts immutable engine text; external validation stays strict.
-	current_bundle = _normalize_engine_text(current_bundle)
+	var current_proven := not proven_current_snapshot.is_empty() \
+		and is_same(current_bundle.get("snapshot"), proven_current_snapshot)
+	current_bundle = current_bundle.duplicate(true) if current_proven else _normalize_engine_text(current_bundle)
 	tick = _profile_phase(profile, "document_schema_normalize_current_us", tick)
 	if not proven:
 		journal = _normalize_engine_text(journal)
 	tick = _profile_phase(profile, "document_schema_normalize_journal_us", tick)
-	var bundle_error := _validate_bundle(current_bundle)
+	var bundle_error := _validate_bundle(current_bundle, current_bundle.get("snapshot", {}) if current_proven else {})
 	tick = _profile_phase(profile, "document_schema_validate_current_us", tick)
 	if not bundle_error.get("ok", false):
 		return bundle_error
@@ -461,7 +464,7 @@ static func _validate_discriminators(kind: String, slot_id: Variant, save_reason
 			if save_reason not in AUTOSAVE_REASONS: return "unknown autosave reason: " + save_reason
 	return ""
 
-static func _validate_bundle(bundle: Dictionary) -> Dictionary:
+static func _validate_bundle(bundle: Dictionary, proven_snapshot: Dictionary = {}) -> Dictionary:
 	var keys: Array = bundle.keys()
 	keys.sort()
 	if keys != ["checkpoint_kind", "snapshot"]:
@@ -470,6 +473,8 @@ static func _validate_bundle(bundle: Dictionary) -> Dictionary:
 		return _fail(&"invalid_bundle_shape", "unknown checkpoint_kind: " + str(bundle["checkpoint_kind"]))
 	if typeof(bundle["snapshot"]) != TYPE_DICTIONARY:
 		return _fail(&"invalid_bundle_shape", "snapshot must be an object")
+	if not proven_snapshot.is_empty() and is_same(bundle.snapshot, proven_snapshot):
+		return {"ok": true, "code": &"ok", "value": {"candidate": proven_snapshot}}
 	var snapshot := RUN_SNAPSHOT_SCHEMA.validate(bundle["snapshot"])
 	if not snapshot.get("ok", false):
 		return snapshot

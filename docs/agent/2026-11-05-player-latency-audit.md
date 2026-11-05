@@ -110,3 +110,13 @@ DWM_STARTUP_AUDIT=1 DWM_BENCHMARK_REVISION="$(git rev-parse HEAD)" \
 ```
 
 `PLAYER_STARTUP.engine_ticks_us` reports engine-relative readiness. The recorded process-to-marker measurements additionally use the parent process's monotonic clock. No performance threshold or automatic CI matrix was added.
+
+## Owned Save candidate reuse follow-up
+
+The new checkpoint is validated during construction. SaveDocumentSchema now accepts the exact owner-proven snapshot identity, detaches it, and builds the document without revalidating that snapshot. SaveManager seeds its per-write validation memo with the exact canonical text it just produced. Different existing/recovery text still receives independent validation. After physical readback and the existing journal freshness check, the prepared journal candidate is installed without a fourth snapshot validation. Live source freshness, selected slot revision, atomic writing, and byte-exact readback remain intact. Independently loaded documents still receive full schema validation.
+
+Compared with the Contacts-fixed revision `657c393e0158291ff2eafdaa0b3dc6490bd33dd0`, the same focused probe measured Save at 424.378, 533.200, 358.470 ms before and 134.950, 143.909, 236.820 ms after. Median: **424.378 → 143.909 ms (66.1% lower)**. These are three sequential samples per variant in fresh processes/profiles on shared Linux headless infrastructure, not Windows display evidence. Do not compound this percentage with the earlier Contacts comparison.
+
+Validation: focused probe 102 assertions per variant; document schema 74; full authored week 4,285; saved checkpoint creator 3,792; fresh-process Load 101. The initial Load process was interrupted by workspace loss; the recovered workspace rerun passed all 101 assertions. Global discoveries and local checkpoint restoration are covered by that existing positive create/load pair. The exact probe, samples, source hashes, and log hashes are in [candidate reuse evidence](../../tools/player_latency/evidence/2026-11-05-save-candidate-reuse.json).
+
+The existing fast source-lint job now guards the Save commit against reintroducing full document/snapshot validation or public journal revalidation, and guards Contacts definition capture against rebuilding/hashing the immutable registration. Its function selector also recognizes static owners. All 22 lint unit checks passed. These are narrow structural checks, not a general ban on validation and not proof of a runtime timing budget.

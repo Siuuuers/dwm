@@ -1,0 +1,223 @@
+{
+  "baseline_revision": "657c393e0158291ff2eafdaa0b3dc6490bd33dd0",
+  "environment": "Godot 4.6.3 standard, Linux headless imported source project",
+  "samples": {
+    "before": [
+      {
+        "action": "history",
+        "detail": "Day1",
+        "elapsed_us": 935716,
+        "largest_frame_us": 935251
+      },
+      {
+        "action": "save_menu",
+        "detail": "Day1",
+        "elapsed_us": 80637,
+        "largest_frame_us": 79468
+      },
+      {
+        "action": "save_write",
+        "detail": "Day1",
+        "elapsed_us": 424378,
+        "largest_frame_us": 418826
+      },
+      {
+        "action": "settings",
+        "detail": "Day1",
+        "elapsed_us": 627480,
+        "largest_frame_us": 625700
+      },
+      {
+        "action": "computer",
+        "detail": "Day1",
+        "elapsed_us": 23408,
+        "largest_frame_us": 22878
+      },
+      {
+        "action": "history",
+        "detail": "Day1",
+        "elapsed_us": 84952,
+        "largest_frame_us": 84337
+      },
+      {
+        "action": "save_menu",
+        "detail": "Day1",
+        "elapsed_us": 112240,
+        "largest_frame_us": 111325
+      },
+      {
+        "action": "save_write",
+        "detail": "Day1",
+        "elapsed_us": 533201,
+        "largest_frame_us": 325866
+      },
+      {
+        "action": "settings",
+        "detail": "Day1",
+        "elapsed_us": 154836,
+        "largest_frame_us": 150618
+      },
+      {
+        "action": "computer",
+        "detail": "Day1",
+        "elapsed_us": 34640,
+        "largest_frame_us": 33883
+      },
+      {
+        "action": "history",
+        "detail": "Day1",
+        "elapsed_us": 70483,
+        "largest_frame_us": 70124
+      },
+      {
+        "action": "save_menu",
+        "detail": "Day1",
+        "elapsed_us": 76088,
+        "largest_frame_us": 75581
+      },
+      {
+        "action": "save_write",
+        "detail": "Day1",
+        "elapsed_us": 358467,
+        "largest_frame_us": 186471
+      },
+      {
+        "action": "settings",
+        "detail": "Day1",
+        "elapsed_us": 116665,
+        "largest_frame_us": 114763
+      },
+      {
+        "action": "computer",
+        "detail": "Day1",
+        "elapsed_us": 28086,
+        "largest_frame_us": 27599
+      }
+    ],
+    "after": [
+      {
+        "action": "history",
+        "detail": "Day1",
+        "elapsed_us": 817566,
+        "largest_frame_us": 816760
+      },
+      {
+        "action": "save_menu",
+        "detail": "Day1",
+        "elapsed_us": 66599,
+        "largest_frame_us": 66140
+      },
+      {
+        "action": "save_write",
+        "detail": "Day1",
+        "elapsed_us": 134950,
+        "largest_frame_us": 128390
+      },
+      {
+        "action": "settings",
+        "detail": "Day1",
+        "elapsed_us": 500083,
+        "largest_frame_us": 498419
+      },
+      {
+        "action": "computer",
+        "detail": "Day1",
+        "elapsed_us": 21509,
+        "largest_frame_us": 20305
+      },
+      {
+        "action": "history",
+        "detail": "Day1",
+        "elapsed_us": 78016,
+        "largest_frame_us": 77626
+      },
+      {
+        "action": "save_menu",
+        "detail": "Day1",
+        "elapsed_us": 72189,
+        "largest_frame_us": 71023
+      },
+      {
+        "action": "save_write",
+        "detail": "Day1",
+        "elapsed_us": 143909,
+        "largest_frame_us": 100409
+      },
+      {
+        "action": "settings",
+        "detail": "Day1",
+        "elapsed_us": 117483,
+        "largest_frame_us": 114928
+      },
+      {
+        "action": "computer",
+        "detail": "Day1",
+        "elapsed_us": 22416,
+        "largest_frame_us": 21521
+      },
+      {
+        "action": "history",
+        "detail": "Day1",
+        "elapsed_us": 67747,
+        "largest_frame_us": 67320
+      },
+      {
+        "action": "save_menu",
+        "detail": "Day1",
+        "elapsed_us": 71465,
+        "largest_frame_us": 70997
+      },
+      {
+        "action": "save_write",
+        "detail": "Day1",
+        "elapsed_us": 236823,
+        "largest_frame_us": 134601
+      },
+      {
+        "action": "settings",
+        "detail": "Day1",
+        "elapsed_us": 122709,
+        "largest_frame_us": 120532
+      },
+      {
+        "action": "computer",
+        "detail": "Day1",
+        "elapsed_us": 24605,
+        "largest_frame_us": 23819
+      }
+    ]
+  },
+  "source_sha256": {
+    "autoload/SaveManager.gd": {
+      "baseline": "29c225ba1bb50b19a6651a430fcc75b7c5e1fa66454486f0494b222035f0b2a9",
+      "candidate": "c0980cf3e7d3544ef85a0ee4d3747662f1a75090bd0eac07e45d4812b37dab88"
+    },
+    "scripts/infrastructure/save/SaveDocumentSchema.gd": {
+      "baseline": "d9bdf9fb5ea53c0edd35616d7e4b445457a29a7cffc82f872f38e48184c46c5c",
+      "candidate": "6d092dc90faa5a7c0417a62bc7ded7f6deec50317d088e926bed1a5425385da0"
+    },
+    "tests/unit/test_save_document_schema.gd": {
+      "baseline": "71029feb9c17316ca30b9412eb136a9ff9d7a9529f9b9573e40533f6dcc6e1bd",
+      "candidate": "c49772c067c396de42a09e73e0853de98a617e8385d49ce9dcf9c4b668c0ec79"
+    }
+  },
+  "probe_source": "extends \"res://tests/integration/authored_week_child.gd\"\n\nvar samples: Array[Dictionary] = []\nvar measuring := false\nvar previous_frame := 0\nvar largest_frame := 0\nvar sample_started := 0\nvar presented_us := -1\n\nfunc observe_frame() -> void:\n\tvar now := Time.get_ticks_usec()\n\tif measuring: largest_frame = maxi(largest_frame, now - previous_frame)\n\tprevious_frame = now\n\nfunc begin_sample() -> int:\n\tlargest_frame = 0\n\tprevious_frame = Time.get_ticks_usec()\n\tmeasuring = true\n\tsample_started = previous_frame\n\tpresented_us = -1\n\treturn previous_frame\n\nfunc end_sample(action: String, started: int, detail: String = \"\") -> void:\n\tmeasuring = false\n\tvar row := {\"action\": action, \"detail\": detail, \"elapsed_us\": Time.get_ticks_usec() - started, \"largest_frame_us\": largest_frame}\n\tif presented_us >= 0: row[\"presentation_ack_us\"] = presented_us\n\tsamples.append(row)\n\tprint(\"PLAYER_LATENCY \" + JSON.stringify(row))\n\nfunc draw_complete() -> void:\n\tif DisplayServer.get_name() == \"headless\": await get_tree().process_frame\n\telse: await RenderingServer.frame_post_draw\n\nfunc _wait_line(line_id: String) -> bool:\n\tvar deadline := Time.get_ticks_msec() + 30000\n\twhile Time.get_ticks_msec() < deadline:\n\t\tif bridge._runtime_adapter.current_line_id() == line_id and bridge.is_current_line_presentation_acknowledged():\n\t\t\tvar caption: Node = _caption()\n\t\t\tif is_instance_valid(caption) and caption.caption_text.is_visible_in_tree() and not caption.caption_text.revealing:\n\t\t\t\tawait draw_complete()\n\t\t\t\tpresented_us = Time.get_ticks_usec() - sample_started\n\t\t\t\tbreak\n\t\tawait get_tree().process_frame\n\treturn await super._wait_line(line_id)\n\nfunc _click(control: Control) -> void:\n\tvar overlay := get_tree().root.find_child(\"GutLayer\", true, false)\n\tif overlay is CanvasLayer: overlay.hide()\n\tvar point := control.get_global_transform_with_canvas() * (control.size / 2.0)\n\tfor pressed: bool in [true, false]:\n\t\tvar motion := InputEventMouseMotion.new()\n\t\tmotion.position = point\n\t\tmotion.global_position = point\n\t\tget_viewport().push_input(motion, true)\n\t\tvar event := InputEventMouseButton.new()\n\t\tevent.position = point\n\t\tevent.global_position = point\n\t\tevent.button_index = MOUSE_BUTTON_LEFT\n\t\tevent.pressed = pressed\n\t\tget_viewport().push_input(event, true)\n\tawait get_tree().process_frame\n\tawait draw_complete()\n\nfunc audit_ui(label: String) -> void:\n\tvar caption: Node = _caption()\n\tfor attempt: int in 3:\n\t\tvar started := begin_sample()\n\t\tawait _click(caption.transport_rail._history_button)\n\t\tassert_true(caption._history_open)\n\t\tend_sample(\"history\", started, label)\n\t\tawait _click(caption._history_overlay.close_button)\n\t\tstarted = begin_sample()\n\t\tawait _click(caption.transport_rail.get_node(\"Save\"))\n\t\tvar sheet: Node = get_node(\"/root/SceneRouter\")._production_pause\n\t\tassert_not_null(sheet)\n\t\tend_sample(\"save_menu\", started, label)\n\t\tif not is_instance_valid(sheet): return\n\t\tvar app: Control = sheet.surface._hosts[&\"backup\"]\n\t\tawait _click(app.drawer_buttons[\"slot:1\"])\n\t\tstarted = begin_sample()\n\t\tawait _click(app.action_buttons[\"save\"])\n\t\tif is_instance_valid(app.confirmation): await _click(app.confirmation.confirm_button)\n\t\twhile app._in_operation: await get_tree().process_frame\n\t\tawait draw_complete()\n\t\tend_sample(\"save_write\", started, label)\n\t\tassert_true(app.last_result.get(\"ok\", false))\n\t\tawait _click(sheet.surface._sheet_back)\n\t\tassert_false(get_tree().paused)\n\t\tstarted = begin_sample()\n\t\tawait _click(caption.transport_rail._settings_button)\n\t\tend_sample(\"settings\", started, label)\n\t\tvar host: Node = get_tree().current_scene\n\t\tvar computer: Control = host.get_node(\"SceneControlsLayer/Surface/Controls/CheckComputer\")\n\t\tassert_true(host.is_computer_open())\n\t\tawait _click(computer)\n\t\tassert_false(host.is_computer_open())\n\t\tstarted = begin_sample()\n\t\tawait _click(computer)\n\t\tassert_true(host.is_computer_open())\n\t\tend_sample(\"computer\", started, label)\n\t\tawait _click(computer)\n\t\tassert_false(host.is_computer_open())\n\nfunc audit_title() -> void:\n\tif not await _wait_route(MENU): return\n\tfor frame: int in 3: await get_tree().process_frame\n\tvar menu: Node = get_tree().current_scene\n\tfor attempt: int in 3:\n\t\tvar started := begin_sample()\n\t\tawait _click(menu.get_node(\"%GalleryButton\"))\n\t\tvar gallery: Node = menu._gallery_instance\n\t\tassert_not_null(gallery)\n\t\tend_sample(\"gallery\", started, str(attempt))\n\t\tif not is_instance_valid(gallery): return\n\t\tstarted = begin_sample()\n\t\tawait _click(gallery._gallery_tabs.get_child(2))\n\t\tend_sample(\"dialogue_library\", started, str(attempt))\n\t\tawait _click(gallery._gallery_tabs.get_child(1))\n\t\tfor row: Button in gallery._artwork._rows:\n\t\t\tif DisplayServer.get_name() == \"headless\": continue\n\t\t\tassert_false(row.disabled)\n\t\t\tstarted = begin_sample()\n\t\t\tawait _click(row)\n\t\t\tend_sample(\"artwork_select\", started, row.name)\n\t\t\tstarted = begin_sample()\n\t\t\tawait _click(gallery._artwork._preview)\n\t\t\tassert_true(is_instance_valid(gallery._artwork._viewer))\n\t\t\tend_sample(\"artwork_fullscreen\", started, row.name)\n\t\t\tgallery._artwork.close_viewer()\n\t\t\tawait get_tree().process_frame\n\t\tawait menu._close_gallery()\n\tvar started := begin_sample()\n\tawait _click(menu.get_node(\"%LogInButton\"))\n\tend_sample(\"load_menu\", started)\n\tvar app: Control = menu._backup_app_instance\n\tawait _click(app.drawer_buttons[\"slot:1\"])\n\tready_count = 0\n\tstarted = begin_sample()\n\tawait _click(app.action_buttons[\"load\"])\n\tif is_instance_valid(app) and is_instance_valid(app.confirmation): await _click(app.confirmation.confirm_button)\n\tif not await _await_ready(): return\n\tawait draw_complete()\n\tassert_eq(bridge._runtime_adapter.current_line_id(), \"line.Day7.untouched.impulse.004\")\n\tassert_eq(_caption().caption_text.get_parsed_text(), _texts[\"line.Day7.untouched.impulse.004\"])\n\tend_sample(\"load_checkpoint\", started)\n\nfunc test_player_latency() -> void:\n\t_phase = \"create\"\n\tif not _setup_authored(false): return\n\tget_tree().process_frame.connect(observe_frame)\n\tget_node(\"/root/SceneRouter\").goto_menu()\n\tif not await _new_from_title(1, _expected[0].line_id): return\n\tOS.set_environment(\"DWM_SAVE_DEEP_PROFILE\", \"1\")\n\tawait audit_ui(\"Day1\")\n\tOS.set_environment(\"DWM_SAVE_DEEP_PROFILE\", \"0\")\n",
+  "checks": {
+    "document_schema_assertions": 74,
+    "authored_week_assertions": 4285,
+    "fresh_process_create_assertions": 3792,
+    "fresh_process_load_assertions": 101,
+    "lint_unit_tests": 22
+  },
+  "limits": [
+    "Three sequential Save samples per variant; shared host variability.",
+    "Not exported Windows input-to-photon evidence.",
+    "Correctness journeys are not paired performance measurements."
+  ],
+  "check_log_sha256": {
+    "dwm-once-schema": "dca9466f1d45480c34df7812a52ba132d3a9d8e13f75de4a4fdf10608e1d308a",
+    "dwm-once-week": "4bd17e835fb22ae8f4bc9094b224b05d5be5b2087d3cc1c304dc887ecb2cd010",
+    "dwm-once-restore": "6a5cbb8c404e04d915b9b24de641835a9275e10331c429d8d76d052b1fd81059",
+    "dwm-once-restore-load-retry": "17729a015e20f4df5c4d281581acc02c72ebb35ffab89cd0f828443335f636b7"
+  }
+}

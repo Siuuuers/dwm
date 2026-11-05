@@ -9,7 +9,7 @@ FORBIDDEN = re.compile(r'\b(?:snapshot|_capture_scene|capture_reading_checkpoint
 
 
 def function_body(source, name):
-    match = re.search(r'^func ' + re.escape(name) + r'\(.*?(?=^func |^static func |\Z)', source, re.M | re.S)
+    match = re.search(r'^(?:static )?func ' + re.escape(name) + r'\(.*?(?=^func |^static func |\Z)', source, re.M | re.S)
     return match.group() if match else ''
 
 

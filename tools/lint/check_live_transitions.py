@@ -10,7 +10,15 @@ LIVE_FUNCTIONS = (
     '_fork_scene_live', '_fork_scene_transition',
     'prepare_scene_next', 'prepare_scene_control_continuation',
 )
+SAVE = 'autoload/SaveManager.gd'
+CONTACTS = 'scripts/domain/contact/ContactInvitationState.gd'
 RULES = (
+    (SAVE, ('_commit_backup_action_profiled',),
+     r'\bcommit_prepared\s*\(|\b(?:RUN_SNAPSHOT_SCHEMA|SAVE_DOCUMENT_SCHEMA)\s*\.\s*validate\s*\(',
+     'Commit the owned Save candidate without repeating snapshot/document validation'),
+    (CONTACTS, ('capture_scene_definitions',),
+     r'\b(?:scene_registration|_s_hash|canonical_sha256|sha256_text)\s*\(',
+     'Reuse the immutable registration owner bundle and fingerprint'),
     (SESSION, LIVE_FUNCTIONS,
      r'\b(?:restore|restore_player|restore_snapshot|_validate_scene_saved|_validate_scene_base)\s*\(',
      'Live planning must fork admitted state; serialized restoration belongs to Load'),

@@ -51,6 +51,23 @@ func test_build_normalizes_engine_text_and_detaches_current_bundle() -> void:
 	current.snapshot.gameplay.story_flags["TEST.after_build"] = true
 	assert_false(built.value.current_snapshot.snapshot.gameplay.story_flags.has("TEST.after_build"))
 
+func test_owned_snapshot_build_matches_independent_document_validation() -> void:
+	var current := _bundle()
+	var checked: Dictionary = preload("res://scripts/domain/run/RunSnapshotSchema.gd").validate(current.snapshot)
+	assert_true(checked.ok)
+	if not checked.ok: return
+	current.snapshot = checked.value.candidate
+	var full: Dictionary = SCHEMA.build(&"slot", 1, &"manual", current, [])
+	var owned: Dictionary = SCHEMA.build(&"slot", 1, &"manual", current, [], {}, [], {}, current.snapshot)
+	assert_true(full.ok and owned.ok)
+	if not full.ok or not owned.ok: return
+	var encoded: Dictionary = WRITER.stringify(owned.value)
+	assert_true(encoded.ok)
+	assert_eq(encoded.value, WRITER.stringify(full.value).value)
+	assert_true(SCHEMA.validate(StrictJson.parse_object(encoded.value).value).ok)
+	current.snapshot.gameplay.story_flags["TEST.after_build"] = true
+	assert_false(owned.value.current_snapshot.snapshot.gameplay.story_flags.has("TEST.after_build"))
+
 func test_proven_scene_journal_matches_full_builder_and_remains_detached() -> void:
 	var first := _bundle(2)
 	var current := _bundle(3)
