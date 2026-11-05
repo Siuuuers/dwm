@@ -7,11 +7,13 @@ const IMAGE_EXTENSIONS := ["png", "svg", "webp", "jpg", "jpeg"]
 static var _placements: Dictionary = {}
 static var _placements_loaded := false
 static var _overlay_records: Dictionary = {}
+static var _gallery_textures: Dictionary = {}
 
 static func reload_placements(path: String = PLACEMENTS_PATH) -> bool:
 	_placements = {}
 	_placements_loaded = true
 	_overlay_records.clear()
+	_gallery_textures.clear()
 	if not FileAccess.file_exists(path):
 		return false
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
@@ -58,9 +60,12 @@ static func get_texture(asset_id: String, expected_size: Vector2i = Vector2i.ZER
 		return null
 	if not ResourceLoader.exists(path, "Texture2D"):
 		return null
-	var texture := load(path) as Texture2D
+	var texture: Texture2D = _gallery_textures.get(asset_id)
+	if texture == null or texture.resource_path != path:
+		texture = load(path) as Texture2D
 	if texture == null or (expected_size != Vector2i.ZERO and texture.get_size() != Vector2(expected_size)):
 		return null
+	if asset_id in GALLERY_IDS: _gallery_textures[asset_id] = texture
 	return texture
 
 static func uses_split_panels(entry_id: String) -> bool:
@@ -314,6 +319,7 @@ static func get_missing_art_report() -> Dictionary:
 static func set_overlay_info(category: String, asset_id: String, path: String,
 		expected_size: Vector2i, status: String) -> void:
 	_catalog()
+	_gallery_textures.erase(_key(category, asset_id))
 	_overlay_records[_key(category, asset_id)] = {"path": path,
 		"size": [expected_size.x, expected_size.y], "status": status}
 

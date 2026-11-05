@@ -17,8 +17,8 @@ BINDINGS = 'scripts/ui/SettingsControlsSheet.gd'
 CAPTION = 'scripts/ui/witnessed/WitnessedCaptionLayer.gd'
 RULES = (
     (CAPTION, ('_ready',),
-     r'\bconfigure_presentation\s*\([\s\S]*?\b_apply_preferences\s*\(',
-     'Apply actual caption preferences before constructing a fallback presentation'),
+     r'\bconfigure_presentation\s*\([\s\S]*?\b_apply_preferences\s*\(|\b_configure_recovery_presentation\s*\(',
+     'Apply actual caption preferences first and defer recovery styling until requested'),
     (BINDINGS, ('_ready',),
      r'\b(?:set_presentation|refresh)\s*\(|\bPRESENTATION\s*\.\s*build\s*\(',
      'SettingsContent applies the actual player theme; do not initialize a temporary binding theme'),

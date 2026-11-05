@@ -211,7 +211,6 @@ func _ready() -> void:
 	_recovery_bound = recovery_overlay.bind_owners(_localization, input_owner, _recovery_action_admitted)
 	recovery_overlay.retry_requested.connect(_retry_reading_command)
 	recovery_overlay.cancel_requested.connect(_cancel_reading_recovery)
-	_configure_recovery_presentation()
 	_transport_input_bound = transport_rail.bind_admission(_transport_admitted, input_owner)
 	_auto_input_bound = transport_rail.bind_auto_admission(_auto_button_admitted, input_owner)
 	_load_input_bound = transport_rail.bind_load_admission(_load_admitted, input_owner)
@@ -953,6 +952,7 @@ func _dismiss_reading_recovery(restore_focus: bool = true, allow_caption_focus: 
 		elif caption_text.focus_mode != Control.FOCUS_NONE: caption_text.grab_focus()
 
 func _configure_recovery_presentation() -> void:
+	if _reading_recovery.is_empty(): return
 	if is_instance_valid(recovery_overlay) and _recovery_bound:
 		recovery_overlay.configure_presentation(_locale, _text_percent, _palette,
 			_high_contrast, _colour_preset, _large_targets, _font_style)

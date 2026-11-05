@@ -23,6 +23,7 @@ class LiveTransitionDependencies(unittest.TestCase):
     def test_rejects_each_regression(self):
         cases = [
             (CAPTION, '_ready', 'configure_presentation()\n\t_apply_preferences()'),
+            (CAPTION, '_ready', '_configure_recovery_presentation()'),
             (BINDINGS, '_ready', 'set_presentation(fallback, 24, false)'),
             (BINDINGS, '_ready', 'refresh()'),
             (PAUSE, 'request_pause', '_ensure_hosts()'),

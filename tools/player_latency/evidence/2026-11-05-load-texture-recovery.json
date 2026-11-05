@@ -1,0 +1,102 @@
+{
+  "baseline_revision": "5c4aa0f22f8d235c680f4c8f709a3ee9587c1d8b",
+  "runtime_source_sha256": {
+    "scripts/data/ArtManifest.gd": "dd3c81fec752ae7ad30fdc761ecd05b78eb09459ed13f89e062f750e3e940103",
+    "scripts/ui/witnessed/WitnessedCaptionLayer.gd": "09bb502dff6b46e6c81ef6747e6bc299b19da2ae06fa00110296ee9ad964872d"
+  },
+  "environment": "Godot 4.6.3 standard Linux headless imported source",
+  "runs": [
+    {
+      "variant": "before",
+      "process": 1,
+      "elapsed_us": [
+        985836,
+        719435,
+        639220,
+        595775
+      ],
+      "assertions": 172,
+      "log_sha256": "55412ca1fd0904e7b95494ba7033254fbb320e12a0607da9ac6b25e548499466"
+    },
+    {
+      "variant": "before",
+      "process": 2,
+      "elapsed_us": [
+        1247077,
+        676232,
+        652111,
+        789917
+      ],
+      "assertions": 172,
+      "log_sha256": "bb2499ccacede7ae2e6f50903960e8335d10a0bb79257066eb3c977a0af8e463"
+    },
+    {
+      "variant": "after",
+      "process": 1,
+      "elapsed_us": [
+        694408,
+        331096,
+        363372,
+        342781
+      ],
+      "assertions": 172,
+      "log_sha256": "fc0d642f27f2e6936f1a063145dbb8246e49cc75b5efafbdcf691bb430d814f4"
+    },
+    {
+      "variant": "after",
+      "process": 2,
+      "elapsed_us": [
+        953636,
+        542699,
+        597034,
+        593760
+      ],
+      "assertions": 172,
+      "log_sha256": "c3df864ea8cdd465d52d559aa0cba200aeec78dd0ce6cfabc43f6876e6503dc3"
+    }
+  ],
+  "checks": [
+    {
+      "name": "textures-final",
+      "assertions": 21,
+      "exit_code": 0,
+      "log_sha256": "daafe73dfe815a3f858e77670049fa2bbbabfc572a48b60e38a03f92b107e082"
+    },
+    {
+      "name": "recovery-final",
+      "assertions": 90,
+      "exit_code": 0,
+      "log_sha256": "db3bfd7fde438a4be11c93e1ff58e9eb4cbad5a4ad18959ac717e40bf95e0a5f"
+    },
+    {
+      "name": "globals-final",
+      "assertions": 119,
+      "exit_code": 0,
+      "log_sha256": "a078db4e4a05eefdc6d6b64b3daf5beb49280a3fb9cdf58066fcad95b1d601a5"
+    },
+    {
+      "name": "recovery-locales",
+      "assertions": 119,
+      "exit_code": 0,
+      "log_sha256": "64124d9412b8240e946afc57ec1b63c28e9cceea0159c0edfc5e9f0ebdbe9552"
+    }
+  ],
+  "probe_source": "extends \"res://tests/integration/compact_history_restore_child.gd\"\n\nvar measured_loads := 0\n\nfunc _load_authored(slot: int, proof: Dictionary) -> bool:\n\tassert_eq(ProjectSettings.globalize_path(\"user://\"), proof.user_dir)\n\tassert_eq(AUTHORED_MANIFEST.scene_registration_fingerprint(), proof.registration_sha256)\n\tvar path := \"user://saves/slot_%d.json\" % slot\n\tassert_eq(FileAccess.get_sha256(path), proof.slot_sha256)\n\tvar profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)\n\tvar app: Control\n\tif measured_loads == 0:\n\t\tget_node(\"/root/SceneRouter\").goto_menu()\n\t\tif not await _wait_route(MENU): return false\n\t\tvar menu: Node = get_tree().current_scene\n\t\tsaves.live_session_ready.connect(func() -> void: _ready_observation = _native_observation())\n\t\tif not await _press_authored(menu.get_node(\"%LogInButton\")): return false\n\t\tapp = menu._backup_app_instance\n\telse:\n\t\tvar pause: Node = get_node(\"/root/SceneRouter\")._production_pause\n\t\tvar opened: Dictionary = await pause.open_scene_backup(\"load\")\n\t\tassert_true(opened.get(\"ok\", false))\n\t\tif not opened.get(\"ok\", false): return false\n\t\tapp = pause.surface._hosts[&\"backup\"]\n\tready_count = 0\n\tassert_not_null(app, \"Title LogIn mounts Backup\")\n\tif not is_instance_valid(app): return false\n\tif not await _press_authored(app.drawer_buttons.get(\"slot:%d\" % slot)): return false\n\tvar expanded: Dictionary = preload(\"res://scripts/narrative/SoloReadingSession.gd\").expand_player_checkpoint(proof.checkpoint)\n\tif not _ok(expanded): return false\n\tvar line_id: String = expanded.value.reading_session.frontier.line_id\n\tvar load_started := Time.get_ticks_usec()\n\tprint(\"LOAD_BEGIN \", measured_loads, \" \", load_started)\n\tif not await _press_authored(app.action_buttons.get(\"load\")): return false\n\tif is_instance_valid(app) and is_instance_valid(app.confirmation):\n\t\tif not await _press_authored(app.confirmation.confirm_button): return false\n\tif not await _await_ready(): return false\n\tif not await _wait_line(line_id): return false\n\tprint(\"CHECKPOINT_LOAD_US \", measured_loads, \" \", Time.get_ticks_usec() - load_started)\n\tmeasured_loads += 1\n\tassert_eq(_ready_observation.line_id, line_id)\n\tassert_true(_ready_observation.visible)\n\tassert_false(_ready_observation.revealing)\n\tassert_true(_ready_observation.event_done)\n\tassert_eq(float(_ready_observation.visible_ratio), 1.0)\n\tassert_eq(_ready_observation.ledger, expanded.value.reading_session.ledger)\n\tassert_eq(bridge.capture_reading_checkpoint(false).value, expanded.value)\n\tvar current: Dictionary = game.capture_run_snapshot_input()\n\tassert_eq(current.lifecycle.run_id, proof.snapshot.lifecycle.run_id)\n\tassert_eq(current.lifecycle.branch_id, proof.snapshot.lifecycle.branch_id)\n\tfor key: String in [\"gameplay\", \"scene\"]:\n\t\tassert_eq(current[key], proof.snapshot[key], \"Load preserves \" + key)\n\tassert_eq(profile.get_profile_snapshot(), profile_before, \"Load preserves current profile\")\n\tassert_eq(FileAccess.get_sha256(path), proof.slot_sha256)\n\tawait _screenshot(\"authored-restored-slot-%d\" % slot)\n\treturn true\n\n\nfunc test_checkpoint_load_cost() -> void:\n\tawait load_older_save_preserves_later_global_discoveries()\n\tvar proof: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string(\"user://compact-history-proof.json\")).value\n\tfor attempt in range(3):\n\t\tif not await _load_authored(1, proof): return\n",
+  "runner_source": "from pathlib import Path\nimport subprocess,os,sys,shutil\nroot=Path('.godot/phase2r_tests/load-leaf').resolve()\nshutil.rmtree(root/'data')\nshutil.copytree('/tmp/dwm-load-compare-seed',root/'data')\nenv=dict(os.environ,XDG_DATA_HOME=str(root/'data'),DWM_TEST_ROOT=str(root/'test-root'))\nsubprocess.run(['true'])\nwith open('/tmp/dwm-load-compare-'+sys.argv[1]+'.log','w') as out:\n result=subprocess.run(['/tmp/dwm-audit-godot/Godot_v4.6.3-stable_linux.x86_64','--headless','--path','.','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://.godot/ci/checkpoint-load-probe.gd','-gexit'],env=env,stdout=out,stderr=subprocess.STDOUT)\nprint(result.returncode)\n",
+  "memory": {
+    "retention_limit": 5,
+    "pixels_per_texture": [
+      1920,
+      1080
+    ],
+    "raw_rgba_total_mib": 39.55078125,
+    "note": "Only requested gallery pictures retained; raw pixel estimate excludes renderer-specific compression, copies, mipmaps and overhead."
+  },
+  "limits": [
+    "Two fresh processes per variant, three subsequent Loads per process; chronological baseline then candidate, noisy shared host. Warm samples correlated within process. No robust percentage claim.",
+    "Expected checkpoint expansion moved before timed Load. Actual native input helper still waits frames; full-caption check at end retained. Not Windows input-to-photon latency.",
+    "Recovery styling moves to first requested recovery presentation; that exceptional path still pays construction cost.",
+    "No production fault injection. First draft of positive texture test needed explicit WeakRef type. First recovery probe incorrectly inherited a test twice and let an incomplete presentation-only request survive a process frame; corrected probe starts one real session and clears its synchronous presentation context before yielding. Failed drafts excluded from passes.",
+    "No broad matrix or complete seven-day rerun this turn. Exact loaded state/global preferences checked; all five artwork resources and recovery locale/size coverage tested."
+  ]
+}

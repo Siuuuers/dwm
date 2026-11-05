@@ -211,3 +211,23 @@ The earlier broad activation callback cost was mostly art refresh, not readiness
 Recovery uses the full SettingsTheme, whose builder prepares fallback fonts for all five supported locales. Across four traces, its first presentation cost roughly 280–457 ms; subsequent presentations were much cheaper. Candidate: defer hidden recovery styling until needed, or use an appropriately scoped existing presentation owner, while preserving immediate usable Retry/Cancel, focus, current preferences, and localization. First-use font/layout work is not wholly removable.
 
 Verification: all seven processes passed **172 assertions each (1,204 total)**; 516 assertions belong to the three uninstrumented runs, 688 to the four diagnostic runs. No assertion checks timing. Exact samples, per-call spans, texture cache observations, probe/runner source, final observation patch, and log hashes are retained in [Load stage evidence](../../tools/player_latency/evidence/2026-11-05-load-stage-investigation.json). Production files match the tested base tree after removing instrumentation. This investigation identifies the next cuts; it does not claim they have been implemented or that all remaining latency is attributed.
+
+## Retained gallery textures and on-demand recovery styling
+
+Implemented the two measured candidates from `5c4aa0f22f8d235c680f4c8f709a3ee9587c1d8b`:
+
+- `ArtManifest.get_texture` retains only the five existing gallery picture IDs, on demand, across replaced scene/layout owners. Other artwork remains engine-owned. Resource existence and dimension checks remain. Manifest reload clears retention; preview override invalidates its asset; a different path cannot reuse the old texture.
+- `WitnessedCaptionLayer` no longer configures hidden recovery during `_ready` or inactive preference/locale updates. Its existing immediate-before-display path applies current presentation when recovery is requested. Active recovery updates still apply. Styling cost is deferred to first recovery, not eliminated from that exceptional path.
+
+Memory is bounded to five retained pictures. At the current 1920×1080 dimensions, raw RGBA pixels total 39.55 MiB if all five have been requested (15.82 MiB for the measured two-picture checkpoint). This is a pixel-size estimate, not measured renderer memory; compression, mipmaps, retained CPU copies and overhead vary.
+
+Matched comparison moved expected-checkpoint expansion before the timer. Two fresh processes per variant, three repeated Loads each, identical restored user-data seed, native Load input and full expected caption readiness:
+
+| Harness duration | Before median | After median | Samples per variant |
+| --- | ---: | ---: | ---: |
+| First Load from Title | 1116.457 ms | 824.022 ms | 2 |
+| Subsequent in-game Load | 664.171 ms | 453.035 ms | 6 |
+
+These are encouraging observations on shared Linux headless infrastructure, not a robust speedup percentage. Baseline ran before candidate; subsequent samples share a process; the click helper still contributes frame waits. Do not compare directly against the previous timer containing checkpoint expansion or claim Windows display latency.
+
+Verification: each of four comparison processes passed 172 assertions; texture lifetime/bounds/preview/reload checks passed 21; deferred first recovery presentation/current high contrast/focus passed 90; older-save/newer-global-preferences check passed 119; existing three-locale × three-size recovery check passed 119. A focused lint guard rejects reintroducing `_configure_recovery_presentation` into caption `_ready`; all six lint tests, structural lint, comment lint and whitespace checks passed. No broad matrix was run. Failed early probe drafts were corrected and are explicitly excluded in [exact evidence](../../tools/player_latency/evidence/2026-11-05-load-texture-recovery.json).
