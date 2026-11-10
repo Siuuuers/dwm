@@ -4964,7 +4964,7 @@ func commit_scene_challenge_closure(command: Dictionary, result: Dictionary) -> 
 	var made := _SCENE_EVENT.make_scene_receipt(operation.event, current.value.anchor, result, registration.bundle)
 	if not made.ok: return made
 	if made.value.request_fingerprint != operation.digest: return _transaction_failure(&"event_digest_mismatch", "")
-	var candidate := capture_run_snapshot_input().duplicate(true)
+	var candidate := capture_run_snapshot_input()
 	candidate.command_receipts[operation.event.command_id] = made.value
 	candidate.gameplay.scene_challenge_outcomes[result.challenge_occurrence] = {
 		"challenge_id": operation.event.payload.challenge_id, "outcome": result.outcome,

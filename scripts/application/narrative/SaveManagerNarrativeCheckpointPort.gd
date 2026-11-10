@@ -435,8 +435,6 @@ func _scene_mutation_source_matches(captured: Dictionary) -> bool:
 func _publish_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
 	if not _scene_route_input_valid(snapshot_input, checkpoint):
 		return _fail(&"scene_event_input_invalid", "scene input differs from its reading owner")
-	if not _scene_entry.is_empty() and not _scene_validate(_scene_entry, "commit"):
-		return _fail(&"scene_entry_custody_invalid", "Bridge refused publication")
 	var state_hash: String
 	if _scene_entry.is_empty():
 		state_hash = _fingerprint(checkpoint)

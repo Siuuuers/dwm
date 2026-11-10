@@ -77,6 +77,7 @@ func test_live_publication_binds_target_and_consumes_once_without_storage() -> v
 	var old_disk: Dictionary = f.real.current.duplicate(true)
 	var published: Dictionary = f.port.commit_scene_event(_scene_input(f), f.checkpoint)
 	assert_true(published.ok, str(published))
+	assert_eq(f.authority.phases, ["retain", "commit"])
 	assert_false(published.get("durable", true))
 	assert_eq(published.value, {"publication": {"kind": "live", "state_sha256": _hash(f.checkpoint)}})
 	var ack: Dictionary = f.port.consume_scene_entry_ack("cap:1")
