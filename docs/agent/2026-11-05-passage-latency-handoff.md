@@ -16,6 +16,10 @@ The CI selector correction is complete in merged [PR #247](https://github.com/Si
 
 ## Deferred performance assignment
 
+For the broader Windows visible-response and audio-continuity follow-up, start
+with the [player-visible latency handoff](2026-11-11-player-visible-latency-handoff.md).
+The historical measurements and implementation details below remain context.
+
 Windows packaged player-experience, visible-latency and audio-continuity qualification is deferred until planned features settle, per [the current cleanup handoff](https://github.com/Siuuuers/dwm/pull/250). The sequence below preserves the performance follow-up; it is not the active cleanup assignment.
 
 - **Goal:** identify and reduce the largest remaining player-visible passage-transition stall, starting with Challenge-result handoffs after natural play.
