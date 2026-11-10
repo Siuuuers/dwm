@@ -8,7 +8,7 @@ Scope: focus continuity, distinguishable control states, and focused interaction
 
 PR #159 merged as acc6878dd6367838b2138779692cb2cc34cc60f2. It completes the preceding readability/editor work and already restores Shop focus to the selected item when its Buy button disappears. Preserve that behavior as a regression check.
 
-Read repository AGENTS.md, CLAUDE.md and relevant current input, presentation and accessibility contracts before implementation. Recheck current master and existing tests; this handoff records a source review, not new rendered gameplay evidence or a whole-game audit.
+Read repository AGENTS.md and relevant current input, presentation and accessibility contracts before implementation. Recheck current master and existing tests; this handoff records a source review, not new rendered gameplay evidence or a whole-game audit.
 
 Relevant owners:
 - scripts/ui/witnessed/WitnessedTransportRail.gd

@@ -75,3 +75,44 @@ The public-boundary suite retains current session-exit checkpoint ownership and
 exact, detached `load_context` reads across slot, quick, and autosave storage.
 Removed legacy NewRun/Dating cases are covered by current creation and DTL
 contact tests; no old progression graph is reconstructed for these checks.
+
+## Retired Schedule continuation source, 2026-11-11
+
+At baseline `26dbcd42acf82f419b350a84e1237cbcfb09bc38`, the automatic
+Schedule/day-resolution composition is already absent.
+`DesktopContinuationRemapper.schedule_day_advance_source` derived a Schedule
+start or restored continuation receipt for that retired flow. Its private
+`_verified_schedule_start_child` helper served only that method.
+
+A search of all 1,453 checked-out tracked runtime, scene/resource, fixture and
+tooling text files found only the two declarations and their internal call; no
+relevant source files were missing. No dynamic method-name, serialized resource,
+runner, or fixture caller remains. Both methods are removed together. No fields,
+resource paths, UIDs, or save formats change. The retained, nonwired
+`scene_day_advance_source` remains exercised by the existing scene identity
+fixtures; it is not evidence of current production DTL wiring. No replacement
+owner is introduced. GameState/SaveManager public-surface inventories do not describe
+these methods, and the deletion removes no calls to those owners.
+
+Focused acceptance uses the existing positive scene-transition identity cases:
+original completion, restored completion/retry, and repeated selected Load.
+On Godot 4.6.3 Linux, those three selected methods passed with 9, 14 and 13
+assertions respectively (36 total), each in a separate process/data root with
+exit 0 and no script errors. The original-completion baseline also passed
+9 assertions before deletion. These are semantic identity checks, not rendered
+player or full Save/Load qualification. No runtime speedup is claimed; shared
+lifecycle, DayResolutionPlan validation and checkpoint owners remain in place.
+
+
+## Retired detached admission fixture, 2026-11-11
+
+`test_scene_day_reading.test_full_run_validation_stays_closed_without_scene_receipt_owner`
+constructed a legacy detached checkpoint to prove that a checkpoint cannot admit
+its own full Run. Current context validation rejects that fixture earlier with
+`reading_entry_context_mismatch`, so it no longer reaches its claimed assertion.
+Remove that obsolete test rather than rebuilding the retired snapshot format.
+The adjacent unchanged `test_compact_position_does_not_supply_its_own_run_admission`
+checks the same requirement using the current compact saved position: exact
+`reading_saved_run_required`, `scene_envelope` phase, and unchanged input bytes.
+It passes 12 per-test assertions in isolated Godot 4.6.3 Linux (13 including
+fixture setup), exit 0. No production validation or failure handling changes.

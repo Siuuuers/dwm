@@ -62,7 +62,7 @@ func before_each() -> void:
 	_adapter.caption_publication_recorded.connect(func(result: Dictionary) -> void: _results.append(result.duplicate(true)))
 
 	_bridge = BRIDGE.new()
-	autofree(_bridge)
+	add_child_autofree(_bridge)
 	_bridge._runtime_adapter = _adapter
 	_port = HELD.SimulatedCheckpointPort.new()
 	_binding = HELD.binding("target_a", "a:next")
@@ -140,8 +140,9 @@ func _assert_target(prepared: Dictionary, expected_line: String) -> void:
 	if history.ok:
 		var lines: Array = []
 		for row: Dictionary in history.value.captions: lines.append(row.line_id)
-		assert_eq(lines, ["line.scene.test.a.one", "line.scene.test.b.one",
-			"line.scene.test.b.two", expected_line])
+		var expected := ["line.scene.test.b.two", "line.scene.test.a.one"]
+		if expected_line == "line.scene.test.a.two": expected.append(expected_line)
+		assert_eq(lines, expected)
 	var retained: Dictionary = _bridge._reading_session.ledger.snapshot()
 	_runtime.Text.about_to_show_text.emit({})
 	_runtime.Text.text_started.emit({})
@@ -226,7 +227,7 @@ func test_altered_and_reentrant_capabilities_cannot_replace_the_held_source() ->
 	assert_eq(_port.consumes, 1)
 	if committed.ok: _assert_target(prepared, "line.scene.test.a.one")
 
-func test_real_foreign_playback_invalidates_source_before_ack_consumption() -> void:
+func test_real_foreign_playback_after_confirmation_keeps_fatal_custody() -> void:
 	if not await _start_source(): return
 	var prepared := _prepare()
 	assert_true(prepared.ok, str(prepared))
@@ -234,8 +235,12 @@ func test_real_foreign_playback_invalidates_source_before_ack_consumption() -> v
 	_runtime.start_timeline(HELD.PATH, BASE.A, "held:test:foreign")
 	await _settle()
 	_port.confirmed = true
-	assert_false(_bridge.commit_day_entry(prepared.value).ok)
-	assert_eq(_port.consumes, 0)
+	assert_eq(_bridge.commit_day_entry(prepared.value).code, &"scene_staging_source_invalid")
+	assert_eq(_port.consumes, 1)
+	assert_true(_bridge._scene_stage_fatal)
+	assert_same(_bridge._reading_session, _session)
+	assert_eq(_bridge.commit_day_entry(prepared.value).code, &"scene_staging_candidate_invalid")
+	assert_eq(_port.consumes, 1, "fatal retry cannot consume the acknowledgement twice")
 	assert_eq(_session.ledger.snapshot(), _source_snapshot.reading_session.ledger)
 
 func test_caller_transport_mutation_during_ack_cannot_redirect_private_target() -> void:

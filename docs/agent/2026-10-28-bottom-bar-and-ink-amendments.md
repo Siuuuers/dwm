@@ -3,7 +3,7 @@
 Date: 2026-10-28. Status: implemented in [PR #147](https://github.com/Siuuuers/dwm/pull/147); the PR records final cloud acceptance and merge status.
 Original handoff inspected code at `76c39d0a4acb33f858fba18b6c2bc9ad7cdb24c4`; implementation and acceptance are recorded below.
 
-Read AGENTS.md and CLAUDE.md, then recheck the branch head before implementation. This record supersedes the caret-above-bar, six-control and active save-ink requirements in the current feature plan and earlier handoffs. Other accepted behavior stays in force.
+Read AGENTS.md, then recheck the branch head before implementation. This record supersedes the caret-above-bar, six-control and active save-ink requirements in the current feature plan and earlier handoffs. Other accepted behavior stays in force.
 
 ## Requested result
 

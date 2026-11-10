@@ -77,6 +77,11 @@ snapshot is outside this slice. Current connected Next evidence comes from
 `render_scene_transition_create.gd`, which clicks the real Next button and checks
 dissolve/input behavior. The baseline failure is not counted as a passing check.
 
+Current-source reconciliation on 11 November found that obsolete connected method
+already absent from master `26dbcd42`; no snapshot rebuild is required. See the
+[current cleanup record](2026-11-10-current-cleanup-handoff.md). This closes the
+historical lead, not a new marker-suite test run.
+
 ## Deliberately outside this change
 
 No injection campaign, broad language/font matrix, full-week journey, unrelated

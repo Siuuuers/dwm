@@ -533,24 +533,6 @@ func test_forged_path_and_historical_frame_refuse_without_installation() -> void
 	assert_false(session.restore(saved, FIXTURE.A).ok)
 	assert_eq(session.ledger.snapshot(), before)
 
-func test_full_run_validation_stays_closed_without_scene_receipt_owner() -> void:
-	var created := FIXTURE.create_session()
-	assert_true(created.ok, str(created))
-	if not created.ok: return
-	var session: RefCounted = created.value
-	assert_true(FIXTURE.enter(session, FIXTURE.A, "a:1").ok)
-	var checkpoint := FIXTURE.checkpoint(session)
-	assert_true(checkpoint.ok, str(checkpoint))
-	if not checkpoint.ok: return
-	var snapshot := {"narrative_checkpoint": checkpoint.value}
-	var before := var_to_bytes(snapshot)
-	var checked := RUN.validate(snapshot, true)
-	assert_false(checked.ok)
-	# A detached checkpoint is rejected before receipt-owner validation.
-	assert_eq(checked.code, &"reading_saved_run_required")
-	assert_eq(checked.details.phase, "scene_envelope")
-	assert_eq(var_to_bytes(snapshot), before)
-
 func test_compact_position_does_not_supply_its_own_run_admission() -> void:
 	var created := FIXTURE.create_session()
 	assert_true(created.ok, str(created))

@@ -47,7 +47,7 @@ Importing JSON does not import the actual sound/image files. Asset playback/thum
 
 ## Validation and delivery
 
-Read AGENTS.md and CLAUDE.md. Keep implementation changes focused on the editor, fixtures/tests and its guide. No story prose rewrite or game audio change is needed.
+Read AGENTS.md. Keep implementation changes focused on the editor, fixtures/tests and its guide. No story prose rewrite or game audio change is needed.
 
 - Use small synthetic catalogues plus the actual current schemas: explicit music/SFX, absent audio, empty catalogues, generated plan-to-asset mapping, artwork without overlays, optional overlay presets.
 - Prove arbitrary validly spelled unknown IDs remain insertable and exportable with and without references; malformed draft source remains downloadable as before.

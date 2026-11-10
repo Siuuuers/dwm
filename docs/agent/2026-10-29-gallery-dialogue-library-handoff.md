@@ -37,7 +37,7 @@ At the reviewed revision:
 - [Named checkpoint implementation](../../handoff/as-named-checkpoint-implementation-20261027.md) records the existing presentation manifest maps and registered-entry bindings. Runtime checkpoint arrival is not the same as persistence of Global library discovery.
 - [Current feature plan](2026-10-28-current-and-future-feature-plan.md) owns disposition and earlier decisions.
 
-Read AGENTS.md, CLAUDE.md and relevant owners before editing. Read story guidance before any narrative authoring; synthetic test data does not authorize production prose.
+Read AGENTS.md and relevant owners before editing. Read story guidance before any narrative authoring; synthetic test data does not authorize production prose.
 
 Trace the actual accepted-visible reading publication path, variant witness owner and reset semantics before deciding storage. Reuse identities and the profile persistence boundary. Independent library reset requires independently clearable discovery membership: a pure live projection of an uncleared read ledger would immediately repopulate after reset. Use the smallest explicit profile-owned membership necessary, not a parallel save journal. After a library reset, new actual reading can rediscover entries; merely reopening the library cannot.
 
@@ -138,7 +138,7 @@ and self-talk pairing to a generated library projection. No manually copied
 dialogue or parallel story evaluator is required. The existing checkpoint
 presentation/Autosave behavior remains unchanged.
 
-See [the authoring template](../../../tests/fixtures/presentation/README.md) for
+See [the authoring template](../../tests/fixtures/presentation/README.md) for
 add, move, rename, remove, draft replacement, cloud export and saved-ID semantics.
 Authoring extension: [PR #150](https://github.com/Siuuuers/dwm/pull/150).
 Candidate: `2c61517652aea98070c594ae6fc5c73f430dd660`.

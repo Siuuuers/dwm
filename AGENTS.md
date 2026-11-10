@@ -1,7 +1,7 @@
 # DWM repository working routes
 
-For implementation, build and test work, read [CLAUDE.md](CLAUDE.md) and the
-applicable technical design records. This router does not replace those rules.
+For implementation, build and test work, read the applicable technical design
+records.
 
 For narrative, character, dialogue, or story-documentation work, read
 [story/AGENTS.md](story/AGENTS.md) and [story/README.md](story/README.md), even when a

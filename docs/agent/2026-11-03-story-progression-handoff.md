@@ -41,7 +41,7 @@ Use the audited revision to reproduce these observations. Fetch current master a
 | `autoload/GameState.gd` | Owns scene decisions and gameplay consequences; includes registered marker advancement. Do not duplicate choices or challenge outcomes in the bridge. |
 | `docs/design/2026-10-25-current-scene-state.md` | Specifies current-state ownership, no earlier-save migration requirement, and destination/consequence save semantics. |
 
-Read root `AGENTS.md`, `CLAUDE.md`, applicable nested instructions, and current technical owners before implementation. Follow the root router for any narrative document changes. Historical proposals are evidence of history, not automatic current requirements.
+Read root `AGENTS.md`, applicable nested instructions, and current technical owners before implementation. Follow the root router for any narrative document changes. Historical proposals are evidence of history, not automatic current requirements.
 
 The current Scene document already says that Load restores the full caption, board, choices, outcomes, and values without replaying prior actions. It also separates global reading/Gallery progress from Run state. Do not replace these rules with assumptions from old transaction documents.
 
