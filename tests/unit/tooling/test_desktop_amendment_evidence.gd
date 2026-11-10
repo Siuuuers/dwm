@@ -257,24 +257,6 @@ func test_a_source_binding_hash_corruption_fails_closed() -> void:
 		assert_eq(validated.get("code"), &"source_binding_hash_mismatch")
 
 
-func test_check_mode_never_opens_either_target_for_write() -> void:
-	if not FileAccess.file_exists(DESKTOP_EVIDENCE.ARTIFACT_PATH):
-		pending("evidence/phase_2r/contracts/... not yet generated")
-		return
-	var loaded: Dictionary = PROBE.load_script(GENERATOR_PATH)
-	assert_true(loaded.get("ok", false))
-	var before: PackedByteArray = FileAccess.get_file_as_bytes(DESKTOP_EVIDENCE.ARTIFACT_PATH)
-	var before_modified: int = FileAccess.get_modified_time(DESKTOP_EVIDENCE.ARTIFACT_PATH)
-	# _run_check() is exercised end to end by the PowerShell gate command (Step 9.6/9.8); this unit
-	# test proves the narrower, always-checkable property that matters for "check mode opening
-	# nothing for write": the published bytes and mtime are unchanged by merely loading the script
-	# and by every read-only helper this suite already called above in this same process.
-	var after: PackedByteArray = FileAccess.get_file_as_bytes(DESKTOP_EVIDENCE.ARTIFACT_PATH)
-	var after_modified: int = FileAccess.get_modified_time(DESKTOP_EVIDENCE.ARTIFACT_PATH)
-	assert_eq(after, before)
-	assert_eq(after_modified, before_modified)
-
-
 # -------------------------------------------------------------------------------------------------
 # dwm-p2r.35.5 -- red/green evidence integrity (reviewer findings B-C5 and B-I1). Both sealed
 # documents shipped red_green_command_records: [] and a bootstrap_probe test-log path that pointed
