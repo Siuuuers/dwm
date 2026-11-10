@@ -108,6 +108,25 @@ class WindowsCoverageTests(unittest.TestCase):
         self.assertEqual(select(docs)['docs_only'], 'true')
         self.assertEqual(select(docs)['challenge_transition'], 'false')
 
+    def test_challenge_job_only_edits_keep_focused_coverage(self):
+        workflow = '.github/workflows/windows-tests.yml'
+        before = WORKFLOW.replace('    name: Linux / Challenge transitions',
+                                  '    name: Previous Challenge transitions', 1)
+        for paths in ({workflow}, {workflow, 'tools/testing/test_windows_coverage.py'}):
+            result = select(paths, sources={'a' * 40 + ':' + workflow: before, 'HEAD:' + workflow: WORKFLOW})
+            self.assertEqual(result['challenge_transition'], 'true')
+            self.assertEqual(result['inventory_tooling'], 'false')
+            self.assertEqual(result['comparison'], 'false')
+        for old, new in (('contents: read', 'contents: write'),
+                         ('    name: Select current change coverage', '    name: Other selector'),
+                         ('  windows-export:', '  windows-export: # changed'),
+                         ('  challenge-transition:', '  renamed-challenge:')):
+            candidate = WORKFLOW.replace(old, new, 1)
+            result = select({workflow}, sources={'a' * 40 + ':' + workflow: before, 'HEAD:' + workflow: candidate})
+            self.assertEqual(result['challenge_transition'], 'false')
+        for kwargs in ({'event_name': 'workflow_dispatch'}, {'diff_code': 128}, {'event_data': {}}):
+            self.assertEqual(select({workflow}, **kwargs)['challenge_transition'], 'false')
+
     def test_challenge_scope_gates_every_unrelated_expensive_job(self):
         for job in ('focused-tests', 'windows-export', 'public-surfaces', 'rendered-journeys', 'rendered-desktop'):
             header = WORKFLOW.split('  ' + job + ':', 1)[1].split('    steps:', 1)[0]
