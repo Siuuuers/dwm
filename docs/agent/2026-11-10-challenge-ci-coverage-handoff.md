@@ -12,6 +12,23 @@ Validation and final Actions evidence are recorded in PR #247. The assignment be
 
 Observable outcome: a change confined to the reviewed Challenge transition methods and their tests selects one focused Linux validation job; unrelated rendering, localization, audio and export jobs do not start. The same scope decision prevents unrelated DTL authoring preflight. Unmatched runtime changes retain existing broader coverage.
 
+## Day 1 setup ablation, 2026-11-10
+
+The authored Challenge probe stops at `Day1.result.A`, but its shared setup prepared all 28 route entries. `_setup_authored` now accepts an optional `through_entry`; the empty default preserves the full route for existing callers. The Challenge probe requests the first four entries and asserts that exact prefix. Registered callable labels and the real title/input/caption/End/outcome checks remain unchanged.
+
+Baseline: master `74ac578797ac96cbca2d16a8645d6b806c0d4181`, Godot 4.6.3, Linux, pre-imported project. Six sequential fresh processes used the order full, Day1, Day1, full, full, Day1 with separate `XDG_DATA_HOME` and `DWM_TEST_ROOT`. Temporary instrumentation timed setup, its route-preparation loop, title opening and the unchanged journey; Python monotonic time measured the complete process. The ablation replaced only the preparation loop's 28-entry iterable with its first four entries. Timing instrumentation is not shipped.
+
+| Measure, seconds | Full route median | Day 1 median |
+| --- | ---: | ---: |
+| Route preparation | 0.780419 | 0.157679 |
+| Complete setup | 1.626999 | 1.007982 |
+| Day 1 traversal | 17.087698 | 17.082654 |
+| Complete process | 25.639066 | 24.838044 |
+
+Full-process samples: full `[25.992853, 25.495692, 25.639066]`; Day1 `[24.538996, 24.882762, 24.838044]`. All six processes passed their actual journey/outcome checks. The observed median gain is 0.801 seconds (3.1%), not the whole journey duration. This is a small local comparison, not a guaranteed hosted-runner speedup.
+
+The final probe has 1,349 per-test assertions: 48 setup checks for unvisited entries are omitted and one exact-prefix check is added. The seven focused groups still contain 56 tests, now totaling 2,665 per-test assertions. The final local focused runner passed all 56 tests and 2,665 assertions. A separate temporary default-setup probe passed 73 assertions, including the exact 28-entry route and its final caption range. Final Actions evidence is recorded in the implementation PR. Arbitrary shared-helper changes must retain broader coverage; only the exact optional-cutoff insertion qualifies for the Challenge route.
+
 ## Current state and evidence
 
 - [PR #246](https://github.com/Siuuuers/dwm/pull/246) merged at `ccdcca976c16936b6245dd8474ed06ba49039f72`.

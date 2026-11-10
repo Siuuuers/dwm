@@ -27,7 +27,7 @@ func _install_content_registration() -> Dictionary:
 		return {"ok": false, "code": "authored_shipped_registration_required"}
 	return selected
 
-func _setup_authored(require_rendered: bool = true) -> bool:
+func _setup_authored(require_rendered: bool = true, through_entry: String = "") -> bool:
 	if require_rendered:
 		assert_ne(DisplayServer.get_name(), "headless", "authored journey requires rendered evidence")
 		if DisplayServer.get_name() == "headless": return false
@@ -60,6 +60,7 @@ func _setup_authored(require_rendered: bool = true) -> bool:
 			if node.kind == "caption": _expected.append({"entry_id": entry_id, "line_id": node.line_id})
 		assert_gt(_expected.size(), _entry_starts[entry_id], "selected entry has a caption: " + entry_id)
 		if _expected.size() == _entry_starts[entry_id]: return false
+		if entry_id == through_entry: break
 	return not _expected.is_empty()
 
 func _wait_line(line_id: String) -> bool:
