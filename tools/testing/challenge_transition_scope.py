@@ -32,7 +32,9 @@ TOOLS = {
     'tools/testing/run_challenge_transition_checks.py',
     'tools/testing/test_challenge_transition_runner.py',
 }
+AUTHORED_SETUP = 'tests/integration/authored_week_child.gd'
 COMPANIONS = {
+    AUTHORED_SETUP,
     '.github/workflows/windows-tests.yml', '.github/workflows/dtl-first-preflight.yml',
     'tools/testing/test_windows_coverage.py', 'tools/testing/test_inventory_preflight.py',
     'tools/lint/check_live_transitions.py', 'tools/lint/test_live_transitions.py',
@@ -88,6 +90,22 @@ def is_challenge_transition(paths, base):
             else:
                 rest = rest.replace("      - 'tools/testing/challenge_transition_scope.py'\n", '')
             remaining.append('\n'.join(line for line in rest.splitlines() if line.strip()))
+        if remaining[0] != remaining[1]:
+            return False
+    if AUTHORED_SETUP in paths:
+        remaining = []
+        for ref in (base, 'HEAD'):
+            source = subprocess.run(['git', 'show', ref + ':' + AUTHORED_SETUP], capture_output=True)
+            if source.returncode:
+                return False
+            rest = source.stdout.decode().replace(
+                'func _setup_authored(require_rendered: bool = true, through_entry: String = "") -> bool:',
+                'func _setup_authored(require_rendered: bool = true) -> bool:',
+            ).replace(
+                '\t\tif _expected.size() == _entry_starts[entry_id]: return false\n\t\tif entry_id == through_entry: break\n',
+                '\t\tif _expected.size() == _entry_starts[entry_id]: return false\n',
+            )
+            remaining.append(rest)
         if remaining[0] != remaining[1]:
             return False
     for path in paths & METHODS.keys():

@@ -67,13 +67,15 @@ def select(paths, event_name='pull_request', sources=None, selector=SELECTOR, di
 
 class WindowsCoverageTests(unittest.TestCase):
     def test_challenge_scope_agrees_across_workflows_and_keeps_fallback(self):
-        from challenge_transition_scope import METHODS, TESTS, TOOLS, COMPANIONS
+        from challenge_transition_scope import METHODS, TESTS, TOOLS, COMPANIONS, AUTHORED_SETUP
         dtl = (ROOT / '.github/workflows/dtl-first-preflight.yml').read_text()
         dtl_selector = textwrap.dedent(dtl.split('        shell: python\n        run: |\n', 1)[1].split('  authoring:', 1)[0])
         sources = {ref + ':' + path: content
                    for ref in ('a' * 40, 'HEAD')
                    for path, content in (('.github/workflows/windows-tests.yml', WORKFLOW),
                                          ('.github/workflows/dtl-first-preflight.yml', dtl))}
+        for ref in ('a' * 40, 'HEAD'):
+            sources[ref + ':' + AUTHORED_SETUP] = 'func _setup_authored(require_rendered: bool = true) -> bool:\n\treturn true\n'
         for path, methods in METHODS.items():
             for ref, value in (('a' * 40, 1), ('HEAD', 2)):
                 sources[ref + ':' + path] = ''.join(
@@ -107,6 +109,26 @@ class WindowsCoverageTests(unittest.TestCase):
         docs = {'docs/agent/2026-11-10-challenge-ci-coverage-handoff.md'}
         self.assertEqual(select(docs)['docs_only'], 'true')
         self.assertEqual(select(docs)['challenge_transition'], 'false')
+
+    def test_authored_setup_cutoff_preserves_other_callers_and_fallback(self):
+        from challenge_transition_scope import AUTHORED_SETUP
+        before = ('func _setup_authored(require_rendered: bool = true) -> bool:\n'
+                  '\tfor entry_id: String in AUTHORED_ROUTE:\n'
+                  '\t\tif _expected.size() == _entry_starts[entry_id]: return false\n'
+                  '\treturn not _expected.is_empty()\n')
+        after = before.replace('require_rendered: bool = true)',
+                               'require_rendered: bool = true, through_entry: String = "")').replace(
+            '\treturn not _expected.is_empty()',
+            '\t\tif entry_id == through_entry: break\n\treturn not _expected.is_empty()')
+        paths = {AUTHORED_SETUP, 'tests/integration/test_scene_challenge_transition_authored.gd'}
+        sources = {'a' * 40 + ':' + AUTHORED_SETUP: before, 'HEAD:' + AUTHORED_SETUP: after}
+        self.assertEqual(select(paths, sources=sources)['challenge_transition'], 'true')
+        for changed in (after.replace('through_entry: String = ""', 'through_entry: String = "Day1"'),
+                        after.replace('AUTHORED_ROUTE:', 'AUTHORED_ROUTE.slice(0, 4):'),
+                        after.replace('return not _expected.is_empty()', 'return true'),
+                        after + 'func unrelated():\n\tpass\n'):
+            sources['HEAD:' + AUTHORED_SETUP] = changed
+            self.assertEqual(select(paths, sources=sources)['challenge_transition'], 'false')
 
     def test_challenge_job_only_edits_keep_focused_coverage(self):
         workflow = '.github/workflows/windows-tests.yml'

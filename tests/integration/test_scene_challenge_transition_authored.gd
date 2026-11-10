@@ -2,7 +2,8 @@ extends "res://tests/integration/authored_week_child.gd"
 
 func test_authored_day1_challenge_end_reaches_result_once() -> void:
 	_phase = "create"
-	if not _setup_authored(false): return
+	if not _setup_authored(false, "Day1.result.A"): return
+	assert_eq(_entry_starts.keys(), AUTHORED_ROUTE.slice(0, 4))
 	get_node("/root/SceneRouter").goto_menu()
 	if not await _new_from_title(1, _expected[0].line_id): return
 	if not await _walk_authored(1, _entry_starts["Day1.result.A"]): return
