@@ -1,35 +1,34 @@
-# DWM repository working routes
+# DWM working guide
 
-For implementation, build and test work, read the applicable technical design
-records.
+## Execute
 
-For narrative, character, dialogue, or story-documentation work, read
-[story/AGENTS.md](story/AGENTS.md) and [story/README.md](story/README.md), even when a
-linked technical or historical record lives elsewhere. For Priscilla–Lavinia work,
-also read [the local guide](story/relationships/priscilla-lavinia/AGENTS.md) and
-[working home](story/relationships/priscilla-lavinia/README.md).
+- Check `master` and concurrent work. State one outcome; read only relevant code,
+  callers and design records.
+- Make the smallest complete change using existing owners. Update affected callers,
+  tests, configuration and inventories. Before retirement, trace direct/dynamic
+  callers and saved-data obligations; record purpose in `docs/retired-features/`.
+- Run focused checks; broaden only for affected behavior or dependencies. Verify
+  tests execute with positive assertions. Report revision, results and omissions.
+  Measure before claiming speedups.
+- Continue authorized work without reconfirmation. Ask about unresolved behavior,
+  scope or data decisions; continue independent work while waiting. Avoid
+  speculative features, abstractions, hardening and injection campaigns.
 
-Narrative decisions and historical reviews are indexed in
-[story/design](story/design/README.md), and scene/literary research in
-[story/research](story/research/README.md). Start there for those records; the old
-external narrative paths forward to their complete story destinations.
+## Read the relevant owner
 
-## Current foundation amendment, 2026-10-09
+- Runtime: relevant `docs/design/` records; Scene, History and Save/Load start at
+  the [current scene contract](docs/design/2026-10-25-current-scene-state.md).
+- Story, characters or dialogue, wherever the file lives: read
+  [story guidance](story/AGENTS.md) and the [story home](story/README.md).
+  For Priscilla–Lavinia, also read the [pair guide](story/relationships/priscilla-lavinia/AGENTS.md)
+  and [working home](story/relationships/priscilla-lavinia/README.md).
+- Before applying legacy cast, dating, viewpoint, route, Challenge or ending rules,
+  read the [current foundation and intended flow](story/09-priscilla-foundation-amendment.md).
+  It overrides only named conflicts.
 
-Before applying legacy cast, dating, viewpoint, route, Challenge or ending rules,
-read the [current Priscilla foundation and intended flow](story/09-priscilla-foundation-amendment.md).
-The current flow was consolidated there on 2026-10-20; its former external path is
-a compatibility entry. These scoped amendments supersede only their named conflicts
-in older owners and guides. Retained source bodies preserve compatible facts and holds;
-they do not silently restore Angela, sisterhood, an alternative POV, mandatory
-four-form selection, the old explosion cutoff or a preselected partner.
+## Preserve scope
 
-This is a documentation foundation, not authorization or evidence of runtime
-implementation. Read the current PR metadata to determine publication/merge status.
-PR #1, raw sources and protected archive branches are outside this publication.
-
-Read the target and its relevant dependencies, not every source on every task.
-Current owners use checkout-relative links; historical evidence uses exact Git
-revisions. Moving or saving material does not approve canon, placement, mechanics,
-commit/push/merge, or deletion outside the authorized task. Raw source snapshots
-are retained on the documented archive branch; do not delete it as a feature branch.
+Latest explicit user decisions govern task scope; old publication restrictions
+do not require renewed approval within authorized work. Preserve approved behavior, data-loss handling,
+accessibility and unrelated work. Never delete protected archives as feature-branch
+cleanup. Verify implementation in current code and merge status in PR metadata.
