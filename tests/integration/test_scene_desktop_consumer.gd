@@ -28,17 +28,24 @@ func test_scene_launcher_uses_ids_without_schedule() -> void:
 	assert_null(host.get_state().active_app_id)
 
 func test_titles_and_cached_home_use_real_scene_host() -> void:
+	var initial_theme: Theme = desktop.theme
 	var app: Control = ports.install_cached_view(desktop, &"shop")
 	assert_true(desktop.open_app(&"shop").ok)
 	assert_eq(host.get_state().active_app_id, &"shop")
 	assert_eq(desktop.title_label.text, "Shop")
+	assert_false(desktop.home_button.disabled)
+	assert_same(desktop.theme, initial_theme, "Opening a cached app retains launcher presentation")
 	assert_true(app.visible)
 	assert_true(desktop.return_home().ok)
 	assert_null(host.get_state().active_app_id)
+	assert_eq(desktop.title_label.text, "Home")
+	assert_true(desktop.home_button.disabled)
+	assert_same(desktop.theme, initial_theme)
 	assert_false(app.visible)
 	assert_eq(app.remembered, 1)
 	assert_true(desktop.open_app(&"shop").ok)
 	assert_eq(desktop._cached_app_windows[&"shop"], app)
+	assert_same(desktop.theme, initial_theme)
 	assert_eq(host.get_state().cached_app_ids, [&"shop"])
 	assert_false(host.get_state().has("current_day"))
 
@@ -193,3 +200,51 @@ func test_uncached_settings_configures_scene_before_ready_and_reuses_ready_theme
 	assert_same(app.settings_content.theme, observed.ready_theme)
 	assert_true(app.get_desktop_ready_result().ok)
 	assert_eq(observed.preparations, 1, "Reopen retains the prepared Settings instance")
+
+func test_launcher_theme_reuses_unchanged_inputs_and_refreshes_current_presentation() -> void:
+	var fixtures := preload("res://tests/unit/test_minesweeper_app.gd")
+	var locale := fixtures.LocaleFixture.new()
+	var profile := fixtures.ProfileFixture.new()
+	var launcher: Control = ports.make_desktop()
+	assert_true(launcher.configure_scene_navigation(host, ports.read_phase, ports.dispatch, ports.prepare_app, locale, profile).ok)
+	add_child_autofree(launcher)
+	launcher._refresh_launcher()
+	var before: Theme = launcher.theme
+	launcher._refresh_launcher()
+	assert_same(launcher.theme, before)
+	locale.change("zh-HK")
+	assert_not_same(launcher.theme, before, "Locale changes rebuild presentation")
+	assert_eq(launcher.title_label.text, "主頁")
+	assert_eq(launcher.launcher_buttons[&"settings"].get_node("Caption").text, "設定")
+	for change: Array in [["text_size", 150], ["font_style", "readable"],
+			["high_contrast", true], ["colour_differentiation", "protan"]]:
+		before = launcher.theme
+		profile.change("preferences.accessibility." + change[0], change[1])
+		assert_not_same(launcher.theme, before, str(change[0]))
+		before = launcher.theme
+		launcher._refresh_launcher()
+		assert_same(launcher.theme, before, "Unchanged " + str(change[0]))
+	before = launcher.theme
+	profile.change("preferences.accessibility.large_targets", true)
+	assert_true(launcher.touch_navigation.visible)
+	assert_same(launcher.theme, before, "Large targets update layout without changing theme inputs")
+	profile.change("preferences.accessibility.large_targets", false)
+	assert_false(launcher.touch_navigation.visible)
+	assert_same(launcher.theme, before)
+	launcher._run_palette = &"midnight"
+	launcher._refresh_launcher()
+	assert_not_same(launcher.theme, before, "Palette changes rebuild presentation")
+	before = launcher.theme
+	launcher._day = 7
+	launcher._refresh_launcher()
+	assert_same(launcher.theme, before, "Scene presentation remains dayless")
+	var calendar: Control = ports.make_desktop()
+	add_child_autofree(calendar)
+	calendar._refresh_launcher()
+	before = calendar.theme
+	calendar._day = 2
+	calendar._refresh_launcher()
+	assert_not_same(calendar.theme, before, "Calendar day tint changes rebuild presentation")
+	before = calendar.theme
+	calendar._refresh_launcher()
+	assert_same(calendar.theme, before)
