@@ -2,7 +2,7 @@ extends "res://tests/integration/authored_week_child.gd"
 
 func test_caption_defers_recovery_styling_until_requested() -> void:
 	_phase = "create"
-	if not _setup_authored(false): return
+	if not _setup_authored(false, "Day1"): return
 	get_node("/root/SceneRouter").goto_menu()
 	if not await _new_from_title(1, _expected[0].line_id): return
 	assert_true(profile.set_preference(&"preferences.accessibility.high_contrast", true).get("ok", false))
