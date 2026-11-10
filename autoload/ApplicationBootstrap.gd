@@ -1578,9 +1578,7 @@ func _prepare_scene_desktop_app(app_id: StringName, app: Control, ports: Diction
 	if not configuration.get("ok", false): return configuration
 	var palette: StringName = &"midnight" if configuration.value.dark_mode else &"after_hours"
 	match app_id:
-		&"settings":
-			var configured: Dictionary = app.configure_scene_run_presentation(palette)
-			return app.get_desktop_ready_result() if configured.get("ok", false) else configured
+		&"settings": return app.configure_scene_run_presentation(palette)
 		&"contacts": return app.configure_scene_presentation(ports.contacts, locale, profile, palette)
 		&"shop": return app.configure_scene_catalog(ports.shop, locale, profile, palette)
 		&"minesweeper": return app.configure_scene_presentation(ports.panel, locale, profile, _target(&"InputManager"), palette)

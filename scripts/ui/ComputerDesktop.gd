@@ -673,15 +673,18 @@ func open_app(app_id: StringName) -> Dictionary:
 		if scene == null:
 			return _route_failure(&"desktop_scene_unavailable")
 		app = scene.instantiate()
-		if not _scene_navigation and app_id == &"settings":
-			var presentation: Dictionary = app.configure_run_presentation(_run_palette, _day)
-			if not presentation.get("ok", false):
+		if app_id == &"settings":
+			var presentation: Variant = _scene_app_prepare.call(app_id, app) if _scene_navigation else app.configure_run_presentation(_run_palette, _day)
+			if not presentation is Dictionary or not presentation.get("ok", false):
+				var code := &"settings_presentation_unavailable"
+				if _scene_navigation:
+					code = presentation.get("code", &"desktop_app_unavailable") if presentation is Dictionary else &"invalid_scene_app_preparation"
 				app.free()
-				return _route_failure(&"settings_presentation_unavailable")
+				return _route_failure(code)
 		app.hide()
 		app_window_host.add_child(app)
 		var configured: Dictionary
-		if _scene_navigation:
+		if _scene_navigation and app_id != &"settings":
 			var scene_prepared: Variant = _scene_app_prepare.call(app_id, app)
 			configured = scene_prepared if typeof(scene_prepared) == TYPE_DICTIONARY else {"ok": false, "code": &"invalid_scene_app_preparation"}
 		elif app_id == &"contacts":

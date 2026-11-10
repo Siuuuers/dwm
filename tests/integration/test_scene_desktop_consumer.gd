@@ -150,3 +150,46 @@ func test_logout_launcher_dispatches_action_without_app_scene() -> void:
 	assert_null(host.get_state().active_app_id)
 	assert_false(desktop._cached_app_windows.has(&"logout"))
 	assert_false(REGISTRY.new().get_scene_record(&"logout").ok)
+
+func test_uncached_settings_configures_scene_before_ready_and_reuses_ready_theme() -> void:
+	var profile := preload("res://autoload/ProfileManager.gd").new()
+	add_child_autofree(profile)
+	var storage := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new(
+		"scene-settings-before-ready", preload("res://tests/support/FakeFileOps.gd").new())
+	assert_true(profile.initialize(storage).ok)
+	var localization := preload("res://autoload/LocalizationManager.gd").new()
+	add_child_autofree(localization)
+	assert_true(localization.initialize(profile).ok)
+	var settings_desktop: Control = ports.make_desktop()
+	add_child_autofree(settings_desktop)
+	var observed := {"preparations": 0, "ready_theme": null}
+	var prepare := func(id: StringName, app: Control) -> Dictionary:
+		observed.preparations += 1
+		assert_eq(id, &"settings")
+		assert_false(app.is_inside_tree(), "Scene context precedes initial presentation")
+		assert_false(app.is_node_ready())
+		app.get_node("SettingsContent").configure_services({"profile": profile, "localization": localization,
+			"input": null, "audio": null, "volume": null, "tts": null,
+			"profile_reset_admission": func() -> bool: return true})
+		app.get_node("LocalePresentationRoot").set("_localization", localization)
+		app.ready.connect(func() -> void: observed.ready_theme = app.settings_content.theme)
+		return app.configure_scene_run_presentation(&"midnight")
+	assert_true(settings_desktop.configure_scene_navigation(host, ports.read_phase, ports.dispatch, prepare).ok)
+	var opened: Dictionary = settings_desktop.open_app(&"settings")
+	assert_true(opened.ok, str(opened))
+	if not opened.ok: return
+	var app: Control = opened.value.app
+	assert_true(app.get_desktop_ready_result().ok)
+	assert_true(app.visible)
+	assert_true(app.settings_content.is_interaction_enabled())
+	assert_true(app.settings_content._scene_presentation)
+	assert_null(app.settings_content._presentation_day)
+	assert_eq(app.settings_content._presentation_palette, &"midnight")
+	assert_not_null(observed.ready_theme)
+	assert_same(app.settings_content.theme, observed.ready_theme, "Initial theme survives first show")
+	assert_true(settings_desktop.return_home().ok)
+	assert_true(settings_desktop.open_app(&"settings").ok)
+	assert_same(settings_desktop._cached_app_windows[&"settings"], app)
+	assert_same(app.settings_content.theme, observed.ready_theme)
+	assert_true(app.get_desktop_ready_result().ok)
+	assert_eq(observed.preparations, 1, "Reopen retains the prepared Settings instance")

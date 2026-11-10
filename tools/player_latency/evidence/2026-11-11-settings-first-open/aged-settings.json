@@ -1,0 +1,42 @@
+{
+  "revision": "bb37abb5a906f60286b90997981cb29158ba66ac",
+  "samples": [
+    {
+      "action": "settings",
+      "detail": "Day1",
+      "elapsed_us": 234751,
+      "largest_frame_us": 233579
+    },
+    {
+      "action": "settings",
+      "detail": "Day1",
+      "elapsed_us": 59798,
+      "largest_frame_us": 59305
+    },
+    {
+      "action": "settings",
+      "detail": "Day1",
+      "elapsed_us": 61849,
+      "largest_frame_us": 61424
+    },
+    {
+      "action": "settings",
+      "detail": "Day7",
+      "elapsed_us": 71851,
+      "largest_frame_us": 71387
+    },
+    {
+      "action": "settings",
+      "detail": "Day7",
+      "elapsed_us": 64113,
+      "largest_frame_us": 63546
+    },
+    {
+      "action": "settings",
+      "detail": "Day7",
+      "elapsed_us": 81232,
+      "largest_frame_us": 80025
+    }
+  ],
+  "limits": "Natural authored route; harness endpoints with frame waits; not a matched aged speedup comparison."
+}

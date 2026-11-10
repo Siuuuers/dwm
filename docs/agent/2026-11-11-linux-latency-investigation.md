@@ -6,6 +6,10 @@ No open PRs were listed at investigation start; master was checked again before 
 
 ## Outcome
 
+Follow-up: [Settings first-open implementation](2026-11-11-settings-first-open.md)
+removes the measured default-to-Scene presentation rebuild and records matched
+results. The no-runtime-change statements below describe this initial pass.
+
 Completed the first source-level measurement pass requested by the
 [player-visible handoff](2026-11-11-player-visible-latency-handoff.md).
 No production code changed and no speedup is claimed. Added one focused Settings
