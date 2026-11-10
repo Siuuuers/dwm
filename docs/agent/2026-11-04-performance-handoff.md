@@ -10,7 +10,7 @@ The remaining pause is real, but its complete leaf-level cause is not yet establ
 
 This handoff covers the work investigated in this thread. It is not a claim that every subsystem, release requirement, or open issue in the repository has been audited.
 
-Before editing, fetch current master, inspect local changes, read `AGENTS.md`, `CLAUDE.md`, and `docs/design/2026-10-25-current-scene-state.md`, and check whether another session has already completed the proposed work. The baseline above is a verified revision, not a permanent pin.
+Before editing, fetch current master, inspect local changes, read `AGENTS.md`, and `docs/design/2026-10-25-current-scene-state.md`, and check whether another session has already completed the proposed work. The baseline above is a verified revision, not a permanent pin.
 
 ## Established decisions and constraints
 

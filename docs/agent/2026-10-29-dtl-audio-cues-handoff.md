@@ -12,7 +12,7 @@ See [working authoring instructions](dtl-audio-authoring.md) and
 [acceptance evidence](../../evidence/phase_2r/dtl_audio_20261029/README.md).
 The remaining design sections below preserve the original implementation brief.
 Reviewed master: `dcfb578139567737eb68f6ad2bf60858d51aede0`.
-Read AGENTS.md, CLAUDE.md and relevant technical owners before implementation.
+Read AGENTS.md and relevant technical owners before implementation.
 
 ## Goal
 

@@ -498,7 +498,6 @@ class WindowsCoverageTests(unittest.TestCase):
         paths = {
             'tools/audio_prototype/project.godot',
             'tools/audio_prototype/fixtures/loop.txt',
-            'CLAUDE.md',
             '.github/workflows/audio-prototype.yml',
             '.github/workflows/windows-tests.yml',
             'tools/testing/test_windows_coverage.py',

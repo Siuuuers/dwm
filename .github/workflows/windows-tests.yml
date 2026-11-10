@@ -171,7 +171,6 @@ jobs:
                   paths = set(diff.stdout.decode().strip("\0").split("\0"))
                   audio_prototype = any(p.startswith("tools/audio_prototype/") for p in paths) and all(
                       p.startswith("tools/audio_prototype/") or p in {
-                          "CLAUDE.md",
                           ".github/workflows/audio-prototype.yml",
                           ".github/workflows/windows-tests.yml",
                           "tools/testing/test_windows_coverage.py",

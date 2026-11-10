@@ -12,7 +12,7 @@ Implement together:
 Include the requested borderless default as a small separately verifiable display change.
 Defer glass/thread/wax redesign and broad interaction redesign. The owner permits future code-only texture, composition and layout exploration; those are outside this handoff.
 
-PR #158 is merged as 3ce9be69a6534ea619f3445cf35a0ea86b0b64a8. It already addresses Reading typography, 125% defaults, Beginner Challenges, Shop balances and measured Shop/Save–Load text. Reproduce remaining issues against current master; do not treat previous fixes as undone. Read AGENTS.md, CLAUDE.md and relevant current contracts before implementation.
+PR #158 is merged as 3ce9be69a6534ea619f3445cf35a0ea86b0b64a8. It already addresses Reading typography, 125% defaults, Beginner Challenges, Shop balances and measured Shop/Save–Load text. Reproduce remaining issues against current master; do not treat previous fixes as undone. Read AGENTS.md and relevant current contracts before implementation.
 
 ## Owner decisions
 

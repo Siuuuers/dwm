@@ -22,7 +22,7 @@ The owner did not commission translating the entire draft or select a fixed firs
 
 ## Existing foundations and current gap
 
-Read AGENTS.md, CLAUDE.md and applicable technical records before implementation. Read story guidance before translating or rewriting production prose.
+Read AGENTS.md and applicable technical records before implementation. Read story guidance before translating or rewriting production prose.
 
 Inspected source:
 - `scripts/settings/SettingsPreferenceRegistry.gd` already registers `preferences.language.primary_locale_id`, `secondary_locale_id` and `dual_enabled`.

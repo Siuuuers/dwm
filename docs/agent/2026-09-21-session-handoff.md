@@ -199,7 +199,7 @@ New audit/approval/Beads notes are preserved in later local commits. The first p
 ## Resume location and working constraints
 
 - Repository: `Siuuuers/dwm`; PR: https://github.com/Siuuuers/dwm/pull/1; branch: `codex/windows-cloud-ux`.
-- Read the current remote head, this handoff, `Prompt.md`, `CLAUDE.md`, `bd prime`, and relevant Beads. This document supplements specification authority; Beads owns live issue status.
+- Read the current remote head, this handoff, `Prompt.md`, `bd prime`, and relevant Beads. This document supplements specification authority; Beads owns live issue status.
 - Godot **4.6.3 standard GDScript** and PowerShell execution are **GitHub cloud only**. Local Python/static/source review is allowed.
 - The former local checkout is partial and has an obsolete Git baseline. Never `git push` it. Source was published through intentional GitHub tree/commit/ref snapshots. Obtain a complete fresh checkout or continue with exact-base snapshots.
 - Root alone updates Beads. Preserve unrelated JSONL records byte-for-byte; do not publish the local Dolt database.

@@ -1,6 +1,4 @@
 extends GutTest
-## The installed Dialogic layout reads a live run at scene boundaries, then keeps its
-## own material snapshot while native text, art, and input remain with their owners.
 
 const STYLE := "res://dialogic/styles/witnessed_caption_style.tres"
 const CAPTION_PATH := "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd"
@@ -47,6 +45,9 @@ class MemoryProfile extends Node:
 class MemoryLocale extends Node:
 	signal locale_changed(locale: String)
 	func get_locale() -> String: return "en"
+	func get_readiness() -> StringName: return &"ready"
+	func has_key(_key: String) -> bool: return true
+	func t(key: String, _parameters: Dictionary = {}) -> String: return key
 
 var _original_runtime: Node
 var _original_layout: Node

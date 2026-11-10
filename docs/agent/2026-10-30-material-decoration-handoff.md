@@ -18,7 +18,7 @@ Make the three purchased materials recognizable, intentional and cohesive throug
 
 The owner permits texture, decorative composition and layout exploration. Do not assume functional controls or caption placement should move. Preserve the completed readability and interaction work.
 
-Read AGENTS.md, CLAUDE.md and current presentation/input contracts before implementation. Start from current master; do not overwrite parallel work. Current source inspection used search revision e295f5ccb8b81b56ec89fb6ba80b1bf372fb1a27 and ComputerDesktop.gd on master.
+Read AGENTS.md and current presentation/input contracts before implementation. Start from current master; do not overwrite parallel work. Current source inspection used search revision e295f5ccb8b81b56ec89fb6ba80b1bf372fb1a27 and ComputerDesktop.gd on master.
 
 ## Existing implementation
 

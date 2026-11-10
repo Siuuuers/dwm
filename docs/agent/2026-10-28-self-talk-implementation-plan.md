@@ -87,7 +87,7 @@ Any future change to historical scope or clear semantics needs an explicit decis
 
 ## Suggested minimal implementation
 
-1. Inspect AGENTS.md, CLAUDE.md, current reading/DTL compilation, stable IDs,
+1. Inspect AGENTS.md, current reading/DTL compilation, stable IDs,
    publication, caption memory, save restoration and localization.
 2. Locate the former panel layout. Reuse suitable layout code only.
 3. Recognize a one-line self-talk marker using the existing authored parsing path.

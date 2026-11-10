@@ -85,7 +85,7 @@ Keep commands on the reached side of their destination label, so jumping and seq
 - [Current presentation guide](../../tests/fixtures/presentation/README.md) documents the old manual bindings. Update it when the new workflow actually works.
 - [Audio guide](dtl-audio-authoring.md) is the existing cue syntax authority; do not replace it with the earlier proposed syntax in historical handoffs.
 
-Recheck master before implementation. Read AGENTS.md and CLAUDE.md; read story guidance before changing narrative prose. No production story rewrite is selected here.
+Recheck master before implementation. Read AGENTS.md; read story guidance before changing narrative prose. No production story rewrite is selected here.
 
 ## Delivery stages and acceptance
 

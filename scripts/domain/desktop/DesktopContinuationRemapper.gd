@@ -135,96 +135,6 @@ const _REMAP_TABLE: Array[Dictionary] = [
 ]
 
 
-## A selected Load replaces the live causal pair, but an in-flight Schedule scene retains its
-## frozen plan/start/command ancestry. Derive only the future allocator source from the persisted
-## restore proof. This pure helper returns an issuer REQUEST; it never invents an accepted receipt.
-## The application caller supplies an authoritative captured root and uses the retained real issuer.
-static func schedule_day_advance_source(lifecycle: Dictionary, root_document: Dictionary) -> Dictionary:
-	var plan: Variant = lifecycle.get("active_resolution_plan")
-	if not plan is Dictionary or not plan.get("day_resolution_start_receipt") is Dictionary:
-		return _fail(&"day_advance_source_unavailable", "a persisted Schedule start is required", {})
-	var validated: Dictionary = preload("res://scripts/domain/run/DayResolutionPlan.gd").from_dict(plan)
-	if not validated.get("ok", false): return validated
-	var day := int(lifecycle.get("day", 0))
-	var start: Dictionary = plan.day_resolution_start_receipt
-	if day < 1 or day > 6 or int(plan.source_day) != day or int(start.get("source_day", 0)) != day:
-		return _fail(&"day_advance_source_conflict", "the pending increment owns the current source day", {})
-	var receipts: Dictionary = root_document.get("receipts", {})
-	var original_root: Dictionary = plan.resolution_issuer_receipt
-	if receipts.get(str(original_root.get("receipt_id", ""))) != original_root:
-		return _fail(&"day_advance_source_unverified", "the original resolution root is not durable", {})
-	var start_provenance: Dictionary = start.receipt_provenance
-	var original_child := _verified_schedule_start_child(original_root, start_provenance)
-	if not original_child.get("ok", false): return original_child
-	if str(start.get("receipt_id", "")) != str(start_provenance.child_id):
-		return _fail(&"day_advance_source_unverified", "the original start identity disagrees", {})
-	var bound_fields := {"role": "day_resolution.start", "resolution_id": str(plan.resolution_id),
-		"source_day": int(plan.source_day), "causal_day_instance": str(start.causal_day_instance),
-		"schedule_commit_receipt_id": start.get("schedule_commit_receipt_id"),
-		"board_fate_receipt_id": start.get("board_fate_receipt_id"),
-		"schedule_entry_ids": start.get("schedule_entry_ids")}
-	for key: String in bound_fields:
-		var encoded: Dictionary = _CANONICAL_JSON.stringify(bound_fields[key])
-		if not encoded.get("ok", false) or not (key + "=" + str(encoded.value)) in start_provenance.source_ids:
-			return _fail(&"day_advance_source_unverified", "the original start does not bind " + key, {})
-	var current_receipt: Dictionary = lifecycle.get("causal_day_instance_issuer_receipt", {})
-	if receipts.get(str(current_receipt.get("receipt_id", ""))) != current_receipt \
-			or str(current_receipt.get("token", "")) != str(lifecycle.get("causal_day_instance", "")) \
-			or str(current_receipt.get("purpose", "")) != "causal_day_instance":
-		return _fail(&"day_advance_source_unverified", "the current causal pair is not durable", {})
-	if str(start.causal_day_instance) == str(lifecycle.causal_day_instance):
-		return {"ok": true, "value": {"source_resolution_receipt": {
-			"receipt_id": str(start.receipt_id), "provenance": start_provenance.duplicate(true)}}}
-	var proof: Variant = lifecycle.get("restore_provenance")
-	if not proof is Dictionary:
-		return _fail(&"day_advance_source_conflict", "changed causal identity requires its restore proof", {})
-	var allocation: Variant = root_document.get("allocation_receipts", {}).get(str(proof.get("restore_transaction_id", "")))
-	if not allocation is Dictionary or str(allocation.get("kind", "")) != "restore":
-		return _fail(&"day_advance_restore_unverified", "the restore allocation is not durable", {})
-	for key: String in ["run_id", "branch_id", "desktop_timeline_generation", \
-			"causal_day_instance", "causal_day_instance_issuer_receipt"]:
-		if allocation.get(key) != lifecycle.get(key):
-			return _fail(&"day_advance_restore_unverified", "the restore allocation does not own " + key, {})
-	var restore_request: Dictionary = allocation.request
-	var restore_root: Dictionary = restore_request.transaction_issuer_receipt
-	if receipts.get(str(restore_root.get("receipt_id", ""))) != restore_root \
-			or str(restore_root.get("token", "")) != str(proof.get("restore_transaction_id", "")) \
-			or str(proof.get("identity_allocation_receipt_id", "")) != str(restore_root.get("receipt_id", "")) \
-			or restore_request.get("source_desktop_timeline_generation") != proof.get("source_desktop_timeline_generation") \
-			or str(proof.get("transaction_remap_sha256", "")) != _canonical_sha256(allocation.transaction_remap):
-		return _fail(&"day_advance_restore_unverified", "restore provenance is not the committed allocation", {})
-	var source_found := false
-	for receipt: Dictionary in receipts.values():
-		if str(receipt.get("purpose", "")) == "causal_day_instance" \
-				and str(receipt.get("token", "")) == str(proof.get("source_causal_day_instance", "")) \
-				and int(receipt.get("counter", -1)) == int(proof.get("source_issuer_observed_counter", -2)):
-			source_found = true
-			break
-	if not source_found:
-		return _fail(&"day_advance_restore_unverified", "restore source causal receipt is not durable", {})
-	var remap_sources: Array = allocation.transaction_remap.keys()
-	remap_sources.sort()
-	var remap_child := _child_id(restore_root, "continuation_operation", 0, remap_sources)
-	if not remap_child.get("ok", false): return remap_child
-	var expected_proof := {"schema_version": CHILD_SCHEMA_VERSION,
-		"parent_receipt_id": str(restore_root.receipt_id), "child_kind": "continuation_operation",
-		"ordinal": 0, "source_ids": remap_sources, "child_id": str(remap_child.value)}
-	if proof.get("remap_receipt_provenance") != expected_proof \
-			or str(proof.get("remap_receipt_id", "")) != str(remap_child.value):
-		return _fail(&"day_advance_restore_unverified", "restore remap child is not reproducible", {})
-	var source := {}
-	for key: String in ["run_id", "branch_id", "desktop_timeline_generation", "day", \
-			"causal_day_instance", "causal_day_instance_issuer_receipt"]:
-		source[key] = lifecycle[key]
-	var source_ids: Array = ["role=day_resolution.advance_continuation",
-		"original_start_sha256=" + _canonical_sha256(start),
-		"restore_provenance_sha256=" + _canonical_sha256(proof),
-		"source_identity_sha256=" + _canonical_sha256(source)]
-	source_ids.sort()
-	return {"ok": true, "value": {"derivation_request": {
-		"parent_receipt_id": str(original_root.receipt_id), "child_kind": "day_resolution_stage",
-		"ordinal": 0, "source_ids": source_ids}}}
-
 ## Nonwired scene successor. `root_document` is the authoritative captured issuer root;
 ## `bundle` is trusted registration. `durable_source.document_text` MUST be confirmed
 ## save-owner readback, not caller-authored JSON. This pure helper proves content binding,
@@ -492,23 +402,6 @@ static func _scene_exact_equal(actual: Variant, expected: Variant) -> bool:
 static func _scene_source_failure(message: String) -> Dictionary:
 	return _fail(&"scene_day_advance_source_invalid", message, {})
 
-
-static func _verified_schedule_start_child(parent: Dictionary, provenance: Dictionary) -> Dictionary:
-	var keys: Array = provenance.keys()
-	keys.sort()
-	var expected: Array = _PROVENANCE_KEYS.duplicate()
-	expected.sort()
-	if keys != expected or int(provenance.get("schema_version", 0)) != CHILD_SCHEMA_VERSION \
-			or str(provenance.get("child_kind", "")) != "day_resolution_stage" \
-			or str(provenance.get("parent_receipt_id", "")) != str(parent.get("receipt_id", "")):
-		return _fail(&"day_advance_source_unverified", "original start provenance shape", {})
-	var sources: Dictionary = _validate_sorted_unique_nonblank(provenance.source_ids)
-	if not sources.get("ok", false): return sources
-	var child := _child_id(parent, "day_resolution_stage", int(provenance.ordinal), provenance.source_ids)
-	if not child.get("ok", false): return child
-	if str(child.value) != str(provenance.child_id):
-		return _fail(&"day_advance_source_unverified", "original start child is not reproducible", {})
-	return {"ok": true}
 
 ## Every root transaction id this snapshot's rewindable (board command/terminal ledger, the one live
 ## consequence pending transaction, and the v5 ScheduleView/lifecycle roots C1-C5) structures

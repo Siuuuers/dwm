@@ -8,7 +8,7 @@ The historical #246 diff now selects `challenge_transition=true`, disables inven
 
 The authored End probe from #246 is now committed as `tests/integration/test_scene_challenge_transition_authored.gd`; it checks title-to-Day1-result traversal and exactly one `never_started` Challenge outcome. The focused runner expects the current source-declared tests and validates exact JUnit suite/method identities, passing status and nonzero assertions. It does not substitute a full-week journey.
 
-Validation and final Actions evidence are recorded in PR #247. The assignment below preserves the original investigation and acceptance requirements.
+Coverage selection is complete in merged [PR #247](https://github.com/Siuuuers/dwm/pull/247), with candidate-specific validation and Actions evidence there. Merged [PR #248](https://github.com/Siuuuers/dwm/pull/248) narrowed only the focused Challenge checkout, and merged [PR #249](https://github.com/Siuuuers/dwm/pull/249) reduced Day1 probe preparation as recorded below. The original assignment and acceptance requirements below are historical, not a new implementation queue.
 
 Observable outcome: a change confined to the reviewed Challenge transition methods and their tests selects one focused Linux validation job; unrelated rendering, localization, audio and export jobs do not start. The same scope decision prevents unrelated DTL authoring preflight. Unmatched runtime changes retain existing broader coverage.
 
@@ -29,7 +29,7 @@ Full-process samples: full `[25.992853, 25.495692, 25.639066]`; Day1 `[24.538996
 
 The final probe has 1,349 per-test assertions: 48 setup checks for unvisited entries are omitted and one exact-prefix check is added. The seven focused groups still contain 56 tests, now totaling 2,665 per-test assertions. The final local focused runner passed all 56 tests and 2,665 assertions. A separate temporary default-setup probe passed 73 assertions, including the exact 28-entry route and its final caption range. Final Actions evidence is recorded in the implementation PR. Arbitrary shared-helper changes must retain broader coverage; only the exact optional-cutoff insertion qualifies for the Challenge route.
 
-## Current state and evidence
+## Historical #246 baseline and evidence
 
 - [PR #246](https://github.com/Siuuuers/dwm/pull/246) merged at `ccdcca976c16936b6245dd8474ed06ba49039f72`.
 - Tested candidate: `c95bcf08bb6b1ec3d81df81c8385a7687e7b2762`; tested and merged tree: `6fbd967bd3ff99e0e28ae5831084f1ce5bcb85c3`.
@@ -40,7 +40,7 @@ The final probe has 1,349 per-test assertions: 48 setup checks for unvisited ent
 - Publication and merge used `[skip ci]` to avoid the known fallback. This was not a passing Actions run. Do not treat permanent CI skipping as the solution.
 - [Passage handoff](2026-11-05-passage-latency-handoff.md) records performance work. No further runtime optimization is part of this assignment.
 
-## Assignment
+## Historical assignment — completed by #247
 
 Goal: correct coverage selection for this demonstrated slice with the smallest complete change.
 
@@ -56,7 +56,7 @@ Scope to investigate before editing:
 
 Dependencies: existing registration selection and cloud Godot 4.6.3 runner. No new framework or dependency.
 
-## Implementation sequence
+## Historical implementation sequence
 
 1. Reproduce classification using the historical PR diff. Record the matched rule or unmatched paths/methods. Check whether current master already solves any part.
 2. Establish one shared decision for this bounded slice and consume it in both workflows. Keep unrelated existing categories intact; no file-wide GameState or Bridge exemptions.
@@ -85,11 +85,11 @@ The live command/preparation/composition group ran with `DWM_SCENE_READING_FIXTU
 
 Common command: `godot --headless --path . -s res://addons/gut/gut_cmdln.gd -gconfig= -gtest=res://<suite> -gexit`, with fresh `XDG_DATA_HOME` and `DWM_TEST_ROOT` below `.godot/phase2r_tests/`. Import once before running suites. Check actual test/assertion counts; zero selected tests is not acceptance.
 
-The authored title-to-Day1-result probe from PR #246 was temporary, not a committed suite. Its reproduction is in the PR. Inspect an existing suitable journey before committing a minimal reusable probe if the new job needs one; do not silently substitute a full-week run.
+The authored title-to-Day1-result probe was temporary in #246. #247 committed it as `tests/integration/test_scene_challenge_transition_authored.gd`; #249 limited its setup to the four-entry Day1 prefix. Use that existing probe for this boundary; do not create another or substitute a full-week run.
 
 The old connected creator wrongly expected live publication to write autosave. The repaired creator saves explicitly, and the loader expands the compact saved checkpoint before comparing the native boundary. Other historical failure-injection scenarios were not repaired or qualified. Do not restore obsolete autosave behavior to satisfy them.
 
-## Acceptance cases
+## Historical acceptance cases
 
 - Historical #246 scope selects the focused route, including its accompanying handoff/lint/test changes.
 - The bounded runtime slice alone and with reviewed prose select the same game coverage.
@@ -105,6 +105,9 @@ The old connected creator wrongly expected live publication to write autosave. T
 
 No game behavior changes, new injection tests, broad lint framework, speculative security work, blanket validation removal or timing thresholds. Selector regression tests are the useful guard here; the command-lookup lint already shipped in #246.
 
-Optimize checkout/download and job dependencies only when measurements identify additional cost after routing is corrected. Shorter code does not prove lower latency. No Windows/render/audio qualification or in-game speedup claim is made for this CI change.
+The former [#215 queue](https://github.com/Siuuuers/dwm/pull/215) is closed without merge and superseded by [#250](https://github.com/Siuuuers/dwm/pull/250). Source reconciliation against master `26dbcd42acf82f419b350a84e1237cbcfb09bc38` found:
 
-Suggested starting request: “Continue this draft's CI coverage-selection handoff. Inspect current master and reproduce the historical #246 fallback, then implement the smallest shared classification and focused runner. Use lightweight checks and report the selected jobs before launching CI.”
+- The DatingScene History lead is superseded by the [DTL-only retirement](../retired-features/legacy-dating-flow/README.md): standalone DatingScene and its old previous-dialogue list are removed. Current local History remains governed by the [scene contract](../design/2026-10-25-current-scene-state.md#compact-local-history--5-november-2026). Do not reopen the old scene cleanup or delete current History under that lead.
+- The `public-surfaces` job still uses a checkout without `sparse-checkout` in `.github/workflows/windows-tests.yml`. #248 changed the Challenge job only; it does not prove this separate checkout lead solved. Keep public-surfaces optimization deferred until measured current cost justifies a bounded dependency audit. No new checkout timing or public-surfaces run was performed for this reconciliation.
+
+The current cleanup starts by reproducing historical caption-presentation fixture failures, not by rebuilding this completed CI route. Optimize further checkout/download or job dependencies only when measurements identify additional cost. Shorter code does not prove lower latency. Windows packaged player-experience, visible-latency and audio-continuity qualification remains deferred until planned features settle; no such qualification or in-game speedup is claimed here.
