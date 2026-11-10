@@ -2,7 +2,7 @@ extends "res://tests/integration/authored_week_child.gd"
 
 func create_older_save_then_discover_more_dialogue() -> void:
 	_phase = "create"
-	if not _setup_authored(false): return
+	if not _setup_authored(false, "Day2"): return
 	get_node("/root/SceneRouter").goto_menu()
 	if not await _new_from_title(1, _expected[0].line_id): return
 	if not await _walk_authored(1, 5): return
@@ -21,7 +21,7 @@ func create_older_save_then_discover_more_dialogue() -> void:
 
 func load_older_save_preserves_later_global_discoveries() -> void:
 	_phase = "load"
-	if not _setup_authored(false): return
+	if not _setup_authored(false, "Day1"): return
 	var parsed := PARSER.parse_object(FileAccess.get_file_as_string("user://compact-history-proof.json"))
 	if not _ok(parsed): return
 	var proof: Dictionary = parsed.value

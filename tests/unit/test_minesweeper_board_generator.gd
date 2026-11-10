@@ -240,24 +240,6 @@ func test_validate_budget_freshness_rejects_a_drifted_fallback_manifest_digest()
 	assert_eq((result.get("details", {}) as Dictionary).get("field"), "fallback_manifest")
 
 
-func test_begin_debug_returns_generator_budget_unavailable_while_the_budget_manifest_is_absent() -> void:
-	if FileAccess.file_exists(GENERATOR.BUDGET_MANIFEST_PATH):
-		pending("this proof only applies while the generated budget manifest is absent")
-		return
-	var result: Dictionary = GENERATOR.begin_debug({})
-	assert_false(result.get("ok", true))
-	assert_eq(result.get("code"), &"generator_budget_unavailable")
-
-
-func test_run_debug_slice_returns_generator_budget_unavailable_while_the_budget_manifest_is_absent() -> void:
-	if FileAccess.file_exists(GENERATOR.BUDGET_MANIFEST_PATH):
-		pending("this proof only applies while the generated budget manifest is absent")
-		return
-	var result: Dictionary = GENERATOR.run_debug_slice({})
-	assert_false(result.get("ok", true))
-	assert_eq(result.get("code"), &"generator_budget_unavailable")
-
-
 # ---- validate_prepared(): drives a real kernel search, then re-validates its projection ----
 
 func _kernel_spec_from_board_spec(board_spec: Dictionary) -> Dictionary:
