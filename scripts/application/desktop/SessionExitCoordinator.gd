@@ -1,7 +1,5 @@
 class_name SessionExitCoordinator
 extends RefCounted
-## One owner for confirmed no-save Return and Logout.
-## After retirement, a route failure retains custody and can only retry forward.
 
 const OWNER := &"session_abandonment"
 var _game_state: Object
@@ -26,8 +24,6 @@ func configure(game_state: Object, router: Object, gate: Object) -> Dictionary:
 	_handle = captured.value.duplicate(true)
 	return {"ok": true}
 
-## Optional retained Pause custody cleanup. It runs after irreversible session retirement,
-## before route publication; failure keeps the same forward-only exit operation.
 func configure_retirement(callback: Callable) -> Dictionary:
 	if not callback.is_valid() or callback.get_argument_count() != 0:
 		return {"ok": false, "code": &"invalid_exit_retirement"}
@@ -59,7 +55,6 @@ func _execute() -> Dictionary:
 		"retired": false}
 	var valid: Dictionary = _router.validate_prepared_return_to_title(_pending.route_token)
 	if not valid.get("ok", false): return _cancel_before_retirement(valid)
-	# Recheck the captured lifetime under custody; ordinary external admission is now closed.
 	if _game_state.capture_live_session().value != _handle:
 		return _cancel_before_retirement({"ok": false, "code": &"stale_live_session"})
 	var retired: Dictionary = _game_state.retire_live_session(_handle)

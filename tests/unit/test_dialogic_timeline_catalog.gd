@@ -79,7 +79,6 @@ const PRESERVED_TIMELINE_SIGNATURES := [
 	"static func build_missing_timeline_report(locale: String = \"en\") -> Dictionary:",
 ]
 
-const DEPRECATION_MARKER := "## DEPRECATED (Plan 01 Task 4)"
 
 ## The call that licenses the unguarded ["value"] and ["entries"] indexes further down the
 ## catalog. Pinned as source text because deleting it changes nothing observable against the
@@ -261,8 +260,6 @@ func test_the_fifty_nine_id_timeline_surface_survives_task_four() -> void:
 	for signature: String in PRESERVED_TIMELINE_SIGNATURES:
 		assert_true(source.contains(signature),
 			"Task 4 adds and never removes the timeline surface: " + signature)
-	assert_true(source.contains(DEPRECATION_MARKER),
-		"get_timeline_path is marked deprecated in comment only, and the marker is that comment")
 
 
 ## get_required_master_paths and get_required_entry_ids both index the cached document with no ok

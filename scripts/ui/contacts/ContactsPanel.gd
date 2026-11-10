@@ -1,6 +1,4 @@
 extends Control
-## Presentation only. The caller owns read/open transactions and supplies committed text.
-## Baseline is the 800x656 plate; extra host width expands the reading pane.
 
 signal open_requested(friend_id: String)
 signal back_requested
@@ -56,7 +54,6 @@ func _ready() -> void:
 	resized.connect(_on_resized)
 
 func _on_resized() -> void:
-	# Anchors widen the same transcript; retain the current reading position.
 	var anchor := _scroll_anchor()
 	_revision += 1
 	_restore_scroll.call_deferred(anchor, _revision)
@@ -105,7 +102,6 @@ func _apply_presentation_context(palette: StringName, day: Variant, high_contras
 	_scene_presentation = scene
 	theme = candidate
 	_presentation = [palette, day, high_contrast, colour_preset, scene]
-	# Retain geometry and the exact pending draw receipt; only materials change.
 	_apply_materials()
 	return true
 
@@ -304,7 +300,6 @@ func _append_entry(entry: Dictionary, locales: Array) -> Label:
 		_style_label(time, "en", false)
 		block.add_child(time)
 	if entry.outgoing:
-		# Decoration draws on the panel itself; internal Controls are still container children.
 		surface.draw.connect(_draw_outgoing_notch.bind(surface))
 	return first_label
 
@@ -357,7 +352,6 @@ func _scroll_anchor() -> Dictionary:
 func _restore_scroll(anchor: Dictionary, revision: int, frames_left: int = 3) -> void:
 	if not is_inside_tree() or is_queued_for_deletion() or revision != _revision: return
 	if frames_left > 0:
-		# A Node-bound one-shot disconnects on destruction; an awaiting instance cannot.
 		var next := _restore_scroll.bind(anchor.duplicate(true), revision, frames_left - 1)
 		if not get_tree().process_frame.is_connected(next):
 			get_tree().process_frame.connect(next, CONNECT_ONE_SHOT)
@@ -419,7 +413,6 @@ func _transcript_input(event: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 
 func _input(event: InputEvent) -> void:
-	# Synthetic accessibility action events do not travel through gui_input.
 	if event is InputEventAction and transcript != null and transcript.has_focus():
 		_transcript_input(event)
 

@@ -30,7 +30,6 @@ func advance_elapsed(seconds: float, foreground: bool, paused: bool) -> void:
 		_eligible = true
 
 
-## Only the owner knows when Pause or a day boundary is reached; a scene never emits a notice.
 func notice_at_boundary(boundary: String, locale: String) -> Dictionary:
 	if not _eligible or boundary not in ["pause", "day_boundary"] or not REMINDERS.has(locale):
 		return {}

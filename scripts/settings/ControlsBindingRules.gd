@@ -1,5 +1,4 @@
 extends RefCounted
-## Pure binding proposals. ProfileManager still owns revision checks and commits.
 const REGISTRY := preload("res://scripts/settings/ControlsActionRegistry.gd")
 const SLOTS := ["keyboard", "controller"]
 const KEY_FIELDS := ["kind", "physical_keycode", "keycode", "shift", "alt", "ctrl", "meta"]
@@ -61,8 +60,6 @@ static func propose(bindings: Variant, action: String, slot: String, binding: Va
 			conflicts.append(other)
 			after[other][slot] = before[action][slot].duplicate(true)
 	after[action][slot] = binding.duplicate(true)
-	# Inspectable even when displacement is illegal. The owner must never commit
-	# an unchecked candidate just because a conflict sheet can display it.
 	checked = validate(after)
 	return {"ok": true, "code": &"ok", "value": {
 		"action": action, "slot": slot, "revision": revision,
@@ -81,8 +78,6 @@ static func _validate_binding(binding: Variant, slot: String, contexts: Array) -
 			return _failure(&"unsupported_key")
 		for modifier in ["shift", "alt", "ctrl", "meta"]:
 			if typeof(binding[modifier]) != TYPE_BOOL: return _failure(&"invalid_keyboard_binding")
-			# Native Controls can match unmodified actions non-exactly. Chords remain
-			# unavailable until the shared input boundary arbitrates exact modifiers.
 			if binding[modifier]: return _failure(&"modifier_arbitration_unavailable")
 		if key in PROTECTED_KEYS: return _failure(&"protected_binding")
 		if key == KEY_SPACE:

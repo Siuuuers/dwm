@@ -1,22 +1,6 @@
 class_name MinesweeperNoGuessVerifier
 extends RefCounted
 
-## Deterministic visible-deduction ("no guess") verifier (Plan 02 Task 3, dwm-p2r13). Applies
-## only four rules to a fixpoint: adjacent_zero, adjacent_full, subset_difference, and
-## global_remaining. Cells are sorted row-major and constraints by canonical serialized bytes
-## before each pass, so the result is identical regardless of input dictionary/array ordering.
-##
-## The hidden layout is consulted only to VALIDATE a deduction already reached by pure logic --
-## to reveal a cell's true number once it has been independently proven safe, or to defensively
-## cross-check a cell proven to be a mine -- never to originate a deduction or mark a player fact.
-## The one exception is global_remaining's total mine count, which is public information (the
-## on-screen mine counter derived from BoardSpec.requested_mine_count), not a hidden fact, so it
-## may be read from the layout directly as a "truthful" constant.
-##
-## Success requires every safe cell to be deduced/revealed; a fixpoint that stalls with unsolved
-## safe cells remaining means the layout requires guessing (code guess_required). Exhausting the
-## caller's operation_budget before either outcome returns generation_budget_exhausted with no
-## partial proof in `value`.
 
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
@@ -91,19 +75,6 @@ static func _certified_result(trace: Array) -> Dictionary:
 	}, "receipt": {}}
 
 
-## Builds one constraint per revealed, informative cell (cells with no remaining hidden neighbor
-## are fully discharged and dropped). Cells are visited row-major; the resulting constraint list
-## is then sorted by canonical serialized bytes so pass order never depends on Dictionary/Array
-## insertion order.
-##
-## PERFORMANCE (dwm-p2r13 Task 4 Phase 1): each constraint's canonical bytes are computed exactly
-## ONCE here (immediately after the constraint is built) and sorted via a cached-bytes comparator,
-## instead of the previous _by_canonical_bytes comparator that re-canonicalized (stringify + strict
-## reparse + deep-equality self-check) BOTH operands on every comparison sort_custom() makes --
-## O(n log n) redundant re-serializations per fixpoint pass. The comparator logic itself (byte-by-
-## byte unsigned comparison, shorter-prefix-sorts-first) is byte-for-byte identical to the original
-## _by_canonical_bytes; only the WHEN of computing each constraint's bytes changed, so sort order
-## (and therefore rule priority, the proof trace, and proof_trace_sha256) is unchanged.
 static func _build_constraints(revealed: Dictionary, deduced_mine: Dictionary, width: int, height: int) -> Array:
 	var cell_indices: Array = revealed.keys()
 	cell_indices.sort()
@@ -143,8 +114,6 @@ static func _by_cached_bytes(a: Array, b: Array) -> bool:
 	return a_bytes.size() < b_bytes.size()
 
 
-## Applies the four allowed rules in a fixed priority (zero, full, subset-difference, global) and
-## returns the first deduction found, or an empty Dictionary if the fixpoint has stalled.
 static func _apply_rules(constraints: Array, total_mines: int, deduced_mine_count: int,
 		total_cells: int, revealed: Dictionary, deduced_mine: Dictionary) -> Dictionary:
 	for constraint: Variant in constraints:
@@ -160,11 +129,6 @@ static func _apply_rules(constraints: Array, total_mines: int, deduced_mine_coun
 			return {"rule": _RULE_ADJACENT_FULL, "source_constraint_ids": [entry["id"]],
 				"proven_safe": [], "proven_mine": cells.duplicate()}
 
-	# PERFORMANCE (dwm-p2r13 Task 4 Phase 1): each constraint's cell-set is built exactly once here
-	# (was: _as_set(a_cells) once per outer 'a', but the inner subset check used b_cells.has(cell)
-	# -- an O(k) linear Array scan repeated for every (a,b) pair). Precomputing every constraint's
-	# set turns each subset check into O(k) Dictionary lookups instead of O(k^2) Array scans. The
-	# subset/diff/tie-break LOGIC below is unchanged.
 	var cell_sets: Dictionary = {}
 	for constraint: Variant in constraints:
 		var entry: Dictionary = constraint
@@ -219,7 +183,6 @@ static func _apply_rules(constraints: Array, total_mines: int, deduced_mine_coun
 	return {}
 
 
-# ---- shared helpers ----
 
 static func _as_set(array: Array) -> Dictionary:
 	var set: Dictionary = {}

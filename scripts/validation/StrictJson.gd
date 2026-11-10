@@ -118,22 +118,18 @@ class _Parser:
 		return _error(&"internal_error", "Array parser terminated unexpectedly")
 
 	func _parse_string() -> Dictionary:
-		# A complete ASCII token proves every escape before native decoding. Disjoint
-		# possessive alternatives keep long/unterminated receipt strings from backtracking.
 		var matched := _ascii_string_token.search(_text, _index)
 		if matched != null and matched.get_start() == _index:
 			var token := matched.get_string()
 			var value: Variant = JSON.parse_string(token) if "\\" in token else token.substr(1, token.length() - 2)
 			if value is String:
 				_index += token.length()
-				_column += token.length() # Proven ASCII contains no physical newline.
+				_column += token.length()
 				return {"ok": true, "value": value}
 		_advance()
 		var output := ""
 		while not _is_eof():
 			var codepoint := _peek()
-			# Only ordinary printable ASCII can skip the character-wise path. These
-			# spans contain no quotes, escapes, controls, Unicode, or line breaks.
 			if codepoint >= 0x20 and codepoint <= 0x7E and codepoint != 0x22 and codepoint != 0x5C:
 				var span := _ordinary_ascii.search(_text, _index)
 				if span != null and span.get_start() == _index:

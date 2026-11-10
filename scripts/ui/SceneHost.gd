@@ -1,5 +1,4 @@
 extends Control
-## Scene chrome only. Bootstrap owns admission, persistence, and panel mounting.
 signal scene_controls_changed
 
 const TRANSITION_SURFACE := preload("res://scripts/ui/witnessed/SceneTransitionOverlay.gd")
@@ -60,14 +59,11 @@ func get_challenge_mount() -> Control:
 
 func _fit_challenge(panel: Node) -> void:
 	if panel is Control:
-		# Keep the native board geometry; reserve the left caret without clipping.
 		panel.scale = Vector2.ONE * (928.0 / 960.0)
 
 func get_computer_mount() -> Control:
 	return $SceneControlsLayer/Surface/ComputerMount
 
-## Bootstrap selects the retained shell or Challenge view after successful admission.
-## This changes presentation only; it does not acquire or release reading custody.
 func set_computer_content_visible(shown: bool) -> void:
 	_computer_content_visible = shown
 	_update_computer_visibility()
@@ -75,7 +71,7 @@ func set_computer_content_visible(shown: bool) -> void:
 func _update_computer_visibility() -> void:
 	$SceneControlsLayer/Surface/ComputerMount.visible = _computer_open and _computer_content_visible
 	$SceneControlsLayer/Surface/ChallengeMount.visible = _computer_open and not _computer_content_visible
-	$SceneControlsLayer/Surface/Controls/ComputerHome.visible = false # Challenge owns Home in its action row.
+	$SceneControlsLayer/Surface/Controls/ComputerHome.visible = false
 
 func is_computer_open() -> bool:
 	return _computer_open
@@ -96,7 +92,6 @@ func _restore_computer_focus(invoker: WeakRef) -> void:
 	var caret: Button = $SceneControlsLayer/Surface/Controls/CheckComputer
 	var target: Control = invoker.get_ref() as Control if invoker != null else null
 	var focused := get_viewport().gui_get_focus_owner()
-	# A newly opened sheet owns its own focus after computer closure.
 	if focused != null and focused != target and focused != caret: return
 	if not is_instance_valid(target) or not target.is_visible_in_tree() \
 			or target.get_focus_mode_with_override() == Control.FOCUS_NONE \
@@ -135,7 +130,6 @@ func _refresh_presentation(_locale_id: String = "") -> void:
 	var presentation := Theme.new()
 	presentation.default_font = TYPOGRAPHY.font(locale, percent, font_style)
 	presentation.default_font_size = TYPOGRAPHY.font_size(locale, percent, 24, font_style)
-	# Keep scene chrome typography out of the independently owned Challenge mount.
 	var controls: Control = $SceneControlsLayer/Surface/Controls
 	controls.theme = presentation
 	$SceneControlsLayer/Surface/ThoughtYes.theme = presentation
@@ -166,7 +160,6 @@ func _draw_computer_caret() -> void:
 	if button.has_focus(): button.draw_rect(tag.grow(2), ink, false, 1.0)
 
 func _toggle_computer() -> void:
-	# Consume before awaiting: closing must not forward this click into dialogue.
 	get_viewport().set_input_as_handled()
 	if _busy or (is_instance_valid(_transition_bridge) and _transition_bridge.is_scene_transition_active()): return
 	var opening := not _computer_open
@@ -214,12 +207,9 @@ func _update_controls() -> void:
 	$SceneControlsLayer/Surface/Controls/ComputerHome.disabled = _busy or not apps.is_valid()
 	scene_controls_changed.emit()
 
-## Read-only offer projection. The captured presentation proof is retained until
-## the button is pressed, so Load or native movement cannot borrow a fresh token.
 func configure_thought_panel(panel: Control) -> void:
 	_thought_panel = panel
 	panel.resized.connect(_layout_thought_controls)
-	# Choices share the caption canvas lifetime despite living in this control layer.
 	var caption_canvas: CanvasItem = panel.get_parent()
 	caption_canvas.visibility_changed.connect(func() -> void:
 		_thought_poll = 0.0
@@ -252,8 +242,6 @@ func _process(delta: float) -> void:
 	_thought_poll = 0.1
 	var button: Button = $SceneControlsLayer/Surface/ThoughtYes
 	var bridge := get_node_or_null("/root/DialogicBridge")
-	# A held control can offer manual continuation, never a Thought. Do not
-	# reconstruct its complete saved history on this periodic display query.
 	var held_control: bool = bridge != null and bridge.project_scene_optional_frontier(false).get("ok", false)
 	var marker: Dictionary = bridge.capture_scene_pending_marker() if bridge != null and not held_control else {}
 	var available: bool = not _busy and not _computer_open and marker.get("ok", false) \
@@ -308,12 +296,9 @@ func _refresh_thought_options(options: Array) -> void:
 		button.add_theme_font_override("font", TYPOGRAPHY.story_font(pair.content_locale, percent, font_style))
 		button.custom_minimum_size = Vector2(0, 52)
 		button.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		# Label minimum sizes are available only after entering the tree. Mount
-		# before measuring the pair so its full text also owns the hit rectangle.
 		column.add_child(button)
 		if not pair.secondary_text.is_empty():
 			button.text = ""
-			# The two locale-tagged labels name one actionable option.
 			button.accessibility_name = ""
 			var wording := VBoxContainer.new()
 			wording.name = "Wording"
@@ -340,7 +325,6 @@ func _refresh_thought_options(options: Array) -> void:
 			button.accessibility_labeled_by_nodes = [NodePath("Wording/Primary"), NodePath("Wording/Secondary")]
 			button.custom_minimum_size = wording.get_combined_minimum_size() + Vector2(24, 16)
 			paired_height = maxf(paired_height, button.custom_minimum_size.y + 18)
-		# Each visible button owns the presentation proof it was created for.
 		button.pressed.connect(_select_thought.bind(str(option.choice_id), _thought_frontier.duplicate(true)))
 	if is_instance_valid(_thought_panel):
 		_thought_panel.set_choice_row_height(paired_height)
@@ -348,8 +332,6 @@ func _refresh_thought_options(options: Array) -> void:
 	if focused >= 0 and focused < column.get_child_count():
 		var focused_button: Control = column.get_child(focused)
 		focused_button.grab_focus()
-		# follow_focus initially sees the newly mounted, unsorted HBox. Reveal
-		# the retained choice again after its translated minimum sizes settle.
 		await get_tree().process_frame
 		if is_instance_valid(focused_button) and focused_button.has_focus():
 			panel.ensure_control_visible(focused_button)
@@ -366,6 +348,5 @@ func _select_thought(choice_id: String, expected: Dictionary) -> void:
 	var game := get_node_or_null("/root/GameState")
 	if game != null: game.accept_scene_thought(expected, choice_id)
 	_busy = false
-	# A refused click may leave the same offer current; rebuild usable buttons.
 	_thought_options_offer.clear()
 	_thought_poll = 0.0

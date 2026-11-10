@@ -1,8 +1,6 @@
 class_name GameStateConditionHospitalPort
 extends RefCounted
 
-## The existing ConditionHospitalPlan owns progress. This adapter prepares detached owner
-## values and reuses the same physical Hospital/Dating ports and causal-day allocator.
 const CANON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const CLOSURE := preload("res://scripts/application/run/ConditionHospitalContactsAdapter.gd")
@@ -124,7 +122,6 @@ func prepare_stage(plan: Dictionary, stage_id: String) -> Dictionary:
 			prepared["presentation_request"] = request.value.request
 		"resolve_deferred_pair":
 			var window: Variant = plan.stages[0].receipt.output.get("pl_window")
-			# Contacts' frozen receipt is the count authority; route frozen_form stays untouched.
 
 			prepared["output"] = {"pl_window": window, "after_hospital": true}
 		"present_deferred_pair":
@@ -174,8 +171,6 @@ func execute_stage(_plan: Dictionary, stage: Dictionary) -> Dictionary:
 			_routed[key] = true
 		return _ok({"awaiting_presentation": true})
 	var owner_candidate: Variant = prepared.get("owner_candidate")
-	# Old active-stage saves may predate draw binding. Reconcile their count candidate
-	# against the Profile receipt before the stage can durably complete.
 	if stage_id == "close_invitation_sources" and _pair_window_counts(prepared.get("output", {}).get("pl_window")):
 		var pair_candidate := _prepare_pair_candidate(owner_candidate)
 		if not pair_candidate.ok: return pair_candidate
@@ -210,8 +205,6 @@ func compose_checkpoint_inputs(lifecycle: Dictionary, owner_candidate: Variant,
 			else: snapshot[key] = owner_candidate[key].duplicate(true)
 	if consequence_candidate is Dictionary: snapshot.desktop.consequence = consequence_candidate.state_after.duplicate(true)
 	inputs["snapshot_input"] = snapshot
-	# Completed stage boundaries contain no active narrative resume. The persisted stage
-	# command owns replay; target-day checkpoints always reopen the desktop.
 	inputs["dialogic_checkpoint"] = {}
 	inputs["route_id"] = "main"
 	return _ok({"checkpoint_inputs": inputs})
@@ -219,7 +212,6 @@ func compose_checkpoint_inputs(lifecycle: Dictionary, owner_candidate: Variant,
 func commit_stage(_stage_id: String, candidate: Variant) -> Dictionary:
 	if candidate == null: return _ok({})
 	if not candidate is Dictionary: return _fail(&"condition_hospital_owner_candidate_invalid")
-	# All plans were validated before the checkpoint; these installs apply absolute values.
 	if candidate.has("contacts"): _game.contacts = candidate.contacts.duplicate(true)
 	if candidate.has("gameplay"): _game._apply_gameplay_silent(candidate.gameplay)
 	if candidate.has("committed_schedule"): _game._committed_schedule = candidate.committed_schedule.duplicate(true)
@@ -237,8 +229,6 @@ func commit_stage(_stage_id: String, candidate: Variant) -> Dictionary:
 
 func _prepare_day(plan: Dictionary) -> Dictionary:
 	if not _game.has_method("capture_new_day_gameplay"): return _fail(&"condition_hospital_day_reset_unavailable")
-	# The allocator/root-store contract hashes this exact two-key identity projection.
-	# Keep the full acceptance receipt unchanged in the owning persisted Hospital plan.
 	var resolution := {"receipt_id": str(plan.resolution_receipt.receipt_id),
 		"provenance": plan.resolution_receipt.receipt_provenance.duplicate(true)}
 	var request := {"resolution_kind": "condition_hospital", "source_resolution_receipt": resolution,

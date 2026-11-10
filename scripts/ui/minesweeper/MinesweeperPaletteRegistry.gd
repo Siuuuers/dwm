@@ -1,6 +1,4 @@
 extends RefCounted
-## Authored accessibility tuples. See docs/design/current-ui/minesweeper-presentation-tuples.md.
-## Exact Day 1 tables; the installed day ages room materials only, never semantic state colours.
 
 const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
 
@@ -240,8 +238,6 @@ static func resolve(palette: StringName, high_contrast: bool, colour_preset: Str
 	return TUPLES[key].duplicate()
 
 
-## The shared week curve changes room materials at scene/day boundaries. Marks,
-## focus, mine numbers and selected/error colours retain their authored tuples.
 static func resolve_tinted(palette: StringName, high_contrast: bool, colour_preset: String, day: int) -> Dictionary:
 	var roles := resolve(palette, high_contrast, colour_preset)
 	if roles.is_empty() or day not in range(1, 8): return {}

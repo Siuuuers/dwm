@@ -8,7 +8,6 @@ const COPY := {
 	"ko": {"board": "보드", "beginner": "초급", "intermediate": "중급", "expert": "고급", "rounds": "라운드", "mine_estimate": "지뢰 추정 수", "foresight": "예지", "no_flag": "깃발 없음", "intact": "유지", "lost": "상실", "reveal": "열기", "flag": "깃발", "drag": "드래그", "new_board": "새 보드", "assignments": "과제", "rules": "규칙", "pause": "일시 정지", "selected": "선택됨"},
 }
 
-# Short metric headings fit the fixed bays; accessibility retains COPY in full.
 const COMPACT_METRICS := {
 	"ja": {"rounds": "回数", "mine_estimate": "推定数"},
 	"ko": {"mine_estimate": "추정 수"},

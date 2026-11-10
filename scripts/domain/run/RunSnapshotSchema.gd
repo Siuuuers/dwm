@@ -19,8 +19,6 @@ const DESKTOP_KEYS: Array[String] = ["board", "consequence"]
 const LIFECYCLE_KEYS := SCENE_LIFECYCLE_KEYS
 const LIFECYCLE_STATES: Array[String] = ["PLAYING", "ENDING", "COMPLETED", "TERMINAL_PENDING"]
 const PLAYBACK_SEQUENCE: Array[String] = ["PRIMARY_PENDING", "PRIMARY_PLAYED", "EPILOGUE_PLAYED", "GALLERY_RECORDED"]
-## Contracted non-narrative gameplay fields, frozen by the Task 1 GameState
-## inventory (the legacy save whitelist minus `day`, which lives in lifecycle).
 const GAMEPLAY_FIELDS: Array[String] = [
 	"affection", "chat_state", "coins", "condition_effects_today", "condition_resolved_day",
 	"condition_streak_days", "contact_choice_state", "contact_message_unlocks",
@@ -72,7 +70,7 @@ static func _validate_command_receipts(receipts: Variant, applied_effects: Varia
 		if typeof(receipt) != TYPE_DICTIONARY:
 			return "command receipt must be an object: " + str(key)
 		if (receipt as Dictionary).get("kind") == "scene_event":
-			continue # The scene-event owner validates this complete variant and its chain below.
+			continue
 		var receipt_keys: Array = (receipt as Dictionary).keys()
 		receipt_keys.sort()
 		if receipt_keys != Array(COMMAND_RECEIPT_KEYS):
@@ -87,9 +85,6 @@ static func _validate_command_receipts(receipts: Variant, applied_effects: Varia
 	var scene_events: Dictionary = SCENE_EVENT_CONTRACT.validate_receipts(receipts as Dictionary)
 	if not scene_events.get("ok", false):
 		return str(scene_events.get("code", "invalid_scene_event_receipts"))
-	# Partition equality: legacy receipts and the two applied-ID sets describe exactly the same
-	# transactions, split by kind. A ledger entry without its applied ID (or an applied ID without
-	# its receipt) would let a legacy transaction be applied twice, so both directions are checked.
 	return _validate_receipt_partition(receipts as Dictionary, applied_effects, applied_variables)
 
 static func _validate_receipt_partition(receipts: Dictionary, applied_effects: Variant, applied_variables: Variant) -> String:
@@ -104,7 +99,7 @@ static func _validate_receipt_partition(receipts: Dictionary, applied_effects: V
 	for key: Variant in receipts:
 		var kind := str((receipts[key] as Dictionary)["kind"])
 		if kind in ["scene_event", "scene_admission", "scene_shop_purchase", "scene_round_completion"]:
-			continue # Already validated separately; never counted as an effect or variable ID.
+			continue
 		if not (expected[kind] as Dictionary).has(str(key)):
 			return "command receipt is not present in its applied %s id set: %s" % [kind, str(key)]
 		seen[kind][str(key)] = true
@@ -162,10 +157,6 @@ static func derive_route_restore_context(snapshot: Dictionary) -> Dictionary:
 	if is_scene_terminal(snapshot): context["ending_plan"] = lifecycle.ending_plan.duplicate(true)
 	return {"ok": true, "code": &"ok", "value": context}
 
-## Exact `{board,consequence}` (brief line 59). Both members are delegated wholesale to their own
-## owning modules: `board` to `DesktopBoardState.prepare_restore()` (its established structural-
-## validation entry point -- a throwaway instance is used since that method is not static),
-## `consequence` to `DesktopConsequenceState.validate()`.
 static func _validate_desktop(desktop: Variant) -> String:
 	if typeof(desktop) != TYPE_DICTIONARY:
 		return "desktop must be an object"
@@ -259,8 +250,6 @@ static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message}
 
 
-## Scene format is admitted jointly with Save9. The legacy constants and paths
-## above remain intact; no calendar-shaped defaults are produced for scenes.
 const SCENE_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const SCENE_CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const SCENE_READING := preload("res://scripts/narrative/SoloReadingSession.gd")
@@ -286,8 +275,6 @@ static var _scene_authority: Object
 static var _scene_creation_owner: Object
 static var _scene_semantic_busy := false
 
-## External save admission adapts reading to installed content once. Physical
-## attempts, identity receipts, economy and lifecycle remain historical facts.
 static func normalize_scene_content(snapshot: Dictionary, trusted: bool = false) -> Dictionary:
 	if not trusted:
 		var primitive := validate_primitive_tree(snapshot)
@@ -331,23 +318,17 @@ static func normalize_scene_content(snapshot: Dictionary, trusted: bool = false)
 	var selected := SCENE_MANIFEST.scene_contract_tables()
 	if not selected.ok: return selected
 	if not trusted and candidate.scene.registration_sha256 == SCENE_MANIFEST.scene_registration_fingerprint():
-		# An unchanged bundle is not an excuse to repair malformed current
-		# references or a forged caption/control pair.
 		var current := validate_current_scene(candidate.scene, selected.bundle)
 		if not current.ok: return current
 		var binding := _validate_scene_challenge_binding(candidate.scene, gameplay, selected.bundle)
 		if not binding.ok: return binding
 		var reading := SCENE_READING.expand_player_checkpoint(candidate.narrative_checkpoint)
 		if not reading.ok: return reading
-	# Preserve the content against which completion was decided. Rebuilt reading
-	# may fall back, but it cannot turn that completed lifecycle into a new play.
 	if candidate.get("lifecycle") is Dictionary and candidate.lifecycle.get("state") == "COMPLETED" \
 			and not candidate.lifecycle.has("ending_plan") \
 			and not candidate.lifecycle.has("completed_registration_sha256") \
 			and candidate.scene.registration_sha256 != SCENE_MANIFEST.scene_registration_fingerprint():
 		candidate.lifecycle["completed_registration_sha256"] = candidate.scene.registration_sha256
-	# Unchanged content can resume the saved cursor directly. Resolve deleted
-	# lines only when the authored registration changed.
 	if not trusted or candidate.scene.registration_sha256 != SCENE_MANIFEST.scene_registration_fingerprint():
 		var normalized: Dictionary = SCENE_READING.normalize_player_checkpoint(candidate.narrative_checkpoint,
 			gameplay.scene_choices, gameplay.scene_challenge_outcomes)
@@ -357,7 +338,6 @@ static func normalize_scene_content(snapshot: Dictionary, trusted: bool = false)
 		candidate.scene.registration_sha256 = candidate.narrative_checkpoint.manifest_fingerprint
 		candidate.scene.entry_id = candidate.narrative_checkpoint.entry_id
 		if normalized.value.fallback:
-			# Notification is presentation for the previous cursor, not gameplay.
 			candidate.scene.notification = {}
 	var record: Dictionary = gameplay.route_context.get("active_dating_challenge", {})
 	for occurrence: String in gameplay.scene_challenge_outcomes:
@@ -409,8 +389,6 @@ static func build_scene(snapshot_input: Dictionary, dialogic_checkpoint: Diction
 		snapshot.erase(member)
 	if not snapshot.get("desktop") is Dictionary or not snapshot.desktop.get("board") is Dictionary:
 		return _fail(&"invalid_desktop_aggregate", "desktop board input is required")
-	# Only the outgoing player document omits transient retries. Live captures and
-	# prospective transactions keep their complete owner state for rollback.
 	var player_board: Dictionary = DESKTOP_BOARD_STATE.project_player_state(snapshot.desktop.board)
 	if not player_board.ok: return player_board
 	snapshot.desktop.board = player_board.value.snapshot
@@ -432,7 +410,6 @@ static func build_scene(snapshot_input: Dictionary, dialogic_checkpoint: Diction
 	if not checked.ok: return checked
 	return {"ok": true, "code": &"ok", "value": {"snapshot": checked.value.candidate}}
 
-## Producer construction uses the same exact initial candidate proof, never ordinary Load.
 static func build_scene_new_run_candidate(snapshot_input: Dictionary, dialogic_checkpoint: Dictionary,
 		_audio_context: Dictionary, content_version: int, allocation_candidate: Dictionary,
 		profile_material: Dictionary, bundle: Dictionary, issuer: Object) -> Dictionary:
@@ -455,8 +432,6 @@ static func build_scene_new_run_candidate(snapshot_input: Dictionary, dialogic_c
 		snapshot.erase(member)
 	if not snapshot.get("desktop") is Dictionary or not snapshot.desktop.get("board") is Dictionary:
 		return _fail(&"invalid_desktop_aggregate", "desktop board input is required")
-	# Only the outgoing player document omits transient retries. Live captures and
-	# prospective transactions keep their complete owner state for rollback.
 	var player_board: Dictionary = DESKTOP_BOARD_STATE.project_player_state(snapshot.desktop.board)
 	if not player_board.ok: return player_board
 	snapshot.desktop.board = player_board.value.snapshot
@@ -472,8 +447,6 @@ static func build_scene_new_run_candidate(snapshot_input: Dictionary, dialogic_c
 	if not checked.ok: return checked
 	return {"ok": true, "code": &"ok", "value": {"snapshot": checked.value.candidate}}
 
-## Detached initial candidates have their own authority: the reproducible allocation and
-## frozen Profile material, not a completed creation or current live Profile.
 static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_candidate: Dictionary,
 		profile_material: Dictionary, bundle: Dictionary, issuer: Object,
 		acknowledged_checkpoint: Dictionary = {}) -> Dictionary:
@@ -556,8 +529,6 @@ static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_ca
 			or saved.ledger.captions.size() != 1 or saved.ledger.entry_contexts.size() != 1:
 		return _fail(&"scene_initial_state_invalid", "initial reading must contain only its first caption and frame")
 	var bridge_owner: Script = load("res://autoload/DialogicBridge.gd")
-	# Reading admission prepared the selected entry. This callback-free tail
-	# can reuse that configuration while rebuilding a wholly new ledger.
 	var initial_reading: Dictionary = bridge_owner._build_current_scene_initial_checkpoint(candidate.scene, bundle, reading.session)
 	if not initial_reading.ok: return initial_reading
 	var projected_initial: Dictionary = SCENE_READING.project_player_checkpoint(initial_reading.value)
@@ -574,9 +545,6 @@ static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_ca
 		return _fail(&"reading_entry_context_mismatch", "initial frozen frame differs from its authenticated admission")
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
 
-## Historical normalization must never coerce the new authenticated variant.
-## Float-valued story/audio leaves remain untouched; this screens only identity,
-## initial receipts and the integer snapshot header before any normalization.
 static func _scene_has_initial_admission(snapshot: Dictionary) -> bool:
 	return snapshot.get("schema_version") == SCENE_SCHEMA_VERSION or snapshot.has("scene")
 
@@ -609,7 +577,6 @@ static func validate_scene(snapshot: Dictionary, bundle: Dictionary) -> Dictiona
 			var stage_label: Variant = plan_label.get("playback_stage")
 			if typeof(stage_label) in [TYPE_STRING, TYPE_STRING_NAME] and String(stage_label) in PLAYBACK_SEQUENCE:
 				observation["playback_stage"] = String(stage_label)
-	# An active record must remain nonempty even when malformed input has no admitted labels.
 	observation["inclusive_nested"] = true
 	var result: Dictionary = _validate_scene_observed_body(snapshot, bundle, observation)
 	SCENE_VALIDATION_TIMING.finish_snapshot(started_us, observation, bool(result.get("ok", false)))
@@ -642,7 +609,6 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 		return _fail(&"invalid_snapshot_shape", "invalid Run9 header or member set")
 	if not candidate.lifecycle is Dictionary or candidate.lifecycle.get("run_id") != candidate.run_id:
 		return _fail(&"invalid_lifecycle", "scene lifecycle must belong to its Run")
-	# Old Run9 saves keep their progress; the retired run-level form is no longer state.
 	candidate.lifecycle.erase("scene_assignment")
 	var lifecycle_keys := SCENE_LIFECYCLE_KEYS.duplicate()
 	if candidate.lifecycle.has("completed_registration_sha256"): lifecycle_keys.append("completed_registration_sha256")
@@ -676,13 +642,7 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 	if not audio.ok: return audio
 	var reading := _validate_scene_reading(candidate)
 	if not reading.ok: return reading
-	# The live owner checks current physical Profile references and the reading
-	# frame without executing prior story controls.
-	# It must not call Run.validate again. A Boolean supplied by saved data is
-	# never substituted for this privately installed owner.
 	phase_tick = SCENE_VALIDATION_TIMING.snapshot_phase(observation, "pre_semantic_us", phase_tick)
-	# Normalization detached the candidate; registration is recursively read-only.
-	# Production semantic validation reads both synchronously without publishing state.
 	var installed_bundle: Dictionary = selected.bundle
 	phase_tick = SCENE_VALIDATION_TIMING.snapshot_phase(observation, "guard_prepare_us", phase_tick)
 	var semantic_owner: Object = _scene_authority
@@ -695,7 +655,6 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 		return semantic if semantic is Dictionary else _fail(&"scene_validation_invalid_result", "semantic owner must return a result")
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
 
-## Identity checks select an existing validator, never a caller-supplied trust assertion.
 static func _scene_semantic_authenticates_receipts() -> bool:
 	if not is_instance_valid(_scene_authority) or _scene_authority.get_script() != load("res://autoload/GameState.gd"):
 		return false
@@ -741,7 +700,6 @@ static func _validate_scene_reading(candidate: Dictionary) -> Dictionary:
 		return _fail(&"reading_context_invalid", "active occurrence and reading5 must agree")
 	var session: RefCounted = expanded.get("session")
 	if session == null:
-		# Expanded reading5 inputs still require their own restoration.
 		session = SCENE_READING.new()
 		var configured: Dictionary = session.configure_scene()
 		if not configured.ok: return configured
@@ -784,7 +742,6 @@ static func _validate_scene_reading(candidate: Dictionary) -> Dictionary:
 			if record.is_empty() or record.context.challenge_id != candidate.scene.active_challenge.challenge_id \
 					or record.context.playable_command_id != candidate.scene.active_challenge.playable_command_id:
 				return _fail(&"scene_challenge_position_invalid", "suspended Challenge requires its retained physical record")
-			# A suspended board cannot authorize another current playable marker.
 			if saved.boundary == "control":
 				var node: Dictionary = nodes[position]
 				for row: Dictionary in selected.bundle.challenges:
@@ -792,9 +749,6 @@ static func _validate_scene_reading(candidate: Dictionary) -> Dictionary:
 						return _fail(&"scene_challenge_position_invalid", "held playable differs from suspended Challenge")
 	return {"ok": true, "session": session, "checkpoint": checkpoint}
 
-## For the actual GameState rollback/capture owner. This validates the complete
-## captured input without inventing a narrative checkpoint. Full save admission
-## still additionally requires validate_scene's reading and semantic checks.
 static func validate_scene_input_fields(input: Dictionary, bundle: Dictionary) -> Dictionary:
 	var type_error := _scene_initial_types_error(input)
 	if not type_error.is_empty(): return _fail(&"scene_initial_types_invalid", type_error)
@@ -835,7 +789,6 @@ static func validate_scene_input_fields(input: Dictionary, bundle: Dictionary) -
 		if not ids_error.is_empty(): return _fail(&"invalid_transaction_ids", ids_error)
 	return {"ok": true}
 
-## Current Scene facts have one registration owner. No command history is needed.
 static func validate_current_scene(scene: Variant, bundle: Dictionary) -> Dictionary:
 	if not _scene_current_keys(scene) \
 			or scene.registration_sha256 != SCENE_MANIFEST.scene_registration_fingerprint():
@@ -896,8 +849,6 @@ static func _validate_current_scene_frame(frame: Dictionary, tables: Dictionary)
 			return _fail(&"scene_challenge_state_invalid", "active Challenge binding is malformed")
 	return {"ok": true}
 
-## Save only the selected plan label; asset metadata stays with authored content.
-## Terminal snapshots retain the source admission and therefore its soundtrack.
 static func derive_scene_audio_context(snapshot: Dictionary, bundle: Dictionary = {}) -> Dictionary:
 	if bundle.is_empty():
 		var selected: Dictionary = SCENE_MANIFEST.scene_contract_tables()
@@ -974,12 +925,9 @@ static func _validate_scene_gameplay(gameplay: Variant) -> String:
 	if progress_error != "": return progress_error
 	return _validate_scene_route_context(gameplay.route_context)
 
-## Scene progress is current Run state; gameplay semantics are checked by GameState.
 static func _validate_scene_progress(choices: Variant, outcomes: Variant) -> String:
 	if not choices is Dictionary or not outcomes is Dictionary: return "scene progress must be objects"
 	if choices.is_empty() and outcomes.is_empty(): return ""
-	# These are encountered facts, including choices and Challenges retired by an
-	# authoring edit. Current controls still validate new commands at dispatch.
 	for opportunity: Variant in choices:
 		if not _scene_id(opportunity) or not _scene_id(choices[opportunity]):
 			return "invalid scene choice"
@@ -1039,8 +987,6 @@ static func _scene_hash(value: Variant) -> String:
 	var encoded: Dictionary = SCENE_CANONICAL.stringify(value)
 	return str(encoded.value).sha256_text() if encoded.ok else ""
 
-# The board owner validates its identity shape; this aggregate owns its Run join.
-# This closes an existing consistency gap, not a historical-payment proof check.
 static func _validate_scene_board_identity(board: Dictionary, lifecycle: Dictionary) -> Dictionary:
 	if board.identity == null: return {"ok": true}
 	for member: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"]:

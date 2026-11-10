@@ -1,7 +1,4 @@
 extends Node
-# SceneRouter (CONTRACTS §4): ONLY changes scenes and stores safe route context through
-# GameState. It never applies stat/economy/affection/schedule/condition/dating rules.
-# GameState never auto-routes; the caller performs the scene change here.
 
 const _SCENE_PATHS := {
 	"menu": "res://scenes/menu/MenuScene.tscn",
@@ -13,8 +10,6 @@ const _SCENE_PATHS := {
 var _current_scene_id: String = ""
 var _mutation_gate: Object = null
 
-# Return prepares an actual off-tree Title. This transient capability proves only
-# routing readiness; the session owner must retire the source before publication.
 var _route_custody_revision := 0
 var _return_title_counter := 0
 var _return_title_prepared: Dictionary = {}
@@ -27,7 +22,6 @@ var _scene_host_path := ""
 var _scene_activation: Dictionary = {}
 var _scene_pause_restore_validator: Callable
 
-## Bootstrap selects the genuine scene shell; this is not saved routing input.
 func configure_scene_host(path: String) -> Dictionary:
 	if not _scene_host_path.is_empty():
 		return {"ok": true} if _scene_host_path == path else _startup_failure("scene_host_already_configured")
@@ -168,7 +162,6 @@ var _restore_publication_published := false
 var _scene_pause_publication: Dictionary = {}
 var _production_pause: Node
 
-## Bootstrap retains the existing owners; Pause keeps no saved state or alternate route.
 func configure_pause_services(services: Dictionary) -> Dictionary:
 	if is_instance_valid(_production_pause): return {"ok": true, "value": {"already_configured": true}}
 	var host := preload("res://scripts/application/lifecycle/ProductionPauseController.gd").new()
@@ -324,8 +317,6 @@ func prepare_return_to_title() -> Dictionary:
 	if not target is Control:
 		if is_instance_valid(target): target.free()
 		return _startup_failure("return_title_scene_unavailable")
-	# Instantiation can run script constructors: revalidate the source before
-	# issuing any capability, including the admission that preceded that callback.
 	admitted = _return_title_admission(false)
 	if not admitted.get("ok", false) or not _return_source_alive(source) \
 			or get_tree().current_scene != source or revision != _route_custody_revision \
@@ -372,8 +363,6 @@ func publish_prepared_return_to_title(token: String) -> Dictionary:
 	var revision := _route_custody_revision
 	var generation := _route_generation
 	tree.root.add_child(target)
-	# Constructors/_ready do not grant a different source authority. If a foreign
-	# direct tree mutation happened, leave its destination intact and refuse.
 	if not _return_source_alive(source) or tree.current_scene != source \
 			or not _return_source_alive(target) or revision != _route_custody_revision \
 			or generation != _route_generation or not is_instance_valid(_mutation_gate) \
@@ -435,8 +424,6 @@ func _exit_tree() -> void:
 	_return_title_published.clear()
 
 
-# Process-local startup barrier. A queued request is semantic intent, never a claim
-# that a scene or its layout has mounted. Only Bootstrap publishes the final request.
 var _startup_hold_token := ""
 var _startup_hold_active := false
 var _startup_publishing := false
@@ -516,8 +503,6 @@ func _valid_startup_request(request: Variant) -> bool:
 
 
 
-## Common mutation-gate seam (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md
-## Task 7). Matches the frozen contract the other seven final targets use.
 func configure_mutation_gate(gate: Object) -> Dictionary:
 	if gate == null or not gate.has_signal("capability_changed"):
 		return {"ok": false, "code": &"invalid_mutation_gate", "message": "gate contract incomplete"}
@@ -531,9 +516,6 @@ func configure_mutation_gate(gate: Object) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"gate_instance_id": gate.get_instance_id(), "already_configured": already}, "receipt": {}}
 
 
-## Ending port injection (dwm-p2r.8, Plan-05 Task 2). SceneRouter stores the exact instances and
-## configures an off-tree EndingScene before it is added to the tree, so no ending scene can reach
-## _ready() unconfigured.
 const _ENDING_STATE_PORT_METHODS := ["request_next_ending_command", "complete_ending_playback_stage"]
 const _ENDING_PLAYBACK_PORT_METHODS := ["start_ending_id", "is_ready"]
 
@@ -566,7 +548,6 @@ func is_ending_ports_configured() -> bool:
 	return _ending_state_port != null and _ending_playback_port != null
 
 
-## Zero-argument route provider for the narrative checkpoint adapter; always a registered id.
 func get_current_route_id() -> String:
 	return _current_scene_id if _current_scene_id != "" else "menu"
 
@@ -655,15 +636,10 @@ func goto_scene_id(scene_id: String, context: Dictionary = {}) -> void:
 	if _return_title_publishing: return
 	var gs := _gs()
 	if gs != null and not context.is_empty():
-		# Store only safe context; SceneRouter never mutates gameplay rules.
 		gs.route_context = context.duplicate(true)
 	_change_to(scene_id)
 
 
-## ---- Semantic route restore seams (dwm-p2r.5 Task 7) ----
-## Preparation admits a registered PackedScene; apply stages semantic route state.
-## The route-ready token binds that preparation, not a rendered layout. Godot
-## installs the actual scene after finalize; integration checks observe the tree.
 
 var _route_restore_backup: Dictionary = {}
 var _route_generation: int = 0
@@ -712,20 +688,13 @@ func apply_route_restore_silent(plan: Dictionary) -> Dictionary:
 			or typeof(token.get("generation")) != TYPE_INT \
 			or int(token["generation"]) != _route_generation + 1:
 		return {"ok": false, "code": &"stale_route_plan", "message": "route preparation is no longer current"}
-	# Semantic apply: record the target route and safe context without changing the
-	# live scene (finalize performs the navigation). Ordinary route signals stay silent.
 	_scene_activation.clear()
 	_route_custody_revision += 1
 	_route_generation = int(token["generation"])
 	_pending_restore_scene_id = route_id
 	var gs := _gs()
-	# Scene Run restore already installed its complete gameplay context. The scene
-	# host and terminal plans carry contacts/lifecycle/desktop references for mounting, not
-	# additional gameplay fields. Legacy route metadata retains its existing merge.
 	if route_id != "scene" and gs != null and typeof(plan.get("route_context")) == TYPE_DICTIONARY \
 			and not plan.route_context.has("scene"):
-		# The run participant already restored gameplay-owned challenge/ending context.
-		# This participant adds safe routing metadata; replacing the map discards that state.
 		var combined: Dictionary = gs.route_context.duplicate(true)
 		combined.merge((plan["route_context"] as Dictionary).duplicate(true), true)
 		gs.route_context = combined

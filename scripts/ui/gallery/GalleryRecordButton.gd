@@ -1,5 +1,4 @@
 extends Button
-## The row owns one semantic target. Its wrapped caption owns no input.
 
 var paper_context := false
 var caption_width := 264.0
@@ -24,9 +23,6 @@ func _ready() -> void:
 	caption.add_theme_constant_override("line_spacing", 0)
 	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(caption)
-	# A nonfocusable pointer surface prevents native mouse-down focus from
-	# selecting a row before its lawful release. Keyboard/assistive input keeps
-	# the native Button, while wheel input continues to the index scroll owner.
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_pointer = Control.new()
 	_pointer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -36,8 +32,6 @@ func _ready() -> void:
 	_pointer.mouse_exited.connect(_cancel_pointer)
 	add_child(_pointer)
 	visibility_changed.connect(_cancel_pointer)
-	# Button's own text remains the public/assistive title, but is not painted
-	# or allowed to impose an independent single-line minimum width.
 	clip_text = true
 	for state: String in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_disabled_color"]:
 		add_theme_color_override(state, Color.TRANSPARENT)
@@ -95,7 +89,6 @@ func refresh_caption() -> void:
 	caption.language = language
 	caption.text = text
 	caption.size = Vector2(caption_width, 0)
-	# Measure the actual localized Label, including fallback-font line metrics.
 	var height := ceilf(caption.get_minimum_size().y / 2) * 2
 	custom_minimum_size = Vector2(body_width, 16 + maxf(64, height))
 	caption.size = Vector2(caption_width, height)

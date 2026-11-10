@@ -1,5 +1,4 @@
 extends Control
-## Composite roving-focus grid over owner-published public cell facts.
 
 signal cell_action_requested(action: StringName, index: int, revision: int)
 signal new_board_requested()
@@ -23,7 +22,6 @@ var cell_nodes: Array[Control] = []
 var focused_index := -1
 var mode: StringName = &"reveal"
 var projection: Dictionary = {}
-## The exact projection instance can_present() last accepted; present() skips re-validating it.
 var _last_validated_projection: Dictionary = {}
 var _locale := "en"
 var _percent := 100
@@ -60,7 +58,6 @@ var _touch_points: Dictionary = {}
 var _pinch_start_distance := 0.0
 var _pinch_active := false
 var _touch_suppressed := false
-# Each device must supply its own neutral observation; the button ledger has no axes.
 var _trigger_states: Dictionary = {}
 var _last_view_input_state := Vector2i(-1,-1)
 
@@ -149,8 +146,6 @@ func can_present(value: Dictionary) -> bool:
 	var terminal_choices := 0
 	if typeof(value.cells) != TYPE_ARRAY or value.cells.size() != value.width*value.height: return false
 	_last_validated_projection = {}
-	# dwm-634.1: the cell's own rule set validates each public cell where it lies. Presenting a
-	# probe cell instead cost one allocation and a deep copy of every cell on every click.
 	for index in value.cells.size():
 		if typeof(value.cells[index]) != TYPE_DICTIONARY or value.cells[index].get("index") != index \
 				or not CELL.validate(value.cells[index]): return false
@@ -167,12 +162,9 @@ func can_present(value: Dictionary) -> bool:
 	return valid
 
 func present(value: Dictionary) -> bool:
-	# dwm-634.1: the panel validates this same instance before presenting it; validating the
-	# 484 cells of an expert board a second time cost a full probe pass per click.
 	if not is_same(value, _last_validated_projection) and not can_present(value): return false
 	_last_validated_projection = {}
 	_cancel_for_projection()
-	# The publishing panel owns the one deep copy; this grid and its cells read that instance.
 	projection = value
 	_rebuild()
 	if projection.custody:
@@ -316,8 +308,6 @@ func _gui_input(event: InputEvent) -> void:
 			_held_action = action
 			_held_button = event.button_index
 			_refresh_contacts()
-			# dwm-634.1 (owner ruling 2026-09-12): mouse actions fire on press. The publication that
-			# follows cancels this contact; the release below then has nothing left to submit.
 			cell_action_requested.emit(action,index,projection.revision)
 		else:
 			if _mouse_dragging and event.button_index == MOUSE_BUTTON_LEFT:
@@ -411,8 +401,6 @@ func _handle_navigation(event: InputEvent) -> void:
 func _handle_toggle(event: InputEvent) -> bool:
 	if not (event is InputEventKey or event is InputEventJoypadButton) \
 			or not InputMap.has_action(TOGGLE_ACTION) or not event.is_action_pressed(TOGGLE_ACTION,false,true): return false
-	# This action belongs to the focused board. Observe physical generations from
-	# the ALWAYS input owner so releases during a disabled sheet or Pause count.
 	if not is_instance_valid(_input_owner): return true
 	var contacts: Dictionary = _input_owner.get_physical_contacts()
 	for held: String in _toggle_contacts.keys():
@@ -428,15 +416,11 @@ func _handle_toggle(event: InputEvent) -> bool:
 	set_mode(&"flag" if mode in [&"drag",&"reveal"] else &"reveal")
 	return true
 
-## The Panel uses the same physical-contact gate while a settled board has no grid focus.
-## It alone verifies that the published settled view offers New Board.
 func consume_new_board_input(event: InputEvent, settled: bool = false) -> bool:
 	if not (event is InputEventKey or event is InputEventJoypadButton) \
 			or not InputMap.has_action(NEW_BOARD_ACTION) or not event.is_action_pressed(NEW_BOARD_ACTION,false,true): return false
 	if event is InputEventKey and event.echo: return false
 	if not is_instance_valid(_input_owner): return false
-	# Panel._input may run before the ALWAYS owner in the same viewport. Observation
-	# is idempotent, so the focused Grid route can make the same call safely.
 	if _input_owner.has_method("observe_physical_contact"):
 		_input_owner.observe_physical_contact(event)
 	var contacts: Dictionary = _input_owner.get_physical_contacts()
@@ -566,7 +550,6 @@ func _observe_trigger_axis(device: int, axis: int, value: float) -> void:
 	var state: Dictionary = _trigger_states[device]
 	var side := 0 if axis == JOY_AXIS_TRIGGER_LEFT else 1
 	state.values[side] = value
-	# Native axis events store float32; the nominal 0.2 boundary may round upward.
 	if value <= 0.2 or is_equal_approx(value,0.2):
 		state.neutral[side] = 1
 		state.pressed[side] = 0
@@ -585,8 +568,6 @@ func _process_trigger_zoom() -> void:
 		_disarm_trigger_zoom()
 		return
 	_poll_trigger_axes()
-	# Observe both axis events before deciding; one Input event cannot know whether its
-	# companion trigger crosses in the same frame. A suppressed press is still consumed.
 	for device: int in _trigger_states:
 		var state: Dictionary = _trigger_states[device]
 		var pending: int = state.pending

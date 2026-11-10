@@ -82,8 +82,6 @@ func _process(_delta: float) -> void:
 
 func _input(event: InputEvent) -> void:
 	if not is_instance_valid(_input_owner) or event.device == InputEvent.DEVICE_ID_EMULATION: return
-	# Logical InputEventAction packets have no physical provenance. They may never mint
-	# a transport activation even though InputManager conservatively ledgers them.
 	if event is InputEventAction: return
 	_input_owner.observe_physical_contact(event)
 	_prune_blocked_contacts()

@@ -1,8 +1,6 @@
 class_name RunLifecycle
 extends RefCounted
 
-## Pure run lifecycle state machine behind the GameState facade
-## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 2).
 
 const DAY_RESOLUTION_PLAN := preload("res://scripts/domain/run/DayResolutionPlan.gd")
 const CONDITION_HOSPITAL_PLAN := preload("res://scripts/domain/run/ConditionHospitalPlan.gd")
@@ -41,10 +39,6 @@ const PROVISIONAL_PAIR_FORMS: Array[String] = [
 	"ambiguous_sweet", "ambiguous_dark", "love_sweet", "love_dark",
 ]
 
-## The v5 terminal-intent handoff dwm-oyo.6 adopts (Amendment Plan 03 Task 4, ledger 1.3.5).
-## The saved value is exactly these seven sorted keys with two frozen literals, which is also
-## what makes it receipt-free: no checkpoint id, receipt or receipt-derived hash can ride
-## beside them.
 const TERMINAL_INTENT_HANDOFF_KEYS: Array[String] = [
 	"destination_outbox_record", "schema_version", "source_kind", "source_transaction_id",
 	"source_transaction_issuer_receipt", "status", "terminal_intent",
@@ -52,19 +46,12 @@ const TERMINAL_INTENT_HANDOFF_KEYS: Array[String] = [
 const TERMINAL_HANDOFF_SOURCE_KINDS: Array[String] = ["schedule_done", "condition_action"]
 const TERMINAL_HANDOFF_STATUS := "pending_oyo6"
 const TERMINAL_HANDOFF_SCHEMA_VERSION := 1
-## The closed six-key prepare_terminal_handoff request, discriminated on `source_kind`.
 const TERMINAL_HANDOFF_REQUEST_KEYS: Array[String] = [
 	"completed_resolution_plan", "destination_outbox_record", "source_kind",
 	"source_transaction_id", "source_transaction_issuer_receipt", "terminal_intent",
 ]
-## Each condition_hospital_history value's exact member set; ConditionHospitalPlan owns the
-## interior of both members and is the single validator this file delegates each record to.
 const CONDITION_HOSPITAL_HISTORY_RECORD_KEYS: Array[String] = ["completed_plan", "retirement_receipt"]
 
-## Desktop identity added in v4 (Plan 02 Task 6, dwm-p2r.32). `causal_day_instance` and its full
-## `causal_day_instance_issuer_receipt` are bound as one inseparable pair everywhere they travel
-## (brief line 203): reset() and commit_restore() are the only two places that may replace them, and
-## both always replace both fields together, never one alone.
 const _ISSUER_RECEIPT_KEYS: Array[String] = ["counter", "namespace", "numeric_value", "purpose", "receipt_id", "token"]
 const RESTORE_PROVENANCE_KEYS: Array[String] = [
 	"identity_allocation_receipt_id", "remap_receipt_id", "remap_receipt_provenance",
@@ -76,7 +63,6 @@ var _scene_runtime := false
 var _completed_registration_sha256 := ""
 var _scene_issuer: Object
 var _run_id := ""
-# Captured once at New Run and replaced only by a validated full restore.
 var _dark_mode := false
 var _day := 1
 var _state: StringName = PLAYING
@@ -88,19 +74,10 @@ var _desktop_timeline_generation := 0
 var _causal_day_instance := ""
 var _causal_day_instance_issuer_receipt: Dictionary = {}
 var _restore_provenance: Variant = null
-## The three v5 lifecycle members (Amendment Plan 03 Task 4, dwm-oyo.3): the pre-Done
-## condition-Hospital plan, its append-only completed-plan history, and the Day-7 terminal-intent
-## handoff dwm-oyo.6 adopts. Ordinary shape: null / {} / null.
 var _active_condition_hospital_plan: Variant = null
 var _condition_hospital_history: Dictionary = {}
 var _terminal_intent_handoff: Variant = null
 
-## `identity_allocation_receipt` is the committed continuation allocation bundle (brief lines
-## 259-283): this extracts the exact `causal_day_instance_issuer_receipt` from it and binds it
-## alongside `causal_day_instance` as one pair. Void by design, matching this method's existing
-## no-envelope precedent (the OLD one-arg `reset()` never validated anything either): the actual
-## enforcement point for a malformed/mismatched bundle is RunSnapshotSchema, run against this
-## object's own `to_dict()` output before any checkpoint or save.
 func reset(run_id: String, branch_id: String, desktop_timeline_generation: int,
 		causal_day_instance: String, identity_allocation_receipt: Dictionary, dark_mode: bool) -> void:
 	_scene_runtime = false
@@ -122,8 +99,6 @@ func reset(run_id: String, branch_id: String, desktop_timeline_generation: int,
 	_condition_hospital_history = {}
 	_terminal_intent_handoff = null
 
-## Exactly `{run_id,branch_id,desktop_timeline_generation,causal_day_instance,causal_day_instance_
-## issuer_receipt}` as detached primitives (brief line 200).
 func get_desktop_identity_context() -> Dictionary:
 	return {
 		"run_id": _run_id, "branch_id": _branch_id,
@@ -132,28 +107,12 @@ func get_desktop_identity_context() -> Dictionary:
 		"causal_day_instance_issuer_receipt": _causal_day_instance_issuer_receipt.duplicate(true),
 	}
 
-## The exact members this object's own slice of the enriched identity_allocation_bundle needs
-## (Task 6 Phase C, brief lines 259-283/287). `DesktopIdentityAllocationRestoreParticipant` is the
-## sole producer: it projects the issuer's raw continuation-allocation candidate into the brief's
-## bundle shape and attaches the one `continuation_operation` remap receipt `DesktopContinuation
-## Remapper.prepare()` emits (brief line 291) before Run/consequence/board each build their own
-## candidate from the same bundle. `transaction_remap_sha256` is NOT carried on the bundle -- this
-## object computes it itself, canonically, from the bundle's own `transaction_remap` member, so it
-## can never drift from the bytes actually bound.
 const _IDENTITY_ALLOCATION_BUNDLE_KEYS: Array[String] = [
 	"allocation_receipt_id", "branch_id", "causal_day_instance", "causal_day_instance_issuer_receipt",
 	"desktop_timeline_generation", "remap_receipt_id", "remap_receipt_provenance", "run_id",
 	"transaction_remap",
 ]
 
-## Builds this object's restore candidate from a durably-allocated, already-remapped identity
-## bundle (Task 6 Phase C). Restore-only: `run_id` must equal this object's OWN live run_id (brief
-## line 287, "for restore, run_id ... is validated source provenance rather than newly allocated"),
-## never a freshly minted one -- New Run installs identity through reset() instead. `source_identity`
-## is the SOURCE document's pre-restore identity, handed in explicitly by SaveManager (ruling T4-AF
-## item 23) -- never read off this object's own live members, which by the time this runs already
-## carry the destination identity. Pure: every field this reads comes from the bundle, the argument,
-## or this object's own live state; nothing is mutated.
 func prepare_continuation_remap(restore_transaction_id: String, identity_allocation_bundle: Dictionary,
 		source_identity: Dictionary) -> Dictionary:
 	if restore_transaction_id.strip_edges().is_empty():
@@ -206,9 +165,6 @@ func prepare_continuation_remap(restore_transaction_id: String, identity_allocat
 	}
 	return prepare_restore(candidate)
 
-## The validated candidate `prepare_continuation_remap()` returned is already a complete, exact
-## lifecycle dict, so committing it is exactly what commit_restore() already does -- no separate
-## adoption path is needed.
 func commit_continuation_remap(candidate: Dictionary) -> Dictionary:
 	return commit_restore(candidate)
 
@@ -218,11 +174,6 @@ func get_day() -> int:
 func get_state() -> StringName:
 	return _state
 
-## Begins a day resolution from the CANONICAL COMMITTED SCHEDULE (Plan 01 Task 6 Steps 6.3/6.6,
-## dwm-p2r.13). The transport names `committed_schedule` explicitly and carries the real aggregate;
-## the caller may no longer substitute a synthetic empty array for the entries it could not supply.
-## The registry-derived `route_plan` and the two receipt ids ride with the aggregate so the plan can
-## persist them (plan line 963) without re-deriving cost, route or effects from anything.
 func begin_day_resolution(
 	resolution_id: String,
 	committed_schedule: Dictionary,
@@ -235,21 +186,11 @@ func begin_day_resolution(
 		return _fail(&"invalid_state", "begin_day_resolution requires PLAYING")
 	if _has_ending_plan:
 		return _fail(&"invalid_state", "begin_day_resolution requires no ending plan")
-	# Safe plan succession (dwm-7e6 erratum). A COMPLETED plan is never cleared on completion: the
-	# coordinator calls resume_resolution() immediately after to observe plan_complete, and stage
-	# receipts exist only inside active_resolution_plan. It is replaced atomically, and only by a
-	# VALID new plan, so invalid input can never destroy the previous day's completed receipts.
-	# IDEMPOTENCE KEYS OFF THE DONE COMMAND, not the resolution id (dwm-p2r.18). On the minted path
-	# `resolution_id` is an issuer token, so a replayed Done command arrives carrying a DIFFERENT
-	# freshly minted token; comparing tokens would make every replay look like a new resolution and
-	# silently re-run a day that had already resolved.
 	var command_id := str(resolution_start.get("command_id", resolution_id))
 	if _plan != null:
 		if _plan.get_command_id() == command_id:
-			# Repeating the same Done command stays idempotent, complete or incomplete.
 			return {"ok": true, "code": &"ok", "value": {"plan": _plan.to_dict()}}
 		if not _plan.is_complete():
-			# A genuinely concurrent, unfinished resolution still conflicts.
 			return {"ok": false, "code": &"resolution_conflict", "message": _plan.get_resolution_id()}
 	var created: Dictionary = DAY_RESOLUTION_PLAN.create(
 		resolution_id, _day, committed_schedule.duplicate(true), route_plan.duplicate(true),
@@ -260,15 +201,6 @@ func begin_day_resolution(
 	return {"ok": true, "code": &"ok", "value": {"plan": _plan.to_dict()}}
 
 
-## PURE preparation (Plan 01 Task 6 Step 6.5, dwm-p2r.13). Runs the identical admission law as
-## begin_day_resolution and produces the same plan, but touches NOTHING: `_plan` is untouched on
-## every path, including the idempotent-replay and conflict paths. A reversible start port calls
-## this, decides whether to proceed, and only then commits -- so a participant that fails after
-## preparation leaves no half-begun resolution behind.
-##
-## `already_active` distinguishes the two success shapes the caller must treat differently: true
-## means this is the same resolution replayed and the candidate is the EXISTING plan, so committing
-## it is a no-op; false means the candidate is genuinely new.
 func prepare_day_resolution(
 	resolution_id: String,
 	committed_schedule: Dictionary,
@@ -281,8 +213,6 @@ func prepare_day_resolution(
 		return _fail(&"invalid_state", "prepare_day_resolution requires PLAYING")
 	if _has_ending_plan:
 		return _fail(&"invalid_state", "prepare_day_resolution requires no ending plan")
-	# Same command-keyed idempotence as begin_day_resolution above; the two must agree or a
-	# prepare/commit pair could disagree about whether a resolution is already active.
 	var command_id := str(resolution_start.get("command_id", resolution_id))
 	if _plan != null:
 		if _plan.get_command_id() == command_id:
@@ -302,17 +232,12 @@ func prepare_day_resolution(
 	}}
 
 
-## NARROW capture of the active plan alone (Step 6.5). Deliberately NOT to_dict(): a rollback that
-## restored run_id, day, state or the ending plan would let a failed day-resolution participant undo
-## an unrelated concurrent change. Only `active_resolution_plan` is captured, so only it can be
-## restored.
 func capture_active_plan() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {
 		"active_resolution_plan": _plan.to_dict() if _plan != null else null,
 	}}
 
 
-## Installs a prepared candidate. Silent: it changes only `_plan` and emits nothing.
 func commit_active_plan(candidate: Dictionary) -> Dictionary:
 	var restored: Dictionary = DAY_RESOLUTION_PLAN.from_dict(candidate)
 	if not restored.get("ok", false):
@@ -326,9 +251,6 @@ func commit_active_plan(candidate: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"plan": _plan.to_dict()}}
 
 
-## Restores exactly what capture_active_plan() returned, including a null active plan. Accepting
-## null is required rather than tolerated: rolling back the FIRST resolution of a run must be able
-## to put the lifecycle back to having no plan at all.
 func rollback_active_plan(backup: Dictionary) -> Dictionary:
 	if not backup.has("active_resolution_plan"):
 		return _fail(&"invalid_backup", "backup must carry active_resolution_plan")
@@ -482,12 +404,6 @@ func complete_ending() -> Dictionary:
 	_state = COMPLETED
 	return {"ok": true, "code": &"ok"}
 
-## Produces the DETACHED Day-7 terminal lifecycle/outbox candidate dwm-oyo.6 adopts
-## (Amendment Plan 03 Task 4, dwm-oyo.3). Step 2 implements the closed six-key request, the
-## source_kind discrimination, and the non-self-referentiality law; adoption itself is a Task-7
-## GameState seam, never a method on this class. Unlike every other method here, SUCCESS returns
-## the master envelope {ok, code, value: {before_fingerprint, lifecycle_candidate}, receipt: {}}
-## because the plan freezes that shape (plan:898); failure keeps this file's own three-key _fail.
 func prepare_terminal_handoff(request: Dictionary) -> Dictionary:
 	var keys := request.keys()
 	keys.sort()
@@ -519,8 +435,6 @@ func prepare_terminal_handoff(request: Dictionary) -> Dictionary:
 			return _fail(&"invalid_terminal_handoff_request",
 				"condition_action requires a null active_resolution_plan")
 	else:
-		# All five DAY_7_STAGES durably completed IS `is_complete()` on a source-day-7 plan;
-		# DayResolutionPlan owns which stages a Day-7 walk has, so nothing is re-listed here.
 		if _plan == null or not _plan.is_complete() or int(_plan.get_source_day()) != 7:
 			return _fail(&"invalid_terminal_handoff_request",
 				"schedule_done requires the completed Day-7 resolution plan")
@@ -543,14 +457,11 @@ func prepare_terminal_handoff(request: Dictionary) -> Dictionary:
 	var handoff_error := _validate_terminal_intent_handoff(handoff)
 	if handoff_error != "":
 		return _fail(&"invalid_terminal_handoff_request", handoff_error)
-	# to_dict() already deep-duplicates every member, so the candidate is detached and this
-	# method assigns to no field on any path.
 	var candidate := to_dict()
 	candidate["state"] = String(TERMINAL_PENDING)
 	candidate["terminal_intent_handoff"] = handoff.duplicate(true)
 	if source_kind == "schedule_done":
 		candidate["active_resolution_plan"] = null
-	# A candidate that could never be restored is never issued.
 	var candidate_error := _validate_lifecycle_dict(candidate)
 	if candidate_error != "":
 		return _fail(&"invalid_terminal_handoff_candidate", candidate_error)
@@ -559,7 +470,6 @@ func prepare_terminal_handoff(request: Dictionary) -> Dictionary:
 		"lifecycle_candidate": candidate,
 	}}
 
-# Scene progress has no legacy calendar day. This shape also identifies older scene saves.
 static func is_scene(data: Dictionary) -> bool:
 	return not data.has("day")
 
@@ -603,8 +513,6 @@ static func _dup_or_null(value: Variant) -> Variant:
 		return null
 	return (value as Dictionary).duplicate(true)
 
-## Process-local compensation may return to the constructor baseline, which is
-## deliberately not a persisted run. Keep this separate from prepare_restore.
 func is_uninstalled_backup(data: Dictionary) -> bool:
 	return var_to_bytes(data) == var_to_bytes(RunLifecycle.new().to_dict())
 
@@ -700,9 +608,6 @@ func _validate_lifecycle_dict(data: Dictionary) -> String:
 		var restored: Dictionary = DAY_RESOLUTION_PLAN.from_dict(data["active_resolution_plan"])
 		if not restored.get("ok", false):
 			return "invalid active_resolution_plan: " + str(restored.get("message", restored.get("code", "")))
-		# Defers to DayResolutionPlan, the single authority for the active-plan day window (dwm-7e6).
-		# Without this, a snapshot written mid-resolution would pass RunSnapshotSchema and then be
-		# rejected here on restore -- a save you can write but never load.
 		var window_error := DAY_RESOLUTION_PLAN.active_source_day_error(
 			int((restored["value"]["plan"] as RefCounted).get_source_day()), int(data["day"]),
 			data["active_resolution_plan"] as Dictionary)
@@ -727,14 +632,6 @@ func _validate_lifecycle_dict(data: Dictionary) -> String:
 			return "COMPLETED requires GALLERY_RECORDED playback"
 	return ""
 
-## The single owner of the three v5 lifecycle members' shape law (Amendment Plan 03 Task 4,
-## dwm-oyo.3), delegated to by RunSnapshotSchema exactly as _validate_desktop_identity is, so the
-## document schema and the live state machine cannot diverge. "" means pass. It owns the member
-## types, the TERMINAL_PENDING couplings, the two-plan mutual exclusion, the identity-split law
-## and the handoff shape; the plan value itself and each history record are delegated wholesale
-## to ConditionHospitalPlan. The TERMINAL_PENDING/ending_plan coupling is refused HERE, ahead of
-## the two ending-plan blocks; the mirrored return each of those blocks carries is defensive and
-## unreachable through them, kept so neither block states a law it does not enforce.
 static func _validate_condition_lifecycle(data: Dictionary) -> String:
 	if data["active_condition_hospital_plan"] != null \
 			and typeof(data["active_condition_hospital_plan"]) != TYPE_DICTIONARY:
@@ -752,8 +649,6 @@ static func _validate_condition_lifecycle(data: Dictionary) -> String:
 				"ending_plan"]:
 			if data[member] != null:
 				return "TERMINAL_PENDING requires a null " + member
-		# An inference, not a plan-frozen law (ledger 1.3.5): there is no Day 8, and this is
-		# what makes a TERMINAL_PENDING save stamped with another day unloadable.
 		if int(data["day"]) != 7:
 			return "TERMINAL_PENDING requires day 7"
 	elif data["terminal_intent_handoff"] != null:
@@ -773,9 +668,6 @@ static func _validate_condition_lifecycle(data: Dictionary) -> String:
 		if not validated.get("ok", false):
 			return "invalid active_condition_hospital_plan: " \
 					+ str(validated.get("message", validated.get("code", "")))
-		# Ledger 1.3.3: an ACTIVE advance_day, or a cursor past it, is the only legal
-		# source/target identity split; everywhere else the plan's source identity is the
-		# lifecycle's own. History is never compared to it (ledger 1.3.4).
 		var stages: Array = plan["stages"]
 		var advance_day: Dictionary = stages[CONDITION_HOSPITAL_PLAN.ADVANCE_DAY_STAGE_INDEX]
 		var advance_state := str(advance_day["state"])
@@ -808,10 +700,6 @@ static func _validate_condition_lifecycle(data: Dictionary) -> String:
 					+ str(record.get("message", record.get("code", "")))
 	return ""
 
-## The exact seven-key handoff value (ledger 1.3.5). Every message begins with the member name
-## so the delegating snapshot schema's rejection always names it. Unpublished-ness is the
-## outbox record's `status` literal, never a `published` boolean (deviation D-8), and the
-## payload/intent binding is the one canonical recipe rather than the record's own stored hash.
 static func _validate_terminal_intent_handoff(handoff: Dictionary) -> String:
 	var keys := handoff.keys()
 	keys.sort()
@@ -850,11 +738,6 @@ static func _validate_terminal_intent_handoff(handoff: Dictionary) -> String:
 		return "terminal_intent_handoff destination_outbox_record payload must be byte-equal to terminal_intent"
 	return ""
 
-## Structural self-consistency only, mirroring DesktopConsequenceState's own issuer-provenance
-## check (this object has no root-store access, so it cannot verify against the ledger -- that
-## happens at the point of issuance): `branch_id`/`causal_day_instance` nonblank; the receipt has
-## the exact frozen issuer-receipt shape, purpose `causal_day_instance`, and a token equal to the
-## adjacent field; `restore_provenance` is null or carries the exact frozen member set.
 static func _validate_desktop_identity(data: Dictionary) -> String:
 	if typeof(data["branch_id"]) != TYPE_STRING or str(data["branch_id"]).strip_edges().is_empty():
 		return "branch_id must be a nonblank String"
@@ -1055,7 +938,6 @@ static func validate_scene(data: Dictionary, issuer: Object) -> Dictionary:
 	var keys := data.keys()
 	keys.sort()
 	var expected := SCENE_LIFECYCLE_KEYS.duplicate()
-	# Old scene saves may retain the retired assignment; it no longer selects behavior.
 	if data.has("scene_assignment"): expected.append("scene_assignment")
 	var terminal: bool = data.get("state") == "ENDING" or (data.get("state") == "COMPLETED" and data.has("ending_plan"))
 	if terminal: expected.append("ending_plan")
@@ -1101,8 +983,6 @@ static func validate_scene(data: Dictionary, issuer: Object) -> Dictionary:
 const SCENE_ENDING_PLAN_KEYS := ["schema_version", "source_kind", "admission", "ending_id", "epilogue_ending_id",
 	"steps", "next_step_index", "playback_stage", "playback_receipts", "source_reading_checkpoint"]
 
-## Source reading remains provenance, while the active checkpoint is an ending
-## checkpoint. No numeric day or legacy eligibility is synthesized.
 func enter_scene_ending(plan: Dictionary) -> Dictionary:
 	if _state != PLAYING or not _scene_runtime:
 		return _fail(&"invalid_state", "scene ending requires a PLAYING scene run")

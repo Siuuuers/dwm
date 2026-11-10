@@ -1,5 +1,4 @@
 extends RefCounted
-## A read-only scene-boundary projection. Preferences for a future run are not consulted.
 
 static func read(owner: Object) -> Dictionary:
 	if not is_instance_valid(owner) or not owner.has_method("get_run_configuration"):

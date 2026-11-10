@@ -131,7 +131,6 @@ func initialize(storage: RefCounted = null) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": _profile.duplicate(true)}
 
 
-## Startup may bind storage before Profile adoption. This never reads or writes files.
 func configure_new_run_storage(storage: RefCounted) -> Dictionary:
 	if not _supports_new_run_storage(storage):
 		return _failure(&"invalid_storage", "New Run requires revision-aware Profile storage")
@@ -143,8 +142,6 @@ func configure_new_run_storage(storage: RefCounted) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"already_configured": already}}
 
 
-## Freeze current Profile facts, not a legacy-import candidate. Preparation has no
-## reconciliation side effects: unfinished storage artifacts must be recovered first.
 func prepare_new_run_consumption(expected_revision: Variant) -> Dictionary:
 	if not _initialized:
 		return _failure(&"not_initialized", "Profile must be initialized before New Run preparation")
@@ -182,10 +179,6 @@ func prepare_new_run_consumption(expected_revision: Variant) -> Dictionary:
 		"outgoing_text": text, "outgoing_hash": text.sha256_text()}}
 
 
-## The existing joint New Run transaction owns persistence/adoption. This only
-## prepares one exact assignment against the current durable Profile revision.
-## Caller must authenticate successful creation chronology: an empty draw ledger
-## alone cannot prove there was no legacy run whose delayed draw never committed.
 func prepare_scene_new_run_consumption(expected_revision: Variant, run_id: String,
 		creation_transaction_id: String, rng_nonce: Variant = null) -> Dictionary:
 	if not _initialized: return _failure(&"not_initialized", "Profile must be initialized")
@@ -220,8 +213,6 @@ func prepare_scene_new_run_consumption(expected_revision: Variant, run_id: Strin
 	var validated: Dictionary = validate_scene_new_run_material(material)
 	return {"ok": true, "code": &"ok", "value": material} if validated.ok else validated
 
-## Pure delegation point for the joint NewRunMaterials owner. No RNG, filesystem,
-## allocation or adoption occurs here; historical material remains separately exact.
 static func validate_scene_new_run_material(material: Dictionary) -> Dictionary:
 	if not PAIR_DECK._scene_keys(material, SCENE_NEW_RUN_MATERIAL_KEYS) \
 			or not material.before is Dictionary or not material.candidate is Dictionary \
@@ -258,8 +249,6 @@ static func validate_scene_new_run_material(material: Dictionary) -> Dictionary:
 		return {"ok": false, "code": &"invalid_scene_new_run_material"}
 	return {"ok": true, "code": &"ok"}
 
-## The caller owns the joint Autosave/Profile decision. This writes only Profile,
-## under that caller's New Run custody, and never adopts or publishes its candidate.
 func persist_new_run_consumption(material: Dictionary) -> Dictionary:
 	if _new_run_persisting:
 		return _failure(&"profile_new_run_busy", "Profile persistence is already active")
@@ -274,8 +263,6 @@ func persist_new_run_consumption(material: Dictionary) -> Dictionary:
 	return result
 
 
-## Read-only proof is also usable after startup or live adoption has advanced the
-## in-memory Profile revision. It never reconciles or publishes Profile state.
 func prove_new_run_consumption(material: Dictionary) -> Dictionary:
 	var checked: Dictionary = _validate_new_run_material(material)
 	if not checked.get("ok", false): return checked
@@ -293,8 +280,6 @@ func prove_new_run_consumption(material: Dictionary) -> Dictionary:
 func _persist_new_run_material(material: Dictionary) -> Dictionary:
 	var inspected: Dictionary = _storage.inspect_revision("profile.json")
 	if not inspected.get("ok", false) and inspected.get("code") == &"reconcile_required":
-		# Only our conditional-write marker may be reconciled. An unrelated pending
-		# Profile deletion/write must not be completed before discovering the conflict.
 		var marker_read: Dictionary = _storage.inspect_revision("profile.json.txn.json")
 		if not marker_read.get("ok", false): return marker_read
 		var marker_text: Variant = marker_read["value"].get("text")
@@ -501,8 +486,6 @@ func _commit_profile_candidate(candidate: Dictionary, defer_signals: bool = fals
 		if scene_draws != _scene_assignment_records(_profile.pair_deck_draws):
 			return _failure(&"scene_assignment_joint_new_run_required", "Only joint New Run persists scene assignments")
 		if not scene_draws.is_empty():
-			# Silent participant adoption is not a durable append capability. Verify
-			# these rows already exist in the joint transaction's actual disk output.
 			if not _supports_new_run_storage(_storage): return _failure(&"invalid_storage", "Revision-aware storage is required")
 			var stored: Dictionary = _storage.inspect_revision("profile.json")
 			if not stored.ok: return stored
@@ -615,8 +598,6 @@ func is_caption_variant_witnessed(beat: Dictionary) -> bool:
 	return _initialized and CAPTION_WITNESSES.contains(_profile.witnessed_caption_variants, beat)
 
 
-## The visible presentation owner supplies its admitted registry row. Both exact
-## and base-line history become durable in one commit; registration alone writes nothing.
 func mark_caption_variant_witnessed(beat: Dictionary, registry: Dictionary, checkpoint_id: String = "") -> Dictionary:
 	var guarded := _guard(&"profile_commit")
 	if not guarded.ok: return guarded
@@ -677,9 +658,6 @@ func flush_reading_history() -> Dictionary:
 	return persisted
 
 
-## The presentation owner supplies only captions actually presented in its session.
-## Registry membership validates descriptors; it is not evidence of presentation.
-## History status means a new base line, even when a new exact variant is committed.
 func merge_caption_history(beats: Array[Dictionary], registry: Dictionary, expected_revision: int = -1, checkpoint_id: String = "") -> Dictionary:
 	var guarded := _guard(&"profile_commit")
 	if not guarded.ok: return guarded
@@ -712,8 +690,6 @@ func merge_caption_history(beats: Array[Dictionary], registry: Dictionary, expec
 	return {"ok": true, "code": &"ok", "value": {"history_added": history_added}}
 
 
-## Accepted visible reading supplies the actual checkpoint. Replayed history and
-## ordinary ledger restoration leave this argument empty and discover nothing.
 static func _discover_dialogue(library: Dictionary, discovery: Dictionary) -> bool:
 	if discovery.is_empty(): return false
 	var changed := false
@@ -726,8 +702,6 @@ static func _discover_dialogue(library: Dictionary, discovery: Dictionary) -> bo
 	return changed
 
 
-## Only physical presentation owners call this after a counted event or ending.
-## A hidden New Run selection never writes a witness receipt.
 func record_pair_form_witness(form: String, transaction_id: String) -> Dictionary:
 	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
 	if form not in SCHEMA.PAIR_FORMS or transaction_id.strip_edges().is_empty():
@@ -742,13 +716,11 @@ func record_pair_form_witness(form: String, transaction_id: String) -> Dictionar
 	return commit_prepared_profile(candidate)
 
 
-## Detached first-attempt history; it survives older run saves and Clear Gallery.
 func get_dating_attempt(run_id: String, slot_id: String, attempt_id: String = "", branch_id: String = "") -> Dictionary:
 	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
 	return DATING_ATTEMPTS.read(_profile.dating_attempts, run_id, slot_id, attempt_id, branch_id)
 
 
-## Bound once by the application to its actual GameState semantic authority.
 func configure_scene_absence_validator(validator: Callable) -> Dictionary:
 	if _scene_absence_busy:
 		_scene_absence_reentered = true
@@ -793,7 +765,6 @@ func _validate_scene_absence_context(context: Dictionary) -> Dictionary:
 		return _failure(&"scene_absence_not_authorized", "The selected source owner refused admission")
 	return {"ok": true}
 
-## Pure preview: Load does not persist anything. Use its selection on the first action.
 func prepare_dating_continuation(run_id: String, slot_id: String, attempt_id: String,
 		source_branch_id: String, branch_id: String, saved_record: Dictionary) -> Dictionary:
 	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
@@ -848,8 +819,6 @@ func prepare_dating_attempt(run_id: String, slot_id: String, branch_id: String, 
 	return {"ok": true, "code": &"ok", "value": material}
 
 
-## The Profile commit is durable before the caller writes Autosave. An Autosave failure
-## must retry/reconcile this committed attempt, never roll the Profile commitment back.
 func commit_dating_attempt(material: Dictionary) -> Dictionary:
 	if _scene_absence_busy:
 		_scene_absence_reentered = true
@@ -898,8 +867,6 @@ func commit_dating_attempt(material: Dictionary) -> Dictionary:
 			return _failure(&"pair_form_witness_conflict", "The completed attempt already witnessed another form")
 		requires_witness = not witnesses.has(witness_id)
 	if absence:
-		# Re-read the immutable entry and destination progress immediately before
-		# persistence, under the same real lease. The callback may not mutate either.
 		var authorized: Dictionary = _validate_scene_absence_context(_scene_absence_context)
 		if not authorized.ok: return authorized
 		if not is_same(material, _scene_absence_material) or material != _scene_absence_material_value \
@@ -919,8 +886,6 @@ func commit_dating_attempt(material: Dictionary) -> Dictionary:
 		return {"ok": true, "code": &"ok", "value": {"attempt": attempt.duplicate(true), "already_recorded": true}}
 	var candidate := _profile.duplicate(true)
 	candidate["dating_attempts"] = prepared.value.ledger.duplicate(true)
-	# Physical completion and the presented pair form share one durable Profile write.
-	# The ordinary witness API intentionally remains closed while this causal lease is held.
 	if requires_witness:
 		candidate["pair_form_witness_receipts"][witness_id] = attempt.record.pair_form
 	var committed := _commit_profile_candidate(candidate, false, material.profile_revision)
@@ -933,7 +898,6 @@ func commit_dating_attempt(material: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"attempt": prepared.value.attempt.duplicate(true), "already_recorded": false}}
 
 
-## Finite Observer presentation evidence is Profile-wide and independent of board mastery.
 func get_observer_evidence() -> Dictionary:
 	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
 	return {"ok": true, "value": {"by_scope": OBSERVER_EVIDENCE.evidence(_profile.observer_evidence),
@@ -957,9 +921,6 @@ func get_pair_deck_draw(run_id: String) -> Dictionary:
 	var receipt: Variant = _profile.pair_deck_draws.get(run_id)
 	return {"ok": true, "value": receipt.duplicate(true) if receipt is Dictionary else null}
 
-## A completed creation keeps its immutable assignment through later Profile writes.
-## Prove that row against current physical canonical bytes, never an old whole-file
-## hash or silent in-memory adoption. Pending creation still uses full-output proof.
 func prove_scene_assignment(run_id: String, receipt: Dictionary) -> Dictionary:
 	var started_us: int = _SCENE_VALIDATION_TIMING.start_sample()
 	var result: Dictionary = _prove_scene_assignment_observed_body(run_id, receipt)
@@ -967,8 +928,6 @@ func prove_scene_assignment(run_id: String, receipt: Dictionary) -> Dictionary:
 	return result
 
 func _prove_scene_assignment_observed_body(run_id: String, receipt: Dictionary) -> Dictionary:
-	# Bootstrap binds storage before adoption; this physical proof intentionally
-	# works before initialize() and never reads the live Profile candidate.
 	if _mutation_blocked: return _failure(&"indeterminate_commit", "Profile mutation is blocked", true)
 	if not PAIR_DECK._scene_id(run_id): return _failure(&"invalid_scene_assignment", "Run identity is required")
 	var expected: Dictionary = PAIR_DECK.validate_scene(receipt)
@@ -988,8 +947,6 @@ func _prove_scene_assignment_observed_body(run_id: String, receipt: Dictionary) 
 		return _failure(&"scene_assignment_unproven", "Current Profile is not canonical")
 	var retained: Dictionary = PAIR_DECK.validate_scene(decoded.value.pair_deck_draws.get(run_id))
 	if not retained.ok: return retained
-	# Both rows have the strict flat G7 shape. Compare types before canonical bytes
-	# so numeric substitutions cannot acquire authority through JSON normalization.
 	for field: String in PAIR_DECK.SCENE_KEYS:
 		if typeof(receipt[field]) != typeof(retained.value[field]):
 			return _failure(&"scene_assignment_unproven", "Stored assignment types differ")
@@ -1045,8 +1002,6 @@ func record_reached_presentation(signature: Dictionary) -> Dictionary:
 	var candidate := _profile.duplicate(true)
 	candidate["reached_presentations"][id] = signature.duplicate(true)
 	candidate.reached_presentation_chronology.first_witnessed.append(id)
-	# Canonical physical completion may retain its causal lease; standalone canonical owners
-	# use the ordinary Profile admission gate. Rehearsal owns neither path.
 	var committed: Dictionary
 	if _mutation_gate != null and _mutation_gate.is_internal_owner_active(&"causal_transaction"):
 		committed = _commit_profile_candidate(candidate)
@@ -1068,7 +1023,6 @@ func get_reached_presentations(entry_id: String = "") -> Dictionary:
 		if entry_id.is_empty() or signature.entry_id == entry_id:
 			records.append({"signature_id": id, "signature": signature.duplicate(true)})
 			projected["first_witnessed" if index < chronology.first_witnessed.size() else "legacy_unordered"].append(id)
-	# The durable sequence is oldest-first; only the visible record query is newest-first.
 	projected.first_witnessed.reverse()
 	return {"ok": true, "value": {"records": records, "chronology": projected}}
 
@@ -1120,8 +1074,6 @@ func has_gallery_unlock(ending_id: String) -> bool:
 
 func get_gallery_discovery_snapshot() -> Dictionary:
 	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
-	# This owner's append-only discovery list is persisted without sorting. A
-	# rediscovery never appends; Clear Gallery starts a fresh discovery list.
 	return {"ok": true, "code": &"ok", "value": {"revision": get_profile_revision(),
 		"ending_ids": _profile["gallery_unlocks"].duplicate()}}
 
@@ -1161,8 +1113,6 @@ func unlock_ending(ending_id: String, transaction_id: String) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": (value["gallery_receipt"] as Dictionary).duplicate(true)}
 
 
-## Ordinary-DTL Finish calls this once under its causal lease. Start and replay
-## have no Profile write; the stable run/passage identity makes Finish retryable.
 func record_scene_passage_completion(passage_id: String, transaction_id: String) -> Dictionary:
 	if not SCHEMA.is_scene_passage_id(passage_id) or not transaction_id.begins_with("passage:") \
 			or not transaction_id.ends_with(":gallery:" + passage_id) \
@@ -1178,8 +1128,6 @@ func record_scene_passage_completion(passage_id: String, transaction_id: String)
 	return {"ok": true, "value": prepared.value.gallery_receipt.duplicate(true)}
 
 
-## Called by the ending owner after its exact physical completion, under the shared causal
-## lease. The ordinary Profile mutation guard remains closed to UI and preference callers.
 func record_ending_completion(ending_id: String, transaction_id: String, pair_form: String = "") -> Dictionary:
 	if _mutation_gate != null and not _mutation_gate.is_internal_owner_active(&"causal_transaction"):
 		return _failure(&"ending_completion_custody_required", "Ending completion requires its causal lease")
@@ -1215,8 +1163,6 @@ func record_ending_completion(ending_id: String, transaction_id: String, pair_fo
 	return {"ok": true, "code": &"ok", "value": prepared.value.gallery_receipt.duplicate(true)}
 
 
-## Pure candidate update shared by real completion and compatibility adoption.
-## Receipt history survives Clear Gallery; neither a getter nor Gallery replay writes it.
 static func _grant_discovered_dark_mode(candidate: Dictionary) -> bool:
 	if candidate.preferences.dark_mode.available: return false
 	var required: Array = ["ending.priscilla.dark", "ending.lavinia.dark", "ending.sylvia.dark", "ending.sylvia.special"]
@@ -1229,8 +1175,6 @@ static func _grant_discovered_dark_mode(candidate: Dictionary) -> bool:
 	return true
 
 
-## The receipt ledger survives Clear Gallery and ordinary run restoration. A preview or
-## Gallery replay adds no receipt here, so neither can manufacture the first-ending milestone.
 func has_completed_ending() -> bool:
 	if not _initialized: return false
 	return _has_ending_completion_evidence(_profile) or not (_profile.gallery_unlocks as Array).is_empty()
@@ -1248,8 +1192,6 @@ static func _has_ending_completion_evidence(profile: Dictionary) -> bool:
 
 func _preserve_legacy_ending_milestone(candidate: Dictionary) -> void:
 	if _has_ending_completion_evidence(_profile) or (_profile.gallery_unlocks as Array).is_empty(): return
-	# A migrated Gallery-only profile already proves an ending was achieved. Retain that
-	# historical evidence before a reset removes its visible discovery list.
 	candidate.gallery_transaction_receipts["profile:legacy-ending-milestone"] = {
 		"ending_id": str(_profile.gallery_unlocks[0]), "unlocked": false}
 
@@ -1276,8 +1218,6 @@ func get_input_mappings() -> Dictionary:
 
 
 func set_input_mapping(action_id: StringName, events: Array[Dictionary]) -> Dictionary:
-	# Compatibility entry point for one device at a time. Never write provenance,
-	# erase the other slot, or silently accept a conflict without Swap consent.
 	if events.size() != 1:
 		return _failure(&"invalid_binding_change", "Exactly one input slot is required")
 	var kind: Variant = events[0].get("kind")
@@ -1337,8 +1277,6 @@ func commit_controls_import(proposal: Dictionary) -> Dictionary:
 	for field: String in ["revision", "before", "legacy_bindings", "after"]:
 		if not proposal.has(field):
 			return _failure(&"invalid_binding_proposal", "Import proposal is malformed")
-	# Dictionary equality alone allows numerically equal integer/float metadata.
-	# Validate the supplied source with the same strict types as its durable owner.
 	var source := _profile.duplicate(true)
 	source.controls_bindings = proposal.before
 	source.input_mappings = proposal.legacy_bindings
@@ -1518,8 +1456,6 @@ func _prepare_entire_profile_reset() -> Dictionary:
 	var candidate := SCHEMA.make_defaults()
 	candidate["gallery_transaction_receipts"] = _profile["gallery_transaction_receipts"].duplicate(true)
 	candidate["migration_receipts"] = _profile["migration_receipts"].duplicate(true)
-	# The accepted full-reset exception removes completion/milestone evidence, while unrelated
-	# transaction receipts retain the existing reset contract. Clear Gallery keeps these IDs.
 	for transaction_id: String in candidate.gallery_transaction_receipts.keys():
 		var receipt: Dictionary = candidate.gallery_transaction_receipts[transaction_id]
 		if transaction_id == "profile:legacy-ending-milestone" or (transaction_id.begins_with("ending:")
@@ -1847,8 +1783,6 @@ func _command_failure(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code, "details": {}, "receipt": {}}
 
 
-# The fingerprint, rather than an empty index, distinguishes an explicitly configured empty
-# registry from the unconfigured state.
 var _line_registry_index: Dictionary = {}
 var _line_registry_fingerprint := ""
 
@@ -1856,8 +1790,6 @@ var _line_registry_fingerprint := ""
 func configure_line_registry(registry: Dictionary) -> Dictionary:
 	var block: Variant = registry.get("reply_lines")
 	if registry.get("kind") == "scene_ids_registry":
-		# Scene lines belong to the complete immutable installed registration.
-		# Never accept a caller-created list by projecting it into legacy replies.
 		var checked: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").validate_ids_document(registry)
 		if not checked.get("ok", false): return _command_failure(&"invalid_line_registry")
 		block = registry.get("lines")

@@ -1,5 +1,4 @@
 extends Control
-## Fixed status bays consume public facts only; raw boards and metric operands never enter this control.
 
 signal difficulty_requested(difficulty: StringName)
 
@@ -22,8 +21,6 @@ class Metric extends Control:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 		focus_mode = Control.FOCUS_NONE
 
-	## Shaping is the fallible half and changes nothing; a refused composition leaves
-	## every retained bay exactly as the last accepted one left it.
 	func measure(label: String, value: String, next_theme: Theme, width: int) -> Dictionary:
 		var label_result: Dictionary = TEXT.measure_copy(label,next_theme,width-16)
 		var tabular := next_theme.duplicate() as Theme
@@ -130,8 +127,6 @@ func _valid(view: Dictionary) -> bool:
 		seen.append(tier)
 	return true
 
-## Plans the whole composition without mutating a single installed bay: retained nodes are
-## reused, and only a changed theme, scale or copy costs a rebuilt button or a reshaped metric.
 func _compose(view: Dictionary, next_theme: Theme, host: String, locale: String, large: bool) -> Dictionary:
 	var copy := COPY.get_copy(locale)
 	var candidate_buttons: Dictionary = {}
@@ -181,7 +176,6 @@ func _compose(view: Dictionary, next_theme: Theme, host: String, locale: String,
 				minimums.append(minimum)
 				widths[index] = maxi(160,minimum)
 				excess += widths[index]-160
-			# Keep the authored bays unless a label needs room; borrow only spare width.
 			while excess > 0:
 				var reduced := false
 				for index in TIERS.size():
@@ -231,7 +225,6 @@ func _compose(view: Dictionary, next_theme: Theme, host: String, locale: String,
 		height = maxi(height,status_y+int(metric.content_height() if retained else measured.height))
 	return {"buttons":candidate_buttons,"metrics":candidate_metrics,"height":height,"status_y":status_y}
 
-## Keep the status block fixed; extra heading width comes from its spare capacity.
 func _status_allocations(next_theme: Theme, host: String, locale: String, copy: Dictionary) -> Array:
 	var allocations: Array = [["rounds",240,72],["mine_estimate",312,88]] if host == "desktop_app" else [["mine_estimate",392,88]]
 	var labels: Dictionary = {}
@@ -310,7 +303,6 @@ func _request(tier: String) -> void:
 func _draw() -> void:
 	if theme == null or public_view.is_empty(): return
 	draw_rect(Rect2(Vector2.ZERO,size),theme.get_color(&"controlled_face" if _host == "desktop_app" else &"habitat",&"Minesweeper"))
-	# Canonical blank capacity has no field face, seam, label or node.
 	if _host == "desktop_app":
 		var status_y: float = metrics.rounds.position.y
 		var button_band: float = status_y if status_y > 0 else size.y

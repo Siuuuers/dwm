@@ -1,9 +1,6 @@
 class_name LocalizationRestoreParticipant
 extends RefCounted
 
-## Restore participant wrapping LocalizationManager, driven only by the prepared
-## profile candidate's language and typography
-## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 7).
 
 var _owner: Object = null
 

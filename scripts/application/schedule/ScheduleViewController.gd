@@ -1,41 +1,15 @@
 class_name ScheduleViewController
 extends RefCounted
 
-## The editable saved-ScheduleView owner (Amendment Plan 03 Task 2, dwm-oyo.3).
-##
-## Exact frozen 12-method surface from the plan (Task 2 Step 4), the Task-3 warning surface
-## (see the derived-surface note above the warning methods), and the synchronous UI docket-edit
-## seam. The controller derives
-## kind, participants, repeatability and eligibility from the injected registry through
-## ScheduleActionRegistry.lookup() at the configured fingerprint; every edit is validated
-## through the injected ScheduleRules (validate_draft_candidate for adds -- existing-state
-## failure wins before candidate failure -- and validate_draft for the prospective sets a
-## move or remove produces). Drafting reserves and spends no motivation and never touches
-## the canonical committed Schedule: this class holds no GameState reference at all.
-##
-## Adding any solo/group date latches date_entry_seen; removing the last date never clears
-## it. open_day() replaces only the day-local editable/warning fields and preserves the
-## append-only condition-departure receipt index. commit()/rollback() install ONLY the
-## editable/warning fields of a validated same-day candidate/backup, so no edit path can
-## ever mutate the ledger; the ledger changes exclusively through open_day() preservation
-## and commit_condition_departure_transition()'s single-owner append, whose semantics are:
-## an existing byte-identical entry returns unchanged without applying any view, live-before
-## applies exactly once, live-after may adopt the receipt, and changed bytes or any third
-## live state return a typed conflict without partial mutation. install_restored_view() is the
-## single restore-only path that DOES replace the ledger, so that no-edit-path-mutates-it
-## guarantee holds for every edit path.
 
 const _VIEW_STATE := preload("res://scripts/domain/schedule/ScheduleViewState.gd")
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const _WARNING_POLICY := preload("res://scripts/domain/schedule/ScheduleWarningPolicy.gd")
 
-## The day-local members commit/rollback/transition installs replace; the ledger is not
-## among them by design.
 const _EDITABLE_KEYS: Array = [
 	"causal_day_instance", "consumed_warning_receipts", "date_entry_seen", "day", "entries",
 	"pending_warning",
 ]
-## Exact transition candidate keys (sorted), from the plan's Step 4 contract.
 const _CONDITION_CANDIDATE_KEYS: Array = [
 	"schedule_view_after", "schedule_view_before", "schedule_view_commit_receipt",
 ]
@@ -128,7 +102,6 @@ func _prepare_add_on_view(view: Dictionary, action_id: String, source_receipt_id
 
 
 func apply_docket_edit(command: Dictionary, expected_fingerprint: String) -> Dictionary:
-	# fingerprint() already guards and validates the complete live view.
 	var current_fingerprint: Dictionary = fingerprint()
 	if not current_fingerprint.get("ok", false):
 		return current_fingerprint
@@ -156,9 +129,6 @@ func apply_docket_edit(command: Dictionary, expected_fingerprint: String) -> Dic
 			if move_source < 0:
 				return _fail(&"draft_entry_not_found", "no draft entry carries this id", {})
 			if move_source == target:
-				# The accepted same-position operation is strictly a no-change, including
-				# legacy sparse views. A presentation host must reject sparse input before
-				# mounting; this command is not an implicit save migration.
 				return _ok({"view": _view.duplicate(true)})
 			var moved: Dictionary = ordered.pop_at(move_source)
 			ordered.insert(target, moved)
@@ -206,7 +176,6 @@ func prepare_remove(draft_entry_id: String) -> Dictionary:
 		_fingerprint, _source_class_index(remaining))
 	if not checked.get("ok", false):
 		return checked
-	# date_entry_seen is a latch: removing the last date never clears it.
 	var candidate := _view.duplicate(true)
 	candidate["entries"] = remaining
 	return _ok({"candidate": candidate})
@@ -279,13 +248,10 @@ func commit_condition_departure_transition(candidate: Dictionary) -> Dictionary:
 	var source_id := str(receipt["source_condition_receipt_id"])
 	var ledger: Dictionary = _view["condition_departure_receipts"]
 	if ledger.has(source_id):
-		# An existing byte-identical entry returns unchanged without applying any view.
 		if _same_bytes(ledger[source_id], receipt):
 			return _ok({"receipt": (ledger[source_id] as Dictionary).duplicate(true)})
 		return _conflict(source_id, "an occupied source id refuses changed bytes")
 	if _same_bytes(_view, candidate["schedule_view_before"]):
-		# Live-before applies exactly once: one owner mutation installs the after-view's
-		# editable/warning fields and appends the receipt, preserving every earlier entry.
 		var after_view: Dictionary = candidate["schedule_view_after"]
 		var validated: Dictionary = _VIEW_STATE.validate(after_view, _registry, _fingerprint)
 		if not validated.get("ok", false):
@@ -295,7 +261,6 @@ func commit_condition_departure_transition(candidate: Dictionary) -> Dictionary:
 			receipt.duplicate(true)
 		return _ok({"receipt": receipt.duplicate(true)})
 	if _same_bytes(_view, candidate["schedule_view_after"]):
-		# Live-after adopts the receipt without reapplying the view.
 		(_view["condition_departure_receipts"] as Dictionary)[source_id] = \
 			receipt.duplicate(true)
 		return _ok({"receipt": receipt.duplicate(true)})
@@ -317,16 +282,10 @@ func rollback(backup: Dictionary) -> Dictionary:
 	return _install_checked(backup, &"invalid_view_backup", "backup")
 
 
-## The restore-only whole-view installer (Amendment Plan 03 Task 4, dwm-oyo.3). Unlike
-## commit()/rollback(), which install only _EDITABLE_KEYS onto an already-open SAME day, a restored
-## view carries its own day, its own causal identity, and its own append-only ledger, so this
-## replaces every one of ScheduleViewState.VIEW_KEYS. Requires configure(); does NOT require
-## open_day() -- a restore is what opens the day.
 func install_restored_view(view: Variant) -> Dictionary:
 	var guard := _configured_guard()
 	if not guard.is_empty():
 		return guard
-	# A null capture represents the state before the first day was opened.
 	if view == null:
 		_view = {}
 		return _ok({"view": null})
@@ -348,20 +307,6 @@ func install_restored_view(view: Variant) -> Dictionary:
 	return _ok({"view": _view.duplicate(true)})
 
 
-# ---- the Task-3 warning surface (Amendment Plan 03 Task 3 Steps 5-6, dwm-oyo.3) ----
-#
-# DERIVED SURFACE NOTE (deviation-class design decision, Task 3 Phase A -- reviewer, see the
-# task record). The plan names only configure_warning_identity() (Step 5) and the terminal
-# resolve_warning() transaction root (child-identity rows P03.warning.dismissal/navigation,
-# plan lines 108-109). The activation entry request_warning_activation(transaction_id,
-# transaction_issuer_receipt, context) is DERIVED from Step 5's "ScheduleDoneCommandPort
-# later passes {transaction_id,transaction_issuer_receipt}" plus row P03.warning.activation
-# (parent: the request_done() transaction receipt) and Step 6's modal idempotence law.
-# resolve_warning(transaction_id, transaction_issuer_receipt, resolution) carries one exact
-# resolution Dictionary: {outcome:"dismissed"} | {outcome:"navigation_committed",
-# intent:String} | {outcome:"navigation_failed", intent:String, failure_code:String}.
-# No separate read methods exist: pending_warning, its attempt_receipts, and
-# consumed_warning_receipts are Task-2 view members and ride snapshot().
 
 
 func configure_warning_identity(identity_issuer: Object) -> Dictionary:
@@ -396,8 +341,6 @@ func request_warning_activation(transaction_id: String,
 		return crossover
 	var pending: Variant = _view["pending_warning"]
 	if typeof(pending) == TYPE_DICTIONARY:
-		# Modal idempotence: the same Done command returns the same pending activation;
-		# any different Done command is rejected while the modal is open.
 		if str((pending as Dictionary)["opened_by_transaction_id"]) == transaction_id:
 			return _ok({"warning": (pending as Dictionary).duplicate(true)})
 		return _fail(&"warning_modal_active",
@@ -410,9 +353,6 @@ func request_warning_activation(transaction_id: String,
 		return _ok({"warning": null})
 	var kind := str((warning as Dictionary)["warning_kind"])
 	var digest := str((warning as Dictionary)["warning_state_fingerprint"])
-	# The immutable preimage is exactly {view_projection, context}; canonical hashing of
-	# this stored preimage equals warning_state_fingerprint, and no later copy is ever
-	# reconstructed from live owners.
 	var preimage := {
 		"view_projection": {
 			"day": int(_view["day"]),
@@ -464,8 +404,6 @@ func resolve_warning(transaction_id: String, transaction_issuer_receipt: Diction
 	if not root.is_empty():
 		return root
 	var outcome := str(resolution["outcome"])
-	# Terminal-transaction idempotence and conflict law, checked before anything mutates:
-	# an identical replay returns the original durable receipt; changed bytes refuse.
 	var consumed: Dictionary = _view["consumed_warning_receipts"]
 	for key: Variant in consumed:
 		var stored: Variant = consumed[key]
@@ -518,15 +456,11 @@ func resolve_warning(transaction_id: String, transaction_issuer_receipt: Diction
 		"terminal_result": outcome,
 	}
 	if outcome == "navigation_failed":
-		# A failed route appends its terminal receipt durably, leaves the same activation
-		# pending, and never enters the consumed map.
 		receipt["failure_code"] = str(resolution["failure_code"])
 		var live_attempts: Dictionary = \
 			(_view["pending_warning"] as Dictionary)["attempt_receipts"]
 		live_attempts[transaction_id] = receipt.duplicate(true)
 		return _ok({"receipt": receipt.duplicate(true)})
-	# A successful terminal stores its durable receipt under fingerprint|kind FIRST and
-	# removes the pending activation only afterwards.
 	var consumed_key := str(open_pending["warning_state_fingerprint"]) + "|" \
 			+ str(open_pending["warning_kind"])
 	(_view["consumed_warning_receipts"] as Dictionary)[consumed_key] = \
@@ -535,7 +469,6 @@ func resolve_warning(transaction_id: String, transaction_issuer_receipt: Diction
 	return _ok({"receipt": receipt.duplicate(true)})
 
 
-# ---- warning internals ----
 
 func _warning_guard() -> Dictionary:
 	var guard := _view_guard()
@@ -547,9 +480,6 @@ func _warning_guard() -> Dictionary:
 	return {}
 
 
-## A transaction root is single-purpose (Important-1, Task 3 review): an ID that
-## already anchors a terminal receipt -- consumed or failed-attempt -- never opens
-## an activation, and the activation's own root never resolves it.
 func _terminal_transaction_error(transaction_id: String) -> Dictionary:
 	var consumed: Dictionary = _view["consumed_warning_receipts"]
 	for key: Variant in consumed:
@@ -605,8 +535,6 @@ func _resolution_error(resolution: Dictionary) -> Dictionary:
 	return {}
 
 
-## The exact P03.warning.dismissal / P03.warning.navigation source projections (plan lines
-## 108-109), lexically sorted before issuance.
 func _terminal_sources(anchor: Dictionary, resolution: Dictionary) -> Array:
 	var sources: Array = []
 	if str(resolution["outcome"]) == "dismissed":
@@ -639,13 +567,11 @@ func _matches_terminal(stored: Dictionary, resolution: Dictionary) -> bool:
 	return true
 
 
-## P(name,value): the single nonblank String name + "=" + canonical JSON (plan line 103).
 func _p(name: String, value: Variant) -> String:
 	var emitted: Dictionary = _CANONICAL_JSON.stringify(value)
 	return name + "=" + str(emitted.get("value", ""))
 
 
-# ---- internals ----
 
 func _docket_command_error(command: Dictionary) -> Dictionary:
 	var keys: Array = command.keys()
@@ -715,8 +641,6 @@ func _view_guard() -> Dictionary:
 	return {}
 
 
-## Shared commit/rollback path: a full validated same-day view whose EDITABLE fields are
-## installed; the live ledger is never replaced by either seam.
 func _install_checked(source: Dictionary, code: StringName, label: String) -> Dictionary:
 	var guard := _view_guard()
 	if not guard.is_empty():
@@ -745,10 +669,6 @@ func _install_editable(source: Dictionary) -> void:
 			_view[key] = member
 
 
-## The same class-shaped receipt index ScheduleViewState fabricates: built from registry
-## records resolved through lookup(), it degenerates the consumed ScheduleRules source law
-## to the source-receipt CLASS check the view level owns. Malformed or unregistered entries
-## are skipped so the delegated ScheduleRules pass reports them with its own typed codes.
 func _source_class_index(entries: Array) -> Dictionary:
 	var index: Dictionary = {}
 	for raw: Variant in entries:
@@ -783,8 +703,6 @@ func _condition_receipt_error(raw: Variant) -> Dictionary:
 	if typeof(raw) != TYPE_DICTIONARY:
 		return _fail(&"invalid_condition_departure_receipt",
 			"the commit receipt is a Dictionary", {"field": "schedule_view_commit_receipt"})
-	# Reuse the view state's ledger value law byte-for-byte by probing a one-entry index
-	# keyed the way the receipt names itself; a key/id mismatch is impossible here.
 	var receipt := raw as Dictionary
 	var source_id: Variant = receipt.get("source_condition_receipt_id")
 	if typeof(source_id) != TYPE_STRING or str(source_id).is_empty():

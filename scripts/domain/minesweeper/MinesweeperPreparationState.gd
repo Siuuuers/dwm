@@ -1,19 +1,10 @@
 class_name MinesweeperPreparationState
 extends RefCounted
 
-## State-transition guard around MinesweeperGeneratorKernel's frontier (Plan 02 Task 4, dwm-p2r13).
-## The kernel is the one pure search algorithm; this class independently RE-VALIDATES every
-## preparation dictionary it is handed (never trusting a caller-supplied transition at face value)
-## so a round-tripped/persisted/save-restored frontier -- or a slice_result forged by a
-## non-kernel caller -- can never smuggle in an inconsistent spec, a rewound slice_sequence, or an
-## illegal status. No preparation state may be derived from another except by walking through
-## make()/advance() in order; each call recomputes/re-checks the full shape rather than patching.
 
 const _KERNEL := preload("res://scripts/domain/minesweeper/MinesweeperGeneratorKernel.gd")
 
 
-## Begins a new preparation by delegating to the kernel and then independently re-validating its
-## own output before returning it.
 static func make(kernel_spec: Dictionary, forced_cell: int, mode: StringName,
 		placement_rng_state: Dictionary, debug_rng_state: Dictionary,
 		explosion_rng_state: Dictionary) -> Dictionary:
@@ -24,11 +15,6 @@ static func make(kernel_spec: Dictionary, forced_cell: int, mode: StringName,
 	return validate((begun["value"] as Dictionary)["preparation"])
 
 
-## Standalone structural/semantic validation of a preparation dictionary: exact frontier shape,
-## a spec that itself passes the kernel's GeneratorKernelSpec validation, a legal status, a
-## forced_cell in range, and (for a certified preparation) a well-formed candidate_state whose
-## mine_indices/mine_dispositions agree in size and stay inside the board and outside the forced
-## cell/its zero-mode exclusions.
 static func validate(state: Dictionary) -> Dictionary:
 	var shape := _exact_keys(state, _KERNEL.FRONTIER_KEYS, &"preparation_member_set_invalid")
 	if not shape.get("ok", false):
@@ -93,11 +79,6 @@ static func validate(state: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"preparation": state.duplicate(true)}, "receipt": {}}
 
 
-## Validates that `slice_result` (the envelope MinesweeperGeneratorKernel.advance() returned) is a
-## legal continuation of `state`: both independently validate, the spec/mode/forced_cell are
-## byte-identical, slice_sequence increments by exactly one, and status only ever transitions
-## searching->searching, searching->certified, or searching->exhausted (never out of a terminal
-## status, and never a rewind).
 static func advance(state: Dictionary, slice_result: Dictionary) -> Dictionary:
 	var current_check := validate(state)
 	if not current_check.get("ok", false):
@@ -138,7 +119,6 @@ static func advance(state: Dictionary, slice_result: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"preparation": next_state}, "receipt": {}}
 
 
-# ---- shared helpers ----
 
 static func _rng_state_matches(spec: Dictionary, stream_id_field: String, nonce_field: String,
 		state: Dictionary) -> Dictionary:

@@ -1,11 +1,6 @@
 class_name DesktopIdentity
 extends RefCounted
 
-## Frozen desktop attempt identity contract (Plan 02 Task 2, dwm-p2r.32.1).
-## {run_id, branch_id, desktop_timeline_generation, causal_day_instance, app_round_ordinal}
-## is the closed tuple every candidate/board command, receipt, checkpoint, journal entry, and
-## warning fingerprint carries. Difficulty, seed, day number, and board revision are never
-## identity substitutes.
 
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 

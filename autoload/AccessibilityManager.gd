@@ -1,7 +1,4 @@
 extends Node
-# AccessibilityManager (CONTRACTS §8): applies committed profile readability preferences
-# to trees. Never conveys essential info by color
-# alone; every apply method is crash-safe on partial/empty trees.
 
 
 var _profile: Node
@@ -36,8 +33,6 @@ func apply_settings_to_tree(root: Node) -> void:
 func apply_font_scale(root: Node, scale: float) -> void:
 	if root == null or scale <= 0.0:
 		return
-	# Store the scale as metadata so presentation helpers can apply it; also nudge
-	# Controls that expose a base font size, guarding against missing theme entries.
 	if root is Control:
 		(root as Control).set_meta("a11y_font_scale", scale)
 	for child in root.get_children():
@@ -107,7 +102,6 @@ func apply_reduced_motion_to_tree(root: Node) -> void:
 		apply_reduced_motion_to_tree(child)
 
 
-# ---- Convenience getters (settings-driven, crash-safe) ----
 func are_subtitles_enabled() -> bool:
 	return bool(_setting("subtitles_enabled", true))
 

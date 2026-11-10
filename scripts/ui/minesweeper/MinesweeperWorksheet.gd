@@ -1,5 +1,4 @@
 extends Control
-## Presentation-only viewport. All positions and scroll values are integer native pixels.
 
 signal cell_action_requested(action: StringName, index: int, revision: int)
 signal new_board_requested()
@@ -199,7 +198,6 @@ func open_assignments(claimed: Array, source: Control = null) -> bool:
 func _open_information(kind: String, claimed: Array, source: Control) -> bool:
 	if _interaction_blocked or grid.projection.is_empty() or grid.projection.custody: return false
 	if information_sheet != null:
-		# Switching documents keeps the board, focus index and pan completely untouched.
 		return information_sheet.present_rules() if kind == "rules" else information_sheet.present_assignments(claimed)
 	if not flush_view_preferences(): return false
 	var sheet: Control = SHEET.new()
@@ -240,8 +238,6 @@ func close_information(focus_board: bool = false) -> void:
 	if horizontal_rail != null: horizontal_rail.show()
 	var source: Control = _source_focus.get_ref() if _source_focus != null else null
 	_source_focus = null
-	# Returning from a sheet restores its exact pan, even if the retained cell is
-	# offscreen. A subsequent grid navigation resumes normal focus revelation.
 	_applying = true
 	information_closing.emit()
 	if focus_board and grid.focus_mode != Control.FOCUS_NONE: grid.grab_focus()
@@ -332,8 +328,6 @@ func _update_seam() -> void:
 func _gui_input(event: InputEvent) -> void:
 	if _interaction_blocked or information_sheet != null: return
 	if event is InputEventScreenTouch or event is InputEventScreenDrag:
-		# The board can be smaller than the well. A second finger in that blank
-		# space still belongs to the same gesture and must cancel the pending tap.
 		if Rect2(Vector2.ZERO, well.size).has_point(event.position) or grid.has_held_touch():
 			var forwarded: InputEvent = event.duplicate()
 			forwarded.position = (event.position - grid.position) / grid.scale
@@ -362,7 +356,6 @@ func _draw() -> void:
 
 static func view_controls_height(locale: String, next_theme: Theme, large: bool) -> int:
 	var measured: Dictionary = VIEW_BUTTON.ROW.measure_copy(FIT_COPY[locale.replace("_", "-")], next_theme, FIT_WIDTH - 20)
-	# The 36px pixel face has a 50px line box; retain it inside the 64px footer.
 	var vertical_padding := 14 if next_theme.default_font_size == 36 else 16
 	return 2 * ceili(maxf(64 if large else 48, float(measured.height) + vertical_padding) / 2.0)
 
@@ -378,7 +371,6 @@ func set_footer_host(host: Control) -> void:
 func _configure_view_controls() -> void:
 	view_controls.theme = theme
 	var fit_copy: String = FIT_COPY[_locale]
-	# Compact face padding keeps the footer within its bar; large targets still get 64px.
 	zoom_controls[1].configure(fit_copy, theme, false, FIT_WIDTH)
 	zoom_controls[1].custom_minimum_size.y = view_controls_height(_locale, theme, _large)
 	zoom_controls[1].accessibility_name = VIEW_COPY[_locale][0]
@@ -399,8 +391,6 @@ func _configure_view_controls() -> void:
 		cell_size_menu.add_theme_stylebox_override(state, face)
 		if state != "normal":
 			cell_size_menu.add_theme_color_override("font_" + state + "_color", theme.get_color(&"secondary_dark_copy" if state == "disabled" else &"primary_dark_copy", &"Minesweeper"))
-	# Keep the OptionButton's actual shaped line inside the same footer as Fit.
-	# Fallback glyphs can make its native minimum taller than the primary face.
 	var popup_face: StyleBoxFlat = face.duplicate()
 	face.content_margin_top = 0
 	face.content_margin_bottom = 0
@@ -549,7 +539,6 @@ func _pinch_zoom(ratio: float, local_anchor: Vector2) -> void:
 		return
 	var next := clampi(roundi(_pinch_base * ratio / 2.0) * 2, 10, 60)
 	_change_view(next, false, (grid.position + local_anchor * grid.scale) / 2.0, true)
-	# A pinch is one transaction, regardless of how long fingers pause mid-gesture.
 	_view_flush.stop()
 
 func _finish_pinch() -> void:

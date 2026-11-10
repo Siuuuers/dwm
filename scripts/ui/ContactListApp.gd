@@ -1,7 +1,6 @@
 extends AppWindowBase
 class_name ContactListApp
 
-## Contact list + chat panel app window (prompt_docs/requirements/contacts_invitations.md).
 
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const CONTACTS_THEME := preload("res://scripts/ui/contacts/ContactsTheme.gd")
@@ -53,8 +52,6 @@ func _ready() -> void:
 	_status_label.name = "ContactStatus"
 	_status_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_status_label.visible = false
-	# Technical feedback is a transient notice in the pane, not correspondence
-	# or a second title bar. It leaves the reading geometry unchanged.
 	_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_status_label.grow_vertical = Control.GROW_DIRECTION_BEGIN
@@ -177,7 +174,6 @@ func _apply_app_colours() -> void:
 		theme.set_stylebox(state, "Button", style)
 	var button_focus := StyleBoxFlat.new()
 	button_focus.bg_color = Color.TRANSPARENT
-	# This expanded ring sits on the transcript's paper, outside the dark button.
 	button_focus.border_color = theme.get_color("ink", "Contacts")
 	button_focus.set_border_width_all(2)
 	button_focus.expand_margin_left = 4
@@ -332,7 +328,7 @@ func _on_ordinary_choice(reply_id: String) -> void:
 	if _ordinary_busy or not _ordinary_pending.is_empty() or not _ordinary_available(): return
 	for button: Button in _ordinary_choices: button.disabled = true
 	var prepared: Dictionary = _presentation_port.prepare_ordinary_reply(contacts_panel.selected_friend, reply_id, _primary)
-	refresh_view() # The retained port is the sole authority for a pending choice.
+	refresh_view()
 	if not prepared.get("ok", false): _show_ordinary_failure(prepared, &"prepare")
 
 func _on_pending_ordinary_drawn(rendered_line: Dictionary) -> void:
@@ -387,7 +383,6 @@ func _ordinary_retry_copy() -> String:
 	return {"en": "Retry", "zh-CN": "\u91cd\u8bd5", "zh-HK": "\u91cd\u8a66", "ja": "再試行", "ko": "다시 시도"}[_primary]
 
 func _show_ordinary_failure(result: Dictionary, phase: StringName) -> void:
-	# Keep player logs useful without recording correspondence, identity tokens, or file paths.
 	print("ORDINARY_REPLY_FAILURE: " + JSON.stringify({"phase": str(phase), "code": str(result.get("code", "unknown"))}))
 	last_result = result.duplicate(true)
 	presentation_failed.emit(last_result.duplicate(true))

@@ -1,12 +1,10 @@
 extends Button
-## Risk perimeter and inset Focus remain independent; no progress ornament.
 
 var selected := false:
 	set(value):
 		selected = value
 		_sync_caption()
 		queue_redraw()
-# Working hard-pixel operational glyph: distinct from the sheet's triangle.
 const DANGER_GLYPH := ["00011000", "00100100", "01011010", "10011001",
 	"10000001", "01011010", "00100100", "00011000"]
 var risk := "neutral":
@@ -45,14 +43,12 @@ func _ready() -> void:
 func set_caption(value: String) -> void:
 	_caption_text = value
 	accessibility_name = value
-	# Native Button text would impose a second wrapping/minimum-size owner.
 	text = ""
 	_sync_caption()
 
 func _sync_caption() -> void:
 	if not is_instance_valid(caption):
 		return
-	# Danger owns a protected glyph measure. Labels keep their declared font size.
 	var leading := 36 if risk == "danger" else 8
 	caption.position = Vector2(leading, 4)
 	caption.size = size - Vector2(leading + 8, 8)

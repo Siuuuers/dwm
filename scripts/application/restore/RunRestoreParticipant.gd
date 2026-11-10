@@ -1,10 +1,6 @@
 class_name RunRestoreParticipant
 extends RefCounted
 
-## Restore participant wrapping GameState's run state
-## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 7).
-## Thin adapter: prepares detached plans and delegates capture/apply/rollback/
-## finalize to the owner's silent restore seams. Emits no domain signals here.
 
 const RUN_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 var _owner: Object = null
@@ -47,8 +43,6 @@ func prepare(input: Dictionary) -> Dictionary:
 		if not events.get("ok", false): return events
 	return _prepare_admitted_snapshot(input.snapshot)
 
-## SaveManager may call this only for its unchanged, same-call admitted input.
-## Ordinary prepare above retains validation and clears stale creation on refusal.
 func _prepare_admitted_snapshot(snapshot: Dictionary) -> Dictionary:
 	_scene_creation_plan = {}
 	_scene_creation_owner = null
@@ -69,9 +63,6 @@ func prepare_scene_new_run(snapshot: Dictionary, allocation_candidate: Dictionar
 	_scene_creation_owner = creation_owner
 	return prepared
 
-## `branch_id`/`desktop_timeline_generation`/`causal_day_instance`/`causal_day_instance_issuer_
-## receipt` (Plan 02 Task 6, dwm-p2r.32) arrive already durably allocated through SaveManager's
-## Task-1 issuer/journal seams; this thin adapter invents none of them, it only forwards.
 func prepare_new_run(run_id: String, branch_id: String, desktop_timeline_generation: int,
 		causal_day_instance: String, causal_day_instance_issuer_receipt: Dictionary, dark_mode: Variant,
 		pair_witnessed_forms: Array = []) -> Dictionary:
@@ -89,15 +80,6 @@ func prepare_new_run(run_id: String, branch_id: String, desktop_timeline_generat
 		"run_plan": {"snapshot_input": snapshot_input.duplicate(true)},
 	}}
 
-## Task 6 Phase C2 (dwm-p2r.32): after the ordinary snapshot apply above has installed day/state/
-## active_resolution_plan (still carrying whatever identity that snapshot's bytes held), this second
-## step swaps in the durably-allocated NEW identity for a restore transaction. Delegates to
-## RunLifecycle.prepare_continuation_remap()/commit_continuation_remap() (Phase C), which build the
-## destination identity from the bundle and restore_provenance's source_* fields from the explicit
-## `source_identity` argument -- the SOURCE document's pre-restore identity (ruling T4-AF item 23),
-## never the lifecycle object's own live members, which by this point already carry the destination
-## identity. day/state/plan are left exactly as apply_silent() above just set them. New Run never
-## calls this: its identity is correct from construction (prepare_new_run above), never remapped.
 func apply_continuation_remap(restore_transaction_id: String, identity_allocation_bundle: Dictionary,
 		source_identity: Dictionary) -> Dictionary:
 	return _owner.apply_continuation_remap_silent(restore_transaction_id, identity_allocation_bundle, source_identity)

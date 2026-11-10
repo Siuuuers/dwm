@@ -1,7 +1,5 @@
 class_name AudioCueData
 extends Resource
-# Descriptive audio-cue resource. See prompt_docs/requirements/audio_preferences.md.
-# Data-only: must not execute logic.
 @export var id: String = ""
 @export var display_name: String = ""
 @export var localization_key: String = ""

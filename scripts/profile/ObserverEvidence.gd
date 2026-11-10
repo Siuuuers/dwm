@@ -1,7 +1,5 @@
 extends RefCounted
 
-## Receipts prove the finite provisional presentation grammar, never board mastery.
-## The admitted physical owner proves rendering and window custody before writing here.
 const RULES := preload("res://scripts/domain/relationship/ProvisionalProgressionRules.gd")
 const COMMON := ["comparison_key", "entry_id", "kind", "line_id", "playback_token", "presentation_atom_id", "receipt_id", "run_id"]
 

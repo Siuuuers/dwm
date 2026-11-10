@@ -547,10 +547,10 @@ func test_forbidden_tokens_are_absent_from_executable_plan01_source() -> void:
 		var code: String = _generator.strip_comments(_git_blob(SURFACE_SEAL_COMMIT, path).get_string_from_utf8())
 		for token: String in (forbidden[path] as Array):
 			assert_lt(code.find(token), 0, "%s must not carry %s in executable text" % [path, token])
-	# The comment stripper is doing real work: DayResolutionPlan.gd's header still names the removed
-	# execute_schedule_entries stage as documentation.
-	var raw: String = FileAccess.get_file_as_string("res://scripts/domain/run/DayResolutionPlan.gd")
-	assert_true(raw.find("execute_schedule_entries") >= 0, "the raw file still documents the removed stage")
+	# The comment stripper is doing real work: the sealed DayResolutionPlan.gd header names the removed
+	# execute_schedule_entries stage as documentation; current runtime comments may be removed.
+	var raw: String = _git_blob(SURFACE_SEAL_COMMIT, "scripts/domain/run/DayResolutionPlan.gd").get_string_from_utf8()
+	assert_true(raw.find("execute_schedule_entries") >= 0, "the historical file documents the removed stage")
 	assert_lt(_generator.strip_comments(raw).find("execute_schedule_entries"), 0, "and the code does not carry it")
 
 

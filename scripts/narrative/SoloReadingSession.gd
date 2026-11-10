@@ -1,6 +1,4 @@
 extends RefCounted
-## Opt-in Solo, Hospital or ordered-ending catalogue and one semantic ledger. No production
-## catalogue is loaded implicitly, and the catalogue never executes story code.
 const LEDGER := preload("res://scripts/narrative/NarrativeCaptionLedger.gd")
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const JSON_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
@@ -26,8 +24,6 @@ var marker_fingerprint := ""
 var marker_entries: Dictionary = {}
 var marker_frontier: Dictionary = {}
 
-## Opt-in scene programme. No production caller installs this family implicitly.
-## Durable admission authentication belongs to the Run owner before admit_scene.
 var scene_occurrence := ""
 var scene_index := 0
 var _scene_nodes: Dictionary = {}
@@ -38,8 +34,6 @@ var _scene_bundle: Dictionary = {}
 var player_progress: Dictionary = {}
 var _progress_publication := 0
 var _pending_checkpoint := false
-# Only immutable semantic data is shared; native playback resources and each
-# session's ledger/cursor stay separate. Installed content is fixed for this process.
 static var _prepared_scene_configuration: Dictionary = {}
 
 func configure_scene() -> Dictionary:
@@ -91,8 +85,6 @@ func _configure_scene_observed_body() -> Dictionary:
 	_caption_variants_by_line = prepared.variants
 	return {"ok": true}
 
-## Compile only the selected passage. The adapter owns immutable process mappings;
-## each session keeps its own set of requested entries and its own cursor.
 func _ensure_scene_programme(entry_id: String) -> Dictionary:
 	if _scene_nodes.has(entry_id): return {"ok": true}
 	var labels: Array = []
@@ -189,8 +181,6 @@ func begin_scene(session_token: String) -> Dictionary:
 	command_id = session_token
 	return {"ok": true}
 
-## Admission never publishes; the configured Bridge owns the saved target gate.
-## index permits registered internal targets, after the owner authenticates them.
 func admit_scene(entry_id: String, context: Dictionary, index: int = 0) -> Dictionary:
 	if family != "scene" or ledger == null or not catalogue.has(entry_id): return _fail(&"reading_session_unavailable")
 	var prepared := _ensure_scene_programme(entry_id)
@@ -215,8 +205,6 @@ func admit_scene(entry_id: String, context: Dictionary, index: int = 0) -> Dicti
 	next_operation = {}
 	return {"ok": true}
 
-## Ordinary native publication may cross jumps, but never skip another caption
-## or a control owned by the durable traversal transaction.
 func accept_scene_publication(index: int, frontier: Dictionary) -> Dictionary:
 	if family != "scene" or boundary != "line" or ledger == null \
 			or not _scene_nodes.has(latest_entry) \
@@ -273,11 +261,8 @@ func _is_major_marker(marker_id: String) -> bool:
 
 func inherit_player_progress(source_session: RefCounted, major_checkpoint: bool = false) -> void:
 	player_progress = source_session.player_progress.duplicate(true)
-	# Keep this ledger's encounter cursor; inherited metadata has a separate publication history.
 	_pending_checkpoint = major_checkpoint
 
-## Player saves retain a stable authored position and its current genuine caption.
-## History is derived separately; full capture/restore remains the live contract.
 static func project_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 	if checkpoint.get("stage") != "scene": return {"ok": true, "value": checkpoint.duplicate(true)}
 	var reading: Variant = checkpoint.get("reading_session")
@@ -289,12 +274,8 @@ static func project_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 	if reading.schema_version == 7:
 		var checked: Dictionary = session.restore_player(reading, str(checkpoint.get("entry_id", "")))
 		if not checked.ok: return checked
-		# Accepted compact state is already canonical; comparison needs a detached
-		# copy, not another expansion and restoration of the same position.
 		return {"ok": true, "value": checkpoint.duplicate(true)}
 	if reading.entry_id != checkpoint.get("entry_id"): return _fail(&"reading_checkpoint_invalid")
-	# Schema 5 comes from an owned live capture. Conversion needs the programme,
-	# not reconstruction of its historical ledger or transient traversal proof.
 	var prepared: Dictionary = session._ensure_scene_programme(reading.entry_id)
 	if not prepared.ok: return prepared
 	var projected: Dictionary = session._project_player_reading(reading)
@@ -303,8 +284,6 @@ static func project_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 	result.reading_session = projected.value
 	return {"ok": true, "value": result}
 
-## External save admission owns this call. It prepares current story data only;
-## the selected save, gameplay and Profile remain untouched until restore commits.
 static func normalize_player_checkpoint(checkpoint: Dictionary, _choices: Dictionary,
 		_outcomes: Dictionary) -> Dictionary:
 	var saved: Variant = checkpoint.get("reading_session")
@@ -352,8 +331,6 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, _choices: Dictio
 	current.registration_sha256 = session.fingerprint
 	var days: Dictionary = session._scene_bundle.scene_programme.get("story_days", {})
 	current.story_day = maxi(int(saved.story_day), int(days.get(saved.entry_id, saved.story_day)))
-	# A retained control remains the same operation if preceding prose changed.
-	# First prove that the saved caption still exists; deleted IDs never rewind.
 	if current.boundary == "control":
 		var prepared: Dictionary = session._ensure_scene_programme(current.entry_id)
 		if not prepared.ok: return prepared
@@ -371,9 +348,6 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, _choices: Dictio
 				if programme.entry_id != current.entry_id: continue
 				for marker: Dictionary in programme.markers:
 					if marker.marker_id != current.position_id: continue
-					# Only a playable Challenge owns a persistent held-control UI.
-					# If current content replaced it, resume the same saved caption;
-					# the next input resolves the new marker without replaying consequences.
 					if marker.kind != "challenge.playable":
 						current.boundary = "line"
 						current.position_id = saved_line
@@ -382,11 +356,7 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, _choices: Dictio
 				if preceding.ok:
 					current.captions[0].line_id = preceding.value.line_id
 					current.history_sections.back().last_line_id = preceding.value.line_id
-	# Identity owns restoration. Changed prose or a removed past choice does not
-	# move a saved caption to a recovery anchor or to the start of a day.
 	var restored: Dictionary = session.restore_player(current, current.entry_id)
-	# New prose after the former last caption preserves that caption. Completion
-	# remains owned by the Run lifecycle, not by this presentation cursor.
 	if not restored.ok and current.boundary == "between_entries":
 		current.boundary = "line"
 		restored = session.restore_player(current, current.entry_id)
@@ -410,8 +380,6 @@ static func expand_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 	var restored: Dictionary = session.restore_player(reading, str(checkpoint.get("entry_id", "")))
 	if not restored.ok and restored.get("code") == &"reading_content_error" \
 			and reading.boundary in ["control", "between_entries"]:
-		# A manual file edit need not change registration. Reuse the content
-		# boundary adaptation only after actual restoration finds a changed path.
 		var normalized := normalize_player_checkpoint(checkpoint, {}, {})
 		if not normalized.ok: return normalized
 		checkpoint = normalized.value.checkpoint
@@ -426,8 +394,6 @@ static func expand_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 	if not captured.ok: return captured
 	var result := checkpoint.duplicate(true)
 	result.reading_session = captured.value
-	# Keep the constructed owner available to synchronous schema checks.
-	# The session is operation-local and is never part of the saved checkpoint.
 	return {"ok": true, "value": result, "session": session}
 
 func _project_player_reading(saved: Dictionary) -> Dictionary:
@@ -452,8 +418,6 @@ func _project_player_reading(saved: Dictionary) -> Dictionary:
 	if progress.is_empty():
 		TRAVERSAL.append_player_caption(progress, saved.entry_id, captions.back().line_id, _story_day(saved.entry_id))
 	compact.merge(progress)
-	# The live reading owner already admitted this position. Projection does not
-	# install a session, so it must not reconstruct a ledger to check its own output.
 	return {"ok": true, "value": compact}
 
 func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
@@ -498,8 +462,6 @@ func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 		publications[value.publication_id] = true
 		rows.append({"publication_id": value.publication_id, "occurrence_id": saved.occurrence_id,
 			"beat": beat.duplicate(true)})
-	# The retained caption includes the latest production allocation. Never restart
-	# caption numbering and accidentally reuse an older command's reading anchor.
 	if saved.publication_serial != _scene_publication_high_water(rows):
 		return _fail(&"reading_frontier_invalid")
 	var nodes: Array = _scene_nodes[entry_id]
@@ -586,8 +548,6 @@ func _validate_scene_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 	if not endpoint.ok: return endpoint
 	return checked
 
-## Pure plan only; the Run owner must authorize departure from the Challenge.
-## Ordinary Next deliberately remains unable to leave a control boundary.
 func prepare_scene_control_continuation() -> Dictionary:
 	if family != "scene" or boundary != "control": return _fail(&"reading_next_unavailable")
 	var source := _capture_scene({})
@@ -672,8 +632,6 @@ func prepare_scene_next(frontier: Dictionary, is_witnessed: Callable) -> Diction
 	var checked := TRAVERSAL.validate_scene_path(plan, nodes)
 	return {"ok": true, "value": plan} if checked.ok else checked
 
-## Display-only current-day passage. Reconstructed rows are never published to
-## the live ledger or used to authenticate gameplay commands.
 func project_scene_day_history(frontier: Dictionary, _choices: Dictionary, _outcomes: Dictionary) -> Dictionary:
 	if family != "scene": return _fail(&"reading_session_unavailable")
 	if ledger == null or ledger._sequence.is_empty(): return _fail(&"reading_frontier_invalid")
@@ -704,7 +662,6 @@ func _history_programme(entry_id: String) -> Dictionary:
 	if not prepared.ok: return prepared
 	return {"ok": true, "value": _scene_nodes[entry_id]}
 
-## One native command frontier, with two independent authored read identities.
 func scene_pair_beats(line_id: String) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	if _caption_variants_by_line.has(line_id): result.append(_caption_variants_by_line[line_id])
@@ -741,8 +698,6 @@ func _project_scene(frontier: Dictionary) -> Dictionary:
 	return {"ok": true, "value": {"captions": rows, "frontier": frontier.duplicate(true), "session_id": command_id}}
 
 
-## Presentation memory uses authenticated publication/occurrence identities, never
-## text equality or entry name alone. The full History projection stays unchanged.
 func project_scene_caption_memory(frontier: Dictionary) -> Dictionary:
 	if family != "scene" or boundary != "line": return _fail(&"reading_frontier_unavailable")
 	var projected := _project_scene(frontier)
@@ -818,8 +773,6 @@ func configure(document: Dictionary) -> Dictionary:
 	catalogue = compiled
 	family = "ending" if ending else ("hospital" if hospital else "solo")
 	registry = registered
-	# This index carries authored identity only; causal entry frames and publication
-	# IDs establish ownership of an occurrence without making it another variant.
 	FROZEN._freeze(registry)
 	for beat: Dictionary in registry.beats:
 		_caption_variants_by_line[beat.line_id] = beat
@@ -834,8 +787,6 @@ func begin(completion_transaction_id: String, pre_entry: String) -> Dictionary:
 		return _fail(&"reading_session_invalid")
 	var candidate := LEDGER.new()
 	var context := _session_context(completion_transaction_id, pre_entry)
-	# A selector catalogue has no chosen caption registration until its real
-	# phase frame exists. The retained ledger object is initialized on admission.
 	if catalogue_schema_version == 1:
 		var initialized := candidate.initialize(completion_transaction_id, context, manifest, registry, true)
 		if not initialized.ok: return initialized
@@ -865,8 +816,6 @@ func admit(entry_id: String, context: Dictionary) -> Dictionary:
 	else:
 		var admitted := ledger.admit_entry_context(command_id, entry_id, context)
 		if not admitted.ok: return admitted
-	# A successful physical handoff has already checkpointed the preceding
-	# operation. The next independently admitted frame starts a fresh frontier.
 	if latest_entry != entry_id:
 		next_operation = {}
 		marker_frontier = {}
@@ -881,8 +830,6 @@ func completed(entry_id: String) -> void:
 			next_operation = {}
 		boundary = "between_entries"
 
-## A registered descriptor is available only for the admitted, published tail.
-## Hot acknowledgement checks never copy the retained History or scan prose.
 func current_caption_variant(entry_id: String, frontier: Dictionary) -> Dictionary:
 	if family == "scene":
 		if ledger == null or boundary != "line" or latest_entry != entry_id or not ledger.is_current_occurrence(command_id, entry_id, frontier, scene_occurrence): return _fail(&"reading_frontier_unavailable")
@@ -911,7 +858,6 @@ func capture(frontier: Dictionary) -> Dictionary:
 	var checked := validate_saved(saved, latest_entry)
 	return {"ok": true, "value": saved} if checked.ok else checked
 
-## Validates the full fixed-prose sequence before a fresh candidate is installed.
 func validate_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 	if family == "scene": return _validate_scene_saved(saved, entry_id)
 	if marker_entries.has(entry_id) or saved.get("schema_version") == 4:
@@ -920,9 +866,6 @@ func validate_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 	if typeof(saved.get("schema_version")) == TYPE_INT and saved.schema_version == 2:
 		var operation := TRAVERSAL.validate(saved, entry_id)
 		if not operation.ok: return operation
-		# Admit both ends, including the source record's not-yet-traversed plan,
-		# against the actual complete registered programme. No valid prefix can
-		# hide a forged future variant or a missing intermediate caption.
 		for phase: String in ["source", "destination"]:
 			var projected := TRAVERSAL.project(operation.value.plan, phase)
 			if not projected.ok: return projected
@@ -993,7 +936,6 @@ func _validate_base_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 			return _fail(&"reading_frontier_invalid")
 	return {"ok": true, "value": candidate, "programs": programs.value.entries, "registry": programs.value.registry}
 
-## Membership belongs to this freshly admitted session, never a caller-supplied proof.
 func validate_scene_event_anchors(anchors: Array[Dictionary]) -> Dictionary:
 	if anchors.is_empty(): return {"ok": true}
 	var retained := {}
@@ -1063,9 +1005,6 @@ func restore(saved: Dictionary, entry_id: String) -> Dictionary:
 	marker_frontier = saved.frontier.duplicate(true) if saved.boundary == "notification" else {}
 	return {"ok": true}
 
-## Build one detached, exact route suffix. The live ledger and Profile are never
-## changed by planning. Only the caller's validated exact-membership query may
-## authorize silent traversal; the first unseen caption becomes the destination.
 func prepare_next(frontier: Dictionary, is_witnessed: Callable) -> Dictionary:
 	if family == "scene": return prepare_scene_next(frontier, is_witnessed)
 	if family != "solo" or not is_witnessed.is_valid() or boundary != "line": return _fail(&"reading_next_unavailable")
@@ -1114,8 +1053,6 @@ func project(frontier: Dictionary) -> Dictionary:
 					"line_id": line.line_id, "entry_id": row.beat.owning_entry_id, "text": line.text})
 	return {"ok": true, "value": {"captions": rows, "frontier": frontier.duplicate(true), "session_id": command_id}}
 
-## Resolve from a supplied canonical frame before native playback, or return the
-## already admitted programme. No mutable gameplay reads or future defaults.
 func entry_program(entry_id: String, context: Dictionary = {}) -> Dictionary:
 	if family == "scene":
 		if not catalogue.has(entry_id): return _fail(&"reading_entry_unavailable")
@@ -1182,8 +1119,6 @@ func _admit_authored(entry_id: String, context: Dictionary) -> Dictionary:
 	var copied := candidate.restore_snapshot(command_id, source.frozen_context, manifest,
 		programs.value.registry, source, frames, true)
 	if not copied.ok: return copied
-	# Install the whole candidate only after existing History and the new phase
-	# are both admitted. The departing phase has no active native publication.
 	ledger = candidate
 	_install_programs(programs.value.entries, programs.value.registry)
 	return {"ok": true}
@@ -1261,8 +1196,6 @@ static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code, "message": ""}
 
 
-## The separate trusted document preserves catalogue/receipt identity. No saved
-## checkpoint or native label may configure an event or its authored position.
 func configure_markers(document: Dictionary) -> Dictionary:
 	if document.is_empty(): return {"ok": true}
 	if not marker_document.is_empty():
@@ -1366,12 +1299,8 @@ func _validate_marker_route(plan: Dictionary) -> Dictionary:
 				return _fail(&"reading_marker_registration_mismatch")
 	return {"ok": true}
 
-## A detached route stops at the first marker, before querying a later witness.
-## The issuer-supplied semantic command is needed only if that stop is reached.
 func prepare_marker_next(frontier: Dictionary, is_witnessed: Callable, semantic: Dictionary = {}) -> Dictionary:
 	if family == "scene":
-		# Held controls need the Run owner's committed target; a semantic copy
-		# supplied to the old notification seam is never that authority.
 		if not semantic.is_empty(): return _fail(&"reading_next_unavailable")
 		return prepare_scene_next(frontier, is_witnessed)
 	if not marker_entries.has(latest_entry) or not is_witnessed.is_valid() \
@@ -1421,16 +1350,11 @@ func prepare_marker_next(frontier: Dictionary, is_witnessed: Callable, semantic:
 	var route := _validate_marker_route(plan)
 	return {"ok": true, "value": plan} if route.ok else route
 
-## Converse proof is derived from authored positions, including preceding entries;
-## no saved flag or receipt cache can grant a skipped marker.
 func validate_marker_receipts(saved: Dictionary, entry_id: String, receipts: Dictionary, run_id: String) -> Dictionary:
 	var admitted := validate_saved(saved, entry_id)
 	if not admitted.ok: return admitted
 	var checked := TRAVERSAL.EVENT.validate_receipts(receipts)
 	if not checked.ok: return checked
-	# A source-phase checkpoint has no marker receipt yet, but its immutable
-	# planned command must already belong to this Run. Issuer authentication
-	# remains with the event port, including when resuming this planned command.
 	if saved.get("next_operation") is Dictionary and saved.next_operation.schema_version == 2:
 		var target: Dictionary = saved.next_operation.plan.destination
 		if target.kind == "notification" and target.semantic.source.run_id != run_id:

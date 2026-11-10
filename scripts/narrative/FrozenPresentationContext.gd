@@ -1,8 +1,6 @@
 class_name FrozenPresentationContext
 extends RefCounted
 
-## Exact, per-entry presentation schemas. Context never owns gameplay authority.
-## The explicit registry is independent of transport tokens and historical signatures.
 const REGISTRY_PATH := "res://data/manifests/dialogic_contexts.json"
 const ENTRIES_PATH := "res://data/manifests/dialogic_entries.json"
 const IDS_PATH := "res://data/manifests/dialogic_ids.json"
@@ -59,7 +57,6 @@ static func validate(entry_id: String, presentation: Variant) -> Dictionary:
 	if not bound.ok: return bound
 	return _ok(presentation.duplicate(true))
 
-## Only this recursively detached projection is installed in Dialogic's variable tree.
 static func immutable_fields(presentation: Dictionary) -> Dictionary:
 	var detached: Dictionary = presentation.fields.duplicate(true)
 	_freeze(detached)
@@ -75,7 +72,7 @@ static func _field(value: Variant, descriptor: Variant) -> bool:
 	match descriptor:
 		"id": return value is String and not value.strip_edges().is_empty()
 		"bool": return typeof(value) == TYPE_BOOL
-		"no_residue": return value == null # No prior-attempt presentation is registered yet.
+		"no_residue": return value == null
 		"nullable_id": return value == null or _field(value, "id")
 		"nullable_pair_friend": return value == null or (value is String and value in PARTICIPANTS)
 		"ids":

@@ -23,11 +23,11 @@ No game state-machine rewrite, save migration, test-framework replacement, or re
 
 ## Lint now implemented
 
-`tools/lint/check_comments.py` rejects new or edited explanatory comments in first-party `.gd` and `.py` files under `scripts`, `autoload`, `tests`, and `tools`. It reads complete source to distinguish comments from strings, including multiline strings. Python uses its standard tokenizer. Existing unchanged comment lines are grandfathered, including Git-detected renames; deleting surrounding string delimiters cannot turn a previously literal line into an exempt legacy comment.
+`tools/lint/check_comments.py` rejects new or edited explanatory comments only in first-party runtime `.gd` files under `scripts` and `autoload`. The owner narrowed the policy on 11 November: comments in all tests, tools and Python are allowed and retained. Python syntax checking keeps its existing broader first-party scope. The comment scanner reads complete source to distinguish comments from strings, including multiline strings. Existing unchanged comment lines are grandfathered, including Git-detected renames; deleting surrounding string delimiters cannot turn a previously literal line into an exempt legacy comment.
 
 The rule excludes `addons`, out-of-scope roots, and directories named `generated`, `vendor`, or `third_party`. It preserves SPDX/copyright notices and recognized machine directive prefixes. Preserve any other required legal text when doing a future cleanup; extend narrowly identified exceptions rather than deleting obligations.
 
-This is an incremental enforcement stage, not a completed repository-wide comment ban. Other languages and embedded code are not checked. Existing comments are removed in a separate coordinated cleanup after shared story files settle. The rule does not remove comments automatically.
+The 11 November cleanup removes existing explanatory comments from runtime GDScript only. Other languages and embedded code are not checked by this lint. The rule does not remove comments automatically.
 
 The focused workflow uses Python and Git, a sparse partial checkout, and no Godot or asset import. It runs rule tests, changed Python syntax checks, comment lint, and `git diff --check` on relevant PRs. Changed workflow files also run pinned actionlint 1.7.12; its optional ShellCheck/Pyflakes integrations are disabled to keep this check focused on workflow structure and expressions. The binary is downloaded and hash-checked only when workflow files changed. The PR merge result is compared with its first parent, so changes already in the target branch are not treated as new PR comments. Whitespace checks are limited to GDScript, Python, workflow YAML, and agent Markdown. It is independent of gameplay test jobs and does not replace them. The Windows workflow ignores changes limited to the six exact lint implementation/workflow/handoff files; mixed runtime changes and edits to the Windows workflow still run its coverage selector. Manual dispatch remains available. Repository branch protection is not changed by adding the workflow.
 
@@ -114,3 +114,56 @@ Experiment: https://github.com/Siuuuers/dwm/actions/runs/41642580060 . Its isola
 added to master. Workflow-only progression edits now qualify for focused coverage
 only when every part outside that job is unchanged; other workflow edits retain
 the existing coverage decision.
+
+
+## Runtime comment cleanup — 11 November 2026
+
+The owner requested removal only from game code, with all test/tool comments
+retained and renames allowed only where meaning is unclear. From master
+`1f7a3f1196f3450cef9a514300012e32c00c7d36`, 7,457 explanatory comment lines were
+removed from 286 GDScript files under `scripts/` and `autoload/`. All 302 runtime
+GDScript files now contain no explanatory comments. The runtime shader already
+had none. Add-ons, tests, tools, Python, resources and story content were not
+included in the removal. No runtime legal notices or machine directives were
+found; their lint exemptions remain. No justified rename was identified in the
+reviewed owners, so this change preserves all names and signatures.
+
+The removal used the existing string-aware comment scanner. A separate Python
+standard-library tokenizer comparison verified exact equality of every remaining
+token, including string literals and indentation, in all 286 changed runtime
+files. Godot 4.6.3 import exited 0 with no script/parse/load errors. Its existing
+GUT online version lookup failed; that network notice is not a script failure.
+
+Source-sensitive dependencies were handled explicitly:
+
+- Refreshed only four generator source hashes (`rng`, `reducer`, `kernel`,
+  `verifier`). Every budget, corpus, device-evidence and fallback value is
+  unchanged; this does not certify a new hardware calibration.
+- Removed a test assertion requiring a runtime deprecation comment, retaining
+  all timeline API checks. The existing historical comment-stripper proof now
+  reads its already-pinned historical source. Test comments remain.
+- Narrowed comment lint to runtime GDScript. Tests/tools/Python can contain
+  explanations; changed-Python syntax validation retains its broader scope.
+- Preserved engine accessibility ordering, hidden-volume drag cancellation and
+  native JSON control-character rationale in existing design records. Save
+  cache rationale also remains in the untouched explanatory tests.
+
+Focused validation: 23 Python lint tests pass. Four selected Godot methods pass
+53 per-test assertions with exact JUnit names, positive counts and exit 0:
+real budget freshness (1), real Beginner board certification (8), timeline API
+compatibility (8), and the historical source/comment-stripper check (36).
+Independent review also confirmed unchanged runtime tokens and the four-key
+manifest delta. Comment lint, changed-Python syntax and whitespace checks pass.
+The checked code is local commit `8526b17cbcd433b86350f30d76821caa5aa5f51c`;
+subsequent changes update documentation and generated caller-path inventories.
+
+Both public-surface checks initially found preexisting stale caller paths. An
+isolated reconstruction of 1,206 baseline source/scene/scanner files generated
+inventories byte-identical to the candidate, proving comment removal did not
+change their output. The refreshed GameState and SaveManager inventories contain
+only caller-path updates; declarations, signatures and required contracts remain
+unchanged. Both final `--check` validations pass.
+
+No broad gameplay matrix, new injection campaign, Windows export/render/audio
+qualification or performance benchmark was run. Publication skips broad fallback
+CI for this mechanically verified change; local checks are not an Actions pass.

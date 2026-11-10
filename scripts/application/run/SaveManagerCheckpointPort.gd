@@ -1,9 +1,6 @@
 class_name SaveManagerCheckpointPort
 extends RefCounted
 
-## Production checkpoint port bridging DayResolutionCoordinator to
-## SaveManager's CheckpointJournal and isolated storage
-## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 6).
 
 const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const SAVE_DOCUMENT_SCHEMA := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
@@ -12,9 +9,6 @@ const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd
 const PROJECTOR := preload("res://scripts/application/transaction/FatalDiagnosticProjector.gd")
 const DESKTOP_CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
 
-## Consequence stage checkpoints are transient same-process retry state. Source-action and completed
-## post-result Autosaves remain the cross-process recovery boundaries; legacy sidecars are never read,
-## reconciled, rewritten, or removed.
 const GATE_METHODS: Array[String] = [
 	"acquire", "release", "guard_external", "is_active", "get_active_owner",
 	"is_internal_owner_active", "latch_fatal", "is_fatal_latched",
@@ -27,45 +21,25 @@ const DISK_WRITES := [
 	{"kind": &"none", "reason": &"stage"},
 	{"kind": &"autosave", "reason": &"day_start"},
 	{"kind": &"autosave", "reason": &"ending"},
-	# The Minesweeper pre-board autosave must be durable BEFORE a round is consumed or the save
-	# lock acquired (dwm-p2r.9 Plan 06 Task 2). Both layers beneath this port already carry the
-	# vocabulary -- CheckpointJournal.SEMANTIC_KINDS lists "pre_board" and
-	# SaveDocumentSchema.AUTOSAVE_REASONS lists "pre_board" -- so only this enumeration was
-	# missing the pairing. Reusing "day_start" instead would mislabel the durable document.
 	{"kind": &"autosave", "reason": &"pre_board"},
 	{"kind": &"autosave", "reason": &"automatic"},
 ]
 const AUTOSAVE_RELATIVE_PATH := "autosave.json"
-# Envelope placeholders for the spliced autosave bundles. The leading/trailing C0 control keeps a
-# sentinel off the canonical writer's native-encoder path, and no saved string can collide with a
-# token's position because the envelope carries nothing but these sentinels and fixed keys.
 const SPLICE_SENTINEL_CURRENT := "\u0001dwm-splice-current\u0001"
 const SPLICE_SENTINEL_JOURNAL := "\u0001dwm-splice-journal-%d\u0001"
 
 var _gate: Object = null
 var _save_manager: Object = null
 var _desktop_context_provider: Object = null
-# Diagnostic counters only; never included in a candidate or persisted document.
 var _profile_text_validator_calls := 0
 var _profile_text_validator_us := 0
-# One synchronous prepare/commit may reuse validation of its physically read preimage.
-# Neither caller candidates nor later actions can seed this private exact-text proof.
 var _prepared_text_validations: Dictionary = {}
 var _prepared_validation_checkpoint := ""
 var _prepared_validation_frame := -1
-# dwm-634.2: texts validated during a commit whose reread matched and whose journal committed,
-# keyed by exact text. Validation is a pure function of the text, so a proven text stays proven
-# until a capability change, a reconfiguration or a rollback forgets it. Bounded to the last three
-# texts, normally the current, previous and older backup documents.
 const PROVEN_DOCUMENT_LIMIT := 3
 var _proven_document_validations: Dictionary = {}
 var _proven_document_order: Array[String] = []
-# Recovery checkpoints protect retries only while the current player action is executing. Source
-# and completed post-result Autosaves retain the last fully saved player action; after a crash, the
-# interrupted action may replay once.
 var _transient_consequence_document := {"records": {}, "abandoned": {}}
-# Detached transient records issued by prepare_consequence_checkpoint(). Unchanged records reuse
-# this proof; cold records must reproduce exactly through the same side-effect-free builder.
 var _issued_transient_records: Dictionary = {}
 var _issued_transient_order: Array[String] = []
 
@@ -73,8 +47,6 @@ var _issued_transient_order: Array[String] = []
 
 func configure_desktop_context_provider(provider: Object) -> Dictionary:
 	_clear_prepared_text_validation()
-	# One Bootstrap-owned DesktopAppHostState supplies the persisted active_app_id. A second
-	# direct configuration with the same object is idempotent; a different object is rejected.
 	if provider == null or not provider.has_method("capture_persistent_state"):
 		return _fail(&"invalid_desktop_context_provider", "provider must expose capture_persistent_state")
 	if _desktop_context_provider != null:
@@ -129,8 +101,6 @@ func capture() -> Dictionary:
 
 func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_write: Dictionary) -> Dictionary:
 	_clear_prepared_text_validation()
-	# Permanent env-gated prepare-side profile (dwm-634.3): one boolean per phase while unset,
-	# the same gate, helpers and output line as commit()'s `save_checkpoint` record.
 	var profile := {}
 	var tick := 0
 	if OS.get_environment("DWM_CHECKPOINT_PROFILE") == "1":
@@ -170,8 +140,6 @@ func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_wr
 	tick = _profile_phase(profile, "run_snapshot_build_us", tick)
 	if not built.get("ok", false):
 		return _profile_result(profile, built)
-	# `RunSnapshotSchema.build()` returns the candidate its own `validate()` produced, so the journal is
-	# handed that exact object as the proof it was already validated (identity, not a flag).
 	var prepared_record: Dictionary = _journal().prepare_record(built["value"]["snapshot"], checkpoint_kind,
 		built["value"]["snapshot"])
 	tick = _profile_phase(profile, "journal_prepare_us", tick)
@@ -189,13 +157,6 @@ func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_wr
 	if str(disk_write["kind"]) == "autosave":
 		var reason := str(disk_write["reason"])
 		var projected_earlier: Array = journal_candidate["earlier"]
-		# Every proven earlier bundle was validated, normalized and byte-proven by a completed
-		# durable write, and the journal still holds the bundle those proven bytes describe. Hand
-		# those back as `build()`'s per-entry proofs so it does not re-walk the whole retained
-		# history (~150 KB per bundle) a second time per save. A bundle the journal remembers no
-		# document for -- new memory-only history, a journal seeded from disk, restored, reset, or a commit
-		# refused the memory because the outgoing bundle had been edited -- leaves the WHOLE journal
-		# unproven: a partial proof set says nothing about any entry, exactly like the splice.
 		var proven_journal: Array = []
 		var sub_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 		if not profile.is_empty():
@@ -256,13 +217,9 @@ func commit(candidate: Dictionary) -> Dictionary:
 		if not flushed.ok: return _profile_result(profile, flushed)
 		var autosave_document: Variant = candidate["autosave_document"]
 		var document_text := ""
-		# The journal-owned bundles whose committed texts the splice writes, in written order.
 		var proven_journal: Array = []
 		var proven_documents: Array = []
 		var spliced := false
-		# Only the NEW current bundle is canonicalised here; the earlier bundles are byte-identical
-		# copies of what their own commits already wrote and proved. A non-object outgoing value
-		# takes the whole-document path below exactly as before.
 		if typeof(autosave_document) == TYPE_DICTIONARY \
 				and typeof((autosave_document as Dictionary).get("current_snapshot")) == TYPE_DICTIONARY:
 			var current_emitted: Dictionary = CANONICAL_JSON.stringify(
@@ -274,12 +231,8 @@ func commit(candidate: Dictionary) -> Dictionary:
 				spliced = not document_text.is_empty()
 		tick = _profile_phase(profile, "stringify_us", tick)
 		if document_text.is_empty():
-			# A partial splice proves nothing about the bytes the whole-document writer emits below.
 			proven_journal.clear()
 			proven_documents.clear()
-			# Some earlier bundle has no remembered text (a journal seeded from disk, restored or
-			# reset): the whole-document writer remains the authority for these bytes, and this
-			# bundle's own text is only reusable later if it appears verbatim in them.
 			var canonical: Dictionary = CANONICAL_JSON.stringify(autosave_document)
 			if not canonical.get("ok", false):
 				return _profile_result(profile, _fail(&"canonical_serialization_failed", ""))
@@ -292,17 +245,11 @@ func commit(candidate: Dictionary) -> Dictionary:
 			profile["journal_spliced"] = spliced
 			tick = Time.get_ticks_usec()
 		var outgoing_text := document_text + "\n"
-		# Canonical emission proves the text round-trips exactly. Validate this detached
-		# value now (the caller may have edited it since prepare), preserving JSON's
-		# StringName conversion. Only successful proof can seed this exact-text cache.
 		var sub_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 		var outgoing_proven := false
 		var normalized: Variant = _normalize_outgoing_document(candidate["autosave_document"], spliced)
 		sub_tick = _profile_phase(profile, "outgoing_normalize_us", sub_tick)
 		if normalized is Dictionary:
-			# On the splice path the journal entries in these bytes came from the journal's remembered
-			# texts, not from this document, so the lease for them is composed from the bundles those
-			# texts belong to. Every other path validates the outgoing document verbatim, as before.
 			var checked := {}
 			if spliced:
 				checked = SAVE_DOCUMENT_SCHEMA._validate_outgoing_document_proofs(
@@ -315,27 +262,19 @@ func commit(candidate: Dictionary) -> Dictionary:
 				outgoing_proven = true
 				validated_texts[outgoing_text] = {"ok": true, "code": &"ok", "value": checked["value"]["candidate"]}
 				var checked_current: Dictionary = checked["value"]["candidate"]["current_snapshot"]
-				# Equal JSON-shaped values may differ in container types, but a numeric change
-				# cannot authorize a document proof for the original emitted text.
 				if CANONICAL_JSON._deep_same(normalized["current_snapshot"], checked_current):
 					proven_current_document = checked_current
 				if not spliced:
-					# Capture a detached copy of the normalized history the full writer emitted.
-					# It grants no reusable proof until all durability steps succeed.
 					written_history = (normalized["recovery_journal"] as Array).duplicate(true)
 					written_document_text = document_text
 			_profile_phase(profile, "outgoing_history_capture_us", sub_tick)
 		if not outgoing_proven:
-			# A source-only migration proof may share these exact bytes. It cannot
-			# authorize a caller-edited outgoing candidate, even on a cache hit.
 			var checked_text := _document_text_validator(outgoing_text)
 			if not checked_text.get("ok", false) or not checked_text.get("value") is Dictionary:
 				return _profile_result(profile, {"ok": false, "code": &"outgoing_validation_failed",
 					"message": str(checked_text.get("message", "Outgoing document rejected")), "fatal": false})
 			validated_texts[outgoing_text] = checked_text
 		tick = _profile_phase(profile, "outgoing_schema_us", tick)
-		# dwm-634.3: neither storage nor the reread below reads the value of these validations, so
-		# both are answered by the witness, which copies no already-proven candidate.
 		var witness := _witness_document_text_validator.bind(validated_texts)
 		var written: Dictionary = _storage().write_atomic(
 			AUTOSAVE_RELATIVE_PATH, outgoing_text, witness)
@@ -356,24 +295,6 @@ func commit(candidate: Dictionary) -> Dictionary:
 	tick = _profile_phase(profile, "journal_us", tick)
 	if not committed.get("ok", false):
 		return _profile_result(profile, committed)
-	# The reread above proved these exact bytes on disk, so the journal may reuse this bundle's region
-	# for as long as it keeps the bundle as its own retained private duplicate -- but only while that
-	# text still DESCRIBES the bundle the journal just retained. `SaveDocumentSchema.build()` composes
-	# the document's current bundle as its own object (`RunSnapshotSchema.validate()`'s fresh
-	# candidate), so a caller may edit the outgoing bundle in place between prepare and commit: those
-	# edited bytes are written and accepted, which is the law, while `commit_prepared()` retains the
-	# UNEDITED candidate under the same id. Remembering the edited text would hand the next splice
-	# bytes for a bundle the journal does not hold, and that save composes its lease from the retained
-	# bundle, so lease and bytes would diverge. Identity cannot answer this -- the edit is in place --
-	# so compare deeply, JOURNAL side first: `_deep_same()` folds StringName into String on its LEFT
-	# operand only, and a retained candidate keeps the engine text (a desktop pending stage, an
-	# active_app_id) that `build()` converted for the document; it also refuses TYPE_INT against
-	# TYPE_FLOAT, so a widened number counts as a difference. Godot's own `==` cannot be used here: it
-	# does not recurse into nested containers (hence `Dictionary.recursive_equal()`), and these two
-	# bundles never share their nested `snapshot`. When they differ nothing is remembered and the next
-	# save falls back to the whole-document writer, which is always correct. The document bundle
-	# remembered beside the text rides the same gate for the same reason: the next save composes its
-	# journal entry for this id from that object, so bytes an edit produced must seed neither.
 	var proof_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 	var current_matches := proven_current_text != "" and CANONICAL_JSON._deep_same(
 			(candidate["journal_candidate"] as Dictionary)["current"],
@@ -400,9 +321,6 @@ func commit(candidate: Dictionary) -> Dictionary:
 		"value": {"checkpoint_id": str(committed["value"]["checkpoint_id"])}})
 
 
-## Learn only previously missing history proofs from the full writer's completed durable output.
-## Re-emission must occur verbatim in those exact bytes; the journal then checks the still-retained
-## value before taking its private copy. A mismatch is only a cache miss, never a new save refusal.
 func _remember_written_history(bundles: Array, document_text: String,
 		profile: Dictionary = {}) -> void:
 	if not profile.is_empty():
@@ -412,13 +330,8 @@ func _remember_written_history(bundles: Array, document_text: String,
 				"history_proof_learn_successes", "history_proof_lookup_us", "history_proof_emit_us",
 				"history_proof_region_us", "history_proof_remember_us"]:
 			profile[field] = 0
-	# The full writer emits these bundles in order. Continue after the last matched region so
-	# newly learned history does not repeatedly scan the preceding retained document. A helper
-	# caller may supply reordered or repeated entries, so a miss still checks the whole text.
 	var region_cursor := 0
 	for value: Variant in bundles:
-		# External documents may keep malformed fallback entries for later recovery diagnostics.
-		# Whole-document acceptance does not promise that every historical entry is a snapshot.
 		if value is not Dictionary or value.get("snapshot") is not Dictionary:
 			_profile_count(profile, "history_proof_skipped")
 			continue
@@ -454,19 +367,6 @@ func _remember_written_history(bundles: Array, document_text: String,
 			_profile_count(profile, "history_proof_region_misses")
 
 
-## Composes the outgoing autosave text from the new current bundle's canonical text plus the
-## journal-remembered canonical text of every earlier bundle, splicing them into one tiny
-## canonicalised envelope. The envelope substitutes a C0-prefixed sentinel string for each spliced
-## bundle; because its only string values are those sentinels and the document's own fixed
-## discriminators, every sentinel token appears in the envelope text exactly once at a known offset.
-## Splicing therefore works by offset, never by text replacement, so a bundle whose own text carries
-## a sentinel token cannot displace anything. Returns "" when the bytes cannot be composed this way
-## -- a missing remembered text, or an envelope that does not carry each token exactly once -- and
-## the caller then stringifies the whole document instead.
-## `proven_journal` is filled, in written order, with the journal's own bundle for each entry whose
-## remembered text this splice writes -- the only in-memory objects that describe these bytes.
-## `proven_documents` collects the normalized document proofs under those same ids/text lifetimes;
-## an empty entry preserves the raw-proof fallback. Neither output is trusted on a failed splice.
 func _splice_autosave_text(document: Dictionary, current_text: String,
 		proven_journal: Array = [], proven_documents: Array = []) -> String:
 	var earlier: Variant = document.get("recovery_journal")
@@ -525,7 +425,6 @@ static func _profile_phase(profile: Dictionary, phase: String, started_us: int) 
 	profile[phase] = now - started_us
 	return now
 
-## Sum disjoint calls inside a loop; these remain nested in the inclusive journal proof timer.
 static func _profile_accumulate_phase(profile: Dictionary, phase: String, started_us: int) -> int:
 	if profile.is_empty(): return 0
 	var now := Time.get_ticks_usec()
@@ -564,16 +463,11 @@ func rollback(backup: Dictionary) -> Dictionary:
 		var descriptor := storage_descriptor as Dictionary
 		var relative_path := str(descriptor.get("relative_path", AUTOSAVE_RELATIVE_PATH))
 		var storage_result: Dictionary
-		# dwm-634.3: rollback reads nothing but `ok` from either result, so the witness answers
-		# both. `_forget_proven_documents()` above left nothing proven, so its only hit is the
-		# restored text this call itself validates and seeds.
 		var witness := _witness_document_text_validator.bind({}, true)
 		if bool(descriptor.get("existed", false)):
 			storage_result = _storage().write_atomic(
 				relative_path, str(descriptor.get("validated_text", "")), witness)
 		else:
-			# A failed final reread may have invalidated the lease after a first save
-			# became durable. Validate that artifact before restoring prior absence.
 			storage_result = _storage().reconcile(relative_path, witness)
 			if storage_result.get("ok", false):
 				storage_result = _storage().remove(relative_path)
@@ -583,7 +477,6 @@ func rollback(backup: Dictionary) -> Dictionary:
 		return {"ok": true, "code": &"ok"}
 	return _fatal_rollback("rollback", str((journal_backup as Dictionary).get("run_id", "")), attempts)
 
-## Builds the canonical stage record and receipt without mutating transient or durable state.
 func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candidate: Dictionary,
 		proven_recovery_payload_sha256: String = "") -> Dictionary:
 	var readiness := _readiness()
@@ -598,10 +491,6 @@ func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candida
 	return prepared
 
 
-## One pure construction path for new checkpoints and cold-record self-consistency checks.
-## `proven_recovery_payload_sha256` is only ever supplied by a live caller that derived it over these
-## exact payload bytes in this frame; the cold/evicted re-derivation callers below deliberately pass
-## nothing, so a record read back from disk is still proven in full.
 static func _build_consequence_checkpoint(checkpoint_header: Dictionary, stage_candidate: Dictionary,
 		proven_recovery_payload_sha256: String = "") -> Dictionary:
 	var preimage: Dictionary = DESKTOP_CONSEQUENCE_STATE.checkpoint_content_preimage(checkpoint_header,
@@ -617,8 +506,6 @@ static func _build_consequence_checkpoint(checkpoint_header: Dictionary, stage_c
 	var canonical: Dictionary = CANONICAL_JSON.stringify(preimage_value)
 	if not canonical.get("ok", false):
 		return _fail(&"canonical_serialization_failed", "consequence checkpoint preimage is not canonicalizable")
-	# The writer just proved this fully validated state is JSON-representable. Normalize only the
-	# StringName subtype that JSON does not preserve; keep integer/float provenance exact.
 	var normalized_preimage: Variant = _normalize_json_string_types(preimage_value)
 	normalized_header = (normalized_preimage as Dictionary)["header"]
 	var content_sha256 := str(canonical["value"]).sha256_text()
@@ -627,12 +514,6 @@ static func _build_consequence_checkpoint(checkpoint_header: Dictionary, stage_c
 		"header": normalized_header.duplicate(true),
 		"content_sha256": content_sha256,
 	}
-	# CONFINEMENT: with the normalizer preserving identity this may now BE
-	# `preimage_value["stage_candidate"]`, which `checkpoint_content_preimage()` obtained from
-	# `_validate_for_preimage()` -- i.e. the `state.duplicate(true)` that validation already detached
-	# from the caller's tree, held by nothing else once this function returns. `canonical` above was
-	# taken before this line, so `content_sha256` still proves the unattached bytes. The mutation
-	# therefore stays inside this port's own private tree, exactly as when a fresh copy was allocated.
 	var receipt_attached_candidate: Dictionary = (normalized_preimage as Dictionary)["stage_candidate"]
 	var pending: Variant = receipt_attached_candidate.get("pending")
 	if typeof(pending) == TYPE_DICTIONARY:
@@ -654,7 +535,6 @@ static func _build_consequence_checkpoint(checkpoint_header: Dictionary, stage_c
 		"checkpoint_receipt": checkpoint_receipt,
 	}}
 
-## Retains one stage in memory. Identical occupied-slot retries replay; changed bytes conflict.
 func commit_consequence_checkpoint(checkpoint_candidate: Dictionary, checkpoint_receipt: Dictionary) -> Dictionary:
 	var readiness := _readiness()
 	if not readiness.is_empty():
@@ -674,8 +554,6 @@ func commit_consequence_checkpoint(checkpoint_candidate: Dictionary, checkpoint_
 		validated = _validate_transient_consequence_record(record)
 		if not validated.get("ok", false):
 			return validated
-		# Normalization permits StringName aliases, but cannot authorize changed bytes
-		# against a record we still own, even after its independent reconstruction succeeds.
 		if (_issued_transient_records.has(receipt_id)
 				and not CANONICAL_JSON._deep_same(_issued_transient_records[receipt_id], validated["value"])):
 			return _fail(&"invalid_candidate", "checkpoint record differs from the issued candidate")
@@ -694,7 +572,6 @@ func commit_consequence_checkpoint(checkpoint_candidate: Dictionary, checkpoint_
 	records[key] = normalized
 	return {"ok": true, "code": &"ok", "value": {"checkpoint_receipt": checkpoint_receipt}}
 
-## Marks an unpromoted transient transaction abandoned without creating another stage record.
 func abandon_pending_consequence_checkpoint(transaction_id: String) -> Dictionary:
 	var readiness := _readiness()
 	if not readiness.is_empty():
@@ -723,7 +600,6 @@ func abandon_pending_consequence_checkpoint(transaction_id: String) -> Dictionar
 	abandoned[transaction_id] = true
 	return {"ok": true, "code": &"ok", "value": {"abandoned": true, "already_abandoned": false}}
 
-## Clears retry state only at an explicit successful session boundary.
 func clear_transient_consequence_checkpoints() -> Dictionary:
 	var records_cleared := (_transient_consequence_document["records"] as Dictionary).size()
 	var abandoned_cleared := (_transient_consequence_document["abandoned"] as Dictionary).size()
@@ -768,10 +644,6 @@ func read_pending_consequence_checkpoint() -> Dictionary:
 	}}
 
 static func _normalize_outgoing_document(value: Variant, spliced: bool) -> Variant:
-	# A successful splice writes journal-owned, byte-proven bundles. Legacy validation
-	# replaces the caller journal with those proofs and needs only its container.
-	# Save9 additionally binds each caller entry to its proof before composition, so
-	# preserve and normalize that history for the existing count/value checks.
 	if spliced and value is Dictionary and value.get("schema_version") != SAVE_DOCUMENT_SCHEMA.SCENE_DOCUMENT_VERSION \
 			and value.get("recovery_journal") is Array:
 		var envelope: Dictionary = value.duplicate()
@@ -780,11 +652,6 @@ static func _normalize_outgoing_document(value: Variant, spliced: bool) -> Varia
 	return _normalize_json_string_types(value)
 
 
-## Converts every StringName (key or value) to String and returns everything else untouched. A
-## container with no converted descendant is returned AS IS rather than rebuilt: only the path that
-## actually contains a conversion is allocated anew. A consequence preimage carries StringNames only
-## in its header and pending stage, so the whole recovery_payload subtree -- the expensive part --
-## is now passed through by reference.
 static func _normalize_json_string_types(value: Variant) -> Variant:
 	match typeof(value):
 		TYPE_STRING_NAME:
@@ -865,8 +732,6 @@ func _validate_transient_consequence_record(record: Dictionary) -> Dictionary:
 	var state_check: Dictionary = DESKTOP_CONSEQUENCE_STATE.validate(normalized["stage_candidate"])
 	if not state_check.get("ok", false):
 		return _fail(&"invalid_candidate", "checkpoint record contains an invalid consequence state")
-	# Validation already detached this tree. Undo only the initial admission attachment;
-	# repeated admission preparation and later stages retain their older admission receipt.
 	var rebuild_state: Dictionary = state_check["value"]["state"]
 	var pending: Variant = rebuild_state["pending"]
 	if typeof(pending) == TYPE_DICTIONARY and str(pending["stage"]) == "sequence_committed" \
@@ -881,8 +746,6 @@ func _validate_transient_consequence_record(record: Dictionary) -> Dictionary:
 		"canonical_text": str(canonical["value"])}
 
 func _fatal_rollback(phase: String, run_id: String, raw_diagnostics: Array) -> Dictionary:
-	# Storage failures omit optional details. Complete absent fields here without
-	# changing the retained owner result or hiding malformed supplied values.
 	var diagnostics: Array = raw_diagnostics.duplicate(true)
 	for diagnostic: Dictionary in diagnostics:
 		var result: Variant = diagnostic.get("result")
@@ -919,10 +782,6 @@ func _capture_storage_backup(relative_path: String, validated_texts: Dictionary)
 		if not read.get("ok", false):
 			if str(read.get("code", "")) != "reconcile_required":
 				return read
-			# A cold manual-slot Load has not read the unrelated Autosave yet. Its
-			# missing lease may be established here, followed by a real leased reread.
-			# A read that detected changed bytes still fails this preparation: real
-			# reconciliation only enables an explicit later retry in that case.
 			var lease_missing := str(read.get("reason", "")) == "lease_missing"
 			var reconciled: Dictionary = _storage().reconcile(
 				relative_path, _witness_document_text_validator.bind(validated_texts, true))
@@ -954,7 +813,6 @@ func _forget_proven_documents() -> void:
 	_proven_document_validations = {}
 	_proven_document_order = []
 
-## Only texts validated during a commit whose reread matched and whose journal committed.
 func _remember_proven_documents(validated_texts: Dictionary) -> void:
 	for text: String in validated_texts.keys():
 		if _proven_document_validations.has(text): continue
@@ -968,7 +826,6 @@ func _take_prepared_text_validation(candidate: Dictionary) -> Dictionary:
 	if _prepared_validation_frame == Engine.get_process_frames() \
 			and str(candidate.get("checkpoint_id", "")) == _prepared_validation_checkpoint:
 		cache = _prepared_text_validations
-	# Consume before any failure, external callback or I/O; retries always start fresh.
 	_clear_prepared_text_validation()
 	return cache
 
@@ -982,25 +839,15 @@ func _cached_document_text_validator(text: String, cache: Dictionary) -> Diction
 		cache[text] = result.duplicate(true)
 	return result
 
-## Existing backup bytes use content admission; the caller retains their original text/hash.
-## A proven text answers without copying its candidate. A cold admission seeds the full
-## validation so write_atomic can classify the same existing bytes without parsing again.
 func _cached_document_text_proof(text: String, cache: Dictionary) -> Dictionary:
 	if cache.has(text) or _proven_document_validations.has(text):
 		return {"ok": true, "code": &"ok"}
 	var result := _document_text_validator(text, true)
 	if not result.get("ok", false):
 		return result
-	# Nothing else holds `result`: this method never hands the value out, so the cache may own it.
 	cache[text] = result
 	return {"ok": true, "code": &"ok"}
 
-## dwm-634.3: the same question again -- is this exact text a valid document? -- for the storage
-## calls whose returned value this port discards. Storage only asks whether the value is a
-## Dictionary (`_classify_document()`), so a proven text is witnessed with an empty one instead of
-## the 450 KB candidate, which `_classify_document()`, `reconcile()` and `write_atomic()` would each
-## deep-copy again. Cold backup/rollback sources may use content admission; outgoing bytes
-## remain strict. A success seeds the cache for later classification of that exact text.
 func _witness_document_text_validator(text: String, cache: Dictionary, existing_source: bool = false) -> Dictionary:
 	if cache.has(text) or _proven_document_validations.has(text):
 		return {"ok": true, "code": &"ok", "value": {}}
@@ -1024,8 +871,6 @@ func _validate_document_text(text: String, existing_source: bool = false) -> Dic
 	if not parsed.get("ok", false):
 		return {"ok": false, "code": &"invalid_json", "message": "strict parse failed"}
 	if existing_source and parsed.value.get("schema_version") == SAVE_DOCUMENT_SCHEMA.SCENE_DOCUMENT_VERSION:
-		# The old Autosave is rollback evidence. Admit its content compatibility
-		# without replacing the exact bytes/hash retained by the storage descriptor.
 		var admitted: Dictionary = preload("res://scripts/infrastructure/save/SaveMigrations.gd").migrate_document(
 			parsed.value, {"kind": "autosave", "slot_id": null})
 		if not admitted.ok: return admitted

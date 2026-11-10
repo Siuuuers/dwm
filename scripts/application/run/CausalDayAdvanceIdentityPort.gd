@@ -1,11 +1,6 @@
 class_name CausalDayAdvanceIdentityPort
 extends RefCounted
 
-## Shared causal-day allocator used by schedule completion and condition-hospital advance.
-##
-## Plan 02 (`dwm-p2r.16`) keeps this port deterministic: request/receipt shapes are
-## exact, prepare is mutation-free, and all persistence is delegated to the external
-## identity issuer's day-advance root methods.
 
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
@@ -343,8 +338,6 @@ func _tuple_from_receipt(receipt: Dictionary) -> Array:
 
 
 func _tuple_equals(a: Array, b: Array) -> bool:
-	# Four members identify scene occurrences; five identify legacy calendar days.
-	# Never compare across families, and never index a nonexistent day member.
 	if a.size() != b.size() or not a.size() in [4, 5]:
 		return false
 	return a == b

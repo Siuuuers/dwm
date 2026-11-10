@@ -1,7 +1,5 @@
 class_name FocusGrid
 extends Node
-# Focus-neighbor helper for icon grids (CONTRACTS §7). Wires focus_neighbor_* so
-# keyboard/controller navigation follows a GridContainer layout.
 
 
 static func set_neighbors(control: Control, neighbors: Dictionary) -> void:
@@ -18,7 +16,6 @@ static func set_neighbors(control: Control, neighbors: Dictionary) -> void:
 
 
 static func apply_grid(root: Node, columns: int = 4) -> void:
-	# Collect focusable child Controls in order and wire neighbor links as a grid.
 	if root == null or columns <= 0:
 		return
 	var cells: Array[Control] = []

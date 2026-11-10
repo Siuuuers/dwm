@@ -1,5 +1,4 @@
 extends RefCounted
-## Localized presentation intent from dossier section 10.4; no reward IDs or rules inference.
 
 const COPY := {
 	"en": {

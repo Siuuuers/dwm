@@ -1,68 +1,6 @@
 class_name DesktopContinuationRemapper
 extends RefCounted
 
-## Selected-Load snapshot identity remapper (Plan 02 Task 6, dwm-p2r.32, req.desktop
-## .cross_app_actions), amendment plan lines 287-291.
-##
-## TABLE-DRIVEN SCOPE, resolving the brief's "current-causal-day base-completion and Supportz
-## records" clause (controller ruling, bead addendum 9). Amendment SS8.3 places them in Task 7 -- a
-## per-branch Supportz purchase count, a per-causal-day purchase flag, and base-completion receipts
-## that MinesweeperCapabilityRules.supportz_eligible() consumes -- and Task 7 has since landed them
-## on DesktopConsequenceState as the single `shop_ledger` member (see that file's own class doc).
-## Legacy calendar ledger tokens stay historical. Scene selected Load additionally rebases only
-## current-day eligibility tokens in prepare(); authored day renewal remains a separate owner.
-## _REMAP_TABLE's `shop_ledger` row is `handled: true`: none of its three members is a transaction id
-## or an anchored child provenance (a purchase count and opaque historical causal_day_instance
-## tokens), so _remap_consequence()'s existing duplicate(true) already carries it forward correctly.
-##
-## Every row this remapper actually HANDLES operates on a member RunSnapshotSchema v4 already
-## declares (DesktopBoardState._CAPTURE_KEYS / DesktopConsequenceState's own _STATE_KEYS/
-## _PENDING_KEYS/outbox union). Two categories are explicitly DEFERRED rather than guessed at, each
-## with its row's own `reason`:
-##  - admission_checkpoint_receipt/checkpoint_receipt are content-hash-immutable records anchored to
-##    a historical `SaveManagerCheckpointPort.commit_consequence_checkpoint()` preimage; remapping
-##    their bytes would require rewriting the on-disk consequence-checkpoint document they describe,
-##    which is outside a pure in-memory snapshot remap.
-##  - destination_intent/notification_intent/outbox provenance-consumer members have no frozen
-##    internal shape anywhere in this codebase today, so this remapper does not guess at their
-##    contents; it leaves them exactly as captured, except the now-composed pending
-##    day7_terminal record below. Published records remain historical evidence.
-##
-## AMENDMENT PLAN 03 TASK 4 (dwm-oyo.3) STEP 4. The twelve v5 rows at the end of _REMAP_TABLE are
-## all implemented. What is remapped: `snapshot.schedule_view` (its causal_day_instance, the pending
-## warning activation with its stored preimage/fingerprint/child, its attempt receipts, the consumed
-## terminal index, and the append-only condition-departure ledger), the two admission-ready
-## `schedule_view_before`/`schedule_view_after` members of the consequence recovery payload, and
-## `snapshot.lifecycle` (its own identity quadruple, the active condition-Hospital plan, the
-## immutable condition-Hospital history, and the terminal intent handoff).
-##
-## WRITING `lifecycle` BYTES IS NOT A SECOND LIFECYCLE REMAPPER. RunRestoreParticipant still installs
-## the remapped lifecycle THROUGH RunLifecycle.prepare_restore(), and RunLifecycle remains the only
-## owner that validates and installs it; this file only rewrites the identity references inside the
-## bytes that participant carries. The lifecycle's own branch_id/desktop_timeline_generation/
-## causal_day_instance/causal_day_instance_issuer_receipt move to the bundle's because
-## RunLifecycle._validate_condition_lifecycle requires an UNSPLIT active plan's identity to equal the
-## lifecycle's own, and that plan's still-live source identity is remapped here: either both move or
-## neither can.
-##
-## TWO DELIBERATELY HISTORICAL REGIONS. (1) A consumed warning receipt keeps its `activation_id` and
-## `activation_id_provenance` byte-for-byte: after consumption `pending_warning` is null and the
-## activation's opening issuer receipt is gone from the document, so that child is not re-derivable.
-## The consumed record is therefore deliberately mixed -- historical activation identity, recomputed
-## fingerprint, recomputed index key, terminal receipt re-derived under the mapped terminal root.
-## (2) `condition_hospital_history` is duplicated and VALIDATED, never remapped: past the retirement
-## checkpoint the record is immutable and its roots never enter the census.
-##
-## THE LEDGER IS EXCLUDED FROM THE OPTIMISTIC FINGERPRINT. ScheduleViewState.fingerprint() hashes six
-## view members plus the expected registry fingerprint and deliberately omits
-## `condition_departure_receipts`, so rekeying that append-only recovery ledger here can never
-## fabricate a different optimistic view expectation for the restored run.
-##
-## PURITY. No live issuer/root object is called: `derive_child()`'s preimage law (plan line 537,
-## mirrored from DesktopIdentityNonceIssuer._child_id -- that file's frozen public surface forbids
-## adding a shared static, so the pure formula is duplicated here rather than imported) only needs
-## the NEW parent receipt's namespace/counter/receipt_id, which `identity_allocation_bundle` already
-## carries. Every remap here is therefore a deterministic function of its two inputs.
 
 const _IDENTITY := preload("res://scripts/domain/desktop/DesktopIdentity.gd")
 const _CONSEQUENCE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
@@ -72,12 +10,6 @@ const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.g
 const CHILD_SCHEMA_VERSION := 1
 const _PROVENANCE_KEYS: Array[String] = ["child_id", "child_kind", "ordinal", "parent_receipt_id", "schema_version", "source_ids"]
 
-## Duplicated from DesktopIdentityNonceIssuer.CHILD_KINDS (plan line 537) for the SAME reason
-## `_child_id()` below duplicates that file's preimage formula rather than importing it: this is
-## domain layer and must not depend on the application-layer issuer. Kept byte-for-byte identical
-## by `test_the_remappers_duplicated_child_kinds_equal_the_real_issuers_child_kinds_exactly` in
-## tests/unit/test_desktop_continuation_remapper.gd, which loads the REAL issuer and compares this
-## list against its own CHILD_KINDS member-for-member, in order.
 const _CHILD_KINDS: Array[String] = [
 	"schedule_entry", "schedule_commit", "day7_schedule_provenance", "empty_schedule_done",
 	"contact_source", "hospital_resolution", "condition_hospital_stage", "condition_hospital_retirement",
@@ -88,9 +20,6 @@ const _CHILD_KINDS: Array[String] = [
 	"scene_day_completion",
 ]
 
-## Registration seam (bead addendum 9). `handled=true` rows are implemented in `_remap_board()`/
-## `_remap_consequence()` below; `handled=false` rows are deliberately deferred, with `reason`
-## explaining why, per the scoping above.
 const _REMAP_TABLE: Array[Dictionary] = [
 	{"path": "desktop.board.identity", "handled": true},
 	{"path": "desktop.board.command_receipts", "handled": true},
@@ -112,14 +41,6 @@ const _REMAP_TABLE: Array[Dictionary] = [
 	{"path": "desktop.consequence.outbox.*.provenance/consumer", "handled": false,
 		"reason": "no frozen member shape exists yet"},
 	{"path": "desktop.consequence.shop_ledger", "handled": true},
-	# Amendment Plan 03 Task 4 (dwm-oyo.3) Step 4: the twelve v5 regions this remapper is
-	# responsible for, every one of them implemented below. The walkers are `_remap_schedule_view()`
-	# (the first six rows plus the recovery-payload row) and `_remap_lifecycle()` (the last five).
-	# `lifecycle.condition_hospital_history` is `handled: true` because its handling IS byte
-	# identity: `_validate_condition_hospital_history()` duplicates the region and checks each
-	# record (nonblank key, exact member set, issuer token, completed-plan digest, retirement
-	# resolution id) instead of rewriting a single byte of it -- an immutable region that is proved
-	# unmutated is handled, not deferred, and a `reason` here would claim a gap that does not exist.
 	{"path": "schedule_view.causal_day_instance", "handled": true},
 	{"path": "schedule_view.pending_warning.opened_by_transaction_id+receipt", "handled": true},
 	{"path": "schedule_view.pending_warning.activation_id+provenance", "handled": true},
@@ -135,11 +56,6 @@ const _REMAP_TABLE: Array[Dictionary] = [
 ]
 
 
-## Nonwired scene successor. `root_document` is the authoritative captured issuer root;
-## `bundle` is trusted registration. `durable_source.document_text` MUST be confirmed
-## save-owner readback, not caller-authored JSON. This pure helper proves content binding,
-## never disk origin, save-schema admission, native custody or an executed checkpoint.
-## The existing Save8 validator is intentionally not widened by this domain helper.
 static func scene_day_advance_source(lifecycle: Dictionary, command_receipts: Dictionary,
 		bundle: Dictionary, root_document: Dictionary, durable_source: Dictionary) -> Dictionary:
 	var event := preload("res://scripts/domain/narrative/SceneEventContract.gd")
@@ -320,8 +236,6 @@ static func _scene_source_readback(durable: Dictionary, plan: Dictionary, comman
 	if not _scene_source_plan_valid(saved_plan) or not _scene_exact_equal(snapshot.command_receipts, commands):
 		return _scene_source_failure("checkpoint source owners differ")
 	var comparable: Dictionary = saved_plan.duplicate(true)
-	# Advancing an already-durable source may mark the stage active before retry.
-	# No semantic field or other stage may differ from the committed source.
 	if comparable.stages[1].state == "active" and plan.stages[1].state == "pending":
 		return _scene_source_failure("checkpoint advance state cannot rewind")
 	comparable.stages[1].state = plan.stages[1].state
@@ -373,8 +287,6 @@ static func _scene_restore_source(lifecycle: Dictionary, current: Dictionary,
 			source_found = true
 			break
 	if not source_found: return _scene_source_failure("restore source receipt is not durable")
-	# Readback may be the selected source or a checkpoint made after the restore.
-	# The selected source can itself be a continuation; never compare it to I0.
 	if not _scene_exact_equal(selected, current):
 		if selected.run_id != current.run_id or selected.branch_id != proof.source_branch_id \
 				or selected.desktop_timeline_generation != proof.source_desktop_timeline_generation \
@@ -403,15 +315,6 @@ static func _scene_source_failure(message: String) -> Dictionary:
 	return _fail(&"scene_day_advance_source_invalid", message, {})
 
 
-## Every root transaction id this snapshot's rewindable (board command/terminal ledger, the one live
-## consequence pending transaction, and the v5 ScheduleView/lifecycle roots C1-C5) structures
-## currently reference. Sorted, unique.
-## Run9 is admitted by A's complete installed-content/schema owners BEFORE this
-## helper. These checks cover only remapper-owned discrimination and execution
-## identity. They are not a second Run9 validator or a production format switch.
-## Scene receipts, reading frames, Contact return references and physical history
-## remain byte-identical. Only desktop live keys and the lifecycle identity move;
-## A's RunLifecycle participant owns the new restore_provenance after this phase.
 static func _scene_runtime_boundary(snapshot: Dictionary) -> Dictionary:
 	var requested: bool = snapshot.get("schema_version") == 9 or snapshot.get("route_id") == "scene" or snapshot.has("scene")
 	if not requested: return {"ok": true, "value": false}
@@ -520,18 +423,6 @@ static func collect_rewindable_transaction_ids(snapshot: Dictionary) -> Dictiona
 	return {"ok": true, "code": &"ok", "value": {"transaction_ids": sorted_ids}, "receipt": {}}
 
 
-## `identity_allocation_bundle` here is the RAW continuation-allocation bundle (brief lines
-## 259-283: transaction_id/transaction_issuer_receipt/branch_id/desktop_timeline_generation/
-## causal_day_instance/causal_day_instance_issuer_receipt/transaction_remap), NOT yet enriched with
-## the remap_receipt_id/remap_receipt_provenance this method itself produces --
-## DesktopIdentityAllocationRestoreParticipant merges this method's receipt onto that bundle before
-## handing the ENRICHED bundle to RunLifecycle.prepare_continuation_remap() and the consequence/
-## board participants.
-##
-## Composition order is load-bearing: the consequence walk (which remaps the two admission-ready
-## recovery-payload views) runs BEFORE the ScheduleView walk (whose condition-departure ledger is
-## checked against those remapped views), which runs BEFORE the lifecycle walk (whose
-## condition-Hospital destination record is compared against the already-remapped live outbox).
 static func prepare(snapshot: Dictionary, restore_transaction_id: String,
 		identity_allocation_bundle: Dictionary) -> Dictionary:
 	var scene_check := _scene_runtime_boundary(snapshot)
@@ -563,8 +454,6 @@ static func prepare(snapshot: Dictionary, restore_transaction_id: String,
 	if not consequence_result.get("ok", false):
 		return consequence_result
 	if scene_check.value:
-		# Selected Load forks identity, not the authored day. Carry the current
-		# day's eligibility projection forward; signed command receipts stay historical.
 		var old_day: String = str(desktop.consequence.causal_day_instance)
 		var new_day: String = str(identity_allocation_bundle.causal_day_instance)
 		var ledger: Dictionary = consequence_result.value.shop_ledger
@@ -640,13 +529,6 @@ static func prepare(snapshot: Dictionary, restore_transaction_id: String,
 	}, "receipt": remap_receipt_provenance.duplicate(true)}
 
 
-## Independent second opinion: re-derives the implied transaction map purely by diffing `source`
-## against `candidate` (board command/terminal receipt key correspondence by insertion order, the
-## consequence pending transaction_id, and the v5 C1-C5 roots by structural position), requires that
-## implied map to be internally consistent (no missing/extra/multiply-mapped/dangling/unsorted-set
-## entries), checks the candidate's own warning index-key laws, then rebuilds an equivalent raw
-## bundle from those facts and requires `prepare()` against it to reproduce `candidate`
-## byte-for-byte.
 static func validate_remap(source: Dictionary, candidate: Dictionary,
 		identity_allocation_bundle: Dictionary = {}) -> Dictionary:
 	var source_scene := _scene_runtime_boundary(source)
@@ -656,8 +538,6 @@ static func validate_remap(source: Dictionary, candidate: Dictionary,
 	if source_scene.value != candidate_scene.value:
 		return _fail(&"remap_family_mismatch", "source and candidate families differ", {})
 	if source_scene.value:
-		# No historical scene receipt may be borrowed as a live restore root. The
-		# real allocation participant retains this raw bundle even for an empty map.
 		var checked := _require_bundle_keys(identity_allocation_bundle)
 		if not checked.get("ok", false): return checked
 		var reproduced := prepare(source, str(identity_allocation_bundle.transaction_id), identity_allocation_bundle)
@@ -711,9 +591,6 @@ static func validate_remap(source: Dictionary, candidate: Dictionary,
 		"transaction_remap": transaction_remap,
 	}
 	if receipt_source.is_empty():
-		# No pending transaction survived into the candidate to anchor the remap receipt against
-		# (e.g. the whole remap happened while nothing was mid-flight): fall back to any one of the
-		# remapped board receipts as the anchor, matching the same "restore transaction" identity.
 		for entry: Variant in transaction_remap.values():
 			rebuilt_bundle["transaction_issuer_receipt"] = (entry as Dictionary).get("new_transaction_issuer_receipt", {})
 			rebuilt_bundle["transaction_id"] = str((entry as Dictionary).get("new_transaction_id", ""))
@@ -729,8 +606,6 @@ static func validate_remap(source: Dictionary, candidate: Dictionary,
 	return {"ok": true, "code": &"ok", "value": {"transaction_remap": transaction_remap}, "receipt": {}}
 
 
-## A cleaned, pending Day 7 result is still live work. Published ending evidence is historical.
-## Only this exact consumer joins the existing transaction census and pure remap proof.
 static func _pending_day7_terminal(consequence: Dictionary) -> Dictionary:
 	var outbox: Variant = consequence.get("outbox", {})
 	if not outbox is Dictionary: return _fail(&"remap_day7_source_invalid", "outbox is malformed", {})
@@ -810,8 +685,6 @@ static func _rebuild_day7_terminal_record(record: Dictionary, root: Dictionary, 
 	action.action_id_provenance = child.value.provenance
 	action.commit_receipt_id = child.value.child_id
 	action.commit_receipt_provenance = child.value.provenance.duplicate(true)
-	# The paid board/quote source is already committed history; it is not re-executed on Load.
-	# The terminal action's opaque candidate digest is retained, exactly as other Tier A children.
 	var sequence := {"transaction_id": action.transaction_id, "transaction_issuer_receipt": action.transaction_issuer_receipt,
 		"run_id": action.run_id, "branch_id": action.branch_id, "desktop_timeline_generation": action.desktop_timeline_generation,
 		"causal_day_instance": action.causal_day_instance, "source_kind": action.action_kind,
@@ -853,9 +726,6 @@ static func _rebuild_day7_terminal_record(record: Dictionary, root: Dictionary, 
 	return {"ok": true, "value": mapped}
 
 
-# -------------------------------------------------------------------------------------------------
-# Board
-# -------------------------------------------------------------------------------------------------
 
 static func _remap_board(board: Dictionary, bundle: Dictionary, transaction_remap: Dictionary) -> Dictionary:
 	var remapped: Dictionary = board.duplicate(true)
@@ -889,9 +759,6 @@ static func _remap_board(board: Dictionary, bundle: Dictionary, transaction_rema
 	return {"ok": true, "code": &"ok", "value": remapped}
 
 
-# -------------------------------------------------------------------------------------------------
-# Consequence
-# -------------------------------------------------------------------------------------------------
 
 static func _remap_consequence(consequence: Dictionary, bundle: Dictionary,
 		transaction_remap: Dictionary, owners: Dictionary) -> Dictionary:
@@ -904,11 +771,6 @@ static func _remap_consequence(consequence: Dictionary, bundle: Dictionary,
 		if not remapped_pending.get("ok", false):
 			return remapped_pending
 		remapped["pending"] = remapped_pending["value"]
-	# Task 7 (dwm-p2r.32.7) registration seam filled in: shop_ledger's three members are a plain
-	# purchase count and opaque HISTORICAL causal_day_instance tokens (the branch's running Supportz
-	# count and completion log; none is a transaction id or an anchored child provenance), so no
-	# rewrite is needed beyond the duplicate() above -- unlike board/pending's rewindable transaction
-	# references, remapping a NEW branch identity never changes what already happened on past days.
 	return {"ok": true, "code": &"ok", "value": remapped}
 
 
@@ -933,10 +795,6 @@ static func _remap_pending(pending: Dictionary, bundle: Dictionary, transaction_
 
 	var payload: Variant = pending.get("recovery_payload")
 	if typeof(payload) == TYPE_DICTIONARY:
-		# The nested payload views carry the same warning/ledger regions as the live view, anchored
-		# to the same live pending root, but no payload of their own -- so they get the key and
-		# provenance treatment with an EMPTY ledger-hash law (there is no inner recovery payload to
-		# hash the inner ledger's two view digests against).
 		var source_parent_receipt_id := ""
 		var source_receipt: Variant = pending.get("transaction_issuer_receipt")
 		if typeof(source_receipt) == TYPE_DICTIONARY:
@@ -956,7 +814,6 @@ static func _remap_pending(pending: Dictionary, bundle: Dictionary, transaction_
 		if hash.is_empty():
 			return _fail(&"remap_payload_not_canonicalizable", "the remapped recovery_payload is not canonically representable", {})
 		remapped["recovery_payload_sha256"] = hash
-	# admission_checkpoint_receipt / checkpoint_receipt: deliberately untouched (see _REMAP_TABLE).
 	return {"ok": true, "code": &"ok", "value": remapped}
 
 
@@ -984,10 +841,6 @@ static func _remap_recovery_payload(payload: Dictionary, bundle: Dictionary,
 			record["source_commit_receipt_id"] = (rederived["value"] as Dictionary)["child_id"]
 			record["source_commit_receipt_provenance"] = (rederived["value"] as Dictionary)["provenance"]
 		remapped[embedded_key] = record
-	# The two admission-ready frozen views (Amendment Plan 03 Task 4 Step 4): each is remapped by
-	# the same walker the live view uses, and its own digest member is recomputed from the remapped
-	# bytes. The enclosing recovery_payload_sha256 is recomputed by _remap_pending() afterwards, so
-	# neither digest can go stale.
 	for view_key: String in ["schedule_view_before", "schedule_view_after"]:
 		var embedded_view: Variant = payload.get(view_key)
 		if typeof(embedded_view) != TYPE_DICTIONARY:
@@ -1006,23 +859,6 @@ static func _remap_recovery_payload(payload: Dictionary, bundle: Dictionary,
 	return {"ok": true, "code": &"ok", "value": remapped}
 
 
-## Re-derives an anchored-child id/provenance (plan line 537) under a NEW parent receipt, keeping
-## the child's own kind/ordinal unchanged. Any source_ids member that is itself a real rewindable
-## transaction ID is recursively remapped through `transaction_remap` (brief line 291: "recursively
-## mapped/sorted source IDs") -- this branch's own GameStateDesktopBoardPort anchors its board_start
-## children with source_ids=[transaction_id], a REAL transaction id, not an opaque hash, so passing
-## every source_id through unchanged (the prior behavior here) silently staled that id past a
-## restore. A source_id absent from transaction_remap is genuinely opaque (a content-derived hash
-## with no remap entry) and passes through unchanged. The result is lexically re-sorted and
-## revalidated non-blank/unique/sorted, matching derive_child()'s own precondition that source IDs
-## arrive already sorted rather than being repaired by the issuer; a malformed historical record
-## (unsorted, blank, or duplicated) rejects rather than being silently renormalized.
-##
-## This is TIER A, and the v5 walkers below reuse it unchanged for every child whose stored
-## source_ids carry no remapped identity (the condition-departure receipt, the condition-Hospital
-## condition/resolution receipts and stage identities). TIER B -- the warning family alone -- never
-## substitutes inside a stored projection string: it REBUILDS `source_ids` from the already-remapped
-## facts through `_mint_child()` and `_p()`.
 static func _rederive_anchored_child(provenance: Dictionary, new_parent_receipt: Dictionary,
 		transaction_remap: Dictionary) -> Dictionary:
 	var keys: Array = provenance.keys()
@@ -1068,9 +904,6 @@ static func _rederive_anchored_child(provenance: Dictionary, new_parent_receipt:
 	return {"ok": true, "code": &"ok", "value": {"child_id": new_child_id, "provenance": new_provenance}}
 
 
-## Shared precondition/postcondition check mirroring derive_child()'s own law (plan line 487):
-## source IDs must already be sorted, unique, and nonblank -- callers (and, here, historical
-## persisted records) may not submit an unsorted or duplicated set for silent repair.
 static func _validate_sorted_unique_nonblank(source_ids: Variant) -> Dictionary:
 	if typeof(source_ids) != TYPE_ARRAY:
 		return _fail(&"remap_source_ids_invalid", "source_ids must be an array", {})
@@ -1090,15 +923,7 @@ static func _validate_sorted_unique_nonblank(source_ids: Variant) -> Dictionary:
 	return {"ok": true, "value": ids}
 
 
-# -------------------------------------------------------------------------------------------------
-# ScheduleView (v5): the seven-key view, the warning family, and the condition-departure ledger
-# -------------------------------------------------------------------------------------------------
 
-## `view_context` carries what a view cannot see from inside itself: the source snapshot's identity
-## owners (for the stored warning contexts), the SOURCE pending issuer receipt id and its MAPPED
-## replacement (for the one live condition-departure entry), and the recovery payload's own two view
-## digests before/after the remap (empty when the payload carries neither view, or when the view
-## being walked IS one of those payload views).
 static func _remap_schedule_view(view: Dictionary, bundle: Dictionary,
 		transaction_remap: Dictionary, view_context: Dictionary) -> Dictionary:
 	var expected_keys: Array = ["causal_day_instance", "condition_departure_receipts",
@@ -1110,7 +935,6 @@ static func _remap_schedule_view(view: Dictionary, bundle: Dictionary,
 			"a schedule_view carries exactly the seven ScheduleViewState.VIEW_KEYS", {"keys": keys})
 	var remapped: Dictionary = view.duplicate(true)
 	remapped["causal_day_instance"] = str(bundle["causal_day_instance"])
-	# `entries`, `date_entry_seen` and `day` carry no identity and stay byte-identical.
 	var pending: Variant = view.get("pending_warning")
 	if typeof(pending) == TYPE_DICTIONARY:
 		var walked_pending := _remap_pending_warning(pending as Dictionary, bundle,
@@ -1135,10 +959,6 @@ static func _remap_schedule_view(view: Dictionary, bundle: Dictionary,
 	return {"ok": true, "code": &"ok", "value": remapped}
 
 
-## The live activation. Its three source pre-conditions run before any rewrite, in the order the
-## ruling fixes: the stored context against the SOURCE snapshot's owners, the stored preimage
-## against its own stored digest, then the stored six-key provenance against the provenance rebuilt
-## from its own stored facts (comparing only `child_id` would not catch an edited source_ids member).
 static func _remap_pending_warning(record: Dictionary, bundle: Dictionary,
 		transaction_remap: Dictionary, view_context: Dictionary) -> Dictionary:
 	var kind := str(record.get("warning_kind", ""))
@@ -1194,7 +1014,6 @@ static func _remap_pending_warning(record: Dictionary, bundle: Dictionary,
 	remapped["activation_id_provenance"] = (activation_value["provenance"] as Dictionary).duplicate(true)
 	remapped["opened_by_transaction_id"] = str((mapping as Dictionary)["new_transaction_id"])
 	remapped["opened_by_transaction_issuer_receipt"] = new_receipt.duplicate(true)
-	# `state` and `warning_kind` are semantic and stay byte-identical.
 	var attempts: Variant = record.get("attempt_receipts")
 	if typeof(attempts) == TYPE_DICTIONARY:
 		var rekeyed: Dictionary = {}
@@ -1217,10 +1036,6 @@ static func _remap_pending_warning(record: Dictionary, bundle: Dictionary,
 	return {"ok": true, "code": &"ok", "value": remapped}
 
 
-## The consumed index. Its key is `warning_state_fingerprint + "|" + warning_kind` -- exactly what
-## ScheduleWarningPolicy.next_warning() looks up -- so a key that already disagreed with its own
-## record on the SOURCE side is a stale index that would silently suppress (or re-raise) a warning
-## after the restore, and refuses rather than being repaired.
 static func _remap_consumed_warning_receipts(consumed: Dictionary, bundle: Dictionary,
 		transaction_remap: Dictionary, view_context: Dictionary) -> Dictionary:
 	var rekeyed: Dictionary = {}
@@ -1248,10 +1063,6 @@ static func _remap_consumed_warning_receipts(consumed: Dictionary, bundle: Dicti
 	return {"ok": true, "code": &"ok", "value": rekeyed}
 
 
-## One terminal warning receipt, attempt or consumed. `new_activation` is empty for a CONSUMED
-## record -- whose activation identity is intentionally historical and survives byte-for-byte -- and
-## carries the live pending activation's freshly derived id/provenance for an ATTEMPT record, which
-## mirrors that activation while it is still open.
 static func _remap_terminal_receipt(record: Dictionary, bundle: Dictionary,
 		transaction_remap: Dictionary, view_context: Dictionary,
 		new_activation: Dictionary) -> Dictionary:
@@ -1275,8 +1086,6 @@ static func _remap_terminal_receipt(record: Dictionary, bundle: Dictionary,
 	if typeof(stored_provenance) != TYPE_DICTIONARY:
 		return _fail(&"remap_child_id_mismatch",
 			"a terminal warning receipt carries no receipt_provenance object", {})
-	# The intent is never decoded: a navigation terminal's own stored provenance already carries the
-	# `_p("intent", ...)` projection, and it is reused verbatim on both sides of the remap.
 	var intent := _stored_intent_projection(stored_provenance as Dictionary)
 	var child_kind := "navigation"
 	if terminal_result == "dismissed":
@@ -1325,14 +1134,9 @@ static func _remap_terminal_receipt(record: Dictionary, bundle: Dictionary,
 	if not new_activation.is_empty():
 		remapped["activation_id"] = target_activation_id
 		remapped["activation_id_provenance"] = (new_activation["activation_id_provenance"] as Dictionary).duplicate(true)
-	# `failure_code`, `terminal_result` and `warning_kind` are semantic and stay byte-identical.
 	return {"ok": true, "code": &"ok", "value": remapped}
 
 
-## W1: exactly five identity members of the STORED preimage move. `run_id`, `motivation`,
-## `board_phase`, both id arrays, the base ordinal/opportunity flags, `unfinished_base_board` and
-## the projection's `day`/`entries`/`date_entry_seen` are not identity and stay byte-identical --
-## and the live view/context is never substituted for the stored bytes.
 static func _remap_warning_preimage(preimage: Dictionary, bundle: Dictionary) -> Dictionary:
 	var remapped: Dictionary = preimage.duplicate(true)
 	var projection: Variant = remapped.get("view_projection")
@@ -1355,9 +1159,6 @@ static func _remap_warning_preimage(preimage: Dictionary, bundle: Dictionary) ->
 	return {"ok": true, "code": &"ok", "value": remapped}
 
 
-## The context is read on the SOURCE side against the SOURCE owners: after W1 every context agrees
-## with the bundle trivially, so a context describing a branch this snapshot never had could only be
-## caught here.
 static func _warning_source_preconditions(preimage: Dictionary, stored_digest: String,
 		view_context: Dictionary) -> Dictionary:
 	var context: Variant = preimage.get("context")
@@ -1396,11 +1197,6 @@ static func _warning_owner_error(context: Dictionary, owners: Dictionary) -> Str
 	return ""
 
 
-## The append-only condition-departure ledger. Exactly the entries anchored to the LIVE pending root
-## are re-derived and rekeyed (the key-equals-id law of ScheduleViewState makes a stale key an
-## immediate schema failure downstream); every completed historical entry survives == against its
-## source bytes. The `source_ids` of a condition child carry no remapped identity in this branch, so
-## the existing Tier-A re-derivation is the whole law.
 static func _remap_condition_departure_ledger(ledger: Dictionary, transaction_remap: Dictionary,
 		view_context: Dictionary) -> Dictionary:
 	var parent_receipt_id := str(view_context.get("source_parent_receipt_id", ""))
@@ -1431,7 +1227,6 @@ static func _remap_condition_departure_ledger(ledger: Dictionary, transaction_re
 		var remapped_entry: Dictionary = entry.duplicate(true)
 		remapped_entry["source_condition_receipt_id"] = child_id
 		remapped_entry["source_condition_receipt_provenance"] = rederived_value["provenance"]
-		# `disposition` stays exactly the frozen literal it already carries.
 		if not payload_hashes.is_empty():
 			if str(entry.get("schedule_view_before_sha256", "")) != str(payload_hashes["before_source"]) \
 					or str(entry.get("schedule_view_after_sha256", "")) != str(payload_hashes["after_source"]):
@@ -1446,9 +1241,6 @@ static func _remap_condition_departure_ledger(ledger: Dictionary, transaction_re
 	return {"ok": true, "code": &"ok", "value": rekeyed}
 
 
-# -------------------------------------------------------------------------------------------------
-# Lifecycle (v5): the identity quadruple, the active condition-Hospital plan, history, handoff
-# -------------------------------------------------------------------------------------------------
 
 static func _remap_lifecycle(lifecycle: Dictionary, bundle: Dictionary,
 		transaction_remap: Dictionary, live_outbox: Dictionary) -> Dictionary:
@@ -1460,8 +1252,6 @@ static func _remap_lifecycle(lifecycle: Dictionary, bundle: Dictionary,
 		remapped["desktop_timeline_generation"] = int(bundle["desktop_timeline_generation"])
 		remapped["causal_day_instance"] = str(bundle["causal_day_instance"])
 		remapped["causal_day_instance_issuer_receipt"] = (bundle["causal_day_instance_issuer_receipt"] as Dictionary).duplicate(true)
-	# `run_id`, `day`, `state`, `active_resolution_plan`, `ending_plan` and `restore_provenance` are
-	# byte-identical: none of them is an identity this restore reallocates.
 	var history: Variant = lifecycle.get("condition_hospital_history")
 	if typeof(history) == TYPE_DICTIONARY:
 		var validated := _validate_condition_hospital_history(history as Dictionary)
@@ -1483,11 +1273,6 @@ static func _remap_lifecycle(lifecycle: Dictionary, bundle: Dictionary,
 	return {"ok": true, "code": &"ok", "value": remapped}
 
 
-## The cursor-aware matrix, in the one order the laws are separable: structure, cursor prefix,
-## abandoned future receipts, the nullability partition, the mixed source/target receipt, the stale
-## dependent hash, the identity split (mirroring RunLifecycle._validate_condition_lifecycle, because
-## RunRestoreParticipant installs this output THROUGH RunLifecycle.prepare_restore), the roots and
-## their children, and finally the live outbox.
 static func _remap_condition_hospital_plan(plan: Dictionary, lifecycle: Dictionary,
 		bundle: Dictionary, transaction_remap: Dictionary, live_outbox: Dictionary) -> Dictionary:
 	var structure := _validate_condition_hospital_structure(plan)
@@ -1546,10 +1331,6 @@ static func _remap_condition_hospital_plan(plan: Dictionary, lifecycle: Dictiona
 		return _fail(&"remap_condition_hospital_plan_invalid",
 			"destination_record.payload_hash is stale against its own payload", {})
 
-	# Item 15's "either both move or neither can", stated as ONE guard instead of two: the plan's
-	# quadruple moves only when the lifecycle's own can move with it, so an active plan beside a
-	# lifecycle missing any of the four identity members refuses here rather than splitting the two
-	# apart into a document RunLifecycle._validate_condition_lifecycle would then reject.
 	for member: String in ["branch_id", "desktop_timeline_generation", "causal_day_instance",
 			"causal_day_instance_issuer_receipt"]:
 		if not lifecycle.has(member):
@@ -1567,9 +1348,6 @@ static func _remap_condition_hospital_plan(plan: Dictionary, lifecycle: Dictiona
 		if int(plan.get("desktop_timeline_generation", 0)) != int(lifecycle.get("desktop_timeline_generation", 0)):
 			return _fail(&"remap_condition_hospital_identity_split_invalid",
 				"active_condition_hospital_plan desktop_timeline_generation must equal the lifecycle's own", {})
-		# The fifth member RunLifecycle._validate_condition_lifecycle compares (:648-651): without
-		# it a source plan whose issuer receipt disagreed with the lifecycle's would be silently
-		# normalised by the quadruple move below instead of being named.
 		if _canonical_sha256(plan["causal_day_instance_issuer_receipt"]) \
 				!= _canonical_sha256(lifecycle["causal_day_instance_issuer_receipt"]):
 			return _fail(&"remap_condition_hospital_identity_split_invalid",
@@ -1582,8 +1360,6 @@ static func _remap_condition_hospital_plan(plan: Dictionary, lifecycle: Dictiona
 
 	var remapped: Dictionary = plan.duplicate(true)
 	if not split_allowed:
-		# The still-live source identity is mapped exactly once. Past an active advance_day the
-		# plan's own quadruple is historical ancestry and is never rewritten (rows R30/R32a/R33a).
 		remapped["branch_id"] = str(bundle["branch_id"])
 		remapped["desktop_timeline_generation"] = int(bundle["desktop_timeline_generation"])
 		remapped["causal_day_instance"] = str(bundle["causal_day_instance"])
@@ -1620,7 +1396,6 @@ static func _remap_condition_hospital_plan(plan: Dictionary, lifecycle: Dictiona
 	var condition_value: Dictionary = condition_child["value"]
 	condition["receipt_id"] = str(condition_value["child_id"])
 	condition["receipt_provenance"] = condition_value["provenance"]
-	# `decision` is the plan's own semantic verdict and never moves.
 
 	var resolution: Dictionary = remapped["resolution_receipt"]
 	var resolution_child := _rederive_plan_child(resolution.get("receipt_provenance"), parents,
@@ -1637,7 +1412,6 @@ static func _remap_condition_hospital_plan(plan: Dictionary, lifecycle: Dictiona
 		var stage: Dictionary = remapped_stages[index]
 		stage["stage_key"] = new_resolution_id + ":" + str(stage.get("stage_id", ""))
 		if index == 4 and str(stage.get("state", "")) != "pending":
-			# The advance_day target IS the live identity this restore reallocates.
 			var prepared: Variant = stage.get("prepared")
 			if typeof(prepared) == TYPE_DICTIONARY:
 				var target: Dictionary = prepared
@@ -1647,12 +1421,6 @@ static func _remap_condition_hospital_plan(plan: Dictionary, lifecycle: Dictiona
 		var identity: Variant = stage.get("stage_identity")
 		if typeof(identity) != TYPE_DICTIONARY:
 			continue
-		# The producer's three-key envelope (ConditionHospitalState.prepare_stage_identity), not a
-		# bare provenance: the anchored child lives under `provenance`, and
-		# ConditionHospitalPlan._stage_member_error requires the completed receipt's `receipt_id` /
-		# `receipt_provenance` to equal this envelope's `child_id` / `provenance` -- so the two are
-		# written from the one re-derivation. `input_receipt_ids` is carried byte-identical: no
-		# producer projects a remapped child id into it yet.
 		var envelope: Dictionary = identity
 		var stored_stage_provenance: Variant = envelope.get("provenance")
 		if typeof(stored_stage_provenance) != TYPE_DICTIONARY:
@@ -1676,8 +1444,6 @@ static func _remap_condition_hospital_plan(plan: Dictionary, lifecycle: Dictiona
 			stage_receipt["receipt_id"] = new_stage_child_id
 			stage_receipt["receipt_provenance"] = new_stage_provenance.duplicate(true)
 			stage_receipt["resolution_receipt_id"] = new_resolution_id
-	# `accepted_sources` is NEVER re-sorted: the hospital_miss ordinal derives from that frozen
-	# creation order, so re-sorting it would silently renumber every miss child.
 
 	var remapped_destination: Dictionary = remapped["destination_record"]
 	var destination_payload: Variant = remapped_destination.get("payload")
@@ -1693,9 +1459,6 @@ static func _remap_condition_hospital_plan(plan: Dictionary, lifecycle: Dictiona
 	return {"ok": true, "code": &"ok", "value": remapped}
 
 
-## A condition-Hospital child anchors to one of exactly two roots this plan carries: its own
-## transaction root, or its action receipt's. Anything else names a parent this document cannot
-## produce, and re-deriving under a guessed parent would mint an id the real issuer never would.
 static func _rederive_plan_child(provenance: Variant, parents: Dictionary,
 		transaction_remap: Dictionary) -> Dictionary:
 	if typeof(provenance) != TYPE_DICTIONARY:
@@ -1728,9 +1491,6 @@ static func _condition_hospital_outbox_error(record: Dictionary, live_outbox: Di
 	if record_status == live_status:
 		return {"ok": true}
 	if record_status == "pending" and live_status == "published":
-		# The publication bit differs, and only the remapped delivery-ledger acceptance record could
-		# prove that transition. Task 4 defines no shape for one (its Files list does not reach the
-		# delivery ledger), so the transition refuses until the acceptance shape lands with Task 7.
 		return _fail(&"remap_acceptance_missing",
 			"a published live outbox entry over an unpublished destination record needs the remapped "
 				+ "delivery-ledger acceptance record, which Task 4 does not yet have a shape for", {})
@@ -1738,10 +1498,6 @@ static func _condition_hospital_outbox_error(record: Dictionary, live_outbox: Di
 		"the live outbox status and the remapped destination record's status are not a lawful pair", {})
 
 
-## Past the retirement checkpoint a plan is immutable history: it is duplicated with the rest of the
-## lifecycle and only VALIDATED here, so a mutated record is detectable in-document (its own issuer
-## token, its retirement receipt's digest of it, and the map key that receipt names) instead of
-## being quietly re-derived under a new root.
 static func _validate_condition_hospital_history(history: Dictionary) -> Dictionary:
 	for key: Variant in history.keys():
 		if typeof(key) != TYPE_STRING or str(key).strip_edges().is_empty():
@@ -1782,9 +1538,6 @@ static func _validate_condition_hospital_history(history: Dictionary) -> Diction
 	return {"ok": true}
 
 
-## The receipt-free TERMINAL_PENDING handoff: root, intent and outbox record move together, and the
-## record's payload must stay byte-equal to the intent it delivers (that equality is the only thing
-## binding the two, since the record carries no receipt or receipt-derived id).
 static func _remap_terminal_intent_handoff(handoff: Dictionary,
 		transaction_remap: Dictionary) -> Dictionary:
 	var old_transaction_id := str(handoff.get("source_transaction_id", ""))
@@ -1809,17 +1562,10 @@ static func _remap_terminal_intent_handoff(handoff: Dictionary,
 		return _fail(&"remap_payload_not_canonicalizable",
 			"the terminal intent is not canonically representable", {})
 	outbox_record["payload_hash"] = digest
-	# `terminal_intent`, `status`, `schema_version` and `source_kind` stay byte-identical.
 	return {"ok": true, "code": &"ok", "value": remapped}
 
 
-# -------------------------------------------------------------------------------------------------
-# Shared helpers
-# -------------------------------------------------------------------------------------------------
 
-## C1-C3: the ScheduleView roots. An attempt key that disagrees with its own record's transaction_id
-## is refused HERE rather than silently unioned -- the census is what the bundle's key set is
-## compared against, so a stale index key would otherwise become an invented rewindable root.
 static func _collect_view_roots(view: Dictionary, ids: Dictionary) -> Dictionary:
 	var pending: Variant = view.get("pending_warning")
 	if typeof(pending) == TYPE_DICTIONARY:
@@ -1845,9 +1591,6 @@ static func _collect_view_roots(view: Dictionary, ids: Dictionary) -> Dictionary
 	return {"ok": true}
 
 
-## C4-C5. A consumed record's opening root, a history plan's root and a condition-departure entry's
-## own key are deliberately absent: the first two are intentionally historical, and the third is a
-## condition CHILD id whose live root already arrives from the consequence pending.
 static func _collect_lifecycle_roots(lifecycle: Dictionary, ids: Dictionary) -> void:
 	var plan: Variant = lifecycle.get("active_condition_hospital_plan")
 	if typeof(plan) == TYPE_DICTIONARY:
@@ -1862,8 +1605,6 @@ static func _add_root(ids: Dictionary, value: Variant) -> void:
 		ids[str(value)] = true
 
 
-## The SOURCE snapshot's own identity owners: the board identity when it carries one, else the
-## lifecycle's. Used only to read a stored warning context on the source side.
 static func _source_identity_owners(desktop: Dictionary, snapshot: Dictionary) -> Dictionary:
 	var identity: Variant = (desktop["board"] as Dictionary).get("identity")
 	if typeof(identity) == TYPE_DICTIONARY and not (identity as Dictionary).is_empty():
@@ -1923,8 +1664,6 @@ static func _view_context(source_desktop: Dictionary, remapped_desktop: Dictiona
 	return context
 
 
-## The two frozen warning projection recipes (plan lines 107-109), rebuilt from facts and sorted --
-## never decoded, never edited in place.
 static func _activation_source_ids(warning_kind: String, digest: String) -> Array:
 	var sources: Array = [_p("warning_kind", warning_kind),
 		_p("warning_state_fingerprint", digest)]
@@ -1955,8 +1694,6 @@ static func _stored_intent_projection(provenance: Dictionary) -> String:
 	return ""
 
 
-## Tier B's mint: kind and ordinal unchanged, `source_ids` already rebuilt and sorted by the caller,
-## and the six-key provenance emitted in the same frozen insertion order Tier A uses.
 static func _mint_child(parent_receipt: Dictionary, child_kind: String, ordinal: int,
 		source_ids: Array) -> Dictionary:
 	var minted := _child_id(parent_receipt, child_kind, ordinal, source_ids)
@@ -1973,10 +1710,6 @@ static func _mint_child(parent_receipt: Dictionary, child_kind: String, ordinal:
 	}}}
 
 
-## P(name,value): the single nonblank String name + "=" + canonical JSON (plan line 103). Duplicated
-## from the application-layer ScheduleViewController._p(), which is private and which this domain
-## file must not import, for exactly the reason `_child_id()` duplicates the issuer's preimage;
-## `test_the_remappers_projection_helper_equals_the_real_controllers_p` compares the two.
 static func _p(name: String, value: Variant) -> String:
 	var emitted: Dictionary = _CANONICAL_JSON.stringify(value)
 	return name + "=" + str(emitted.get("value", ""))
@@ -2034,9 +1767,6 @@ static func _require_bundle_keys(bundle: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
-## Missing/extra/multiply-mapped/dangling/unsorted-set/string-edited identities all reject (brief
-## line 291): the rewindable set collected fresh from `snapshot` must equal EXACTLY the
-## `transaction_remap` key set, and every remap record must be internally self-consistent.
 static func _validate_transaction_remap_matches_snapshot(snapshot: Dictionary, transaction_remap: Dictionary) -> Dictionary:
 	var collected := collect_rewindable_transaction_ids(snapshot)
 	if not collected.get("ok", false):
@@ -2067,14 +1797,6 @@ static func _validate_transaction_remap_matches_snapshot(snapshot: Dictionary, t
 	return {"ok": true}
 
 
-## validate_remap()'s independent re-derivation: pairs source/candidate board command/terminal
-## receipt keys by POSITION (both dictionaries preserve insertion order, and prepare() inserts
-## remapped entries in the same order it iterated the source), the one live consequence pending
-## transaction_id if present, and the v5 C1-C5 roots by their own structural position. Every pair's
-## new issuer receipt is HARVESTED from the candidate, because a v5 child id depends on its parent
-## receipt's namespace/counter/receipt_id and an empty receipt would reproduce a different id on a
-## lawful candidate. Any positional mismatch, size mismatch, or a target reused across sources fails
-## closed rather than guessing at a correspondence.
 static func _derive_transaction_map(source: Dictionary, candidate: Dictionary,
 		source_desktop: Dictionary, candidate_desktop: Dictionary) -> Dictionary:
 	var map: Dictionary = {}
@@ -2205,9 +1927,6 @@ static func _pair_v5_roots(source: Dictionary, candidate: Dictionary, map: Dicti
 	return {"ok": true}
 
 
-## Attempt and consumed maps pair by insertion order: the attempt map is keyed by its own record's
-## transaction id, the consumed map by a digest that the remap recomputes, so neither key can be
-## matched by value across the two documents.
 static func _pair_terminal_family(source_family: Variant, candidate_family: Variant, label: String,
 		map: Dictionary, receipts: Dictionary) -> Dictionary:
 	var source_records: Dictionary = {}
@@ -2235,10 +1954,6 @@ static func _pair_terminal_family(source_family: Variant, candidate_family: Vari
 	return {"ok": true}
 
 
-## The candidate's own warning index keys, checked BEFORE the reproduction compare so a stale key
-## names itself instead of arriving as an anonymous byte difference. The digest-versus-preimage law
-## is deliberately NOT checked here: a hand-edited fingerprint is exactly what the reproduction is
-## for.
 static func _candidate_warning_key_error(candidate: Dictionary) -> Dictionary:
 	var view: Variant = candidate.get("schedule_view")
 	if typeof(view) != TYPE_DICTIONARY:
@@ -2271,14 +1986,6 @@ static func _candidate_warning_key_error(candidate: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
-## Mirrors DesktopIdentityNonceIssuer._child_id()'s frozen preimage (plan line 537) exactly,
-## INCLUDING its fail-closed behavior on a non-canonicalizable `source_ids`: the issuer's own
-## `_child_id()` returns `child_source_ids_malformed` rather than guessing, so this duplicate
-## fails closed too instead of silently substituting a placeholder "[]" for an uncanonicalizable
-## value. That file's own header forbids adding a shared static to its frozen public surface, so
-## the pure, domain-separated formula is duplicated here rather than imported -- it needs only the
-## (already remapped) parent receipt's namespace/counter/receipt_id, never a live root/issuer
-## object.
 static func _child_id(parent_receipt: Dictionary, child_kind: String, ordinal: int, source_ids: Array) -> Dictionary:
 	var canonical: Dictionary = _CANONICAL_JSON.stringify(source_ids)
 	if not canonical.get("ok", false):

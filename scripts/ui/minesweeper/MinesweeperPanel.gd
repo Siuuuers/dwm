@@ -1,5 +1,4 @@
 extends Control
-## Desktop composition over a public application port. Hosts explicitly refresh external changes.
 
 signal presentation_failed(code: StringName)
 signal presentation_changed()
@@ -28,7 +27,6 @@ var _colour_preset := "standard"
 var _font_style := "pixel"
 var _day: Variant = 1
 var _band := Vector2i.ZERO
-## The last measurement and the exact inputs it was derived from.
 var _measured_key: Array = []
 var _measured: Dictionary = {}
 var _failed := true
@@ -117,14 +115,10 @@ func connect_host_focus(previous: Control, next: Control) -> bool:
 	return true
 
 func present(value: Dictionary) -> bool:
-	# The one deep copy of a publication. The worksheet, grid and cells below read this
-	# instance, so the caller's dictionary stays detached without copying it three times.
 	var accepted: Dictionary = value.duplicate(true)
 	if not _valid(accepted): return _fail(&"minesweeper_panel_invalid_view")
 	var measured := _measure(accepted,_locale,_percent,_large,_palette,_high_contrast,_colour_preset,_font_style,_day, _scene_presentation)
 	if measured.is_empty(): return _fail(&"minesweeper_panel_invalid_view")
-	# Reconfigure only for changed geometry: a synchronous Flag publication must
-	# retain the grid's touch-release latch and all existing cell nodes.
 	if worksheet.theme == null or measured.band != _band:
 		if not worksheet._configure_context("desktop_app",_locale,_percent,_large,_palette,measured.band,_high_contrast,_colour_preset,_font_style,_day, _scene_presentation):
 			return _fail(&"minesweeper_panel_invalid_view")
@@ -180,8 +174,6 @@ func _measure(value: Dictionary, locale: String, percent: int, large: bool, pale
 	var facts: Dictionary = value.get("register",{"difficulty":"beginner","rounds":2,"mine_estimate":null,
 		"foresight":null,"no_flag":"intact","custody":false,"difficulty_enabled":[]})
 	var claimed: Array = value.get("assignments",[false,false,false,false,false,false,false,false,false])
-	# The band and register height are a pure function of these inputs. A click that changes
-	# none of them must not build, configure, present and free three probe controls again.
 	var key: Array = [locale,percent,large,palette,high_contrast,colour_preset,font_style,day,scene,facts,claimed,worksheet.view_controls_external,layout_height]
 	if key == _measured_key: return _measured
 	var probe_register: Control = REGISTER.new()
@@ -320,7 +312,6 @@ func _fail(code: StringName) -> bool:
 	return false
 
 func _input(event: InputEvent) -> void:
-	# A settled board has no cell focus. The Grid still owns physical contact custody.
 	if not is_visible_in_tree() or not can_process() or _failed or public_view.is_empty() \
 			or not public_view.settled or "new_board" not in public_view.actions \
 			or worksheet.information_sheet != null: return

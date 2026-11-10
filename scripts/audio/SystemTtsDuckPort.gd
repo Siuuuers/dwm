@@ -1,7 +1,5 @@
 class_name SystemTtsDuckPort
 extends Node
-## Transient, uniform game-mix duck for system speech. It owns only routing,
-## fade custody, and per-instance utterance tokens.
 
 signal _transition_settled(generation: int)
 
@@ -114,8 +112,6 @@ func _fade_to(target_db: float, duration: float) -> Dictionary:
 	if not _start_transition(from_db, target_db, duration, generation):
 		_pending_generation = 0
 		return _failure(&"duck_output_unavailable")
-	# An injected or future backend may complete during start(). Do not wait for
-	# a signal which has already settled this generation.
 	if _pending_generation != 0: await _transition_settled
 	if generation != _generation: return _failure(&"duck_superseded")
 	if _pending_generation != 0 or not is_equal_approx(_get_mix_db(), target_db):
@@ -154,8 +150,6 @@ func _cancel_transition() -> void:
 	else:
 		_native_transition.clear()
 		set_process(false)
-	# Settle the displaced generation explicitly; its caller observes the newer
-	# generation and fails instead of remaining suspended.
 	_transition_settled.emit(canceled_generation)
 
 

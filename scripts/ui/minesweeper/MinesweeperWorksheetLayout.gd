@@ -1,6 +1,4 @@
 extends RefCounted
-## Integer native-pixel geometry. Hosts multiply these values by two at the logical boundary.
-## Gutters are always reserved; a fit axis has no scrollbar object or input target.
 
 static func measure(columns: int, rows: int, band: Vector2i, large: bool = false, requested_scroll: Vector2i = Vector2i.ZERO) -> Dictionary:
 	var target := 32 if large else 24
@@ -22,7 +20,6 @@ static func reveal_cell(columns: int, rows: int, index: int, band: Vector2i, lar
 	return measure(columns, rows, band, large, _revealed_scroll(measured.value, columns, index, target))
 
 
-## Manual cell sizes are logical stage pixels; the grid keeps its 24/32 native-pixel cells.
 static func measure_view(columns: int, rows: int, band: Vector2i, large: bool, cell_size: int,
 		fit: bool, requested_scroll: Vector2i = Vector2i.ZERO) -> Dictionary:
 	if cell_size < 10 or cell_size > 60 or cell_size % 2 != 0:
@@ -45,7 +42,6 @@ static func reveal_view(columns: int, rows: int, index: int, band: Vector2i, lar
 		_revealed_scroll(measured.value, columns, index, source_target))
 
 
-## The anchor is a native-pixel coordinate in the well. Preserve its grid-local point.
 static func anchored_scroll(old_geometry: Dictionary, new_geometry: Dictionary, anchor_native: Vector2) -> Vector2i:
 	var old_scale: float = old_geometry.get("scale", 1.0)
 	var new_scale: float = new_geometry.get("scale", 1.0)
@@ -97,8 +93,6 @@ static func _rail(rect: Rect2i, viewport: int, mount: int, scroll: int, target: 
 		Vector2i(target, length) if vertical else Vector2i(length, target))
 	return {"rect": rect, "thumb": thumb}
 
-## Fit the complete rendered board; text preferences do not change this geometry.
-## Keep the grid's local cell coordinates so pointer/touch hit testing is unchanged.
 static func fit_board(columns: int, rows: int, band: Vector2i, large: bool = false) -> Dictionary:
 	var target := 32 if large else 24
 	return _fit_view(columns, rows, band, target, 1.0, false)

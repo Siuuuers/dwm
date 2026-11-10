@@ -1,6 +1,4 @@
 extends DialogicNode_DialogText
-## Story text remains focusable for ordinary keyboard reading; activation belongs
-## to the existing background Continue surface and WitnessedAcceptInput.
 
 func _notification(what: int) -> void:
 	if what != NOTIFICATION_ACCESSIBILITY_UPDATE: return

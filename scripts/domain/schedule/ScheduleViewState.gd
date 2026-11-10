@@ -1,40 +1,14 @@
 class_name ScheduleViewState
 extends RefCounted
 
-## The saved, uncommitted Schedule day view (Amendment Plan 03 Task 2, dwm-oyo.3).
-##
-## Exact frozen static surface from the plan (Task 2 Step 3). The top-level view is EXACTLY
-## the seven-key shape; each entry is exactly the seven-key draft entry ScheduleRules owns;
-## the condition-departure receipt index is an append-only Dictionary keyed by exact
-## source_condition_receipt_id with the exact five-key value shape.
-##
-## LAW ROUTING. This module owns only what `.7` does not: the view envelope shape, the
-## condition-departure ledger value law, the optimistic fingerprint, and detachment. Every
-## entry/day/date/repeat law routes through the consumed ScheduleRules.validate_draft --
-## never rebuilt here. Because the view level holds no Contacts receipt index, validate()
-## rechecks the source-receipt CLASS only: it fabricates a class-shaped receipt index from
-## the registry records it resolves through ScheduleActionRegistry.lookup() at the expected
-## fingerprint, so ScheduleRules' source law degenerates to the class check. True acceptance
-## ancestry stays where `.7` put it: the Schedule commit port.
-##
-## validate() never treats a fingerprint string alone as proof -- the expected fingerprint
-## must equal the live registry's own, and every action ID must resolve. A null fingerprint
-## is legal ONLY for an empty view during accepted legacy-empty restore. The optimistic
-## fingerprint is lowercase SHA-256 of canonical JSON over exactly {day, causal_day_instance,
-## entries, date_entry_seen, pending_warning, consumed_warning_receipts} plus the expected
-## registry fingerprint; it deliberately excludes condition_departure_receipts (appending
-## recovery evidence cannot stale an already-issued view expectation), while validate()'s
-## schema pass still checks that ledger byte-for-byte.
 
 const _RULES := preload("res://scripts/domain/schedule/ScheduleRules.gd")
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
-## Exact top-level view keys (sorted).
 const VIEW_KEYS: Array = [
 	"causal_day_instance", "condition_departure_receipts", "consumed_warning_receipts",
 	"date_entry_seen", "day", "entries", "pending_warning",
 ]
-## Exact condition-departure receipt value keys (sorted).
 const CONDITION_RECEIPT_KEYS: Array = [
 	"disposition", "schedule_view_after_sha256", "schedule_view_before_sha256",
 	"source_condition_receipt_id", "source_condition_receipt_provenance",
@@ -75,7 +49,6 @@ static func validate(view: Dictionary, action_registry: Object,
 	var entries: Array = view["entries"]
 	var expected := ""
 	if expected_registry_fingerprint == null:
-		# Legal only for the empty view an accepted legacy-empty restore produces.
 		if not entries.is_empty():
 			return _fail(&"invalid_expected_fingerprint",
 				"a null fingerprint is legal only for an empty legacy-restored view",
@@ -129,7 +102,6 @@ static func detached(view: Dictionary) -> Dictionary:
 	return _ok({"view": view.duplicate(true)})
 
 
-# ---- the view-envelope law this module owns ----
 
 static func _view_shape_error(view: Dictionary) -> Dictionary:
 	var keys: Array = view.keys()
@@ -188,8 +160,6 @@ static func _ledger_error(ledger: Dictionary) -> Dictionary:
 			return _receipt_fault(str(key),
 				"the disposition is exactly the String " + CONDITION_DISPOSITION,
 				"disposition")
-		# An Object anywhere in a retained receipt is a live aliasing channel that
-		# duplicate(true) cannot detach; canonicalizability is the byte-for-byte law.
 		var canonical: Dictionary = _CANONICAL_JSON.stringify(receipt)
 		if not canonical.get("ok", false):
 			return _receipt_fault(str(key),
@@ -198,11 +168,6 @@ static func _ledger_error(ledger: Dictionary) -> Dictionary:
 	return {}
 
 
-## The class-shaped receipt index validate() hands ScheduleRules. Built from the registry
-## records themselves (resolved through lookup() at the verified expected fingerprint), so
-## the consumed source law degenerates to the source-receipt CLASS check the view level
-## owns. Entries that are malformed or unregistered are skipped here on purpose: the
-## delegated ScheduleRules pass reports them with its own typed codes.
 static func _source_class_index(entries: Array, action_registry: Object,
 		expected: String) -> Dictionary:
 	var index: Dictionary = {}
@@ -234,7 +199,6 @@ static func _source_class_index(entries: Array, action_registry: Object,
 	return index
 
 
-# ---- helpers ----
 
 static func _is_lower_sha256(value: Variant) -> bool:
 	if typeof(value) != TYPE_STRING:

@@ -1,6 +1,4 @@
 extends RefCounted
-## Authored Settings palettes. See docs/design/current-ui/settings-presentation-tuples.md.
-## Exact lookup only: no runtime colour transform or substitute tuple.
 
 const ROLE_NAMES := ["habitat","face","paper","paper_ink","secondary_ink","ink","structure","filed","focus","paper_focus","danger","destructive","secondary_dark_ink","inward_preview"]
 

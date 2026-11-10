@@ -1,7 +1,5 @@
 class_name SceneDayProgression
 extends RefCounted
-## Stateless, nonwired routing over caller-supplied trusted registration.
-## Shape/matching is not issuer authority, native-position proof or durable idempotency.
 
 const EVENT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
 const DOCUMENT_KEYS := ["schema_version", "days", "endings"]
@@ -70,7 +68,6 @@ static func _valid_document(document: Variant) -> bool:
 		if events.has(marker.event_id) or labels.has(marker.label): return false
 		events[marker.event_id] = true
 		labels[marker.label] = true
-	# Check successors only after all destination rows have passed their shape checks.
 	for index in range(7):
 		var successor: String = document.days[index + 1].entry_id if index < 6 else "eligible_ending"
 		if document.days[index].terminal.successor_id != successor: return false

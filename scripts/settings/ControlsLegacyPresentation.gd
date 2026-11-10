@@ -1,5 +1,4 @@
 extends RefCounted
-## Read-only display of stored input records; never converts them into live input.
 const REGISTRY := preload("res://scripts/settings/ControlsActionRegistry.gd")
 const TRANSFER_ACTIONS := ["game_quick_save", "game_quick_load", "game_new_board"]
 

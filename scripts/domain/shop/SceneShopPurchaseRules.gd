@@ -1,7 +1,4 @@
 extends RefCounted
-## Detached preparation. GameState supplies canonical catalogue data and owns the
-## lease, Supportz eligibility/consequence candidate, receipt and durable commit.
-## This helper never accepts a UI-supplied quote as transaction authority.
 const MAX_INTEGER: int = 9223372036854775807
 const SPECIAL_IDS: Array[String] = ["supportz", "lucky_charm", "debug_key"]
 
@@ -43,7 +40,6 @@ static func prepare(gameplay: Dictionary, item_record: Dictionary, quantity: Var
 	var candidate: Dictionary = gameplay.duplicate(true)
 	match item_record.currency:
 		"money":
-			# Compare without adding 30 to a possibly maximal balance.
 			if gameplay.money < 0 or (total > gameplay.money and total - gameplay.money > 30):
 				return _fail(&"insufficient_funds")
 			candidate.money -= total
@@ -58,7 +54,6 @@ static func prepare(gameplay: Dictionary, item_record: Dictionary, quantity: Var
 		seen[raw] = true
 		var effect_id: String = raw
 		if effect_id in ["pressure:-1", "pressure:-2", "pressure:-3", "pressure:-4"]:
-			# Reduce by bounded steps without multiplying an unbounded quantity.
 			var reduction: int = int(effect_id.get_slice(":", 1))
 			candidate.stats.pressure = maxi(0, candidate.stats.pressure + reduction * mini(quantity, 12))
 		elif effect_id == "inventory:add:" + item_id:

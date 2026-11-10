@@ -1,13 +1,8 @@
 class_name SaveMigrations
 extends RefCounted
-## Current save-document admission. Unshipped older records do not carry captured
-## run configuration and are unsupported. Never repair or convert required gameplay.
-## Scene admission drops retired optional save_reason metadata.
 const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const SAVE_DOCUMENT_SCHEMA := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 
-## Ordinary Load owns the decoded current document. Only content-position
-## compatibility is resolved here; gameplay facts are trusted.
 static func load_current_document(raw: Dictionary) -> Dictionary:
 	var version: Variant = raw.get("schema_version")
 	if typeof(version) not in [TYPE_INT, TYPE_FLOAT] or version != SAVE_DOCUMENT_SCHEMA.SCENE_DOCUMENT_VERSION:
@@ -15,8 +10,6 @@ static func load_current_document(raw: Dictionary) -> Dictionary:
 	var normalized := RUN_SNAPSHOT_SCHEMA.normalize_scene_content(raw.current_snapshot.snapshot, true)
 	if not normalized.ok: return normalized
 	raw.current_snapshot.snapshot = normalized.value
-	# Older Save9 files may carry these retired presentation/configuration fields.
-	# Discard them without inspecting or repairing gameplay.
 	raw.current_snapshot.snapshot.erase("audio_context")
 	raw.current_snapshot.snapshot.erase("active_app_id")
 	raw.current_snapshot.snapshot.lifecycle.erase("scene_assignment")

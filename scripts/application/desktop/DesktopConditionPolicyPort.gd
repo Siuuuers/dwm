@@ -1,26 +1,6 @@
 class_name DesktopConditionPolicyPort
 extends RefCounted
 
-## Production condition policy (Plan 03 Task 7 lines 874-878, created ahead of the full task under
-## the dwm-oyo.3 slice authority recorded 2026-08-24 on dwm-p2r.21 / dwm-oyo.3).
-##
-## THE FROZEN SURFACE is Plan 02's contract exactly: `configure(context_port)` and
-## `evaluate({action_receipt, causal_sequence_receipt})` -- the same two methods
-## `FakeDesktopConditionPolicyPort` freezes for the coordinator suites, now with the real predicate
-## behind them instead of an armed script.
-##
-## THE PREDICATE (plan line 878, verbatim): `danger = pressure >= 10 or health <= 0`, then
-## `trigger = carried_sequela and danger`. No trigger yields only the notification intent. A
-## Days 1-6 trigger yields Hospital. On Day 7 an active Dark-mode flag yields `dark_mode_alone`
-## first; otherwise a qualifying pre-action Sylvia receipt while Done is still open yields
-## `sylvia_special`; otherwise the trigger yields `hospital_alone`. Departure and notification are
-## mutually exclusive, and `committed | resolving` rejects a new action rather than creating a
-## post-Done faint.
-##
-## STATELESS BY DESIGN. Everything read arrives through the configured context port's snapshot, and
-## every persisted child derives through that same port's issuer seam (rows `P03.condition.decision`
-## / `.destination` / `.notification`), so a caller-supplied ID or provenance is never input and a
-## replay reproduces byte-identical children.
 
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
@@ -156,8 +136,6 @@ func evaluate(request: Dictionary) -> Dictionary:
 			"source_condition_receipt_id": str(condition_receipt["receipt_id"]),
 			"source_condition_receipt_provenance":
 				(condition_receipt["receipt_provenance"] as Dictionary).duplicate(true),
-			# A condition-driven Day 7 intent carries an EMPTY accepted-source array (plan line 874);
-			# only Hospital consumes the day's frozen sources.
 			"accepted_unfulfilled_sources":
 				accepted.duplicate(true) if decision == "hospital_day" else [],
 			"terminal_cause": _DAY7_CAUSE.get(decision),
@@ -184,8 +162,6 @@ static func _decision(trigger: bool, day: int, dark_mode: bool, sylvia_read: boo
 	return "day7_hospital_alone"
 
 
-## One row of the Plan-03 child-identity table: projections are `P(name,value)` strings, rejected
-## blank/duplicate by the issuer, sorted by ordinal code point before issuance (plan line 103).
 func _derive(child_kind: String, action_receipt: Dictionary, projections: Array) -> Dictionary:
 	var source_ids: Array = projections.duplicate()
 	source_ids.sort()
@@ -202,14 +178,6 @@ func _derive(child_kind: String, action_receipt: Dictionary, projections: Array)
 	return envelope if not envelope.get("ok", false) else _revalidated(child_kind, envelope)
 
 
-## Plan line 874: every persisted child id validates through `validate_child` BEFORE it is written
-## into a receipt or an intent. Derivation alone is not proof, which is why `validate_child` is a
-## configure-time requirement -- this is the same derive-then-revalidate shape every sibling producer
-## uses (`DayResolutionStartPort`, `HospitalPresentationPort`, `DatingPresentationPort`,
-## `GameStateScheduleCommitPort`, `Day7ScheduleProvenance`, `GameStateDayResolutionPort`). The
-## context port is duck-typed at `configure`, so without this a seam answering with an id the one
-## `.16` issuer never minted would be copied verbatim into the day's condition receipt, into both
-## intents, and thence into the durable `recovery_payload.condition_candidate`.
 func _revalidated(child_kind: String, envelope: Dictionary) -> Dictionary:
 	var child: Variant = envelope.get("value")
 	if typeof(child) != TYPE_DICTIONARY:

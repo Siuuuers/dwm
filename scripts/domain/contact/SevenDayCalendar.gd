@@ -1,7 +1,6 @@
 class_name SevenDayCalendar
 extends RefCounted
 
-## Fixed Contacts generation calendar. All queries are pure and return detached arrays.
 const ORDINARY_BY_DAY := {
 	1: "lavinia",
 	2: "sylvia",
@@ -21,7 +20,6 @@ const SOLO_ORDER_BY_DAY := {
 }
 
 const GROUP_DAYS: Array[int] = [2, 6]
-# Existing Day 7 relationship-tier delivery is distinct from the Days 1–6 dating calendar.
 const DAY7_ENDING_ORDER: Array[String] = ["priscilla", "lavinia", "sylvia"]
 
 

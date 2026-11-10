@@ -1,61 +1,6 @@
 class_name DesktopBoardFatePort
 extends RefCounted
 
-## Reversible board-fate participant (Plan 02 Task 8, dwm-p2r.32, req.minesweeper.causal_departure,
-## req.desktop.cross_app_actions). Turns a departing board (Schedule Done's live board, or a
-## condition-driven action's already-validated projected board) into exactly one of three fates --
-## `none` (no playable board), `discarded_unstarted` (an unstarted PREPARING/PREPARED_UNSTARTED
-## candidate is dropped), `forfeited_started` (an ACTIVE_VISIBLE/ACTIVE_SUSPENDED board is
-## abandoned, retaining paid round/motivation, granting nothing) -- against ONE shared, externally
-## owned `DesktopBoardState` instance (the "sole board owner"), following the exact reversible
-## capture/prepare/commit/rollback/publish contract every other Plan-02 participant already uses.
-##
-## `DesktopBoardState` has no dedicated discard/forfeit transition of its own (and this task does
-## not add one): a departure instead builds a complete, phase-invariant-valid target snapshot
-## (`phase=NONE`, every phase-gated slot null, `terminal_receipts` gaining one new entry keyed by
-## this departure's own `board_fate_receipt.receipt_id`) and adopts it through
-## `DesktopBoardState.prepare_restore()`/`commit()` -- the SAME general "adopt an arbitrary valid
-## snapshot" seam `DesktopBoardRestoreParticipant` already uses for save restore. `fate=none` never
-## builds a new snapshot at all: the board is already NONE (a `minesweeper_round` projection is
-## ALWAYS exactly the source participant's own post-completion `NONE` candidate; a live
-## `schedule_done` board or a `shop_purchase` projection may simply already be NONE), so the
-## candidate is that unchanged snapshot. This is the historical empty-board case.
-## Bound settled inspections also have fate none: round/Shop preserve them, while Schedule
-## clears inspection for the new day without a second forfeit or terminal result.
-##
-## OWNERSHIP WIRING (own design choice, matching this codebase's established precedent -- see
-## Task 6's own C2/D handoff note on reconnecting `MinesweeperRoundCoordinator._board_state` after
-## restore): `MinesweeperRoundCoordinator` owns its `DesktopBoardState` privately and exposes no
-## public accessor; this port is never given a second, independent `DesktopBoardState` of its own.
-## Whoever wires this port (a test, or eventually Task 9's Bootstrap) passes the coordinator's OWN
-## retained `_board_state` object directly into `configure()`, exactly as the existing test
-## precedent already reconnects that same private member directly. Two owners never race for the
-## one board: `DesktopConsequenceCoordinator` holds the shared `causal_transaction` lease for the
-## whole prepare/commit/publish span, and this port's own commit()/rollback() add a second,
-## self-contained guard -- a monotonic `_commit_generation` counter (mirroring
-## `DesktopCausalSequencePort`'s own CRITICAL-1 precedent) that forbids rollback once ANY departure
-## has since committed.
-##
-## IDEMPOTENCY: prepared departures are ledgered by `command_id` (the one identity every request
-## shape carries); committed/published departures are additionally indexed by the canonical hash of
-## their own `board_candidate` so `commit()`/`publish()` can accept the frozen "bare candidate, no
-## wrapper" shape and still recover which prepared record it belongs to. KNOWN LIMITATION,
-## documented rather than silently accepted: two DIFFERENT `command_id`s that both resolve to
-## `fate=none` from an already-`NONE` board produce byte-identical `board_candidate` values (no
-## board-fate marker is embedded when nothing changes), so the candidate-hash index cannot always
-## distinguish between them if both are prepared before either is committed. This is not reachable
-## in production -- `DesktopConsequenceCoordinator` holds the exclusive `causal_transaction` lease
-## across one departure's whole prepare-to-publish span, so only one departure is ever in flight --
-## and is called out here rather than papered over.
-##
-## dwm-p2r.35.7 remediation (finding 3), CONFIRMED rather than corrected: this paragraph's own
-## "prepare-to-publish span" assumption was, until this remediation, silently violated by both
-## action sources' `publish_recovery_action()` (each released the lease immediately after its own
-## callback -- index 1 of up to 3 -- leaving THIS port's board-fate publish and the coordinator's
-## terminal cleanup running unleased). The release now happens only in the new
-## `release_recovery_lease()`, called by `DesktopConsequenceCoordinator._resume_forward()` after
-## terminal cleanup succeeds, so this paragraph's own invariant is now actually enforced end-to-end,
-## not merely assumed.
 
 const _ACTION_RECEIPT := preload("res://scripts/domain/desktop/DesktopActionReceipt.gd")
 const _BOARD_STATE_SCRIPT := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
@@ -77,20 +22,13 @@ var _publication_ledger: Object = null
 var _board_state: Object = null
 var _identity_issuer: Object = null
 
-## Keyed by command_id -> {"request":Dictionary,"result":Dictionary,"board_candidate_hash":String}.
 var _prepared: Dictionary = {}
-## Keyed by canonical board_candidate hash -> command_id (see KNOWN LIMITATION above).
 var _prepared_by_candidate_hash: Dictionary = {}
-## Keyed by command_id -> {"candidate":Dictionary,"result":Dictionary}.
 var _committed: Dictionary = {}
-## Keyed by canonical backup hash -> the `_commit_generation` value at capture time.
 var _capture_generations: Dictionary = {}
 var _commit_generation := 0
 
 
-# -------------------------------------------------------------------------------------------------
-# Configuration
-# -------------------------------------------------------------------------------------------------
 
 func configure_publication_ledger(publication_ledger: Object) -> Dictionary:
 	if publication_ledger == null or not publication_ledger.has_method("record_before_emit"):
@@ -103,11 +41,6 @@ func configure_publication_ledger(publication_ledger: Object) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
-## Additive DI seam beyond the frozen board-fate interface (own design choice -- see the class doc's
-## OWNERSHIP WIRING note): `board_state` must be the SAME shared `DesktopBoardState` instance the
-## round coordinator privately owns, duck-typed to its `capture`/`prepare_restore`/`commit` surface;
-## `identity_issuer` is duck-typed to `derive_child`. Fail-closed on the publication ledger, mirroring
-## every other Plan-02 port's own configure() ordering.
 func configure(board_state: Object, identity_issuer: Object) -> Dictionary:
 	if board_state == null or not _has_all_methods(board_state, ["capture", "prepare_restore", "commit"]):
 		return _fail(&"invalid_board_state", "an exact board-state capability is required", {})
@@ -124,9 +57,6 @@ func configure(board_state: Object, identity_issuer: Object) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
-# -------------------------------------------------------------------------------------------------
-# prepare_causal_departure() -- reason=schedule_done exactly. Derives fate from the LIVE board.
-# -------------------------------------------------------------------------------------------------
 
 func prepare_causal_departure(request: Dictionary) -> Dictionary:
 	var ready := _require_configured()
@@ -160,10 +90,6 @@ func prepare_causal_departure(request: Dictionary) -> Dictionary:
 	return _finish_prepare(request, command_id, live, fate, null)
 
 
-# -------------------------------------------------------------------------------------------------
-# prepare_projected_causal_departure() -- reason=condition_departure exactly. Coordinator-only seam:
-# derives fate from the ALREADY-VALIDATED projected candidate, never the live board directly.
-# -------------------------------------------------------------------------------------------------
 
 func prepare_projected_causal_departure(request: Dictionary) -> Dictionary:
 	var ready := _require_configured()
@@ -242,10 +168,6 @@ func prepare_projected_causal_departure(request: Dictionary) -> Dictionary:
 	return _finish_prepare(request, command_id, projected_board_candidate, fate, source_action_receipt)
 
 
-## Rebuilds only the process-local preparation cache from an admitted, frozen departure.
-## Call before the action source commits, after installing its exact source checkpoint on cold
-## startup. No condition policy is evaluated and no owner is mutated. A temporary preparation
-## keeps mismatched frozen bytes from poisoning this port's retained command or candidate indexes.
 func prepare_recovery_departure(action_receipt: Dictionary, projected_board: Dictionary,
 		board_candidate: Dictionary, board_fate_receipt: Dictionary) -> Dictionary:
 	var ready := _require_configured()
@@ -267,8 +189,6 @@ func prepare_recovery_departure(action_receipt: Dictionary, projected_board: Dic
 				or _canonical_sha256(value["board_candidate"]) != candidate_hash \
 				or _canonical_sha256(value["board_fate_receipt"]) != receipt_hash:
 			return _fail(&"board_fate_recovery_mismatch", "frozen departure differs from retained preparation", {})
-		# Warm retries can arrive after the source or fate already changed the board. Keep the
-		# original pre-state rather than re-preparing against that advanced owner.
 		return (retained["result"] as Dictionary).duplicate(true)
 	var live: Dictionary = _board_state.call(&"capture")
 	var request := {
@@ -298,9 +218,6 @@ func prepare_recovery_departure(action_receipt: Dictionary, projected_board: Dic
 	return regenerated.duplicate(true)
 
 
-# -------------------------------------------------------------------------------------------------
-# capture() / commit() / rollback() / publish() -- the shared reversible-participant contract.
-# -------------------------------------------------------------------------------------------------
 
 func capture() -> Dictionary:
 	var ready := _require_configured()
@@ -411,9 +328,6 @@ func publish(publication: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": board_fate_receipt.duplicate(true)}
 
 
-# -------------------------------------------------------------------------------------------------
-# Internal helpers
-# -------------------------------------------------------------------------------------------------
 
 static func _fate_for_phase(phase: String) -> StringName:
 	match phase:
@@ -446,22 +360,6 @@ func _check_pre_state(request: Dictionary, live: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
-## FIX (dwm-p2r.35.2 remediation, finding W2): commit()'s own pre-state guard, distinct from prepare's
-## `_check_pre_state()`. For a `minesweeper_round`-sourced projected departure, `expected_board_
-## identity`/`expected_board_revision` name the board's PRE-completion state -- captured by
-## `DesktopConsequenceCoordinator` before the round's own forward-recovery commit runs. Forward
-## recovery then always commits the action source FIRST (`MinesweeperRoundCoordinator
-## .commit_recovery_action()` adopts `action_candidate.board_projection` -- this exact `candidate`,
-## since a completed-round projection (historical NONE or bound inspection) has `fate=none`, i.e.
-## `board_candidate == base_snapshot` -- into the shared `DesktopBoardState`) and board fate SECOND,
-## post-admission with no rollback available. Re-checking the ORIGINAL pre-completion identity/
-## revision here would therefore always reject a transaction the round coordinator has already
-## legitimately advanced. The correct guard is instead "does the live board already equal the exact
-## candidate this transaction is about to (no-op, since fate=none) commit" -- validating against the
-## prepared candidate's own base rather than the stale original expectation, while every OTHER source
-## (`shop_purchase` projected departures, whose action never touches the board; plain `schedule_done`
-## live-board departures) keeps the original `_check_pre_state()` guard unchanged, since nothing
-## mutates the board between their own prepare and commit.
 func _check_commit_pre_state(request: Dictionary, candidate: Dictionary, live: Dictionary) -> Dictionary:
 	if request.has("source_action_receipt") \
 			and str((request["source_action_receipt"] as Dictionary).get("action_kind", "")) == "minesweeper_round":
@@ -472,10 +370,6 @@ func _check_commit_pre_state(request: Dictionary, candidate: Dictionary, live: D
 	return _check_pre_state(request, live)
 
 
-## Builds the board_fate_receipt (child_kind=board_fate, ordinal 0, plan02-frozen-contracts.md line
-## 498) and the target `board_candidate` -- unchanged `base_snapshot` for `fate=none`, otherwise a
-## fresh phase-NONE snapshot built by `_build_departed_snapshot()` -- then ledgers both by
-## `command_id` (and, for later commit()/publish() lookups, by the candidate's own canonical hash).
 func _finish_prepare(request: Dictionary, command_id: String, base_snapshot: Dictionary,
 		fate: StringName, source_action_receipt: Variant) -> Dictionary:
 	var board_identity: Variant = _dup_or_null(base_snapshot["identity"]) if fate != &"none" else null
@@ -518,7 +412,6 @@ func _finish_prepare(request: Dictionary, command_id: String, base_snapshot: Dic
 
 	var board_candidate: Dictionary
 	if fate == &"none":
-		# Round/Shop retain inspection; Schedule closes the day without another forfeit.
 		board_candidate = _BOARD_STATE_SCRIPT.dismissed_inspection_snapshot(base_snapshot) if str(request.get("reason", "")) == "schedule_done" and _BOARD_STATE_SCRIPT.is_settled_inspection(base_snapshot) else base_snapshot.duplicate(true)
 	else:
 		board_candidate = _build_departed_snapshot(base_snapshot, str(board_fate_receipt["receipt_id"]))
@@ -534,11 +427,6 @@ func _finish_prepare(request: Dictionary, command_id: String, base_snapshot: Dic
 	return result
 
 
-## The target phase-NONE snapshot for a discard/forfeit: every phase-gated slot null, command_receipts
-## unchanged. Only legacy snapshots add a terminal_receipts entry retaining
-## the fate/identity/revision this board departed from. `revision` advances by one, matching every
-## other DesktopBoardState transition's own bookkeeping (own design choice; not itself exposed by any
-## frozen board_fate_receipt field).
 func _build_departed_snapshot(base_snapshot: Dictionary, board_fate_receipt_id: String) -> Dictionary:
 	var departed := {
 		"schema_version": 1, "phase": "NONE", "revision": int(base_snapshot["revision"]) + 1,

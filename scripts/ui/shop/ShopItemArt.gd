@@ -1,6 +1,4 @@
 extends RefCounted
-## Original object illustrations on a 28-pixel grid. Colours describe the objects,
-## not Shop state: both art sizes stay identical across presentation preferences.
 
 const INK := Color("293b43")
 const PAPER := Color("e4dcc2")
@@ -16,7 +14,6 @@ static func texture(item_id: String, size: int) -> Texture2D:
 	if size not in [28, 56]: return null
 	var strokes: Array = []
 	match item_id:
-		# Original plush and bandage illustrations from 8630b25b (2026-09-21).
 		"lucky_charm":
 			strokes = [
 				[5, 3, 5, 5, INK], [18, 3, 5, 5, INK],
@@ -88,7 +85,6 @@ static func texture(item_id: String, size: int) -> Texture2D:
 				[9, 20, 2, 2, PAPER], [13, 20, 2, 2, PAPER], [17, 20, 2, 3, SAND],
 			]
 
-	# Unknown IDs (including the intentionally blank Supportz slot) have no art.
 	if strokes.is_empty(): return null
 	var image := Image.create(size, size, false, Image.FORMAT_RGBA8)
 	image.fill(Color.TRANSPARENT)

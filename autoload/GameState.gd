@@ -1,17 +1,6 @@
 extends Node
 
-# GameState autoload — owns all mutable runtime state for the prototype.
-# Authority: prompt_docs/INDEX.md (runtime ownership, dating, persistence, and narrative
-# requirement packets). No human-facing prose; machine-precise, contradiction-free.
-#
-# The fixed Contacts generation calendar is owned by SevenDayCalendar and queried here without a
-# second mutable or literal copy.
-#
-# Schedule action facts are NOT among them. Route, effects, motivation cost, kind, participants and
-# repeatability come only from ScheduleActionRegistry's fingerprinted v1 manifest (dwm-wks); this
-# autoload holds no second copy.
 
-# ---- Constants ----
 const SAVE_SCHEMA_VERSION := 1
 const MINESWEEPER_BASE_ROUNDS := 2
 const MINESWEEPER_DISPLAY_MAX := 2
@@ -21,7 +10,6 @@ const MINESWEEPER_ROUND_CAP := 5
 const MINESWEEPER_TASK_COIN_TOTAL_CAP := 9
 const MINESWEEPER_MONEY_DAILY_CAP_BASE := 108
 const MINESWEEPER_MONEY_DAILY_CAP_PER_EXTRA_ROUND := 54
-# Aliased from the contacts domain owner (dwm-pm4); one roster, three surfaces.
 const FRIEND_IDS := preload("res://scripts/domain/contact/ContactInvitationState.gd").FRIEND_IDS
 const STAT_PRESSURE := "pressure"
 const STAT_HEALTH := "health"
@@ -59,7 +47,6 @@ const _MINESWEEPER_MONEY_REWARD := {
 	},
 }
 
-# Save whitelist (CONTRACTS §6). Order preserved for readability.
 const _SAVE_WHITELIST := [
 	"contact_message_unlocks", "contact_choice_state", "date_unlocks", "post_ending_queue",
 	"missed_invitations",
@@ -79,14 +66,11 @@ const _SAVE_WHITELIST := [
 	"hospital_skipped_sylvia_solo_count",
 ]
 
-# Whitelisted fields declared as typed Array[String]. JSON load yields an untyped Array, so
-# assigning it directly via self.set() would raise a type error; rebuild these as Array[String].
 const _TYPED_STRING_ARRAY_KEYS := [
 	"daily_group_invitation_pair", "condition_effects_today",
 	"pending_group_date_friend_ids",
 ]
 
-# ---- Signals ----
 signal stat_changed(stat_id: String, value: int, min_value: int, max_value: int)
 signal money_changed(value: int)
 signal coins_changed(value: int)
@@ -108,12 +92,8 @@ signal daily_state_reset()
 signal condition_effect_resolved(result: Dictionary)
 signal hospital_needed(result: Dictionary)
 signal save_relevant_state_changed()
-## The ONE declared committed-Schedule publication signal (Plan 01 Task 4, dwm-p2r.13). It is
-## emitted only by publish_schedule_commit(), only after GameStateScheduleCommitPort's injected
-## ledger reports a first delivery; a replay or a cold-restart retry emits nothing.
 signal committed_schedule_published(result: Dictionary)
 
-# ---- Run lifecycle (dwm-p2r.4 Task 3; plan 2026-07-17-phase-2r-03 §3) ----
 const _RUN_LIFECYCLE_SCRIPT := preload("res://scripts/domain/run/RunLifecycle.gd")
 const _DESKTOP_BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 const _DESKTOP_CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
@@ -127,9 +107,7 @@ const _NOTE_PURCHASE_RULES := preload("res://scripts/domain/shop/RunNotePurchase
 const _SCHEDULE_ACTION_REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
 
 var _run_lifecycle: RefCounted = _RUN_LIFECYCLE_SCRIPT.new()
-# Transient installation evidence, never part of a player snapshot.
 var _run_configuration_installed := false
-# Process-local lifetime, independent of candidate apply and compensating rollback.
 var _live_session_generation := 0
 var _live_session_active := false
 var _live_session_run_id := ""
@@ -139,19 +117,10 @@ var _retired_live_session_generation := -1
 
 var _mutation_gate: Object = null
 var _identity_issuer: Object = null
-## v4 desktop aggregate (Plan 02 Task 6, dwm-p2r.32): `{board,consequence}`, held as plain detached
-## Dictionaries rather than live DesktopBoardState/DesktopConsequenceState objects. Production
-## gameplay wiring of those state machines into GameState is Task 9's job (per GameStateDesktop
-## BoardPort's own class doc); this field exists only so a v4 snapshot always has a schema-valid
-## `desktop` member to serialize, defaulting to the empty NONE-board/no-pending-consequence shape
-## and overwritten wholesale only by restore.
 var _desktop_snapshot: Dictionary = {}
 var _desktop_snapshot_provider := Callable()
-## The ONE Bootstrap-owned Minesweeper round coordinator (dwm-p2r.9 Plan 06 Task 2). GameState
-## never constructs it; the shared begin/complete round methods delegate here.
 var _minesweeper_round_coordinator: RefCounted = null
 
-# ---- State (declared per CONTRACTS §2) ----
 var day: int:
 	get:
 		return _run_lifecycle.get_day()
@@ -171,22 +140,15 @@ var missed_group_date_counts: Dictionary
 
 var contact_message_unlocks: Dictionary
 var contact_choice_state: Dictionary
-## Stateless contact/invitation state bag (dwm-p2r.6). Its own top-level run-snapshot
-## section (never the gameplay bag); mutated only by the facade command methods via
-## ContactInvitationState.prepare_* and persisted as the snapshot `contacts` section.
 var contacts: Dictionary
 var date_unlocks: Dictionary
-# reserved/opaque — declared (CONTRACTS §2) + serialized by SaveManager (§6); NO behavior may be added.
 var post_ending_queue: Array
-# missed_invitations: Array[Dictionary]; each record {friend_id:String, source:"solo"|"group", day:int}
-# where day = invitation day D (guilt message due on D+1). Save-whitelisted (CONTRACTS §2 follow-up rule).
 var missed_invitations: Array
 var daily_opened_contacts: Dictionary
 var daily_group_invitation_generated: bool
 var daily_group_invitation_pair: Array[String]
 
 var inventory: Dictionary
-# reserved/opaque — declared (CONTRACTS §2) + serialized by SaveManager (§6); NO behavior may be added.
 var chat_state: Dictionary
 var shop_purchase_counts: Dictionary
 
@@ -223,15 +185,9 @@ func _ready() -> void:
 	pass
 
 
-# ---- Lifecycle / stats / money / coins ----
 func reset_game() -> void:
 	if _live_session_generation > 0: _invalidate_live_session()
 	_run_configuration_installed = false
-	# Fixed, self-consistent placeholder desktop identity (Plan 02 Task 6, dwm-p2r.32) -- mirrors
-	# the pre-existing "run-local" placeholder run_id immediately below: this is a generic reset for
-	# tests/template computation, never the real production New-Run path (that allocates through
-	# SaveManager's Task-1 issuer/journal seams and installs real identity via commit_restore(),
-	# never via reset()).
 	var placeholder_causal_day_instance := "causal-day-local"
 	var placeholder_identity_allocation_receipt := {
 		"causal_day_instance_issuer_receipt": {
@@ -244,8 +200,6 @@ func reset_game() -> void:
 		placeholder_identity_allocation_receipt, false)
 	_desktop_snapshot = _empty_desktop_snapshot(placeholder_causal_day_instance,
 		placeholder_identity_allocation_receipt["causal_day_instance_issuer_receipt"])
-	# A new run starts with an empty effect/variable ledger (dwm-p2r.8, Plan-05 Task 3): receipts
-	# and applied transaction ids are run-scoped and must never leak across runs.
 	_command_receipts = {}
 	_scene_live_closures = {}
 	scene_choices = {}
@@ -263,7 +217,6 @@ func reset_game() -> void:
 	for fid in FRIEND_IDS:
 		affection[fid] = 0
 		friend_attitude[fid] = ""
-		# dating_route_state schema (CONTRACTS §2): date_count, dark_points, true_path_count, previous_entered_true_path.
 		dating_route_state[fid] = {
 			"date_count": 0, "dark_points": 0, "true_path_count": 0, "previous_entered_true_path": false,
 			"relationship_state": "friend", "progression_event_ids": [], "provisional_receipts": {},
@@ -282,8 +235,6 @@ func reset_game() -> void:
 	daily_group_invitation_generated = false
 	daily_group_invitation_pair = []
 
-	# The canonical committed-Schedule aggregate is run-scoped and never leaks across runs
-	# (Plan 01 Task 4, dwm-p2r.13). Task 5 gives it its v3 persistence.
 	_committed_schedule = {}
 	inventory = {}
 	chat_state = {}
@@ -448,7 +399,6 @@ func remove_inventory(item_id: String, count: int = 1) -> bool:
 	return true
 
 
-# ---- Affection / friends ----
 func change_affection(friend_id: String, delta: int) -> bool:
 	var cur: int = int(affection.get(friend_id, 0))
 	var new_v: int = clampi(cur + int(delta), AFFECTION_MIN, AFFECTION_MAX)
@@ -474,7 +424,6 @@ func change_inter_friend_affection(friend_a: String, friend_b: String, delta: in
 	return true
 
 
-# ---- Minesweeper app economy ----
 func get_minesweeper_display_rounds_left() -> int:
 	return clampi(minesweeper_rounds_left, -3, 2)
 
@@ -556,11 +505,6 @@ func clear_unfinished_minesweeper_round() -> void:
 	unfinished_minesweeper_result = {}
 
 
-# Minesweeper app-round money reward. Per-outcome/difficulty amounts are defined in
-# _MINESWEEPER_MONEY_REWARD (see the indexed Minesweeper requirements). The daily cap
-# (108 + 54 * max(0, total_playable_rounds - 2)) is enforced; any amount is clamped to the
-# remaining daily cap. The "do not invent logic" guard is intentionally removed (author decision):
-# concrete reward values are now specified and applied.
 func calculate_minesweeper_money_reward(result: Dictionary) -> Dictionary:
 	var cap: int = MINESWEEPER_MONEY_DAILY_CAP_BASE + MINESWEEPER_MONEY_DAILY_CAP_PER_EXTRA_ROUND * maxi(0, get_minesweeper_total_playable_rounds() - 2)
 	var remaining: int = maxi(0, cap - minesweeper_money_earned_today)
@@ -603,7 +547,6 @@ func check_and_claim_minesweeper_task_rewards(result: Dictionary) -> Array:
 		minesweeper_task_rewards_claimed[tid] = true
 		change_coins(1)
 		claimed.append(tid)
-	# win_win_win: claimable once when beginner+intermediate+expert each achieved.
 	if not minesweeper_task_rewards_claimed.has("win_win_win"):
 		if minesweeper_task_rewards_claimed.has("complete_beginner") \
 				and minesweeper_task_rewards_claimed.has("complete_intermediate") \
@@ -615,7 +558,6 @@ func check_and_claim_minesweeper_task_rewards(result: Dictionary) -> Array:
 	return claimed
 
 
-# ---- Invitations / contacts ----
 func is_invitation_day(friend_id: String, target_day: int = -1) -> bool:
 	var d: int = target_day if target_day >= 0 else day
 	return _SEVEN_DAY_CALENDAR.is_solo_day(friend_id, d)
@@ -644,8 +586,6 @@ func configure_identity_issuer(identity_issuer: Object) -> Dictionary:
 	}, "receipt": {}}
 
 
-## Uses the same pure preparation as commit so UI content can be checked before any read or
-## acceptance mutation. The authentic issuer proof is required even for this detached candidate.
 func preview_open_contact(friend_id: String, command_id: String, command_issuer_receipt: Dictionary) -> Dictionary:
 	if _run_lifecycle.is_scene_run():
 		return _prepare_scene_contact_read(friend_id, command_id, command_issuer_receipt)
@@ -665,7 +605,6 @@ func preview_open_contact(friend_id: String, command_id: String, command_issuer_
 		_identity_issuer, record)
 
 
-## Ordinary correspondence uses the existing Contacts bag and full Run checkpoint.
 func preview_ordinary_reply(friend_id: String, reply_id: String, locale: String,
 		command_id: String, command_issuer_receipt: Dictionary) -> Dictionary:
 	var session: Dictionary = capture_live_session()
@@ -820,7 +759,6 @@ func commit_day7_followup(command: Dictionary, presentation_receipt: Dictionary)
 	candidate.read_watermarks[command.friend_id] = command.sequence
 	var checked: Dictionary = _CONTACT_INVITATION_STATE.validate_state(candidate)
 	if not checked.get("ok", false): return checked
-	# This is the existing history read watermark, not invitation acceptance.
 	return _commit_ordinary_candidate({"ok": true, "value": {"candidate": candidate},
 		"receipt": expected}, command.friend_id, command.command_id)
 
@@ -875,7 +813,6 @@ func open_contact(friend_id: String, command_id: String, command_issuer_receipt:
 	contacts = opened.value.candidate
 	if _frozen_contacts_contexts_enabled: route_context = frozen.value.route_context.duplicate(true)
 	if not replayed:
-		# Reading care cannot manufacture a Day-7 invitation acceptance or a date witness.
 		if operation.kind != "open_sylvia_care":
 			daily_opened_contacts["day:%d:friend:%s" % [day, friend_id]] = true
 		if has_care:
@@ -914,7 +851,6 @@ func get_daily_message_friend_for_finished_round(round_number: int, target_day: 
 	var idx := round_number - 1
 	if idx < 0 or idx >= order.size():
 		return ""
-	# Group invitation for the day suppresses individual solo messages.
 	if _group_is_active(d):
 		return ""
 	return order[idx]
@@ -926,13 +862,10 @@ func unlock_contact_message_after_minesweeper_finished(result: Dictionary) -> Di
 		return {}
 	if _group_is_active():
 		return {}
-	# Day 7 uses the durable tier; raw affection cannot grant or remove an invitation.
 	if day == 7 and not _has_day7_relationship_tier(friend):
 		return {}
 	var key: String = "day:%d:friend:%s" % [day, friend]
 	if not _frozen_contacts_contexts_enabled: contact_message_unlocks[key] = true
-	# Migration bridge (dwm-p2r.6, G1): mirror the daily-message unlock into a module solo offer
-	# so pair solos exist in the bag by round 3 for group activation. Idempotent per friend/day.
 	var offered: Dictionary = _CONTACT_INVITATION_STATE.prepare_offer_solo(
 		contacts, friend, day, "solo:%s:day%d" % [friend, day], "offer:%s:day%d" % [friend, day])
 	if offered.get("ok", false):
@@ -959,13 +892,11 @@ func is_contact_message_unlocked(friend_id: String, target_day: int = -1) -> boo
 
 
 func get_contact_view(friend_id: String, target_day: int = -1) -> Dictionary:
-	# Player-visible contact history for a friend (dwm-p2r.6); delegates to the pure module.
 	var d: int = target_day if target_day >= 0 else day
 	return _CONTACT_INVITATION_STATE.get_contact_view(contacts, friend_id, d).duplicate(true)
 
 
 func _group_is_active(target_day: int = -1) -> bool:
-	# dwm-p2r.6: today's group offer exists once activated (round 3) — the module is the source.
 	var selected_day := day if target_day < 0 else target_day
 	return contacts["group_action"]["day"] == selected_day \
 		and str(contacts["group_action"]["state"]) != "INACTIVE"
@@ -984,8 +915,6 @@ func _group_pair_ids() -> Array[String]:
 
 
 func _bridge_maybe_activate_group() -> void:
-	# G2 (dwm-p2r.6): canon group activation fires on the 3rd Minesweeper round of a group day,
-	# once both pair solos exist unread in the bag (generated by rounds 1-2). Idempotent per day.
 	if not _SEVEN_DAY_CALENDAR.is_group_day(day):
 		return
 	if minesweeper_app_rounds_finished_today != _CONTACT_INVITATION_STATE.GROUP_ACTIVATION_ROUND:
@@ -1059,7 +988,6 @@ func _schedule_action_record(action_id: String) -> Dictionary:
 	var registry: Object = loaded.get("value", {}).get("registry")
 	if registry == null:
 		return {}
-	# The shipped registry API is fingerprint()/find_record(action_id); no stale lookup/snapshot.
 	if str(registry.call(&"fingerprint")).strip_edges().is_empty():
 		return {}
 	var found: Variant = registry.call(&"find_record", action_id)
@@ -1069,9 +997,6 @@ func _schedule_action_record(action_id: String) -> Dictionary:
 
 
 func resolve_invitations_for_day(attendance: Dictionary, command_id: String) -> Dictionary:
-	# Facade command (dwm-p2r.6): resolve every solo/group action at day end. Applies the
-	# contacts state transitions + queued messages; the receipt carries counter_deltas,
-	# deferred_twofriends, and the PL window for the day-resolution flow to route (Phase 2R-7).
 	if command_id.is_empty():
 		return {"ok": false, "code": &"invalid_command_id", "message": "command_id is required"}
 	if contacts["transaction_receipts"].has(command_id):
@@ -1091,7 +1016,6 @@ func is_date_unlocked(friend_id: String, target_day: int = -1) -> bool:
 	var d: int = target_day if target_day >= 0 else day
 	if d == 7:
 		return is_contact_message_unlocked(friend_id, 7) and _has_day7_relationship_tier(friend_id)
-	# dwm-p2r.6: a solo date is addable once its module offer reaches ACCEPTED (reply).
 	return _CONTACT_INVITATION_STATE.is_date_addable(contacts, "solo:%s:day%d" % [friend_id, d])
 
 
@@ -1110,7 +1034,6 @@ func build_date_entry_from_unlock(friend_id: String, target_day: int = -1) -> Di
 
 
 func is_group_date_unlocked(target_day: int = -1) -> bool:
-	# dwm-p2r.6 canon: the group date is schedulable once the module group is ACCEPTED (replied).
 	var d: int = target_day if target_day >= 0 else day
 	return _CONTACT_INVITATION_STATE.is_date_addable(contacts, "group:%s:day%d" % [_CONTACT_INVITATION_STATE.GROUP_PAIR_KEY, d])
 
@@ -1192,14 +1115,10 @@ func _prepare_day7_ending_plan(condition_source: Dictionary, attempt_reader: Cal
 			if not head is Dictionary: continue
 			if not head.get("attempt_id") is String or not head.get("branch_id") is String: continue
 			if head.attempt_id.is_empty() or head.branch_id.is_empty(): continue
-			# Never use the two-argument first-lock history lookup for canonical mastery.
 			var found: Variant = attempt_reader.call(run_id, slot, head.attempt_id, head.branch_id)
 			if found is Dictionary and found.get("ok", false) and found.get("value") is Dictionary:
 				selected_attempts[slot] = found.value
 	var mastery: Dictionary = MASTERY.evaluate(run_id, heads, selected_attempts)
-	# Observer interactions are deferred; solo postscripts require current board mastery
-	# and Sweet tone. Profile receipts still own replay form and pair Persistence.
-	# Caller-supplied variant flags carry no authority.
 	var evidence_profile: Dictionary = {}
 	if not profile_reader.is_valid() and is_inside_tree():
 		var profile_owner: Node = get_node_or_null("/root/ProfileManager")
@@ -1254,7 +1173,6 @@ func _prepare_day7_ending_plan(condition_source: Dictionary, attempt_reader: Cal
 		"presentation_by_scope": _capture_ending_presentation_inputs(),
 	}
 	if not condition_source.is_empty():
-		# Use the persisted pre-action decision, never invitations read later or a draft bar.
 		var cause := str(condition_source.terminal_cause)
 		rules_input.invitation_read = {"sylvia": cause == "sylvia_special"}
 		rules_input.hospital_required = cause != "dark_mode_alone"
@@ -1265,8 +1183,6 @@ func _prepare_day7_ending_plan(condition_source: Dictionary, attempt_reader: Cal
 	return {"ok": true, "code": &"ok", "value": frozen["value"].duplicate(true)}
 
 
-## Detached presentation facts are frozen with the existing ending eligibility snapshot.
-## Current provisional scenes have no authored echo mutations, so their echo set is empty.
 func _capture_ending_presentation_inputs() -> Dictionary:
 	var result := {}
 	for friend_id: String in FRIEND_IDS:
@@ -1330,8 +1246,6 @@ func _capture_ending_frozen_seed(provisional: Dictionary) -> Dictionary:
 	return _ENDING_FROZEN_CONTEXT.make_seed(snapshot.presentation_by_scope, evidence, pair_counts,
 		"hospital_faint" if snapshot.hospital_required else "empty_done")
 
-## The current step is checkpointed before playback. Later steps have no tokens or
-## prerequisite receipts in this cache until their preceding steps really complete.
 func capture_ending_frozen_presentation(ending_id: String, context: Dictionary) -> Dictionary:
 	if not _frozen_ending_contexts_enabled: return _transaction_failure(&"ending_frozen_contexts_unconfigured", "")
 	var command := request_next_ending_command()
@@ -1368,8 +1282,6 @@ func capture_ending_frozen_presentation(ending_id: String, context: Dictionary) 
 	return projected if released.ok else released
 
 
-## Accept only the command at this saved cursor. The returned signature names the exact
-## registered entry the ending adapter must physically play, including exceptional forms.
 func capture_ending_presentation_signature(ending_id: String, context: Dictionary) -> Dictionary:
 	var command: Dictionary = request_next_ending_command()
 	if not command.get("ok", false) or command.get("value", {}).get("kind") != "play_ending" \
@@ -1387,8 +1299,6 @@ func capture_ending_presentation_signature(ending_id: String, context: Dictionar
 		if not checked.ok: return checked
 		return _ENDING_FROZEN_CONTEXT.signature_for_step(lifecycle.ending_plan, int(lifecycle.ending_plan.next_step_index), cache.seed)
 	var frozen: Dictionary = route_context.get("provisional_ending_plan", {}).get("eligibility_snapshot", {})
-	# A compatible older save has no captured presentation map. Its current saved facts are
-	# captured at this first actual start; this does not invent an earlier reached variant.
 	var inputs: Dictionary = frozen.get("presentation_by_scope", _capture_ending_presentation_inputs())
 	var role := str(context.role)
 	var entry_id := ending_id
@@ -1450,7 +1360,6 @@ func resolve_day7_ending() -> Dictionary:
 	var ending_id: String = ""
 	var epilogue_ending_id: String = ""
 
-	# Highest precedence: Special Sylvia (secret ending), evaluated before priscilla_lavinia.
 	if should_route_sylvia_special_ending():
 		ending_id = "ending.sylvia.special"
 	elif should_route_priscilla_lavinia_post_ending():
@@ -1460,13 +1369,11 @@ func resolve_day7_ending() -> Dictionary:
 	else:
 		var f: String = candidate_friend_id
 		var drs: Dictionary = dating_route_state.get(f, {})
-		# Binary tone (story/05 §1): Totally Dark or Sweet; the true-path is now a postscript.
 		if int(drs.get("dark_points", 0)) >= 2:
 			ending_id = "ending.%s.dark" % f
 		else:
 			ending_id = "ending.%s.sweet" % f
 
-	# Epilogue: if Priscilla/Lavinia post-ending is also unlocked and is not the primary, play it after.
 	if should_route_priscilla_lavinia_post_ending() and ending_id != "ending.priscilla_lavinia":
 		epilogue_ending_id = "ending.priscilla_lavinia"
 
@@ -1498,8 +1405,6 @@ func get_counted_pair_window_count() -> int:
 
 
 func should_route_priscilla_lavinia_post_ending() -> bool:
-	# Canonical Contacts receipts count each window once, including offscreen encounters.
-	# Retain already-earned eligibility from older saved progression state.
 	return get_counted_pair_window_count() >= 2 or bool((inter_friend_route_state.get(
 		"priscilla_lavinia", {}) as Dictionary).get("ending_eligible", false))
 
@@ -1511,30 +1416,11 @@ func should_route_sylvia_special_ending() -> bool:
 	var steps: Variant = (plan as Dictionary).get("steps")
 	return typeof(steps) == TYPE_ARRAY and not (steps as Array).is_empty() and str(((steps as Array)[0] as Dictionary).get("ending_id", "")) == "ending.sylvia.special"
 
-# ---- Schedule ----
-# The canonical committed aggregate is the ONLY Schedule source of truth (Plan 01 Task 5,
-# dwm-p2r.13). The legacy per-day draft array, its add-time spend/refund, its direct
-# execute/clear/queue helpers and the loose date-candidate seam all retired at this boundary;
-# GameStateScheduleCommitPort owns the transaction that produces committed state.
 
-## The committed entries for the current day, in canonical slot order.
 func _committed_entries() -> Array:
 	return _canonical_committed_schedule()["entries"] as Array
 
 
-## Adapts one committed entry to the legacy `type`/`friend_id`/`friend_ids` transport shape the
-## day-resolution and dating flows still speak. `twofriends` is never a committed kind: it is a
-## deferred route that day-end resolution produces, so it can only ever arrive from
-## `create_missed_group_twofriends_entry`.
-##
-## SCOPE NOTE, deliberately not glossed over: the DATE TRANSPORT is behaviour-preserving, but the
-## pre-Done QUERY surface is not. `get_scheduled_date_count` and
-## `get_max_scheduled_dates_for_current_day` were written to inspect
-## the draft the player had built BEFORE pressing Done. There is no draft in GameState any more --
-## the aggregate is empty until the Done commit transaction lands -- so those queries now answer
-## from post-commit state and their draft-time branches are unreachable. That is the amendment's
-## intent (the draft belongs to the Schedule UI owner, explicitly out of scope for dwm-p2r.13) and
-## no live caller exists today, but it is a real contract change, not a pure refactor.
 func _legacy_entry_from_committed(entry: Dictionary) -> Dictionary:
 	var participants: Array = entry.get("participants", [])
 	match str(entry.get("action_kind", "")):
@@ -1559,9 +1445,6 @@ func _is_committed_date_entry(entry: Dictionary) -> bool:
 	return str(entry.get("action_kind", "")) in ["solo", "group"]
 
 
-## Day end and the hospital route return the committed aggregate to its canonical EMPTY form. An
-## empty `_committed_schedule` always projects the LIVE day, so the aggregate can never carry a
-## stale day into the next snapshot. Motivation is never refunded here: the commit already charged.
 func _reset_committed_schedule_for_day_end() -> void:
 	_committed_schedule = {}
 	emit_signal("schedule_changed")
@@ -1615,9 +1498,6 @@ func collect_unscheduled_accepted_invitations_for_day_end() -> Array:
 
 
 func get_missed_invitation_for_friend(friend_id: String, target_day: int = -1) -> Dictionary:
-	# Returns the missed-invitation record whose invite day == target_day - 1 (guilt due on target_day),
-	# or {} if none. Consumers read "source" to pick the solo vs group missed_question label
-	# (CONTRACTS §2 follow-up rule). Read-only; returns a copy.
 	var d: int = target_day if target_day >= 0 else day
 	for rec in missed_invitations:
 		if rec is Dictionary and rec.get("friend_id", "") == friend_id and int(rec.get("day", -999)) == d - 1:
@@ -1626,13 +1506,10 @@ func get_missed_invitation_for_friend(friend_id: String, target_day: int = -1) -
 
 
 func execute_schedule_sequence_until_route_needed() -> Dictionary:
-	# No draft re-validation here: the committed aggregate is canonical by construction, having
-	# already passed ScheduleStateSchema and the registry inside the commit transaction.
 	execute_non_date_schedule_effects()
 
 	var date_entries: Array = []
 	var twofriends_entries: Array = []
-	# A committed entry is never `twofriends`; that route is produced below at day end.
 	for entry in get_scheduled_date_entries():
 		date_entries.append(entry)
 
@@ -1663,17 +1540,6 @@ func execute_schedule_sequence_until_route_needed() -> Dictionary:
 	}
 
 
-## The REGISTRY alone derives the effects of a committed ordinary action (dwm-wks acceptance): a
-## committed entry names its action, never its consequences, so no caller-authored `effect_ids`
-## can influence execution.
-##
-## FAILURE MODE, recorded rather than hidden: a registry that fails to load applies NOTHING rather
-## than guessing, while the legacy caller `execute_schedule_sequence_until_route_needed` still
-## reports success and routes the day. Before this boundary the effects rode on the entry itself, so
-## they were applied whatever the registry did. Deriving them from the registry is the correct
-## design (the entry must not carry its own consequences), but the silent-success path belongs to
-## the legacy transport that Task 6 replaces with the committed-receipt start port; it is not
-## repaired here because this task does not own that transport's result contract.
 func execute_non_date_schedule_effects() -> void:
 	var loaded: Dictionary = _SCHEDULE_ACTION_REGISTRY.load_current()
 	if not loaded.get("ok", false):
@@ -1704,7 +1570,6 @@ func create_missed_group_twofriends_entry(day_arg: int, friend_ids: Array, invit
 	}
 
 
-# ---- Conditions / hospital / day ----
 func resolve_pressure_health_condition_end_of_day() -> Dictionary:
 	if condition_resolved_day == day:
 		return {"ok": true, "needs_hospital": pending_hospital, "reason": "already_resolved"}
@@ -1822,11 +1687,7 @@ func apply_hospital_recovery_and_advance_day() -> bool:
 
 func advance_day_or_end() -> bool:
 	if day >= 7:
-		# Freeze eligibility while the committed Schedule and invitation-read facts still exist.
 		capture_provisional_day7_ending_plan()
-	# 1. Record accepted-but-unscheduled invitations before clearing. Solo miss -> one record;
-	# missed group -> one source:"group" record per participant (drives next-day group guilt message,
-	# CONTRACTS §2 follow-up rule). day = ending day D; guilt appears on D+1.
 	var unscheduled: Array = collect_unscheduled_accepted_invitations_for_day_end()
 	for u in unscheduled:
 		var utype: String = u.get("type", "")
@@ -1836,8 +1697,6 @@ func advance_day_or_end() -> bool:
 			for f in u.get("friend_ids", []):
 				missed_invitations.append({"friend_id": str(f), "source": "group", "day": day})
 
-	# 2-5. Reset the committed Schedule, pending dates, daily condition marker, daily
-	# invitation-response state.
 	_reset_committed_schedule_for_day_end()
 	pending_date_entries = []
 	pending_date_entry_index = 0
@@ -1847,7 +1706,6 @@ func advance_day_or_end() -> bool:
 	contact_choice_state = {}
 	daily_opened_contacts = {}
 
-	# 6. Ending marker (Day 7 is terminal: enter ENDING, never Day 8).
 	if day >= 7:
 		_lifecycle_ensure_ending(
 			str(route_context.get("ending_id", "ending.alone")),
@@ -1857,7 +1715,6 @@ func advance_day_or_end() -> bool:
 		_autosave_after_advance()
 		return false
 
-	# 7. Advance day.
 	_lifecycle_advance_day()
 	_begin_new_day()
 	emit_signal("day_changed", day)
@@ -1866,7 +1723,6 @@ func advance_day_or_end() -> bool:
 	return true
 
 
-## Pure projection shared by legacy advancement and durable day-resolution checkpoints.
 func capture_new_day_gameplay() -> Dictionary:
 	var gameplay: Dictionary = capture_run_snapshot_input()["gameplay"].duplicate(true)
 	gameplay.merge({
@@ -1890,7 +1746,6 @@ func _begin_new_day() -> void:
 	emit_signal("daily_state_reset")
 
 
-# ---- Dating queue ----
 func prepare_dating_queue(friend_ids: Array[String]) -> void:
 	var entries: Array = []
 	for fid in friend_ids:
@@ -1933,7 +1788,6 @@ func _validate_dating_terminal_fact(terminal_fact: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
-## Freeze the actual response and promotion decision before Profile makes it irreversible.
 func prepare_dating_challenge_effect(entry: Dictionary, terminal_fact: Dictionary) -> Dictionary:
 	var valid := _validate_dating_terminal_fact(terminal_fact)
 	if not valid.get("ok", false): return valid
@@ -1965,7 +1819,6 @@ func prepare_dating_challenge_effect(entry: Dictionary, terminal_fact: Dictionar
 	return {"ok": true, "value": {"receipt": receipt}}
 
 
-## Replay committed operations, not a relationship snapshot or a fresh threshold evaluation.
 func apply_dating_challenge_effect_receipt(entry: Dictionary, receipt: Dictionary, emit_changes: bool = true) -> Dictionary:
 	var scene_id := _provisional_dating_scene_id(entry)
 	if str(entry.get("type", "")) != "solo" or scene_id.is_empty() or receipt.get("scene_id") != scene_id:
@@ -1994,7 +1847,6 @@ func apply_dating_challenge_effect_receipt(entry: Dictionary, receipt: Dictionar
 	state["dark_points"] = mini(4, int(state.get("dark_points", 0)) + int(receipt.tone_delta))
 	var current_state := str(state.get("relationship_state", "friend"))
 	state["relationship_state"] = current_state
-	# A frozen promotion grants its earned tier; it never lowers a later branch's tier.
 	if receipt.promotion_applied and ["friend", "ambiguous", "love"].find(str(receipt.relationship_state)) > ["friend", "ambiguous", "love"].find(current_state):
 		state["relationship_state"] = str(receipt.relationship_state)
 	var events: Array = state.get("progression_event_ids", []).duplicate()
@@ -2151,18 +2003,14 @@ func advance_date_queue_or_day() -> bool:
 		pending_date_friend_id = _entry_friend_id(pending_date_entries[pending_date_entry_index])
 		emit_signal("save_relevant_state_changed")
 		return true
-	# No more entries.
 	if pending_date_advance_day_after_finish:
 		advance_day_or_end()
 	else:
-		# Day already advanced (e.g. post-hospital); leave unchanged.
 		pass
 	return false
 
 
 func clear_pending_date_state() -> void:
-	# Clears stale dating-queue state restored from a save taken mid-queue (CONTRACTS §6
-	# REQUIRED GUARD). Called by SaveManager on load unless the saved scene is a dating scene.
 	pending_date_entries = []
 	pending_date_entry_index = 0
 	pending_date_friend_id = ""
@@ -2170,7 +2018,6 @@ func clear_pending_date_state() -> void:
 	emit_signal("save_relevant_state_changed")
 
 
-# ---- Flags / save ----
 func set_story_flag(key: String, value: Variant) -> void:
 	story_flags[key] = value
 	emit_signal("save_relevant_state_changed")
@@ -2205,7 +2052,6 @@ func apply_save_dict(data: Dictionary) -> Dictionary:
 		if key == "day":
 			var saved_day := int(v)
 			if saved_day == 8:
-				# Legacy Day-8 sentinel migrates to the Day-7 terminal ENDING state.
 				var saved_route: Dictionary = data.get("route_context", {}) if data.get("route_context") is Dictionary else {}
 				_lifecycle_set_playing_day(7)
 				_lifecycle_ensure_ending(
@@ -2242,7 +2088,6 @@ func get_save_summary() -> Dictionary:
 	}
 
 
-# ---- Internal helpers ----
 func _apply_effect_ids(effect_ids: Array) -> void:
 	var er: Node = get_node_or_null("/root/EffectResolver")
 	if er != null and er.has_method("apply_effect_ids"):
@@ -2250,7 +2095,6 @@ func _apply_effect_ids(effect_ids: Array) -> void:
 
 
 func _autosave_after_advance() -> void:
-	# Persist progress after a day advance (CONTRACTS §2 Day advancement). Safe if SaveManager is a stub/missing.
 	var sm: Node = get_node_or_null("/root/SaveManager")
 	if sm != null and sm.has_method("autosave"):
 		sm.autosave()
@@ -2286,7 +2130,6 @@ func _entry_friend_id(entry: Dictionary) -> String:
 	return ""
 
 
-# ---- Phase 2R lifecycle facade seams (dwm-p2r.4 Task 3) ----
 
 const _GATE_CONTRACT_METHODS: Array[String] = [
 	"acquire", "release", "guard_external", "is_active", "get_active_owner",
@@ -2312,18 +2155,12 @@ func configure_mutation_gate(gate: Object) -> Dictionary:
 		"receipt": {}}
 
 
-## Reports ONLY the retained gate's instance id, never the gate object. Adapters that must
-## prove they hold the same gate GameState holds compare this primitive; there is deliberately
-## no public getter that would hand the fence itself to a caller (dwm-p2r.9 Plan 06 Task 2).
 func get_mutation_gate_instance_id() -> int:
 	if _mutation_gate == null:
 		return 0
 	return _mutation_gate.get_instance_id()
 
 
-## Fresh `{board,consequence}` for a run that has never touched Minesweeper: NONE-phase board
-## (DesktopBoardState's default-constructed capture) and an empty pending-free consequence bound to
-## the given causal-day identity pair (Plan 02 Task 6, dwm-p2r.32).
 func _empty_desktop_snapshot(causal_day_instance: String, causal_day_instance_issuer_receipt: Dictionary, scene: bool = false) -> Dictionary:
 	var empty_consequence: Dictionary = _DESKTOP_CONSEQUENCE_STATE.make_empty({
 		"causal_day_instance": causal_day_instance,
@@ -2339,10 +2176,6 @@ func _empty_desktop_snapshot(causal_day_instance: String, causal_day_instance_is
 		"consequence": (empty_consequence["value"] as Dictionary)["state"],
 	}
 
-## `branch_id`/`desktop_timeline_generation`/`causal_day_instance`/`causal_day_instance_issuer_
-## receipt` (Plan 02 Task 6, dwm-p2r.32) arrive from SaveManager's own Task-1 issuer/journal
-## allocation -- this method never mints or guesses any of them; a New Run constructs v4 directly
-## from that durably committed allocation, never through the migration chain.
 func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_timeline_generation: int,
 		causal_day_instance: String, causal_day_instance_issuer_receipt: Dictionary, dark_mode: Variant,
 		pair_witnessed_forms: Variant = null) -> Dictionary:
@@ -2356,8 +2189,6 @@ func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_t
 	template.reset_game()
 	var defaults: Dictionary = template.to_save_dict()
 	template.free()
-	# Pair selection belongs to the first counted encounter, with a Profile-owned receipt.
-	# Preserve the optional old caller argument only as a validated compatibility input.
 	if pair_witnessed_forms != null:
 		if not pair_witnessed_forms is Array:
 			return {"ok": false, "code": &"invalid_pair_witness_pool"}
@@ -2368,8 +2199,6 @@ func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_t
 		"priscilla_lavinia": {"date_count": 0, "dark_points": 0,
 			"ending_eligible": false, "provisional_receipts": {}},
 	}
-	# Shape the detached Day-1 input to match RunSnapshotSchema.build: gameplay bag
-	# (whitelisted fields minus day/contacts/committed_schedule/dating), plus their own fields.
 	var gameplay := {"narrative_variables": {}}
 	for key in _SAVE_WHITELIST:
 		if key in ["day", "contact_message_unlocks", "contact_choice_state", "date_unlocks", "dating_route_state"]:
@@ -2389,16 +2218,12 @@ func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_t
 			"causal_day_instance": causal_day_instance,
 			"causal_day_instance_issuer_receipt": causal_day_instance_issuer_receipt.duplicate(true),
 			"restore_provenance": null,
-			# Amendment Plan 03 Task 4 (dwm-oyo.3): a new run starts with no condition-Hospital plan,
-			# an empty completed-plan history and no terminal-intent handoff.
 			"active_condition_hospital_plan": null,
 			"condition_hospital_history": {},
 			"terminal_intent_handoff": null,
 		},
 		"gameplay": gameplay,
 		"contacts": _CONTACT_INVITATION_STATE.make_defaults(),
-		# A new run starts at the canonical EMPTY aggregate with a null fingerprint: only a later
-		# logical-day initialization may adopt the current registry fingerprint.
 		"committed_schedule": {
 			"schema_version": _SCHEDULE_STATE_SCHEMA.SCHEMA_VERSION,
 			"day": 1,
@@ -2416,9 +2241,6 @@ func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_t
 var _narrative_checkpoint_port: Object = null
 
 
-## Installs the ONE Bootstrap-constructed, already-configured MinesweeperRoundCoordinator
-## (dwm-p2r.9 Plan 06 Task 2). Installation happens once; the same coordinator is idempotent
-## and a different one is refused, so no second round authority can exist in the process.
 func _install_minesweeper_round_coordinator(coordinator: Object) -> Dictionary:
 	if coordinator == null:
 		return {"ok": false, "code": &"invalid_minesweeper_coordinator", "message": ""}
@@ -2433,8 +2255,6 @@ func _install_minesweeper_round_coordinator(coordinator: Object) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"installed": true, "already_installed": false}, "receipt": {}}
 
 
-## Shared round entry point. Every caller -- app context and dating context alike -- reaches the
-## real coordinator through here; GameState applies no round rule of its own.
 func begin_minesweeper_round(request: Dictionary) -> Dictionary:
 	if _minesweeper_round_coordinator == null:
 		return {"ok": false, "code": &"NOT_CONFIGURED", "message": "no Minesweeper coordinator is installed"}
@@ -2467,17 +2287,11 @@ func _lifecycle_set_playing_day(target_day: int) -> void:
 		"state": "PLAYING",
 		"active_resolution_plan": null,
 		"ending_plan": null,
-		# Plan 02 Task 6 (dwm-p2r.32): the desktop-identity pair travels with every lifecycle
-		# candidate; this narrow day-only transition preserves it byte-for-byte from the live
-		# snapshot rather than replacing or dropping it.
 		"branch_id": snapshot["branch_id"],
 		"desktop_timeline_generation": snapshot["desktop_timeline_generation"],
 		"causal_day_instance": snapshot["causal_day_instance"],
 		"causal_day_instance_issuer_receipt": snapshot["causal_day_instance_issuer_receipt"],
 		"restore_provenance": snapshot["restore_provenance"],
-		# Amendment Plan 03 Task 4 (dwm-oyo.3, deviation D-7): the three v5 members are likewise
-		# carried byte-for-byte. An active condition-Hospital plan must survive its own stage-4 day
-		# advance, the history is append-only, and the handoff is null in PLAYING anyway.
 		"active_condition_hospital_plan": snapshot["active_condition_hospital_plan"],
 		"condition_hospital_history": snapshot["condition_hospital_history"],
 		"terminal_intent_handoff": snapshot["terminal_intent_handoff"],
@@ -2495,7 +2309,6 @@ func request_next_ending_command() -> Dictionary:
 	var lifecycle_plan: Dictionary = snapshot["ending_plan"]
 	if lifecycle_plan.has("steps"):
 		return _ordered_ending_command(snapshot, lifecycle_plan)
-	# Compatibility playback for the previously admitted five-key plan.
 	var epilogue: String = str(lifecycle_plan.get("epilogue_ending_id", ""))
 	var command_result: Dictionary = _DATING_ENDING_RULES.next_playback_command({
 		"primary_id": str(lifecycle_plan["ending_id"]),
@@ -2555,8 +2368,6 @@ func _ordered_ending_command(snapshot: Dictionary, plan: Dictionary) -> Dictiona
 	}}
 
 
-## The planned fourth combination is only a prediction. Physical Sweet completion and
-## its durable Profile witness must exist before the pair postscript can start.
 func _validate_pair_observer_admission(snapshot: Dictionary, plan: Dictionary, profile: Object = null) -> Dictionary:
 	if profile == null and is_inside_tree(): profile = get_node_or_null("/root/ProfileManager")
 	if profile == null or not profile.has_method("get_pair_form_witnesses"):
@@ -2582,7 +2393,6 @@ func _validate_pair_observer_admission(snapshot: Dictionary, plan: Dictionary, p
 	return {"ok": true, "code": &"ok"}
 
 
-## The role that plays out of each legacy play_ending stage.
 const _ENDING_STAGE_ROLE := {"PRIMARY_PENDING": "primary", "PRIMARY_PLAYED": "epilogue"}
 
 var _ending_checkpoint_writer: Callable
@@ -2660,8 +2470,6 @@ func _admit_terminal_ending() -> Dictionary:
 		if not proof.get("ok", false): return proof
 		if str(handoff.source_transaction_issuer_receipt.get("token", "")) != str(handoff.source_transaction_id):
 			return {"ok": false, "code": &"terminal_source_identity_mismatch"}
-		# The composed condition path consumes its existing outbox directly. Unknown legacy
-		# TERMINAL_PENDING packets still have no semantic owner and cannot be reinterpreted.
 		return {"ok": false, "code": &"terminal_intent_semantics_unavailable"}
 	else:
 		return {"ok": false, "code": &"day7_terminal_source_unavailable"}
@@ -2778,7 +2586,6 @@ func _commit_ending_playback_completion(transaction_id: String, expected_stage: 
 
 func _retire_completed_ending_session() -> void:
 	if _run_lifecycle.get_state() != &"COMPLETED" or not _live_session_active: return
-	# The terminal snapshot is already durable, including when it has just been loaded.
 	var handle: Dictionary = _live_session_fact()
 	_invalidate_live_session()
 	_run_configuration_installed = false
@@ -2840,8 +2647,6 @@ func _complete_ending_playback_stage(transaction_id: String, expected_stage: Str
 	return {"ok": false, "code": &"invalid_ending_command", "message": str(command["kind"])}
 
 func _complete_run() -> Dictionary:
-	# At GALLERY_RECORDED the run finishes: ENDING -> COMPLETED, then route to the menu. No scene
-	# calls RunLifecycle directly. Day stays 7 (terminal); there is no Day 8.
 	var result: Dictionary = _run_lifecycle.complete_ending()
 	if not result.get("ok", false):
 		return result
@@ -2883,8 +2688,6 @@ func _complete_record_gallery(stage: String, lifecycle_plan: Dictionary) -> Dict
 			if not unlocked.get("ok", false): return unlocked
 			gallery_receipts["step:%d" % index] = unlocked.value
 	else:
-		# Existing admitted five-key plans remain resumable. Their two physical stages have
-		# completed before this compatibility Gallery tail can be reached.
 		for role: String in ["primary", "epilogue"]:
 			var ending_id: String = str(lifecycle_plan.ending_id if role == "primary" else lifecycle_plan.epilogue_ending_id)
 			if ending_id.is_empty(): continue
@@ -2952,9 +2755,6 @@ func _lifecycle_ensure_ending(ending_id: String, epilogue_ending_id: String) -> 
 	})
 
 
-# ---- Run restore participant seams (dwm-p2r.5 Task 7) ----
-# RunRestoreParticipant delegates capture/apply/rollback/finalize here. These
-# are silent: apply/rollback emit no domain signals; only finalize publishes.
 
 func capture_restore_state() -> Dictionary:
 	var dating_backup: Variant = null
@@ -2980,18 +2780,11 @@ func capture_restore_state() -> Dictionary:
 		"session_generation": _live_session_generation,
 		"scene": _scene_snapshot_references.duplicate(true),
 		"contacts": contacts.duplicate(true),
-		# v3 (Plan 01 Task 5): the canonical aggregate is part of the restore transaction, so a
-		# later participant failure rolls it back with everything else.
 		"committed_schedule": _canonical_committed_schedule(),
-		# v4 (Plan 02 Task 6, dwm-p2r.32): the desktop aggregate travels with the same restore
-		# transaction, so a later participant failure rolls it back with everything else too.
 		"desktop": _capture_desktop_snapshot(),
 	}}}
 
 
-# ---- Atomic effect/variable transactions (dwm-p2r.8, Plan-05 Task 3) ----
-# This ledger is DISJOINT from ProfileManager's ending-gallery ledger: it records only
-# effect/variable command receipts and never an ending/gallery variant.
 
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const _NARRATIVE_VARIABLE_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
@@ -3044,8 +2837,6 @@ func commit_variable_transaction(transaction_id: String, variable_id: String, va
 
 
 func _guard_transaction(owner_id: StringName) -> Dictionary:
-	# The shared gate is applied as the method's FIRST operation, before any normalization,
-	# ledger read, validation, snapshot capture, or port/provider call.
 	if _mutation_gate == null:
 		return {"ok": true}
 	var guarded: Dictionary = _mutation_gate.call(&"guard_external", owner_id)
@@ -3124,14 +2915,10 @@ func restore_live_run_state(backup: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
 
 
-## Captures the last activated session, not candidate bytes temporarily applied by
-## Restore. Validation separately fences callbacks while a transaction owns the gate.
 func capture_live_session() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": _live_session_fact()}
 
 
-## Internal capture remains usable by the current causal transaction. External
-## commands separately validate the session and shared gate before mutation.
 func capture_desktop_identity_context() -> Dictionary:
 	if not _live_session_active or not _run_configuration_installed:
 		return _session_failure(&"stale_live_session")
@@ -3154,8 +2941,6 @@ func capture_live_run_snapshot_input(handle: Variant) -> Dictionary:
 	if not admitted.get("ok", false): return admitted
 	return {"ok": true, "code": &"ok", "value": capture_run_snapshot_input()}
 
-## SaveManager freezes this ticket before apply, checks it before route dispatch,
-## and activates only after every participant has finalized successfully.
 func validate_live_session_activation(ticket: Variant) -> Dictionary:
 	if not is_instance_valid(_mutation_gate) or not (
 		_mutation_gate.is_internal_owner_active(&"restore") or _mutation_gate.is_internal_owner_active(&"new_run")):
@@ -3182,8 +2967,6 @@ func activate_live_session(ticket: Variant) -> Dictionary:
 		_live_session_activation_ticket = ticket.duplicate(true)
 	return {"ok": true, "code": &"ok", "value": _live_session_fact()}
 
-## Current Load installs owners in one synchronous call before scene mounting.
-## The save owner supplies this process-local ticket; no Load lease is retained.
 func activate_loaded_session(ticket: Dictionary) -> Dictionary:
 	_live_session_generation += 1
 	_live_session_active = true
@@ -3222,8 +3005,6 @@ static func _session_failure(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code}
 
 
-## Public run configuration exists only after validated snapshot installation.
-## Reset/local fixture state and detached New Run preparation grant no live-run evidence.
 func get_run_configuration() -> Dictionary:
 	if not _run_configuration_installed:
 		return {"ok": false, "code": &"run_configuration_unavailable"}
@@ -3232,9 +3013,6 @@ func get_run_configuration() -> Dictionary:
 	return {"ok": true, "value": {"dark_mode": _run_lifecycle.to_dict()["dark_mode"]}}
 
 
-## Replacement consent concerns the installed unfinished state held by this owner.
-## A raw menu route does not abandon it. No-save Return must later invalidate its
-## session through the actual lifecycle owner; this read seam does not implement Return.
 func has_new_run_replacement() -> bool:
 	return _run_configuration_installed and _run_lifecycle.get_state() in [&"PLAYING", &"ENDING"]
 
@@ -3251,8 +3029,6 @@ func get_new_run_replacement_baseline() -> Dictionary:
 	return {"ok": true, "value": {"present": present, "revision": str(encoded["value"]).sha256_text()}}
 
 
-## Pure read seam for the shared narrative checkpoint adapter (dwm-p2r.8, Plan-05 Task 2).
-## Returns the complete detached CURRENT RunSnapshot input without mutation or publication.
 func configure_desktop_snapshot_provider(provider: Callable) -> Dictionary:
 	if not provider.is_valid() or provider.get_argument_count() != 0:
 		return {"ok": false, "code": &"invalid_desktop_snapshot_provider"}
@@ -3300,8 +3076,6 @@ func capture_run_snapshot_input() -> Dictionary:
 	}
 
 
-## Accepts the ONE shared SaveManagerNarrativeCheckpointPort instance Bootstrap also injects into
-## DialogicBridge; idempotent for the same instance, rejects any other.
 func configure_narrative_checkpoint_port(port: Object) -> Dictionary:
 	if port == null:
 		return {"ok": false, "code": &"invalid_narrative_checkpoint_port", "message": ""}
@@ -3364,7 +3138,6 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 	var restored: Dictionary = {"ok": true} if cold_lifecycle else _run_lifecycle.prepare_restore(source.lifecycle)
 	if not restored.get("ok", false):
 		return restored
-	# Validate the aggregate BEFORE any mutation: a rollback must not leave the owner half-restored.
 	var committed_backup: Variant = (source as Dictionary).get("committed_schedule")
 	var validated_backup: Dictionary = {}
 	if typeof(committed_backup) == TYPE_DICTIONARY:
@@ -3376,9 +3149,6 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 		var desktop_error := _RUN_SNAPSHOT_SCHEMA_DESKTOP._validate_desktop(desktop_backup)
 		if desktop_error != "":
 			return {"ok": false, "code": &"invalid_run_backup", "message": desktop_error}
-	# All GameState backup validation is complete. Restore the retained Dating owner's
-	# local state before the synchronous, silent assignments below; stale sessions were
-	# rejected above, and no Profile history is copied backward.
 	var dating_backup: Variant = source.get("dating_reconciliation")
 	if _dating_restore_owner != null:
 		if not dating_backup is Dictionary:
@@ -3407,8 +3177,6 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 
 
 func _restore_contacts_section(saved: Variant) -> void:
-	# The contacts section restores only when a real stateless bag is present; an
-	# empty/legacy {} section leaves the reset defaults intact.
 	if typeof(saved) == TYPE_DICTIONARY and (saved as Dictionary).has("messages"):
 		contacts = (saved as Dictionary).duplicate(true)
 
@@ -3418,11 +3186,6 @@ func finalize_restore() -> Dictionary:
 	return {"ok": true, "code": &"ok"}
 
 
-## Task 6 Phase C2 (dwm-p2r.32): the second, identity-only step of a restore-with-remap (see
-## RunRestoreParticipant.apply_continuation_remap()'s doc). Called by SaveManager immediately after
-## the "run" participant's ordinary apply_silent() above has installed this restore's day/state/plan;
-## swaps in the durably-allocated new branch/generation/causal-day identity via RunLifecycle's own
-## already-tested prepare_continuation_remap()/commit_continuation_remap() pair. Silent: no signal.
 func apply_continuation_remap_silent(restore_transaction_id: String, identity_allocation_bundle: Dictionary,
 		source_identity: Dictionary) -> Dictionary:
 	var prepared: Dictionary = _run_lifecycle.prepare_continuation_remap(restore_transaction_id, identity_allocation_bundle, source_identity)
@@ -3447,9 +3210,6 @@ func _apply_run_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 	var restored: Dictionary = _run_lifecycle.prepare_restore(snapshot["lifecycle"])
 	if not restored.get("ok", false):
 		return restored
-	# v3 (Plan 01 Task 5): every restored aggregate is revalidated against the saved bytes BEFORE a
-	# single field is written, so an invalid committed Schedule aborts with the owner untouched. The
-	# saved fingerprint is honoured as-is; a caller's CURRENT registry record is never substituted.
 	var committed: Variant = snapshot.get("committed_schedule")
 	var validated_committed: Dictionary = {}
 	if typeof(committed) == TYPE_DICTIONARY:
@@ -3476,7 +3236,6 @@ func _apply_run_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok"}
 
 
-## Only restore defaults an omitted count map. Runtime floats remain invalid.
 func _prepare_note_restore_gameplay(gameplay: Dictionary) -> Dictionary:
 	var checked: Dictionary = _NOTE_PURCHASE_RULES.validate_counts(gameplay.get("shop_purchase_counts", {}))
 	if not checked.get("ok", false):
@@ -3486,8 +3245,6 @@ func _prepare_note_restore_gameplay(gameplay: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"gameplay": detached}}
 
 
-## Canonical saves carry all receipt fields; old partial owner plans may omit the
-## whole group. Live rollback preserves insertion order, unlike sorted disk IDs.
 func _prepare_restore_bookkeeping(source: Dictionary, live_backup: bool = false) -> Dictionary:
 	var candidate := {}
 	var choices: Variant = source.get("scene_choices", {}) if live_backup else {}
@@ -3509,7 +3266,6 @@ func _prepare_restore_bookkeeping(source: Dictionary, live_backup: bool = false)
 			if typeof(ids) != TYPE_ARRAY:
 				return _transaction_failure(&"invalid_run_bookkeeping", field + " must be an array")
 			var checked: Array = ids.duplicate(true)
-			# Validate elements before sorting so malformed mixed types cannot error.
 			for id: Variant in checked:
 				if typeof(id) != TYPE_STRING or str(id).is_empty():
 					return _transaction_failure(&"invalid_run_bookkeeping", "invalid transaction ID")
@@ -3525,8 +3281,6 @@ func _prepare_restore_bookkeeping(source: Dictionary, live_backup: bool = false)
 		var checked_receipts: Dictionary = source["command_receipts"].duplicate(true)
 		if live_backup:
 			for receipt: Dictionary in checked_receipts.values():
-				# The live recorder stores its registered kind as StringName. Validate
-				# its wire spelling without changing the exact captured owner value.
 				if typeof(receipt["kind"]) == TYPE_STRING_NAME:
 					receipt["kind"] = str(receipt["kind"])
 		var primitive := _NARRATIVE_VARIABLE_SCHEMA.validate_primitive_tree(checked_receipts, "$.command_receipts")
@@ -3554,12 +3308,6 @@ func _apply_restore_bookkeeping(candidate: Dictionary) -> void:
 		_narrative_variables = candidate["narrative_variables"].duplicate(true)
 
 
-# ---- Committed-Schedule facade delegation seams (Plan 01 Task 4, dwm-p2r.13) ----
-# These five seams are DELEGATION ONLY, never a second validator: they cover current motivation, the
-# canonical top-level committed_schedule, and the narrow precondition fingerprint that binds them.
-# GameStateScheduleCommitPort owns the public transaction interface, the registry/issuer/source law
-# and the at-most-once publication boundary. Nothing here reads or writes the provisional Schedule
-# transport, and none of these seams emits except the single declared publication signal.
 
 const _SCHEDULE_STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 
@@ -3569,19 +3317,9 @@ const _SCHEDULE_COMMIT_CANDIDATE_KEYS: Array[String] = [
 const _SCHEDULE_COMMIT_BACKUP_KEYS: Array[String] = ["committed_schedule", "motivation"]
 const _SCHEDULE_PUBLICATION_KEYS: Array[String] = ["committed_schedule", "schedule_commit_receipt"]
 
-## Run-scoped canonical aggregate. It is deliberately absent from _SAVE_WHITELIST: Task 5 owns its
-## v3 persistence and migration boundary.
 var _committed_schedule: Dictionary = {}
 
 
-## Task 3 (Amendment Plan 03, dwm-oyo.3, plan line 364): the ONE read-only Schedule-warning
-## fact capture. Success is the master envelope with exact value={state}, receipt={}, where
-## state is {run_id, branch_id, desktop_timeline_generation, causal_day_instance, day,
-## eligible_unread_date_message_ids, accepted_date_action_ids, next_app_round_ordinal,
-## base_opportunity_remaining, motivation}. Both ID arrays are sorted, unique, detached
-## canonical facts derived from persisted GameState/Contacts state -- never from action-ID
-## parsing, scenes, or caller-supplied values. Every helper below is underscore-private by
-## design: this method is the single public entry the frozen surface walk counts.
 func capture_schedule_warning_state() -> Dictionary:
 	var identity: Dictionary = _run_lifecycle.get_desktop_identity_context()
 	var next_ordinal: Variant = _warning_next_app_round_ordinal()
@@ -3599,9 +3337,6 @@ func capture_schedule_warning_state() -> Dictionary:
 	}}, "receipt": {}}
 
 
-## 1..5 | null, null only after opportunity exhaustion: the next app-round ordinal is the
-## count of rounds finished today plus one, and the opportunity is exhausted once no round
-## can be exposed at all (five finished, or the daily round budget is spent to the floor).
 func _warning_next_app_round_ordinal() -> Variant:
 	var next_ordinal: int = int(minesweeper_app_rounds_finished_today) + 1
 	if next_ordinal > 5 or not has_minesweeper_app_round_available():
@@ -3609,11 +3344,6 @@ func _warning_next_app_round_ordinal() -> Variant:
 	return next_ordinal
 
 
-## Visible unread (above the friend's read watermark) date-enabling offer messages whose
-## target day is the CURRENT day. This deliberately DIVERGES from get_unread_count(),
-## which counts every unread message with target_day <= day: only a current-day offer
-## can enable a date entry in the current day's Schedule view, so past-day unread
-## messages are excluded here on purpose.
 func _warning_unread_date_message_ids() -> Array:
 	var ids: Dictionary = {}
 	var current_day: int = int(day)
@@ -3641,9 +3371,6 @@ func _warning_unread_date_message_ids() -> Array:
 	return sorted_ids
 
 
-## Valid, nonsuperseded current-day Contacts acceptances: solo actions in the ACCEPTED
-## state for the current day, plus the group action when it is ACCEPTED for the current
-## day. Any superseded or closed state is simply not ACCEPTED.
 func _warning_accepted_date_action_ids() -> Array:
 	var ids: Dictionary = {}
 	var current_day: int = int(day)
@@ -3695,7 +3422,6 @@ func prepare_schedule_commit_candidate(committed: Dictionary, motivation_charged
 	}}, "receipt": {}}
 
 
-## Silent: installs exactly motivation and committed_schedule, and emits nothing.
 func commit_schedule_commit_candidate(candidate: Dictionary) -> Dictionary:
 	var day7_admitted := require_day7_presentations_complete()
 	if not day7_admitted.get("ok", false): return day7_admitted
@@ -3720,8 +3446,6 @@ func commit_schedule_commit_candidate(candidate: Dictionary) -> Dictionary:
 		"value": {"committed_schedule": _committed_schedule.duplicate(true)}, "receipt": {}}
 
 
-## Restores exactly the two captured fields; every other owner field, including a concurrent
-## unrelated Contacts or settings change, is left untouched.
 func rollback_schedule_commit_state(backup: Dictionary) -> Dictionary:
 	var shape := _schedule_member_error(backup, _SCHEDULE_COMMIT_BACKUP_KEYS,
 		&"invalid_schedule_backup")
@@ -3738,8 +3462,6 @@ func rollback_schedule_commit_state(backup: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"restored": true}, "receipt": {}}
 
 
-## Emits the one declared committed-Schedule signal for a publication the owner actually holds. The
-## port calls this only after its ledger has durably recorded a FIRST delivery.
 func publish_schedule_commit(publication: Dictionary) -> Dictionary:
 	var shape := _schedule_member_error(publication, _SCHEDULE_PUBLICATION_KEYS,
 		&"invalid_schedule_publication")
@@ -3762,26 +3484,6 @@ func publish_schedule_commit(publication: Dictionary) -> Dictionary:
 
 
 func _canonical_committed_schedule() -> Dictionary:
-	# The committed aggregate is DAY-SCOPED: it describes the Schedule committed for one logical
-	# day. An owner that has not committed yet -- or whose stored aggregate belongs to an earlier
-	# day, because the day has since advanced -- exposes the canonical empty aggregate for the
-	# CURRENT day. Projecting the live day here is what keeps a stale day from ever reaching a
-	# snapshot, no matter which path advanced it, so the v3 schema's day equality holds without
-	# every caller remembering to reset.
-	#
-	# This is not data loss: the previous day's committed Schedule was already consumed by that
-	# day's resolution, and the durable record of it lives in the publication ledger and the saved
-	# snapshot for that day.
-	#
-	# KNOWN LIMIT, handed to Task 6 rather than papered over: the two day-end owners below reset
-	# `_committed_schedule` outright, but the DayResolutionCoordinator's increment-day stage advances
-	# the lifecycle without clearing it, so on that path a stale aggregate is MASKED here rather than
-	# cleared. If that stage were rolled back to the earlier day, the consumed aggregate would become
-	# visible again. `DayResolutionCoordinator.reset_day_scope` is still a stub receipt; Task 6 owns
-	# making it a real day-scope reset (its Files list owns that coordinator and this port).
-	#
-	# The fingerprint stays null here: only a later logical-day initialization may adopt a current
-	# registry fingerprint, and this seam never loads a registry.
 	if _committed_schedule.is_empty() or int(_committed_schedule.get("day", -1)) != day:
 		return {
 			"schema_version": _SCHEDULE_STATE_SCHEMA.SCHEMA_VERSION,
@@ -3823,8 +3525,6 @@ func _schedule_motivation_error(value: Variant) -> Dictionary:
 
 
 func _apply_gameplay_silent(gameplay: Dictionary) -> void:
-	# Apply only whitelisted gameplay fields; `day` is owned by the lifecycle and
-	# is intentionally absent from the gameplay bag, so it is never touched here.
 	for key in _SAVE_WHITELIST:
 		if key == "day" or not gameplay.has(key):
 			continue
@@ -3846,8 +3546,6 @@ func _apply_gameplay_silent(gameplay: Dictionary) -> void:
 
 
 
-# Root integration: append these methods to GameState.gd. No new gameplay owner or
-# receipt is created; this is a saved presentation cache in the existing Run bag.
 func read_hospital_presentation_request(resolution_id: String) -> Dictionary:
 	const HOSPITAL_FROZEN := preload("res://scripts/narrative/HospitalFrozenContext.gd")
 	var cache: Variant = route_context.get("hospital_frozen_contexts_v1")
@@ -3899,7 +3597,6 @@ func retain_hospital_presentation_request(request: Dictionary) -> Dictionary:
 	var cache: Dictionary = route_context.get("hospital_frozen_contexts_v1", {"schema_version": 1, "requests": {}}).duplicate(true)
 	cache.requests[request.resolution_id] = checked.value
 	route_context["hospital_frozen_contexts_v1"] = cache
-	# Bind to this exact persisted resolution before any snapshot is written.
 	var bound := read_hospital_presentation_request(str(request.resolution_id))
 	var saved: Dictionary = _contact_checkpoint_writer.call() if bound.get("ok", false) else bound
 	if not saved.get("ok", false):
@@ -3914,8 +3611,6 @@ func retain_hospital_presentation_request(request: Dictionary) -> Dictionary:
 	return {"ok": true, "value": checked.value.duplicate(true)}
 
 
-# Add these declarations and methods to GameState. Root serializes the accompanying
-# exact-anchor replacements; this fragment is not an independent runnable script.
 const _CONTACTS_FROZEN := preload("res://scripts/narrative/ContactsFrozenContext.gd")
 var _frozen_contacts_contexts_enabled := false
 
@@ -3930,8 +3625,6 @@ func _prepare_contact_presentation_candidate(candidate: Dictionary) -> Dictionar
 	if not _frozen_contacts_contexts_enabled: return {"ok": true, "value": to_save_dict()}
 	return _CONTACTS_FROZEN.capture_candidate(contacts, candidate, to_save_dict(), day)
 
-## First admission may freeze only a current ordinary card or the Day 7 echo batch.
-## All historical facts must already accompany their causal source generation.
 func ensure_contact_presentation_contexts(friend_id: String = "") -> Dictionary:
 	if not _frozen_contacts_contexts_enabled: return {"ok": true, "value": {}}
 	if friend_id != "" and friend_id not in _CONTACT_INVITATION_STATE.FRIEND_IDS:
@@ -3966,8 +3659,6 @@ func ensure_contact_presentation_contexts(friend_id: String = "") -> Dictionary:
 	return {"ok": true, "value": route_context[_CONTACTS_FROZEN.CACHE_KEY].duplicate(true)}
 
 
-# Scene events share the existing Run receipt map. The registry contains trusted
-# content only; the issuer binds each command, and the saved chain binds order.
 const _SCENE_EVENT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
 var _scene_event_bridge: Object
 var _scene_event_before_adoption: Callable
@@ -4007,8 +3698,6 @@ func scene_event_context() -> Dictionary:
 	if not checked.ok: return checked
 	var group: Dictionary = checked.value.occurrences.get(_SCENE_EVENT.occurrence_key(source), {})
 	if not group.is_empty():
-		# Only admitted owner state can restore historical occurrence identity.
-		# Load changes the live caller's authority, never these semantic bytes.
 		source = group.source.duplicate(true)
 		if source.run_id != live.value.run_id:
 			return _transaction_failure(&"event_source_mismatch", "")
@@ -4059,8 +3748,6 @@ func accept_scene_event(event: Dictionary, digest: String, lease: String) -> Dic
 	if not committed.get("ok", false):
 		if committed.get("committed", false): return _scene_event_fatal(&"event_commit_ack_invalid")
 		return committed
-	# Confirmed disk+journal success is irrevocable here. A failed adoption must
-	# retain fatal custody, not roll back a committed result or release stale state.
 	if _scene_event_before_adoption.is_valid():
 		var observed: Variant = _scene_event_before_adoption.call()
 		if observed != true: return _scene_event_fatal(&"event_adoption_interrupted")
@@ -4076,7 +3763,6 @@ func _scene_event_fatal(code: StringName) -> Dictionary:
 		"code": code, "details": {"committed": true}})
 	return {"ok": false, "code": code, "committed": true}
 
-## RunRestoreParticipant invokes this before any participant mutates live state.
 func validate_scene_event_snapshot(snapshot: Dictionary) -> Dictionary:
 	if snapshot.get("schema_version") == 9 and snapshot.get("scene") is Dictionary:
 		var registered := _SCENE_MANIFEST.scene_contract_tables()
@@ -4084,7 +3770,6 @@ func validate_scene_event_snapshot(snapshot: Dictionary) -> Dictionary:
 		return _NARRATIVE_VARIABLE_SCHEMA.validate_current_scene(snapshot.scene, registered.bundle)
 	var checked: Dictionary = _SCENE_EVENT.validate_receipts(snapshot.get("command_receipts", {}))
 	if not checked.ok: return checked
-	# Cursor-to-receipt proof is required even for an empty receipt map.
 	if is_instance_valid(_scene_event_bridge) and _scene_event_bridge.has_method("validate_scene_marker_snapshot"):
 		var cursor: Dictionary = _scene_event_bridge.validate_scene_marker_snapshot(snapshot)
 		if not cursor.get("ok", false): return cursor
@@ -4115,7 +3800,6 @@ func validate_scene_event_snapshot(snapshot: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
-# Scene9 uses the same live fields and lifecycle owner, with an explicit wire family.
 const SCENE_GAMEPLAY_KEYS := ["coins", "inventory", "minesweeper_app_rounds_finished_today",
 	"minesweeper_money_earned_today", "minesweeper_rng_seed",
 	"minesweeper_round_floor", "minesweeper_rounds_left", "minesweeper_selected_difficulty",
@@ -4127,13 +3811,10 @@ const _SCENE_FROZEN := preload("res://scripts/narrative/FrozenRunContext.gd")
 const _PRESENTATION_ART := preload("res://scripts/data/ArtManifest.gd")
 var _scene_snapshot_references: Dictionary = {}
 
-# SaveManager owns the fresh in-memory run plan and its activation lease.
 var _scene_new_run_plan: Dictionary = {}
 var _scene_new_run_plan_owner: Object
 
 static func make_scene_new_run_gameplay() -> Dictionary:
-	# Canonical scene defaults share the reset values. The dormant board seed keeps
-	# its declared zero value; preparing/validating a candidate must not draw RNG.
 	var gameplay := {"coins": 0, "inventory": {}, "minesweeper_app_rounds_finished_today": 0,
 		"minesweeper_money_earned_today": 0, "minesweeper_rng_seed": 0, "minesweeper_round_floor": 0,
 		"minesweeper_rounds_left": 2, "minesweeper_selected_difficulty": "beginner",
@@ -4143,7 +3824,6 @@ static func make_scene_new_run_gameplay() -> Dictionary:
 		"shop_purchase_counts": {}, "stats": {"pressure": 3}, "story_flags": {}}
 	return gameplay
 
-## Art views read the same state that manual Save captures; they own no overlay state.
 func get_scene_presentation() -> Dictionary:
 	var state: Dictionary = _scene_snapshot_references.get("presentation", {})
 	if state.is_empty(): return {}
@@ -4200,8 +3880,6 @@ func apply_scene_new_run_silent(plan: Dictionary, creation_owner: Object) -> Dic
 			or not _SCENE_EVENT._equal(plan, _scene_new_run_plan) or not is_instance_valid(_mutation_gate) \
 			or not _mutation_gate.is_internal_owner_active(&"new_run"):
 		return _transaction_failure(&"scene_creation_plan_mismatch", "")
-	# Allocation has been committed before silent participant application. Lifecycle
-	# commit independently checks the actual allocated identity; no completion query.
 	var installed := _install_scene_snapshot_silent(_scene_new_run_plan.snapshot)
 	if installed.get("ok", false):
 		_scene_new_run_plan = {}
@@ -4211,7 +3889,6 @@ func apply_scene_new_run_silent(plan: Dictionary, creation_owner: Object) -> Dic
 func validate_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary) -> Dictionary:
 	return _prepare_scene_snapshot_semantics(snapshot, bundle)
 
-## Validate authoritative current progress without reconstructing past commands.
 func _prepare_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary,
 		_terminal_reading: Dictionary = {}) -> Dictionary:
 	var current := _NARRATIVE_VARIABLE_SCHEMA.validate_current_scene(snapshot.get("scene"), bundle)
@@ -4227,8 +3904,6 @@ func _validate_scene_passage_completion(snapshot: Dictionary, bundle: Dictionary
 		return {"ok": true}
 	if snapshot.scene.return_to != null:
 		return _transaction_failure(&"scene_passage_completion_mismatch", "")
-	# Historical completion survives current-content fallback. Current completion
-	# still requires the final passage caption; changing state alone is not proof.
 	var completed_registration: String = snapshot.lifecycle.get("completed_registration_sha256", "")
 	if not completed_registration.is_empty() and completed_registration != snapshot.scene.registration_sha256:
 		return {"ok": true}
@@ -4308,7 +3983,6 @@ func _scene_runtime_event_context() -> Dictionary:
 		"causal_day_instance": live.value.causal_day_instance,
 		"scene_occurrence": scene.active_occurrence_id, "entry_id": scene.entry_id,
 		"content_version": boundary.value.anchor.content_version}
-	# This sequence orders only commands issued in the current live session.
 	var ordinal := 0
 	var predecessor := ""
 	for receipt: Dictionary in _command_receipts.values():
@@ -4324,10 +3998,6 @@ func _scene_runtime_event_context() -> Dictionary:
 		"notification": scene.notification.duplicate(true), "anchor": boundary.value.anchor,
 		"checkpoint": boundary.value.checkpoint}}
 
-## Prepare only the Run owner's part of the held playable handoff. No issuer root,
-## save, native position, live receipt, physical attempt or Profile is changed.
-## The eventual control coordinator must pair snapshot_input with its validated
-## destination checkpoint, never commit it beside the source caption cursor.
 func _prepare_scene_playable_event(event: Dictionary, digest: String, lease: String) -> Dictionary:
 	if not is_instance_valid(_mutation_gate) or not _mutation_gate.is_lease_active(&"causal_transaction", lease):
 		return _transaction_failure(&"event_lease_lost", "")
@@ -4338,7 +4008,6 @@ func _prepare_scene_playable_event(event: Dictionary, digest: String, lease: Str
 		return _transaction_failure(&"scene_playable_event_required", "")
 	var shaped := _SCENE_EVENT._inspect_scene_shape(event)
 	if not shaped.ok: return shaped
-	# Callback arguments and returned material must not alias the caller or owners.
 	event = event.duplicate(true)
 	var prior := _command_receipts.duplicate(true)
 	var source_input := capture_run_snapshot_input()
@@ -4362,7 +4031,6 @@ func _prepare_scene_playable_event(event: Dictionary, digest: String, lease: Str
 	var inspected := _SCENE_EVENT.inspect_scene(event, bundle)
 	if not inspected.ok: return inspected
 	if inspected.value.digest != digest: return _transaction_failure(&"event_digest_mismatch", "")
-	# A current token and issued semantic command are required even for duplicates.
 	var retained := lookup_scene_event(event.command_id, digest)
 	if not retained.ok: return retained
 	var material := {}
@@ -4397,8 +4065,6 @@ func _prepare_scene_playable_event(event: Dictionary, digest: String, lease: Str
 			candidate.gameplay.route_context.erase("dating_active_attempt_ref")
 		material = {"source_context": current.duplicate(true), "source_input": source_input,
 			"snapshot_input": candidate, "receipt": made.value.duplicate(true), "result": result.duplicate(true)}
-	# Preparation is not a lock or saved authority. Reject changes made by any
-	# synchronous owner callback; the eventual commit must revalidate again.
 	var after := _scene_runtime_event_context()
 	if not after.get("ok", false) or not _SCENE_EVENT._equal(after.get("value"), current) \
 			or not _SCENE_EVENT._equal(_command_receipts, prior) \
@@ -4409,7 +4075,6 @@ func _prepare_scene_playable_event(event: Dictionary, digest: String, lease: Str
 	return {"ok": true, "duplicate": retained.found, "value": material}
 
 
-# Only populated while the command port owns its actual causal lease.
 var _scene_playable_operation: Dictionary = {}
 
 func _validate_scene_playable_source() -> Dictionary:
@@ -4436,8 +4101,6 @@ func _accept_scene_playable_event(event: Dictionary, digest: String, lease: Stri
 	_scene_playable_operation = {}
 	if not committed.get("ok", false):
 		return _scene_event_fatal(committed.get("code", &"event_commit_ack_invalid")) if committed.get("committed", false) else committed
-	# Native adoption has happened, but the receipt still belongs to GameState.
-	# No publication is emitted between the two adoptions.
 	if _scene_event_before_adoption.is_valid() and _scene_event_before_adoption.call() != true:
 		return _scene_event_fatal(&"event_adoption_interrupted")
 	var boundary: Dictionary = _scene_event_bridge.capture_scene_event_boundary()
@@ -4453,16 +4116,12 @@ func _accept_scene_playable_event(event: Dictionary, digest: String, lease: Stri
 	return {"ok": true, "duplicate": false, "value": material.result.duplicate(true)}
 
 
-## Physical completion releases only the authenticated playable control. End is
-## still a separate authored event. This creates no semantic receipt or effect.
 func continue_optional_scene_challenge() -> Dictionary:
 	var guarded: Dictionary = _mutation_gate.guard_external(&"scene_challenge_continuation")
 	if not guarded.get("ok", false): return guarded
 	if _scene_event_bridge.is_computer_caption_held(): return _transaction_failure(&"computer_caption_held", "")
 	var admitted := capture_scene_challenge_command()
 	if not admitted.ok: return admitted
-	# End owns its pending board flush and durable closure. Dispatch it directly
-	# so a saved closure can retry target admission without reopening a board.
 	var adjacent: Dictionary = _scene_event_bridge.capture_scene_pending_marker()
 	if adjacent.get("ok", false) and adjacent.value.kind == "challenge.end":
 		return _advance_scene_registered_marker(false)
@@ -4470,8 +4129,6 @@ func continue_optional_scene_challenge() -> Dictionary:
 	if not configured.ok: return configured
 	configured = _dating_restore_owner.configure_scene_challenges(admitted.value.bundle, self)
 	if not configured.ok: return configured
-	# Flush while the real physical owner can acquire its own causal lease. This
-	# keeps the selected Run state; absence never invokes Start or generation.
 	var prepared: Dictionary = _dating_restore_owner.prepare_scene_departure(admitted.value.command)
 	if not prepared.get("ok", false): return prepared
 	var acquired: Dictionary = _mutation_gate.acquire(&"causal_transaction")
@@ -4487,9 +4144,6 @@ func continue_completed_scene_challenge() -> Dictionary:
 	var record: Dictionary = capture_run_snapshot_input().gameplay.route_context.get("active_dating_challenge", {})
 	if record.get("phase") != "terminal" or record.get("state") not in ["won", "lost"]:
 		return _transaction_failure(&"scene_challenge_not_complete", "")
-	# A loaded terminal board may still reference the selected source branch.
-	# The common departure owner commits that exact prefix before either an
-	# adjacent End or a following caption can consume its physical result.
 	return continue_optional_scene_challenge()
 
 func _continue_completed_scene_challenge_owned(lease: String) -> Dictionary:
@@ -4616,8 +4270,6 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
 		var profile := get_node_or_null("/root/ProfileManager")
 		if profile == null or not profile.has_method("record_scene_passage_completion"):
 			return _transaction_failure(&"scene_passage_profile_unavailable", "")
-		# Discovery is global and idempotent. A failed Run write leaves the current
-		# caption available to retry; it never routes away or rewinds Profile.
 		var unlocked: Dictionary = profile.record_scene_passage_completion(result.passage_id,
 			"passage:" + str(candidate.lifecycle.run_id) + ":gallery:" + result.passage_id)
 		if not unlocked.get("ok", false): return unlocked
@@ -4650,8 +4302,6 @@ func configure_scene_challenge_runtime() -> Dictionary:
 	return _narrative_checkpoint_port.configure_scene_challenge_authority(self,
 		Callable(self, "_validate_scene_challenge_checkpoint"))
 
-## The story binding may consume an older frozen physical attempt. Never rename
-## that attempt's context, spec or Profile slot to match revised story content.
 static func scene_physical_consumed(record: Dictionary, outcomes: Dictionary) -> bool:
 	if record.is_empty(): return false
 	var slot: String = preload("res://scripts/profile/DatingAttemptLedger.gd").semantic_slot(record.context)
@@ -4660,8 +4310,6 @@ static func scene_physical_consumed(record: Dictionary, outcomes: Dictionary) ->
 				and result.challenge_id == record.context.challenge_id): return true
 	return false
 
-## Rewound reading can retain a board without granting playable custody. Only
-## this current story owner can authorize a save of that unchanged suspension.
 func scene_challenge_is_suspended(record: Dictionary, require_pause: bool = false) -> bool:
 	if record.is_empty() or route_context.get("active_dating_challenge", {}) != record \
 			or scene_physical_consumed(record, scene_challenge_outcomes): return false
@@ -4690,7 +4338,6 @@ func _current_scene_challenge_command(scene: Dictionary) -> Dictionary:
 	return {"ok": true, "value": {"completion_transaction_id": active.playable_command_id,
 		"command_sha256": _SCENE_EVENT._sha(context), "context": context}}
 
-## Command equality proves physical custody; current Scene owns narrative B.
 func capture_scene_challenge_binding(command: Dictionary) -> Dictionary:
 	var current := _current_scene_challenge_command(_scene_snapshot_references)
 	var detached := command.duplicate(true)
@@ -4769,8 +4416,6 @@ var _scene_end_operation: Dictionary = {}
 func advance_scene_registered_marker(retry_event: Dictionary = {}) -> Dictionary:
 	return _scene_content_result(_advance_scene_registered_marker(false, "", retry_event))
 
-## Choice intent receives a live presentation proof and optional registered choice ID.
-## Targets remain owner data; an omitted ID preserves the legacy Yes command.
 func accept_scene_thought(expected: Dictionary, choice_id: String = "") -> Dictionary:
 	if not is_instance_valid(_scene_event_bridge): return _transaction_failure(&"scene_thought_unavailable", "")
 	if expected.is_empty(): return _transaction_failure(&"presentation_frontier_changed", "")
@@ -4784,7 +4429,6 @@ func _scene_content_result(result: Dictionary) -> Dictionary:
 		if bootstrap != null: bootstrap.show_content_error(result)
 	return result
 
-## Saved outcomes/choices decide recovery traversal; this projection writes nothing.
 func capture_resolved_scene_marker() -> Dictionary:
 	var held: Dictionary = _scene_event_bridge.capture_scene_pending_marker()
 	if not held.get("ok", false): return held
@@ -4870,7 +4514,6 @@ func _advance_scene_registered_marker(accept_thought: bool, choice_id: String = 
 			return _transaction_failure(&"scene_thought_unavailable", "")
 	var current := _scene_runtime_event_context()
 	if not current.ok: return current
-	# Duplicate commands are remembered only within this live session.
 	for receipt: Dictionary in _command_receipts.values():
 		var saved: Dictionary = receipt.get("scene_event", {})
 		if saved.get("semantic", {}).get("event_id") == marker.value.marker_id \
@@ -4879,8 +4522,6 @@ func _advance_scene_registered_marker(accept_thought: bool, choice_id: String = 
 			return {"ok": true, "duplicate": true, "value": saved.result}
 	var event: Dictionary
 	if not retry_event.is_empty():
-		# Bridge already owns the failed caption-to-playable material. Retry its
-		# issued command instead of minting an identity that cannot match it.
 		if accept_thought or marker.value.kind != "challenge.playable" \
 				or retry_event.get("kind") != marker.value.kind or retry_event.get("event_id") != marker.value.marker_id \
 				or not _SCENE_EVENT._equal(retry_event.get("payload"), marker.value.payload) \
@@ -4888,7 +4529,6 @@ func _advance_scene_registered_marker(accept_thought: bool, choice_id: String = 
 			return _transaction_failure(&"scene_playable_retry_mismatch", "")
 		event = retry_event.duplicate(true)
 	else:
-		# Live commands persist their provenance only when the owning Run is saved.
 		var issued: Dictionary = _identity_issuer.issue_deferred(&"transaction_id")
 		if not issued.get("ok", false): return issued
 		event = {"schema_version": 2, "source": current.value.source.duplicate(true),
@@ -5036,8 +4676,6 @@ func configure_scene_checkpoint_source(save_owner: Object) -> Dictionary:
 	_scene_save_owner = save_owner
 	return {"ok": true}
 
-# Entry binding is available only while this owner holds the actual transition.
-# Neither a matching dictionary nor an authored label creates that authority.
 func scene_entry_staging_context(entry_id: String, frame: Dictionary) -> Dictionary:
 	if _scene_entry_operation.is_empty() or entry_id != _scene_entry_operation.entry_id \
 			or not _SCENE_EVENT._equal(frame, _scene_entry_operation.frame):
@@ -5083,7 +4721,6 @@ func apply_scene_presentation_commands(commands: Array) -> Dictionary:
 	_scene_presentation_checkpoint_pending = _scene_presentation_checkpoint_pending or applied.value.autosave
 	return {"ok": true}
 
-## The native command precedes its caption; save only after that frontier is admitted.
 func mark_scene_presentation_checkpoint_pending() -> void:
 	_scene_presentation_checkpoint_pending = true
 
@@ -5096,8 +4733,6 @@ func finish_scene_presentation_checkpoint() -> Dictionary:
 	if committed.ok: _scene_presentation_checkpoint_pending = false
 	return committed
 
-## Authored arrivals are resolved without touching playback. The committed scene
-## stores only this selection, while SFX remain transient forward encounters.
 func prepare_scene_audio_arrival(scene: Dictionary, bundle: Dictionary, label: String,
 		reset_default: bool = false) -> Dictionary:
 	var audio_owner := preload("res://scripts/data/AudioManifest.gd")
@@ -5134,8 +4769,6 @@ func prepare_scene_audio_arrival(scene: Dictionary, bundle: Dictionary, label: S
 	return {"ok": true, "value": {"context": context.value, "base_context": base_context, "music_plan_id": selected,
 		"cues": cues}}
 
-## The compiler has validated these instructions. Execute only a genuine forward
-## encounter; restoration installs its saved selection through the audio participant.
 func apply_scene_audio_cues(cues: Array, suppress_sfx: bool = false) -> Dictionary:
 	if cues.is_empty(): return {"ok": true}
 	var audio := get_node_or_null("/root/AudioManager")
@@ -5161,7 +4794,6 @@ func apply_scene_audio_cues(cues: Array, suppress_sfx: bool = false) -> Dictiona
 func capture_scene_entry_audio(binding: Dictionary) -> Dictionary:
 	var checked := validate_scene_entry_staging_source(binding)
 	if not checked.ok: return checked
-	# Older registrations retain the existing live-audio provider unchanged.
 	var context: Variant = _scene_entry_operation.get("audio_context")
 	return {"ok": true, "value": context.duplicate(true) if context is Dictionary else null}
 
@@ -5202,8 +4834,6 @@ func admit_scene_target(target_id: String, trigger_command_id: String) -> Dictio
 	if not released.get("ok", false): return released
 	return result
 
-## Invoked after the finish write, or after a completed scene Load activates.
-## A pre-finish caption Load remains PLAYING and cannot take this route.
 func return_completed_scene_passage() -> void:
 	var lifecycle: Dictionary = _run_lifecycle.to_dict()
 	if lifecycle.get("state") != "COMPLETED" or lifecycle.has("ending_plan") or not _live_session_active: return
@@ -5298,8 +4928,6 @@ func _prepare_scene_day_renewal(trigger: Dictionary, target_id: String, registra
 		"source_resolution_receipt": {"receipt_id": derived.value.child_id, "provenance": derived.value.provenance}}
 	var prepared: Dictionary = _scene_day_allocator.prepare_advance(request)
 	if not prepared.get("ok", false): return prepared
-	# Issuer allocation is durable provenance only. No live allowance, board or
-	# lifecycle changes until the complete target checkpoint is committed.
 	var allocated: Dictionary = _scene_day_allocator.commit_advance(prepared.value.day_advance_identity_candidate)
 	if not allocated.get("ok", false): return allocated
 	var receipt: Dictionary = allocated.value.day_advance_identity_receipt
@@ -5310,8 +4938,6 @@ func _prepare_scene_day_renewal(trigger: Dictionary, target_id: String, registra
 	lifecycle.causal_day_instance = next_identity.causal_day_instance
 	lifecycle.causal_day_instance_issuer_receipt = next_identity.causal_day_instance_issuer_receipt.duplicate(true)
 	var desktop: Dictionary = before.desktop.duplicate(true)
-	# Discard the ordinary board without calling completion or granting rewards.
-	# Keep revision monotonicity for stale commands.
 	desktop.board.phase = "NONE"
 	desktop.board.settled_inspection = false
 	desktop.board.round_paid = false
@@ -5514,8 +5140,6 @@ func _validate_scene_physical_record(snapshot: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
-# Scene correspondence shares the canonical Contacts bag; the detached candidate
-# is published before live adoption and guarded across lower-owner callbacks.
 var _scene_contact_operation: Dictionary = {}
 
 func capture_scene_contact_context() -> Dictionary:
@@ -5523,7 +5147,6 @@ func capture_scene_contact_context() -> Dictionary:
 		return _transaction_failure(&"scene_contact_unavailable", "")
 	var identity := capture_desktop_identity_context()
 	if not identity.ok: return identity
-	# Contacts authenticate the causal issuer as well as the public identity.
 	identity.value = _run_lifecycle.get_desktop_identity_context()
 	var registration := _SCENE_MANIFEST.scene_contract_tables()
 	if not registration.ok: return registration
@@ -5543,7 +5166,6 @@ func resolve_scene_contact_facts(source_fact_ids: Array) -> Dictionary:
 func _prepare_scene_contact_read(friend_id: String, command_id: String, proof: Dictionary) -> Dictionary:
 	var context := capture_scene_contact_context()
 	if not context.ok: return context
-	# Exact-command retries use their original authenticated preimage context.
 	var prior: Dictionary = contacts.get("transaction_receipts", {}).get(command_id, {})
 	if not prior.is_empty():
 		if prior.get("context", {}).get("identity") != context.value.identity or prior.context.scene_occurrence != context.value.scene_occurrence:
@@ -5617,7 +5239,6 @@ func _validate_scene_contact_checkpoint(candidate: Dictionary, checkpoint: Dicti
 		and _SCENE_EVENT._equal(boundary.value.checkpoint, op.checkpoint)
 
 
-# Scene purchases checkpoint current effects before adopting live retry acknowledgements.
 var _scene_shop_catalog: Object
 var _scene_shop_consequence: Object
 var _scene_shop_operation: Dictionary = {}
@@ -5771,8 +5392,6 @@ func _validate_scene_shop_checkpoint(candidate: Dictionary, checkpoint: Dictiona
 		and _SCENE_EVENT._equal(boundary.value.checkpoint, op.checkpoint)
 
 
-# The existing board coordinator delegates only scene runs here. One Run9
-# checkpoint settles the visible terminal board, rewards and Supportz facts.
 var _scene_round_board: Object
 var _scene_round_reward: Object
 var _scene_round_operation: Dictionary = {}

@@ -1,6 +1,5 @@
 class_name StatValue
 extends Resource
-# Stub skeleton. See prompt_docs/requirements/runtime_ownership.md.
 @export var id: String = ""
 @export var display_name: String = ""
 @export var localization_key: String = ""

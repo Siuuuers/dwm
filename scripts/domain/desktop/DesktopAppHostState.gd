@@ -1,18 +1,6 @@
 class_name DesktopAppHostState
 extends RefCounted
 
-## One visible cached desktop app + deterministic focus outputs (dwm-p2r.9, Plan 02 Task 1).
-## Pure runtime state: no scene composition, no filesystem, no persistence of day/cache/paths.
-## Phase 3 consumes this through the frozen seams; it never constructs or replaces the host.
-##
-## board_phase-driven command derivation (Plan 02 Task 2, dwm-p2r.32.1; controller-ruled additive
-## extension of the frozen dwm-p2r.9 delivery). open_app/go_home/change_day accept the
-## caller-supplied board_phase -- the frozen vocabulary NONE/PREPARING/PREPARED_UNSTARTED/
-## ACTIVE_VISIBLE/ACTIVE_SUSPENDED/SETTLING -- and derive an ordered `commands` list the caller
-## must apply to the board. The host never stores board_phase and never mutates board truth; it
-## only reacts to whatever phase the trusted state port supplies on each call. Every pre-existing
-## field/return shape here is unchanged; the new behavior is additive only (new methods, and new
-## trailing-defaulted parameters plus a new `value` member on open_app/change_day).
 
 const REGISTRY := preload("res://scripts/domain/desktop/DesktopAppRegistry.gd")
 
@@ -61,9 +49,6 @@ func open_app(app_id: StringName, current_day: int, board_phase: StringName = &"
 	}
 
 
-## Home always preserves the cache -- unlike change_day, nothing is evicted. A started board
-## (ACTIVE_VISIBLE) is suspended before the active app is hidden; any other phase, or no active
-## app, just hides whatever was showing (or emits no commands at all).
 func go_home(current_day: int, board_phase: StringName) -> Dictionary:
 	if _scene_mode: return {"ok": false, "code": &"scene_calendar_command_forbidden"}
 	_current_day = current_day
@@ -164,7 +149,6 @@ func prepare_restore(active_app_id: Variant, current_day: int) -> Dictionary:
 		"value": {"candidate_state": candidate_state, "instantiate_command": instantiate_command}, "receipt": {}}
 
 
-## Installs a prepared restore or a captured rollback snapshot. Preparation never edits the host.
 func commit_restore(candidate: Dictionary) -> Dictionary:
 	if candidate.size() == 2 and candidate.has("active_app_id") and candidate.has("cached_app_ids"):
 		return _commit_scene_restore(candidate)
@@ -182,7 +166,6 @@ func commit_restore(candidate: Dictionary) -> Dictionary:
 		if typeof(id) not in [TYPE_STRING, TYPE_STRING_NAME] or id == &"logout" or not REGISTRY.new().has_app(StringName(id)) or cached.has(StringName(id)):
 			return {"ok": false, "code": &"invalid_desktop_restore", "message": "invalid cached app"}
 		cached.append(StringName(id))
-	# Day zero is only the pristine host before Bootstrap initializes it.
 	if int(candidate["current_day"]) == 0 and (active != null or not cached.is_empty()):
 		return {"ok": false, "code": &"invalid_desktop_restore", "message": "uninitialized host cannot contain apps"}
 	_scene_mode = false
@@ -192,10 +175,6 @@ func commit_restore(candidate: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"state": get_state()}}
 
 
-## Reopening the already-active app neither hides nor suspends itself. Switching away from a
-## visible board suspends it before hiding minesweeper; opening minesweeper while its board is
-## suspended resumes it. open_app admits the six content apps regardless of board_phase.
-## Only minesweeper's own open/leave ever touches the board.
 func _open_app_commands(previous_app_id: StringName, app_id: StringName, board_phase: StringName) -> Array[Dictionary]:
 	var commands: Array[Dictionary] = []
 	if previous_app_id != &"" and previous_app_id != app_id:
@@ -208,9 +187,6 @@ func _open_app_commands(previous_app_id: StringName, app_id: StringName, board_p
 	return commands
 
 
-## PREPARING/PREPARED_UNSTARTED candidates are discarded without cost (amendment SS6.7); a
-## started board (ACTIVE_VISIBLE/ACTIVE_SUSPENDED) is forfeited with its paid costs retained.
-## NONE and SETTLING have no live candidate or board to react to.
 func _change_day_commands(board_phase: StringName) -> Array[Dictionary]:
 	if board_phase in [&"UNPAID_UNSTARTED", _PREPARING, _PREPARED_UNSTARTED]:
 		return [{"kind": "discard_candidate"}]
@@ -220,7 +196,6 @@ func _change_day_commands(board_phase: StringName) -> Array[Dictionary]:
 
 
 
-## Scene cache state has no calendar or fabricated compatibility day.
 func prepare_scene_restore(active_app_id: Variant) -> Dictionary:
 	if active_app_id != null and (typeof(active_app_id) not in [TYPE_STRING, TYPE_STRING_NAME] or active_app_id in ["logout", "schedule"] or not REGISTRY.new().has_app(StringName(active_app_id))):
 		return {"ok": false, "code": &"invalid_scene_active_app"}
@@ -248,7 +223,6 @@ func _commit_scene_restore(candidate: Dictionary) -> Dictionary:
 	_cached_app_ids = cached
 	return {"ok": true, "value": {"state": get_state()}}
 
-## Explicit scene navigation reuses the app registry and board command ordering.
 func open_scene_app(app_id: StringName, board_phase: StringName = &"NONE") -> Dictionary:
 	if not _scene_mode: return {"ok": false, "code": &"scene_desktop_not_installed"}
 	var admitted := prepare_scene_restore(app_id)

@@ -91,10 +91,6 @@ var _delivery_has_message := false
 var _delivery_stage: StringName = &""
 var _delivery_elapsed := 0.0
 
-## Bootstrap calls this only after the real host's scene restore admission.
-## phase_reader() -> StringName; dispatch(command: Dictionary) -> Dictionary;
-## prepare(app_id: StringName, app: Control) -> Dictionary configures scene-only ports.
-## No day argument crosses this boundary. App preparation must be silent on refusal.
 func configure_scene_navigation(host: Object, phase_reader: Callable,
 		command_dispatch: Callable, app_prepare: Callable,
 		localization: Object = null, profile: Object = null) -> Dictionary:
@@ -164,7 +160,6 @@ func _scene_navigate(app_id: StringName, home: bool = false) -> Dictionary:
 	for command: Dictionary in result.value.commands:
 		var applied: Variant = _scene_command_dispatch.call(command.duplicate(true))
 		if typeof(applied) != TYPE_DICTIONARY or not applied.get("ok", false):
-			# Host already committed. Do not roll back or retry effects through UI.
 			_scene_navigation_failed = true
 			_mask_run_configuration(&"scene_navigation_dispatch_failed")
 			return {"ok": false, "code": &"scene_navigation_dispatch_failed"}
@@ -235,8 +230,6 @@ func _ready() -> void:
 	if _bootstrap != null:
 		if not _bootstrap.application_ready.is_connected(_configure_from_bootstrap):
 			_bootstrap.application_ready.connect(_configure_from_bootstrap)
-		# The production method masks an early mount; isolated overrides retain
-		# their explicit fixture configuration without opting into global owners.
 		_configure_from_bootstrap()
 	var saves := get_node_or_null("/root/SaveManager")
 	if saves != null and saves.has_signal("live_session_ready") \
@@ -297,7 +290,6 @@ func _build_shell() -> void:
 	touch_navigation = TOUCH_NAVIGATION.new()
 	touch_navigation.name = "TouchNavigation"
 	touch_navigation.configure(_touch_focus_scope, _touch_input_admitted)
-	# Only these inert navigation buttons remain pointer-reachable over a modal.
 	touch_navigation.mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_ENABLED
 	strip.add_child(touch_navigation)
 	strip.add_child(clock_label)
@@ -353,8 +345,6 @@ func _update_launcher_navigation() -> void:
 
 func _layout_desktop() -> void:
 	if not is_node_ready() or size.x <= 0: return
-	# One canvas keeps artwork, text, controls, overlays and hit targets in the
-	# same coordinate system. Fixed-height apps scroll instead of being clipped.
 	var factor := size.x / (968.0 if _scene_navigation else 800.0)
 	desktop_canvas.scale = Vector2.ONE * factor
 	desktop_canvas.size = size / factor
@@ -392,7 +382,6 @@ func _refresh_strip_layout() -> void:
 			has_app_controls = true
 			break
 	app_footer_slot.visible = has_app_controls
-	# The expanding title yields width before app controls, navigation, and time.
 	clock_label.show()
 
 func _touch_input_admitted() -> bool:
@@ -413,7 +402,6 @@ func _touch_focus_scope() -> Control:
 	if is_instance_valid(app):
 		match _active_id:
 			&"settings":
-				# Native popups and binding capture own a different input scope.
 				if not app.can_return_home(): return null
 			&"shop":
 				if is_instance_valid(app._supportz_confirmation): return app._supportz_confirmation
@@ -578,9 +566,6 @@ func _quick_production_admitted() -> bool:
 func _input(event: InputEvent) -> void:
 	if not is_instance_valid(_quick_commands): return
 	_quick_commands.observe_input(event)
-	# Focused app controls can consume keyboard packets during GUI dispatch.
-	# Only an admitted Quick command precedes them; capture and modal owners keep
-	# every denied packet through their existing can_return_home custody seam.
 	if _quick_commands._admitted() and _quick_commands.handle_input(event):
 		get_viewport().set_input_as_handled()
 
@@ -599,9 +584,6 @@ func quick_status_safe_rect() -> Rect2:
 	return Rect2()
 
 func _quick_status_band_height() -> float:
-	# Reserve geometry while the app is open, even when no status is visible.
-	# The board/transcript and transaction controls remain inside AppScroll;
-	# the existing app strip keeps its full height and input targets.
 	return 64.0 if is_instance_valid(_quick_commands) and _active_id in QUICK_STATUS_APPS else 0.0
 
 func present_confirmation(request: Dictionary, accept: Callable, cancel: Callable) -> Dictionary:
@@ -614,7 +596,6 @@ func present_confirmation(request: Dictionary, accept: Callable, cancel: Callabl
 		_confirmation = null
 		(accept if accepted else cancel).call())
 	desktop_canvas.add_child(_confirmation)
-	# The navigation bar handles its own pointer contacts before modal input.
 	desktop_canvas.move_child($DesktopCanvas/AppStrip, desktop_canvas.get_child_count() - 1)
 	return {"ok": true, "value": {"confirmation": _confirmation}}
 
@@ -646,7 +627,6 @@ func _present_logout_confirmation(retry: bool = false, forward_only: bool = fals
 func _confirm_logout() -> void:
 	var result: Dictionary = _session_exit.return_to_title()
 	if not result.get("ok", false):
-		# A retired session can only retry its existing forward exit operation.
 		_present_logout_confirmation(true, result.get("code") == &"exit_route_retry_required")
 
 func _cancel_logout() -> void:
@@ -754,8 +734,6 @@ func open_app(app_id: StringName) -> Dictionary:
 	app.show_window()
 	return {"ok": true, "value": {"app": app}}
 
-## Validate and park the active app before Bootstrap releases reading custody.
-## The visible window/host state remains unchanged until return_home succeeds.
 func prepare_scene_close() -> Dictionary:
 	if not _scene_navigation or _scene_navigation_failed or _run_configuration_masked:
 		return {"ok": false, "code": &"desktop_home_rejected"}
@@ -773,8 +751,6 @@ func return_home() -> Dictionary:
 	if _scene_navigation_failed or (_scene_navigation and _run_configuration_masked): return {"ok": false, "code": &"desktop_home_rejected"}
 	if is_instance_valid(_confirmation): return {"ok": false, "code": &"desktop_modal_active"}
 	if _active_id == &"":
-		# Restored sheets may not have a cached app window yet. An explicit Home
-		# request still belongs to the canonical desktop owner.
 		if _scene_navigation and _scene_external_action.is_valid() \
 				and _host_state.get_state().get("active_app_id") in [&"settings", &"backup"]:
 			return _scene_navigate(&"", true)
@@ -864,8 +840,6 @@ func _configure_from_bootstrap() -> void:
 		status_label.hide()
 		_refresh_launcher()
 	if _scene_navigation:
-		# Scene composition supplies its retained app ports before mounting.
-		# Never bind the legacy calendar desktop or backup shortcuts over them.
 		if reveal_after_configuration and not _run_configuration_masked:
 			show()
 			_focus_initial_launcher.call_deferred()
@@ -884,8 +858,6 @@ func _configure_from_bootstrap() -> void:
 		configure_quick_commands(_backup_port, get_node_or_null("/root/InputManager"))
 	if reveal_after_configuration and not _run_configuration_masked:
 		show()
-		# The first deferred request may have run while readiness kept us hidden.
-		# The helper leaves restored app focus in its owning view.
 		_focus_initial_launcher.call_deferred()
 
 func _refresh_launcher(refresh_contacts: bool = true) -> void:
@@ -972,7 +944,6 @@ func _on_contact_message_unlocked(result: Dictionary) -> void:
 	if _delivery_pending:
 		generation = _delivery_generation
 		_delivery_has_message = true
-		# A durable retry may publish after its earlier error cleared the spinner.
 		if _delivery_stage == &"": _show_delivery_notice(&"delivering")
 	_message_notification_queue.append({"notification_id": notification_id, "friend_id": friend_id,
 		"delivery_generation": generation})
@@ -1002,7 +973,6 @@ func _on_minesweeper_delivery_presented(app: Control) -> void:
 		_show_delivery_notice(&"delivering")
 	elif _delivery_pending:
 		_delivery_pending = false
-		# Some rounds have no eligible friend notice. Never invent a delivery.
 		if not _delivery_has_message: _reset_delivery_notice()
 
 
@@ -1032,7 +1002,6 @@ func _refresh_delivery_caption() -> void:
 		delivery_caption.text = {"zh-CN": "发送中", "zh-HK": "傳送中", "ja": "お届け中", "ko": "전달 중"}.get(_locale, "delivering") + ".".repeat(1 + int(_delivery_elapsed / 0.4) % 3)
 
 func _on_delivery_failed(_code: StringName) -> void:
-	# Keep the pending generation so the existing Retry path can finish this delivery.
 	if _delivery_pending and _delivery_stage != &"delivered": _hide_delivery_notice()
 
 
@@ -1084,7 +1053,6 @@ func _on_preference_changed(path: StringName, _value: Variant) -> void:
 	if path in [&"preferences.accessibility.text_size", &"preferences.accessibility.large_targets"]:
 		_refresh_launcher()
 	elif path in [&"preferences.accessibility.high_contrast", &"preferences.accessibility.colour_differentiation", &"preferences.accessibility.font_style"]:
-		# Preserve the displayed unread fact; presentation does not invalidate correspondence.
 		_refresh_launcher(false)
 
 func _on_contacts_changed(_result: Dictionary) -> void:
@@ -1093,7 +1061,6 @@ func _on_contacts_changed(_result: Dictionary) -> void:
 	if is_instance_valid(app):
 		app.call_deferred("refresh_view")
 
-## One unread indicator is rebuilt from saved Contacts on mount and after accepted notifications.
 func _refresh_contact_notice() -> void:
 	if not is_node_ready() or _presentation_port == null: return
 	var view: Dictionary = _presentation_port.get_projection("", _locale)

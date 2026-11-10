@@ -1,6 +1,4 @@
 extends RefCounted
-## Pure import of the three legacy actions whose semantic identities survive.
-## ProfileSchema validates and retains the complete source document separately.
 const RULES := preload("res://scripts/settings/ControlsBindingRules.gd")
 const TRANSFER_ACTIONS := ["game_quick_save", "game_quick_load", "game_new_board"]
 
@@ -30,8 +28,6 @@ static func prepare(legacy: Dictionary) -> Dictionary:
 			var probe := RULES.defaults()
 			probe[action][slot] = record.duplicate(true)
 			var supported := RULES.validate(probe)
-			# A transferred binding may collide with a default that another imported
-			# record replaces. Judge collisions only on the complete candidate.
 			if not supported.ok and supported.code != &"binding_conflict":
 				issues.append(supported.duplicate(true))
 				continue

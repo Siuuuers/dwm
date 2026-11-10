@@ -1,7 +1,5 @@
 extends AppWindowBase
 class_name ShopApp
-## Public Shop presentation. The host supplies a fresh catalog snapshot and owns purchases through
-## the configured semantic provider; this node never reads or writes gameplay state directly.
 
 signal recovery_requested(code: String)
 
@@ -180,8 +178,6 @@ func _on_preference_changed(path: StringName, _value: Variant) -> void:
 	if str(path) in PREFERENCE_KEYS: refresh_view(false,true)
 
 func prepare_show_window() -> Dictionary:
-	# Validate the current public source before the desktop publishes its route.
-	# Hidden measurement may rebuild this app, but never shared Home custody.
 	if _provider == null: return {"ok":last_result.ok,"code":last_result.code}
 	return refresh_view(false,true,true)
 
@@ -193,8 +189,6 @@ func refresh_view(on_open: bool = false, _presentation_only: bool = false, prepa
 	if not preferences.ok: return preferences
 	if _refreshing or (is_node_ready() and not prepare_hidden and (not _has_host_custody() or (not on_open and _other_control_has_focus()))):
 		return {"ok":true,"code":"deferred"}
-	# Colour-only changes use the retained projection. Catalog refresh on show or after
-	# a purchase still reaches the owner, even when ordinary rows would look identical.
 	if _presentation_only and not on_open and not prepare_hidden and not _source_pending \
 		and last_result.ok and preferences.value.slice(0, 3) == [_locale,_percent,_large_targets] and preferences.value[5] == _font_style:
 		var unchanged: bool = preferences.value.slice(3, 5) == [_high_contrast,_colour_preset]
@@ -226,7 +220,6 @@ func refresh_view(on_open: bool = false, _presentation_only: bool = false, prepa
 		_colour_preset = preferences.value[4]
 		_roles = SHOP_THEME._resolve_context(_palette, _day, _high_contrast, _colour_preset, _scene_presentation)
 		if is_node_ready() and colours_changed: _apply_colours()
-		# Eligibility changes after rounds/day transitions even when all ordinary rows are identical.
 		if is_node_ready():
 			_refresh_supportz()
 			_wire_focus()
@@ -339,7 +332,6 @@ func configure_scene_shop(items: Array, locale: String = "en", percent: int = 10
 func _configure_shop_context(items: Array, locale: String = "en", percent: int = 100, large_targets: bool = false, palette: StringName = &"after_hours", day: Variant = 1, high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", scene: bool = false) -> Dictionary:
 	if _scene_presentation and not scene: return {"ok": false, "code": &"scene_calendar_configuration_forbidden"}
 	if is_node_ready() and not _view_is_current(): return {"ok":false,"code":"shop_view_detached"}
-	# Refuse an unknown presentation before disturbing a valid mounted snapshot.
 	var candidate_roles: Dictionary = SHOP_THEME._resolve_context(palette, day, high_contrast, colour_preset, scene)
 	if candidate_roles.is_empty():
 		return {"ok": false, "code": "invalid_shop_palette"}
@@ -352,7 +344,6 @@ func _configure_shop_context(items: Array, locale: String = "en", percent: int =
 		var focused := get_viewport().gui_get_focus_owner()
 		_focus_after_layout = focused != null and is_ancestor_of(focused)
 	_cancel_contacts()
-	# A new owner snapshot cannot retain a quantity against an expired maximum.
 	quantity = 1
 	_item_quantities.clear()
 	_locale = locale.replace("-", "_")
@@ -366,7 +357,6 @@ func _configure_shop_context(items: Array, locale: String = "en", percent: int =
 	_colour_preset = colour_preset
 	_font_style = font_style
 	_roles = candidate_roles
-	# No hidden action is admitted before its real purchase owner is bound.
 	last_result = projected
 	_records = last_result.get("value", [])
 	if is_node_ready(): _rebuild_catalog()
@@ -437,7 +427,6 @@ func _ready() -> void:
 	info_scroll.focus_entered.connect(_information_overlay.queue_redraw)
 	info_scroll.focus_exited.connect(_information_overlay.queue_redraw)
 	_meta_state = _label(_body, Vector2(_inspector_x + 152, 400), Vector2(136, 48))
-	# Pinned facts stay on one line; their exact bounds are checked before use.
 	_meta_state.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_meta_state.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_quantity_label = _label(_body, Vector2(_inspector_x + 128, 456), Vector2(48, 48), false)
@@ -530,7 +519,6 @@ func _measure_catalog(revision: int) -> void:
 		card.size.x = _card_width
 		card.refresh_layout()
 		card_height = maxf(card_height, card.custom_minimum_size.y)
-	# All nine structural slots remain on one page, including secret Supportz.
 	page_capacity = 9
 	page_count = 1
 	page_index = 0
@@ -548,7 +536,6 @@ func _measure_catalog(revision: int) -> void:
 func _show_page(focus_selection: bool = true) -> void:
 	_cancel_contacts()
 	_total_label.show()
-	# Retain the former controls as inert compatibility objects; no paging UI.
 	for control in [previous_button, next_button, page_label]: control.hide()
 	for button: Button in [previous_button, next_button]:
 		button.disabled = true
@@ -586,7 +573,6 @@ func _show_page(focus_selection: bool = true) -> void:
 	if focus_selection: _focus_selected.call_deferred()
 
 func _inspect_item(item_id: String) -> void:
-	# Hover/focus must not retarget an action whose press is already in progress.
 	if not can_return_home(): return
 	_select_item(item_id)
 
@@ -616,7 +602,6 @@ func _render_selection() -> void:
 	_name_label.text = record.name
 	_description_label.text = record.get("description", "")
 	_meta_state.text = _t("available" if record.available else "sold_out")
-	# Availability has its own pinned row; unit price remains on the card and total.
 	var meta_height := maxi(48, 2 * ceili(_meta_state.get_minimum_size().y / 2.0))
 	_meta_state.position.x = _inspector_x + 16
 	_meta_state.size = Vector2(272, meta_height)
@@ -656,7 +641,6 @@ func _render_selection() -> void:
 		if _buy_button.disabled: status_label.text = _t("unavailable")
 	elif record.available:
 		status_label.text = _t("unavailable")
-	# An unavailable action gives its entire row to the explanation.
 	_buy_button.visible = has_purchase and not _buy_button.disabled
 	_measure_information.call_deferred()
 	_verify_dock_fit.call_deferred()
@@ -666,7 +650,6 @@ func _render_selection() -> void:
 func _verify_dock_fit() -> void:
 	if not _view_is_current(): return
 	if _catalog_layout_pending or not last_result.ok: return
-	# Do not truncate exact amounts or invent a lower owner maximum to fit a key.
 	for label: Label in [_quantity_label, _total_label, _meta_state, _balance_label, status_label]:
 		if not label.visible: continue
 		var measure := label.get_theme_font("font").get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, label.get_theme_font_size("font_size"))
@@ -793,8 +776,6 @@ func _purchase_supportz() -> void:
 func _attempt_supportz_purchase() -> Dictionary:
 	if not _view_is_current() or not is_visible_in_tree():
 		return {"ok": false, "code": &"shop_view_detached"}
-	# The owner revalidates on Yes and can resume its retained transaction after a save failure.
-	# A fresh can_purchase query would reject that retry while its mutation lease is retained.
 	var result: Variant = _provider.call(&"purchase", "supportz", 1)
 	var outcome: Dictionary = result.duplicate(true) if result is Dictionary \
 		else {"ok": false, "code": &"shop_purchase_result_malformed"}

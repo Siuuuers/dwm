@@ -1,9 +1,5 @@
 extends Node
 
-## SaveManager — isolated, atomic save-document and checkpoint persistence
-## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 6).
-## Owns slot/quick/autosave I/O through one injected StorageAdapter and the
-## in-memory CheckpointJournal. Never interprets gameplay rules.
 
 signal save_completed(result: Dictionary)
 signal load_completed(result: Dictionary)
@@ -24,13 +20,6 @@ const SAVE_MIGRATIONS := preload("res://scripts/infrastructure/save/SaveMigratio
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const PROJECTOR := preload("res://scripts/application/transaction/FatalDiagnosticProjector.gd")
-## Plan 02 Task 6 (dwm-p2r.32), Phase C2: the external New-Run/restore continuation journal (Task 1,
-## dwm-p2r.16) -- distinct from `_journal` (CheckpointJournal) below, which is SaveManager's OWN
-## in-memory per-run bundle history. `_continuation_journal` durably records the intent/allocation/
-## participant-apply state machine that survives a process crash; `DesktopIdentityAllocationRestore
-## Participant` cannot drive its `advance()` calls itself (its frozen `prepare()` input carries no
-## `request_fingerprint` -- only whoever calls `prepare_intent()`/`commit_intent()` ever sees one), so
-## SaveManager is the one place all journal advancement happens, for both new_run and restore.
 const CONTINUATION_JOURNAL := preload("res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd")
 
 const _GATE_CONTRACT_METHODS: Array[String] = [
@@ -42,14 +31,6 @@ const _CHECKPOINT_INPUT_KEYS: Array[String] = [
 	"active_app_id", "audio_context", "content_version", "dialogic_checkpoint",
 	"route_id", "snapshot_input",
 ]
-## IMPORTANT 5 (brief line 209: "input containing any issuer/allocation/remap field rejects before
-## durable allocation"). The exact allow-list `commit_prepared_restore()` accepts: the 9 keys
-## `_prepare_bundle_with_all_participants()` puts into a genuine `prepare_restore_slot|quick|
-## autosave()` result, which is a superset of the 3-key hand-built shape the pure fake-participant
-## orchestration tests use (`participant_plans`, `checkpoint_id`, `route_id`). A stray issuer/
-## allocation/remap-shaped key (e.g. `identity_allocation_bundle`, `transaction_issuer_receipt`,
-## `transaction_remap`) is never legitimate top-level input here -- those are produced INSIDE
-## `_begin_restore_continuation()`, never accepted from a caller.
 const _PREPARED_RESTORE_ALLOWED_KEYS: Array[String] = [
 	"bundle", "journal_seed", "participant_plans", "route_id", "checkpoint_id",
 	"source_locator", "existing_run_id", "source_desktop_timeline_generation",
@@ -69,7 +50,6 @@ var _scene_title_new_run_context: Dictionary = {}
 var _new_run_busy := false
 var _new_run_slice_started_us := 0
 var _new_run_gate_token := ""
-# Process-local tickets survive same-operation retries; never saved in player data.
 var _session_activation_tickets: Dictionary = {}
 var _scene_restore_preparations: Dictionary = {}
 var _scene_restore_preparation_counter := 0
@@ -92,15 +72,11 @@ var _backup_capture_provider: Callable
 var _backup_capture_available: Callable
 var _paused_desktop_admission: Callable
 var _backup_capture_configured := false
-## Bytes-only parser reuse. Schema/content admission and all storage custody checks
-## still run on every call. Keep no more than two documents or 8 MiB of source UTF-8.
 const _PARSE_CACHE_MAX_ENTRIES := 2
 const _PARSE_CACHE_MAX_TEXT_BYTES := 8 * 1024 * 1024
 var _document_parse_cache: Array[Dictionary] = []
 var _document_parse_cache_text_bytes := 0
 
-## Bootstrap owns the live desktop source. Fixtures without this provider retain
-## their explicit latest-stable contract; production never silently falls back.
 func configure_backup_capture_provider(provider: Callable, paused_desktop_admission: Callable = Callable(),
 		available: Callable = Callable()) -> Dictionary:
 	if not provider.is_valid() or provider.get_argument_count() != 0 or provider.get_object_id() == 0:
@@ -130,10 +106,6 @@ func initialize(storage: StorageAdapter = null) -> Dictionary:
 			str(journal_ready.get("message", "")))
 	return {"ok": true, "code": &"ok", "value": {"root": storage.describe_root()}}
 
-## Plan 02 Task 6 (dwm-p2r.32): the desktop identity issuer `start_new_run()` allocates a real
-## branch/generation/causal-day identity through, rather than inventing or accepting one from the
-## caller. Mirrors GameState's own `configure_identity_issuer` DI pattern; SaveManager needs its own
-## reference because it -- not GameState -- owns the New-Run transaction boundary.
 func configure_identity_issuer(identity_issuer: Object) -> Dictionary:
 	if identity_issuer == null:
 		return _fail(&"invalid_identity_issuer", "identity issuer is required")
@@ -210,7 +182,6 @@ func quick_save_latest() -> Dictionary:
 func autosave_latest() -> Dictionary:
 	return _write_latest(_resolve_locator(&"autosave", -1), "automatic")
 
-## Only the confirmed session-exit owner may write under abandonment custody.
 func save_session_exit_checkpoint(inputs: Dictionary, handle: Dictionary) -> Dictionary:
 	if _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"session_abandonment"):
 		return _fail(&"session_abandonment_required", "")
@@ -262,9 +233,6 @@ func _commit_prepared_scene_restore(prepared: Dictionary) -> Dictionary:
 		{"kind": "memory_restore", "transaction_id": operation_id}, "", false)
 
 
-## PREPARE_INTENT is the durable decision. Before it, preparation is detached;
-## after it, errors retain custody and retries finish the same frozen pair forward.
-## Explicit scene creation dependency. This configures validation, not a production target.
 func configure_scene_new_run(bridge: Object) -> Dictionary:
 	if not is_instance_valid(bridge) or bridge.get_script() != load("res://autoload/DialogicBridge.gd") or _identity_issuer == null:
 		return _fail(&"scene_new_run_not_configured", "actual Bridge and issuer required")
@@ -278,8 +246,6 @@ func configure_scene_new_run(bridge: Object) -> Dictionary:
 	_scene_new_run_bundle = selected.bundle
 	return {"ok": true}
 
-## Application configuration selects the installed opening once. The title uses its existing
-## prepare/confirm/commit capability; no UI token grants direct scene admission.
 func configure_scene_title_new_run(target_id: String) -> Dictionary:
 	if not is_instance_valid(_scene_new_run_bridge) or _scene_new_run_bundle.is_empty():
 		return _fail(&"scene_new_run_not_configured", "")
@@ -297,8 +263,6 @@ func configure_scene_title_new_run(target_id: String) -> Dictionary:
 			return {"ok": true}
 	return _fail(&"scene_initial_target_invalid", target_id)
 
-## The caller selects only an installed target and presentation context. All identity,
-## assignment and reading materials are produced and retained by their existing owners.
 func start_scene_new_run(target_id: String, initial_context: Dictionary, _rng_nonce: Variant = null) -> Dictionary:
 	if _new_run_busy or not _scene_restore_activation.is_empty(): return _fail(&"new_run_busy", "")
 	var ready := _new_run_ready(true)
@@ -312,8 +276,6 @@ func start_scene_new_run(target_id: String, initial_context: Dictionary, _rng_no
 		_release_new_run_custody()
 	return _content_result(result)
 
-## A new run has no durable creation transaction. Keep only the allocated identities
-## that later board/day/save operations use, and pass fresh state straight to activation.
 func _start_scene_new_run_in_memory(target_id: String, initial_context: Dictionary) -> Dictionary:
 	var target := {}
 	for row: Dictionary in _scene_new_run_bundle.targets:
@@ -358,8 +320,6 @@ func _prepare_scene_new_run_plans(snapshot: Dictionary, allocation: Dictionary, 
 		profile_material, _scene_new_run_bundle, _identity_issuer, self)
 	if not narrative.get("ok", false): return narrative
 	var plans := {"run": run.value.run_plan, "profile": profile.value.profile_plan, "narrative": narrative.value.narrative_plan}
-	# Creation installs the authored base first; entry cues execute at actual
-	# native activation. The snapshot already records their final selection.
 	var audio_snapshot := snapshot.duplicate()
 	if _scene_new_run_bundle.get("audio_catalogue", {}).get("schema_version") == 3:
 		audio_snapshot.scene = snapshot.scene.duplicate()
@@ -457,8 +417,6 @@ func _new_run_failure(failure: Dictionary) -> Dictionary:
 	return {"ok": false, "code": &"NEW_RUN_RECOVERY_PENDING", "recovery_required": true,
 		"transaction_id": _new_run_transaction_id, "details": {"cause": failure.duplicate(true)}}
 
-## Journal loading can reconcile durable artifacts, so it needs admission even
-## before the actual New Run lease is acquired. All these operations are synchronous.
 func _admit_new_run_journal_io() -> Dictionary:
 	if _new_run_gate_token.is_empty():
 		return _mutation_gate.guard_external(&"new_run_journal")
@@ -466,15 +424,10 @@ func _admit_new_run_journal_io() -> Dictionary:
 		return _mutation_gate.guard_external(&"new_run_journal")
 	if not _mutation_gate.is_internal_owner_active(&"new_run"):
 		return _fail(&"new_run_recovery_conflict", "retained custody is no longer active")
-	# A prepared UI commit holds the New Run lease before it checks durable
-	# incompletes, but has deliberately not issued its transaction identity yet.
 	if _new_run_transaction_id.is_empty() and _prepared_new_run.is_empty():
 		return _fail(&"new_run_recovery_conflict", "retained custody has no operation")
 	return {"ok": true}
 
-## Freezes the exact replaceable sources for the title consent sheet. This is a
-## read-only operation: it neither loads the continuation journal nor allocates
-## identity, reconciles storage, or changes live run state.
 func prepare_new_run_action(initial_context: Dictionary) -> Dictionary:
 	if _new_run_busy or not _scene_restore_activation.is_empty(): return _fail(&"new_run_busy", "")
 	if not _scene_title_new_run_target.is_empty():
@@ -520,7 +473,6 @@ func commit_prepared_new_run(token: String) -> Dictionary:
 	_new_run_busy = false
 	return result
 
-## UI-only cooperative path; the existing mutation lease remains held across frame yields.
 func commit_prepared_new_run_responsive(token: String) -> Dictionary:
 	if _new_run_busy: return _fail(&"new_run_busy", "")
 	if token.is_empty() or _prepared_new_run.is_empty() or token != str(_prepared_new_run.get("token", "")):
@@ -557,7 +509,6 @@ func retry_new_run(transaction_id: String) -> Dictionary:
 	_new_run_busy = false
 	return result
 
-## UI-only cooperative path; the existing mutation lease remains held across frame yields.
 func retry_new_run_responsive(transaction_id: String) -> Dictionary:
 	if _new_run_busy: return _fail(&"new_run_busy", "")
 	var ready := _new_run_ready(true)
@@ -590,7 +541,6 @@ func _retry_new_run(transaction_id: String, responsive: bool = false) -> Diction
 	if not acquired.get("ok", false): return acquired
 	return await _resume_new_run(found["value"], _new_run_gate_token, responsive)
 
-## Bootstrap invokes this before Profile.initialize: no live participant is touched.
 func reconcile_new_run_storage() -> Dictionary:
 	if _new_run_busy: return _fail(&"new_run_busy", "")
 	var ready := _new_run_ready(false)
@@ -672,8 +622,6 @@ func _settle_new_run_pair(operation: Dictionary, responsive: bool = false) -> Di
 	if not saved.get("ok", false): return saved
 	operation = saved["value"]
 	if responsive: await _render_new_run_frame()
-	# A fresh process may already have initialized Profile from the consumed target.
-	# Proof is independent of the former live revision; persistence still requires it.
 	var profile: Dictionary = _new_run_profile_owner.prove_new_run_consumption(materials["profile"])
 	if not profile.get("ok", false):
 		profile = _new_run_profile_owner.persist_new_run_consumption(materials["profile"])
@@ -698,7 +646,6 @@ func _persist_new_run_autosave(material: Dictionary, operation: Dictionary = {})
 		validator = _scene_new_run_text_validator.bind(operation.new_run_materials)
 	var inspected: Dictionary = _storage.inspect_revision("autosave.json")
 	if not inspected.get("ok", false) and inspected.get("code") == &"reconcile_required":
-		# Never reconcile another operation's pending file family.
 		var marker_read: Dictionary = _storage.inspect_revision("autosave.json.txn.json")
 		if not marker_read.get("ok", false) or not marker_read["value"].get("exists", false):
 			return _fail(&"new_run_autosave_foreign_pending", "")
@@ -724,8 +671,6 @@ func _persist_new_run_autosave(material: Dictionary, operation: Dictionary = {})
 	return _prove_new_run_autosave(material)
 
 
-## Opt-in observations only. Scopes are nested/inclusive; their elapsed times must not be summed.
-## Disabled calls read no clock, format no metadata and return the original result object unchanged.
 func _save_load_profile_begin(scope: String, action: String = "", locator: Variant = "") -> Dictionary:
 	if OS.get_environment("DWM_SAVE_LOAD_PROFILE") != "1":
 		return {}
@@ -782,8 +727,6 @@ func _release_transaction(owner: StringName, gate_token: String, holds_save_lock
 func _rollback_transaction(owner: StringName, applied: Array[String], backups: Dictionary, gate_token: String, holds_save_lock: bool, original_failure: Dictionary, journal_backup: Variant = null) -> Dictionary:
 	var attempts: Array = []
 	var all_recovered := true
-	# The checkpoint commits after participant apply, so compensate it first.
-	# Only post-commit failures supply this backup; earlier refusals leave it alone.
 	if typeof(journal_backup) == TYPE_DICTIONARY:
 		var journal_rolled: Dictionary = _journal.restore_state(journal_backup)
 		attempts.append({"owner_id": "checkpoint_journal", "operation": "restore_state", "result": journal_rolled})
@@ -798,16 +741,12 @@ func _rollback_transaction(owner: StringName, applied: Array[String], backups: D
 	if all_recovered:
 		_release_transaction(owner, gate_token, holds_save_lock)
 		return original_failure
-	# Compensation failure must not erase the refusal that started recovery.
 	attempts.append({"owner_id": String(owner), "operation": "original_failure", "result": original_failure})
 	return _fatal_transaction_recovery(String(owner), attempts)
 
 func _fatal_transaction_recovery(source: String, raw_diagnostics: Array) -> Dictionary:
 	if _mutation_gate == null:
 		return {"ok": false, "code": &"restore_rollback_failed", "message": "rollback failed with no gate"}
-	# Owner failures may omit optional message/details. Complete only those
-	# absent fields at this boundary; malformed supplied values stay visible to
-	# the strict projector. Never mutate the owner's retained result.
 	var diagnostics: Array = raw_diagnostics.duplicate(true)
 	for diagnostic: Dictionary in diagnostics:
 		var result: Variant = diagnostic.get("result")
@@ -885,7 +824,6 @@ func get_all_save_metadata() -> Array[Dictionary]:
 	records.append(get_save_metadata(&"autosave", -1))
 	return records
 
-## Read-only slot information. Listing does not prepare or certify restoration.
 func inspect_backup(locator_id: String) -> Dictionary:
 	return _inspect_backup(locator_id)
 
@@ -906,8 +844,6 @@ func get_backup_save_capability() -> Dictionary:
 			return {"enabled": false, "reason": str(captured.get("code", "backup_capture_unavailable"))}
 	return {"enabled": true, "reason": ""}
 
-## Quick commands share Backup tokens and the same current-build save contract.
-## Conditions are opaque, detached evidence; they are never display copy or save data.
 func get_backup_quick_capability(action: String) -> Dictionary:
 	if action not in ["save", "load"]:
 		return {"ok": false, "code": &"invalid_backup_action", "status_key": "unavailable", "condition": {}}
@@ -1004,7 +940,6 @@ func _inspect_backup(locator_id: String) -> Dictionary:
 	return _save_load_profile_finish(profile, _inspect_backup_profiled(locator_id, profile))
 
 
-## Player admission only. Pending transactions retain their own internal readers.
 static func _player_save_format_reason(document: Dictionary) -> String:
 	var version: Variant = document.get("schema_version")
 	if typeof(version) == TYPE_FLOAT and is_finite(version) and version == floorf(version):
@@ -1043,8 +978,6 @@ func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictio
 	if not parsed.get("ok", false):
 		record["reason"] = "unreadable"
 		return {"ok": true, "value": record}
-	# Current-build saves are the supported input. Read only presentation fields;
-	# Load owns participant preparation after the player chooses a slot.
 	var document: Dictionary = parsed["value"]
 	record["reason"] = _player_save_format_reason(document)
 	if not record["reason"].is_empty():
@@ -1064,7 +997,6 @@ func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictio
 	record["load_saved_time"] = record["saved_time"]
 	return {"ok": true, "value": record}
 
-## Detached candidates remain owner-private; tokens convey consent to exactly one candidate.
 func prepare_backup_action(action: String, locator_id: String) -> Dictionary:
 	var profile := _save_load_profile_begin("backup_prepare", action, locator_id)
 	return _save_load_profile_finish(profile, _prepare_backup_action_profiled(action, locator_id, profile))
@@ -1136,7 +1068,6 @@ func cancel_backup_action(token: String) -> void:
 
 func _release_backup_preparation(candidate: Dictionary) -> void:
 	var token: String = candidate.get("prepared_restore", {}).get("scene_preparation_token", "")
-	# Load preparation belongs only to this process and this selection.
 	if _scene_restore_preparations.has(token):
 		_scene_restore_preparations.erase(token)
 
@@ -1152,7 +1083,6 @@ func _commit_backup_action_profiled(token: String, profile: Dictionary) -> Dicti
 	if not _backup_actions.has(token):
 		return _fail(&"stale_backup_action", "")
 	var candidate: Dictionary = _backup_actions[token]
-	# Every result consumes consent; retries require a fresh prepare and confirmation.
 	_backup_actions.erase(token)
 	var guard := _backup_guard()
 	if not guard.get("ok", false):
@@ -1251,7 +1181,6 @@ func _capture_backup_inputs() -> Dictionary:
 		inputs["active_app_id"] = str(inputs["active_app_id"])
 	var desktop: bool = inputs["route_id"] == "main" and inputs["active_app_id"] == "backup"
 	if inputs["route_id"] == "main" and not desktop and _paused_desktop_admission.is_valid():
-		# The retained Pause owner rechecks this exact suspended source. Never relabel its app.
 		var paused_admission: Variant = _paused_desktop_admission.call(inputs.duplicate(true))
 		desktop = typeof(paused_admission) == TYPE_BOOL and paused_admission
 	var gameplay: Variant = inputs["snapshot_input"].get("gameplay")
@@ -1274,10 +1203,6 @@ func _capture_backup_inputs() -> Dictionary:
 			or inputs["snapshot_input"]["lifecycle"].get("state") != ("ENDING" if ending else "PLAYING"):
 		return _fail(&"backup_capture_unavailable", "A qualified desktop or admitted reading capture is required")
 	if not narrative.is_empty() and not inputs.snapshot_input.has("scene"):
-		# Scene capture already comes from the live reading owner. Preparation
-		# builds its complete Run9 candidate once; capability and freshness reads
-		# do not need to construct another snapshot or restore temporary ledgers.
-		# Keep the historical non-scene reading admission at this boundary.
 		var snapshot: Dictionary = inputs["snapshot_input"].duplicate(true)
 		snapshot["route_id"] = inputs["route_id"]
 		snapshot["narrative_checkpoint"] = narrative
@@ -1373,7 +1298,6 @@ func get_save_capability() -> Dictionary:
 	return {"enabled": true, "silent": false, "deferred": false}
 
 
-# ---- Deprecated wrappers (one issue only; delegate to the new facade) ----
 
 func save_slot(slot_id: int) -> Dictionary:
 	return save_latest_to_slot(slot_id)
@@ -1411,7 +1335,6 @@ func get_slot_metadata(slot_id: int) -> Dictionary:
 func get_all_slot_metadata() -> Array:
 	return get_all_save_metadata()
 
-# ---- Internals ----
 
 func _resolve_locator(kind: StringName, public_slot_id: int) -> Dictionary:
 	match kind:
@@ -1467,8 +1390,6 @@ func _write_latest(locator: Dictionary, save_reason: String, session_exit: bool 
 	var flushed := flush_profile_reading_history()
 	if not flushed.ok: return flushed
 	var relative_path := str(locator["relative_path"])
-	# The previous target is replaceable data, not a restoration prerequisite.
-	# Bind this write to its exact bytes so a competing write is still refused.
 	var inspected: Dictionary = _storage.inspect_revision(relative_path)
 	if not inspected.get("ok", false):
 		save_failed.emit(inspected)
@@ -1529,22 +1450,18 @@ func _prepare_restore_content(locator: Dictionary, expected_revision: String) ->
 	var read: Dictionary = _storage.inspect_revision(relative_path)
 	if not read.get("ok", false):
 		return read
-	# The selected bytes must match the metadata on which confirmation is based.
-	# This also binds preparation when another writer changes the slot between reads.
 	if not expected_revision.is_empty() and str(read["value"]["revision"]) != expected_revision:
 		return _fail(&"stale_backup_target", "")
 	var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]["text"]))
 	if not parsed.get("ok", false):
 		return _fail(&"corrupt_save_document", relative_path)
 
-	# Current game-produced saves need content-position resolution, not admission.
 	var migrated: Dictionary = SAVE_MIGRATIONS.load_current_document(parsed["value"])
 	if not migrated.get("ok", false):
 		return migrated
 	var document: Dictionary = migrated["value"]["document"]
 	return _prepare_restore_document(locator, document, migrated["value"])
 
-## Prepare the selected Load for the existing restore transaction.
 func _prepare_restore_document(locator: Dictionary, document: Dictionary, migration_output: Dictionary) -> Dictionary:
 	var profile := _save_load_profile_begin("restore_prepare", "", locator)
 	return _save_load_profile_finish(profile, _prepare_restore_document_profiled(document, profile))
@@ -1554,7 +1471,6 @@ func _prepare_restore_document_profiled(document: Dictionary, profile: Dictionar
 	if _restore_participants.is_empty():
 		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "")
 
-	# Load the selected saved state only. An older checkpoint is never substituted.
 	var prepared := _prepare_bundle_with_all_participants(document["current_snapshot"])
 	_save_load_profile_phase(profile, "participant_prepare_us")
 	if not prepared.get("ok", false):
@@ -1625,7 +1541,6 @@ func load_context(locator: Dictionary) -> Dictionary:
 	if not migrated.get("ok", false):
 		return migrated
 	var document: Dictionary = migrated["value"]["document"]
-	# Admission already returned the validated, detached document.
 	var bundle := _find_bundle_by_checkpoint_id(document, str(locator.get("checkpoint_id", "")))
 	if bundle.is_empty():
 		return _fail(&"source_bundle_not_found", str(locator.get("checkpoint_id", "")))
@@ -1637,8 +1552,6 @@ func load_context(locator: Dictionary) -> Dictionary:
 		"context": (context as Dictionary).duplicate(true), "context_sha256": context_hash,
 	}}
 
-## The inverse of `_slot_id_string()` below: the source locator's `slot_id` union ("quick" |
-## "autosave" | "slot:N") back to `_resolve_locator()`'s own (kind, public_slot_id) shape.
 func _resolve_locator_from_slot_id(slot_id_str: String) -> Dictionary:
 	if slot_id_str == "quick":
 		return _resolve_locator(&"quick", -1)
@@ -1681,21 +1594,6 @@ static func _canonical_sha256(value: Variant) -> String:
 		return ""
 	return str(emitted["value"]).sha256_text()
 
-## Plan 02 Task 6 (dwm-p2r.32), brief line 293: "Every New-Run/restore startup calls
-## DesktopContinuationOperationJournal.list_incomplete() before run input." Exposed here for whoever
-## owns application boot to call; NOT wired into any boot sequence by this task -- per the brief,
-## Task 9 owns ApplicationBootstrap.gd's own stage sequence, and where exactly this hook belongs in
-## it was never resolved by this task (see the handoff report).
-##
-## FIX (dwm-p2r.35.4 remediation, findings B-C2/B-C3): each nonterminal operation now goes through
-## `_resume_operation()` below, which genuinely drives the frozen continuation law's recovery
-## sequence -- reacquiring the gate lease, verifying the source/context, and advancing forward
-## through allocation/participants/completion (or recording a pre-allocation abort) -- instead of
-## merely calling the journal's own `reconcile_startup()` and reporting whatever it said. This
-## method's own outer envelope is unchanged (`{"ok": true, "value": {"reconciled": [...]}}`): a
-## per-operation resume outcome (completed/aborted/fatal_latched/already_terminal) is never treated
-## as a reason to fail the whole reconciliation pass, since one operation's fatal must not stop the
-## next incomplete operation from being examined.
 func reconcile_incomplete_continuations() -> Dictionary:
 	if _mutation_gate != null:
 		var admitted := _admit_new_run_journal_io()
@@ -1709,8 +1607,6 @@ func reconcile_incomplete_continuations() -> Dictionary:
 		return listed
 	var results: Array = []
 	for operation: Variant in (listed["value"] as Array):
-		# Old Load attempts no longer own persistent recovery. Shared creation
-		# and identity records remain available to their original owners.
 		if operation.get("kind") == "scene_restore": continue
 		var transaction_id := str((operation as Dictionary)["transaction_id"])
 		var reconciled: Dictionary = _resume_operation((operation as Dictionary).duplicate(true))
@@ -1726,15 +1622,8 @@ func _resume_operation(operation: Dictionary) -> Dictionary:
 	return retry_new_run(str(operation.transaction_id))
 
 
-## The retained SaveDocument and Profile candidate drive every live retry. Disk
-## targets are reproved first; recorded participant prefixes are not process-local state.
-## SaveManager owns this coroutine so retiring the title cannot abandon a durable decision.
-## Yield between completed operations, never inside an atomic storage write.
 func _render_new_run_frame() -> void:
 	if not is_inside_tree() or Time.get_ticks_usec() - _new_run_slice_started_us < 8000: return
-	# Menu already painted the initial status. One subsequent process boundary lets
-	# the work frame render, including when a slow renderer would make two waits costly.
-	# Unlike frame_post_draw, this also progresses while minimized or headless.
 	await get_tree().process_frame
 	_new_run_slice_started_us = Time.get_ticks_usec()
 
@@ -1761,7 +1650,6 @@ func _write_document_text_validator(text: String, validated_texts: Dictionary) -
 	if validated_texts.has(text):
 		return {"ok": true, "code": &"ok", "value": {}}
 	var result := _document_text_validator(text)
-	# Preserve every refusal, including a malformed success that storage rejects.
 	if not result.get("ok", false) or typeof(result.get("value")) != TYPE_DICTIONARY:
 		return result
 	validated_texts[text] = {"ok": true, "code": &"ok", "value": {}}
@@ -1776,8 +1664,6 @@ func _document_text_validator(text: String) -> Dictionary:
 		return validated
 	return {"ok": true, "code": &"ok", "value": validated["value"]["candidate"]}
 
-## A cache entry proves only strict JSON parsing of this exact String. In particular,
-## it never proves current schema, locator, content compatibility, or disk durability.
 func _parse_document_text(text: String) -> Dictionary:
 	var disabled := OS.get_environment("DWM_SAVE_PARSE_CACHE_DISABLED") == "1"
 	var profile := _save_load_profile_begin("document_parse")
@@ -1796,8 +1682,6 @@ func _parse_document_text(text: String) -> Dictionary:
 	var parsed := STRICT_JSON.parse_object(text)
 	if not parsed.get("ok", false):
 		return _save_load_profile_finish(profile, parsed)
-	# Count real UTF-8 bytes only for admission, after the unchanged strict parser.
-	# Oversized valid inputs keep their normal result without displacing useful entries.
 	var text_bytes := text.to_utf8_buffer().size()
 	if text_bytes > _PARSE_CACHE_MAX_TEXT_BYTES:
 		return _save_load_profile_finish(profile, parsed)
@@ -1806,7 +1690,6 @@ func _parse_document_text(text: String) -> Dictionary:
 		or _document_parse_cache_text_bytes + text_bytes > _PARSE_CACHE_MAX_TEXT_BYTES):
 		var oldest: Dictionary = _document_parse_cache.pop_front()
 		_document_parse_cache_text_bytes -= int(oldest["text_bytes"])
-	# The miss result belongs to this caller. Retain a separate tree even on first use.
 	_document_parse_cache.append({"text": text, "text_bytes": text_bytes,
 		"parsed": parsed.duplicate(true)})
 	_document_parse_cache_text_bytes += text_bytes
@@ -1827,7 +1710,6 @@ func _validate_checkpoint_inputs(checkpoint_inputs: Dictionary) -> String:
 static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": {}}
 
-## Keep source identity explicit: live run state already contains the remapped destination.
 static func _source_identity_from_lifecycle(lifecycle: Dictionary) -> Dictionary:
 	var receipt: Variant = lifecycle.get("causal_day_instance_issuer_receipt")
 	return {"branch_id": lifecycle.get("branch_id"),
@@ -1839,7 +1721,6 @@ func _validate_scene_restore_preparation(prepared: Dictionary) -> Dictionary:
 	var token: Variant = prepared.get("scene_preparation_token")
 	if not token is String or not _scene_restore_preparations.has(token):
 		return _fail(&"invalid_scene_restore_preparation", "selected preparation is unavailable")
-	# SaveManager owns the selected plan. Caller copies never replace that source.
 	return {"ok": true}
 
 func _scene_activation_pending(operation: Dictionary) -> bool:
@@ -1887,9 +1768,6 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Varian
 	if not found.get("ok", false): return found
 	var committed: bool = _scene_activation_pending(found.value)
 	var creating: bool = memory_new_run or found.value.get("kind") == "scene_new_run"
-	# Every owner must be reconstructed in a fresh process, but its historical
-	# receipt prefix is already durable. In particular, a new live route generation
-	# must never replace or be compared as a replay of the old process's receipt.
 	var recorded_participants: int = found.value.next_participant_index
 	var activation := _prepare_live_session_activation(plans, operation_id)
 	if not activation.get("ok", false):
@@ -1959,8 +1837,6 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Varian
 				if retained.get("ok", false) and CANONICAL_JSON._deep_same(retained.value.backup, expected):
 					seeded = {"ok": true}
 		elif memory_operation:
-			# Creation owns its validated reset; Load owns its retained private seed.
-			# Public commit_prepared still validates caller dictionaries.
 			seeded = _journal._install_prepared(journal_candidate)
 		else:
 			seeded = _journal.commit_prepared(journal_candidate)
@@ -1980,8 +1856,6 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Varian
 			else:
 				return _fatal_transaction_recovery("scene_restore", [{"owner_id": "journal", "operation": "completion_state_conflict", "result": reread}])
 	if continuation.kind == "memory_restore":
-		# All saved owners are installed synchronously. Retire old input handles
-		# before mounting the destination; no Load mutation lease is needed.
 		_restore_participants.run.activate_loaded_session(activation.value)
 	_scene_restore_activation = {"operation_id": operation_id, "continuation": continuation.duplicate(true),
 		"ticket": activation.value.duplicate(true), "gate_token": gate_token, "route_id": route_id,
@@ -2101,8 +1975,6 @@ func _drive_scene_restore_activation_owned() -> Dictionary:
 		"route_id": completed.route_id}}
 
 
-## Freeze the current lifetime before any candidate apply. Pure participant
-## orchestration without a run snapshot has no live session to replace.
 func _prepare_live_session_activation(plans: Dictionary, operation_id: String) -> Dictionary:
 	var plan: Dictionary = plans.get("run", {})
 	if not plan.has("snapshot"):
@@ -2140,9 +2012,6 @@ func configure_scene_restore_participants(participants: Dictionary) -> Dictionar
 	_restore_participants = participants.duplicate()
 	return {"ok": true}
 
-## Ordinary Load obtains authority only from an acknowledged creation, the exact
-## committed allocation and its still-physical Profile assignment. Autosave may
-## legitimately have advanced since creation; the retained initial state fixes its origin.
 func capture_committed_scene_creation(transaction_id: String) -> Dictionary:
 	if _identity_issuer == null or _new_run_profile_owner == null:
 		return _fail(&"scene_creation_owner_unavailable", "")
@@ -2161,8 +2030,6 @@ func capture_committed_scene_creation(transaction_id: String) -> Dictionary:
 	var profile: Dictionary = _new_run_profile_owner.prove_scene_assignment(materials.allocation_candidate.run_id,
 		materials.profile.scene_assignment.receipt)
 	if not profile.get("ok", false): return profile
-	# The retained canonical initial document fixes the actual first scene. Never
-	# read today's mutable Autosave or require later snapshots to equal this one.
 	var initial: Dictionary = _parse_document_text(materials.autosave.outgoing_text)
 	if not initial.get("ok", false): return initial
 	var initial_scene: Variant = initial.value.current_snapshot.snapshot.get("scene")

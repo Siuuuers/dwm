@@ -1,6 +1,4 @@
 extends RefCounted
-## Authored ordinary-DTL ranges. Start labels are passive; only Finish has effects.
-## The current bounded contract permits one uninterrupted range per scene entry.
 
 static func valid_id(value: Variant) -> bool:
 	if not value is String or not value.begins_with("passage.") or value.length() <= 8: return false
@@ -73,7 +71,6 @@ static func inspect(bundle: Dictionary, compiled: Dictionary = {}) -> Dictionary
 			lines = lines.filter(func(line: Dictionary) -> bool: return not thought_ids.has(line.line_id))
 			indices.clear()
 			for index: int in lines.size(): indices[lines[index].line_id] = index
-		# Empty preceding-line identity means the passive label is at entry start.
 		var start_index: int = -1 if start.after_line_id == "" else int(indices.get(start.after_line_id, -2))
 		if start_index < -1 or not indices.has(finish.after_line_id) \
 				or start_index >= indices[finish.after_line_id]:

@@ -3,9 +3,6 @@ extends RefCounted
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
 const ITEM_ART := preload("res://scripts/ui/shop/ShopItemArt.gd")
 
-## Production Shop query/command boundary. The UI receives only presentation rows and item/quantity
-## commands. Every purchase uses the retained durable participant: one debit and its authored
-## effects, followed by condition evaluation and a complete result Autosave.
 
 signal catalog_changed
 
@@ -96,7 +93,6 @@ func configure(game_state: Object, data_catalog: Object, purchase_participant: O
 	return _ok({"already_configured": false})
 
 
-## Scene purchases are owned and checkpointed by GameState; no legacy participant is involved.
 func configure_scene(game_state: Object, data_catalog: Object, identity_issuer: Object,
 		mutation_gate: Object) -> Dictionary:
 	if not _has_methods(game_state, ["get_mutation_gate_instance_id", "capture_live_session",
@@ -154,8 +150,6 @@ func get_catalog(locale: String) -> Dictionary:
 		if name.is_empty():
 			return _fail(&"shop_catalog_copy_unavailable")
 		var maximum := int(item.get("max_purchases"))
-		# DataCatalog's zero means no branch cap. It remains repeatedly purchasable; one command
-		# carries one item because the finite selector cannot represent infinity.
 		var command_cap := 1 if maximum == 0 else maximum
 		var owned := _is_owned_nonrepeatable(item)
 		var row := {
@@ -216,7 +210,6 @@ func can_purchase(item_id: String, quantity: int = 1) -> Dictionary:
 	return _ok({"eligible": true, "total": total})
 
 
-## A prepared purchase retains custody until its consequence/save finishes.
 func has_pending_purchase() -> bool:
 	return not _pending_purchase.is_empty()
 
@@ -323,7 +316,6 @@ func _retry_purchase() -> Dictionary:
 			_pending_purchase.clear()
 			catalog_changed.emit()
 		elif committed.get("code") == &"scene_shop_source_changed":
-			# Owner guarantees this refusal happened before a durable commit.
 			_pending_purchase.clear()
 		return committed.duplicate(true)
 	var result: Variant = _consequence_coordinator.call(&"accept_prepared_action",

@@ -1,24 +1,5 @@
 extends RefCounted
 
-## Day-7 Schedule provenance handoff (Plan 01 Task 6, dwm-p2r.13, plan lines 462-505).
-##
-## One configured, MUTATION-FREE domain service. It is the only Day-7 output Plan 01 may create
-## (plan line 505): it turns a committed Day-7 aggregate into exactly one issuer-anchored
-## `terminal_provenance` for the later terminal-intent owner, and produces nothing else.
-##
-## FROZEN SURFACE (plan lines 464-469). Exactly `configure()` and `validate_handoff()`. Anything a
-## caller needs beyond those two belongs to a different owner.
-##
-## WHY IT IS CONFIGURED RATHER THAN SELF-SERVING. Plan line 471 forbids reaching a global service
-## locator, loading a mutable CURRENT registry as replacement truth, or preloading an issuer. The
-## saved fingerprint is therefore resolved through the exact retained registry this service was
-## configured with, and every identity comes from the exact retained production issuer. Configuring
-## is idempotent for that same pair and refuses replacement, so a second owner cannot quietly
-## re-point an already-wired service at different truth.
-##
-## WHAT IT DELIBERATELY DOES NOT CONTAIN (plan line 503). No friend alias, relationship tier or
-## tone, Dark-mode flag, faint condition, ending ID, ordered ending step, presentation form, or
-## playback state. Those belong to Amendment Plan 03 and the approved Seven-Day Plan 05.
 
 const _STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 
@@ -29,12 +10,10 @@ const CAUSE_EMPTY_DONE := "empty_done"
 const CAUSE_SCHEDULED_SOLO := "scheduled_solo"
 const SOLO_KIND := "solo"
 
-## Exact `validate_handoff()` request members (sorted), plan lines 475-483.
 const REQUEST_KEYS: Array[String] = [
 	"causal_day_instance", "committed_schedule", "source_receipt_index", "transaction_id",
 	"transaction_issuer_receipt",
 ]
-## Exact `terminal_provenance` members (sorted), plan lines 487-501.
 const TERMINAL_KEYS: Array[String] = [
 	"action_id", "causal_day_instance", "cause", "day", "kind", "receipt_id",
 	"receipt_provenance", "registry_fingerprint", "schedule_commit_receipt_id",
@@ -48,8 +27,6 @@ var _action_registry: Object = null
 var _identity_issuer: Object = null
 
 
-## Retains the exact Schedule registry and production issuer. Idempotent for that same pair;
-## a different object in either position is refused rather than adopted.
 func configure(action_registry: Object, identity_issuer: Object) -> Dictionary:
 	if not _has_methods(action_registry, _REGISTRY_METHODS):
 		return _fail(&"invalid_action_registry", "the registry contract is incomplete", {})
@@ -65,12 +42,6 @@ func configure(action_registry: Object, identity_issuer: Object) -> Dictionary:
 	return _ok({"configured": true})
 
 
-## Derives exactly row `P01.schedule.day7_provenance` for the one Day-7 cause the request carries.
-##
-## Accepts ONLY a receipt-backed Day-7 empty commit, or exactly one registry-valid solo at slot zero
-## whose `source_receipt_id` resolves to the accepted/read receipt in `source_receipt_index`
-## (plan line 485). It performs no canonical mutation: every value it touches is duplicated before
-## use and the returned receipt is a detached copy of `terminal_provenance`.
 func validate_handoff(request: Dictionary) -> Dictionary:
 	if _action_registry == null or _identity_issuer == null:
 		return _fail(&"day7_provenance_unconfigured", "configure() has not run", {})
@@ -99,15 +70,11 @@ func validate_handoff(request: Dictionary) -> Dictionary:
 			"a receiptless aggregate is not an accepted cause", {})
 	var commit_receipt: Dictionary = committed["commit_receipt"]
 
-	# The saved fingerprint is resolved through the CONFIGURED registry. A current registry loaded
-	# here would let a later manifest silently re-bless an old commit (plan line 471).
 	var saved_fingerprint: String = str(committed["registry_fingerprint"])
 	if saved_fingerprint != str(_action_registry.call(&"fingerprint")):
 		return _fail(&"day7_registry_fingerprint_mismatch",
 			"the saved fingerprint does not resolve through the configured registry", {})
 
-	# The request must carry the SAME verified transaction root the Schedule commit persisted
-	# (plan line 503), so a caller cannot re-parent the handoff under a root of its own choosing.
 	if str(request["transaction_id"]) != str(commit_receipt["transaction_id"]):
 		return _fail(&"day7_transaction_mismatch",
 			"the request transaction_id is not the commit's own", {})
@@ -128,9 +95,6 @@ func validate_handoff(request: Dictionary) -> Dictionary:
 	return _derive_terminal(request, committed, commit_receipt, resolved)
 
 
-## Decides which of the two accepted causes the aggregate is, or refuses it. Returns
-## value={cause, schedule_entry_id, action_id, source_receipt_id}, the trailing three null for
-## `empty_done` and non-null for `scheduled_solo` (plan line 503).
 func _resolve_cause(committed: Dictionary, source_index: Dictionary) -> Dictionary:
 	var entries: Array = committed["entries"]
 	if entries.is_empty():
@@ -171,8 +135,6 @@ func _resolve_cause(committed: Dictionary, source_index: Dictionary) -> Dictiona
 	})
 
 
-## Builds the exact plan-line-91 projection, derives the child through the configured issuer, and
-## assembles `terminal_provenance`. The row's own ID never appears in its own projection.
 func _derive_terminal(request: Dictionary, committed: Dictionary, commit_receipt: Dictionary,
 		resolved: Dictionary) -> Dictionary:
 	var tokens: Array = [
@@ -222,8 +184,6 @@ func _derive_terminal(request: Dictionary, committed: Dictionary, commit_receipt
 	}
 
 
-## The same four independent checks the Task-4 commit port performs, for the same reason: an issuer
-## that returned a child whose provenance disagreed with it would otherwise mint an unanchored ID.
 func _derive_child(parent_receipt_id: String, sources: Array) -> Dictionary:
 	var derived: Variant = _identity_issuer.call(&"derive_child", {
 		"parent_receipt_id": parent_receipt_id,
@@ -253,7 +213,6 @@ func _derive_child(parent_receipt_id: String, sources: Array) -> Dictionary:
 	return _ok({"child_id": str((value as Dictionary)["child_id"]), "provenance": provenance})
 
 
-# ---- helpers ----
 
 func _project(path: String, value: Variant) -> String:
 	var canonical: Dictionary = _STATE_SCHEMA.canonical_json(value)

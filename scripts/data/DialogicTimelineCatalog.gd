@@ -1,24 +1,9 @@
 class_name DialogicTimelineCatalog
 extends RefCounted
-# Manifest-backed timeline catalog (dwm-p2r.8, Plan-05 Task 1). Timeline IDs resolve to physical
-# .dtl locators through the exact data/manifests/timelines.json registry, never through broad
-# filename inference. Do NOT execute timeline data; do NOT trust save data to choose paths.
-#
-# TWO VOCABULARIES LIVE HERE (Seven-Day Flow Plan 01 Task 4, dwm-oyo.2 DEVIATION-8 Ruling U).
-# The legacy 59-id TIMELINE vocabulary above still resolves through data/manifests/timelines.json
-# and is what has_timeline_id, get_record, get_path_for_id and get_timeline_path answer for. The
-# closed 137-id ENTRY vocabulary of data/manifests/dialogic_entries.json is answered by get_entry,
-# has_entry_id, get_required_entry_ids, get_required_master_paths and build_validation_report.
-# The two share only 34 ids. Do NOT merge them and do NOT re-point the timeline surface at the
-# entry manifest: hospital.faint is a timeline id with no entry counterpart, so
-# GameStateDayResolutionPort would return the empty string for it and the frozen schedule gate
-# would move. A union lookup that tried one and fell back to the other is equally forbidden,
-# because specification 12.2 orders an absent ID to fail closed.
 
 const DEFAULT_MANIFEST_PATH := "res://data/manifests/timelines.json"
 const _STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 
-# Only English narrative records exist; language selection never manufactures zh_CN/zh_HK paths.
 const SUPPORTED_LOCALES := ["en"]
 const DEFAULT_LOCALE := "en"
 
@@ -26,8 +11,6 @@ static var _records: Dictionary = {}
 static var _initialized := false
 static var _manifest_path := ""
 
-# The entry vocabulary's own cache. Deliberately separate from _records above: these are two
-# different vocabularies, and one lookup table shared between them is the merge Ruling U forbids.
 static var _entry_document: Dictionary = {}
 static var _entries_initialized := false
 
@@ -129,7 +112,6 @@ static func validate_all() -> Dictionary:
 	return {"ok": true, "value": {"count": _records.size()}}
 
 
-# --- Backward-compatible surface consumed by DialogicBridge until Task 2 rewires it ---
 
 static func get_supported_locales() -> Array[String]:
 	var out: Array[String] = []
@@ -146,10 +128,6 @@ static func get_required_timeline_ids() -> Array[String]:
 	return ids
 
 
-## DEPRECATED (Plan 01 Task 4). Kept as a read-only compatibility query during migration. It
-## still resolves through timelines.json; re-pointing it at get_entry is deferred to the task that
-## migrates its last caller, which is Task 5 for the three DialogicBridge sites and Task 7 for
-## NarrativeRestoreParticipant. No production caller may use it by the Plan 06 gate.
 static func get_timeline_path(timeline_id: String, _locale: String = "en") -> String:
 	_ensure()
 	if not _records.has(timeline_id):
@@ -184,12 +162,7 @@ static func build_missing_timeline_report(locale: String = "en") -> Dictionary:
 	}
 
 
-# --------------------------------------------------------------------------------------------
-# Closed entry vocabulary (Plan 01 Task 4). data/manifests/dialogic_entries.json, 137 entries.
-# --------------------------------------------------------------------------------------------
 
-## The validated entry document, cached the way _records is, so a caller that resolves all 137
-## entries does not re-run the published schema 137 times. Nothing is cached until it validates.
 static func _ensure_entries() -> Dictionary:
 	if _entries_initialized:
 		return {"ok": true, "value": _entry_document.duplicate(true)}
@@ -204,9 +177,6 @@ static func _ensure_entries() -> Dictionary:
 	return {"ok": true, "value": _entry_document.duplicate(true)}
 
 
-## Resolve one semantic entry to its exact {path, label}. An empty locale means the default one,
-## which is what keeps used_fallback false for the ordinary call. Specification 14.1 makes any
-## other locale a declared fallback to the same English locator, never a manufactured path.
 static func get_entry(entry_id: String, locale: String = "") -> Dictionary:
 	var document := _ensure_entries()
 	if not document.get("ok", false):
@@ -217,15 +187,10 @@ static func get_entry(entry_id: String, locale: String = "") -> Dictionary:
 	return DialogicEntryManifest.resolve_entry(document["value"], entry_id, selected)
 
 
-## False for an unregistered suffix and false for a retired label, because specification 12.2
-## orders an absent ID to fail closed rather than resolve to a neighbour.
 static func has_entry_id(entry_id: String) -> bool:
 	return get_entry(entry_id).get("ok", false)
 
 
-## Every registered entry id, sorted, so the order is the catalog's own and not the file's. The
-## ["entries"] index is unguarded for the same reason get_required_master_paths' is: nothing is
-## cached until validate_document has accepted it, and it requires an entries array of objects.
 static func get_required_entry_ids() -> Array[String]:
 	var ids: Array[String] = []
 	var document := _ensure_entries()
@@ -238,12 +203,6 @@ static func get_required_entry_ids() -> Array[String]:
 	return ids
 
 
-## The distinct masters the entry vocabulary needs, identical for every locale because
-## specification 14.1 lets a fallback change language only, never the physical master. Every id
-## here came from a document validate_document already accepted. That function refuses a
-## mislabelled or ambiguous English locator itself, and refuses a MISSING one through the
-## published schema it runs, which requires an en locator with a non-empty path and label. So
-## every id resolves, and a guard on the result would be a law no mutation could reach.
 static func get_required_master_paths(locale: String = "en") -> Array[String]:
 	var out: Array[String] = []
 	for entry_id in get_required_entry_ids():
@@ -254,8 +213,6 @@ static func get_required_master_paths(locale: String = "en") -> Array[String]:
 	return out
 
 
-## validate_document proves the document is internally consistent; only this proves the masters
-## it names are actually on disk.
 static func build_validation_report(locale: String = "en") -> Dictionary:
 	var required := get_required_master_paths(locale)
 	var existing: Array[String] = []

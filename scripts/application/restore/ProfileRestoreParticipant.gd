@@ -1,8 +1,6 @@
 class_name ProfileRestoreParticipant
 extends RefCounted
 
-## Restore participant wrapping ProfileManager's legacy-patch and restore seams
-## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 7).
 
 var _owner: Object = null
 var _window_output: Node = null

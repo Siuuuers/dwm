@@ -1,32 +1,6 @@
 class_name DesktopFirstRevealSnapshotComposer
 extends RefCounted
 
-## Production first-Reveal detached-candidate composer (Plan 02 Task 6, dwm-p2r.32, Phase D, brief
-## lines 295/402). PURE: `compose()` never touches live GameState/DesktopBoardState/
-## DesktopConsequenceState -- it projects exactly what each object's own `commit()` would install,
-## from the exact detached POST-COMMIT candidates `GameStateDesktopBoardPort.
-## prepare_first_reveal_consequence()` returns, onto a `base_snapshot_input` capture of what is
-## CURRENTLY live (never live state at the moment compose() itself runs, and never anything the
-## coordinator has already committed).
-##
-## `base_snapshot_input` is shaped exactly like `SaveManagerCheckpointPort.prepare()`'s own
-## `checkpoint_inputs.snapshot_input` (the established convention throughout this codebase): a
-## `{lifecycle, gameplay, contacts, desktop, scene, applied_effect_transaction_
-## ids, applied_variable_transaction_ids, command_receipts}`-shaped dict, captured via GameState.capture_run_snapshot_
-## input() BEFORE first Reveal prepares anything. `compose()` returns that SAME shape with only
-## `gameplay.minesweeper_rounds_left` (read off `game_state_candidate`) and
-## `desktop.board`/`desktop.consequence` (projected from `board_candidate`/`consequence_candidate`)
-## overwritten -- everything else (contacts, scene, other gameplay fields) survives
-## byte-for-byte, since first Reveal touches nothing else.
-##
-## DESIGN CHOICE, not literally frozen by the brief (documented per this task's own established
-## precedent for underspecified members): `consequence_candidate` here is the lightweight
-## `{"expected_run_revision": int}` marker `GameStateDesktopBoardPort.prepare_first_reveal_
-## consequence()` emits (first Reveal never opens a DesktopConsequenceState pending transaction --
-## no causal-sequence admission is involved), so this composer copies `desktop.consequence` from
-## `base_snapshot_input` UNCHANGED and only asserts its `run_revision` still equals the candidate's
-## `expected_run_revision` -- "matching consequence revision" (brief Step 6.10) rather than a content
-## change.
 
 const _GAME_STATE_CANDIDATE_KEYS: Array[String] = ["transaction_id", "rounds_left", "starts_today"]
 const _BOARD_CANDIDATE_KEYS: Array[String] = [
@@ -111,11 +85,6 @@ static func compose(base_snapshot_input: Dictionary, game_state_candidate: Dicti
 	return {"ok": true, "code": &"ok", "value": {"snapshot_input": composed}}
 
 
-## Pure projection of what `DesktopBoardState.commit(board_candidate)` would install, given the
-## board's CURRENT capture (`base_board`) -- mirrors that method's own field-by-field behavior
-## exactly (scripts/domain/minesweeper/DesktopBoardState.gd `commit()`), without mutating any live
-## object. `command_receipts` gains one entry; legacy terminal records remain untouched
-## (first Reveal never produces terminal truth).
 static func _project_board(base_board: Dictionary, candidate: Dictionary) -> Dictionary:
 	if int(candidate["pre_revision"]) != int(base_board.get("revision", -1)):
 		return _fail(&"first_reveal_candidate_stale_revision",
@@ -143,8 +112,6 @@ static func _project_board(base_board: Dictionary, candidate: Dictionary) -> Dic
 	return {"ok": true, "value": {"board": projected}}
 
 
-## The coordinator owns the exact retry result. Current Scene commands acknowledge the
-## committed revision; legacy commands retain their payment/publication contract.
 static func _validate_result(candidate: Dictionary, current: bool) -> Dictionary:
 	var result: Variant = candidate.get("result_override")
 	if not result is Dictionary or not _exact_keys(result, ["ok", "code", "value", "receipt"], &"invalid_board_result").ok:

@@ -69,6 +69,11 @@ def owned(path):
             and not {'vendor', 'third_party', 'generated'}.intersection(parts))
 
 
+def comment_owned(path):
+    parts = PurePosixPath(path).parts
+    return owned(path) and parts[0] in {'scripts', 'autoload'} and PurePosixPath(path).suffix == '.gd'
+
+
 def git(*args):
     return subprocess.check_output(['git', *args]).decode('utf-8')
 
@@ -86,7 +91,7 @@ def main():
         old_path = path = next(changes)
         if status.startswith('R'):
             path = next(changes)
-        if not owned(path):
+        if not comment_owned(path):
             continue
         before = git('show', base + ':' + old_path) if status != 'A' else ''
         after = git('show', head + ':' + path)

@@ -1,6 +1,5 @@
 class_name SettingsOutputTransactions
 extends RefCounted
-## Settings output transactions. The Audio owner retains playback and committed state.
 
 const PATHS := [
 	"preferences.audio.master_volume", "preferences.audio.music_volume",
@@ -21,7 +20,6 @@ var _window_baseline: Dictionary = {}
 func _init(owner: Node) -> void:
 	_owner = owner
 
-## One physical window owner shares this helper and the Audio owner's Profile.
 func bind_window_output(window: Node) -> Dictionary:
 	if _busy or has_preview(): return _failure(&"settings_audio_busy")
 	if _window_bound:
@@ -53,7 +51,6 @@ func is_busy() -> bool:
 func has_preview() -> bool:
 	return not _drag.is_empty()
 
-## Trusted owner invalidation; caller owns subsequent physical settlement.
 func invalidate_preview() -> void:
 	_drag.clear()
 	_generation += 1
@@ -151,29 +148,24 @@ func _commit(candidate: Dictionary, baseline: Dictionary, revision: int, section
 	if not committed.get("ok", false): return _recover(committed)
 	_owner._settings = settings.duplicate(true)
 	invalidate_preview()
-	# Publication may synchronously commit another preference. Keep the local gate
-	# closed until that latest committed state has also been physically proved.
 	var published: Dictionary = _owner._profile.publish_deferred_profile_signals(committed.value.publication_id)
 	var settled := _settle_latest()
 	if not settled.ok: return _fatal(settled)
 	return _finish(published)
 
 func _settle_latest(restore_original_window: bool = false) -> Dictionary:
-	# A hostile output callback must not make settlement an unbounded loop.
 	for _attempt in range(8):
 		if _owner._fatal: return _failure(&"audio_runtime_indeterminate")
 		var revision := _revision()
 		var generation := _generation
 		var snapshot := _snapshot()
 		var settings := _candidate(snapshot)
-		# Reverse compensation order: window was applied after audio.
 		if restore_original_window:
 			var restored := _apply_window(snapshot, true)
 			if not restored.ok: return restored
 			if _generation != generation or _revision() != revision or _snapshot() != snapshot: continue
 		var result: Dictionary = _owner._apply_settings_output(settings)
 		if not result.get("ok", false): return result
-		# Never write a window target made stale by an audio callback.
 		if _generation != generation or _revision() != revision or _snapshot() != snapshot: continue
 		if not restore_original_window:
 			var window_result := _apply_window(snapshot)

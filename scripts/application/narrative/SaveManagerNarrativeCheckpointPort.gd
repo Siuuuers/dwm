@@ -1,13 +1,5 @@
 class_name SaveManagerNarrativeCheckpointPort
 extends RefCounted
-## The single narrative-checkpoint adapter shared by DialogicBridge and GameState (dwm-p2r.8,
-## Plan-05 Task 2). It wraps exactly one real Plan-03 SaveManagerCheckpointPort plus six provider
-## Callables. Neither DialogicBridge nor GameState touches SaveManager, the journal, a /root
-## singleton, or a second checkpoint port directly.
-##
-## commit_current_boundary() is the atomic owner for stable boundaries that do not change gameplay
-## state; prepare_candidate/commit/rollback are the low-level seam used only while GameState owns an
-## effect/variable transaction (Task 3).
 
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const READING_NEXT := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
@@ -129,10 +121,6 @@ func commit_current_boundary(request: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"checkpoint_id": checkpoint_id, "duplicate": false}, "receipt": receipt}
 
 
-## Unlike ordinary memory-only narrative boundaries, each admitted Next source
-## and destination is an automatic autosave. The caller owns exclusive narrative
-## custody and the authored plan; this adapter owns disk/journal commitment.
-## A cold source restores the pre-command state, never a queued traversal.
 func commit_reading_next(checkpoint: Dictionary, operation_id: String, phase: String) -> Dictionary:
 	if not _configured: return _fail(&"not_configured", "configure first")
 	if _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy:
@@ -143,9 +131,6 @@ func commit_reading_next(checkpoint: Dictionary, operation_id: String, phase: St
 	if not checked.ok: return checked
 	if checked.value.operation_id != operation_id or checked.value.phase != phase:
 		return _fail(&"reading_next_operation_mismatch", "the request differs from its frozen operation")
-	# Coalescing belongs to the bridge's one live command lease. Never cache a
-	# successful source across later Autosaves or Load: every new activation must
-	# prove this source durable again, even when its semantic plan bytes repeat.
 	if phase == "source": _next_source = {}
 	if phase == "destination" and _next_source.get("operation_id") != operation_id:
 		return _fail(&"reading_next_source_not_committed", "the exact source must be durable first")
@@ -190,8 +175,6 @@ func _commit_reading_next_autosave(checkpoint: Dictionary, operation_id: String,
 		return _fail(&"reading_next_storage_backup_missing", "the real autosave preimage is required")
 	var committed: Dictionary = _real_port.commit(candidate)
 	if not committed.get("ok", false):
-		# capture() contains the journal alone. A failed write may already have
-		# replaced disk, so rollback must also restore the exact prepared preimage.
 		var rolled: Dictionary = _real_port.rollback({"journal_backup": captured.value.backup,
 			"storage_backup": candidate.storage_backup})
 		if not rolled.get("ok", false): return rolled
@@ -202,10 +185,6 @@ func _commit_reading_next_autosave(checkpoint: Dictionary, operation_id: String,
 			"narrative_fingerprint": _fingerprint(checkpoint)}}
 
 
-## The caller owns receipt admission and live adoption. Ordinary Scene events
-## publish in memory; explicit named arrivals also use the existing save transaction.
-## Inline checkpoint commands save the reconciled live caption and its resolved
-## presentation. They do not stage another entry or replay its arrival commands.
 func commit_scene_presentation_checkpoint(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
 	if not _configured: return _fail(&"not_configured", "configure first")
 	if _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy \
@@ -223,7 +202,6 @@ func commit_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary, name
 	if not _configured: return _fail(&"not_configured", "configure first")
 	if _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy:
 		return _fail(&"transaction_in_progress", "another checkpoint command owns publication")
-	# Public dictionaries must be detached before marker/authority/provider callbacks.
 	snapshot_input = snapshot_input.duplicate(true)
 	checkpoint = checkpoint.duplicate(true)
 	if not checkpoint.get("reading_session") is Dictionary:
@@ -262,8 +240,6 @@ func commit_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary, name
 	return result
 
 
-# Same held-control persistence has a separate live GameState authority. It never
-# authorizes a line-to-control transition or changes the native reading position.
 var _scene_challenge_authority: Object
 var _scene_challenge_validator: Callable
 var _scene_challenge: Dictionary = {}
@@ -273,8 +249,6 @@ func configure_scene_challenge_authority(authority: Object, validator: Callable)
 			or validator.get_object() != authority or validator.get_argument_count() != 3:
 		return _fail(&"scene_challenge_authority_invalid", "valid Run owner required")
 	if _scene_challenge_authority != null:
-		# Exact replay changes no authority or custody. A failed control write
-		# deliberately retains its operation; retry must not require clearing it.
 		if _scene_challenge_authority == authority and _scene_challenge_validator == validator: return {"ok": true}
 		return _fail(&"scene_challenge_authority_invalid", "authority replacement refused")
 	if not _configured or _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy \
@@ -333,7 +307,6 @@ var _scene_shop_authority: Object
 var _scene_shop_validator: Callable
 var _scene_round_authority: Object
 var _scene_round_validator: Callable
-# Contacts and Shop share one publication transaction, never two simultaneous owners.
 var _scene_mutation: Dictionary = {}
 
 func configure_scene_contact_authority(authority: Object, validator: Callable) -> Dictionary:
@@ -430,8 +403,6 @@ func _scene_mutation_source_matches(captured: Dictionary) -> bool:
 		and _fingerprint(captured.value.backup) == _scene_mutation.get("source_hash", "")
 
 
-## A live acknowledgement authorizes owner adoption. It carries no checkpoint ID
-## and performs no snapshot preparation, journal mutation, storage or readback.
 func _publish_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
 	if not _scene_route_input_valid(snapshot_input, checkpoint):
 		return _fail(&"scene_event_input_invalid", "scene input differs from its reading owner")
@@ -446,7 +417,6 @@ func _publish_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary) ->
 	return {"ok": true, "durable": false,
 		"value": {"publication": {"kind": "live", "state_sha256": state_hash}}}
 
-## Reuse the retained Run owner selection for both real-write paths.
 func _capture_scene_target_audio(audio: Dictionary) -> Dictionary:
 	if not _scene_validate(_scene_entry, "commit"):
 		return _fail(&"scene_entry_custody_invalid", "audio capture requires retained entry")
@@ -463,8 +433,6 @@ func _capture_scene_target_audio(audio: Dictionary) -> Dictionary:
 		audio = {"ok": true, "value": captured_audio.value.duplicate(true)}
 	return audio
 
-## Only an explicitly authored checkpoint arrival selects this write. The staged
-## target already includes its first caption, presentation and action consequences.
 func _save_named_presentation(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
 	if _scene_entry.is_empty() or not snapshot_input.scene.has("presentation"):
 		return _fail(&"presentation_checkpoint_unavailable", "an authored arrival is required")
@@ -527,8 +495,6 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 		return _fail(&"scene_event_route_mismatch", "scene input cannot use a legacy host")
 	var active := _call_provider("active_app_id", [])
 	if not active.ok: return active
-	# Desktop host state can retain its last app while the dating route owns
-	# physical presentation. Preserve it; the bridge admits the actual Solo host.
 	var audio := _call_provider("audio_context", [])
 	if not audio.ok: return audio
 	if scene_route and not _scene_entry.is_empty() and _scene_audio_source.is_valid():
@@ -562,16 +528,12 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 		return _fail(&"scene_entry_candidate_invalid", "real prepared snapshot differs from retained target")
 
 	if not _scene_entry.is_empty():
-		# Providers/prepare may invoke synchronous owners. Recheck custody and the
-		# actual source after those callbacks, immediately before the one commit.
 		if not _scene_validate(_scene_entry, "commit"):
 			return _fail(&"scene_entry_custody_invalid", "Bridge custody changed during preparation")
 		var source_check: Dictionary = _real_port.capture()
 		var current_source := _scene_bundle_snapshot(source_check.get("value", {}).get("backup", {}).get("current"))
 		if not source_check.get("ok", false) or _fingerprint(_scene_snapshot_reference(current_source)) != _fingerprint(_scene_entry.binding.source_checkpoint):
 			return _fail(&"scene_entry_source_changed", "journal changed during preparation")
-		# Keep the lower port's exact prepared object, but reject mutations made by
-		# the final authority/source callbacks before crossing its write boundary.
 		if _fingerprint(candidate) != candidate_hash or (not scene_route and _scene_candidate_reference(candidate, checkpoint).is_empty()):
 			return _fail(&"scene_entry_candidate_invalid", "prepared candidate changed before commit")
 	if scene_route and (_fingerprint(candidate) != candidate_hash or not _scene_route_candidate_valid(candidate, snapshot_input, checkpoint)):
@@ -582,7 +544,6 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 		var challenge_source: Dictionary = _real_port.capture()
 		if not _scene_challenge_source_matches(challenge_source):
 			return _fail(&"scene_challenge_source_changed", "journal changed before commit")
-		# Final callbacks may not change either the admitted bytes or lower candidate.
 		if _fingerprint(snapshot_input) != _scene_challenge.input_hash \
 				or _fingerprint(checkpoint) != _scene_challenge.checkpoint_hash \
 				or _fingerprint(candidate) != candidate_hash \
@@ -594,7 +555,6 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 		var challenge_source: Dictionary = _real_port.capture()
 		if not _scene_mutation_source_matches(challenge_source):
 			return _fail(StringName("scene_" + str(_scene_mutation.kind) + "_source_changed"), "journal changed before commit")
-		# Final callbacks may not change either the admitted bytes or lower candidate.
 		if _fingerprint(snapshot_input) != _scene_mutation.input_hash \
 				or _fingerprint(checkpoint) != _scene_mutation.checkpoint_hash \
 				or _fingerprint(candidate) != candidate_hash \
@@ -627,8 +587,6 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 		failure["rolled_back"] = true
 		return failure
 	var result := {"ok": true, "code": &"ok", "value": {"checkpoint_id": value.checkpoint_id, "committed": true}}
-	# Real commit already proved exact autosave reread and journal installation. Derive
-	# metadata from that prepared/retained snapshot, never from caller supplied hashes.
 	if checkpoint.get("stage") == "scene" and candidate.get("autosave_document") is Dictionary:
 		var reference := _scene_committed_reference(candidate, checkpoint)
 		if not reference.is_empty(): result.value["checkpoint_reference"] = reference
@@ -637,11 +595,6 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 	return result
 
 
-# These adapter checks bind an admitted input to the real lower candidate. Complete
-# Run9/Save9 content, issuer and registration validation remains the lower owner’s job.
-# Ordinary scene checkpoints also require the caller's live source/lease custody.
-# The entry validator authenticates retained entry operations only; configuring it
-# does not authenticate an ordinary checkpoint's source by itself.
 const SCENE_INPUT_KEYS := ["lifecycle", "gameplay", "contacts", "desktop", "scene",
 	"applied_effect_transaction_ids", "applied_variable_transaction_ids", "command_receipts"]
 
@@ -676,8 +629,6 @@ func _scene_route_candidate_valid(candidate: Dictionary, input: Dictionary, chec
 	var expected_desktop: Dictionary = input.desktop.duplicate(true)
 	expected_desktop.board = player_board.value.snapshot
 	for key: String in ["lifecycle", "gameplay", "contacts", "desktop", "scene"]:
-		# Compare the exact persisted projection, while admission/custody above keeps
-		# the full live input (including retry records) unchanged.
 		var expected: Variant = expected_desktop if key == "desktop" else input[key]
 		if not snapshot.has(key) or _fingerprint(snapshot[key]) != _fingerprint(expected): return false
 	for key: String in ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
@@ -685,9 +636,6 @@ func _scene_route_candidate_valid(candidate: Dictionary, input: Dictionary, chec
 	return not _scene_candidate_reference(candidate, checkpoint).is_empty()
 
 
-# Scene acknowledgements are in-process capabilities, not saved proof. The configured
-# Bridge validator authenticates its private candidate and exclusive invocation custody.
-# This does not replace full Run/Save validation in the real checkpoint owner.
 var _scene_authority: Object
 var _scene_validator: Callable
 var _scene_entry: Dictionary = {}
@@ -801,8 +749,6 @@ func _scene_candidate_reference(candidate: Dictionary, checkpoint: Dictionary) -
 	var owner := preload("res://scripts/narrative/SoloReadingSession.gd")
 	var persisted_player: Dictionary = owner.project_player_checkpoint(persisted)
 	if not persisted_player.ok: return {}
-	# Entry acknowledgement names the privately retained target, never a caller's
-	# potentially callback-mutated copy. Reuse only this invocation's projection.
 	if not _scene_entry.is_empty():
 		var retained: Variant = _scene_entry.checkpoint
 		if not retained is Dictionary: return {}
@@ -1041,8 +987,6 @@ func _validate_marker_commit(snapshot: Dictionary, checkpoint: Dictionary) -> Di
 	return _marker_validator.call(snapshot.duplicate(true), checkpoint.duplicate(true), _next_source.duplicate(true))
 
 
-## Compare a persisted reading position with its full live transaction source.
-## Other custody hashes still cover complete live owner data.
 func _player_checkpoint_same(left: Variant, right: Variant) -> bool:
 	if not left is Dictionary or not right is Dictionary: return false
 	var owner := preload("res://scripts/narrative/SoloReadingSession.gd")

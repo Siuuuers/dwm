@@ -1,28 +1,6 @@
 class_name DesktopConsequenceSourcePort
 extends RefCounted
 
-## The ONE production desktop-consequence source for a Schedule-Done resolution -- the object
-## `GameStateDayResolutionPort.configure_desktop_consequence_source()` retains, finishing
-## DEVIATION-5's truthful remainder (dwm-oyo.3 slice authorized 2026-08-24 on dwm-p2r.21 /
-## dwm-oyo.3). The seam demands `resolve_board_fate_receipt` and `resolve_condition_receipt` on one
-## object (dwm-p2r.32.8); this adapter composes the two real owners behind that one surface.
-##
-## BOARD FATE IS A REAL DEPARTURE. `resolve_board_fate_receipt` settles the live board's
-## Schedule-Done fate through the retained `DesktopBoardFatePort` -- mint one command root through
-## the one `.16` issuer, `prepare_causal_departure(reason="schedule_done")` against the board's own
-## current identity/revision, `commit()`, then `publish()` into the desktop publication ledger --
-## and retains the receipt per `causal_day_instance`, so a replayed resolution binds the SAME board
-## fate rather than departing a second time (the law `FakeDesktopConsequenceSource` documented as
-## "what the real ports will do"). ONCE THE PLAN IS PERSISTED a replayed Done command never reaches
-## this seam at all: `GameStateDayResolutionPort._resolution_start` answers it from the persisted
-## active plan. Before that checkpoint a narrow window remains -- the board fate publishes ahead of
-## `begin_day_resolution` -- in which a crash-replay mints a second departure under a fresh command
-## root, which the `command_id`-keyed idempotency cannot dedupe. It is the same window the
-## resolution root already carries, and Plan-03 Tasks 1-5 own closing it.
-##
-## Schedule Done consumes the condition outcome already committed by its current run. Its child
-## receipt derives under the persisted day-resolution root, so a new process reconstructs the same
-## ancestry without depending on earlier board/Shop actions or applying condition penalties again.
 
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const _COORDINATOR_METHODS: Array[String] = ["committed_condition_receipt"]
@@ -40,7 +18,6 @@ var _board_fate_port: Object = null
 var _identity_issuer: Object = null
 var _identity_context: Variant = {}
 var _current_condition_owner: Object = null
-## causal_day_instance -> the settled board-fate receipt, so one causal day departs exactly once.
 var _board_fates: Dictionary = {}
 
 
@@ -165,11 +142,6 @@ func resolve_condition_receipt(request: Dictionary) -> Dictionary:
 	var gameplay: Dictionary = snapshot.get("gameplay", {})
 	var day := int(request["source_day"])
 	var causal_day := str(request["causal_day_instance"])
-	# A fresh Load may remap the live desktop continuation while retaining an unfinished
-	# resolution from this same source day. The active plan below remains the authority for
-	# that in-flight request: its persisted start must name this exact causal day and its
-	# verified root. The live lifecycle still has to be on the same numeric day, so neither a
-	# request from another day nor a foreign plan can borrow the restored gameplay outcome.
 	if int(lifecycle.get("day", -1)) != day:
 		return _condition_unavailable("the request names another live day")
 	var live_causal_day := str(lifecycle.get("causal_day_instance", ""))
@@ -178,9 +150,6 @@ func resolve_condition_receipt(request: Dictionary) -> Dictionary:
 		var proof: Dictionary = {}
 		if restore_provenance is Dictionary:
 			proof = (restore_provenance as Dictionary)
-		# On a repeated Load the latest proof names the immediately preceding continuation,
-		# while the retained plan start still names the original source. Require a real remap
-		# boundary here; the verified plan/start below remains the original-request authority.
 		if proof.is_empty() \
 				or str(proof.get("source_branch_id", "")).is_empty() \
 				or str(proof.get("source_causal_day_instance", "")).is_empty() \

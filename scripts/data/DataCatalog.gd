@@ -1,31 +1,14 @@
 class_name DataCatalog
 extends RefCounted
-# DataCatalog (CONTRACTS §2 required interface): pure, read-only data source. No gameplay
-# logic, no GameState mutation. All methods return copies/values (never live references).
-# Contact calendar values delegate to the single fixed domain authority.
 
-# Registry delegation (dwm-p2r.16 Task 1). Schedule and the three Minesweeper Shop capability items
-# are OWNED by their immutable registries; this catalog stores none of their facts and keeps only
-# derived presentation. Both are preloaded by path rather than named by class_name: the new Task-1
-# scripts have never been through an editor import pass and are absent from the global script class
-# cache under a headless run (dwm-p2r.16 DECISION 9.18).
 const _SHOP_REGISTRY := preload("res://scripts/domain/shop/MinesweeperShopRegistry.gd")
 const _SCHEDULE_REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
 const _STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 
-# The roster is OWNED by the contacts domain (dwm-pm4, maintainer decision 2026-08-21); this
-# catalog keeps only the alias, exactly as it already treats the registry-owned facts above.
 const _CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const _SEVEN_DAY_CALENDAR := preload("res://scripts/domain/contact/SevenDayCalendar.gd")
 const FRIEND_IDS := _CONTACT_STATE.FRIEND_IDS
 
-# Shop item rows (CONTENT §7). Each: id, currency, price, effects, max, gift flags, secret.
-#
-# THREE ROWS CARRY NO FACTS. supportz, lucky_charm and debug_key are owned by
-# MinesweeperShopRegistry, so their rows keep only presentation the registry does not carry -- the
-# secret/gift flags -- and their currency, price, effect_ids and max_purchases are projected from
-# the registry record (max_purchases from cap.per_branch). The secret Supportz row is last;
-# a delegated row is recognized by carrying no "currency" key.
 const _SHOP_ROWS := [
 	{"id": "crystal_stutters", "currency": "money", "price": 45, "effects": ["inventory:add:crystal_stutters"], "max": 1},
 	{"id": "inked_silk_string", "currency": "money", "price": 45, "effects": ["inventory:add:inked_silk_string"], "max": 1},
@@ -48,7 +31,6 @@ const _TASK_IDS := [
 const _FRIEND_ICON := {"priscilla": "P", "lavinia": "L", "sylvia": "S"}
 
 
-# ---- Friends ----
 func get_friend_ids() -> Array[String]:
 	var out: Array[String] = []
 	out.assign(FRIEND_IDS)
@@ -85,7 +67,6 @@ func _make_friend(friend_id: String) -> FriendData:
 	return fd
 
 
-# ---- Shop ----
 func get_shop_items() -> Array:
 	var out: Array = []
 	for row in _SHOP_ROWS:
@@ -106,11 +87,6 @@ func get_shop_item(item_id: String) -> Dictionary:
 	return {}
 
 
-## The four owned facts for one row: local for the ten catalog items, projected from
-## MinesweeperShopRegistry for the three delegated ones. An unavailable registry answers with the
-## empty dictionary and the item is OMITTED rather than emitted with blank facts, so a broken
-## registry surfaces as a short shop list that test_thirteen_shop_items rejects, never as a
-## zero-price item (dwm-p2r.16 DECISION 12.3).
 func _shop_facts(row: Dictionary) -> Dictionary:
 	if row.has("currency"):
 		var local_effects: Array[String] = []
@@ -173,19 +149,6 @@ func _make_shop_item(row: Dictionary, facts: Dictionary) -> ShopItemData:
 	return item
 
 
-# ---- Schedule actions ----
-#
-# PROJECTED, NEVER STORED (dwm-p2r.16 DECISION 11.8). ScheduleActionRegistry owns every Schedule
-# fact; this catalog keeps not even a path or an ID. load_current() validates and fingerprints the
-# registry, then the manifest at the registry's own MANIFEST_PATH is re-read to ENUMERATE, because
-# the shipped registry surface is exactly fingerprint() and find_record(action_id) with no
-# enumeration API and no reachable record list (correction C2). DataCatalog is therefore a second
-# READER of the registry's document while the registry remains the sole authority for validity.
-#
-# The derived order is [rest, training, working, dating], NOT today's hand-written order: the
-# manifest is sorted by action_id, so the three ordinary records project first and the synthesized
-# route appends. Reproducing the old order would require an explicit ordering list, which is itself
-# a Schedule fact the registry does not own (correction C1).
 func get_schedule_actions() -> Array:
 	var out: Array = []
 	for row in _schedule_rows():
@@ -207,22 +170,6 @@ func get_schedule_action(action_id: String) -> Dictionary:
 	return {}
 
 
-## The three action_kind=ordinary records projected directly, then exactly one synthesized action
-## per distinct non-null route_id -- which yields precisely "dating", a route_id and never an
-## action_id, so find_record("dating") answers unregistered_action and the row cannot come from a
-## lookup (DECISION 3).
-##
-## Each synthesized route takes its fields from the FIRST record carrying that route_id in the
-## manifest's own sorted order (DECISION 12.4); sortedness is guaranteed because the registry
-## rejects an unsorted manifest. Note that the route source set is the fourteen records tagged
-## route_id="dating", NOT all seventeen non-ordinary records: solo:lavinia:day7, solo:priscilla:day7
-## and solo:sylvia:day7 are solo-shaped with participants yet carry route_id null (DECISION 12.5).
-##
-## Recomputed per call by design (DECISION 12.6). load_current() retains its validated registry
-## statically, so only the ~4KB enumeration read repeats, and this catalog stays free of state.
-## An unloadable or malformed registry yields the empty projection with no diagnostic: these
-## signatures carry no envelope, a fallback table is forbidden, and scripts/data holds no push_*
-## precedent (DECISION 12.3).
 func _schedule_rows() -> Array:
 	var loaded: Dictionary = _SCHEDULE_REGISTRY.load_current()
 	if not loaded.get("ok", false):
@@ -246,8 +193,6 @@ func _schedule_rows() -> Array:
 	return ordinary + routes
 
 
-## Every member DERIVED from the record: requires_friend from participant presence, cost and
-## effects read straight off the registry row.
 func _schedule_row(id: String, record: Dictionary) -> Dictionary:
 	var effects: Array[String] = []
 	effects.assign(record.get("effect_ids", []) as Array)
@@ -273,7 +218,6 @@ func _make_schedule_action(row: Dictionary) -> ScheduleActionData:
 	return a
 
 
-# ---- Minesweeper tasks ----
 func get_minesweeper_tasks() -> Array:
 	var out: Array = []
 	for id in _TASK_IDS:
@@ -297,7 +241,6 @@ func _make_task(task_id: String) -> MinesweeperTaskData:
 	return t
 
 
-# ---- Contact message order ----
 func _resolve_day(target_day: int) -> int:
 	if target_day >= 1 and target_day <= 7:
 		return target_day
@@ -323,7 +266,6 @@ func get_contact_message_order_or_fallback(target_day: int = -1) -> Array[String
 	return order
 
 
-# ---- Invitation days ----
 func get_invitation_days() -> Dictionary:
 	var out: Dictionary = {}
 	for friend in FRIEND_IDS:

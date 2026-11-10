@@ -1,5 +1,4 @@
 extends Button
-## One target; marks are drawn, never extra controls or unread counts.
 
 var identity_index := 0
 var selected := false
@@ -27,8 +26,6 @@ func _ready() -> void:
 		add_theme_stylebox_override(state, empty)
 	for event in [focus_entered, focus_exited, mouse_entered, mouse_exited, button_down, button_up]:
 		event.connect(queue_redraw)
-	# A nonfocusable child catches touch before BaseButton can receive an emulated
-	# click. Real mouse packets pass through to the existing native Button behavior.
 	_pointer = Control.new()
 	_pointer.name = "PointerSurface"
 	_pointer.mouse_filter = Control.MOUSE_FILTER_PASS
@@ -63,7 +60,6 @@ func is_touch_inspecting() -> bool:
 
 func _retain_contacts() -> void:
 	_cancel_touch()
-	# Mouse emulation may transfer focus/custody before the matching touch packet.
 	_retired_frame = Engine.get_process_frames()
 	_fresh_touch_id = ""
 	_touches = _current_touches()
@@ -141,7 +137,6 @@ func _pointer_input(event: InputEvent) -> void:
 	if event.pressed:
 		if "touch:%s:%s" % [event.device, event.index] != _fresh_touch_id or not _touch_admitted(): return
 		grab_focus()
-		# Focus observers may synchronously hide/reopen the app or transfer custody.
 		if "touch:%s:%s" % [event.device, event.index] != _fresh_touch_id \
 				or not _touch_admitted() or not has_focus(): return
 		_touch = {"id": "touch:%s:%s" % [event.device, event.index],

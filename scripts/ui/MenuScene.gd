@@ -1,7 +1,6 @@
 extends Control
 class_name MenuScene
 
-## Menu logic: New Acc / Log in / Gallery / Setting / Shut down (prompt_docs/INDEX.md).
 
 const BACKUP_APP_SCENE := preload("res://scenes/apps/BackupApp.tscn")
 const SETTING_SCENE := preload("res://scenes/menu/Setting.tscn")
@@ -22,7 +21,6 @@ const SHUTDOWN_COPY := {
 	"zh-HK": ["關閉遊戲？", "退出遊戲。", "取消", "關閉遊戲"],
 }
 
-# New Acc retains its confirmation sheet without promising an initial save.
 const NEW_ACC_COPY := {
 	"ja": ["新しいアカウントを始めますか？","始まりはまだここにあります。もう一度、入りましょうか？","始まりはまだここにあります。もう一度、入りましょうか？","キャンセル","開始","新規作成できません","アカウントを準備できませんでした。再試行してください。","状態が変わりました。開始前に新規作成の内容を確認してください。","新規アカウントの復旧が必要です","開始処理が完了していません。再試行して同じ処理を完了してください。","再試行"],
 	"ko": ["새 계정을 시작할까요?","시작은 아직 여기에 있습니다. 다시 들어갈까요?","시작은 아직 여기에 있습니다. 다시 들어갈까요?","취소","시작","새 계정을 만들 수 없음","계정을 준비하지 못했습니다. 다시 시도하세요.","상태가 변경되었습니다. 시작하기 전에 새 계정 내용을 다시 확인하세요.","새 계정 복구 필요","계정 시작이 완료되지 않았습니다. 다시 시도하여 같은 작업을 완료하세요.","다시 시도"],
@@ -155,7 +153,6 @@ func _bind_startup_recovery() -> void:
 	_queue_startup_recovery_check()
 
 func _queue_startup_recovery_check() -> void:
-	# Bootstrap may signal while its Retry call still owns the current stack.
 	if _title_source_alive(): _check_startup_recovery.call_deferred()
 
 func _startup_recovery_fact() -> Dictionary:
@@ -184,8 +181,6 @@ func _check_startup_recovery() -> void:
 		_new_acc_transaction = str(recovery.transaction_id)
 		_show_new_acc_recovery()
 	else:
-		# A generic startup failure cannot authorize fresh gameplay or invent a
-		# retryable NewRun transaction merely because SaveManager is initialized.
 		_show_startup_unavailable()
 
 func _retry_startup_new_acc() -> void:
@@ -219,7 +214,6 @@ func _on_startup_shutdown() -> void:
 	if _new_acc_source_is_current(): _on_shut_down_confirmed()
 
 func configure_new_acc_owner(owner: Object) -> void:
-	# A presentation seam for the same SaveManager capability used in production.
 	_new_acc_owner = owner
 
 func _menu_new_acc_owner() -> Object:
@@ -240,8 +234,6 @@ func _new_acc_source_is_current() -> bool:
 	var source: Node = _new_acc_source.get_ref() as Node
 	return is_instance_valid(source) and not source.is_queued_for_deletion() and get_tree().current_scene == source
 
-## Two frame boundaries let the status reach the renderer before synchronous save work.
-## The existing title mask holds input; a route change while yielding cannot start an account.
 func _present_new_acc_busy(stage: String) -> bool:
 	_title_welcome.set_busy(stage)
 	await get_tree().process_frame
@@ -277,8 +269,6 @@ func _on_new_acc_pressed() -> void:
 		_end_title_transition()
 		_show_new_acc_unavailable(false)
 		return
-	# Route finalization can detach Menu before commit returns. Retain this exact
-	# capability for transient cleanup and Retry instead of looking up a new owner.
 	_new_acc_owner = owner
 	if not await _present_new_acc_busy("preparing"):
 		_finish_new_acc_transition()
@@ -331,7 +321,6 @@ func _commit_new_acc() -> void:
 			result = await owner.commit_prepared_new_run_responsive(_new_acc_token)
 		else:
 			result = owner.commit_prepared_new_run(_new_acc_token)
-	# Release only the transient preparation. A durable decision belongs to Retry.
 	_cancel_new_acc()
 	if _finish_new_acc_transition(): _handle_new_acc_result(result)
 
@@ -380,7 +369,6 @@ func _retry_new_acc() -> void:
 	if result.get("ok", false):
 		_handle_new_acc_result(result)
 	else:
-		# Even an unavailable retry cannot grant cancellation of a durable decision.
 		_show_new_acc_recovery()
 
 func _focus_new_acc() -> void:
@@ -388,7 +376,6 @@ func _focus_new_acc() -> void:
 		_new_acc_button.grab_focus()
 
 func _exit_tree() -> void:
-	# Menu teardown can cancel preparation only, never a retained durable operation.
 	if not _new_acc_token.is_empty():
 		var owner := _new_acc_owner
 		if is_instance_valid(owner): owner.cancel_prepared_new_run(_new_acc_token)
@@ -427,7 +414,6 @@ func _on_log_in_pressed() -> void:
 	_backup_app_host.add_child(_backup_app_instance)
 	_backup_app_instance.set_confirmation_host(self)
 	_backup_app_instance.configure_desktop_home(_title_home)
-	# show_window owns this opening's fresh projection, selection and focus.
 	_login_result = _backup_app_instance.configure_backup(_title_port,
 		get_node_or_null("/root/LocalizationManager"), get_node_or_null("/root/ProfileManager"),
 		&"after_hours", 1, false)
@@ -557,7 +543,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			return
 		if is_instance_valid(_backup_app_host) and _backup_app_host.visible:
-			# Backup owns recovery cancellation; one Back never closes two layers.
 			if is_instance_valid(_backup_app_instance):
 				_backup_app_instance._unhandled_input(event)
 			else:
@@ -625,7 +610,6 @@ func _build_login_shell() -> void:
 	_refresh_login_shell()
 
 func _refresh_login_shell(_value: String = "") -> void:
-	# application_ready may publish after route recovery detached this old title.
 	if not _title_source_alive(): return
 	var localization := _menu_localization()
 	var locale := str(localization.get_locale()).replace("_", "-") if localization != null else "en"
@@ -735,8 +719,6 @@ func _source_departure_admitted() -> bool:
 		and (not is_instance_valid(_setting_instance) or _setting_instance.can_return_home())
 
 func _sync_title_navigation() -> void:
-	# The shared sheet owns modal masks. Recovery owns this separate ledger mask;
-	# neither changes whether the underlying title commands are canonically enabled.
 	if is_instance_valid(_confirmation):
 		return
 	var blocked := not _can_leave_login()

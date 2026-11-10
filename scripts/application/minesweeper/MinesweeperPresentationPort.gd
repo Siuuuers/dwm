@@ -1,6 +1,5 @@
 class_name MinesweeperPresentationPort
 extends RefCounted
-## Narrow UI command boundary. Owner identities and issuer receipts never leave this object.
 
 const PERFORMANCE := preload("res://scripts/domain/minesweeper/BoardPerformance.gd")
 const QUERY := preload("res://scripts/application/minesweeper/MinesweeperBoardPresentationQuery.gd")
@@ -20,8 +19,6 @@ var _terminal_foresight: Variant = null
 var _accepted_routine_context: Dictionary = {}
 var _accepted_routine_snapshot: Dictionary = {}
 var _pending_settlement_request: Dictionary = {}
-## dwm-634.1: the owner view of a terminal command whose settlement was deferred so the board
-## could paint first. Consumed by settle_pending() or by the next entry into this port.
 var _pending_settlement_view: Dictionary = {}
 var _pending_preparation_request: Dictionary = {}
 var _pending_preparation_context: Dictionary = {}
@@ -51,8 +48,6 @@ func pull(difficulty: String) -> Dictionary:
 		var deferred := settle_pending()
 		if not deferred.get("ok", false): return deferred
 		return _success(_projection.duplicate(true))
-	# Source commit may already have cleared the board while the full save is pending.
-	# Retry the exact retained settlement before reading NONE and losing that request.
 	if not _pending_settlement_request.is_empty():
 		var retried: Dictionary = _owner.call(&"complete_round", _pending_settlement_request.duplicate(true))
 		if not retried.get("ok", false):
@@ -89,7 +84,6 @@ func dispatch(action: String, cell_index: int, expected_revision: int) -> Dictio
 	if not (cell.actions as Array).has(action):
 		return _failure(&"minesweeper_action_not_available")
 
-	# Re-read immediately before allocation. Revision alone is insufficient across a restored owner.
 	var current := _read_owner(_difficulty)
 	if not current.ok or int(current.value.revision) != _revision \
 			or current.value.identity != _identity or current.value.phase != _phase:
@@ -145,8 +139,6 @@ func dispatch(action: String, cell_index: int, expected_revision: int) -> Dictio
 		_accepted_routine_context = after_commit.value.routine_context.duplicate(true)
 		_accepted_routine_snapshot = after_commit.value.routine_snapshot
 	if _defers_settlement(after_commit.value):
-		# dwm-634.1: the terminal board is already committed and under custody. Publish it now so
-		# the click paints, and run settlement from settle_pending() or the next entry into this port.
 		_pending_settlement_view = after_commit.value
 		return {"ok": true, "code": &"minesweeper_settlement_pending", "value": _projection.duplicate(true)}
 	var settled := _settle_terminal(after_commit.value)
@@ -159,8 +151,6 @@ func has_pending_settlement() -> bool:
 	return not _pending_settlement_view.is_empty()
 
 
-## Runs the settlement a terminal command deferred. A refusal keeps the exact completion request
-## (never the deferral), so pull() retries it exactly as it always has.
 func settle_pending() -> Dictionary:
 	_accepted_routine_context = {}
 	_accepted_routine_snapshot = {}
@@ -179,7 +169,6 @@ func _settle_if_pending() -> Dictionary:
 	return settle_pending()
 
 
-## Mirrors _settle_terminal()'s own gate: only a live, unsettled terminal board is deferred.
 func _defers_settlement(owner_view: Dictionary) -> bool:
 	var projection: Dictionary = owner_view["projection"]
 	if not bool(projection.get("terminal", false)) or str(owner_view.get("phase", "")) != "ACTIVE_VISIBLE": return false
@@ -187,7 +176,6 @@ func _defers_settlement(owner_view: Dictionary) -> bool:
 	return typeof(owner_view["identity"]) == TYPE_DICTIONARY
 
 
-## Explicit foreground work step. Pure pull never starts or advances a generator.
 func advance_preparation(expected_revision: int) -> Dictionary:
 	_accepted_routine_context = {}
 	_accepted_routine_snapshot = {}
@@ -255,7 +243,6 @@ func _read_preparation_context() -> Dictionary:
 	return _success(value.duplicate(true))
 
 
-## Capability projection contains no owner identity. Legacy minimal owners expose no controls.
 func get_configuration(projection: Dictionary) -> Dictionary:
 	if _projection.is_empty() or projection != _projection:
 		return _failure(&"stale_minesweeper_presentation")
@@ -265,9 +252,6 @@ func get_configuration(projection: Dictionary) -> Dictionary:
 	})
 
 
-## Consume presentation facts derived beside a routine command's exact post-commit projection.
-## One final raw owner comparison closes callbacks that may have run after that read; the snapshot
-## and its identity remain private, and the returned facts contain no command capability.
 func get_accepted_routine_context(projection: Dictionary) -> Dictionary:
 	if _accepted_routine_context.is_empty() or _accepted_routine_snapshot.is_empty() \
 			or projection != _projection \
@@ -308,7 +292,6 @@ func _configure_board(method: StringName, difficulty: String, expected_revision:
 		if current.ok: _adopt(current.value)
 		else: _clear()
 		return _failure(&"stale_minesweeper_presentation", _projection)
-	# These are view-level no-ops: no command, nonce, checkpoint, or new board is admitted.
 	if method == &"select_difficulty" and difficulty == _difficulty:
 		return _success(_projection.duplicate(true))
 	if method == &"replace_board" and _phase in ["NONE", "UNPAID_UNSTARTED", "PAID_UNSTARTED", "PREPARED_UNSTARTED"]:
@@ -370,12 +353,8 @@ func _read_configuration(snapshot: Dictionary, difficulty: String) -> Dictionary
 	return _success(value.duplicate(true))
 
 
-## A terminal board is already committed and safe to render before settlement starts. Retain the
-## exact completion request across transient failures so retry cannot allocate a second reward.
 func _settle_terminal(owner_view: Dictionary) -> Dictionary:
 	var projection: Dictionary = owner_view["projection"]
-	# The canonical completion receipt already paid this terminal result. Cold inspection
-	# must never issue a second completion command or repeat its consequences.
 	if owner_view.configuration.get("settled_inspection", false): return {"ok": true}
 	if not bool(projection["terminal"]) or str(owner_view["phase"]) != "ACTIVE_VISIBLE":
 		if not bool(projection["terminal"]):
@@ -413,7 +392,6 @@ func _settle_terminal(owner_view: Dictionary) -> Dictionary:
 
 
 func _adopt_after_settlement() -> Dictionary:
-	# Minimal legacy owners predate retained inspection and clear the board on completion.
 	if not _owner.has_method("get_configuration_context"): return {"ok": true}
 	var refreshed := _read_owner(_difficulty)
 	if not refreshed.get("ok", false): return {"ok": false}
@@ -421,7 +399,6 @@ func _adopt_after_settlement() -> Dictionary:
 	return {"ok": true}
 
 
-## Queried only for custody-bound Home admission, not by the per-frame idle pump.
 func can_park_preparation(expected_revision: int) -> bool:
 	if not is_instance_valid(_owner) or _phase != "PREPARING" or expected_revision != _revision:
 		return false
@@ -453,15 +430,12 @@ func set_foreground(foreground: bool, expected_revision: int) -> Dictionary:
 			or current.value.projection != _projection:
 		_adopt(current.value)
 		return _failure(&"stale_minesweeper_presentation", _projection)
-	# An unsettled terminal is still under owner custody. Visibility cannot settle or bypass it.
 	if _projection.terminal:
 		if _configuration.get("settled_inspection", false):
 			return _success(_projection.duplicate(true))
 		return _failure(&"minesweeper_action_not_available", _projection)
 	if _phase == "SETTLING":
 		return _failure(&"minesweeper_action_not_available", _projection)
-	# Between explicit slices the saved frontier is stable. Showing or parking it changes
-	# visibility only; this boundary never issues a command or advances the search.
 	if _phase == "PREPARING":
 		if not _preparation_frontier_available():
 			return _failure(&"minesweeper_action_not_available", _projection)
@@ -490,19 +464,12 @@ func set_foreground(foreground: bool, expected_revision: int) -> Dictionary:
 	return _success(_projection.duplicate(true))
 
 
-## Read the derived metric bound to this exact final public projection. Settlement may
-## already have cleared the canonical board; retain no hidden layout or second history here.
 func get_terminal_foresight(projection: Dictionary) -> Dictionary:
 	if not _terminal_foresight is int or projection != _projection or not projection.get("terminal", false):
 		return {"ok": false}
 	return {"ok": true, "value": _terminal_foresight}
 
 
-## Every board command leaves its receipt in memory (dwm-634.1); the ledger is written whenever the
-## board is. First Reveal is no exception: the pre-board checkpoint it commits runs the saves root's
-## before-write hook, which flushes this ledger BEFORE the checkpoint's own bytes, so the receipt is
-## durable before anything that references it -- and the issuer root is rewritten once for that
-## frame instead of once per mint.
 func _mint_transaction() -> Dictionary:
 	if not _issuer.has_method("issue_deferred"):
 		return _issuer.call(&"issue", &"transaction_id")

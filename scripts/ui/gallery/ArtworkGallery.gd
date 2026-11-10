@@ -2,8 +2,6 @@ extends Control
 signal viewer_visibility_changed(active: bool)
 const ART := preload("res://scripts/data/ArtManifest.gd")
 
-# English fallback for isolated hosts without a LocalizationManager. Production
-# GalleryScene projects every value from the canonical catalogue before display.
 const DEFAULT_COPY := {"title": "Picture {number}", "locked": "Locked",
 	"locked_accessible": "Locked artwork", "view": "View {title}",
 	"empty": "Artwork appears here after you encounter it in the story.",
@@ -173,7 +171,6 @@ func _input(event: InputEvent) -> void:
 			close_viewer()
 		elif event.keycode == KEY_H:
 			_hints.visible = not _hints.visible
-	# Modal ownership includes releases and mouse input: nothing reaches the title shell.
 	get_viewport().set_input_as_handled()
 
 func _on_profile_restored(_snapshot: Dictionary) -> void:

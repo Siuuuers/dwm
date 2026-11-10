@@ -1,25 +1,6 @@
 ﻿class_name DesktopConsequenceState
 extends RefCounted
 
-## Canonical desktop consequence state machine (Plan 02 Task 6, dwm-p2r.32, req.desktop
-## .cross_app_actions, req.minesweeper.causal_departure). Tracks the run-local durable pending
-## consequence transaction shared by Minesweeper board settlement, Shop condition departure, and
-## Schedule Done (amendment §12.2's one causal commit sequence), plus the unpublished outbox that
-## survives past pending-cleanup.
-##
-## Mirrors DesktopBoardState's discipline: every `prepare_*()` validates against LIVE state and
-## returns a detached candidate; only `commit()` mutates, and `commit()` is the sole transaction-id
-## ledger (identical replay returns the stored result; changed bytes at an occupied transaction
-## conflict).
-##
-## ASSUMPTION, not literally spelled out by the brief or the amendment (documented per the
-## project's own precedent, e.g. DesktopIdentityNonceIssuer's schema_version note): the "ordinary
-## graph advance" between causal admission and publication is exactly one step -- `sequence_
-## committed -> publication_pending` -- for every source_kind. The brief fixes the two ENDS of the
-## graph (two pre-admission action phases; a `publication_pending` self-loop while publication
-## callbacks progress; a terminal cleanup edge to a null pending) but names no interior stage for
-## any particular source_kind, so a single ordinary edge is the minimal shape that satisfies all
-## three quoted laws without inventing unstated stage names.
 
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
@@ -46,19 +27,10 @@ const _STATE_KEYS: Array[String] = [
 const _ISSUER_PROVENANCE_KEYS: Array[String] = ["causal_day_instance", "causal_day_instance_issuer_receipt"]
 const _ISSUER_RECEIPT_KEYS: Array[String] = ["counter", "namespace", "numeric_value", "purpose", "receipt_id", "token"]
 
-## Task 7 (dwm-p2r.32.7) registration seam filled in: amendment SS8.3's "current-causal-day
-## base-completion and Supportz records", scoped by controller ruling into this class as an
-## exact-key extension of the frozen state (see DesktopContinuationRemapper's own _REMAP_TABLE row
-## for the matching registration on that side). `base_completion_receipts` stores every historical
-## qualifying completion (kind=complete, app_round_ordinal in {1,2}) across every causal day, not
-## just today's -- MinesweeperCapabilityRules.supportz_eligible() does its own per-day filtering, so
-## this ledger stays a simple flat append log rather than a nested per-day index.
 const _SHOP_LEDGER_KEYS: Array[String] = [
 	"supportz_branch_purchase_count", "supportz_last_purchase_causal_day_instance",
 	"base_completion_receipts",
 ]
-## Mirrors MinesweeperCapabilityRules._COMPLETION_RECEIPT_KEYS exactly (KNOWN CONSUMER CONTRACT,
-## Task-7 controller ruling): that rule fails closed unless projected to precisely these 3 keys.
 const _BASE_COMPLETION_RECEIPT_KEYS: Array[String] = ["kind", "app_round_ordinal", "causal_day_instance"]
 const _BASE_COMPLETION_ORDINALS := [1, 2]
 
@@ -82,14 +54,6 @@ const _RECOVERY_PAYLOAD_KEYS_ACTION: Array[String] = [
 const _RECOVERY_PAYLOAD_KEYS_SCHEDULE: Array[String] = [
 	"source_kind", "schedule_header", "run_revision_before", "participant_snapshot_ids",
 ]
-## dwm-p2r.35.7 remediation (finding 4): the shape `DesktopConsequenceCoordinator
-## ._build_admission_ready_payload()` actually writes into `pending.recovery_payload` from ordinal 1
-## onward -- the frozen 17-key admission-ready shape (plan02-frozen-contracts.md lines 344-363) plus
-## that coordinator's own documented 4 free-form additions (`causal_sequence_reservation_request`,
-## `causal_sequence_reservation_candidate`, `destination_intent`, `notification_intent` -- see its own
-## class-doc SCOPE NOTE and CRITICAL-2 comments). `validate_recovery_payload()` below never accepted
-## this shape before this fix, even though it is the shape production actually persists for the
-## entire post-ordinal-1 life of every action-source transaction.
 const _RECOVERY_PAYLOAD_KEYS_ACTION_ADMISSION_READY: Array[String] = [
 	"schema_version", "source_kind", "payload_phase", "action_candidate", "action_candidate_sha256",
 	"condition_candidate", "condition_candidate_sha256", "board_candidate", "board_candidate_sha256",
@@ -107,10 +71,6 @@ var _pending: Variant = null
 var _outbox: Dictionary = {}
 var _command_receipts: Dictionary = {}
 var _shop_ledger: Dictionary = _empty_shop_ledger()
-## The already-proven `pending.recovery_payload_sha256` the last adopted candidate carried, so a
-## caller that derived it over these exact immutable bytes does not make every later seam derive it
-## again. It is a proof already made, never an authorisation: a wrong, stale or empty token only
-## costs the full derivation. Cleared whenever pending is adopted as null -- nothing left to prove.
 var _proven_pending_payload_sha256: String = ""
 
 
@@ -137,14 +97,7 @@ static func _empty_shop_ledger() -> Dictionary:
 	}
 
 
-# -------------------------------------------------------------------------------------------------
-# Static: pure structural law
-# -------------------------------------------------------------------------------------------------
 
-## `issuer_provenance` is the snapshot-only causal-day token/receipt pair every v4 owner binds as
-## one inseparable unit (brief line 203/362): `{causal_day_instance, causal_day_instance_issuer_
-## receipt}`. This never mints or verifies against the root; it only proves internal self-
-## consistency (token == receipt.token, receipt.purpose == "causal_day_instance").
 static func make_empty(issuer_provenance: Dictionary) -> Dictionary:
 	var provenance_check := _validate_issuer_provenance(issuer_provenance)
 	if not provenance_check.get("ok", false):
@@ -162,17 +115,10 @@ static func make_empty(issuer_provenance: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"state": state}, "receipt": {}}
 
 
-## `proven_recovery_payload_sha256`, when it equals the candidate pending record's own
-## `recovery_payload_sha256`, is a caller restating a proof it already derived over these exact
-## bytes, so that derivation is not repeated. Every other value -- empty, stale, or proven over
-## another transaction's payload -- falls through to the full derivation unchanged.
 static func validate(state: Dictionary, proven_recovery_payload_sha256: String = "") -> Dictionary:
 	return _validate_impl(state, false, proven_recovery_payload_sha256)
 
 
-## Identical to `validate()` except it accepts the one in-flight admission shape described on
-## `_validate_pending()`. Private: the only legal caller is `checkpoint_content_preimage()`, which
-## needs to build the preimage for the very candidate that will produce the admission receipt.
 static func _validate_for_preimage(state: Dictionary, proven_recovery_payload_sha256: String = "") -> Dictionary:
 	return _validate_impl(state, true, proven_recovery_payload_sha256)
 
@@ -210,23 +156,6 @@ static func _validate_impl(state: Dictionary, allow_pending_admission: bool,
 	return {"ok": true, "code": &"ok", "value": {"state": state.duplicate(true)}, "receipt": {}}
 
 
-## Discriminated recovery-payload union keyed by source_kind AND (for action sources) payload_phase.
-## Action sources (minesweeper_round, shop_purchase) freeze one already-produced source commit
-## receipt at the pre-admission `payload_phase="source_checkpoint"` shape (this class's own ordinal-0
-## shape, predating its later payload_phase convention -- the field is simply absent rather than
-## literally "source_checkpoint", see the dwm-p2r.35.7 remediation note below); schedule_done freezes
-## the Schedule transport header instead (brief line 249: "already-prepared_checkpointed for
-## Schedule"). Both bind `expected_sha256` -- the canonical hash the pending record and every later
-## recovery-advance preimage anchors to -- so progress can never silently mutate the frozen payload.
-##
-## dwm-p2r.35.7 remediation (finding 4): added the `payload_phase="admission_ready"` branch. Before
-## this fix, this public static validator enforced ONLY the 4-key pre-admission shape, even though
-## `DesktopConsequenceCoordinator.accept_prepared_action()` overwrites `pending.recovery_payload` with
-## a richer admission-ready payload at ordinal 1 and every stage after -- so this validator rejected
-## the payload its own coordinator writes for the entire post-ordinal-1 life of every transaction.
-## `_validate_pending()` (the actual gate `commit()`/`validate()` run through) never called this
-## method and only hash-checks `recovery_payload`, which is why the bug was invisible there; a
-## downstream plan reaching for this validator directly would still have hit it.
 static func validate_recovery_payload(source_kind: StringName, payload: Dictionary,
 		expected_sha256: String) -> Dictionary:
 	if not SOURCE_KINDS.has(String(source_kind)):
@@ -266,14 +195,6 @@ static func validate_recovery_payload(source_kind: StringName, payload: Dictiona
 	return {"ok": true, "code": &"ok", "value": {"payload": payload.duplicate(true)}, "receipt": {}}
 
 
-## Frozen checkpoint preimage builder (brief lines 205, 350, 362). `stage_candidate` is the
-## complete NEXT semantic DesktopConsequenceState candidate; the current `checkpoint_receipt` is
-## always nulled in the preimage (it is what the caller is about to mint), and the immutable
-## `admission_checkpoint_receipt` is omitted from the preimage ONLY when this preimage is itself
-## producing that admission receipt (i.e. the candidate's pending stage is already
-## `sequence_committed` and `admission_checkpoint_receipt` is still null on the candidate) -- every
-## later preimage retains it. Source IDs inside the header are lexically sorted after set
-## projection so caller-authored ordering cannot smuggle a different preimage past re-derivation.
 static func checkpoint_content_preimage(checkpoint_header: Dictionary, stage_candidate: Dictionary,
 		proven_recovery_payload_sha256: String = "") -> Dictionary:
 	var header_keys: Array = checkpoint_header.keys()
@@ -295,22 +216,10 @@ static func checkpoint_content_preimage(checkpoint_header: Dictionary, stage_can
 		return candidate_validation
 	var candidate: Dictionary = (candidate_validation["value"] as Dictionary)["state"]
 	if candidate["pending"] == null:
-		# Terminal cleanup (Task 8, dwm-p2r.32): the target candidate's pending is already null, so
-		# there is no per-pending projection to strip -- the validated header plus the complete
-		# pending-null candidate together are already the exact preimage (brief line 477: "For
-		# terminal cleanup, the validated frozen header remains the only source of transaction/source
-		# identity after that complete candidate's pending value becomes null"). Previously this
-		# branch unconditionally rejected every null-pending candidate regardless of header content,
-		# which made cleanup impossible for every source kind; nothing in the existing suite exercised
-		# this path (Task 7's own report: "Task 7 never clears... pending back to null... explicitly
-		# Task 8's territory"), so this is a genuine, previously-unreachable gap this task closes,
-		# not a behavior change to any tested case.
 		return {"ok": true, "code": &"ok", "value": {"preimage": {
 			"header": normalized_header,
 			"stage_candidate": candidate,
 		}}, "receipt": {}}
-	# _validate_for_preimage() already returned a deep-detached candidate. Project the checkpoint
-	# receipt fields on that private tree instead of copying its large recovery payload twice more.
 	var pending: Dictionary = candidate["pending"]
 	pending["checkpoint_receipt"] = null
 	var is_admission_preimage := str(pending["stage"]) == String(STAGE_SEQUENCE_COMMITTED) \
@@ -323,17 +232,11 @@ static func checkpoint_content_preimage(checkpoint_header: Dictionary, stage_can
 	}}, "receipt": {}}
 
 
-# -------------------------------------------------------------------------------------------------
-# Instance: live-state transitions
-# -------------------------------------------------------------------------------------------------
 
 func capture() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"state": _live_state()}, "receipt": {}}
 
 
-## The candidate carries the caller's already-proven `pending.recovery_payload_sha256` forward to
-## `commit()`, which retains it for the pending it adopts. The candidate envelope is private to this
-## class -- it is never hashed into a checkpoint record -- so this adds no bytes to any record.
 func prepare_restore(state: Dictionary, proven_recovery_payload_sha256: String = "") -> Dictionary:
 	var validated := validate(state, proven_recovery_payload_sha256)
 	if not validated.get("ok", false):
@@ -344,10 +247,6 @@ func prepare_restore(state: Dictionary, proven_recovery_payload_sha256: String =
 	}}, "receipt": {}}
 
 
-## Binds a causal port's (not-yet-durable) sequence receipt onto the live pending record, advancing
-## it toward `sequence_committed`. Neither sequence nor run_revision is live yet (brief line 249):
-## this only produces the detached candidate the causal port's admission/commit dance will later
-## adopt atomically together with the disk checkpoint receipt.
 func prepare_sequence_reservation(request: Dictionary, causal_sequence_receipt: Dictionary) -> Dictionary:
 	if _pending == null:
 		return _fail(&"consequence_no_pending_transaction", "prepare_sequence_reservation requires a pending transaction", {})
@@ -375,9 +274,6 @@ func prepare_sequence_reservation(request: Dictionary, causal_sequence_receipt: 
 	}}, "receipt": {}}
 
 
-## Creates the initial pending record for an action source (minesweeper_round, shop_purchase),
-## frozen at `action_prepared` -- the "full unpromoted source checkpoint" persisted before the
-## causal port is ever consulted (brief line 249).
 func prepare_action_handoff(action_receipt: Dictionary, expected_run_revision: int,
 		recovery_payload: Dictionary) -> Dictionary:
 	if _pending != null:
@@ -427,9 +323,6 @@ func prepare_action_handoff(action_receipt: Dictionary, expected_run_revision: i
 	}}, "receipt": {}}
 
 
-## Creates the initial pending record for the schedule_done source, frozen at `prepared_
-## checkpointed` -- Schedule's own flow has already checkpointed its commit before handoff (brief
-## line 249), so this binds the transport header rather than an action receipt.
 func prepare_schedule_recovery_transport(header: Dictionary, recovery_payload: Dictionary) -> Dictionary:
 	if _pending != null:
 		return _fail(&"consequence_transaction_already_pending", "a pending transaction already exists", {})
@@ -472,14 +365,6 @@ func prepare_schedule_recovery_transport(header: Dictionary, recovery_payload: D
 	}}, "receipt": {}}
 
 
-## Advances the pending consequence graph by one edge. `next_stage` is `StringName|null`:
-## - ordinary graph advance: `expected_stage=sequence_committed, next_stage=publication_pending`;
-## - one-callback progress: `expected_stage=next_stage=publication_pending` (publication_progress
-##   cursor advances by exactly one participant receipt);
-## - terminal cleanup: `expected_stage=publication_pending, next_stage=null` (requires a complete
-##   publication cursor; the resulting candidate's pending transaction is null).
-## Never accepts or constructs a checkpoint receipt (brief line 205): the checkpoint port is the
-## sole legal consumer of the candidate this returns.
 func prepare_recovery_advance(transaction_id: String, expected_stage: StringName, next_stage: Variant,
 		participant_receipts: Dictionary, destination_intent: Variant, notification_intent: Variant,
 		publication_progress: Variant) -> Dictionary:
@@ -541,17 +426,8 @@ func prepare_recovery_advance(transaction_id: String, expected_stage: StringName
 			"checkpoint_header": {
 				"kind": &"consequence_cleanup", "transaction_id": transaction_id,
 				"stage": String(STAGE_PUBLICATION_PENDING),
-				# Terminal cleanup is the one frozen ordinal shared by every source_kind
-				# (plan02-frozen-contracts.md line 132: "terminal cleanup 12").
 				"operation_ordinal": 12,
-				# ASSUMPTION (documented per this file's own established convention, see the class
-				# doc comment): run_id is not a member this class's live state ever holds --
-				# DesktopConsequenceState tracks only causal_day_instance/run_revision/causal_sequence,
-				# never run_id -- so it cannot be sourced honestly here. Left blank for the checkpoint
-				# port/coordinator, which does hold it, to fill in if the header truly needs it.
 				"run_id": "",
-				# Per the preimage/remap law (brief line 291): this checkpoint's own transaction is
-				# its only real source. A single-element array is trivially sorted/unique/nonblank.
 				"source_ids": [transaction_id],
 			},
 			"proven_recovery_payload_sha256": _proven_pending_payload_sha256,
@@ -569,7 +445,6 @@ func prepare_recovery_advance(transaction_id: String, expected_stage: StringName
 			"stage": String(pending_after["stage"]),
 			"operation_ordinal": _operation_ordinal(
 				str(pending["source_kind"]), expected_stage, next_stage, publication_progress),
-			# ASSUMPTION: see the terminal-cleanup branch above -- run_id is not held by this class.
 			"run_id": "",
 			"source_ids": [transaction_id],
 		},
@@ -578,17 +453,6 @@ func prepare_recovery_advance(transaction_id: String, expected_stage: StringName
 	}, "receipt": {}}
 
 
-## Frozen per-source-kind continuation_operation ordinal table (plan02-frozen-contracts.md lines
-## 127-132, 319-321). This file's own documented interior-stage-graph simplification (see the class
-## doc comment) means the intermediate action/condition/board_fate/schedule_view/consequence_
-## checkpointed stage-entry ordinals never occur here; `prepare_recovery_advance()` only ever
-## produces the ordinary edge into publication_pending (8 for action sources, 6 for schedule_done)
-## and the appended one-callback-progress ordinals. Those progress ordinals are exactly sequential
-## starting at 9 (action) / 7 (schedule_done) in the frozen table regardless of departure/
-## no-departure list length, so `base + (new_cursor - 1)` reproduces the frozen table exactly using
-## only the publication_progress cursor this method already receives -- no mutable counter needed to
-## keep this a pure function of its own inputs (a mutable per-call counter would break replay safety
-## for a supposedly pure prepare method).
 static func _operation_ordinal(source_kind: String, expected_stage: StringName, next_stage: Variant,
 		publication_progress: Variant) -> int:
 	var is_action := source_kind in ACTION_SOURCE_KINDS
@@ -602,16 +466,6 @@ static func _operation_ordinal(source_kind: String, expected_stage: StringName, 
 	return 0
 
 
-## dwm-p2r.35.7 remediation (finding 5): plan02-frozen-contracts.md line 319's own closing rule --
-## "a plan-hash mismatch... reject" -- enforced here, the one place both the live pending's own
-## admitted `publication_plan_sha256` (inside `recovery_payload`, frozen at ordinal 1 and immutable
-## thereafter) and a caller-supplied `publication_progress.publication_plan_sha256` are both in scope
-## together. A durable progress cursor that names a different plan than the one this transaction was
-## actually admitted under can never silently be adopted. Scoped to action source kinds only:
-## schedule_done's own recovery_payload has no `publication_plan_sha256` member in this codebase yet
-## (Plan 03 territory, matching this file's own established precedent of leaving that source_kind's
-## unreached stages/ordinals absent rather than inventing them) -- the check is a no-op when the live
-## recovery_payload carries no such field to compare against.
 static func _check_publication_plan_hash(pending: Dictionary, progress: Dictionary) -> Dictionary:
 	var recovery_payload: Dictionary = pending.get("recovery_payload", {})
 	var expected: Variant = recovery_payload.get("publication_plan_sha256")
@@ -623,16 +477,6 @@ static func _check_publication_plan_hash(pending: Dictionary, progress: Dictiona
 	return {"ok": true}
 
 
-## dwm-p2r.35.3 remediation (finding A-C3): the same frozen ordinal<->stage pairing above, reachable as
-## a cross-check for every checkpoint AUTHOR, not just this class's own `prepare_recovery_advance()`
-## edges. Ordinal 0 is the action source participant's own durable pre-admission checkpoint
-## (`MinesweeperRoundCoordinator.complete_round()` / `MinesweeperShopPurchaseParticipant
-## .prepare_purchase()`); ordinal 1 is `DesktopConsequenceCoordinator`'s own admission-ready payload;
-## ordinal 2 is the admission itself; ordinals 8-12 are this class's own `prepare_recovery_advance()`
-## publication-progress/terminal-cleanup edges (`_operation_ordinal()` above). `schedule_done`'s own
-## ordinals are outside this codebase's current reach (Plan 03 territory) and are deliberately absent
-## here -- extending this table for that source_kind is that plan's own job, not a silent renumbering
-## of this one.
 const CHECKPOINT_ORDINAL_STAGE_LAW: Dictionary = {
 	0: "action_prepared", 1: "action_prepared", 2: "sequence_committed",
 	8: "publication_pending", 9: "publication_pending", 10: "publication_pending",
@@ -640,12 +484,6 @@ const CHECKPOINT_ORDINAL_STAGE_LAW: Dictionary = {
 }
 
 
-## The sole ordinal/stage cross-check every checkpoint write must satisfy, called centrally from
-## `SaveManagerCheckpointPort.prepare_consequence_checkpoint()` -- the one place every checkpoint
-## author's write already passes through -- so ordinal 0 (authored by two different source
-## participants) and ordinals 8-12 (authored by this class, never previously cross-checked) are
-## guarded exactly as uniformly as `DesktopConsequenceCoordinator`'s own directly-authored ordinals 1
-## and 2 already were.
 static func validate_checkpoint_ordinal_stage(operation_ordinal: int, stage: String) -> Dictionary:
 	var expected: Variant = CHECKPOINT_ORDINAL_STAGE_LAW.get(operation_ordinal)
 	if expected == null or stage != String(expected):
@@ -655,9 +493,6 @@ static func validate_checkpoint_ordinal_stage(operation_ordinal: int, stage: Str
 	return {"ok": true}
 
 
-## Toggles exactly one outbox entry's `published` bit from false to true. Outside the continuation
-## graph (brief line 205): cannot run while a pending transaction is still live, cannot change
-## run_revision/causal_sequence/receipts/payloads, and cannot touch the other outbox kind.
 func prepare_outbox_publication(request: Dictionary) -> Dictionary:
 	if _pending != null:
 		return _fail(&"consequence_publication_requires_no_pending", "prepare_outbox_publication requires no pending transaction", {})
@@ -681,7 +516,6 @@ func prepare_outbox_publication(request: Dictionary) -> Dictionary:
 	if str(live_entry["consumer"]) != str(request["consumer"]):
 		return _fail(&"outbox_consumer_mismatch", str(request["consumer"]), {})
 	if str(live_entry["status"]) != "pending":
-		# Byte-identical accepted replay returns the same candidate without allocating anything new.
 		return _fail(&"outbox_already_published", kind, {})
 	var published_entry: Dictionary = live_entry.duplicate(true)
 	published_entry["status"] = "published"
@@ -694,8 +528,6 @@ func prepare_outbox_publication(request: Dictionary) -> Dictionary:
 	}}, "receipt": {}}
 
 
-## Moves each admitted intent into the durable outbox in the same terminal-cleanup candidate that
-## clears pending. The record is self-contained after the pending transaction disappears.
 func _retain_pending_intents(pending: Dictionary, state_after: Dictionary) -> Dictionary:
 	var outbox: Dictionary = (state_after["outbox"] as Dictionary).duplicate(true)
 	var pairs := [
@@ -765,22 +597,7 @@ func _durable_outbox_record(slot: String, intent: Dictionary, pending: Dictionar
 	}
 	return {"ok": true, "code": &"ok", "value": {"record": record}, "receipt": {}}
 
-# -------------------------------------------------------------------------------------------------
-# Task 7 (dwm-p2r.32.7) shop ledger -- Supportz branch/day purchase record and current-causal-day
-# base-completion receipts, per the controller ruling scoping amendment SS8.3 into this class.
-# Independent of `_pending`: unlike the causal continuation graph above, these counters are plain
-# durable facts that MinesweeperShopPurchaseParticipant reads/advances around its own admission
-# boundary (a pending action transaction is routinely still live -- at `sequence_committed` -- when
-# the participant's forward commit() records a Supportz purchase here), so neither method gates on
-# `_pending == null`.
-# -------------------------------------------------------------------------------------------------
 
-## Records one qualifying base-completion receipt (a Minesweeper app round finishing at ordinal 1
-## or 2). Idempotent by content: a byte-identical entry already recorded is not appended twice,
-## since -- unlike every other prepare_*() here -- this has no caller-supplied transaction_id to
-## anchor a ledger replay against (Task 8's future round-completion flow is expected to call this
-## once per genuinely distinct completion; duplicate-content protection is a cheap, honest backstop,
-## not a substitute for that caller's own idempotency).
 func prepare_record_base_completion(receipt: Dictionary) -> Dictionary:
 	var receipt_check := _validate_base_completion_receipt(receipt)
 	if not receipt_check.get("ok", false):
@@ -799,12 +616,6 @@ func prepare_record_base_completion(receipt: Dictionary) -> Dictionary:
 	}}, "receipt": {}}
 
 
-## Records one Supportz purchase against the branch/day ledger. Reuses commit()'s existing
-## transaction-id ledger for idempotent replay (a byte-identical retry at the same transaction_id
-## returns the original result rather than incrementing the count twice); the participant's own
-## forward commit() is this method's sole caller, gated on the matching pending transaction already
-## being `sequence_committed` (Task-7 boundary ruling) -- so a merely-prepared, not-yet-admitted
-## purchase never advances this count.
 func prepare_record_supportz_purchase(transaction_id: String, causal_day_instance: String) -> Dictionary:
 	if transaction_id.strip_edges().is_empty():
 		return _fail(&"invalid_transaction_id", "transaction_id must be nonblank", {})
@@ -821,11 +632,6 @@ func prepare_record_supportz_purchase(transaction_id: String, causal_day_instanc
 	}}, "receipt": {}}
 
 
-## Pure projection into MinesweeperCapabilityRules.supportz_eligible()'s exact minimal 4-key input
-## shape (KNOWN CONSUMER CONTRACT, Task-7 controller ruling): every stored completion receipt is
-## already exactly {kind,app_round_ordinal,causal_day_instance}, so the projection below is an
-## identity copy today, but it stays an explicit projection rather than handing the rule this
-## ledger's own dictionary so the two shapes may not silently diverge.
 func supportz_eligibility_state(causal_day_instance: String) -> Dictionary:
 	if causal_day_instance.strip_edges().is_empty():
 		return _fail(&"invalid_causal_day_instance", "causal_day_instance must be nonblank", {})
@@ -844,19 +650,7 @@ func supportz_eligibility_state(causal_day_instance: String) -> Dictionary:
 	}}, "receipt": {}}
 
 
-# -------------------------------------------------------------------------------------------------
-# commit() / rollback() -- sole mutator and transaction ledger
-# -------------------------------------------------------------------------------------------------
 
-## The sole mutator and, per this class's own doc comment, the sole transaction-id ledger: an
-## identical replay of an already-committed non-restore operation returns the stored result rather
-## than re-adopting (which would otherwise fail stale_run_revision or silently double-apply);
-## changed bytes at an occupied ledger key conflict instead. `restore` bypasses the ledger entirely
-## (mirrors DesktopBoardState.commit()'s own established precedent) since it is the sole legal
-## consumer for checkpoint-port-driven forward/cleanup adoption, whose own receipt is the idempotency
-## anchor. The ledger key is `transaction_id + "@" + kind` rather than bare transaction_id: one
-## pending transaction crosses MULTIPLE distinct commit() operations (action_handoff, then later a
-## direct sequence_reservation commit) that must not collide on the same key.
 func commit(candidate: Dictionary) -> Dictionary:
 	if not candidate.has("kind") or not (candidate["kind"] is StringName):
 		return _fail(&"invalid_candidate", "candidate.kind is required", {})
@@ -900,11 +694,6 @@ static func _ledger_key(candidate: Dictionary) -> String:
 	return transaction_id + "@" + String(candidate["kind"])
 
 
-## A rollback proves nothing about the payload it restores. Unlike `prepare_restore()`, which derives
-## the hash in full whenever its caller brings none, this adopts a caller-supplied backup that no
-## seam validated, so the retention rule must not carry a proof across it on declared-hash equality:
-## a backup whose pending declares a hash its bytes do not have would otherwise inherit the very
-## proof that suppresses the derivation which would have caught it.
 func rollback(backup: Dictionary) -> Dictionary:
 	if typeof(backup.get("state")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_backup", "backup.state is required", {})
@@ -921,28 +710,14 @@ func _adopt_state(state: Dictionary, proven_recovery_payload_sha256: String = ""
 	_pending = _dup_or_null(state["pending"])
 	_outbox = (state["outbox"] as Dictionary).duplicate(true)
 	_shop_ledger = (state["shop_ledger"] as Dictionary).duplicate(true)
-	# Retention rule. A pending adopted as null has no recovery payload left for any seam to prove.
-	# A candidate carrying its own proof replaces whatever was retained. A candidate carrying none --
-	# every shop-ledger record committed at `sequence_committed`, and every plain `prepare_restore()`
-	# of a captured state -- keeps the retained proof only while the adopted pending declares the SAME
-	# `recovery_payload_sha256` string. That proof was derived over the bytes which declare that
-	# string, and no code path mutates `recovery_payload` in place (every later tree is a
-	# duplicate(true) of the one the transaction minted once), so the declared-hash equality is exactly
-	# the trust the restore seam already relies on. It admits nothing either: `_validate_pending()`
-	# compares the token against the declared hash before skipping, so a stale or wrong token can only
-	# ever cost one full derivation.
 	if _pending == null:
 		_proven_pending_payload_sha256 = ""
 	elif not proven_recovery_payload_sha256.is_empty():
 		_proven_pending_payload_sha256 = proven_recovery_payload_sha256
 	elif str((_pending as Dictionary).get("recovery_payload_sha256", "")) != _proven_pending_payload_sha256:
-		# Different declared bytes: the retained proof was made over the old ones.
 		_proven_pending_payload_sha256 = ""
 
 
-# -------------------------------------------------------------------------------------------------
-# Shared helpers
-# -------------------------------------------------------------------------------------------------
 
 func _live_state() -> Dictionary:
 	return {
@@ -980,14 +755,6 @@ func _validate_causal_sequence_receipt(receipt: Dictionary, request: Dictionary,
 	return {"ok": true}
 
 
-## dwm-p2r.35.7 remediation (finding 5): adopts the frozen shape (plan02-frozen-contracts.md lines
-## 311-317) exactly -- `{publication_plan_sha256, callback_ids, next_callback_index,
-## callback_receipts}` -- replacing the previous local `{cursor, complete, callback_receipts}` shape,
-## which carried neither the plan hash nor the callback id list and therefore could never be checked
-## against a different plan (see _check_publication_plan_hash() above) nor let a resumed coordinator
-## recognize which ordered callback list a durable cursor belongs to. `complete` is no longer a
-## stored field -- it is derived wherever needed (`next_callback_index >= callback_ids.size()`), since
-## the frozen shape has no such member.
 func _validate_publication_progress_shape(progress: Variant) -> Variant:
 	if typeof(progress) != TYPE_DICTIONARY:
 		return null
@@ -1031,11 +798,6 @@ static func _validate_issuer_provenance(provenance: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
-## `allow_pending_admission` relaxes exactly one rule: at stage `sequence_committed` with both
-## receipts still null, this is the in-flight admission candidate the checkpoint preimage itself is
-## about to mint a receipt for (a live DesktopConsequenceState may never carry this shape --
-## `validate()` always calls with `allow_pending_admission=false`; only `checkpoint_content_
-## preimage()`'s own admission-preimage branch calls with `true`).
 static func _validate_pending(pending: Dictionary, allow_pending_admission: bool,
 		proven_recovery_payload_sha256: String = "") -> Dictionary:
 	var shape := _exact_keys(pending, _PENDING_KEYS, &"pending_member_set_invalid")
@@ -1059,8 +821,6 @@ static func _validate_pending(pending: Dictionary, allow_pending_admission: bool
 		return _fail(&"pending_field_invalid", "recovery_payload must be an object", {})
 	if not _is_lowercase_sha256(pending["recovery_payload_sha256"]):
 		return _fail(&"pending_field_invalid", "recovery_payload_sha256 must be lowercase sha256 hex", {})
-	# The derivation below is the proof; an already-proven token only skips REPEATING it, and only
-	# for bytes whose own record already agrees with that token. Anything else derives as before.
 	if proven_recovery_payload_sha256.is_empty() \
 			or proven_recovery_payload_sha256 != str(pending["recovery_payload_sha256"]):
 		if _canonical_sha256(pending["recovery_payload"]) != str(pending["recovery_payload_sha256"]):

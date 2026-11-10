@@ -140,3 +140,11 @@ Investigate deferring the outer traversal when the canonical owners match and a 
 Before editing, measure both passes in one complete Save/Load workload. After editing, verify the exact restored state, complete caption, consequence behavior, current Profile checks, and refusal after later invalid input. Compare complete operations in both orders. Combined-invalid-input refusal ordering can change and must be recorded. No persistent cache or new manager is needed by this proposal.
 
 This audit identifies a candidate; it does not claim that the next removal is implemented or faster. A broader redesign could remove further historical requirements, but that would require identifying the player-visible behavior being changed rather than silently dropping checks.
+
+
+## Native JSON control-character boundary
+
+`CanonicalJsonWriter._can_use_native_encoder` excludes unsupported C0 controls
+because Godot encodes vertical tab as `\v`, which JSON does not permit. The
+checked emitter retains ownership of those strings. Comment removal does not
+change that predicate or its existing compatibility checks.

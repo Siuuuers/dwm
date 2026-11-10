@@ -1,14 +1,10 @@
 class_name OrdinaryReplyEchoState
 extends RefCounted
 
-## Six virtual unanswered messages; only a witnessed chosen reply becomes history.
-## Unanswered expiry is retained invisibly in the existing day-end receipt.
-## Pending echoes are derived from the two existing Contacts receipt kinds, never a second index.
 const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 const ROOT := preload("res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd")
 const CALENDAR := preload("res://scripts/domain/contact/SevenDayCalendar.gd")
-# Compatibility alias for callers that enumerate the ordinary-message calendar.
 const DAYS := CALENDAR.ORDINARY_BY_DAY
 const MESSAGE_KINDS := ["ordinary_incoming", "ordinary_reply", "ordinary_response"]
 const RECEIPT_KINDS := ["ordinary_reply", "ordinary_echo_presented"]
@@ -16,7 +12,6 @@ const REPLY_KEYS := ["command_issuer_receipt", "content_version", "day", "echo_i
 const ECHO_KEYS := ["command_issuer_receipt", "echo_id", "kind", "presentation_atom_id", "presentation_receipt", "reply_transaction_id", "transaction_id"]
 const PROOF_KEYS := ["counter", "namespace", "numeric_value", "purpose", "receipt_id", "token"]
 const LOCALES := ["en", "zh-CN", "zh-HK", "ja", "ko"]
-# Provisional functional copy. Keep versioned historical literals when later prose replaces v1.
 const COPY := {
 	"en": {
 		"incoming": "A small thought for today. Would you like to talk?",
@@ -69,14 +64,12 @@ static func reply_definition(reply_id: String, locale: String = "en") -> Diction
 	var ordinal: int = result.choice_ordinal
 	result.erase("choice_ordinal")
 	result["locale"] = locale
-	# UI-only draft locales retain the authored English correspondence.
 	var copy: Dictionary = COPY.get(locale, COPY.en)
 	result["text"] = str(copy.choices[ordinal])
 	result["incoming_text"] = str(copy.incoming)
 	result["response_text"] = str(copy.responses[ordinal])
 	return _ok(result)
 
-## The fixed six-entry namespace needs no narrative file loading at midnight.
 static func entry_id_for_day(day: int) -> String:
 	var friend_id := CALENDAR.ordinary_friend(day)
 	return "" if friend_id.is_empty() else "contact.ordinary.%s.day%d" % [friend_id, day]
@@ -227,7 +220,6 @@ static func validate_receipt(receipt: Dictionary) -> Dictionary:
 		return _fail("ordinary_command_unverified")
 	return _ok({})
 
-## This narrow validator ignores existing legacy Contact fields, but never ignores our rows.
 static func validate_state(state: Dictionary) -> Dictionary:
 	var ledger: Variant = state.get("transaction_receipts", {})
 	if not ledger is Dictionary: return _fail("invalid_ordinary_receipt_index")
@@ -304,7 +296,6 @@ static func resolve_history_message(state: Dictionary, message: Dictionary, loca
 	var index: int = MESSAGE_KINDS.find(str(message.get("type", "")))
 	if index < 0 or source.message_ids[index] != message.get("message_id"): return _fail("ordinary_history_unowned")
 	var text: String = [row.value.incoming_text, row.value.text, row.value.response_text][index]
-	# The chosen primary-language witness remains the exact original versioned literal.
 	if index == 1 and locale == source.locale: text = str(source.rendered_line.text)
 	return _ok({"id": message.message_id, "outgoing": index == 1, "text": text})
 
@@ -383,9 +374,6 @@ static func _ok(value: Dictionary) -> Dictionary:
 static func _fail(code: String) -> Dictionary:
 	return {"ok": false, "code": StringName(code), "message": ""}
 
-## Scene replies retain the existing prepare -> actual transcript draw -> commit
-## boundary, but have no day/expiry/echo producer. Registration lookup and receipt
-## ownership stay in ContactInvitationState and the selected full-B owner.
 static func validate_scene_rendered_line(command_id: String, line_id: String, text: String,
 		rendered_line: Dictionary) -> Dictionary:
 	if command_id.strip_edges().is_empty() or line_id.strip_edges().is_empty() or text.strip_edges().is_empty() \

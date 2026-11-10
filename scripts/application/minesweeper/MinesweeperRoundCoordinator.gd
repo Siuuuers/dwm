@@ -4,24 +4,6 @@ const _REGISTER_QUERY := preload("res://scripts/application/minesweeper/Mineswee
 const _CATALOG := preload("res://scripts/domain/minesweeper/MinesweeperBoardCatalog.gd")
 const PERFORMANCE := preload("res://scripts/domain/minesweeper/BoardPerformance.gd")
 
-## Application-level desktop Minesweeper round coordinator (Plan 02 Task 5, dwm-p2r.32,
-## req.minesweeper.round_contract). Deliberately WITHOUT class_name: the global name
-## `MinesweeperRoundCoordinator` is owned by the frozen, retained
-## `scripts/domain/minesweeper/MinesweeperRoundCoordinator.gd`. Callers/tests preload this file by
-## path.
-##
-## Owns exactly one DesktopBoardState instance and drives it, plus the three injected ports and
-## the identity issuer, through the frozen operation order: guard -> duplicate/conflict lookup ->
-## current-state and request validation -> issuer-backed trusted spec -> materialize/adopt -> pure
-## reveal -> preview the checkpoint ID -> prepare the combined GameState candidate/receipt ->
-## prepare the checkpoint -> capture backups -> provisionally commit the checkpoint -> commit
-## GameState/board -> seal -> publish. Task 5 proves this only against contract fakes: no
-## SaveManager lifetime board lock or direct storage call exists here.
-##
-## Routine reveal/flag/chord and visibility commands share the identity/revision/receipt rules but
-## commit only a new stable in-memory DesktopBoardState revision -- they never touch the state or
-## checkpoint ports, since no cost or durability changes after first Reveal (req.minesweeper
-## .round_contract: "No other board command changes those costs").
 
 const _BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 const _REDUCER := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")
@@ -77,30 +59,11 @@ var _generation_port: Object = null
 var _identity_issuer: Object = null
 var _fatal_failure: Dictionary = {}
 
-## Plan 02 Task 6 (dwm-p2r.32), Phase D additions (brief line 154-156). Deliberately separate from
-## the frozen `configure()` above: `configure_durable_checkpoint()` "replaces the Task-5 fake seam
-## only after v4 is green... retains the same issuer/generator/state owner identities" (brief line
-## 295) -- it swaps ONLY the checkpoint path, never installs a second coordinator, and `reveal()`
-## below falls back to the untouched Task-5 fake-checkpoint `_first_reveal()` path whenever this is
-## unconfigured (every existing Task-5 test never calls this, so their behavior is byte-for-byte
-## unchanged).
 var _durable_checkpoint_port: Object = null
 var _snapshot_composer: Script = null
 var _durable_consequence_state_port: Object = null
-## Stored for this coordinator's own causal-sequence publication paths (round completion through
-## DesktopCausalSequencePort) -- NOT first Reveal's own publish() step, which is unrelated and
-## untouched: DesktopPublicationLedger.record_before_emit() requires a `causal_sequence_receipt`
-## field first Reveal's own board_start receipt does not carry (own documented design choice, see
-## the class doc above and the task-6 report).
 var _publication_ledger: Object = null
 
-## Plan 02 Task 8 (dwm-p2r.32) additions: complete_round()'s own action-source handoff into
-## DesktopConsequenceCoordinator, mirroring MinesweeperShopPurchaseParticipant's established shape.
-## `_consequence_coordinator`/`_consequence_gate` are the frozen configure_consequence_port() pair;
-## `_round_consequence_state_port`/`_round_checkpoint_port` are an additive DI seam beyond that
-## frozen 2-arg signature (own design choice -- see configure_consequence_checkpoint()'s own doc
-## comment), matching this file's own established configure_durable_checkpoint() precedent for
-## "the frozen seam is too narrow, add a second one" situations.
 var _consequence_coordinator: Object = null
 var _consequence_gate: ApplicationMutationGate = null
 var _round_consequence_state_port: Object = null
@@ -109,23 +72,10 @@ var _consequence_gate_token := ""
 var _round_completions: Dictionary = {}
 var _reward_port: Object = null
 var _source_checkpoint_capture := Callable()
-## A terminal command commits the board before complete_round() acquires the causal lease. Retain
-## the immediately preceding, fully completed board so the leased full-save capture can write a
-## coherent replay point rather than the terminal board whose reward is not admitted yet.
 var _terminal_pre_input_board: Dictionary = {}
-## dwm-p2r.35.7 remediation (findings 1 and 2): the exact accept_prepared_action() request this same
-## process retained when it first durably wrote ordinal 0 for a transaction -- mirrors
-## MinesweeperShopPurchaseParticipant's own `participant_snapshot_ids` retention pattern, adapted to
-## this source's own richer request shape. Consulted only by _recognize_live_round_pending() below,
-## when a durable pending record for the SAME transaction already exists (this process's own earlier
-## attempt committed ordinal 0 but accept_prepared_action() transiently failed, so
-## prepare_action_handoff() cannot run a second time) -- a genuinely fresh process has nothing here to
-## replay, which is resume_pending()'s own separate job, not complete_round()'s.
 var _round_pending_admission_requests: Dictionary = {}
 var _round_request_fingerprints: Dictionary = {}
 var _round_recovery_committed: Dictionary = {}
-## DWM_CONSEQUENCE_PROFILE gate, read from the environment once per instance in _init(). Every
-## profile marker below costs exactly one boolean check while the variable is unset.
 var _profile_enabled: bool = false
 var _scene_completion_owner: Object
 
@@ -192,7 +142,6 @@ func configure(state_port: Object, checkpoint_port: Object,
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
-## Plan 02 Task 6 (dwm-p2r.32), Phase D addition (brief line 154). Idempotent on the same instance.
 func configure_publication_ledger(publication_ledger: Object) -> Dictionary:
 	if publication_ledger == null or not publication_ledger.has_method("record_before_emit"):
 		return _fail(&"invalid_publication_ledger", "publication_ledger must expose record_before_emit", {})
@@ -204,10 +153,6 @@ func configure_publication_ledger(publication_ledger: Object) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
-## Plan 02 Task 6 (dwm-p2r.32), Phase D addition (brief lines 155-156, 295). Once configured,
-## `reveal()`'s first-Reveal dispatch routes through `_first_reveal_durable()` instead of the
-## Task-5 fake-checkpoint `_first_reveal()`; `_state_port`/`_generation_port`/`_identity_issuer`
-## stay exactly what `configure()` already installed.
 func configure_durable_checkpoint(checkpoint_port: Object, snapshot_composer: Script,
 		consequence_state_port: Object) -> Dictionary:
 	if checkpoint_port == null or not _has_all_methods(checkpoint_port,
@@ -229,8 +174,6 @@ func configure_durable_checkpoint(checkpoint_port: Object, snapshot_composer: Sc
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
-## Plan 02 Task 8 (dwm-p2r.32) frozen addition: `port` is the `DesktopConsequenceCoordinator` this
-## coordinator hands completed rounds to via `accept_prepared_action()`.
 func configure_consequence_port(port: Object, mutation_gate: ApplicationMutationGate) -> Dictionary:
 	if port == null or not port.has_method("accept_prepared_action"):
 		return _fail(&"invalid_consequence_port", "an exact accept_prepared_action capability is required", {})
@@ -245,12 +188,6 @@ func configure_consequence_port(port: Object, mutation_gate: ApplicationMutation
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
-## Additive DI seam beyond `configure_consequence_port()`'s frozen two-argument signature (own design
-## choice, matching this file's own established `configure_durable_checkpoint()` precedent):
-## `complete_round()` needs a `DesktopConsequenceState`-shaped port (for its own ordinal-0 action
-## handoff, mirroring `MinesweeperShopPurchaseParticipant.prepare_purchase()`) and a
-## `SaveManagerCheckpointPort`-shaped consequence-checkpoint port -- neither fits inside the frozen
-## seam's two parameters.
 func configure_consequence_checkpoint(consequence_state_port: Object, checkpoint_port: Object) -> Dictionary:
 	if consequence_state_port == null or not _has_all_methods(consequence_state_port,
 			["capture", "prepare_action_handoff", "prepare_restore", "commit", "prepare_record_base_completion"]):
@@ -267,25 +204,6 @@ func configure_consequence_checkpoint(consequence_state_port: Object, checkpoint
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
-## Derives result/reward inputs from the terminal canonical board only -- callers cannot supply an
-## outcome, reward, counter delta, effect, unlock, identity, nonce, or sequence. Acquires
-## `causal_transaction` before reading/preparing the terminal action, prepares and durably checkpoints
-## the completion candidate (ordinal 0, `stage=action_prepared`, Ruling A) WITHOUT changing live
-## board truth, then delegates to `accept_prepared_action()` under the still-active lease. The actual
-## board transition to settled inspection happens later, as this action source's own
-## `commit_recovery_action()` -- the coordinator's forward-recovery "commit action candidate" step --
-## exactly mirroring how the Shop participant's own economy delta is applied only at that boundary.
-##
-## SCOPE NOTE (own documented judgment call): this task derives only a structural outcome
-## classification (`exploded`|`cleared`, read directly from the board reducer's own native `outcome`
-## field) and the `base_completion_receipts` Supportz-eligibility side effect Task 7 explicitly
-## reserved for Task 8. It does NOT reach into `autoload/GameState.gd`'s legacy money/coin/task/
-## contact/group reward pipeline (`finish_minesweeper_app_round()` and friends) -- that pipeline
-## operates on a hand-supplied 5-value outcome union the pure board reducer cannot derive, requires
-## edits to a file outside this task's own Files list, and sits outside the Interface Map's own
-## framing of Task 8 as building "generic action consequence/view recovery ports". `condition_before`/
-## `condition_after` mirror the Shop participant's own health/pressure/carried_sequela pattern via
-## `GameStateDesktopBoardPort`'s matching Task-8 extension.
 func complete_round(request: Dictionary) -> Dictionary:
 	if is_instance_valid(_scene_completion_owner) and _scene_completion_owner.scene_round_completion_active():
 		return _scene_completion_owner.commit_scene_round_completion(request.duplicate(true))
@@ -320,12 +238,6 @@ func complete_round(request: Dictionary) -> Dictionary:
 	if not verify.get("ok", false):
 		return verify
 
-	# dwm-p2r.35.7 remediation (findings 1 and 2): recognize a durable pending transaction this same
-	# process already handed off (ordinal 0 committed, accept_prepared_action() transiently failed) --
-	# mirrors MinesweeperShopPurchaseParticipant.prepare_purchase()'s own established
-	# _recognize_live_pending() pattern. prepare_action_handoff() below rejects any second pending
-	# outright, so this transaction can never reach it again; only a re-drive of accept_prepared_action()
-	# itself can make forward progress.
 	var precheck: Dictionary = _round_consequence_state_port.call(&"capture")
 	if not precheck.get("ok", false):
 		return precheck
@@ -396,8 +308,6 @@ func complete_round(request: Dictionary) -> Dictionary:
 			return reward
 		action_candidate["reward"] = reward.value.duplicate(true)
 	profile_tick = _consequence_profile_phase(profile, "action_candidate_prepare_us", profile_tick)
-	# Compose under the causal lease, then substitute the matching pre-command board. The
-	# unfinished terminal input may replay after a crash without restoring a half-settled round.
 	var pre_terminal_board := _matching_pre_terminal_board(captured)
 	if not profile.is_empty():
 		profile["source_checkpoint"] = _source_checkpoint_capture.is_valid() and not pre_terminal_board.is_empty()
@@ -459,8 +369,6 @@ func complete_round(request: Dictionary) -> Dictionary:
 		return handoff_prepared
 	var handoff_candidate: Dictionary = (handoff_prepared["value"] as Dictionary)["candidate"]
 
-	# Ruling A: ordinal 0, stage "action_prepared" -- matches MinesweeperShopPurchaseParticipant's
-	# own established convention for the durable, unpromoted source-only checkpoint exactly.
 	var checkpoint_header := {
 		"kind": &"minesweeper_round_action_checkpoint", "operation_ordinal": 0, "run_id": str(identity["run_id"]),
 		"source_ids": [transaction_id], "stage": "action_prepared", "transaction_id": transaction_id,
@@ -483,8 +391,6 @@ func complete_round(request: Dictionary) -> Dictionary:
 			_consequence_gate_token = ""
 		return checkpoint_committed
 
-	# The disk checkpoint is now durable. From here forward this coordinator never rewinds on
-	# failure (mirrors MinesweeperShopPurchaseParticipant's own identical discipline).
 	var consequence_committed: Dictionary = _round_consequence_state_port.call(&"commit", handoff_candidate)
 	profile_tick = _consequence_profile_phase(profile, "pending_state_commit_us", profile_tick)
 	if not consequence_committed.get("ok", false):
@@ -493,15 +399,9 @@ func complete_round(request: Dictionary) -> Dictionary:
 	var accept_request := {
 		"action_receipt": action_receipt, "action_candidate": action_candidate,
 		"prepared_checkpoint_receipt": checkpoint_value["checkpoint_receipt"],
-		# Run revision is consequence-state concurrency, inaccessible to presentation callers. The
-		# coordinator captured it alongside this exact completion and carries that authoritative value.
 		"expected_run_revision": int(live_consequence["run_revision"]),
 		"expected_board_identity": identity, "expected_board_revision": int(captured["revision"]),
 	}
-	# dwm-p2r.35.7 remediation (finding 2): retained so a same-process retry of this now-durably-pending
-	# transaction (recognized above by _recognize_live_round_pending()) can replay this exact
-	# accept_prepared_action() call without recomputing action_candidate/action_receipt/checkpoint
-	# receipt -- prepare_action_handoff() above can never run a second time for this transaction_id.
 	_round_pending_admission_requests[transaction_id] = accept_request.duplicate(true)
 	_round_request_fingerprints[transaction_id] = fingerprint
 	profile_tick = _consequence_profile_phase(profile, "accept_request_retain_us", profile_tick)
@@ -510,14 +410,6 @@ func complete_round(request: Dictionary) -> Dictionary:
 	return _consequence_profile_result(profile, accepted)
 
 
-## dwm-p2r.35.7 remediation (findings 1 and 2): a durable pending record for THIS transaction already
-## exists -- either this same process already committed ordinal 0 during an earlier attempt whose
-## accept_prepared_action() call transiently failed, or the gate/lease was released by the
-## dwm-p2r.35.7 abandonment path below and this is a genuine caller-driven retry. Re-drives
-## accept_prepared_action() directly using the exact request this same process retained when it
-## first wrote ordinal 0 -- prepare_action_handoff() cannot run a second time (it rejects any
-## already-pending transaction). A genuinely fresh process (no retained in-memory request) has
-## nothing to replay here; that gap is DesktopConsequenceCoordinator.resume_pending()'s own job.
 func _recognize_live_round_pending(transaction_id: String, fingerprint: String) -> Dictionary:
 	if not _round_pending_admission_requests.has(transaction_id):
 		return _fail(&"minesweeper_round_pending_transaction_unrecognized",
@@ -532,14 +424,6 @@ func _recognize_live_round_pending(transaction_id: String, fingerprint: String) 
 	return _call_accept_and_finalize(transaction_id, fingerprint, accept_request)
 
 
-## dwm-p2r.35.7 remediation (finding 2): caches ONLY a success -- previously `_round_completions` cached
-## every result unconditionally, so a transient accept_prepared_action() failure froze that exact
-## failure forever even though the ordinal-0 checkpoint and pending record were already durable and a
-## real forward path existed. dwm-p2r.35.7 remediation (finding 1): when accept_prepared_action()
-## abandons a pre-admission pending because the condition-departure ports are unconfigured, this
-## coordinator -- the actual causal_transaction token holder, since DesktopConsequenceCoordinator
-## never acquires the lease itself -- releases it here, completing the frozen law's "releases
-## causal_transaction" (plan02-frozen-contracts.md line 2271).
 func _call_accept_and_finalize(transaction_id: String, fingerprint: String, accept_request: Dictionary) -> Dictionary:
 	var profile := _consequence_profile_start("minesweeper_round_accept_finalize")
 	var profile_tick := int(profile.get("_started_us", 0))
@@ -555,8 +439,6 @@ func _call_accept_and_finalize(transaction_id: String, fingerprint: String, acce
 	return _consequence_profile_result(profile, accepted)
 
 
-## Task 8 (dwm-p2r.32) frozen action-source recovery surface consumed by
-## DesktopConsequenceCoordinator, mirroring MinesweeperShopPurchaseParticipant's own three additions.
 func validate_recovery_action(action_candidate: Dictionary, action_receipt: Dictionary) -> Dictionary:
 	var validated := _ACTION_RECEIPT.validate(action_receipt)
 	if not validated.get("ok", false):
@@ -572,11 +454,6 @@ func validate_recovery_action(action_candidate: Dictionary, action_receipt: Dict
 	}}, "receipt": {}}
 
 
-## The source's sole live commit for this recovery boundary: adopts `action_candidate.board_projection`
-## into the live board (the completed round's retained inspection -- board_fate is never the
-## owner of this transition; it owns only a LATER condition-driven departure of an unrelated board)
-## and, for a qualifying ordinal (1 or 2), records the base-completion receipt Task 7 reserved this
-## seam for.
 func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictionary) -> Dictionary:
 	var profile := _consequence_profile_start("minesweeper_round_recovery_commit")
 	var profile_tick := int(profile.get("_started_us", 0))
@@ -642,19 +519,6 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 	return _consequence_profile_result(profile, result)
 
 
-## The source's sole audience boundary: records the at-most-once external observation through the
-## SAME shared `action_source` publication-ledger kind and key convention
-## `MinesweeperShopPurchaseParticipant.publish()`/`publish_recovery_action()` already established
-## (Ruling B).
-##
-## dwm-p2r.35.7 remediation (finding 3): this method used to release the retained `causal_transaction`
-## lease here, immediately after recording -- but this is callback index 1 of up to 3 in
-## DesktopConsequenceCoordinator's own departure publication plan (causal_sequence, action_source,
-## optional board_fate), so releasing here left board-fate publish and terminal cleanup running
-## UNLEASED, contradicting `DesktopBoardFatePort`'s own class-doc argument that its one known
-## candidate-hash-collision limitation "is not reachable in production" BECAUSE the coordinator holds
-## the lease across one departure's whole prepare-to-publish span. The release now happens only in
-## `release_recovery_lease()`, which the coordinator calls after terminal cleanup succeeds.
 func publish_recovery_action(publication: Dictionary) -> Dictionary:
 	var keys: Array = publication.keys()
 	keys.sort()
@@ -686,12 +550,6 @@ func publish_recovery_action(publication: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": receipt.duplicate(true)}
 
 
-## dwm-p2r.35.7 remediation (finding 3): the fourth frozen recovery-method addition, called by
-## DesktopConsequenceCoordinator._resume_forward() only AFTER terminal cleanup succeeds -- see that
-## method's own doc comment for why the release moved out of publish_recovery_action(). Idempotent
-## no-op when no token is held (a resume_pending()-driven forward recovery in a fresh process never
-## acquired one in the first place, since this coordinator -- not DesktopConsequenceCoordinator -- is
-## the actual lease holder).
 func release_recovery_lease() -> Dictionary:
 	if _consequence_gate_token != "":
 		_consequence_gate.release(_GATE_OWNER, _consequence_gate_token)
@@ -732,8 +590,6 @@ func get_entry_context(difficulty_id: String) -> Dictionary:
 var _debug_pending: Dictionary = {}
 
 
-## Pure preparation readiness. A failed write retains the exact already-generated
-## candidate; the foreground pump explicitly advances at most one slice per frame.
 func get_preparation_context() -> Dictionary:
 	var ready := _ensure_ready()
 	if not ready.is_empty(): return ready
@@ -918,10 +774,6 @@ func get_state() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": _board_state.capture(), "receipt": {}}
 
 
-# ---------------------------------------------------------------------------------------------
-# first Reveal -- the one transaction that spans DesktopBoardState, the state port, and the
-# checkpoint port.
-# ---------------------------------------------------------------------------------------------
 
 func _first_reveal(request: Dictionary) -> Dictionary:
 	var shape := _exact_keys(request, _FIRST_REVEAL_REQUEST_KEYS, &"invalid_request")
@@ -975,8 +827,6 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 	var layout: Dictionary
 	var proof_sha256: Variant = null
 	if phase in ["NONE", "UNPAID_UNSTARTED"]:
-		# The spec (board_token + all three nonces) is minted fresh, scoped to THIS transaction --
-		# it cannot be re-derived under a different transaction_id, so this call happens only here.
 		var spec_prepared: Dictionary = _state_port.call(&"prepare_spec", str(request["difficulty_id"]),
 			transaction_id, request["transaction_issuer_receipt"])
 		if not spec_prepared.get("ok", false):
@@ -987,9 +837,6 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 			return materialized
 		layout = (materialized["value"] as Dictionary)["layout"]
 	else:
-		# Adopting an already-certified Debug candidate: its spec was minted once, under debug
-		# preparation's OWN transaction_id, and is never re-derived under this reveal's different
-		# transaction_id -- it is simply the trusted spec this attempt already committed to.
 		var live_candidate: Dictionary = captured["candidate"]
 		if int(request["cell_index"]) != int(live_candidate["forced_cell"]):
 			return _fail(&"forced_cell_mismatch", "", {})
@@ -1063,7 +910,7 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 
 	var checkpoint_commit: Dictionary = _checkpoint_port.call(&"commit_checkpoint", checkpoint_candidate)
 	if not checkpoint_commit.get("ok", false):
-		return checkpoint_commit  # nothing applied yet; no charge, no sequence consumed
+		return checkpoint_commit
 
 	var state_commit: Dictionary = _state_port.call(&"commit", run_candidate)
 	if not state_commit.get("ok", false):
@@ -1093,18 +940,6 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"first_reveal_committed", "value": {"receipt": receipt.duplicate(true)}, "receipt": {}}
 
 
-## Plan 02 Task 6 (dwm-p2r.32), Phase D (brief Step 6.12's exact production order): guard (already
-## run by reveal()) -> duplicate/conflict lookup -> verify issuer receipt -> validate current state/
-## request -> purely materialize -> reduce the pure first-Reveal board -> prepare the GameState cost
-## candidate and consequence checkpoint marker -> prepare the DesktopBoardState adoption candidate
-## -> validate the candidate triple -> capture the base snapshot input -> compose and validate the
-## post-commit v4 SaveDocument input -> prepare checkpoint -> commit checkpoint (DURABLE: `disk_write
-## = {kind:autosave, reason:pre_board}`, the SAME registered disk-write member SaveManagerCheckpoint
-## Port already reserves for exactly this "durable before a round is consumed" law) -> forward-commit
-## GameState then board live candidates (consequence is untouched: the marker asserts revision
-## agreement, not a content change -- see GameStateDesktopBoardPort's DESIGN CHOICE note) -> publish.
-## Nothing is adopted live before checkpoint commit. Mirrors _first_reveal()'s exact rollback
-## ordering, substituting the durable checkpoint port for the Task-5 fake one.
 func _first_reveal_durable(request: Dictionary) -> Dictionary:
 	var profile := _consequence_profile_start("first_reveal_durable")
 	var profile_tick := int(profile.get("_started_us", 0))
@@ -1188,8 +1023,6 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 		return reveal_result
 	var board: Dictionary = (reveal_result["value"] as Dictionary)["board"]
 
-	# Scene boards keep a live payment fact, not a saved-checkpoint receipt.
-	# Only the legacy board format needs a durable checkpoint identity.
 	var expected_checkpoint_id := ""
 	if not captured.has("round_paid"):
 		var preview: Dictionary = _durable_checkpoint_port.call(&"preview_checkpoint_id", str(identity["run_id"]))
@@ -1231,7 +1064,6 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 		return validated
 
 	if captured.has("round_paid"):
-		# Adopt the same admitted owner candidates without preparing a save.
 		board_candidate.result_override = {"ok": true, "code": &"first_reveal_committed",
 			"value": {"revision": int(captured.revision) + 1}, "receipt": {}}
 		var backup: Dictionary = _state_port.call(&"capture")
@@ -1251,7 +1083,6 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 		return base_captured
 	var base_snapshot_input: Dictionary = (base_captured["value"] as Dictionary)["snapshot_input"]
 
-	# One result is retained both in the durable projection and the eventual live commit.
 	board_candidate["result_override"] = {
 		"ok": true, "code": &"first_reveal_committed",
 		"value": {"receipt": receipt.duplicate(true), "publication": publication.duplicate(true)},
@@ -1289,7 +1120,7 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 	var checkpoint_commit: Dictionary = _durable_checkpoint_port.call(&"commit_checkpoint", checkpoint_candidate)
 	profile_tick = _consequence_profile_phase(profile, "checkpoint_commit_us", profile_tick)
 	if not checkpoint_commit.get("ok", false):
-		return checkpoint_commit  # nothing applied yet; no charge, no sequence consumed
+		return checkpoint_commit
 
 	var state_commit: Dictionary = _state_port.call(&"commit", game_state_candidate)
 	profile_tick = _consequence_profile_phase(profile, "state_commit_us", profile_tick)
@@ -1362,10 +1193,6 @@ func _fatal_rollback(phase: String, transaction_id: String, raw_diagnostics: Arr
 		"details": {"failure": _fatal_failure.duplicate(true)}}
 
 
-# ---------------------------------------------------------------------------------------------
-# routine commands -- DesktopBoardState only, no state/checkpoint port involvement (no cost
-# changes after first Reveal).
-# ---------------------------------------------------------------------------------------------
 
 func _routine_command(request: Dictionary, kind: StringName) -> Dictionary:
 	var keys: Array[String] = _FLAG_REQUEST_KEYS if kind == &"set_flag" else _CELL_REQUEST_KEYS
@@ -1479,9 +1306,6 @@ func _visibility_command(request: Dictionary, visible: bool) -> Dictionary:
 	return _board_state.commit((prepared["value"] as Dictionary)["candidate"])
 
 
-# ---------------------------------------------------------------------------------------------
-# shared helpers
-# ---------------------------------------------------------------------------------------------
 
 func _ensure_ready() -> Dictionary:
 	if _state_port == null or _checkpoint_port == null or _generation_port == null or _identity_issuer == null:
@@ -1502,11 +1326,6 @@ func _guard(operation_id: StringName) -> Dictionary:
 	return {}
 
 
-## Read-only duplicate/conflict lookup against DesktopBoardState's own transaction ledger. Only
-## first Reveal handles its own duplicate case specially (idempotent re-publish); every other
-## command's stored result is safe to replay verbatim. Always returns "fingerprint" (the coordinator
-## -level request fingerprint every DesktopBoardState `input` must carry downstream) and, on a
-## duplicate or conflict, "result" as well.
 func _ledger_lookup(request: Dictionary, transaction_id: String) -> Dictionary:
 	var fingerprint := _fingerprint(request)
 	var ledger: Dictionary = _board_state.capture()["command_receipts"]
@@ -1538,13 +1357,6 @@ func _fingerprint(request: Dictionary) -> String:
 	return String(canonical["value"]).sha256_text()
 
 
-## The target phase-NONE snapshot for a completed round: every phase-gated slot null,
-## command_receipts unchanged, and one new terminal_receipts entry retaining the outcome/ordinal this
-## board completed with. `revision` advances by one, matching DesktopBoardFatePort's own identical
-## departed-snapshot bookkeeping convention. Deliberately skips the intermediate SETTLING phase
-## (DesktopBoardState has no dedicated completion transition of its own and this task does not add
-## one) -- the same hand-built-snapshot pattern DesktopBoardFatePort._build_departed_snapshot()
-## already established.
 func _project_completion_board(identity: Dictionary, captured: Dictionary, outcome: String,
 		transaction_id: String) -> Dictionary:
 	var terminal_receipt_id := "round_complete." + transaction_id
@@ -1561,14 +1373,6 @@ func _project_completion_board(identity: Dictionary, captured: Dictionary, outco
 	}
 
 
-## Ruling B: `commit_receipt_id`/`commit_receipt_provenance` reuse `action_id`/`action_id_provenance`
-## byte-for-byte, matching MinesweeperShopPurchaseParticipant's own established convention exactly.
-## `source_commit_receipt_id` is the round's own retained `board_start` paid-receipt (the domain-level
-## artifact that authorized exactly this round), mirroring the derivation table's `desktop_action` row
-## and Shop's own `shop_quote`-anchored precedent. `condition_before`/`condition_after` mirror the
-## Shop participant's own health/pressure/carried_sequela pattern via `_state_port.capture()`'s Task-8
-## extension, falling back to zero/false only when a narrower test double omits them (see the class
-## doc's SCOPE NOTE).
 func _build_round_action_receipt(transaction_id: String, transaction_issuer_receipt: Dictionary,
 		identity: Dictionary, paid_start_receipt: Dictionary, action_candidate_sha256: String, reward: Dictionary = {}) -> Dictionary:
 	var facts: Dictionary = {}
@@ -1589,10 +1393,6 @@ func _build_round_action_receipt(transaction_id: String, transaction_issuer_rece
 		var group_id: Variant = reward.prepared_domain_receipt.group_activation_transaction_id
 		if group_id != null: unlock_receipt_ids.append(str(group_id))
 		unlock_receipt_ids.sort()
-	# The Task-5 fake-checkpoint reveal() path (this coordinator's own _first_reveal(), used whenever
-	# configure_durable_checkpoint() is unconfigured) stores only {"checkpoint_id":...} as the board's
-	# retained paid_start_receipt, not the full board_start receipt _first_reveal_durable() carries;
-	# fall back to checkpoint_id so complete_round() derives a nonblank source identity either way.
 	var source_commit_receipt_id := str(paid_start_receipt.get("receipt_id", paid_start_receipt.get("checkpoint_id", "")))
 	var action_candidate := {
 		"schema_version": 1, "action_kind": "minesweeper_round", "run_id": str(identity["run_id"]),
@@ -1684,8 +1484,6 @@ func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary
 	return {"ok": false, "code": code, "message": message, "details": details}
 
 
-## Private configuration context: presentation compares this exact snapshot before issuing.
-## Unpaid marking never needs a paid ordinal; only first Reveal asks get_entry_context().
 func get_configuration_context() -> Dictionary:
 	var ready := _ensure_ready()
 	if not ready.is_empty(): return ready
@@ -1744,7 +1542,6 @@ func _configure_board(request: Dictionary, replace: bool) -> Dictionary:
 			return _fail(&"board_configuration_unavailable", "", {})
 	elif not facts.difficulty_enabled.has(str(request.difficulty_id)): return _fail(&"board_configuration_unavailable", "", {})
 	if replace and str(request.difficulty_id) != str(facts.difficulty_id): return _fail(&"difficulty_mismatch", "", {})
-	# No-op precedes issuer verification/allocation, candidate creation and storage.
 	if (replace and facts.phase != "ACTIVE_VISIBLE") or (not replace and str(request.difficulty_id) == str(facts.difficulty_id)):
 		return {"ok": true, "code": &"board_configuration_unchanged", "value": {"unchanged": true, "revision": facts.revision}}
 	var verified := _verify_transaction(str(request.transaction_id), request.transaction_issuer_receipt)
@@ -1855,8 +1652,6 @@ func _paid_shell_reveal(request: Dictionary) -> Dictionary:
 	return committed
 
 
-## Scene board-only actions publish live state. The legacy path retains its Autosave
-## participant and physical backup. Neither path creates a payment or completion.
 func _commit_cost_free_candidate(candidate: Dictionary, selected_difficulty: String = "") -> Dictionary:
 	var token := ""
 	if _consequence_gate != null:
@@ -1902,7 +1697,6 @@ func _commit_cost_free_under_lease(candidate: Dictionary, selected_difficulty: S
 		if not prepared.ok: return prepared
 		var disk_candidate: Dictionary = prepared.value.candidate
 		if disk_candidate.has("storage_backup"):
-			# capture() owns the journal preimage; prepare() owns only the physical descriptor.
 			disk_backup = {"journal_backup": disk_backup, "storage_backup": disk_candidate.storage_backup}
 		var written: Dictionary = _durable_checkpoint_port.call(&"commit_checkpoint", disk_candidate)
 		if not written.ok:

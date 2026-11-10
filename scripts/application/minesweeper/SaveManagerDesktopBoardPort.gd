@@ -1,23 +1,6 @@
 class_name SaveManagerDesktopBoardPort
 extends RefCounted
 
-## Production durable first-Reveal checkpoint adapter (Plan 02 Task 6, dwm-p2r.32, Phase D, brief
-## Steps 6.10-6.12). Delivered under this renamed path per the controller's coexistence ruling
-## (mirroring GameStateDesktopBoardPort.gd's own precedent): the brief's own prose still says
-## `SaveManagerMinesweeperPort.gd` in Steps 6.10-6.12, but that name is owned by the retained
-## `scripts/application/minesweeper/SaveManagerMinesweeperPort.gd` (dwm-p2r.9 Plan 06 Task 2),
-## load-bearing .9-era production law this file never touches or reads.
-##
-## Mirrors SaveManagerMinesweeperPort.gd's structure exactly -- delegates checkpoint preview/
-## capture/prepare/commit/rollback to the ONE real SaveManagerCheckpointPort, reimplements no
-## schema/journal/filename/save-capability law of its own -- but `prepare_checkpoint()` accepts ONLY
-## a DesktopFirstRevealSnapshotComposer-produced detached post-commit v4 `snapshot_input`: it
-## structurally rejects a desktop-less (pre-v4) input, a desktop member missing either sub-key, or a
-## desktop member carrying an extra key, before ever reaching preview or disk intent. Every v4
-## schema/document-version law itself is enforced by the ONE place that already owns it --
-## RunSnapshotSchema.build(), invoked inside SaveManagerCheckpointPort.prepare() -- so a caller
-## cannot supply or override schema_version/document_version at all; there is no such input field to
-## mismatch.
 
 const CHECKPOINT_METHODS: Array[String] = ["preview_checkpoint_id", "capture", "prepare", "commit", "rollback"]
 const _DESKTOP_KEYS: Array[String] = ["board", "consequence"]
@@ -45,8 +28,6 @@ func configure(checkpoint_port: Object) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"checkpoint_port_instance_id": _checkpoint_port.get_instance_id()}, "receipt": {}}
 
 
-## Bootstrap binds the same live AudioManager getter used by other checkpoints.
-## Capture after Load reads the newly applied semantic state, never an earlier journal.
 func configure_audio_context_capture(capture_context: Callable) -> Dictionary:
 	if not capture_context.is_valid(): return _fail(&"invalid_audio_context_capture", "")
 	if _audio_context_capture.is_valid() and _audio_context_capture != capture_context:
@@ -56,7 +37,6 @@ func configure_audio_context_capture(capture_context: Callable) -> Dictionary:
 	return {"ok": true, "value": {"already_configured": already}}
 
 
-## Bootstrap supplies the current authenticated scene frontier, never a journal fallback.
 func configure_scene_context_capture(capture_context: Callable) -> Dictionary:
 	if not capture_context.is_valid(): return _fail(&"invalid_scene_context_capture", "")
 	if _scene_context_capture.is_valid() and _scene_context_capture != capture_context:
@@ -80,16 +60,6 @@ func preview_checkpoint_id(run_id: String) -> Dictionary:
 	return _checkpoint_port.call(&"preview_checkpoint_id", run_id)
 
 
-## `post_commit_snapshot_input` must be exactly what DesktopFirstRevealSnapshotComposer.compose()
-## produced (its `value.snapshot_input`): a full v4 `snapshot_input` whose `desktop` member carries
-## exactly `{board, consequence}` -- the SAME shape GameState.capture_run_snapshot_input() itself
-## returns, which carries no `active_app_id`/`audio_context`/`content_version`/`dialogic_checkpoint`/
-## `route_id` (those are orthogonal to Minesweeper state, owned by SceneRouter/AudioManager/
-## DialogicBridge, and supplied by the DAY-RESOLUTION checkpoint path's own injected providers --
-## see GameStateDayResolutionPort.configure_checkpoint_providers()). Audio is captured from
-## its retained live owner: an empty object is not a valid semantic restore snapshot. The
-## scene route captures its authentic reading frontier through Bootstrap; legacy desktop
-## checkpoints retain main. Neither path manufactures a Dialogic command.
 func prepare_checkpoint(post_commit_snapshot_input: Dictionary, checkpoint_kind: StringName,
 		disk_write: Dictionary) -> Dictionary:
 	var ready := _readiness()
@@ -133,7 +103,6 @@ func prepare_checkpoint(post_commit_snapshot_input: Dictionary, checkpoint_kind:
 			return _fail(&"invalid_scene_checkpoint_context", "")
 		for key: String in semantic:
 			checkpoint_inputs[key] = semantic[key]
-		# The detached post-Reveal board/accounting projection remains the sole snapshot input.
 	return _checkpoint_port.call(&"prepare", checkpoint_inputs, checkpoint_kind, disk_write)
 
 
@@ -152,10 +121,6 @@ func rollback(backup: Dictionary) -> Dictionary:
 	return _checkpoint_port.call(&"rollback", payload if typeof(payload) == TYPE_DICTIONARY else backup)
 
 
-## Structural desktop-member law only (brief Step 6.10): a desktop-less input (schema 3 or earlier),
-## an extra desktop key, or a board-only desktop value all reject here, before preview or disk
-## intent. Per-field v4 content validity is DesktopConsequenceState.validate()/DesktopBoardState.
-## prepare_restore()'s job, exercised downstream once RunSnapshotSchema.build() runs.
 static func _validate_desktop_shape(snapshot_input: Dictionary) -> String:
 	if typeof(snapshot_input.get("desktop")) != TYPE_DICTIONARY:
 		return "snapshot_input.desktop is required (schema 3 or earlier is not a legal first-Reveal checkpoint source)"

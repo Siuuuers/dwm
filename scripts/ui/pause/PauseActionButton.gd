@@ -1,5 +1,4 @@
 extends Button
-## Native released Button input, with independent owner-published Filed selection.
 var public_copy := ""
 var selected := false
 var dangerous := false

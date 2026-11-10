@@ -1,8 +1,6 @@
 extends Control
 class_name GalleryScene
 
-## Registrar presentation adapted from Settings checkpoint 26de279. The current
-## Replay uses exact reached records supplied by the title host.
 const PROFILE_SCHEMA := preload("res://scripts/profile/ProfileSchema.gd")
 const PRESENTATION := preload("res://scripts/ui/gallery/GalleryTheme.gd")
 const RECORD := preload("res://scripts/ui/gallery/GalleryRecordButton.gd")
@@ -146,7 +144,6 @@ func configure_title_host(home: Button, localization: Node, profile: Object) -> 
 	_profile = profile
 	%GalleryHost.position = Vector2.ZERO
 	get_node("TitleChrome").hide()
-	# Godot 4.6 can omit later accessibility siblings of a hidden container.
 	move_child(get_node("TitleChrome"), get_child_count() - 1)
 	for child: Node in get_children():
 		if child.name == &"LocalePresentationRoot" or String(child.name).begins_with("L10n"):
@@ -202,7 +199,6 @@ func _refresh_record_copy() -> void:
 	var media: Texture2D = null
 	if not str(details.media_asset_id).is_empty():
 		media = ART_MANIFEST.get_texture(str(details.media_asset_id), Vector2i(258, 78))
-	# Missing or unregistered exports never borrow scene art or reserve an aperture.
 	var title := ""
 	if visible_record: title = _trusted_record_title(_selected_id) if unavailable else _record_title(_selected_id)
 	_record_paper.set_copy(title,
@@ -244,7 +240,7 @@ func close_for_title_host() -> bool:
 	if _replay_owner != null and _replay_owner.is_playing():
 		var closed: Dictionary = _replay_owner.close()
 		if not closed.get("ok", false) or not _selected_id.begins_with("dating."):
-			return false # Ending Return retreats one layer, leaving the result visible.
+			return false
 	_history_status = ""
 	_replay_return_context = {}
 	_retry_signature_id = ""
@@ -314,7 +310,6 @@ func _refresh_tiles() -> void:
 		_focus_return()
 		_relayout_rows()
 		return
-	# Reached date scenes share the existing picker; they create no ending discovery identity.
 	var record_ids: Array = snapshot.value.ending_ids.duplicate()
 	if _replay_owner != null:
 		var reached: Dictionary = _replay_owner.get_reached_entry_variants()
@@ -327,8 +322,6 @@ func _refresh_tiles() -> void:
 		var tile := RECORD.new()
 		tile.focus_mode = Control.FOCUS_ALL
 		tile.mouse_filter = Control.MOUSE_FILTER_PASS
-		# Physical locators stay private. Configured replay uses the separate public
-		# title catalog and exact reached records; unconfigured registrars stay unavailable.
 		tile.set_meta(&"gallery_title_key", "gallery.record.unavailable")
 		tile.set_meta(&"gallery_record_id", ending_id)
 		tile.text = _record_title(str(tile.get_meta(&"gallery_record_id")))
@@ -336,7 +329,6 @@ func _refresh_tiles() -> void:
 		tile.focus_entered.connect(_select_record.bind(tile, false))
 		_ending_tile_grid.add_child(tile)
 		if ending_id == previous_id: retained_row = tile
-		# Directional boundaries never wrap or jump into disabled/empty paper.
 		tile.focus_neighbor_left = tile.get_path()
 		tile.focus_neighbor_right = tile.get_path()
 	if retained_row != null: _index_offset = previous_offset
@@ -398,7 +390,6 @@ func _focus_entry() -> void:
 func _select_record(tile: Button, refresh_selected: bool = true, reveal: bool = true) -> void:
 	if _replay_owner != null and _replay_owner.is_playing(): return
 	var changed := _selected_id != str(tile.get_meta(&"gallery_record_id"))
-	# Returning focus to the selected row must preserve a refusal or failure.
 	if not changed and not refresh_selected: return
 	if changed or refresh_selected:
 		_history_status = ""
@@ -517,8 +508,6 @@ func _on_version_selected(index: int) -> void:
 func _refresh_version_register() -> void:
 	var locale := str(_localization.get_locale()) if _localization != null else "en"
 	var entries: Array[Dictionary] = []
-	# Authored-cue engineering path. Preserve current production access until the
-	# complete exact-version cue set is authored; absence never disables Replay.
 	if _versions.size() > 1:
 		for version: Dictionary in _versions:
 			var cue: String = _record_catalog.version_cue(_selected_id, str(version.signature_id), locale)
@@ -638,8 +627,6 @@ func _set_replay_status(key: String) -> void:
 	if replay_had_focus and _replay_button.disabled: _on_paper_focus_removed(hide_focus)
 	if key.begins_with("gallery.history.") or _canvas.replay_start_failed or _canvas.replay_unavailable or (not _selected_id.is_empty() and key.begins_with("gallery.replay.")):
 		_replay_status.size = Vector2(360, 0)
-		# The fixed 80px dock can hold the enlarged fallback line without
-		# changing the paper or Replay action. Keep placement on native pixels.
 		var status_height := maxf(64.0, ceilf(_replay_status.get_minimum_size().y / 4.0) * 4.0)
 		_replay_status.position = Vector2(408, 600 - status_height / 2.0)
 		_replay_status.size = Vector2(360, status_height)
@@ -743,7 +730,6 @@ func _relayout_rows() -> void:
 	_index_extent = extent if not rows.is_empty() else 0.0
 	refresh_return_navigation()
 	_update_scroll()
-	# Container layout settles after minimum-size publication.
 	_reveal_focused_row.call_deferred()
 
 func refresh_return_navigation() -> void:
@@ -791,8 +777,6 @@ func refresh_return_navigation() -> void:
 		if str(row.get_meta(&"gallery_record_id")) == _selected_id: selected_row = row
 		if not row.disabled: sequence.append(row)
 	var deeper: Array[Control] = []
-	# Sequential traversal visits every row. Spatial Right visits only the
-	# selected version between optional Record details and Replay.
 	for control: Control in [_record_paper, _version_selector]:
 		if _focusable(control):
 			deeper.append(control)
@@ -822,13 +806,11 @@ func _focusable(control: Control) -> bool:
 	return is_instance_valid(control) and control.is_visible_in_tree() and control.focus_mode != Control.FOCUS_NONE
 
 func _reveal_focused_row() -> void:
-	# Loading a Run can detach the title before its queued layout reveal runs.
 	if not is_inside_tree(): return
 	var focus := get_viewport().gui_get_focus_owner()
 	if focus != null and focus.get_parent() == _ending_tile_grid: _reveal_row(focus)
 
 func _reveal_row(row: Variant) -> void:
-	# A queued reveal may outlive a replaced row; validate before a typed access.
 	if not is_instance_valid(row) or row.get_parent() != _ending_tile_grid: return
 	var top: float = row.position.y
 	var bottom: float = top + row.size.y + 16

@@ -1,7 +1,6 @@
 extends PanelContainer
 class_name ChatBubble
 
-## Single chat message bubble (prompt_docs/requirements/contacts_invitations.md).
 
 @onready var speaker_label: Label = %SpeakerLabel
 @onready var message_label: RichTextLabel = %MessageLabel

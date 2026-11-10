@@ -1,5 +1,4 @@
 extends Node
-## One transient UI command at a time; pending work is derived from saved Contacts.
 signal finished
 const SURFACE := preload("res://scripts/ui/Day7PreludeSurface.gd")
 const FOLLOWUPS := preload("res://scripts/domain/contact/Day7FollowupState.gd")
@@ -115,7 +114,6 @@ func _advance() -> Dictionary:
 		elif _locale == "ko": body = "이전에 이렇게 말했습니다:\n" + str(echo.plain_text_snapshot)
 	var card := {"receipt": receipt.duplicate(true), "title": title, "body": body}
 	if not presentation.is_empty(): card["presentation"] = presentation
-	# Auto may drain staged cards, but the final route handoff requires fresh player input.
 	var allow_auto_advance := followups.size() + echoes.size() > 1
 	if is_instance_valid(_surface):
 		var presented: Dictionary = _surface.present_card(card, allow_auto_advance)

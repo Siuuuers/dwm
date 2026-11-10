@@ -1,6 +1,5 @@
 extends RefCounted
 
-## Provisional audience-facing record titles; semantic classifications stay private.
 const SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 const TITLES := {
 	"ending.alone": ["A Quiet Morning", "安静的清晨", "安靜的清晨"],
@@ -18,10 +17,6 @@ const TITLES := {
 	"ending.priscilla_lavinia.observer": ["Another Side", "另一面", "另一面"],
 }
 
-## Provisional descriptions use only the public Day 7 actions and witnessed
-## ending actions in story/library/03-seven-day-plot-material-library.md
-## (Day 7 Eligibility / Thirteen Ending Identities). Unwritten outcomes,
-## inferred causes, eligibility rules and optional media stay absent.
 const RECORD_DETAILS := {
 	"ending.alone": {"sentence": ["Angela completes the final observation.",
 		"安吉拉完成最后一次观测。", "安吉拉完成最後一次觀測。"]},
@@ -78,7 +73,6 @@ func projection(record_id: String, signature_id: String, locale: String) -> Dict
 		_apply(result, override, locale)
 	return result.duplicate(true)
 
-## Exact authored copy only; absence does not invent a label or decide Replay admission.
 func version_cue(record_id: String, signature_id: String, locale: String) -> String:
 	if not valid: return ""
 	var override: Variant = _presentations.get(signature_id)
@@ -173,7 +167,6 @@ func _invalidate(code: StringName) -> void:
 	_records.clear()
 	_presentations.clear()
 
-## Shared provisional physical copy: readonly entry replay uses the same visible words.
 static func presentation_copy(context: Dictionary, phase: String, locale: String = "en") -> Dictionary:
 	if phase not in ["pre_challenge", "post_challenge"] or context.get("day") not in range(1, 7) \
 			or not context.get("participants") is Array:

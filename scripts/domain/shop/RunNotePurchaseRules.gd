@@ -1,6 +1,4 @@
 extends RefCounted
-## Pure preparation only: the caller owns durable commit and publication.
-## Counts are a bounded input map, not a definition of the persisted save schema.
 
 const ITEM_IDS: Array[String] = [
 	"crystal_stutters",
@@ -53,8 +51,6 @@ static func prepare(
 	})
 
 
-## Counts-only owner shared by purchasing, projection, and restore boundaries.
-## Missing item entries mean zero; the caller must explicitly supply a map.
 static func validate_counts(counts: Variant) -> Dictionary:
 	if typeof(counts) != TYPE_DICTIONARY:
 		return _refuse("invalid_counts")
@@ -75,7 +71,6 @@ static func validate_counts(counts: Variant) -> Dictionary:
 	return _accept({"shop_purchase_counts": detached_counts})
 
 
-## Catalogue registration is explicit; no production or placeholder text is supplied.
 static func validate_counts_and_catalogue(counts: Variant, catalogue: Variant) -> Dictionary:
 	var checked: Dictionary = validate_counts(counts)
 	if not checked["ok"]:

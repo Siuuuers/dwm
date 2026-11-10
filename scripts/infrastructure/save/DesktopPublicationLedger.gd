@@ -1,58 +1,20 @@
 class_name DesktopPublicationLedger
 extends RefCounted
 
-## Desktop consequence-publication ledger (Plan 02 Task 6, dwm-p2r.32, req.desktop
-## .cross_app_actions, req.minesweeper.causal_departure). One append-only JSON document at one
-## fixed relative path, guarding the at-most-once boundary between a durable consequence commit and
-## the external observation signal that tells the rest of the game "this happened" -- a UI
-## notification, a Hospital handoff, or an ordinary Schedule Done acknowledgement.
-##
-## Why this exists at all: `DesktopConsequenceState`'s own `outbox` member records that a
-## publication *should* happen, inside the run's own save. This ledger is the separate, cross-
-## process guard that a given publication has *already* happened, so a crash between "recorded
-## internally" and "signal emitted" can never double-fire that signal on restart. The same root-
-## scoped `StorageAdapter` family that owns the desktop issuer root writes it; it never becomes a
-## selectable save artifact and registers no restore participant, so Load/New Run/profile reset/
-## candidate rollback/journal rewind can never touch it.
-##
-## Structurally parallel to `ScheduleFoundationPublicationLedger` (Plan 01 Task 4) -- same
-## configure/load/record_before_emit surface, same write-then-re-read-before-signal discipline --
-## but deliberately disjoint from it: a distinct `FIXED_PATH`, a distinct closed `kind` union, and a
-## distinct publication shape, so neither ledger's bytes can ever be mistaken for the other's.
-##
-## FIX (dwm-p2r.35.1 remediation, finding W1): the closed `kind` union is exactly the three record
-## kinds the frozen contract names at plan02-frozen-contracts.md line 328 -- `causal_sequence`,
-## `action_source`, `board_fate` -- one per Plan-02 publisher (`DesktopCausalSequencePort`; the two
-## action-source participants, `MinesweeperRoundCoordinator`/`MinesweeperShopPurchaseParticipant`,
-## sharing one kind; `DesktopBoardFatePort`), never the causal reservation's own
-## `minesweeper_round|shop_purchase|schedule_done` `source_kind` union a prior implementation reused
-## here by mistake. Each kind has its OWN publication shape and its OWN receipt-id field for key
-## derivation (line 335): `causal_sequence`'s `semantic_receipt` equals `publication` in its entirety
-## (`{causal_sequence_receipt,admission_checkpoint_receipt}`), keyed off the nested
-## `causal_sequence_receipt.receipt_id`; `action_source`'s `semantic_receipt` is the exact
-## `DesktopActionReceipt`, keyed off its `commit_receipt_id` (that receipt has no top-level
-## `receipt_id` member at all); `board_fate`'s `semantic_receipt` is the exact `board_fate_receipt`,
-## keyed off its ordinary `receipt_id`.
 
 const FIXED_PATH := "desktop-publications.json"
 const SCHEMA_VERSION := 1
 
 const KINDS: Array[String] = ["causal_sequence", "action_source", "board_fate"]
 
-## The exact publication member set for each kind (frozen contract line 335).
 const PUBLICATION_KEYS := {
 	"causal_sequence": ["admission_checkpoint_receipt", "causal_sequence_receipt"],
 	"action_source": ["action_candidate_sha256", "action_receipt"],
 	"board_fate": ["board_candidate", "board_fate_receipt"],
 }
-## The publication member that must be byte-equal to `semantic_receipt`; an empty string means
-## `semantic_receipt` equals `publication` in its entirety instead of nesting inside one member
-## (`causal_sequence` alone -- frozen contract line 335's "semantic receipt and publication are both
-## exactly {causal_sequence_receipt,admission_checkpoint_receipt}").
 const _PUBLICATION_RECEIPT_MEMBER := {
 	"causal_sequence": "", "action_source": "action_receipt", "board_fate": "board_fate_receipt",
 }
-## The path inside `semantic_receipt` whose final String value is the record key's id suffix.
 const _RECEIPT_ID_PATH := {
 	"causal_sequence": ["causal_sequence_receipt", "receipt_id"],
 	"action_source": ["commit_receipt_id"],
@@ -67,8 +29,6 @@ const REQUEST_KEYS: Array[String] = [
 	"kind", "publication", "publication_sha256", "semantic_receipt",
 ]
 
-## The capability this class borrows from an injected root-scoped storage; it never opens a file,
-## chooses a root, or constructs storage on its own.
 const _REQUIRED_STORAGE_CAPABILITY: Array[String] = [
 	"describe_root", "exists", "read_text", "reconcile", "write_atomic", "write_atomic_reconciled",
 ]
@@ -104,20 +64,9 @@ const _SCHEMA_CHECK := preload("res://scripts/validation/JsonSchemaValidator.gd"
 var _storage: Object = null
 var _cached_document: Dictionary = {}
 var _has_cached_document := false
-# Exact canonical documents constructed and fully validated in this process. Storage callbacks may
-# reuse them only while the text is byte-identical; cold or changed bytes always take the full parser.
-# An entry may also carry `canonical_records` (record key -> the exact text CanonicalJsonWriter
-# emits for that record value) and `canonical_fields` (each OTHER top-level field's canonical text):
-# the incremental emit cache `_compose_candidate_text()` composes an append from. It lives INSIDE
-# the memo entry on purpose, so a cache and the document text it describes share one lifetime and
-# an evicted or superseded text can never leave a stale cache behind.
 var _validated_text_documents: Dictionary = {}
 var _validated_text_order: Array[String] = []
-## The exact text `_cached_document` was parsed from, or written as. The canonical cache is keyed by
-## text, so this is how a cache entry is proved to describe THIS document and not a superseded one.
 var _cached_text := ""
-## DWM_CONSEQUENCE_PROFILE gate, read from the environment once per instance in _init(). Every
-## profile marker below costs exactly one boolean check while the variable is unset.
 var _profile_enabled: bool = false
 
 
@@ -157,10 +106,6 @@ func load() -> Dictionary:
 	return _accepted({"document": _cached_document.duplicate(true)})
 
 
-## Durably records ONE publication before its caller may emit the corresponding external signal.
-## Replaying identical bytes for an already-recorded key is a no-op success reporting
-## `first_delivery=false`; occupied bytes that differ conflict outright, and nothing is written to
-## disk on any rejected path.
 func record_before_emit(request: Dictionary) -> Dictionary:
 	var gate := _require_bound("record_before_emit")
 	if not gate.is_empty():
@@ -187,11 +132,6 @@ func record_before_emit(request: Dictionary) -> Dictionary:
 		tick = Time.get_ticks_usec()
 	if existing_records.has(entry["key"]):
 		var stored: Dictionary = existing_records[entry["key"]]
-		# FIX: same canonical-representation comparison as _confirm_written_entry() below, for the
-		# identical reason -- after a cold restart, `stored` is read fresh from disk (plain String
-		# throughout), while a genuinely byte-identical replay's freshly built `entry` may still carry
-		# a StringName a production caller embedded (e.g. a checkpoint header's own `kind`). Raw `!=`
-		# would misreport that replay as a conflict instead of the no-op success it actually is.
 		if _digest_source(stored) == _digest_source(entry):
 			_profile_phase(profile, "replay_compare_us", tick)
 			return _profile_result(profile,
@@ -236,37 +176,18 @@ func _check_request(request: Dictionary, profile: Dictionary = {}) -> Dictionary
 
 func _commit_new_entry(entry: Dictionary, profile: Dictionary = {}) -> Dictionary:
 	var tick := Time.get_ticks_usec() if not profile.is_empty() else 0
-	# Normalize the one new record's engine text (StringName keys and values a production caller
-	# embeds, e.g. a checkpoint header's own `kind`) exactly as the historical canonical emit plus
-	# strict re-parse did, without emitting or parsing the ~100 KB board_fate entry: the walk is
-	# identity-preserving on StringName-free subtrees, and `_confirm_written_entry()` below proves
-	# after the exact reread that the durable record still deep-equals the original entry. The
-	# entry is canonicalizable by construction here: `_check_request()` already emitted and
-	# digested `publication`, and every kind binds `semantic_receipt` to a member of it.
 	var normalized_entry: Dictionary = _normalize_engine_text(entry)
 	tick = _profile_phase(profile, "entry_normalize_us", tick)
-	# A cached document is immutable once cached (`_parse_known_document()` hands the memoized
-	# document out by reference), and a record is only ever APPENDED under a key `record_before_emit`
-	# has already proved absent -- never mutated in place. So the candidate copies exactly the two
-	# containers this append changes, the envelope and the records map, and shares every retained
-	# record object with the cached document instead of deep-copying the whole ~800 KB document.
 	var candidate_document := _cached_document.duplicate()
 	var candidate_records: Dictionary = (_cached_document.get("records", {}) as Dictionary).duplicate()
 	candidate_records[normalized_entry["key"]] = normalized_entry
 	candidate_document["records"] = candidate_records
 	tick = _profile_phase(profile, "candidate_build_us", tick)
-	# The cached document was fully validated by refresh; check only the newly appended record. The
-	# publication digest was already emitted and compared in `_check_request()`, so it is passed
-	# along instead of canonicalizing the same ~80 KB publication a second time.
 	var entry_error := _record_shape_error(normalized_entry, str(normalized_entry["key"]),
 		str(normalized_entry["publication_sha256"]))
 	tick = _profile_phase(profile, "shape_check_us", tick)
 	if not entry_error.is_empty():
 		return _rejected(&"publication_ledger_schema_invalid", entry_error)
-	# One emit of the ONE new record, joined to the retained records' already-cached canonical texts,
-	# instead of re-canonicalizing the whole ~800 KB document for every append. The composer returns
-	# nothing when no cache describes the cached document (a cold instance, externally changed bytes,
-	# an exotic key set), and then the historical full emit below runs exactly as it always did.
 	var composed := _compose_candidate_text(normalized_entry, profile)
 	var body := str(composed.get("text", ""))
 	if body.is_empty():
@@ -283,11 +204,6 @@ func _commit_new_entry(entry: Dictionary, profile: Dictionary = {}) -> Dictionar
 	var payload := body + "\n"
 	_remember_validated_text(payload, candidate_document, true, true)
 	tick = _profile_phase(profile, "cache_seed_us", tick)
-	# Owner ruling 2026-09-14: `_refresh_from_disk()` above classified this whole family from disk one
-	# synchronous statement ago and this call is single-threaded, so the write reuses that exact
-	# classification instead of reading and hashing the same ~800 KB final and its `.bak` again. Every
-	# other storage law is the same code path, including the read-back of the promoted final, whose
-	# text comes back here so the confirmation below needs no read of its own.
 	var write_result: Dictionary = _storage.call(
 		&"write_atomic_reconciled", FIXED_PATH, payload, Callable(self, "_parse_known_storage_witness"), true)
 	tick = _profile_phase(profile, "write_atomic_us", tick)
@@ -303,9 +219,6 @@ func _commit_new_entry(entry: Dictionary, profile: Dictionary = {}) -> Dictionar
 	return _accepted({"record": entry.duplicate(true), "first_delivery": true})
 
 
-## `durable_text` is the text of the promoted final as the write's own read-back read it off disk --
-## the one read-back storage law keeps, and the same bytes the `read_text()` that used to stand here
-## would have read a statement later. Exact equality with the candidate is the same proof it gave.
 func _confirm_written_entry(expected_payload: String, durable_text: String, entry: Dictionary,
 		profile: Dictionary = {}) -> Dictionary:
 	var tick := Time.get_ticks_usec() if not profile.is_empty() else 0
@@ -314,11 +227,7 @@ func _confirm_written_entry(expected_payload: String, durable_text: String, entr
 	var known: Dictionary = _parse_known_document(expected_payload)
 	if not known.get("ok", false):
 		return _rejected(&"publication_record_unverified", "the durable record diverges from the candidate")
-	# ONE record is read out of the validated document: `_parse_known_document()` hands the memoized
-	# document out by reference, so fetching it no longer deep-copies the whole ~800 KB document.
 	var reparsed_entry: Variant = (known["value"] as Dictionary)["records"].get(entry["key"])
-	# Type-aware deep equality (StringName folded on the entry side only, 1 and 1.0 distinct) is the
-	# same proof the two canonical emits gave, without emitting the ~100 KB entry twice.
 	if not _CANON._deep_same(entry, reparsed_entry):
 		_profile_phase(profile, "confirmation_us", tick)
 		return _rejected(&"publication_record_unverified", "the durable record diverges from the candidate")
@@ -358,16 +267,10 @@ func _refresh_from_disk() -> Dictionary:
 		return _from_storage_failure(reconciled)
 	if not reconciled.get("exists", false):
 		return _rejected(&"publication_ledger_unreadable", "the seeded document is unexpectedly absent")
-	# Owner ruling 2026-09-14: reconcile just read, hashed and validated the exact final bytes, so it
-	# hands their text back with its result. The `read_text()` that used to follow re-read and
-	# re-hashed the same ~800 KB final purely to check it against the lease reconcile had granted one
-	# statement earlier; nothing can run between the two, so that check could only ever pass.
 	var text := str(reconciled.get("text", ""))
 	var parsed: Dictionary = _parse_known_document(text)
 	if not parsed.get("ok", false):
 		return parsed
-	# The parsed document is the memoized one and is never mutated in place, so refresh does not copy
-	# what the parser already owns; `load()` below still hands its caller an own deep copy.
 	_cached_document = parsed["value"]
 	_cached_text = text
 	_has_cached_document = true
@@ -395,14 +298,6 @@ func _parse_known_storage_text(text: String) -> Dictionary:
 	return parsed
 
 
-## Storage needs a validity WITNESS for bytes, while this owner retains the document itself. On the
-## three call sites that discard the value storage hands back -- `_refresh_from_disk()`'s reconcile,
-## `_commit_new_entry()`'s and `_seed_empty_document()`'s write_atomic -- an already-validated text
-## therefore answers with an EMPTY value instead of a deep copy of the whole ~800 KB document that
-## nothing ever reads (storage copies a validator result twice more on top of that). Unknown or
-## changed text still takes `_parse_known_storage_text()` unchanged, so the cold path returns the
-## full validated document, seeds the memo the same way, and keeps every refusal code and its order
-## exactly as before. Mirrors `DesktopIssuerRootStore._parse_known_write_document()`.
 func _parse_known_storage_witness(text: String) -> Dictionary:
 	if _validated_text_documents.has(text):
 		_touch_validated_text(text)
@@ -410,10 +305,6 @@ func _parse_known_storage_witness(text: String) -> Dictionary:
 	return _parse_known_storage_text(text)
 
 
-## Returns the validated document BY REFERENCE. Every document this class caches is immutable once
-## cached -- `_commit_new_entry()` copies the two containers an append changes and mutates neither
-## source, and `load()` gives its caller an own deep copy -- so this internal reader no longer
-## deep-copies an ~800 KB document on every refresh and every write confirmation.
 func _parse_known_document(text: String) -> Dictionary:
 	var document: Dictionary
 	if _validated_text_documents.has(text):
@@ -430,15 +321,10 @@ func _parse_known_document(text: String) -> Dictionary:
 	var shape_error := _document_shape_error(document)
 	if not shape_error.is_empty():
 		return _rejected(&"publication_ledger_schema_invalid", shape_error)
-	# Both branches hold a document only this instance owns: the memo's own copy, or a strict parse
-	# nothing else has seen.
 	_remember_validated_text(text, document, true, true)
 	return {"ok": true, "code": &"ok", "value": document}
 
 
-## `already_owned` marks a document this instance alone holds -- the memo's own document, a fresh
-## strict parse, or a candidate it just built -- which is memoized as it is. The storage-callback
-## path hands its parsed value to storage as well, so that one is still copied in.
 func _remember_validated_text(text: String, document: Dictionary, schema_validated: bool = true,
 		already_owned: bool = false) -> void:
 	_validated_text_documents[text] = {
@@ -455,12 +341,6 @@ func _touch_validated_text(text: String) -> void:
 	_validated_text_order.append(text)
 
 
-## Composes the outgoing document text from the per-record canonical cache plus ONE emit of the new
-## record, byte-identically to `_digest_source(candidate_document)` -- exactly the arrangement
-## `DesktopIssuerRootStore._write_issued_document()` / `_compose_issue_document()` already use for
-## the issuer root. Returns `{}` whenever the composed text cannot be proved identical (no cache
-## describes the cached document, a piece refuses to canonicalize, an exotic key set); the caller
-## then takes the historical full emit, so a miss costs speed and never bytes.
 func _compose_candidate_text(normalized_entry: Dictionary, profile: Dictionary) -> Dictionary:
 	var cache := _canonical_cache_entry(profile)
 	if cache.is_empty():
@@ -468,8 +348,6 @@ func _compose_candidate_text(normalized_entry: Dictionary, profile: Dictionary) 
 	var encoded_entry: Dictionary = _CANON.stringify(normalized_entry)
 	if not encoded_entry.get("ok", false):
 		return {}
-	# The cached map may still describe a memoized document, so the append copies it (String values,
-	# one shallow copy) instead of writing the new record into the map the old text is composed of.
 	var record_texts: Dictionary = (cache["canonical_records"] as Dictionary).duplicate()
 	record_texts[str(normalized_entry["key"])] = str(encoded_entry["value"])
 	var fields: Dictionary = cache["canonical_fields"]
@@ -479,8 +357,6 @@ func _compose_candidate_text(normalized_entry: Dictionary, profile: Dictionary) 
 	return {"text": text, "records": record_texts, "fields": fields}
 
 
-## The exact bytes `CanonicalJsonWriter.stringify()` emits for a document whose records are already
-## encoded: sorted keys, `"key":value` pairs joined by commas, no separator whitespace anywhere.
 func _compose_document_text(record_texts: Dictionary, fields: Dictionary) -> String:
 	var record_keys: Variant = _canonical_key_order(record_texts.keys())
 	if record_keys == null:
@@ -513,10 +389,6 @@ func _compose_document_text(record_texts: Dictionary, fields: Dictionary) -> Str
 	return "{" + ",".join(parts) + "}"
 
 
-## `null` when any key falls outside printable ASCII: the writer then orders that dictionary with
-## its own UTF-8 byte comparator, which this composer deliberately does not reproduce, so the caller
-## falls back to the full emit. On printable ASCII the writer sorts by plain String order in BOTH
-## its native and its checked emitter, which is exactly what this returns.
 static func _canonical_key_order(keys: Array) -> Variant:
 	for key: Variant in keys:
 		var name := str(key)
@@ -529,10 +401,6 @@ static func _canonical_key_order(keys: Array) -> Variant:
 	return ordered
 
 
-## The memo entry for `_cached_text` once it carries the canonical cache, rebuilding that cache ONCE
-## per distinct document text. The rebuild costs one full emit and replaces the full emit every
-## append used to pay; a cache that cannot be PROVED to describe `_cached_document` -- an evicted
-## memo entry, a document refreshed from externally changed bytes -- is rebuilt, never trusted.
 func _canonical_cache_entry(profile: Dictionary) -> Dictionary:
 	if _cached_text.is_empty() or not _validated_text_documents.has(_cached_text):
 		return {}
@@ -570,8 +438,6 @@ func _rebuild_canonical_cache(document: Dictionary) -> Dictionary:
 	return {"records": records, "fields": fields}
 
 
-## The new record joins the canonical cache only once its exact bytes are durable AND confirmed, so
-## a refused or unverified write leaves the cache describing what is really on disk.
 func _adopt_canonical_texts(text: String, composed: Dictionary) -> void:
 	if composed.is_empty() or not _validated_text_documents.has(text):
 		return
@@ -604,9 +470,6 @@ func _document_shape_error(document: Variant) -> String:
 	return ""
 
 
-## `known_publication_digest`, when nonempty, is a digest this instance already emitted and
-## compared for this exact publication (`_check_request()`); the disk-validation path passes
-## nothing and still canonicalizes every stored publication.
 func _record_shape_error(candidate: Variant, expected_key: String,
 		known_publication_digest: String = "") -> String:
 	if typeof(candidate) != TYPE_DICTIONARY:
@@ -638,9 +501,6 @@ func _record_shape_error(candidate: Variant, expected_key: String,
 	return ""
 
 
-## Kind-specific binding law (frozen contract line 335, see the class doc's FIX note): every kind
-## pins its own publication member set, which member (if any) must be byte-equal to `semantic_receipt`,
-## and where inside `semantic_receipt` the record key's id suffix lives.
 func _publication_binding_error(kind: String, publication: Variant, semantic_receipt: Variant) -> String:
 	if typeof(publication) != TYPE_DICTIONARY or typeof(semantic_receipt) != TYPE_DICTIONARY:
 		return "publication and semantic_receipt must both be dictionaries"
@@ -660,9 +520,6 @@ func _publication_binding_error(kind: String, publication: Variant, semantic_rec
 	return ""
 
 
-## Walks `_RECEIPT_ID_PATH[kind]` inside `semantic_receipt` and returns the final String value, or
-## null when any path segment is absent -- e.g. `action_source` reads the top-level `commit_receipt_id`
-## while `causal_sequence` reads the nested `causal_sequence_receipt.receipt_id`.
 func _receipt_id_for_key(kind: String, semantic_receipt: Dictionary) -> Variant:
 	var path: Array = _RECEIPT_ID_PATH[kind]
 	var cursor: Variant = semantic_receipt
@@ -698,9 +555,6 @@ static func _ledger_key(kind: String, receipt_id: String) -> String:
 	return kind + ":" + receipt_id
 
 
-## Identity-preserving: a subtree that holds no StringName is returned AS IS, so a StringName-free
-## entry allocates nothing here. Exact mirror of SaveDocumentSchema._normalize_engine_text();
-## it converts StringName keys and values only and can introduce no float, no key, no reorder.
 static func _normalize_engine_text(value: Variant) -> Variant:
 	match typeof(value):
 		TYPE_STRING_NAME: return String(value)

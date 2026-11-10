@@ -1,30 +1,5 @@
 extends RefCounted
 
-## The Hospital half of the frozen Schedule-Done presentation-port contract (Plan 01 Task 8,
-## dwm-p2r.14).
-##
-## WHAT IT IS FOR. `HospitalScene` must be able to run the faint timeline and report that it finished
-## without ever touching a stat, an invitation, the day, the Schedule, or an ending. This port is the
-## only thing the scene may call. It translates one coordinator-owned command into a scene-safe
-## projection, hands the physical work to the ONE configured physical owner, and turns the owner's
-## trusted completion into an exact receipt the coordinator can checkpoint.
-##
-## WHERE THE TRUST BOUNDARY SITS. The port owns ancestry: it ledger-verifies the resolution root and
-## re-derives the `P01.presentation.completion` projection from the exact request, so a caller cannot
-## supply a completion id it invented. The OWNER owns physical truth: only the configured owner can
-## say a presentation actually happened, and its object identity is checked, not just its shape.
-## Neither owns gameplay: no method here mutates domain state, and the port exposes no mutation seam
-## to a scene at all.
-##
-## WHAT THIS PORT REFUSES BY CONSTRUCTION. A Dating route (wrong `route_id`), a dating-challenge
-## owner (wrong owner kind), an unregistered timeline, an extra context key, a locally derived
-## completion id, and a completion whose context hash does not match the bytes actually presented.
-##
-## ANCESTRY NOTE (DEVIATION-4, recorded on dwm-p2r.14). Plan 01 Tasks 6/7 never lit up
-## `P01.day_resolution.stage` as an issuer-derived child on the production path -- stage transaction
-## ids are still `DayResolutionPlan`'s synthetic strings. `stage_id` is therefore carried and
-## projected exactly as the producer supplies it, while `completion_transaction_id` /
-## `completion_transaction_provenance` ARE real issuer children and are fully verified here.
 
 const _STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 const _NARRATIVE_OWNER := preload("res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd")
@@ -38,25 +13,20 @@ const ROOT_PURPOSE := &"transaction_id"
 const COMPLETION_ROLE := "presentation.completion"
 const STATUS_COMPLETED := "completed"
 
-## Exact `begin()` request members (sorted), frozen by the plan.
 const REQUEST_KEYS: Array[String] = [
 	"completion_transaction_id", "completion_transaction_provenance", "context", "resolution_id",
 	"resolution_issuer_receipt", "route_id", "stage_id", "substage_id", "timeline_id",
 ]
-## Exact Hospital `context` members (sorted), frozen by the plan.
 const CONTEXT_KEYS: Array[String] = [
 	"day", "kind", "miss_receipt_ids", "source_entry_ids",
 ]
-## Exact `complete()` request members (sorted).
 const COMPLETE_KEYS: Array[String] = [
 	"physical_completion_receipt", "presentation_command",
 ]
-## Exact physical-owner receipt members (sorted).
 const OWNER_RECEIPT_KEYS: Array[String] = [
 	"command_sha256", "completion_transaction_id", "owner_kind", "physical_token", "result",
 	"status",
 ]
-## Exact port completion-receipt members (sorted), frozen by the plan.
 const COMPLETION_RECEIPT_KEYS: Array[String] = [
 	"command_sha256", "physical_completion_receipt", "physical_owner_kind", "physical_token",
 	"receipt_id", "receipt_provenance", "resolution_id", "route_id", "stage_id", "substage_id",
@@ -71,10 +41,7 @@ signal completion_failed(failure: Dictionary)
 
 var _identity_issuer: Object = null
 var _physical_owner: Object = null
-## completion_transaction_id -> the exact canonical command this port issued. Ephemeral projection
-## of the coordinator-owned pending command, never a second canonical gameplay ledger.
 var _commands: Dictionary = {}
-## completion_transaction_id -> the exact settled completion receipt. Replay returns these bytes.
 var _settled: Dictionary = {}
 var _frozen_contexts_required := false
 
@@ -83,9 +50,6 @@ func configure_frozen_hospital_contexts() -> Dictionary:
 	return _ok({})
 
 
-## Retains the exact `.16` issuer and the ONE physical owner, and connects that exact owner's two
-## physical-completion signals once. Identical replay is idempotent; a replacement in either
-## position is refused rather than adopted.
 func configure(identity_issuer: Object, physical_owner: Object) -> Dictionary:
 	if identity_issuer == null or not _has_methods(identity_issuer, _ISSUER_METHODS):
 		return _fail(&"invalid_identity_issuer", "the issuer contract is incomplete", {})
@@ -108,11 +72,6 @@ func configure(identity_issuer: Object, physical_owner: Object) -> Dictionary:
 		"owner_instance_id": physical_owner.get_instance_id()})
 
 
-## Validates one committed-Schedule Hospital intent end to end, then starts the physical
-## presentation. Returns the canonical command the scene may project and nothing else.
-##
-## Byte-identical replay of the same completion transaction returns the identical command and token;
-## the same completion id carrying different bytes returns `presentation_command_conflict`.
 func begin(request: Dictionary) -> Dictionary:
 	if _identity_issuer == null or _physical_owner == null:
 		return _fail(&"presentation_port_unconfigured", "configure() has not run", {})
@@ -141,8 +100,6 @@ func begin(request: Dictionary) -> Dictionary:
 				if resumed.value.get("physical_token") != existing.physical_token \
 						or resumed.value.get("command_sha256") != command_sha256:
 					return _fail(&"physical_presentation_unavailable", "restored command binding changed", {})
-				# Restore replaced the live occurrence, not the durable command. Its
-				# next actual native completion must reach the restored coordinator.
 				_settled.erase(completion_id)
 		return _ok({"presentation_command": existing.duplicate(true)})
 
@@ -163,11 +120,6 @@ func begin(request: Dictionary) -> Dictionary:
 	return _ok({"presentation_command": command.duplicate(true)})
 
 
-## Turns one owner-validated physical completion into the exact frozen completion receipt.
-##
-## The physical receipt is proved by the CONFIGURED OWNER, not by this port: only the owner knows
-## what actually happened on screen. Any drift returns `physical_completion_untrusted` before a
-## domain stage mutation can be requested.
 func complete(request: Dictionary) -> Dictionary:
 	if _identity_issuer == null or _physical_owner == null:
 		return _fail(&"presentation_port_unconfigured", "configure() has not run", {})
@@ -198,7 +150,6 @@ func complete(request: Dictionary) -> Dictionary:
 		return _fail(&"physical_completion_untrusted",
 			"the physical receipt does not bind this exact command", {})
 
-	# ONLY the configured owner may bless the physical bytes.
 	var proven: Variant = _physical_owner.call(&"validate_physical_completion", {
 		"presentation_command": command.duplicate(true),
 		"physical_completion_receipt": owner_receipt.duplicate(true),
@@ -227,7 +178,6 @@ func complete(request: Dictionary) -> Dictionary:
 		return _fail(&"invalid_presentation_completion",
 			"the completion receipt member set is not exact", {})
 	if _settled.has(completion_id):
-		# Exact duplicate delivery returns the byte-identical receipt; changed bytes are a conflict.
 		if receipt != (_settled[completion_id] as Dictionary):
 			return _fail(&"physical_completion_conflict",
 				"this completion transaction already settled with different bytes", {})
@@ -236,15 +186,10 @@ func complete(request: Dictionary) -> Dictionary:
 	return _completion_result(receipt)
 
 
-## Whether a physical owner is configured at all. Bootstrap evidence reports this so a
-## deliberately-unconfigured route is visible rather than silently dead.
 func is_ready() -> bool:
 	return _identity_issuer != null and _physical_owner != null
 
 
-# -------------------------------------------------------------------------------------------------
-# validation
-# -------------------------------------------------------------------------------------------------
 
 func _validate_request(request: Dictionary) -> Dictionary:
 	if typeof(request) != TYPE_DICTIONARY:
@@ -271,7 +216,6 @@ func _validate_request(request: Dictionary) -> Dictionary:
 		return _fail(&"invalid_presentation_intent",
 			"the root receipt and child provenance must be dictionaries", {})
 
-	# The resolution ROOT must be ledger-verified before any child of it is believed.
 	var root: Dictionary = request["resolution_issuer_receipt"]
 	var verified: Variant = _identity_issuer.call(&"verify_issued", root.duplicate(true),
 		ROOT_PURPOSE)
@@ -281,12 +225,6 @@ func _validate_request(request: Dictionary) -> Dictionary:
 	return _validate_completion_child(request, root)
 
 
-## Proves `completion_transaction_id` / `completion_transaction_provenance` are exactly the
-## `P01.presentation.completion` child for THIS request, and not an id the caller derived locally.
-##
-## The projection is re-derived here from the request's own bytes and compared to the provenance's
-## source ids, so a changed context, route, timeline, stage or substage cannot reuse a completion
-## child that was anchored to different bytes.
 func _validate_completion_child(request: Dictionary, root: Dictionary) -> Dictionary:
 	var provenance: Dictionary = request["completion_transaction_provenance"]
 	var revalidated: Variant = _identity_issuer.call(&"validate_child", provenance.duplicate(true),
@@ -313,9 +251,6 @@ func _validate_completion_child(request: Dictionary, root: Dictionary) -> Dictio
 	return _ok({"validated": true})
 
 
-## The exact `P01.presentation.completion` source projection (plan line 98), sorted, as the issuer
-## stores it. `substage_id` is the persisted intent child id, so the completion binds its
-## prerequisite without including itself.
 func _completion_sources(request: Dictionary) -> Array:
 	var context_hash: Dictionary = _STATE_SCHEMA.canonical_sha256(request["context"])
 	if not context_hash.get("ok", false):
@@ -336,7 +271,6 @@ func _completion_sources(request: Dictionary) -> Array:
 	return tokens
 
 
-## The exact Hospital context, and nothing that could carry an outcome.
 func _context_error(context: Variant) -> String:
 	if typeof(context) != TYPE_DICTIONARY:
 		return "context must be a dictionary"
@@ -363,7 +297,6 @@ func _context_error(context: Variant) -> String:
 				return field + " must be an Array of nonblank String"
 			if seen.has(str(element)):
 				return field + " must be unique"
-			# Hospital owns no semantic order for either array, so both are sorted and unique.
 			if previous != "" and str(element) < previous:
 				return field + " must be sorted"
 			seen[str(element)] = true
@@ -371,12 +304,7 @@ func _context_error(context: Variant) -> String:
 	return ""
 
 
-# -------------------------------------------------------------------------------------------------
-# the async trusted completion path
-# -------------------------------------------------------------------------------------------------
 
-## The exact configured owner announced a physical completion. Runs the SAME complete() validation
-## path and publishes the full CommandResult exactly once.
 func _on_physical_completion_ready(receipt: Dictionary) -> void:
 	if typeof(receipt) != TYPE_DICTIONARY:
 		completion_failed.emit(_fail(&"physical_completion_untrusted",
@@ -405,13 +333,7 @@ func _on_physical_completion_failed(failure: Dictionary) -> void:
 		else _fail(&"physical_presentation_failed", "the owner failed without a result", {}))
 
 
-# -------------------------------------------------------------------------------------------------
-# helpers
-# -------------------------------------------------------------------------------------------------
 
-## The Hospital port accepts ONLY the narrative adapter. A dating-challenge owner reaching this port
-## would mean a faint was presented by the relationship board, so the check is on the exact script
-## and the declared kind, not on duck-typing alone.
 func _owner_error(physical_owner: Object) -> String:
 	if physical_owner == null or not _has_methods(physical_owner, _OWNER_METHODS):
 		return "the physical owner contract is incomplete"

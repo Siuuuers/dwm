@@ -1,7 +1,4 @@
 extends RefCounted
-## One-way projection of retained desktop board truth. Never pass the source snapshot to a Control.
-## Terminal facts are public after the board command commits, but inspection stays locked until
-## a separate, durable terminal-view owner exists. This query does not manufacture that owner.
 
 const STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 const SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
@@ -37,14 +34,11 @@ static func desktop(snapshot: Dictionary, difficulty: String, entry_eligible: bo
 	if not validated.get("ok", false): return _fail()
 	var board: Dictionary = validated.value.board
 	if phase == "SETTLING" and (not board.terminal or snapshot.settlement.is_empty()): return _fail()
-	# Retained dimensions remain literal, including older valid boards. Never reshape a save.
 	var cells: Array[Dictionary] = []
 	var terminal: bool = board.terminal
 	var inspectable: bool = phase == "ACTIVE_VISIBLE" and not terminal
-	# dwm-634.1: one pass builds the index sets so each cell is a dictionary probe, not a scan.
 	var revealed_set := _index_set(board.revealed_indices)
 	var flagged_set := _index_set(board.flagged_indices)
-	# The mine set and the adjacent-flag tally are built only for the reads that probe them.
 	var mine_set: Dictionary = _index_set(board.mine_indices) if terminal else {}
 	var adjacent_flags: Dictionary = _adjacent_flag_counts(board, flagged_set) if inspectable else {}
 	var adjacency: Array = board.adjacency_counts
@@ -125,7 +119,6 @@ static func _cell(index: int, inspectable: bool) -> Dictionary:
 	return {"index": index, "face": "covered", "mark": "none", "number": 0,
 		"bracketed": false, "inspectable": inspectable, "pressable": false, "actions": []}
 
-## Adjacency is symmetric, so one scatter per flag tallies every cell a 3x3 walk per cell would.
 static func _adjacent_flag_counts(board: Dictionary, flagged_set: Dictionary) -> Dictionary:
 	var width: int = int(board.width)
 	var height: int = int(board.height)
@@ -156,7 +149,6 @@ static func _ok(value: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": value}
 
 static func _fail() -> Dictionary:
-	# Do not echo an invalid source's values, paths, identities or schema diagnostic details.
 	return {"ok": false, "code": &"invalid_minesweeper_presentation_source"}
 
 

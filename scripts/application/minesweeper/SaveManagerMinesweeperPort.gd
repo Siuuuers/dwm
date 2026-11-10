@@ -1,12 +1,6 @@
 class_name SaveManagerMinesweeperPort
 extends RefCounted
 
-## Production Minesweeper save port (dwm-p2r.9 Plan 06 Task 2).
-##
-## Delegates checkpoint preview/capture/prepare/commit/rollback to plan03's ONE real
-## `SaveManagerCheckpointPort`, and delegates ONLY owner `&"minesweeper_board"` to
-## SaveManager's lock API. It reimplements no schema, journal, filename, or save
-## capability of its own.
 
 const BOARD_LOCK_OWNER: StringName = &"minesweeper_board"
 
@@ -19,8 +13,6 @@ const SAVE_MANAGER_METHODS: Array[String] = [
 
 var _checkpoint_port: Object = null
 var _save_manager: Object = null
-## Whether THIS port currently holds the board lock. SaveManager exposes no owner query,
-## so ownership is tracked here and always confirmed against its live lock state.
 var _owns_board_lock := false
 
 
@@ -50,7 +42,6 @@ func configure(checkpoint_port: Object, save_manager: Object) -> Dictionary:
 	}, "receipt": {}}
 
 
-# ---- Frozen coordinator port surface ----
 
 func capture() -> Dictionary:
 	var ready := _readiness()

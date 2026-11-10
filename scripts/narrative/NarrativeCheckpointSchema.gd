@@ -1,15 +1,5 @@
 class_name NarrativeCheckpointSchema
 extends RefCounted
-## Pure semantic narrative-checkpoint shape (dwm-p2r.8, Plan-05 Task 2).
-##
-## build() composes the exact checkpoint from a boundary plus the completed/revealed manifest
-## event and its branch-validated successor. validate() re-resolves event and post_event from the
-## timeline record rather than trusting saved indices, and requires an exact match. No raw paths,
-## no arbitrary event objects, no Dialogic full-state.
-##
-## NOTE (timeline_start): the plan pins line/choice/effect/variable/marker/scene_transition/
-## completion shapes explicitly and leaves timeline_start's post_event implicit; it is treated
-## here as `before_event` staging the first registered event (event_index 0).
 
 const SCHEMA_VERSION := 1
 

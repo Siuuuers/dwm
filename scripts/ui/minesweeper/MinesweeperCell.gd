@@ -1,5 +1,4 @@
 extends Control
-## Inert renderer for one owner-published public cell. The future grid owns input and Focus.
 
 const MINESWEEPER_THEME := preload("res://scripts/ui/minesweeper/MinesweeperTheme.gd")
 const KEYS := ["index","face","mark","number","bracketed","inspectable","pressable","actions"]
@@ -51,15 +50,12 @@ func _configure_context(locale: String = "en", percent: int = 100, large: bool =
 
 func present(cell: Dictionary) -> bool:
 	if not validate(cell): return false
-	# The panel owns the one deep copy of a publication; this renderer reads that instance.
 	public_cell = cell
 	set_contact(focused,hovered,pressed)
 	_update_accessibility()
 	queue_redraw()
 	return true
 
-## The complete public cell rule set. The grid validates a whole projection with it, so
-## acceptance and presentation cannot drift apart.
 static func validate(cell: Dictionary) -> bool:
 	if cell.size() != KEYS.size(): return false
 	for key: String in KEYS:
@@ -89,7 +85,6 @@ static func _valid_content(cell: Dictionary) -> bool:
 	if cell.face == "covered":
 		if cell.number != 0 or cell.mark in ["mine","exploded","marked_mine"]: return false
 		if cell.bracketed and cell.mark not in ["none","flag"]: return false
-		# Covered pre-Reveal cells may be marked freely; certification only restricts Reveal.
 		if cell.mark == "none": legal_sets = [[],["reveal"],["flag"],["reveal","flag"]]
 		elif cell.mark == "flag": legal_sets = [[],["unflag"]]
 		elif cell.mark == "marked_flag": legal_sets = [[],["activate"]]
@@ -119,8 +114,6 @@ func _draw() -> void:
 	var face: Color = _role(&"controlled_face") if covered else _role(&"paper")
 	var structure: Color = _role(&"dark_registration") if covered else _role(&"paper_structure")
 	draw_rect(Rect2(Vector2.ZERO,size),face)
-	# Keep the complete rule inside its own cell: adjacent faces must not paint
-	# over a subpixel half-stroke when the whole board is fitted down.
 	var rendered_transform := get_viewport().get_stretch_transform()*get_global_transform_with_canvas()
 	var rendered_scale := rendered_transform.get_scale().abs()
 	var stroke := maxf(2.0,1.0/maxf(0.001,minf(rendered_scale.x,rendered_scale.y)))
@@ -143,7 +136,6 @@ func _draw_public_mark(covered: bool) -> void:
 	var aperture := _aperture()
 	var ink: Color = _role(&"dark_mark") if covered else _role(&"paper_mark")
 	var separation: Color = _role(&"dark_separation") if covered else _role(&"paper")
-	# These crisp shapes are provisional calibration inside the accepted aperture.
 	match public_cell.mark:
 		"flag","correct_flag","incorrect_flag","marked_flag": _draw_flag(aperture,ink,separation)
 		"mine","exploded","marked_mine": _draw_mine(aperture,ink,public_cell.mark == "exploded")
@@ -162,8 +154,6 @@ func _draw_public_mark(covered: bool) -> void:
 		var descent: float = font.get_descent(font_size)
 		var baseline: Vector2 = aperture.position+Vector2((aperture.size.x-measure.x)/2.0,(aperture.size.y-ascent-descent)/2.0+ascent)
 		baseline = (baseline/2.0).round()*2.0
-		# Source Han's numeral ink sits below its typographic centre. Lift one native pixel;
-		# retain the complete theme font size and the fixed aperture.
 		if font.get_font_name().begins_with("Source Han Sans"): baseline.y -= 2
 		draw_string(font,baseline,text,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size,ink)
 

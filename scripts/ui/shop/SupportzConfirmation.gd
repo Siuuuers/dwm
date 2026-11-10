@@ -1,5 +1,4 @@
 extends "res://scripts/ui/desktop/DesktopConfirmation.gd"
-## Price-only Shop consent, reusing the existing modal input/focus custody.
 
 var attempt_purchase: Callable
 var failure_text := ""
@@ -22,7 +21,6 @@ func _finish(accepted: bool) -> void:
 		get_viewport().set_input_as_handled()
 		var result: Dictionary = attempt_purchase.call()
 		if not is_inside_tree():
-			# A completed purchase may hand physical custody to Hospital or an ending.
 			_settled = true
 			_restore_custody()
 			queue_free()

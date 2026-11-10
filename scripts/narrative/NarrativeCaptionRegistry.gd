@@ -1,8 +1,5 @@
 class_name NarrativeCaptionRegistry
 extends RefCounted
-## Explicit semantic registrations for an internal caption stream. No production
-## catalog is implied: callers supply the exact authored signature for each beat.
-## Prose, DTL location and runtime event indices never establish membership.
 
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const FIELDS := ["beat_id", "line_id", "owning_entry_id", "presentation_signature"]

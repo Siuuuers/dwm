@@ -87,8 +87,6 @@ func apply_silent(plan: Dictionary) -> Dictionary:
 	settings.set("settings", settings_cache)
 	text.call(&"update_text_speed", -1.0, false, 1.0, float(plan["text_delay_multiplier"]))
 	auto_advance.set("delay_modifier", float(plan["auto_delay_multiplier"]))
-	# Witnessed presentation owns logical profile Auto. Keep Dialogic's independent
-	# player toggle neutral without disturbing its forced or one-event owners.
 	auto_advance.set("enabled_until_user_input", false)
 	_plan = plan.duplicate(true)
 	_plan["skip_mode"] = skip_mode

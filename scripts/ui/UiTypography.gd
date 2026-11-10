@@ -1,5 +1,4 @@
 extends RefCounted
-## Explicit font selection shared by UI and Gallery; only resource faces are cached.
 
 const ENGLISH := preload("res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2")
 const SIMPLIFIED := preload("res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf")
@@ -62,14 +61,12 @@ static func font(locale: String, percent: int, font_style: String = "pixel") -> 
 	return _loaded[path] as Font
 
 
-## Story glyph coverage must not mutate shared UI/Gallery primary faces.
 static func story_font(locale: String, percent: int, font_style: String = "pixel") -> Font:
 	var primary := font(locale, percent, font_style) as FontFile
 	if primary == null: return null
 	var key := primary.resource_path
 	if not _story_loaded.has(key):
 		var face := primary.duplicate() as FontFile
-		# Rasterize the new story face independently of the warmed UI atlas.
 		face.clear_cache()
 		var fallbacks: Array[Font] = [load("res://assets/ui/contacts/fonts/dejavu-sans-fallback.ttf") as FontFile]
 		if font_style == "pixel":
@@ -85,7 +82,6 @@ static func story_font(locale: String, percent: int, font_style: String = "pixel
 static func font_size(locale: String, percent: int, existing_base_size: int = 24, font_style: String = "pixel") -> int:
 	if not supports(locale) or not _PIXEL_FONTS.has(percent) or font_style not in ["pixel", "readable"]:
 		return 0
-	# Each pixel master is displayed at 3x in UI and 2x in the Gallery.
 	var base_size := 24 if font_style == "pixel" else existing_base_size
 	return int(base_size * percent / 100.0)
 

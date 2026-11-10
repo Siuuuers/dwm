@@ -1,7 +1,5 @@
 class_name CaptionWitnessLedger
 extends RefCounted
-## Profile membership for exact registered caption variants. Occurrence, run and
-## playback identities belong to the caller's custody proof, never this ledger.
 
 const REGISTRY := preload("res://scripts/narrative/NarrativeCaptionRegistry.gd")
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
@@ -14,8 +12,6 @@ static func describe(beat: Dictionary) -> Dictionary:
 		"canonical_text": encoded.value, "beat": beat.duplicate(true)}}
 
 
-## Registry shape and exact membership are necessary here. The presentation
-## owner must additionally prove that this row is the accepted visible occurrence.
 static func admit(beat: Dictionary, registry: Dictionary) -> Dictionary:
 	var described := describe(beat)
 	if not described.ok: return described

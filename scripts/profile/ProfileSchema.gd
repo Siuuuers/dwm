@@ -196,7 +196,6 @@ static func prepare_v9_upgrade(raw: Dictionary) -> Dictionary:
 	if not checked.ok: return checked
 	var candidate: Dictionary = checked.value
 	candidate.schema_version = SCHEMA_VERSION
-	# Base-line visits and reached scene signatures never prove an exact caption.
 	candidate["witnessed_caption_variants"] = {}
 	return validate(candidate)
 
@@ -209,7 +208,6 @@ static func prepare_v8_upgrade(raw: Dictionary) -> Dictionary:
 	_add_presentation_chronology(candidate)
 	return validate(candidate)
 
-## Older documents prove membership, never the order in which signatures were reached.
 static func _add_presentation_chronology(candidate: Dictionary) -> void:
 	var legacy: Array = candidate.reached_presentations.keys()
 	legacy.sort()
@@ -282,7 +280,6 @@ static func _validate_modern_document(source: Dictionary, version: int, root_key
 		return _invalid("schema_version", "schema_version must be an integer")
 	if profile["schema_version"] != version:
 		return _failure(&"unsupported_profile_schema", "schema_version", "profile schema version is unsupported")
-	# Existing profiles gain empty membership, never inferred historical discoveries.
 	var admitted_library_default := version >= 10 and not profile.has("dialogue_library")
 	if admitted_library_default:
 		profile["dialogue_library"] = {"checkpoints": [], "witnesses": {}}
@@ -360,7 +357,6 @@ static func _validate_modern_document(source: Dictionary, version: int, root_key
 	return result
 
 
-## Library membership survives clearing Skip history; it is not a projection of it.
 static func _validate_dialogue_library(value: Variant) -> Dictionary:
 	if not value is Dictionary:
 		return _invalid("dialogue_library", "Library membership must be an object")
@@ -377,7 +373,6 @@ static func _validate_dialogue_library(value: Variant) -> Dictionary:
 	return {"ok": true, "code": &"ok"}
 
 
-## Each reached signature has exactly one provenance: first-witness sequence or unknown legacy order.
 static func _validate_presentation_chronology(profile: Dictionary) -> Dictionary:
 	var path := "reached_presentation_chronology"
 	var chronology: Variant = profile[path]
@@ -498,7 +493,6 @@ static func _validate_v1_preferences(value: Variant) -> Dictionary:
 	}
 	for group: String in groups:
 		if typeof(preferences[group]) != TYPE_DICTIONARY: return _invalid("preferences." + group, "preference group must be an object")
-		# Older v1 writers persisted this retired capability. Keep it only in the archive.
 		if group == "accessibility" and preferences[group].has("tutorial_replay_available"):
 			if typeof(preferences[group]["tutorial_replay_available"]) != TYPE_BOOL:
 				return _invalid("preferences.accessibility.tutorial_replay_available", "legacy tutorial capability must be a Boolean")

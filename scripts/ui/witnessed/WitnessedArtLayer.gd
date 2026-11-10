@@ -1,5 +1,4 @@
 extends DialogicLayoutLayer
-## The existing Dialogic layout owns this view's complete lifetime.
 const ART_VIEW := preload("res://scripts/ui/art/SceneArtView.gd")
 var _view: ART_VIEW
 var _bridge: Node

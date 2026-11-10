@@ -1,9 +1,6 @@
 class_name FatalDiagnosticProjector
 extends RefCounted
 
-## The one general, pure projector of raw recovery diagnostics into
-## gate-latchable primitive fatal failures
-## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 3).
 
 const DEPTH_BUDGET := 24
 const NODE_BUDGET := 4096

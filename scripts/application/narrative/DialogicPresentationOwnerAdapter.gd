@@ -1,55 +1,23 @@
 extends RefCounted
 
-## The ONE narrative physical-presentation owner (Plan 01 Task 8, dwm-p2r.14).
-##
-## WHAT IT IS. `HospitalPresentationPort` needs a physical owner that can actually run a timeline and
-## then say, trustworthily, that it finished. This adapter is that owner and nothing more: it wraps
-## the existing `DialogicBridge` and converts exactly one TRUSTED bridge signal into exactly one
-## `physical_completion_ready`.
-##
-## WHY IT IS THE ONLY SOURCE OF PHYSICAL TRUTH. Before Task 8 the bridge exposed a public
-## `finish_current_timeline()`, so any caller could announce a completion that never happened. That
-## method is gone. The only path to a completion now is the runtime's own `timeline_ended`, which
-## this adapter observes through the bridge's ordinary or command-bound Hospital signal.
-## A scene cannot author a result, a
-## caller cannot forge one, and a second emission for the same command replays the first record
-## rather than minting a new one.
-##
-## WHAT IT DELIBERATELY CANNOT DO. It starts no dating challenge, decides no outcome, mutates no
-## gameplay state, and holds no canonical ledger. Its retained map is an EPHEMERAL projection of the
-## coordinator-owned pending command; `DayResolutionPlan` owns the durable command and the
-## checkpointed completion receipt.
-##
-## THE TOKEN IS DERIVED, NOT MINTED. `physical_token` is a deterministic function of the completion
-## transaction id and the canonical command hash, so an unfinished restore that replays the same
-## bytes reconstructs the SAME token instead of stranding the old one.
 
 const _STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 const _FROZEN_CONTEXT := preload("res://scripts/narrative/HospitalFrozenContext.gd")
 
-## The owner kind this adapter declares. `HospitalPresentationPort` accepts only this value; the
-## Dating port accepts only `dating_challenge`, so the two owners can never be swapped.
 const OWNER_KIND := "narrative"
 const TOKEN_PREFIX := "narrative_presentation."
 const STATUS_COMPLETED := "completed"
 
-## Exact `begin_physical()` command members (sorted): the port's exact `begin()` request plus the
-## canonical hash the port computed over it.
 const COMMAND_KEYS: Array[String] = [
 	"command_sha256", "completion_transaction_id", "completion_transaction_provenance", "context",
 	"resolution_id", "resolution_issuer_receipt", "route_id", "stage_id", "substage_id",
 	"timeline_id",
 ]
-## Exact owner completion-receipt members (sorted), frozen by the plan.
 const RECEIPT_KEYS: Array[String] = [
 	"command_sha256", "completion_transaction_id", "owner_kind", "physical_token", "result",
 	"status",
 ]
-## Exact `validate_physical_completion()` request members (sorted).
 const VALIDATE_KEYS: Array[String] = ["physical_completion_receipt", "presentation_command"]
-## The CANONICAL command members (sorted): `begin_physical()`'s command plus the token this owner
-## returned. `complete()` validates against the canonical command, so it carries one member more
-## than the command that started the presentation.
 const CANONICAL_COMMAND_KEYS: Array[String] = [
 	"command_sha256", "completion_transaction_id", "completion_transaction_provenance", "context",
 	"physical_token", "resolution_id", "resolution_issuer_receipt", "route_id", "stage_id",
@@ -62,9 +30,7 @@ signal physical_completion_ready(receipt: Dictionary)
 signal physical_completion_failed(failure: Dictionary)
 
 var _bridge: Object = null
-## completion_transaction_id -> {command_sha256, physical_token, timeline_id}. Ephemeral.
 var _in_flight: Dictionary = {}
-## completion_transaction_id -> the exact receipt this adapter emitted. Replay returns these bytes.
 var _completed: Dictionary = {}
 var _presentation_revision := 0
 var _frozen_contexts_required := false
@@ -74,9 +40,6 @@ func configure_frozen_hospital_contexts() -> Dictionary:
 	return _ok({})
 
 
-## Retains the exact existing `DialogicBridge` and connects its trusted completion signal once.
-## Idempotent for that same object; a replacement is refused rather than adopted, so a second wiring
-## attempt can never re-point a live owner at a different runtime.
 func configure(bridge: Object) -> Dictionary:
 	if bridge == null or not _has_methods(bridge, _BRIDGE_METHODS) \
 			or not bridge.has_signal("timeline_finished"):
@@ -104,9 +67,6 @@ func owner_kind() -> String:
 	return OWNER_KIND
 
 
-## A same-process Load can revisit a command this adapter already completed.
-## Only the Bridge's exact staged/restored line authorizes replacing that ephemeral
-## receipt; an ordinary duplicate begin never restarts or clears completion.
 func adopt_reading_restore(command: Dictionary) -> Dictionary:
 	if _bridge == null or not _bridge.has_method("is_hospital_reading_restore_for") \
 			or not _bridge.is_hospital_reading_restore_for(command):
@@ -133,11 +93,6 @@ func adopt_reading_restore(command: Dictionary) -> Dictionary:
 	return resumed
 
 
-## Starts the physical timeline for one canonical command and returns its derived token.
-##
-## Byte-identical replay of the SAME command returns the identical token WITHOUT restarting the
-## timeline; the same completion id carrying different bytes is refused, because that would be two
-## different presentations wearing one identity.
 func begin_physical(command: Dictionary) -> Dictionary:
 	if _bridge == null:
 		return _fail(&"narrative_owner_unconfigured", "configure() has not run", {})
@@ -157,7 +112,6 @@ func begin_physical(command: Dictionary) -> Dictionary:
 	var token := derive_token(completion_id, command_sha256)
 
 	if _completed.has(completion_id):
-		# Already physically finished. Restarting would replay narrative the player already saw.
 		var settled: Dictionary = _completed[completion_id]
 		if str(settled["command_sha256"]) != command_sha256:
 			return _fail(&"presentation_command_conflict",
@@ -178,11 +132,9 @@ func begin_physical(command: Dictionary) -> Dictionary:
 		"route_id": str(command["route_id"]),
 		"revision": _presentation_revision,
 	}
-	# Every faint uses the same native Hospital timeline and completion owner.
 	if timeline_id == "hospital.faint" and _bridge.has_method("begin_hospital_reading"):
 		var canonical := command.duplicate(true)
 		canonical["physical_token"] = token
-		# Retain before starting: native completion may be synchronous in a test runtime.
 		_in_flight[completion_id]["semantic_command"] = canonical.duplicate(true)
 		var reading: Dictionary = _bridge.begin_hospital_reading(canonical)
 		if not reading.get("ok", false):
@@ -201,7 +153,6 @@ func begin_physical(command: Dictionary) -> Dictionary:
 	return _ok({"physical_token": token, "command_sha256": command_sha256})
 
 
-## Pause queries the retained owner, never a scene-authored readiness flag or cached timeline ID.
 func capture_pause_source() -> Dictionary:
 	if _bridge == null or not _bridge.has_method("capture_pause_frontier") or _in_flight.size() != 1:
 		return _fail(&"pause_source_unavailable", "no unique owned presentation", {})
@@ -217,8 +168,6 @@ func capture_pause_source() -> Dictionary:
 	return _ok(source)
 
 
-## The Bridge has already cancelled this exact runtime under session-abandonment custody.
-## Release only the ephemeral pending map; no completion/failure reaches the retired coordinator.
 func _on_playback_retired(timeline_id: String) -> void:
 	for completion_id: Variant in _in_flight.keys():
 		var pending: Dictionary = _in_flight[completion_id]
@@ -235,8 +184,6 @@ func _on_playback_failed(timeline_id: String, result: Dictionary) -> void:
 				"admitted playback failed", {"completion_transaction_id": completion_id, "cause": result.duplicate(true)}))
 
 
-## Proves that one owner receipt is byte-identical to the record THIS adapter actually emitted for
-## that command. The caller's bytes are never trusted to describe what physically happened.
 func validate_physical_completion(request: Dictionary) -> Dictionary:
 	if _bridge == null:
 		return _fail(&"narrative_owner_unconfigured", "configure() has not run", {})
@@ -264,8 +211,6 @@ func validate_physical_completion(request: Dictionary) -> Dictionary:
 	if not _completed.has(completion_id):
 		return _fail(&"physical_completion_untrusted",
 			"this owner never emitted a completion for that command", {})
-	# ONE comparison, not six: the emitted record is the whole truth, so owner kind, token, hash,
-	# completion id, status and result all drift together or not at all.
 	if receipt != (_completed[completion_id] as Dictionary):
 		return _fail(&"physical_completion_untrusted",
 			"the receipt is not byte-identical to the emitted completion", {})
@@ -275,8 +220,6 @@ func validate_physical_completion(request: Dictionary) -> Dictionary:
 	return _ok({"validated": true, "owner_kind": OWNER_KIND})
 
 
-## The deterministic token law, exposed so a restore can reconstruct the same token without this
-## adapter's in-flight map surviving the crash.
 static func derive_token(completion_transaction_id: String, command_sha256: String) -> String:
 	var hashed: Dictionary = _STATE_SCHEMA.canonical_sha256(
 		completion_transaction_id + "|" + command_sha256)
@@ -285,9 +228,6 @@ static func derive_token(completion_transaction_id: String, command_sha256: Stri
 	return TOKEN_PREFIX + str((hashed["value"] as Dictionary)["sha256"])
 
 
-## Ordinary physical completion. Reached exclusively from the bridge's trusted
-## `timeline_finished`, which since Task 8 only the Dialogic runtime's own `timeline_ended` can
-## raise. A timeline this adapter did not start is ignored: other systems legitimately run timelines.
 func _on_timeline_finished(timeline_id: String, result: Dictionary) -> void:
 	var completion_id := ""
 	for candidate: Variant in _in_flight:
@@ -301,8 +241,6 @@ func _on_timeline_finished(timeline_id: String, result: Dictionary) -> void:
 	_complete_owned(completion_id, result)
 
 
-## Semantic Hospital completion is bound to the complete retained command, never
-## to the public timeline ID alone. Ordinary and stale emissions cannot settle it.
 func _on_hospital_reading_finished(command: Dictionary, result: Dictionary) -> void:
 	var completion_id := str(command.get("completion_transaction_id", ""))
 	if not _in_flight.has(completion_id) \
@@ -332,7 +270,6 @@ func _complete_owned(completion_id: String, result: Dictionary) -> void:
 	physical_completion_ready.emit(receipt.duplicate(true))
 
 
-# ---- helpers ----
 
 func _exact_keys(value: Dictionary, expected: Array[String], code: StringName) -> Dictionary:
 	var keys: Array = value.keys()

@@ -1,6 +1,5 @@
 extends RefCounted
 
-## Title-host playback with Profile-owned caption History at exit. Endings require discovery; other reached scenes require the ending milestone.
 signal playback_finished(result: Dictionary)
 const PASSAGES := preload("res://scripts/narrative/ScenePassageCatalog.gd")
 const SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
@@ -55,8 +54,6 @@ func get_variants(ending_id: String) -> Dictionary:
 		variants.append(record.duplicate(true))
 	return {"ok":true, "value":{"records":variants, "chronology": _variant_chronology(reached.value, variants)}}
 
-## Temporary mechanism records use neutral localized numbering; authored titles
-## can be added when production passage boundaries are selected.
 func passage_title(passage_id: String, locale: String) -> String:
 	if not PASSAGES.valid_id(passage_id) or not get_variants(passage_id).get("ok", false): return ""
 	var discovery: Dictionary = _profile.get_gallery_discovery_snapshot()
@@ -68,7 +65,6 @@ func passage_title(passage_id: String, locale: String) -> String:
 	var template: String = {"zh-CN": "结局 %d", "zh-HK": "結局 %d", "ja": "エンディング %d", "ko": "엔딩 %d"}.get(locale.replace("_", "-"), "Ending %d")
 	return template % number
 
-## No new Gallery discovery identities: these are exact already-reached callable scenes.
 func get_reached_entry_variants(entry_id: String = "") -> Dictionary:
 	if _profile == null: return _fail(&"gallery_replay_unavailable")
 	if not _profile.has_method("has_completed_ending") or not _profile.has_completed_ending():
@@ -86,7 +82,6 @@ func get_reached_entry_variants(entry_id: String = "") -> Dictionary:
 		if candidate_id not in entry_ids: entry_ids.append(candidate_id)
 		var checked := SIGNATURE.validate(record.signature)
 		if not checked.ok or checked.value.signature_id != record.signature_id:
-			# Enumeration retains the known record; its exact query owns failure.
 			if not entry_id.is_empty(): return _fail(&"gallery_record_unavailable")
 			continue
 		variants.append(record.duplicate(true))
@@ -94,7 +89,6 @@ func get_reached_entry_variants(entry_id: String = "") -> Dictionary:
 	return {"ok": true, "value": {"records": variants, "entry_ids": entry_ids,
 		"chronology": _variant_chronology(reached.value, variants)}}
 
-## Filters owner-provided provenance without interpreting a signature digest as chronology.
 func _variant_chronology(source: Dictionary, variants: Array[Dictionary]) -> Dictionary:
 	var result := {"first_witnessed": [], "legacy_unordered": []}
 	var selected := {}
@@ -111,7 +105,6 @@ func _is_date_record(entry: Dictionary) -> bool:
 		and entry.role in ["solo_pre_challenge", "solo_post_challenge", "pair_pre_challenge_scene", "pair_post_challenge_scene"]
 
 func _entry_available(entry: Dictionary) -> bool:
-	# Reached dates use native cards; only DTL playback requires a physical master.
 	if _is_date_record(entry): return true
 	var resolved: Dictionary = _entry_catalog.get_entry(str(entry.entry_id), "en")
 	if not resolved.get("ok", false): return false

@@ -1,5 +1,4 @@
 extends VBoxContainer
-## Settings presentation only. ProfileManager owns proposals and atomic publication.
 
 const REGISTRY := preload("res://scripts/settings/ControlsActionRegistry.gd")
 const CAPTURE := preload("res://scripts/settings/ControlsCaptureSession.gd")
@@ -320,8 +319,6 @@ func begin_capture(action: String, slot: String, activation: InputEvent = null) 
 	_opening_capture = true
 	_opening_activation = activation if activation != null else (_last_activation if _held.has(_identity(_last_activation)) else null)
 	_activation_released = false
-	# Controller.depart calls this component synchronously once. Later departures
-	# during physical sample cleanup invalidate this request normally.
 	_own_depart_pending = true
 	await _content.get_controller().depart()
 	if generation != _generation or not _lawful():
@@ -344,7 +341,6 @@ func begin_capture(action: String, slot: String, activation: InputEvent = null) 
 
 
 func _popup_dialog(dialog: ConfirmationDialog, minimum_size: Vector2i) -> void:
-	# Native and embedded Windows have their own canvas, unlike the sheet controls.
 	var source_scale := (get_global_transform_with_canvas() if dialog.is_embedded() else get_screen_transform()).get_scale()
 	dialog.content_scale_factor = minf(source_scale.x, source_scale.y)
 	dialog.min_size = Vector2i((Vector2(minimum_size) * dialog.content_scale_factor).round())
@@ -386,7 +382,6 @@ func _capture_input(event: InputEvent) -> void:
 		capture_dialog.set_input_as_handled()
 		return
 	if event is InputEventMouseButton or event is InputEventMouseMotion:
-		# The only pointer destination in this exclusive window is Cancel.
 		return
 	capture_dialog.set_input_as_handled()
 	if _release_event != null:
@@ -527,7 +522,7 @@ func _commit_proposal() -> void:
 	if _proposal.is_empty() or not _proposal.get("can_commit", false) or not _lawful():
 		return
 	var proposal := _proposal.duplicate(true)
-	_proposal.clear() # One consent can make only one owner request.
+	_proposal.clear()
 	if _proposal_kind == &"draft":
 		if not is_reviewing_import() or proposal.before != _review_draft:
 			_status_key = "settings.controls.stale"
@@ -648,8 +643,6 @@ func _on_joy_connection_changed(device: int, connected: bool) -> void:
 	elif _session != null and _session.is_active():
 		if _session.disconnect_device(device).state == &"cancelled":
 			_cancel_and_restore()
-	# Disconnect retires this physical device's contacts: no release can arrive.
-	# A future device reusing its index must start with fresh capture identity.
 	var prefix := "joy:%d:" % device
 	for identity: String in _held.keys():
 		if identity.begins_with(prefix): _held.erase(identity)
@@ -686,9 +679,6 @@ func begin_import_review() -> void:
 		refresh()
 		return
 	_review = result.value.duplicate(true)
-	# Original records are evidence, never an implicit conflict winner. This
-	# explicitly labelled draft starts from registered defaults even if a pending
-	# profile happened to retain a different legal inactive map.
 	_review_draft = RULES.defaults()
 	_status_key = ""
 	refresh()

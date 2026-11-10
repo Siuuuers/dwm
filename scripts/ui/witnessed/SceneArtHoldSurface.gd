@@ -1,5 +1,4 @@
 extends Control
-## Transient art-only reading surface. Its Continue starts the original DTL; it witnesses no text.
 signal continue_requested(token: String)
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const ART_VIEW := preload("res://scripts/ui/art/SceneArtView.gd")
@@ -34,7 +33,6 @@ var _input_owner: Node
 func configure(entry_id: String, token: String, percent: int = 100,
 		locale: String = "en", show_portraits: bool = true, font_style: String = "pixel",
 		named_presentation: Dictionary = {}) -> bool:
-	# Standalone legacy callers may mount before LocalizationManager initializes.
 	if locale.is_empty(): locale = "en"
 	if not configure_presentation(locale, percent, _palette, _high_contrast,
 			_colour_preset, _large_targets, _day, font_style): return false
@@ -90,8 +88,6 @@ func configure_presentation(locale: String = "en", text_percent: int = 100,
 	_colour_preset = colour_preset
 	_large_targets = large_targets
 	theme = next_theme
-	# Colour/locale changes retain all art objects and textures. Only text scale
-	# changes the authored aperture, as it did before run presentation was added.
 	if resize_art and is_instance_valid(art):
 		_configure_art()
 	_apply_presentation()
@@ -123,7 +119,6 @@ func _apply_presentation() -> void:
 		theme.set_stylebox(state, "Button", face)
 	var focus := StyleBoxFlat.new()
 	focus.bg_color = Color.TRANSPARENT
-	# The expanded ring sits on deep footer, so it uses the invariant text role.
 	focus.border_color = theme.get_color("focus_outer", "WitnessedCaption")
 	focus.set_border_width_all(2)
 	for side: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
@@ -138,8 +133,6 @@ func _apply_presentation() -> void:
 	if is_instance_valid(next_button):
 		next_button.text = {"en": "Continue", "zh-CN": "\u7ee7\u7eed", "zh-HK": "\u7e7c\u7e8c", "ja": "続ける", "ko": "계속"}[_locale]
 		next_button.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(_locale, _percent, 20, _font_style))
-	# Continue stays 384x48 at (448,656); the fixed 80px footer contains its ring.
-	# Large-target preference belongs to shared theme, without moving this action.
 
 func _ready() -> void:
 	_input_owner = get_node_or_null("/root/InputManager")

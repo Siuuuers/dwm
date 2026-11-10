@@ -1,8 +1,6 @@
 class_name Day7FollowupState
 extends RefCounted
 
-## Day 6 consequences due on Day 7 share Contacts' existing acknowledged-read law.
-## The caller supplies validated Contacts; this query neither reads nor writes live owners.
 static func pending_day7_followups(contacts: Dictionary) -> Array[Dictionary]:
 	var rows: Array[Dictionary] = []
 	for friend: String in ["priscilla", "lavinia"]:
@@ -17,8 +15,6 @@ static func pending_day7_followups(contacts: Dictionary) -> Array[Dictionary]:
 		return int(a.message.sequence) < int(b.message.sequence))
 	return rows
 
-## The message ID is shared by solo/group consequences; saved supersession identifies
-## which registered Day 6 scene supplied it. An absent or inconsistent source fails closed.
 static func entry_id_for(contacts: Dictionary, row: Dictionary) -> String:
 	var friend: String = str(row.get("friend_id", ""))
 	var message: Variant = row.get("message")

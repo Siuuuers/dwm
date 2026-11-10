@@ -4,7 +4,7 @@ import sys
 import tempfile
 import unittest
 
-from check_comments import comment_lines, owned, violations
+from check_comments import comment_lines, comment_owned, owned, violations
 
 
 class CommentTests(unittest.TestCase):
@@ -40,6 +40,14 @@ class CommentTests(unittest.TestCase):
         self.assertEqual(violations('', '\n\n# coding: utf-8\n', '.py'), [3])
         self.assertEqual(violations('', '# coding: utf-8\n', '.gd'), [1])
 
+    def test_comment_scope_is_runtime_only_without_narrowing_python_syntax_scope(self):
+        for path in ['scripts/game.gd', 'autoload/Run.gd']:
+            self.assertTrue(comment_owned(path))
+        for path in ['tests/test.gd', 'tests/test.py', 'tools/check.gd', 'tools/check.py',
+                     'scripts/example.py', 'addons/plugin.gd', 'scripts/generated/table.gd']:
+            self.assertFalse(comment_owned(path))
+        self.assertTrue(owned('tools/check.py'))
+
     def test_scope_excludes_dependencies_and_generated_files(self):
         for path in ['scripts/game.gd', 'autoload/Run.gd', 'tests/test.gd', 'tools/check.py']:
             self.assertTrue(owned(path))
@@ -65,6 +73,10 @@ class GitRenameTests(unittest.TestCase):
             base = git('rev-parse', 'HEAD')
             new = root / 'scripts/new name.gd'
             old.rename(new)
+            (root / 'tests').mkdir()
+            (root / 'tests/test.gd').write_text('# test explanation\n')
+            (root / 'tools').mkdir()
+            (root / 'tools/check.py').write_text('# tool explanation\n')
             git('add', '-A')
             git('commit', '-m', 'rename')
             result = subprocess.run([sys.executable, str(checker), '--base', base], cwd=root, capture_output=True, text=True)

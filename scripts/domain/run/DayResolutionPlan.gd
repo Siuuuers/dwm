@@ -1,30 +1,17 @@
 class_name DayResolutionPlan
 extends RefCounted
 
-## Persisted, idempotent day-resolution stage plan
-## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 2).
 
-## Plan 01 Task 7 frozen stage arrays (dwm-p2r.14).
-##
-## The provisional single `execute_schedule_entries` stage is REMOVED. On the Schedule-Done branch
-## Days 1-6 execute committed ordinary effects, resolve condition truth, run Hospital, and only then
-## run the dates Hospital did not supersede -- so the two entry kinds need two separately resumable
-## stages with Hospital between them (req.flow.hospital_order).
 const DAY_1_6_STAGES: Array[String] = [
 	"lock_day", "validate_schedule", "execute_schedule_actions", "commit_outcomes",
 	"hospital_if_triggered", "execute_schedule_dates", "twofriends_if_deferred",
 	"invitation_rollover", "increment_day", "reset_day_scope", "new_day_autosave", "unlock_day",
 ]
-## Day 7 owns no board, no reset, no increment, and no ending selection. It ends at the
-## checkpointed provenance handoff consumed by dwm-oyo.3 / dwm-oyo.6.
 const DAY_7_STAGES: Array[String] = [
 	"lock_day", "validate_schedule", "close_invitations_run_end",
 	"validate_day7_provenance", "checkpoint_day7_provenance",
 ]
 
-## The only two stages that may hold entry substages, and the only substage kind each may hold.
-## `ordinary` entries execute their registered effects; `solo`/`group` entries are dates that run
-## only if Hospital did not supersede them.
 const ENTRY_SUBSTAGE_KINDS: Dictionary = {
 	"execute_schedule_actions": "ordinary_action",
 	"execute_schedule_dates": "surviving_date",
@@ -43,11 +30,9 @@ const PLAN_KEYS: Array[String] = [
 	"resolution_id", "resolution_issuer_receipt", "route_plan", "schedule_commit_receipt_id",
 	"source_day", "stages",
 ]
-## Exact members `create()` accepts in its trailing resolution-start bundle (sorted).
 const RESOLUTION_START_KEYS: Array[String] = [
 	"command_id", "day_resolution_start_receipt", "resolution_issuer_receipt",
 ]
-## The one purpose a resolution root may be minted for (plan line 63).
 const ROOT_PURPOSE := "transaction_id"
 
 var _resolution_id := ""
@@ -58,26 +43,9 @@ var _committed_schedule: Dictionary = {}
 var _route_plan: Array = []
 var _schedule_commit_receipt_id: Variant = null
 var _board_fate_receipt_id: Variant = null
-## The FULL issuer receipt this resolution's root was minted with, and the full
-## `P01.day_resolution.start` receipt derived under it -- or null on the unconfigured board-fate
-## path, where no root is minted at all (dwm-p2r.18).
-##
-## Both are persisted rather than held in memory because `resume()` after a crash never re-runs
-## `begin_or_resume`: a presentation intent projects `day_resolution_start_receipt_id`, so a
-## restored resolution that could not read these bytes back would derive DIFFERENT presentation
-## children than the ones it had already published.
 var _resolution_issuer_receipt: Variant = null
 var _day_resolution_start_receipt: Variant = null
 
-## SINGLE authority for how far an ACTIVE plan's source day may trail the run day (dwm-7e6).
-##
-## The resolution sequence runs increment_day -> reset_day_scope -> new_day_autosave -> unlock_day,
-## so every checkpoint after the increment legitimately has day == source_day + 1 while the plan is
-## still open. Exactly that one-day window is legal; anything wider (or a plan ahead of the day) is
-## a corrupt bundle. RunSnapshotSchema and RunLifecycle both defer here so a snapshot that can be
-## WRITTEN can always be RESTORED.
-## STAGE-AWARE (dwm-7e6): the one-day trail is legal only because increment_day already COMPLETED
-## inside this very plan -- never merely because the numbers differ by one.
 static func is_active_source_day_legal(source_day: int, day: int, plan_data: Dictionary = {}) -> bool:
 	if source_day == day:
 		return true
@@ -106,14 +74,6 @@ static func _stage_state(plan_data: Dictionary, stage_id: String) -> String:
 static func stage_allowlist(source_day: int) -> Array[String]:
 	return DAY_7_STAGES.duplicate() if source_day == 7 else DAY_1_6_STAGES.duplicate()
 
-## Builds the stage plan from the COMMITTED entries of a canonical committed Schedule (Plan 01
-## Task 6 Step 6.6, dwm-p2r.13). Each entry's identity is its issuer-anchored `schedule_entry_id`;
-## a caller-authored id is no longer accepted, so no synthetic entry can reach a persisted substage.
-## THE AGGREGATE IS THE ONLY ENTRY SOURCE (plan line 963, Step 6.3). The committed entries are read
-## OUT of `committed_schedule` rather than accepted as a second caller-supplied array, so a caller
-## physically cannot hand this plan an order or an id that the canonical aggregate does not contain.
-## `route_plan` is the registry-derived projection and is persisted as-is; it is not a
-## caller-authored route/effect duplicate, and nothing here re-derives cost or effects from it.
 static func create(
 	resolution_id: String,
 	source_day: int,
@@ -125,15 +85,11 @@ static func create(
 ) -> Dictionary:
 	if resolution_id.is_empty():
 		return _fail(&"invalid_resolution_id", "resolution_id must be nonempty")
-	# ONE trailing bundle rather than three more positional parameters: the three members are
-	# minted together or not at all, and splitting them across the signature would let a caller
-	# supply a start receipt with no root behind it.
 	var start_keys: Array = resolution_start.keys()
 	start_keys.sort()
 	if not resolution_start.is_empty() and start_keys != RESOLUTION_START_KEYS:
 		return _fail(&"invalid_resolution_start",
 			"the resolution start bundle member set is not exact: " + str(start_keys))
-	# On the unconfigured board-fate path no root is minted, so the Done command IS the resolution.
 	var command_id := str(resolution_start.get("command_id", resolution_id))
 	if command_id.is_empty():
 		return _fail(&"invalid_command_id", "command_id must be nonempty")
@@ -157,8 +113,6 @@ static func create(
 		if seen_slots.has(slot_index):
 			return _fail(&"invalid_schedule_entry", "duplicate slot_index: %d" % slot_index)
 		seen_slots[slot_index] = true
-		# The registry-owned kind decides WHICH stage executes this entry. It is read from the
-		# committed entry and never parsed out of the action id or the entry id.
 		var action_kind := str(entry.get("action_kind", ""))
 		if not ACTION_KIND_STAGES.has(action_kind):
 			return _fail(&"invalid_schedule_entry",
@@ -171,8 +125,6 @@ static func create(
 	for stage_id: String in stage_allowlist(source_day):
 		var substages: Array = []
 		if ENTRY_SUBSTAGE_KINDS.has(stage_id):
-			# Filtered independently per stage, so each substage ordinal restarts at zero in
-			# committed slot order -- never the raw slot number or the committed array index.
 			var substage_kind := str(ENTRY_SUBSTAGE_KINDS[stage_id])
 			for entry: Dictionary in detached:
 				if str(ACTION_KIND_STAGES[str(entry["action_kind"])]) != stage_id:
@@ -286,8 +238,6 @@ static func from_dict(data: Dictionary) -> Dictionary:
 				return _fail(&"invalid_substage_shape", "unexpected substage keys: " + str(substage_keys))
 			var substage_id := str(substage["substage_id"])
 			var parts := substage_id.split(":")
-			# The kind prefix must match the OWNING stage, so a date substage cannot be smuggled
-			# into the ordinary-effect stage (or vice versa) by a tampered snapshot.
 			if parts.size() != 4 or parts[0] != str(ENTRY_SUBSTAGE_KINDS[stage_id]) \
 					or str(int(parts[1])) != parts[1] or int(parts[1]) != source_day \
 					or str(int(parts[2])) != parts[2] or parts[3].is_empty():
@@ -322,19 +272,12 @@ static func from_dict(data: Dictionary) -> Dictionary:
 		stages.append(stage)
 	if active_count > 1:
 		return _fail(&"invalid_stage_order", "more than one active record")
-	# NO SYNTHETIC ENTRY CAN SURVIVE A ROUND TRIP (Step 6.3). The substages were derived from the
-	# aggregate at create() time, but a restored plan arrives as raw bytes, so the correspondence is
-	# re-proven here: one substage per committed entry, same count, same ids, same slot order. A
-	# tampered snapshot that adds an entry to the aggregate, or a substage with no entry behind it,
-	# is rejected on load rather than resolving a day the player never committed.
 	var entries_value: Variant = (data["committed_schedule"] as Dictionary).get("entries", [])
 	if typeof(entries_value) != TYPE_ARRAY:
 		return _fail(&"invalid_committed_schedule", "committed_schedule.entries must be an array")
 	var ordered: Array = (entries_value as Array).duplicate(true)
 	ordered.sort_custom(func(a: Variant, b: Variant) -> bool:
 		return int((a as Dictionary).get("slot_index", 0)) < int((b as Dictionary).get("slot_index", 0)))
-	# One expected list PER entry stage. The two stages partition the committed entries by the
-	# registry-owned kind, so a restored plan proves both membership AND the split.
 	var expected_by_stage: Dictionary = {}
 	for stage_id: String in ENTRY_SUBSTAGE_KINDS:
 		expected_by_stage[stage_id] = [] as Array[String]
@@ -348,7 +291,6 @@ static func from_dict(data: Dictionary) -> Dictionary:
 				"committed entry action_kind must be one of " + str(ACTION_KIND_STAGES.keys()))
 		var owning_stage := str(ACTION_KIND_STAGES[action_kind])
 		if not expected_by_stage.has(owning_stage):
-			# Day 7 owns neither entry stage, so it may not carry an executable entry substage.
 			continue
 		(expected_by_stage[owning_stage] as Array).append("%s:%d:%d:%s" % [
 			str(ENTRY_SUBSTAGE_KINDS[owning_stage]), source_day,
@@ -393,8 +335,6 @@ func to_dict() -> Dictionary:
 	}
 
 
-## Detached accessors for the four members plan line 963 adds. Every one duplicates, so a caller
-## cannot reach into a live plan's persisted state and mutate it between stages.
 func get_committed_schedule() -> Dictionary:
 	return _committed_schedule.duplicate(true)
 
@@ -411,9 +351,6 @@ func get_board_fate_receipt_id() -> Variant:
 	return _board_fate_receipt_id
 
 
-## The Done command that began this resolution. Idempotence keys off THIS rather than
-## `resolution_id`, because on the minted path the resolution id is an issuer token that cannot be
-## recomputed from the command.
 func get_command_id() -> String:
 	return _command_id
 
@@ -539,16 +476,9 @@ static func _normalize_receipt(receipt: Dictionary) -> Dictionary:
 		return {}
 	return receipt.duplicate(true)
 
-## Re-proves a RESTORED resolution root against the resolution it claims to belong to.
-##
-## Type checks alone would let a tampered snapshot keep a well-shaped root whose token names another
-## resolution, or a start receipt with no root behind it. Because the presentation intent projects
-## `day_resolution_start_receipt_id`, either of those would silently produce different presentation
-## children after a restore than the ones already published. Returns "" when the pair is clean.
 static func _validate_resolution_root(
 		root: Variant, start_receipt: Variant, resolution_id: String) -> String:
 	if root == null and start_receipt == null:
-		# The unconfigured board-fate path: no root was ever minted, so there is nothing to prove.
 		return ""
 	if root == null:
 		return "a start receipt without the root it was derived under is not restorable"
@@ -561,7 +491,6 @@ static func _validate_resolution_root(
 		return "the resolution root must be minted for purpose " + ROOT_PURPOSE
 	if str(root_receipt.get("receipt_id", "")).is_empty():
 		return "the resolution root must carry a nonempty receipt_id"
-	# The plan-line-560 law: the semantic resolution id IS the minted token.
 	if str(root_receipt.get("token", "")) != resolution_id:
 		return "resolution_id must equal the resolution root token"
 	var start: Dictionary = start_receipt
@@ -571,20 +500,11 @@ static func _validate_resolution_root(
 		return "the start receipt names another resolution"
 	if typeof(start.get("receipt_provenance")) != TYPE_DICTIONARY:
 		return "the start receipt must carry its full provenance, not an id alone"
-	# THE EDGE ITSELF. Full provenance sitting BESIDE a root proves nothing until it is tied to THAT
-	# root: a start receipt derived under a different root, but still naming this resolution, would
-	# otherwise restore and let the producer anchor every presentation child under the root here while
-	# projecting `day_resolution_start_receipt_id` from the foreign receipt. That forged chain
-	# reproduces byte-identically on every later load, so nothing downstream can notice it.
 	var provenance: Dictionary = start["receipt_provenance"]
 	if str(provenance.get("parent_receipt_id", "")) != str(root_receipt["receipt_id"]):
 		return "the start receipt was derived under another root"
 	if str(provenance.get("child_id", "")) != str(start["receipt_id"]):
 		return "the start receipt is not the child its own provenance names"
-	# Indexed RAW by the presentation producer (`str(start["causal_day_instance"])` in both
-	# `_presentation_command` and `_derive_hospital_rows`), so a plan that restores without it crashes
-	# the walk instead of failing closed at this boundary. A non-String is refused rather than
-	# coerced: `str()` would change the projected bytes without changing the shape.
 	if typeof(start.get("causal_day_instance")) != TYPE_STRING \
 			or str(start["causal_day_instance"]).is_empty():
 		return "the start receipt must carry the nonblank causal_day_instance the intent projects"

@@ -1,5 +1,4 @@
 extends Control
-## Centered action dock. Selection and action availability are presented, never inferred.
 
 signal action_requested(action: StringName)
 

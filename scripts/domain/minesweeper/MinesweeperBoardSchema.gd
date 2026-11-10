@@ -1,10 +1,6 @@
 class_name MinesweeperBoardSchema
 extends RefCounted
 
-## Frozen BoardSpec / layout / board schema validation (Plan 02 Task 3, dwm-p2r13). Every
-## validator recomputes derived truth (raw_extra_mines, mine_count, adjacency_counts, revealed/
-## flagged disjointness, terminal/outcome, the action-ledger sequence) rather than trusting a
-## redundant caller-supplied field; a mismatch always rejects.
 
 const _SPEC_KEYS := [
 	"schema_version", "board_kind", "board_token", "board_token_receipt_id", "difficulty_id",
@@ -150,12 +146,6 @@ static func validate_layout(layout: Dictionary, spec: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"layout": canonical}, "receipt": {}}
 
 
-## board dictionaries round-trip through JSON.stringify()/JSON.parse_string() elsewhere in the
-## pipeline (e.g. save data); JSON has no int/float distinction so every whole number comes back
-## as TYPE_FLOAT. validate_board therefore accepts a whole-number float anywhere an integer field
-## is expected -- see _is_int_like() -- while still rejecting fractional values and every other
-## type. A caller that wants strictly-typed ints back should re-derive them via first_reveal()/
-## reveal()/etc rather than trust the raw round-tripped dictionary.
 static func validate_board(board: Dictionary) -> Dictionary:
 	var shape := _exact_keys(board, _BOARD_KEYS, &"board_member_set_invalid")
 	if not shape.get("ok", false):
@@ -277,7 +267,6 @@ static func validate_board(board: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"board": board.duplicate(true)}, "receipt": {}}
 
 
-# ---- shared helpers ----
 
 static func _is_int_like(value: Variant) -> bool:
 	if typeof(value) == TYPE_INT:
@@ -356,8 +345,6 @@ static func _fail(code: StringName, message: String, details: Dictionary) -> Dic
 	return {"ok": false, "code": code, "message": message, "details": details}
 
 
-## A saveable pre-Reveal shell owns only marks and accepted Flag/Unflag history.
-## It never contains mines, a generation recipe, or a speculative first-Reveal action.
 static func validate_shell(shell: Dictionary, width: int, height: int) -> Dictionary:
 	if width <= 0 or height <= 0 or shell.size() != 2 or not shell.get("actions") is Array \
 			or not shell.get("flagged_indices") is Array:

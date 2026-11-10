@@ -1,10 +1,7 @@
 extends CanvasLayer
-## A witnessed staging card. Ordering, provenance and persistence belong to its caller.
 signal card_acknowledged(receipt: Dictionary, result: Dictionary)
 signal advance_requested(receipt: Dictionary)
 
-## Native accessibility actions have no physical InputEvent. Keep their identity
-## separate from Button.pressed so a queued action cannot cross a card boundary.
 class AccessibleNextButton extends Button:
 	signal accessibility_requested(generation: int)
 	var _generation := -1
@@ -109,8 +106,6 @@ func configure_waiting(retry: Callable, acknowledge: Callable, locale: String = 
 	_refresh_typography_preferences()
 	return {"ok": true}
 
-## Day 7 and scene-passage Replay witness on presentation, then keep the card
-## until navigation. Legacy Gallery cards keep completion-on-Next by default.
 func use_presentation_receipts() -> Dictionary:
 	if not _configured or is_inside_tree(): return _fail("prelude_already_configured")
 	_presentation_receipts = true
@@ -158,7 +153,6 @@ func get_presentation_history() -> Array[Dictionary]:
 	for card: Dictionary in _history: cards.append(_detach_card(card))
 	return cards
 
-## Font selection follows this surface's profile without changing its card or Auto clock.
 func bind_typography_preferences(profile: Object) -> bool:
 	if is_inside_tree() or not is_instance_valid(profile) or not profile.has_method("get_preference"):
 		return false
@@ -189,7 +183,6 @@ func _refresh_typography_preferences() -> void:
 	if face == null or size == 0: return
 	if _presentation_theme != null and _presentation_theme.default_font == face \
 			and _presentation_theme.default_font_size == size: return
-	# Share immutable font assets; detach only the theme's typography properties.
 	var updated: Theme = _presentation_theme.duplicate() if _presentation_theme != null else Theme.new()
 	updated.default_font = face
 	updated.default_font_size = size
@@ -198,7 +191,6 @@ func _refresh_typography_preferences() -> void:
 		_retire_input()
 		_root.theme = updated
 
-## Auto is the installed profile preference, not a run-save field or an inferred receipt.
 func bind_reading_preferences(profile: Object) -> bool:
 	if is_inside_tree() or not is_instance_valid(profile) or not profile.has_method("get_preference"):
 		return false
@@ -229,7 +221,6 @@ func _refresh_reading_preferences() -> void:
 
 func _reset_auto_delay() -> void:
 	_auto_remaining = _auto_delay
-	# The next frame's delta may include time before the new card/preference existed.
 	_auto_fresh_tick = true
 
 func _advance_auto(delta: float) -> void:
@@ -303,7 +294,6 @@ func _ready() -> void:
 	layout.add_child(_status)
 	var navigation: BoxContainer = layout
 	if _presentation_receipts and is_instance_valid(_reading_profile):
-		# Share the existing footer height so artwork cannot crowd out the card body.
 		navigation = HBoxContainer.new()
 		navigation.add_theme_constant_override("separation", 16)
 		layout.add_child(navigation)
@@ -359,11 +349,9 @@ func _append_card() -> void:
 	_reveal_current_card.call_deferred(str(_card.receipt.view_token))
 
 func _refresh_scene_art() -> void:
-	# GalleryTheme uses 24/30/36 px at the three supported reading sizes.
 	var font_size := _root.get_theme_default_font_size()
 	var percent := 150 if font_size >= 36 else (125 if font_size >= 30 else 100)
 	_scene_art.configure_entry(str(_card.receipt.entry_id), percent)
-	# Keep the existing opaque reading panel below art; absent images preserve its layout.
 	_reading_margin.add_theme_constant_override("margin_top",
 		int(_scene_art.size.y) if _scene_art.visible else 48)
 
@@ -375,8 +363,6 @@ func _on_body_drawn(receipt: Dictionary) -> void:
 	_reset_auto_delay()
 	_history.append(_detach_card(_card))
 	if _presentation_receipts:
-		# The renderer's acceptance is the witness. Save outside its draw callback;
-		# a retired or replaced source cannot admit this queued receipt afterward.
 		_acknowledgment_pending = true
 		_acknowledge_drawn_card.call_deferred(receipt.duplicate(true))
 	else:
@@ -404,7 +390,6 @@ func _on_next() -> void:
 	if _advance_retry.is_valid():
 		_retrying = true
 		_next.disabled = true
-		# The preparation callback may synchronously call present_card; _busy stays false.
 		_invoke_advance_retry(weakref(self), _advance_retry)
 		return
 	if _busy or not _drawn or not is_instance_valid(_current_body) or not _current_body.is_visible_in_tree(): return
@@ -453,7 +438,7 @@ func _complete_advance_retry(retry: Callable, result: Variant) -> void:
 	if not is_inside_tree() or is_queued_for_deletion(): return
 	_retrying = false
 	_retire_input()
-	if _advance_retry != retry: return # A new real card was already installed.
+	if _advance_retry != retry: return
 	if not result is Dictionary or not result.get("ok", false): _show_advance_retry()
 
 func _focus_next() -> void:
@@ -471,8 +456,6 @@ func _reveal_current_card(token: String) -> void:
 	if not _presentation_receipts:
 		_scroll.ensure_control_visible(_current_body)
 		return
-	# A tall control's ensure_control_visible() aligns its bottom. Wait for layout
-	# and start at the title instead, leaving the whole body available to scroll.
 	await get_tree().process_frame
 	if not is_inside_tree() or is_queued_for_deletion() or _card.get("receipt", {}).get("view_token") != token: return
 	_scroll.scroll_vertical = int(_current_title.position.y)
@@ -493,7 +476,6 @@ func _redraw_current_body() -> void:
 	if _presentation_receipts and not _drawn and is_instance_valid(_current_body):
 		_current_body.queue_redraw()
 
-## Explicitly bound by the production owner; standalone Gallery keeps native Button semantics.
 func bind_input_custody(owner: Node) -> bool:
 	if not is_instance_valid(owner): return false
 	for method: String in ["get_physical_contacts", "observe_physical_contact", "get_physical_contact_id", "is_source_input_admitted"]:
@@ -505,7 +487,7 @@ func bind_input_custody(owner: Node) -> bool:
 	_input_owner = owner
 	owner.connect("source_input_custody_changed", _retire_input)
 	owner.connect("input_bindings_changed", _retire_input)
-	process_mode = Node.PROCESS_MODE_ALWAYS # Releases remain observable through universal Pause.
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	if is_instance_valid(_pointer): _pointer.mouse_filter = Control.MOUSE_FILTER_STOP
 	_retire_input()
 	return true
@@ -614,7 +596,6 @@ func _pointer_input(event: InputEvent) -> void:
 		if _fresh_contact != id or not _input_admitted(): return
 		if event is InputEventMouseButton and event.double_click: return
 		_next.grab_focus()
-		# Focus callbacks can hide/reopen or leave and return before this press arms.
 		if _fresh_contact != id or not _input_admitted() or not _next.has_focus(): return
 		_candidate = {"id": id, "generation": _input_generation, "origin": event.position}
 	elif _candidate.get("id") == id:

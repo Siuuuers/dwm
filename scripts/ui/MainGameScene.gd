@@ -1,7 +1,6 @@
 extends Control
 class_name MainGameScene
 
-## In-run shell; fresh entry goes directly to the desktop launcher.
 
 const COMPUTER_DESKTOP_SCENE := preload("res://scenes/desktop/ComputerDesktop.tscn")
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
@@ -66,12 +65,9 @@ func _refresh_split_presentation(_locale_id: String = "") -> void:
 	}.get(locale, ["Resize Angela panel", "Drag horizontally to resize."])
 	if _computer_desktop_instance is Control:
 		var desktop_theme: Theme = (_computer_desktop_instance as Control).theme
-		# Inherited theme notifications can reenter this callback. Only assign a new
-		# resource; the mounted Desktop remains the sole palette/font owner.
 		if $RootHBox.theme != desktop_theme:
 			$RootHBox.theme = desktop_theme
 	$RootHBox.set_handle_accessibility(copy[0], copy[1])
-	# The handle copies its colors during sorting, even when width is unchanged.
 	$RootHBox.queue_sort()
 
 func _mount_angela_art() -> void:

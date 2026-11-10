@@ -1,5 +1,4 @@
 extends GridContainer
-## The existing visible index is one single-selection accessibility list.
 
 func _notification(what: int) -> void:
 	if what != NOTIFICATION_ACCESSIBILITY_UPDATE: return

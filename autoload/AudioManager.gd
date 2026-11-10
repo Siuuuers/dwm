@@ -166,7 +166,6 @@ func set_ambience_context(context_id: String, context: Dictionary = {}) -> Dicti
 	return _set_context(&"ambience", context_id, context, -1.0, false)
 
 
-## Lifecycle suspension is transient process custody. It never enters the semantic audio snapshot.
 func begin_suspend(handle: Dictionary) -> Dictionary:
 	if not _valid_pause_handle(handle):
 		return _lifecycle_failure(&"invalid_suspension_handle")
@@ -357,7 +356,6 @@ func prepare_semantic_restore(snapshot: Dictionary, prepared_profile: Dictionary
 	return {"ok": true, "code": &"ok", "value": plan, "receipt": {}}
 
 
-## Registration comes from the process owner, never from a saved definition.
 func _installed_scene_registration() -> Dictionary:
 	var owner: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
 	var selected: Dictionary = owner.scene_contract_tables()
@@ -414,8 +412,6 @@ func play_scene_sfx(asset_id: String) -> Dictionary:
 		var prepared := _prepare_scene_asset(asset)
 		if not prepared.ok: return prepared
 		if prepared.value.missing_media: return _warn_missing(asset_id)
-		# The shared imported resource may loop for a music plan. A one-shot owns
-		# its non-looping copy and must never alter another player's stream.
 		var stream: AudioStream = prepared.value.stream.duplicate()
 		if stream is AudioStreamWAV: stream.loop_mode = AudioStreamWAV.LOOP_DISABLED
 		elif stream is AudioStreamOggVorbis: stream.loop = false
@@ -431,8 +427,6 @@ func prepare_scene_admission(context: Dictionary, fade_seconds: float = 0.0) -> 
 	if _fatal: return _failure(&"audio_runtime_indeterminate")
 	var prepared: Dictionary = _prepare_scene_output(context)
 	if not prepared.get("ok", false): return prepared
-	# Keep the handoff detached. Re-resolve against installed definitions at apply;
-	# neither caller-provided streams nor offsets can override the catalogue.
 	return {"ok": true, "code": &"ok", "value": {"snapshot": context.duplicate(true), "fade_seconds": fade_seconds}}
 
 
@@ -462,7 +456,6 @@ func apply_scene_admission(plan: Dictionary) -> Dictionary:
 	return applied
 
 
-## Caller owns the physical compensation capsule for this complete operation.
 func _install_scene_output(prepared: Dictionary, restoring: bool, fade_seconds: float = 0.0) -> Dictionary:
 	if prepared.inline_audio and not restoring and (prepared.record == null or prepared.get("channel") == &"music"):
 		return _transition_scene_music(prepared, fade_seconds)
@@ -492,8 +485,6 @@ func _install_scene_output(prepared: Dictionary, restoring: bool, fade_seconds: 
 	return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true)}
 
 
-## Two fixed music players own the audible transition; selection changes now,
-## independently of tween completion. A later command retires the previous tween.
 func _transition_scene_music(prepared: Dictionary, fade_seconds: float) -> Dictionary:
 	var operations: Array = [[&"kill_tween", [&"music"]], [&"kill_tween", [&"ambience"]]]
 	for player: StringName in AMBIENCE_PLAYERS:
@@ -530,8 +521,6 @@ func _transition_scene_music(prepared: Dictionary, fade_seconds: float) -> Dicti
 func capture_restore_state() -> Dictionary:
 	if not _initialized:
 		return _failure(&"not_initialized")
-	# Settings must settle its own transient output before a restore is admitted.
-	# Otherwise compensation could resurrect a preview gain after its handle died.
 	if _settings_transactions.is_busy():
 		return _failure(&"settings_audio_busy")
 	if _settings_transactions.has_preview():
@@ -539,8 +528,6 @@ func capture_restore_state() -> Dictionary:
 	var captured: Dictionary = _playback_port.call(&"capture_runtime")
 	if not captured.get("ok", false):
 		return captured
-	# This is a transient compensation capsule, never the persisted audio context.
-	# Keep the physical streams/playheads/fades and the manager's matching identities.
 	return {"ok": true, "code": &"ok", "value": {
 		"snapshot": _semantic.duplicate(true), "settings": _settings.duplicate(true),
 		"runtime": captured["value"].duplicate(true),
@@ -579,8 +566,6 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 		var applied: Dictionary = _install_scene_output(scene_output, scene_audio_mode == "load")
 		if not applied.get("ok", false): return _compensate_restore_failure(applied)
 	else:
-		# Explicit old-format restore may leave a scene session. Keep its meaning
-		# and restore the prior tagged snapshot if either legacy channel fails.
 		if _semantic.get("kind") == "scene_audio":
 			_semantic = {"music_context_id": "", "music_context": {}, "ambience_context_id": "", "ambience_context": {}}
 		var music := _set_context(&"music", snapshot["music_context_id"], snapshot["music_context"], 0.0, true, true)
@@ -616,8 +601,6 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 
 
 func _compensate_restore_failure(cause: Dictionary) -> Dictionary:
-	# SaveManager compensates only successfully applied participants. If our
-	# second channel or preferences refuse, undo our own earlier work here.
 	var restored := rollback_restore_silent(_restore_backup)
 	return cause if restored.get("ok", false) else restored
 
@@ -685,7 +668,6 @@ func _set_context(channel_id: StringName, context_id: String, context: Dictionar
 	var old_player: StringName = _active_players[channel_id]
 	var players := MUSIC_PLAYERS if channel_id == &"music" else AMBIENCE_PLAYERS
 	var new_player: StringName = players[1] if old_player == players[0] else players[0]
-	# Profile gain belongs to the bus. Player gain expresses the crossfade only.
 	var target_db := 0.0
 	var duration := duration_override if duration_override >= 0.0 else maxf(float(prior_record.get("fade_out_seconds", 0.0)), float(record["fade_in_seconds"]))
 	var operations: Array = [
@@ -820,8 +802,6 @@ func _apply_settings_silent(candidate: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": candidate.duplicate(true), "receipt": {}}
 
 
-## Settings compensation changes buses and our mono effect only. Playback and
-## crossfade timelines retain their current position and Pause ownership.
 func _apply_settings_output(candidate: Dictionary) -> Dictionary:
 	var audio := {}
 	for channel: StringName in CHANNELS:
@@ -943,8 +923,6 @@ func _latch_consumer_fatal(phase: StringName, result: Dictionary) -> void:
 		"details": result.duplicate(true),
 	}
 	if _mutation_gate != null:
-		# The shared gate accepts primitive JSON only; port diagnostics may contain
-		# StringNames or opaque runtime handles. Keep those on the local warning.
 		var gate_failure := failure.duplicate(true)
 		gate_failure["details"] = {"cause_code": String(failure.code)}
 		_mutation_gate.call(&"latch_fatal", gate_failure)

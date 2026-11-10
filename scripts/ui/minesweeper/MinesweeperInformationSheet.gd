@@ -1,5 +1,4 @@
 extends Control
-## Ephemeral, read-only Rules/Assignments sheet. Claimed facts must be supplied by their owner.
 
 signal return_requested()
 
@@ -86,8 +85,6 @@ func _present(next_kind: String, claimed: Array) -> bool:
 	_install(measured,new_sheet)
 	return true
 
-## The challenge host reserves enough height for the longest complete Rules row.
-## A zero-height measurement reserves the rail, using the same shaped copy as drawing.
 static func minimum_rules_height(next_theme: Theme, locale: String, large: bool, width_logical: int) -> int:
 	var measured := _compose(next_theme,Vector2i(width_logical/2,0),large,locale,"rules",[],true)
 	if measured.is_empty(): return 0
@@ -241,7 +238,6 @@ func _update_scroll() -> void:
 	rail.present({"rect":rect,"thumb":thumb},_extent-_page,_scroll,_page,true)
 
 func _reveal_row(index: int) -> void:
-	# Rebuilding preserves the clamped manual scroll; a later navigation reveals its row.
 	if _restoring_focus: return
 	var row := rows[index]
 	var leading := int(row.position.y/2)

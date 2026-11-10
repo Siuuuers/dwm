@@ -1,8 +1,4 @@
 extends RefCounted
-## Literal witnessed-role projection of SettingsPaletteRegistry at
-## 26de279be5f6490ff453db359b1964ec10596962 (blob 5954ae68db2c36794506f242dac5bbad0c2a93b1).
-## field=face, deep=habitat, current=inward_preview, text/focus_outer=ink,
-## rule=structure, focus_inner=focus. Literal lookup remains independent of tint.
 
 const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
 

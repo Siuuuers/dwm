@@ -3,9 +3,6 @@ extends RefCounted
 
 signal projection_changed()
 
-## Backup presentation context. File custody, stable snapshots and restore routing stay in SaveManager.
-## get_projection records describe all currently available actions. Prepared records
-## describe one confirmation: only its selected action can be enabled.
 const LOCATORS: Array[String] = ["autosave", "quick", "slot:1", "slot:2", "slot:3", "slot:4", "slot:5", "slot:6", "slot:7"]
 
 var _owner: Object
@@ -42,7 +39,6 @@ func configure(save_manager: Object, context: String = "in_run",
 func _on_capability_changed(_capability: Dictionary) -> void:
 	_queue_projection_changed()
 
-## Presentation invalidation only; never a file revision or action authority.
 func get_projection_change_revision() -> int:
 	return _projection_change_revision
 
@@ -75,7 +71,6 @@ func get_projection() -> Dictionary:
 		records.append(record)
 	return {"ok": true, "value": {"records": records, "save_capability": capability}}
 
-## Quick never displaces an existing Backup confirmation.
 func get_quick_capability(action: String) -> Dictionary:
 	if not _quick_available(action):
 		return {"ok": true, "value": {"enabled": false, "status_key": "unavailable", "condition": {}}}
@@ -89,8 +84,6 @@ func is_quick_condition_current(condition: Dictionary) -> bool:
 	return _quick_available(str(condition.get("action", ""))) and _owner.is_quick_condition_current(condition)
 
 func prepare_quick_action(action: String) -> Dictionary:
-	# Save preparation owns its capability check. Only host admission belongs here.
-	# Keep Load's existing refusal projection and the conditions on refused hosts.
 	if action != "save" or not _quick_available(action) or not _pending.is_empty():
 		var capability := get_quick_capability(action)
 		if not capability.get("ok", false) or not capability.get("value", {}).get("enabled", false):
@@ -100,7 +93,6 @@ func prepare_quick_action(action: String) -> Dictionary:
 		return prepared.duplicate(true)
 	var value: Dictionary = prepared["value"]
 	var token: String = value["token"]
-	# SaveManager checks Save source freshness at preparation and commit; this layer owns host admission.
 	if not _pending.is_empty() or not (_quick_available(action) if action == "save" else is_quick_condition_current(value["condition"])):
 		_owner.cancel_backup_action(token)
 		return _quick_refusal(get_quick_capability(action))
@@ -142,7 +134,6 @@ func prepare_action(action: String, locator: String) -> Dictionary:
 		return admitted
 	for pending_token: String in _pending.keys():
 		cancel_action(pending_token)
-	# SaveManager prepares only the work required by the selected operation.
 	var prepared: Dictionary = _owner.prepare_backup_action(action, locator)
 	if not prepared.get("ok", false):
 		return prepared
@@ -176,8 +167,6 @@ func commit_action(token: String) -> Dictionary:
 		_owner.cancel_backup_action(token)
 		return _quick_refusal({}) if pending.get("quick", false) else admitted
 	var result: Dictionary = _owner.commit_backup_action(token)
-	# A durable scene Load can still be activating. Preserve its operation and
-	# recovery custody; Quick's ordinary availability refusal must not erase them.
 	if not result.get("ok", false) and (result.get("code") == &"scene_activation_pending" or result.get("recovery_required", false) \
 			or result.get("committed", false) or result.get("fatal", false) or result.get("code") == &"APPLICATION_FATAL"):
 		return result
@@ -197,8 +186,6 @@ func cancel_action(token: String) -> void:
 			_owner.cancel_backup_action(token)
 		_pending.erase(token)
 
-## A prepared token cannot authorize a different action. Do not capture the live
-## game's Save capability just to describe a Load or Delete confirmation.
 func _project_prepared_record(source: Dictionary, action: String, admitted: bool) -> Dictionary:
 	var capability: Dictionary = _owner.get_backup_save_capability() if action == "save" else {"enabled": false}
 	var record := _project_record(source, capability, admitted)
@@ -211,8 +198,6 @@ func _project_record(source: Dictionary, capability: Dictionary, admitted: bool)
 	var record := {}
 	for key: String in ["locator", "state", "day", "saved_time", "fallback", "load_day", "load_saved_time", "reason"]:
 		record[key] = source[key]
-	# Older injected presentation owners may omit these fields. Unknown remains
-	# unknown; neither the UI nor this port infers family from a missing day.
 	record["family"] = source.get("family")
 	record["load_family"] = source.get("load_family")
 	var accessible: bool = source.has("revision") and source.get("operation_allowed", false)

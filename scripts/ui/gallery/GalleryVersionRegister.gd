@@ -1,5 +1,4 @@
 extends Control
-## Projection only. The containing paper owns scrolling; the scene owns Replay and departure.
 signal item_selected(index: int)
 signal row_focused(row: Control)
 signal layout_changed
@@ -34,7 +33,6 @@ func set_versions(entries: Array[Dictionary], selected_id: String, locale: Strin
 	var next: Array[Control] = []
 	var removed_focus := false
 	var hide_focus := false
-	# A singular version has no register, including no hidden focus or assistive rows.
 	if entries.size() >= 2:
 		for entry: Dictionary in entries:
 			var id := str(entry.signature_id)

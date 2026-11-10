@@ -1,5 +1,4 @@
 extends Control
-## Pure modal presentation. The injected owner admits every lifecycle/save command.
 signal preview_requested(action_id: StringName)
 signal enter_requested(action_id: StringName)
 signal continue_requested
@@ -225,8 +224,6 @@ func open_surface() -> void:
 	_sync_custody()
 	if _interactive: rows[&"continue"].grab_focus()
 
-## Enters the already configured Pause Backup host in Load mode without synthesizing
-## a Pause-row press. The host validates its own operation and mode state.
 func open_backup_load() -> bool:
 	return _open_backup_mode(&"load")
 
@@ -257,7 +254,6 @@ func _open_backup_mode(mode: StringName) -> bool:
 		prior_focus.grab_focus()
 	return false
 
-## A Scene opens the requested application directly; closing it resumes its source.
 func open_direct_host(id: StringName, mode: StringName = &"") -> bool:
 	if not is_node_ready() or _opened or not _interactive or id not in [&"settings", &"backup"]:
 		return false
@@ -288,8 +284,6 @@ func close_surface() -> void:
 	_sync_custody()
 	hide()
 
-## Once the session is retired, only the same confirmed Return may finish. Back/Cancel
-## cannot expose a discarded scene or turn a publication failure into a fresh command.
 func retain_return_retry() -> void:
 	_return_retry = true
 	selected_action = &"return"
@@ -313,8 +307,6 @@ func set_interactive(value: bool) -> void:
 			and focused.get_focus_mode_with_override() != Control.FOCUS_NONE:
 			focused.grab_focus()
 
-## Backup owns preparation and commit tokens. Pause supplies its existing trusted
-## confirmation component in the same workfield; it never interprets save contents.
 func present_confirmation(request: Dictionary, accept: Callable, cancel: Callable) -> Dictionary:
 	if not _opened or not _interactive or entered_action != &"backup" \
 		or is_instance_valid(_host_confirmation) or not accept.is_valid() or not cancel.is_valid():
@@ -333,16 +325,12 @@ func present_confirmation(request: Dictionary, accept: Callable, cancel: Callabl
 	workfield.add_child(sheet)
 	return {"ok": true, "value": {"confirmation": sheet}}
 
-## Quick commands retain the current row, Backup drawer and mode. Their consent
-## temporarily owns the same workfield without entering the Backup application.
 func quick_input_admitted(action: String) -> bool:
 	if action not in ["save", "load"] or not _opened or not _interactive or _return_retry or not is_visible_in_tree() \
 			or not can_process() or is_instance_valid(_host_confirmation) \
 			or entered_action not in [&"", &"backup", &"settings"]:
 		return false
 	if entered_action == &"settings":
-		# Both commands retain Settings' modal, capture and preference custody.
-		# Load still requires the existing prepared-token confirmation below.
 		var settings: Control = _hosts.get(&"settings")
 		return is_instance_valid(settings) and settings.is_visible_in_tree() \
 			and settings.can_process() and settings.has_method("can_return_home") and settings.can_return_home()
@@ -397,8 +385,6 @@ func _activate(id: StringName) -> void:
 	if id == &"continue":
 		continue_requested.emit()
 		return
-	# Focus/hover only previews. The production owner prepares a stable reading
-	# boundary only for an explicit ordinary Backup entry.
 	if entry_admission.is_valid() and not bool(entry_admission.call(id)): return
 	enter_requested.emit(id)
 	if not _opened or not _interactive or entered_action != &"": return
@@ -483,7 +469,6 @@ func _sync_custody() -> void:
 		var active := _opened and _interactive and entered_action == id and not is_instance_valid(_host_confirmation)
 		_set_custody(host,active)
 		_host_script_input(host,active)
-		# Restore captured script flags before the host applies its current admission.
 		if host.has_method("set_interaction_enabled"): host.set_interaction_enabled(active)
 	if is_instance_valid(_host_confirmation):
 		_set_custody(_host_confirmation,_opened and _interactive)

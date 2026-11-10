@@ -1,7 +1,5 @@
 class_name ShopCopy
 extends RefCounted
-## UI-authored generic working translations. ShopApp still consumes owner-supplied
-## record names; this helper never replaces missing live catalog copy or art.
 
 const _LOCALE_ALIASES := {
 	"en": "en",

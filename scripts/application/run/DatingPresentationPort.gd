@@ -1,20 +1,5 @@
 extends RefCounted
 
-## The Dating half of the frozen Schedule-Done presentation-port contract (Plan 01 Task 8,
-## dwm-p2r.14).
-##
-## Bootstrap retains and configures DatingPhysicalOwner. Unconfigured instances still fail
-## closed, and every command/receipt remains bound to the same admitted Schedule or Hospital
-## presentation identity. This port neither decides board outcomes nor applies relationship effects.
-##
-## THE PARTICIPANT ORDER IS SEMANTIC, NOT ALPHABETICAL. The P-L group/pair order is exactly
-## `priscilla,lavinia` and is NOT sorted, because that order is owned by the pair's own invitation
-## law rather than by this port.
-##
-## ANCESTRY NOTE (DEVIATION-4, recorded on dwm-p2r.14). As with the Hospital port, `stage_id` is
-## carried and projected exactly as the producer supplies it, because Plan 01 Tasks 6/7 never lit up
-## `P01.day_resolution.stage` as an issuer-derived child on the production path. The completion
-## transaction IS a real issuer child and is fully verified here.
 
 const _STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 
@@ -25,30 +10,23 @@ const ROOT_PURPOSE := &"transaction_id"
 const COMPLETION_ROLE := "presentation.completion"
 const STATUS_COMPLETED := "completed"
 
-## The three accepted dating context kinds, frozen by the plan.
 const CONTEXT_KINDS: Array[String] = ["group", "solo", "twofriends_if_deferred"]
-## The canonical pair order. Owned by the invitation law, so it is asserted rather than sorted.
 const PAIR_PARTICIPANTS: Array[String] = ["priscilla", "lavinia"]
 
-## Exact `begin()` request members (sorted), frozen by the plan.
 const REQUEST_KEYS: Array[String] = [
 	"completion_transaction_id", "completion_transaction_provenance", "context", "resolution_id",
 	"resolution_issuer_receipt", "route_id", "stage_id", "substage_id", "timeline_id",
 ]
-## Exact Dating `context` members (sorted), frozen by the plan.
 const CONTEXT_KEYS: Array[String] = [
 	"day", "kind", "participants", "schedule_entry_id",
 ]
-## Exact `complete()` request members (sorted).
 const COMPLETE_KEYS: Array[String] = [
 	"physical_completion_receipt", "presentation_command",
 ]
-## Exact physical-owner receipt members (sorted).
 const OWNER_RECEIPT_KEYS: Array[String] = [
 	"command_sha256", "completion_transaction_id", "owner_kind", "physical_token", "result",
 	"status",
 ]
-## Exact port completion-receipt members (sorted), frozen by the plan.
 const COMPLETION_RECEIPT_KEYS: Array[String] = [
 	"command_sha256", "physical_completion_receipt", "physical_owner_kind", "physical_token",
 	"receipt_id", "receipt_provenance", "resolution_id", "route_id", "stage_id", "substage_id",
@@ -64,16 +42,10 @@ signal completion_failed(failure: Dictionary)
 var _identity_issuer: Object = null
 var _physical_owner: Object = null
 var _narrative_playback: Object = null
-## completion_transaction_id -> the exact canonical command this port issued. Ephemeral projection
-## of the coordinator-owned pending command, never a second canonical gameplay ledger.
 var _commands: Dictionary = {}
-## completion_transaction_id -> the exact settled completion receipt. Replay returns these bytes.
 var _settled: Dictionary = {}
 
 
-## Retains the exact `.16` issuer and the ONE dating-challenge owner, and connects that exact
-## owner's two physical-completion signals once. Identical replay is idempotent; a replacement in
-## either position is refused. Bootstrap supplies the one retained physical owner.
 func configure(identity_issuer: Object, physical_owner: Object) -> Dictionary:
 	if identity_issuer == null or not _has_methods(identity_issuer, _ISSUER_METHODS):
 		return _fail(&"invalid_identity_issuer", "the issuer contract is incomplete", {})
@@ -96,9 +68,6 @@ func configure(identity_issuer: Object, physical_owner: Object) -> Dictionary:
 		"owner_instance_id": physical_owner.get_instance_id()})
 
 
-## Validates one committed-Schedule dating intent end to end, then starts the physical presentation.
-##
-## An unconfigured port refuses before any routing or physical start.
 func configure_narrative_playback(playback: Object) -> Dictionary:
 	if playback == null or not _has_methods(playback, ["begin_presentation", "begin_phase", "pull_phase", "finish_phase"]):
 		return _fail(&"dating_narrative_unavailable", "", {})
@@ -139,8 +108,6 @@ func pull_narrative_phase(presentation_command: Dictionary) -> Dictionary:
 		return _ok({"status": "completed", "reason": "pair_explosion_cutoff"})
 	return _narrative_playback.pull_phase(trusted.value, str(pulled.value.phase))
 
-## Angela-absent pair explosions end the encounter. This is a physical cutoff, not
-## a manufactured Dialogic completion or a witnessed post-challenge presentation.
 static func _is_pair_explosion_cutoff(command: Dictionary, view: Dictionary) -> bool:
 	return command.get("context", {}).get("kind") == "twofriends_if_deferred" \
 		and view.get("phase") == "post_challenge" and view.get("outcome") == "exploded"
@@ -166,8 +133,6 @@ func begin(request: Dictionary) -> Dictionary:
 		if str(existing["command_sha256"]) != command_sha256:
 			return _fail(&"presentation_command_conflict",
 				"this completion transaction already carries different command bytes", {})
-		# Loading an earlier active date can supersede the physical owner's last admitted date.
-		# Re-adopt the exact cached command; the owner restores its saved board and never rerolls it.
 		var resumed: Variant = _physical_owner.call(&"begin_physical", existing.duplicate(true))
 		if not resumed is Dictionary or not resumed.get("ok", false):
 			return resumed if resumed is Dictionary else _fail(
@@ -194,9 +159,6 @@ func begin(request: Dictionary) -> Dictionary:
 	return _ok({"presentation_command": command.duplicate(true)})
 
 
-## Turns one owner-validated physical completion into the exact frozen completion receipt. The
-## physical receipt is proved by the CONFIGURED OWNER; any drift returns
-## `physical_completion_untrusted` before a domain stage mutation can be requested.
 func complete(request: Dictionary) -> Dictionary:
 	if request.get("presentation_command") is Dictionary and request.presentation_command.get("context") is Dictionary and request.presentation_command.context.get("kind") == "scene_challenge":
 		return _fail(&"scene_requires_authenticated_end", "Scene closure is owned by its end command", {})
@@ -266,14 +228,10 @@ func complete(request: Dictionary) -> Dictionary:
 	return _completion_result(receipt)
 
 
-## Deliberately FALSE in the Phase-2R production graph. Bootstrap evidence reports it as such, so a
-## fail-closed Dating route is visible rather than mistaken for a working board.
 func is_ready() -> bool:
 	return _identity_issuer != null and _physical_owner != null
 
 
-## UI facade over the sole configured owner. The scene supplies the exact command returned by
-## begin(); the port never accepts a token detached from its issuer-bound command bytes.
 func pull_physical(presentation_command: Dictionary) -> Dictionary:
 	var trusted := _trusted_physical_command(presentation_command)
 	if not trusted.get("ok", false):
@@ -343,8 +301,6 @@ func dispatch_physical(presentation_command: Dictionary, action: String, cell_in
 		"the owner returned no physical command result", {})
 
 
-## The fixed Challenge view can only use a command admitted by this port.
-## The physical owner retains first-Reveal validation and all durable mutations.
 func pull_scene_panel(presentation_command: Dictionary) -> Dictionary:
 	var trusted := _trusted_scene_panel_command(presentation_command)
 	if not trusted.get("ok", false): return trusted
@@ -385,9 +341,6 @@ func _trusted_physical_command(candidate: Dictionary) -> Dictionary:
 	return _ok(candidate.duplicate(true))
 
 
-# -------------------------------------------------------------------------------------------------
-# validation
-# -------------------------------------------------------------------------------------------------
 
 func _validate_request(request: Dictionary) -> Dictionary:
 	if typeof(request) != TYPE_DICTIONARY:
@@ -423,10 +376,6 @@ func _validate_request(request: Dictionary) -> Dictionary:
 	return _validate_completion_child(request, root)
 
 
-## Proves `completion_transaction_id` / `completion_transaction_provenance` are exactly the
-## `P01.presentation.completion` child for THIS request. The projection is re-derived from the
-## request's own bytes, so a changed participant list, day, entry, route, timeline, stage or
-## substage cannot reuse a completion child anchored to different bytes.
 func _validate_completion_child(request: Dictionary, root: Dictionary) -> Dictionary:
 	var provenance: Dictionary = request["completion_transaction_provenance"]
 	var revalidated: Variant = _identity_issuer.call(&"validate_child", provenance.duplicate(true),
@@ -453,7 +402,6 @@ func _validate_completion_child(request: Dictionary, root: Dictionary) -> Dictio
 	return _ok({"validated": true})
 
 
-## The exact `P01.presentation.completion` source projection (plan line 98), sorted.
 func _completion_sources(request: Dictionary) -> Array:
 	var context_hash: Dictionary = _STATE_SCHEMA.canonical_sha256(request["context"])
 	if not context_hash.get("ok", false):
@@ -474,8 +422,6 @@ func _completion_sources(request: Dictionary) -> Array:
 	return tokens
 
 
-## The exact dating context. `schedule_entry_id` is nullable only where the plan allows it, and the
-## participant list is checked against its OWNED order rather than sorted.
 func _context_error(context: Variant) -> String:
 	if context is Dictionary and context.get("kind") == "scene_challenge":
 		return "" if not preload("res://scripts/profile/DatingAttemptLedger.gd").semantic_slot(context).is_empty() else "invalid scene Challenge context"
@@ -504,15 +450,11 @@ func _context_error(context: Variant) -> String:
 		if (participants as Array).size() != 1:
 			return "a solo names exactly one participant"
 		return ""
-	# Both the group date and the deferred pair are the canonical P-L pair, in that exact order.
 	if (participants as Array) != PAIR_PARTICIPANTS:
 		return "the pair order is exactly " + str(PAIR_PARTICIPANTS)
 	return ""
 
 
-# -------------------------------------------------------------------------------------------------
-# the async trusted completion path
-# -------------------------------------------------------------------------------------------------
 
 func _on_physical_completion_ready(receipt: Dictionary) -> void:
 	if typeof(receipt) != TYPE_DICTIONARY:
@@ -543,14 +485,7 @@ func _on_physical_completion_failed(failure: Dictionary) -> void:
 		else _fail(&"physical_presentation_failed", "the owner failed without a result", {}))
 
 
-# -------------------------------------------------------------------------------------------------
-# helpers
-# -------------------------------------------------------------------------------------------------
 
-## Accepts any owner that DECLARES the dating-challenge kind, deliberately not a fixed class: the
-## real owner is `dwm-oyo.4`'s to write, and pinning this port to a script that does not exist yet
-## would make the handoff impossible to satisfy. The narrative adapter declares `narrative` and so
-## can never be mistaken for a dating board here.
 func _owner_error(physical_owner: Object) -> String:
 	if physical_owner == null or not _has_methods(physical_owner, _OWNER_METHODS):
 		return "the physical owner contract is incomplete"
@@ -602,8 +537,6 @@ static func _ok(value: Dictionary) -> Dictionary:
 static func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": details}
 
-## The configured physical owner independently authenticates the playable command
-## through the registered scene authority; legacy Schedule provenance cannot enter here.
 func _begin_scene(request: Dictionary) -> Dictionary:
 	if _physical_owner == null: return _fail(&"dating_physical_owner_unconfigured", "", {})
 	var keys: Array = request.keys(); keys.sort()

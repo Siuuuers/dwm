@@ -1,9 +1,6 @@
 class_name ContactCommandPort
 extends RefCounted
 
-## Semantic Contacts application boundary. Scenes provide only a friend id; this port owns the
-## one durable transaction root and immediately hands its complete proof to the authenticated
-## GameState seam. It owns no Contacts state and never derives an identity locally.
 
 var _game_state: Object = null
 var _identity_issuer: Object = null
@@ -101,8 +98,6 @@ static func _fail(code: StringName, message: String, details: Dictionary = {}) -
 	return {"ok": false, "code": code, "message": message, "details": details.duplicate(true)}
 
 
-# Only one selected reply may wait for its actual transcript draw/save acknowledgment.
-# This cache is local presentation custody, not another saved Contacts owner.
 var _ordinary_pending: Dictionary = {}
 var _ordinary_completed: Dictionary = {}
 
@@ -161,7 +156,6 @@ func get_pending_ordinary_reply() -> Dictionary:
 	_discard_stale_ordinary_pending()
 	return {"ok": true, "value": _ordinary_pending.duplicate(true)}
 
-## Leaving a thread abandons only its exact unsaved preview. An old view cannot cancel a replacement.
 func cancel_pending_ordinary_reply(command: Dictionary) -> Dictionary:
 	if _scene_owner(_game_state) and _scene_busy: return _fail(&"scene_contact_reentrant", "")
 	if command.is_empty() or not command.get("command_id") is String:
@@ -279,7 +273,6 @@ func _prepare_scene_reply_owned(friend_id: String, reply_id: String, locale: Str
 			or not command.rendered_line is Dictionary or not _scene_command_equal(command, command) \
 			or not _SCENE_STATE._s_equal(command.context, prior.value) \
 			or not _scene_command_live(command): return _fail(&"ordinary_preview_malformed", "")
-	# Verify installed definition/line without committing any Contacts fact.
 	var choices := _SCENE_STATE.scene_reply_choices(_game_state.get("contacts"), friend_id, locale, command.context.registration_sha256)
 	if not choices.get("ok", false): return choices
 	var found := false

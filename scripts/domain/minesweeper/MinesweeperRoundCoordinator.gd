@@ -1,11 +1,6 @@
 class_name MinesweeperRoundCoordinator
 extends RefCounted
 
-# Frozen Phase 2R Minesweeper round coordinator. GameState's begin/complete
-# round methods delegate here. Every public operation calls state_port.guard_external
-# as its FIRST operation before any normalization, lookup, validation, capture, or
-# port call; a failed guard is propagated unchanged. Recovery failures irreversibly
-# latch and return only the gate's retained APPLICATION_FATAL.
 
 const CONTRACT := preload("res://scripts/domain/minesweeper/MinesweeperRoundContract.gd")
 const PROJECTOR := preload("res://scripts/application/transaction/FatalDiagnosticProjector.gd")
@@ -30,9 +25,6 @@ const FAILURE_CODES: Array[StringName] = [
 	&"COMPLETION_COMMITTED_UNPUBLISHED", &"LOCK_RELEASE_PENDING", &"ABORT_FAILED",
 ]
 
-## Domain-availability verdicts the state port alone can reach. They are this coordinator's own
-## closed codes, so a prepare_begin failure carrying one is surfaced unchanged rather than being
-## flattened into the generic STATE_PREPARE_FAILED.
 const DOMAIN_AVAILABILITY_CODES: Array[StringName] = [
 	&"NO_APP_ROUND_AVAILABLE", &"INSUFFICIENT_MOTIVATION", &"DATING_ROUTE_NOT_ACTIVE",
 ]
@@ -89,12 +81,6 @@ func _normalize_result_for_identity(result: Variant) -> Dictionary:
 	return {"ok": true, "value": {"outcome": outcome}}
 
 
-# Projects ordered recovery diagnostics through the shared projector, validates the
-# full failure, substitutes only the invariant fallback on a projector/validation
-# miss, latches exactly once, then returns the gate's final guard result unchanged.
-#
-# The context carries ONLY stable round/transaction identifiers -- never candidate bytes,
-# port results, or anything else that could smuggle a non-primitive past the fence.
 func _recover_and_latch(phase: String, raw_diagnostics: Array,
 		round_id: String = "", transaction_id: String = "") -> Dictionary:
 	var context := {}
@@ -113,13 +99,6 @@ func _recover_and_latch(phase: String, raw_diagnostics: Array,
 	return _state_port.guard_external(&"minesweeper_recovery")
 
 
-# Runs EVERY required recovery action in the frozen order, recording one raw diagnostic per
-# attempt, and continues even after an earlier attempt has already failed. When all of them
-# succeed the caller's ordinary nonfatal failure stands; otherwise the irreversible
-# projection -> validation/fallback -> one latch -> final guard sequence takes over and its
-# retained APPLICATION_FATAL is returned instead.
-#
-# `actions` is an ordered Array of [owner_id, operation, Callable].
 func _recover_then(actions: Array, phase: String, nonfatal: Dictionary,
 		round_id: String = "", transaction_id: String = "") -> Dictionary:
 	var diagnostics: Array = []
@@ -158,21 +137,16 @@ func begin_round(request: Variant) -> Dictionary:
 	var round_id: String = CONTRACT.build_round_id(run_id, day, ordinal)
 	var prepared: Dictionary = _state_port.prepare_begin(validated["value"], round_id)
 	if not prepared.get("ok", false):
-		# No round is consumed and nothing durable has happened yet, so an availability verdict
-		# reaches the caller as itself; every other cause stays generic with its nested reason.
 		var cause: StringName = StringName(str(prepared.get("code", &"")))
 		if cause in DOMAIN_AVAILABILITY_CODES:
 			return {"ok": false, "code": cause, "details": {"cause": prepared}}
 		return {"ok": false, "code": &"STATE_PREPARE_FAILED"}
-	# Pre-board checkpoint + autosave as one recoverable transaction.
 	var s_cap: Dictionary = _save_port.capture()
 	if not s_cap.get("ok", false):
 		return {"ok": false, "code": &"PRE_BOARD_CHECKPOINT_FAILED"}
 	var preview: Dictionary = _save_port.preview_checkpoint_id(run_id)
 	if not preview.get("ok", false):
 		return {"ok": false, "code": &"PRE_BOARD_CHECKPOINT_FAILED"}
-	# The pre-board checkpoint is DURABLE: it writes autosave.json before the round is consumed
-	# or the lock acquired, so the frozen disk_write is the autosave/pre_board pairing.
 	var prep_ckpt: Dictionary = _save_port.prepare_checkpoint(prepared["value"]["pre_board_checkpoint_inputs"],
 		&"pre_board", {"kind": &"autosave", "reason": &"pre_board"})
 	if not prep_ckpt.get("ok", false):
@@ -186,8 +160,6 @@ func begin_round(request: Variant) -> Dictionary:
 		return {"ok": false, "code": &"SAVE_LOCK_FAILED", "details": {"cause": lock}}
 	var comm: Dictionary = _state_port.commit(prepared["value"]["candidate"])
 	if not comm.get("ok", false):
-		# The durable pre-board checkpoint/autosave stays valid; only the state candidate and the
-		# lock unwind. Both attempts always run, in this frozen order.
 		return _recover_then([
 			["minesweeper_state", "rollback", func() -> Dictionary: return _state_port.rollback(backup["value"])],
 			["minesweeper_save", "release_board_lock", func() -> Dictionary: return _save_port.release_board_lock()],
@@ -202,9 +174,6 @@ func begin_round(request: Variant) -> Dictionary:
 		"day": int(start_receipt["day"]), "ordinal": int(start_receipt["ordinal"])}
 	var pub: Dictionary = _state_port.publish(start_receipt, [round_started])
 	if not pub.get("ok", false):
-		# Pre-emission failpoint: nothing was emitted. Roll the committed active candidate back
-		# FIRST and release the lock SECOND, leaving the durable pre-board record intact. No
-		# publication is retried automatically.
 		return _recover_then([
 			["minesweeper_state", "rollback", func() -> Dictionary: return _state_port.rollback(backup["value"])],
 			["minesweeper_save", "release_board_lock", func() -> Dictionary: return _save_port.release_board_lock()],
@@ -225,19 +194,16 @@ func complete_round(round_id: String, result: Variant, transaction_id: String) -
 	var normalized := _normalize_result_for_identity(result)
 	if not normalized.get("ok", false):
 		return {"ok": false, "code": &"INVALID_RESULT"}
-	# 1) Already-completed duplicate: return detached stored receipt, zero calls.
 	if _completed_records.has(transaction_id):
 		var stored: Dictionary = _completed_records[transaction_id]
 		if round_id != stored["receipt"].get("round_id", "") or normalized["value"] != stored["normalized_result"]:
 			return {"ok": false, "code": &"TRANSACTION_ID_CONFLICT"}
 		return {"ok": true, "code": &"ok", "value": stored["receipt"].duplicate(true)}
-	# 2) Pending duplicate: resume only the recorded phase.
 	if not _pending.is_empty():
 		if round_id != _pending.get("round_id", "") or transaction_id != _pending.get("transaction_id", "") \
 				or normalized["value"] != _pending.get("normalized_result", {}):
 			return {"ok": false, "code": &"TRANSACTION_ID_CONFLICT"}
 		return _resume_pending()
-	# 3) Fresh completion against the active round.
 	if _active_round.is_empty() or round_id != _active_round.get("round_id", ""):
 		return {"ok": false, "code": &"ROUND_ID_MISMATCH"}
 	var vres := CONTRACT.validate_result(_active_round, result)
@@ -264,8 +230,6 @@ func complete_round(round_id: String, result: Variant, transaction_id: String) -
 		return {"ok": false, "code": &"CHECKPOINT_PREPARE_FAILED"}
 	var ckpt_commit: Dictionary = _save_port.commit_checkpoint(prep_ckpt["value"]["candidate"])
 	if not ckpt_commit.get("ok", false):
-		# Nothing committed yet: restore the save side only. Still pre-durable, so a successful
-		# recovery leaves state, journal, sequence, signals, active round and lock byte-equal.
 		return _recover_then([
 			["minesweeper_save", "rollback", func() -> Dictionary: return _save_port.rollback(w_backup["value"])],
 		], "completion_checkpoint_commit",
@@ -273,8 +237,6 @@ func complete_round(round_id: String, result: Variant, transaction_id: String) -
 			round_id, transaction_id)
 	var state_commit: Dictionary = _state_port.commit(finalized["value"]["candidate"])
 	if not state_commit.get("ok", false):
-		# Reverse order: the state port committed last, so it unwinds first, then the checkpoint
-		# that preceded it. Every attempt runs even after an earlier one has failed.
 		return _recover_then([
 			["minesweeper_state", "rollback", func() -> Dictionary: return _state_port.rollback(s_backup["value"])],
 			["minesweeper_save", "rollback", func() -> Dictionary: return _save_port.rollback(w_backup["value"])],
@@ -325,8 +287,6 @@ func abort_round(round_id: String, reason: StringName, transaction_id: String) -
 	var prepared: Dictionary = _state_port.prepare_abort(_active_round, reason, transaction_id)
 	if not prepared.get("ok", false):
 		return {"ok": false, "code": &"ABORT_FAILED"}
-	# Both recovery actions always run, in the frozen order, and the lock is released only after
-	# the rollback has been attempted. A failure of either uses the same projector path.
 	var restored: Dictionary = _state_port.rollback(prepared["value"]["candidate"])
 	var released: Dictionary = _save_port.release_board_lock() if restored.get("ok", false) else {"ok": true, "code": &"skipped"}
 	if not (restored.get("ok", false) and released.get("ok", false)):

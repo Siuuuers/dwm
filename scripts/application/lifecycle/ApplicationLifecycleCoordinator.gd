@@ -1,6 +1,4 @@
 extends Node
-## Universal Pause owns only transient suspension and source-view custody.
-## Save/Load/Return commands remain with their application owners.
 
 signal pause_opened(source: Dictionary)
 signal pause_closed
@@ -121,7 +119,6 @@ func request_resume(handle: Dictionary) -> Dictionary:
 	pause_closed.emit()
 	return _success({"resumed": true})
 
-## Called only after the session owner retires the exact source. Never resume discarded prose.
 func retire_suspended_source(handle: Dictionary) -> Dictionary:
 	if _phase == &"Retired" and handle == _handle: return _success({"retired": true})
 	if _phase not in [&"Suspended", &"Retiring"] or handle != _handle \
@@ -140,7 +137,6 @@ func retire_suspended_source(handle: Dictionary) -> Dictionary:
 	_phase = &"Retired"
 	return _success({"retired": true})
 
-## Title is physically published before the old tree pause can be released.
 func finish_retirement(handle: Dictionary) -> Dictionary:
 	if _phase != &"Retired" or handle != _handle: return _failure(&"invalid_suspension_retirement")
 	if _owns_tree_pause: get_tree().paused = false
@@ -149,8 +145,6 @@ func finish_retirement(handle: Dictionary) -> Dictionary:
 	pause_closed.emit()
 	return _success({"retired": true})
 
-## A witnessed Load releases only audio so its existing restore participant can run.
-## Input, the caption, SceneTree pause and the native text coroutine remain held.
 func begin_restore_handoff(handle: Dictionary) -> Dictionary:
 	if _phase != &"Suspended" or handle != _handle: return _failure(&"invalid_suspension_handle")
 	var current := _capture_source()
@@ -271,8 +265,6 @@ func _resume_ports() -> Dictionary:
 	while not _suspended.is_empty():
 		var port: Object = _suspended.back()
 		var state: Dictionary = port.get_state()
-		# A prior resume can have completed before a source-change callback. Its
-		# proven Active state is sufficient; a consumed handle must not be replayed.
 		if not state.get("ok", false) or state.get("value", {}).get("state") != &"Active":
 			var resumed: Dictionary = await port.resume(_handle.duplicate(true))
 			state = port.get_state()
@@ -286,8 +278,6 @@ func _resume_ports() -> Dictionary:
 	return _success({"resumed": true})
 
 func _recover(cause: Dictionary) -> Dictionary:
-	# A partial acquire can already own input/audio. Keep its source inert until
-	# an exact retry proves every release; never advertise foreground readiness.
 	if not get_tree().paused:
 		get_tree().paused = true
 		_owns_tree_pause = true

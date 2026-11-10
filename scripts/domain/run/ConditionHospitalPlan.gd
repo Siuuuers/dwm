@@ -1,31 +1,12 @@
 class_name ConditionHospitalPlan
 extends RefCounted
 
-## The persisted pre-Done condition-Hospital resolution plan value
-## (Amendment Plan 03 Task 4, dwm-oyo.3).
-##
-## Static-only, like ScheduleViewState. The stored value is the exact strict primitive Dictionary
-## (plan:908) and never a live object; ConditionHospitalState is the sole plan-state mutation seam
-## (plan:936), so nothing here mutates anything. Every static returns the master four-key envelope
-## -- {ok, code, value, receipt} on success, {ok, code, message, details} on failure -- so a caller
-## reads one shape from every one of them.
-##
-## LAW ROUTING. This module owns the plan value's own shape: the exact seventeen-key envelope, the
-## six immutable stage ids and their records, the cursor/prefix relation, the stage-key spelling and
-## the retirement-history record. It deliberately does NOT own the identity-split matrix or the
-## lifecycle couplings -- those are RunLifecycle._validate_condition_lifecycle, the single owner the
-## snapshot schema delegates to. It also stops at every Task-7 boundary: the per-stage `output`
-## schemas, the stage_input_receipt_ids projections, the identity derivation of the
-## P03.condition_hospital.* rows, the contact_source element interior, and ledger/ancestry validation
-## of the issuer receipts all belong to Task 7. Where a member's interior belongs to a Task-7 port,
-## this module requires the container type and only the cross-references it can see, then stops.
 
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 const SCHEMA_VERSION := 1
 const RESOLUTION_KIND := "condition_hospital"
 
-## Exact top-level plan keys (sorted).
 const PLAN_KEYS: Array[String] = [
 	"accepted_sources", "action_receipt", "branch_id", "causal_day_instance",
 	"causal_day_instance_issuer_receipt", "condition_receipt", "cursor",
@@ -34,14 +15,11 @@ const PLAN_KEYS: Array[String] = [
 	"transaction_issuer_receipt",
 ]
 
-## The six stages in their IMMUTABLE order. Stages are never removed or renumbered, so a stage's
-## index in this array is its permanent ordinal.
 const STAGE_IDS: Array[String] = [
 	"close_invitation_sources", "present_hospital", "resolve_deferred_pair",
 	"present_deferred_pair", "advance_day", "autosave_new_day",
 ]
 
-## Exact stage-record keys (sorted). The name deliberately mirrors DayResolutionPlan.STAGE_KEYS.
 const STAGE_KEYS: Array[String] = [
 	"prepared", "receipt", "stage_id", "stage_identity", "stage_key", "state",
 ]
@@ -49,12 +27,8 @@ const STAGE_STATES: Array[String] = ["pending", "active", "completed"]
 const STAGE_COUNT := 6
 const FIRST_SOURCE_DAY := 1
 const LAST_SOURCE_DAY := 6
-## `advance_day` is the only stage whose activity legalises a source/target identity split.
 const ADVANCE_DAY_STAGE_INDEX := 4
 
-## Member sets this module has to check but does not own. Private on purpose: the public surface is
-## the six statics plus the frozen constants above, and nothing else.
-## Byte-identical to RunLifecycle._ISSUER_RECEIPT_KEYS, the single owner of the issuer shape.
 const _ISSUER_RECEIPT_KEYS: Array[String] = [
 	"counter", "namespace", "numeric_value", "purpose", "receipt_id", "token",
 ]
@@ -67,15 +41,12 @@ const _RETIREMENT_RECEIPT_KEYS: Array[String] = [
 const _RETIREMENT_DISPOSITION := "condition_hospital_plan_retired"
 
 
-## Validates the exact strict primitive plan value. Value is {}.
 static func validate(plan: Dictionary) -> Dictionary:
 	var keys: Array = plan.keys()
 	keys.sort()
 	if keys != PLAN_KEYS:
 		return _fault(&"invalid_plan_shape", "keys",
 			"the plan carries exactly the seventeen keys " + str(PLAN_KEYS))
-	# The closed world is a TYPE law before it is a member law: a Callable, an Object or a
-	# StringName alias anywhere inside is a live channel duplicate(true) cannot detach.
 	var impure := _impure_member(plan, "plan")
 	if impure != "":
 		return _fail(&"impure_value",
@@ -99,8 +70,6 @@ static func validate(plan: Dictionary) -> Dictionary:
 	return _ok({})
 
 
-## Answers whether the plan is the complete cursor-6 all-completed shape.
-## Value is {complete: bool}.
 static func is_complete(plan: Dictionary) -> Dictionary:
 	var validated := validate(plan)
 	if not validated.get("ok", false):
@@ -108,7 +77,6 @@ static func is_complete(plan: Dictionary) -> Dictionary:
 	return _ok({"complete": _is_complete_shape(plan)})
 
 
-## The cursor record and its index. Value is {index: int, stage: Dictionary|null}.
 static func cursor_stage(plan: Dictionary) -> Dictionary:
 	var validated := validate(plan)
 	if not validated.get("ok", false):
@@ -120,8 +88,6 @@ static func cursor_stage(plan: Dictionary) -> Dictionary:
 	return _ok({"index": cursor, "stage": record.duplicate(true)})
 
 
-## The frozen lookup spelling `resolution_receipt_id + ":" + stage_id` -- never a transaction id, an
-## issuer root, a receipt id or a checkpoint identity. Value is {stage_key: String}.
 static func stage_key(resolution_receipt_id: String, stage_id: String) -> Dictionary:
 	if resolution_receipt_id.strip_edges().is_empty():
 		return _fault(&"invalid_plan_shape", "resolution_receipt_id",
@@ -132,9 +98,6 @@ static func stage_key(resolution_receipt_id: String, stage_id: String) -> Dictio
 	return _ok({"stage_key": resolution_receipt_id + ":" + stage_id})
 
 
-## The one canonical plan digest, shared by the retirement receipt's completed_plan_sha256 and by
-## Task 7's row projection so the two can never diverge. Value is {sha256: String}.
-## Deliberately unvalidated: the history digest is taken over whatever bytes are stored.
 static func canonical_sha256(plan: Dictionary) -> Dictionary:
 	var emitted: Dictionary = _CANONICAL_JSON.stringify(plan)
 	if not emitted.get("ok", false):
@@ -143,8 +106,6 @@ static func canonical_sha256(plan: Dictionary) -> Dictionary:
 	return _ok({"sha256": str(emitted["value"]).sha256_text()})
 
 
-## Validates one condition_hospital_history record against the map key that indexes it.
-## Value is {}.
 static func validate_history_record(record: Variant, resolution_receipt_id: String) -> Dictionary:
 	if typeof(record) != TYPE_DICTIONARY:
 		return _fault(&"invalid_history_record", "record", "a history record is a Dictionary")
@@ -178,7 +139,6 @@ static func validate_history_record(record: Variant, resolution_receipt_id: Stri
 	return _ok({})
 
 
-# ---- the seventeen members this module owns ----
 
 static func _member_error(plan: Dictionary) -> Dictionary:
 	if typeof(plan["schema_version"]) != TYPE_INT \
@@ -200,8 +160,6 @@ static func _member_error(plan: Dictionary) -> Dictionary:
 			or int(plan["source_day"]) > LAST_SOURCE_DAY:
 		return _fault(&"invalid_plan_shape", "source_day",
 			"source_day is an int in %d..%d" % [FIRST_SOURCE_DAY, LAST_SOURCE_DAY])
-	# Each of these is a Task-7 port's own value: the container type and the cross-references this
-	# module can see are the whole Task-4 law, and the interiors are never pinned here.
 	for member: String in ["action_receipt", "condition_receipt", "destination_record",
 			"resolution_receipt", "transaction_issuer_receipt"]:
 		if typeof(plan[member]) != TYPE_DICTIONARY:
@@ -213,8 +171,6 @@ static func _member_error(plan: Dictionary) -> Dictionary:
 	return {}
 
 
-## The causal-day allocation and its FULL issuer receipt travel as one inseparable pair: an ID-only
-## reference and a receipt minted for another allocation are both illegal.
 static func _issuer_receipt_error(plan: Dictionary) -> Dictionary:
 	var member := "causal_day_instance_issuer_receipt"
 	if typeof(plan[member]) != TYPE_DICTIONARY:
@@ -237,8 +193,6 @@ static func _issuer_receipt_error(plan: Dictionary) -> Dictionary:
 	return {}
 
 
-## Sorted once, ascending by (action_id, receipt_id), with no duplicate pair. The seven-key
-## contact_source interior and its Contacts-index validation are Task 7's, not this module's.
 static func _sources_error(plan: Dictionary) -> Dictionary:
 	if typeof(plan["accepted_sources"]) != TYPE_ARRAY:
 		return _fault(&"invalid_sources", "accepted_sources", "accepted_sources is an Array")
@@ -269,8 +223,6 @@ static func _sorts_before(left: Array, right: Array) -> bool:
 	return str(left[1]) < str(right[1])
 
 
-## The exact unpublished hospital_day outbox intent from this same transaction. The payload interior
-## beyond the two members this module can cross-check belongs to Task 7.
 static func _destination_error(plan: Dictionary) -> Dictionary:
 	var record: Dictionary = plan["destination_record"]
 	if str(record.get("status", "")) != "pending":
@@ -292,7 +244,6 @@ static func _destination_error(plan: Dictionary) -> Dictionary:
 	return {}
 
 
-# ---- the six immutable stages, the cursor and the prefix ----
 
 static func _stages_error(plan: Dictionary) -> Dictionary:
 	if typeof(plan["stages"]) != TYPE_ARRAY:
@@ -345,8 +296,6 @@ static func _stage_error(raw: Variant, index: int, cursor: int,
 	return _stage_member_error(record, index, state, stage_id)
 
 
-## The tri-state nullability law. The interiors of stage_identity, prepared and receipt.output are
-## Task 7's; only the container types and the identity cross-references are Task 4's.
 static func _stage_member_error(record: Dictionary, index: int, state: String,
 		stage_id: String) -> Dictionary:
 	if state == "pending":
@@ -365,7 +314,6 @@ static func _stage_member_error(record: Dictionary, index: int, state: String,
 		return _stage_fault(index, "a completed record carries a Dictionary receipt")
 	var identity: Dictionary = record["stage_identity"]
 	var receipt: Dictionary = record["receipt"]
-	# Presence first: two absent members compare null == null and would pass vacuously.
 	for field: String in ["child_id", "provenance"]:
 		if not identity.has(field):
 			return _stage_fault(index, "a completed stage_identity carries " + field)
@@ -392,7 +340,6 @@ static func _is_complete_shape(plan: Dictionary) -> bool:
 	return true
 
 
-# ---- the retirement history record ----
 
 static func _retirement_receipt_error(raw: Variant, completed_plan: Dictionary,
 		resolution_receipt_id: String) -> Dictionary:
@@ -424,8 +371,6 @@ static func _retirement_receipt_error(raw: Variant, completed_plan: Dictionary,
 	if typeof(receipt["receipt_provenance"]) != TYPE_DICTIONARY:
 		return _fault(&"invalid_retirement_receipt", "retirement_receipt.receipt_provenance",
 			"retirement_receipt.receipt_provenance is a Dictionary")
-	# RULING T4-P: the two advance projections and the autosave reference are TYPED here and
-	# VALUED by Task 7's stage-4 output, so this layer stops at their container types.
 	for member: String in ["autosave_stage_receipt_id", "target_causal_day_instance"]:
 		if typeof(receipt[member]) != TYPE_STRING:
 			return _fault(&"invalid_retirement_receipt", "retirement_receipt." + member,
@@ -447,10 +392,7 @@ static func _retirement_receipt_error(raw: Variant, completed_plan: Dictionary,
 	return {}
 
 
-# ---- helpers ----
 
-## The closed world as a TYPE law, recursively: only Dictionary / Array / String / int / bool /
-## null / float, under String keys. Returns "" or the path of the first offending member.
 static func _impure_member(value: Variant, path: String) -> String:
 	var value_type := typeof(value)
 	if value_type == TYPE_DICTIONARY:

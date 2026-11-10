@@ -1,6 +1,4 @@
 extends RefCounted
-## Authored Controls inventory. Read-only metadata; no InputMap/profile mutation.
-## Consumer admission is separate from the potential context overlap declared here.
 
 const RUN_CONTEXTS := [
 	&"run_launcher", &"run_app", &"run_witnessed",

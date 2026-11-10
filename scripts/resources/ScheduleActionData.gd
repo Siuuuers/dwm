@@ -1,6 +1,5 @@
 class_name ScheduleActionData
 extends Resource
-# Stub skeleton. See prompt_docs/requirements/run_lifecycle.md.
 @export var id: String = ""
 @export var display_name: String = ""
 @export var localization_key: String = ""

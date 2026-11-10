@@ -1,5 +1,4 @@
 extends RefCounted
-## Licensed UI fonts and exact authored presentation tuples.
 
 const PALETTE_REGISTRY := preload("res://scripts/ui/minesweeper/MinesweeperPaletteRegistry.gd")
 

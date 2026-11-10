@@ -1,5 +1,4 @@
 extends Node
-## Mounted policy for the current caption. Dialogic Inputs remains the command owner.
 
 signal normal_accept_requested
 
@@ -31,7 +30,6 @@ var _accessibility_generation := 0
 
 func _enter_tree() -> void:
 	add_to_group("dialogic_input_policy")
-	# Paused source input remains inert, but releases must not be lost with the tree.
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
 func bind(caption: DialogicNode_DialogText, viewport_control: ScrollContainer, runtime: Node) -> void:
@@ -43,7 +41,6 @@ func bind(caption: DialogicNode_DialogText, viewport_control: ScrollContainer, r
 		bind_input_custody(input_owner)
 	_await_initial_neutral = Input.is_action_pressed(_action())
 	_await_page_neutral = _page_is_held()
-	# Both organic and manual finish replace the reveal identity captured by native actions.
 	_caption.finished_revealing_text.connect(_retire_accessibility_accept)
 	_caption.visibility_changed.connect(_cancel_candidate)
 	_caption.focus_exited.connect(_cancel_candidate)
@@ -99,7 +96,6 @@ func bind_presentation_admission(before_accept: Callable, automatic_admission: C
 	return true
 
 
-## Queried by the native text event immediately before automatic advancement.
 func is_automatic_advance_admitted(runtime: Node) -> bool:
 	if runtime != _runtime: return true
 	return _admissible() and (not _automatic_admission.is_valid() or bool(_automatic_admission.call()))
@@ -128,7 +124,6 @@ func _cancel_candidate() -> void:
 	_retire_accessibility_accept()
 
 func cancel_pending_accept(_scroll_value: float = 0.0) -> void:
-	# Real scrollbar movement (including its native gutter) also cancels contact.
 	_candidate.clear()
 
 func _retire_accessibility_accept() -> void:
@@ -137,7 +132,6 @@ func _retire_accessibility_accept() -> void:
 	if is_instance_valid(_review_caption): _review_caption.queue_accessibility_update()
 	if is_instance_valid(_accessible_continue): _accessible_continue.queue_accessibility_update()
 
-## Capture both custody lifetime and native reveal identity; equal text is not identity.
 func capture_accessibility_accept(target: Control) -> Callable:
 	return _accessibility_accept.bind(target, _accessibility_generation, _caption.get_reveal_generation())
 
@@ -232,7 +226,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if _is_pointer(event) or _source(event).is_empty():
 		return
-	# Consume rejected mapped packets too: a held contact must not reach fallback.
 	get_viewport().set_input_as_handled()
 	if event.get_instance_id() == _fresh_key_event and event.is_pressed() \
 			and not event.is_echo() and is_instance_valid(_caption) and _focus_caption().has_focus():
@@ -244,7 +237,6 @@ func handle_page_input(event: InputEvent) -> bool:
 	var direction := _page_direction(event)
 	if direction == 0 or not is_instance_valid(_caption) or not _focus_caption().has_focus():
 		return false
-	# Current-caption GUI gets first refusal; unhandled input is the controller fallback.
 	if event.is_pressed() and not event.is_echo() and _fresh_page_source == _physical_source(event):
 		_fresh_page_source = ""
 		if _admissible():
@@ -271,7 +263,6 @@ func _track_page_contact(event: InputEvent) -> void:
 			_await_page_neutral = false
 
 func _page_direction(event: InputEvent) -> int:
-	# Shoulder defaults are local to this viewport; shared Controls mapping is separate.
 	if event is InputEventJoypadButton:
 		if event.button_index == JOY_BUTTON_LEFT_SHOULDER:
 			return -1
@@ -304,7 +295,6 @@ func handle_background_gui_input(event: InputEvent, source_control: Control) -> 
 	var source := _source(event)
 	if source.is_empty() or _candidate.is_empty() or _candidate.source != source:
 		return
-	# GUI positions are local; the raw phase and this phase both check the aperture clip.
 	var viewport_point: Vector2 = source_control.get_global_transform_with_canvas() * _pointer_position(event)
 	if not _inside_source(viewport_point) or _is_double_or_canceled(event):
 		_candidate.clear()
@@ -348,8 +338,6 @@ func _submit(pointer: bool) -> void:
 	_submitting = false
 
 func _release_hits_control(viewport_point: Vector2) -> bool:
-	# A captured release still belongs to the pressed background Control. Check
-	# the real buttons/scrollbar under it so crossing an edge cannot accept prose.
 	var controls: Array[Node] = get_tree().get_nodes_in_group("dialogic_choice_button")
 	if is_instance_valid(_scene_input):
 		controls.append_array(_scene_input.get_parent().find_children("*", "BaseButton", true, false))

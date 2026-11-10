@@ -1,12 +1,6 @@
 class_name DeterministicRng32
 extends RefCounted
 
-## xorshift32-v1 deterministic RNG (Plan 02 Task 3, dwm-p2r13). Seeds from the first eight
-## lowercase SHA-256 hex digits of `stream_id + "\n" + nonce`; a zero result is replaced with
-## 0x6D2B79F5 so a stream can never start in the degenerate all-zero orbit (xorshift's transform
-## fixes 0 to 0 forever). Every draw masks to 32 bits after each xor/shift. Never uses
-## randi()/RandomNumberGenerator/global RNG state -- every word comes from this instance's own
-## masked xorshift32 state alone.
 
 const ALGORITHM := &"xorshift32-v1"
 
@@ -71,11 +65,6 @@ func capture() -> Dictionary:
 	}, "receipt": {}}
 
 
-## Restores this instance's progress from a previously captured state. The captured state's
-## declared {algorithm, stream_id, nonce} must exactly match this instance's own identity
-## (established by seed()) -- a state captured under a different stream_id or nonce is rejected
-## even when its numeric `state` word happens to match, so one stream's checkpoint can never be
-## smuggled in to continue a different stream's generation.
 func prepare_restore(state: Dictionary) -> Dictionary:
 	if not _seeded:
 		return _fail(&"rng_not_seeded", "seed() must be called before prepare_restore()", {})
@@ -101,10 +90,6 @@ func prepare_restore(state: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": capture()["value"], "receipt": {}}
 
 
-## Parses an 8-hex-digit slice into its unsigned 32-bit seed word, replacing an all-zero result
-## with 0x6D2B79F5. Factored out so the zero-replacement branch is directly testable without
-## needing a real sha256 preimage that collides to hex8 "00000000" (an ~2^32-expected-trial
-## search; see task-3-report.md).
 static func _seed_word_from_hex8(hex8: String) -> int:
 	var word: int = ("0x" + hex8).hex_to_int()
 	if word == 0:

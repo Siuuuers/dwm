@@ -1,6 +1,4 @@
 extends Control
-## Presentation-only projection of the canonical witnessed-scene transport rail.
-## Transport owners decide admission and perform every command.
 
 signal skip_requested
 signal auto_requested
@@ -115,7 +113,6 @@ func bind_localization(localization: Object) -> bool:
 	if locale not in LOCALES: return false
 	var next_copy := _read_copy(localization)
 	if next_copy.is_empty(): return false
-	# A newly bound language becomes visible only with its matching theme tuple.
 	if locale != _locale: next_copy = {}
 	if _localization != localization or _copy != next_copy:
 		retire_input()
@@ -212,9 +209,6 @@ func project(can_skip: bool, skip_active: bool, auto_enabled: bool, can_auto: bo
 			and can_auto == _can_auto and can_load == _can_load \
 			and can_history == _can_history and can_save == _can_save and can_next == _can_next and can_settings == _can_settings:
 		return true
-	# Every semantic state change is an input-generation boundary. If disabling
-	# the focused command releases Focus, its focus_exited signal performs this
-	# one retirement; otherwise retire explicitly before publishing the change.
 	if not can_skip and _skip_button.has_focus():
 		_skip_button.release_focus()
 	else:
@@ -357,8 +351,6 @@ func _apply_projection() -> void:
 		button.theme_type_variation = &"WitnessedTransportMode" if enabled_mode else &"WitnessedTransportButton"
 		if not _roles.is_empty():
 			_apply_button_material(button, enabled_mode)
-		# Native minimum-size updates can grow a mounted button during a theme
-		# transition. Reapply its fixed bay after publishing the final material.
 		button.size = button.custom_minimum_size
 		button.queue_redraw()
 
@@ -382,8 +374,6 @@ func _apply_button_material(button: Button, mode_on: bool) -> void:
 	disabled.border_width_bottom = 4
 	button.add_theme_stylebox_override(&"disabled", disabled)
 	button.add_theme_stylebox_override(&"focus", StyleBoxEmpty.new())
-	# Measure the native shaped line, including fallback glyphs, before adding
-	# padding. Font.get_height() alone can undercount that line at 150%.
 	var padding := minf(8.0, floorf(maxf(0.0, button.custom_minimum_size.y - button.get_minimum_size().y) / 2.0))
 	for state: StringName in [&"normal", &"hover", &"pressed", &"hover_pressed", &"disabled"]:
 		var plate := button.get_theme_stylebox(state)
@@ -425,8 +415,6 @@ func _draw_button_state(button: TRANSPORT_BUTTON) -> void:
 
 
 func _focus_rects(control_size: Vector2) -> Array[Rect2]:
-	# A two-pixel stroke centered at 5 begins exactly at the four-pixel plate
-	# inset. The next stroke begins after one untouched two-pixel gap.
 	return [
 		Rect2(Vector2(5, 5), control_size - Vector2(10, 10)),
 		Rect2(Vector2(9, 9), control_size - Vector2(18, 18)),

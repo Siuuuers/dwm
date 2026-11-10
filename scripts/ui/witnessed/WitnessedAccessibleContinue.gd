@@ -1,5 +1,4 @@
 extends Control
-## Accessible projection of the real tappable background, not another input owner.
 
 var _accept_input: Node
 var _localization: Node

@@ -1,35 +1,6 @@
 class_name ConditionHospitalState
 extends RefCounted
 
-## The sole pre-Done condition-Hospital plan-state mutation seam (Amendment Plan 03 Task 4,
-## dwm-oyo.3, plan:936).
-##
-## Stateful facade retaining exactly one RunLifecycle and one identity port, returning the master
-## four-key envelope throughout.
-##
-## OWNERSHIP FENCE. It holds no GameState, no ScheduleViewController, no Contacts port, no
-## presentation owner and no storage reference; its only mutation authority is the retained
-## RunLifecycle. Every prepare is pure -- it computes a before_fingerprint over the complete current
-## RunLifecycle.to_dict() and returns a detached candidate -- and only the matching commit adopts,
-## after rechecking that fingerprint.
-##
-## THE PREPARE-FIRST ORDERING LAW (plan:558). prepare_stage accepts only a stage_identity THIS
-## instance issued for that exact (resolution_receipt_id, stage_id). A caller-authored identity, a
-## stale identity from another stage, or an identity for a stage whose prepare_stage_identity was
-## never called must conflict. Stage 4 is NOT exempt just because the allocator root is committed.
-##
-## commit_retirement is where the append-only history law of the lifecycle aggregate is actually
-## enforceable: a single document cannot witness an append, so the document layer checks shape only
-## and this transition owns the rest.
-##
-## SCOPE. Task 4 Step 2 implements the eleven methods above capture_active_stage. The last two ship
-## as typed not_implemented past Task 4's GREEN -- the shipped Ruling-18-A stub precedent in
-## DesktopConsequenceCoordinator.configure_schedule_departure_ports -- and no Task-4 test asserts
-## behaviour for them.
-##
-## Both owners are held as bare `Object` and reached through `call(&"...")`, the established repo
-## idiom for a retained collaborator (DesktopConsequenceCoordinator, ContactCommandPort): this
-## module names no class it does not own.
 
 const CONDITION_HOSPITAL_PLAN := preload("res://scripts/domain/run/ConditionHospitalPlan.gd")
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
@@ -71,21 +42,12 @@ const _LAST_SOURCE_DAY := 6
 var _run_lifecycle: Object = null
 var _identity_port: Object = null
 
-## resolution_receipt_id -> {intent_key, envelope}. The identity port counts every derive_child, so
-## a replayed acceptance returns the ORIGINAL envelope bytes rather than mint a second receipt.
 var _acceptances: Dictionary = {}
-## "<resolution_receipt_id>:<stage_id>" -> {child_id, input_receipt_ids, provenance}. The single
-## record of what THIS instance issued, and therefore the whole enforcement of plan:558.
 var _stage_identities: Dictionary = {}
-## resolution_receipt_id -> the ten-key retirement receipt, so a retirement replay is byte-identical.
 var _retirements: Dictionary = {}
-## One entry per capture(): {backup, backup_sha, expected_sha, closed}. `expected_sha` is the state
-## a later commit produced -- the only live state that backup may roll back FROM -- and `closed`
-## records that its one restore already happened, so any third live state conflicts afterwards.
 var _captures: Array[Dictionary] = []
 
 
-## Binds the two owners one way. Value is {configured: true, already_configured: bool}.
 func configure(run_lifecycle: Object, identity_port: Object) -> Dictionary:
 	if run_lifecycle == null or identity_port == null:
 		return _fail(&"invalid_configuration",
@@ -100,8 +62,6 @@ func configure(run_lifecycle: Object, identity_port: Object) -> Dictionary:
 		"configure is one-way: the retained RunLifecycle and identity port are never replaced", {})
 
 
-## Accepts a condition-Hospital resolution and returns the cursor-0 candidate plus its aliased
-## acceptance receipt.
 func prepare_accept(request: Dictionary) -> Dictionary:
 	var guard := _unconfigured("prepare_accept")
 	if not guard.is_empty():
@@ -168,8 +128,6 @@ func prepare_accept(request: Dictionary) -> Dictionary:
 		return _fail(&"invalid_plan",
 			"the accepted plan is not a valid condition-Hospital plan: " + _reason(validated), {})
 	var lifecycle_candidate: Dictionary = live.duplicate(true)
-	# A completed prior Done plan is retained until another resolution succeeds it.
-	# Drop only that retired projection in this detached acceptance candidate.
 	lifecycle_candidate["active_resolution_plan"] = null
 	lifecycle_candidate["active_condition_hospital_plan"] = plan
 	var restorable: Dictionary = _run_lifecycle.call(&"prepare_restore", lifecycle_candidate)
@@ -192,7 +150,6 @@ func prepare_accept(request: Dictionary) -> Dictionary:
 	return envelope
 
 
-## The complete detached lifecycle backup. Value is {backup}, receipt is {}.
 func capture() -> Dictionary:
 	var guard := _unconfigured("capture")
 	if not guard.is_empty():
@@ -210,7 +167,6 @@ func capture() -> Dictionary:
 	return _ok({"backup": backup.duplicate(true)}, {})
 
 
-## Adopts a prepared candidate after rechecking its before_fingerprint.
 func commit(candidate: Dictionary) -> Dictionary:
 	var guard := _unconfigured("commit")
 	if not guard.is_empty():
@@ -225,7 +181,6 @@ func commit(candidate: Dictionary) -> Dictionary:
 	return _ok({"committed": true}, {})
 
 
-## Restores a backup this instance issued. Value is {restored: true}.
 func rollback(backup: Dictionary) -> Dictionary:
 	var guard := _unconfigured("rollback")
 	if not guard.is_empty():
@@ -266,8 +221,6 @@ func rollback(backup: Dictionary) -> Dictionary:
 	return _ok({"restored": true}, {})
 
 
-## Issues the stage identity that prepare_stage will later require. Pure: no lifecycle mutation.
-## Value is {before_fingerprint, stage_identity}, receipt is {}.
 func prepare_stage_identity(request: Dictionary) -> Dictionary:
 	var guard := _unconfigured("prepare_stage_identity")
 	if not guard.is_empty():
@@ -288,8 +241,6 @@ func prepare_stage_identity(request: Dictionary) -> Dictionary:
 		return _fail(&"invalid_stage", "every stage of this plan is already completed", {})
 	if index < cursor:
 		return _fail(&"invalid_stage", "stage " + stage_id + " is already completed", {})
-	# plan:904 (RULING T4-S): the named stage IS the pending cursor with all earlier stages
-	# completed. No lookahead is admissible, not even the one stage after the cursor.
 	if index > cursor:
 		return _fail(&"invalid_stage",
 			"stage " + stage_id + " is not the pending cursor stage "
@@ -331,8 +282,6 @@ func prepare_stage_identity(request: Dictionary) -> Dictionary:
 	}, {})
 
 
-## Marks only the cursor record active, storing a detached stage_identity and prepared, retaining a
-## null receipt and NOT moving the cursor.
 func prepare_stage(request: Dictionary) -> Dictionary:
 	var guard := _unconfigured("prepare_stage")
 	if not guard.is_empty():
@@ -391,8 +340,6 @@ func prepare_stage(request: Dictionary) -> Dictionary:
 	}, {})
 
 
-## Flips exactly one record active -> completed and increments the cursor by exactly one.
-## The outer receipt is byte-equal to the request's stage_receipt.
 func complete_stage(request: Dictionary) -> Dictionary:
 	var guard := _unconfigured("complete_stage")
 	if not guard.is_empty():
@@ -471,7 +418,6 @@ func complete_stage(request: Dictionary) -> Dictionary:
 	}, stage_receipt.duplicate(true))
 
 
-## Adopts a prepared stage candidate after rechecking its before_fingerprint.
 func commit_stage(candidate: Dictionary) -> Dictionary:
 	var guard := _unconfigured("commit_stage")
 	if not guard.is_empty():
@@ -487,8 +433,6 @@ func commit_stage(candidate: Dictionary) -> Dictionary:
 	return _ok({"committed": true}, {})
 
 
-## Builds the retirement candidate from the byte-identical active cursor-6 plan.
-## Value is {lifecycle_candidate, history_record, retirement_receipt}.
 func prepare_retirement(request: Dictionary) -> Dictionary:
 	var guard := _unconfigured("prepare_retirement")
 	if not guard.is_empty():
@@ -550,8 +494,6 @@ func prepare_retirement(request: Dictionary) -> Dictionary:
 	if not restorable.get("ok", false):
 		return _fail(&"invalid_lifecycle_candidate",
 			"the retirement candidate is not a restorable lifecycle: " + _reason(restorable), {})
-	# RULING T4-S: commit_retirement honours a blank before_fingerprint ONLY against these exact
-	# issued bytes prepared against this exact live state, so both are remembered here.
 	_retirements[receipt_id] = {
 		"receipt": retirement_receipt.duplicate(true),
 		"prepare_sha": _fingerprint(live),
@@ -564,8 +506,6 @@ func prepare_retirement(request: Dictionary) -> Dictionary:
 	}, retirement_receipt.duplicate(true))
 
 
-## Atomically appends the history record and nulls the active plan in one step. This is where the
-## append-only law of condition_hospital_history is enforced.
 func commit_retirement(candidate: Dictionary) -> Dictionary:
 	var guard := _unconfigured("commit_retirement")
 	if not guard.is_empty():
@@ -581,9 +521,6 @@ func commit_retirement(candidate: Dictionary) -> Dictionary:
 	var live := _live()
 	if proposed == live:
 		return _ok({"committed": true}, {})
-	# The append-only law runs FIRST. A candidate that drops or rewrites an existing history
-	# entry must refuse on THAT law, never on whatever fingerprint happened to ride with it --
-	# otherwise the only transition that can witness an append is never reached.
 	var append_error := _history_append_error(live, proposed)
 	if not append_error.is_empty():
 		return append_error
@@ -596,7 +533,6 @@ func commit_retirement(candidate: Dictionary) -> Dictionary:
 	return _ok({"committed": true}, {})
 
 
-## Attests the one persisted active cursor record without exposing either retained owner.
 func capture_active_stage() -> Dictionary:
 	var guard := _unconfigured("capture_active_stage")
 	if not guard.is_empty():
@@ -625,7 +561,6 @@ func capture_active_stage() -> Dictionary:
 	}}, {})
 
 
-## Projects the day-start Autosave receipt exclusively from the completed advance-day stage.
 func prepare_autosave_stage_output(request: Dictionary) -> Dictionary:
 	var guard := _unconfigured("prepare_autosave_stage_output")
 	if not guard.is_empty():
@@ -667,11 +602,7 @@ func prepare_autosave_stage_output(request: Dictionary) -> Dictionary:
 	}}, {})
 
 
-# ---- acceptance helpers ----
 
-## The three-key request and every member this seam can cross-check. Ledger/ancestry validation of
-## the transaction root is Task 7's; RULING T4-N fixes only that the root travels INSIDE
-## `action_receipt` and that a receipt without it is refused.
 func _accept_request_error(request: Dictionary) -> Dictionary:
 	if _sorted_keys(request) != _ACCEPT_REQUEST_KEYS:
 		return _fail(&"invalid_request",
@@ -695,8 +626,6 @@ func _accept_request_error(request: Dictionary) -> Dictionary:
 	return _destination_record_error(request["destination_record"])
 
 
-## The unpublished hospital_day outbox intent, with its source list already sorted once by
-## (action_id, receipt_id): this seam never sorts a caller's list for it.
 func _destination_record_error(record: Dictionary) -> Dictionary:
 	if str(record.get("status", "")) != "pending":
 		return _fail(&"invalid_destination_record",
@@ -740,8 +669,6 @@ static func _sorts_before(left: Array, right: Array) -> bool:
 	return str(left[1]) < str(right[1])
 
 
-## The identity port counts every derivation, so a repeated intent returns the ORIGINAL bytes. An
-## active plan whose acceptance carried a different intent conflicts, never accepts a second plan.
 func _accept_replay(live: Dictionary, intent_key: String) -> Dictionary:
 	var active: Variant = live["active_condition_hospital_plan"]
 	if typeof(active) == TYPE_DICTIONARY:
@@ -766,8 +693,6 @@ func _accept_replay(live: Dictionary, intent_key: String) -> Dictionary:
 	return {}
 
 
-## The seventeen-key cursor-0 plan. Every identity member is copied from the lifecycle's own, which
-## is exactly what RunLifecycle._validate_condition_lifecycle requires below the advance stage.
 func _cursor_zero_plan(live: Dictionary, request: Dictionary, acceptance: Dictionary,
 		sources: Array) -> Dictionary:
 	var receipt_id := str(acceptance["receipt_id"])
@@ -808,9 +733,7 @@ func _cursor_zero_plan(live: Dictionary, request: Dictionary, acceptance: Dictio
 	}
 
 
-# ---- stage helpers ----
 
-## Resolves the active plan and the named stage, or the one refusal that stops the caller.
 func _locate_stage(live: Dictionary, request: Dictionary) -> Dictionary:
 	var raw: Variant = live["active_condition_hospital_plan"]
 	if typeof(raw) != TYPE_DICTIONARY:
@@ -839,9 +762,6 @@ func _locate_stage(live: Dictionary, request: Dictionary) -> Dictionary:
 	}
 
 
-## THE PREPARE-FIRST ORDERING LAW (plan:558). Only an identity this instance issued for this exact
-## (resolution_receipt_id, stage_id) is admissible -- stage 4 included, however irreversibly the
-## day-advance allocator root was already committed.
 func _issued_identity_error(located: Dictionary, offered: Variant) -> Dictionary:
 	var key := str(located["receipt_id"]) + ":" + str(located["stage_id"])
 	var cached: Variant = _stage_identities.get(key)
@@ -855,8 +775,6 @@ func _issued_identity_error(located: Dictionary, offered: Variant) -> Dictionary
 	return {}
 
 
-## The frozen eight-key completed-stage receipt and the identity equalities Task 4 owns. The
-## per-stage `output` interior is Task 7's, so only its container type is required here.
 func _stage_receipt_error(request: Dictionary, located: Dictionary) -> Dictionary:
 	var receipt: Dictionary = request["stage_receipt"]
 	if _sorted_keys(receipt) != _STAGE_RECEIPT_KEYS:
@@ -896,10 +814,7 @@ static func _candidate_record(lifecycle_candidate: Dictionary, index: int) -> Di
 	return stages[index]
 
 
-# ---- retirement helpers ----
 
-## RULING T4-P: Task 4 TYPES the two advance projections and Task 7 values them from the stage-4
-## output. `target_day` is the same by-exactly-one advance RunLifecycle already enforces.
 func _mint_retirement_receipt(plan: Dictionary, receipt_id: String,
 		autosave_receipt_id: String) -> Dictionary:
 	var digest: Dictionary = CONDITION_HOSPITAL_PLAN.canonical_sha256(plan)
@@ -942,11 +857,6 @@ func _mint_retirement_receipt(plan: Dictionary, receipt_id: String,
 	}}
 
 
-## RULING T4-S. prepare_retirement's frozen three-key value carries no before_fingerprint of its
-## own, so commit_retirement admits a blank one -- but never as "no claim". A blank fingerprint
-## is honoured only for the exact candidate this instance issued, prepared against exactly this
-## live state; a nonblank one is the ordinary staleness recheck. Anything else conflicts here,
-## before any mutation.
 func _retirement_fingerprint_error(live: Dictionary, proposed: Dictionary,
 		claimed: Variant) -> Dictionary:
 	if typeof(claimed) != TYPE_STRING:
@@ -972,8 +882,6 @@ func _retirement_fingerprint_error(live: Dictionary, proposed: Dictionary,
 	return {}
 
 
-## The append-only law. A single document cannot witness an append, so this transition is the only
-## place a dropped or rewritten history entry is visible at all.
 func _history_append_error(live: Dictionary, proposed: Dictionary) -> Dictionary:
 	if typeof(proposed.get("condition_hospital_history")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_candidate", "condition_hospital_history is a Dictionary", {})
@@ -1004,7 +912,6 @@ func _history_append_error(live: Dictionary, proposed: Dictionary) -> Dictionary
 	return {}
 
 
-# ---- shared helpers ----
 
 func _unconfigured(method: String) -> Dictionary:
 	if _run_lifecycle == null or _identity_port == null:
@@ -1017,8 +924,6 @@ func _live() -> Dictionary:
 	return _run_lifecycle.call(&"to_dict")
 
 
-## Rechecks the fingerprint and adopts. Returns {} on success, or the one refusal, having mutated
-## nothing on every refusing path.
 func _adopt(candidate: Dictionary, fingerprint_required: bool) -> Dictionary:
 	if typeof(candidate["lifecycle_candidate"]) != TYPE_DICTIONARY:
 		return _fail(&"invalid_candidate", "lifecycle_candidate is a Dictionary", {})
@@ -1052,7 +957,6 @@ func _fingerprint_conflict(claimed: Variant, required: bool) -> Dictionary:
 	return {}
 
 
-## A backup may only be rolled back FROM the state a later commit produced, and only once.
 func _arm_open_captures() -> void:
 	var digest := _fingerprint(_live())
 	for entry: Dictionary in _captures:
@@ -1060,7 +964,6 @@ func _arm_open_captures() -> void:
 			entry["expected_sha"] = digest
 
 
-## The one canonical-JSON SHA-256 recipe this slice shares; never a second hash.
 static func _fingerprint(value: Variant) -> String:
 	var emitted: Dictionary = _CANONICAL_JSON.stringify(value)
 	if not emitted.get("ok", false):
@@ -1090,7 +993,6 @@ static func _ok(value: Dictionary, receipt: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": value, "receipt": receipt}
 
 
-## Private so no public-surface census ever sees it.
 func _not_implemented(method: String) -> Dictionary:
 	return _fail(&"not_implemented",
 		"ConditionHospitalState." + method + " is Amendment Plan 03 Task 4 Step 2 work", {})

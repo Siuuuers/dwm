@@ -1,6 +1,4 @@
 extends RefCounted
-## Contacts' material projection of the authored Settings tuples.
-## Room planes age; copy, identity, selection, focus, and marks stay authored.
 
 const PALETTES := preload("res://scripts/settings/SettingsPaletteRegistry.gd")
 const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
@@ -31,13 +29,11 @@ static func _resolve_context(palette: StringName, day: Variant = 1, high_contras
 		"paper": room.paper,
 		"plum": room.inward_preview,
 		"filed": authored.filed,
-		# Identity slits sit on invariant Void, including in Midnight.
 		"void": Color("0b0d13"),
 		"gold": authored.focus,
 		"identity_0": Color("756477"),
 		"identity_1": authored.structure,
 		"identity_2": Color("4f665c"),
-		# A state mark, not the aging document plane.
 		"paper_mark": authored.paper,
 	}
 
