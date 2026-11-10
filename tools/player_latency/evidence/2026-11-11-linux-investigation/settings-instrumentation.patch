@@ -1,0 +1,76 @@
+diff --git a/scripts/ui/SettingsContent.gd b/scripts/ui/SettingsContent.gd
+index 6b480fe..068b299 100644
+--- a/scripts/ui/SettingsContent.gd
++++ b/scripts/ui/SettingsContent.gd
+@@ -502,6 +502,11 @@ func _refresh_discovered_dark_mode() -> void:
+ 	controls[path].disabled = controls[path].disabled or not discovered
+ 
+ func apply_text_size(percent: int, large_targets: bool) -> void:
++	var probe_started := Time.get_ticks_usec()
++	_probe_apply_text_size(percent, large_targets)
++	print("SETTINGS_SPAN scripts/ui/SettingsContent.gd:apply_text_size ", Time.get_ticks_usec() - probe_started)
++
++func _probe_apply_text_size(percent: int, large_targets: bool) -> void:
+ 	_refresh_discovered_dark_mode()
+ 	var locale := current_locale().replace("_", "-")
+ 	var palette_id := get_palette_id()
+diff --git a/scripts/ui/SettingsControlsSheet.gd b/scripts/ui/SettingsControlsSheet.gd
+index 0381364..b6ce5fb 100644
+--- a/scripts/ui/SettingsControlsSheet.gd
++++ b/scripts/ui/SettingsControlsSheet.gd
+@@ -224,6 +224,11 @@ func button_for(action: String, slot: String) -> Button:
+ 
+ 
+ func refresh() -> void:
++	var probe_started := Time.get_ticks_usec()
++	_probe_refresh()
++	print("SETTINGS_SPAN scripts/ui/SettingsControlsSheet.gd:refresh ", Time.get_ticks_usec() - probe_started)
++
++func _probe_refresh() -> void:
+ 	if _status == null:
+ 		return
+ 	var result: Dictionary = _profile.get_controls_binding_snapshot() if _profile != null and _profile.has_method("get_controls_binding_snapshot") else {"ok": false}
+@@ -282,6 +287,11 @@ func refresh() -> void:
+ 
+ 
+ func set_presentation(source_theme: Theme, font_size: int, large_targets: bool) -> void:
++	var probe_started := Time.get_ticks_usec()
++	_probe_set_presentation(source_theme, font_size, large_targets)
++	print("SETTINGS_SPAN scripts/ui/SettingsControlsSheet.gd:set_presentation ", Time.get_ticks_usec() - probe_started)
++
++func _probe_set_presentation(source_theme: Theme, font_size: int, large_targets: bool) -> void:
+ 	theme = source_theme
+ 	_font_size = font_size
+ 	_large_targets = large_targets
+diff --git a/scripts/ui/SettingsPanelController.gd b/scripts/ui/SettingsPanelController.gd
+index 1e52146..4b75cb3 100644
+--- a/scripts/ui/SettingsPanelController.gd
++++ b/scripts/ui/SettingsPanelController.gd
+@@ -86,6 +86,11 @@ func unbind() -> void:
+ 
+ 
+ func refresh() -> void:
++	var probe_started := Time.get_ticks_usec()
++	_probe_refresh()
++	print("SETTINGS_SPAN controller.refresh ", Time.get_ticks_usec() - probe_started)
++
++func _probe_refresh() -> void:
+ 	if not is_instance_valid(_content) or _profile == null:
+ 		return
+ 	_content.refresh_reset_admission(_busy)
+diff --git a/scripts/ui/SettingsResetConfirmation.gd b/scripts/ui/SettingsResetConfirmation.gd
+index e44acc3..190dc2b 100644
+--- a/scripts/ui/SettingsResetConfirmation.gd
++++ b/scripts/ui/SettingsResetConfirmation.gd
+@@ -29,6 +29,11 @@ func configure(id: String) -> void:
+ 
+ 
+ func set_presentation(source_theme: Theme, font_size: int, large_targets: bool) -> void:
++	var probe_started := Time.get_ticks_usec()
++	_probe_set_presentation(source_theme, font_size, large_targets)
++	print("SETTINGS_SPAN scripts/ui/SettingsResetConfirmation.gd:set_presentation ", Time.get_ticks_usec() - probe_started)
++
++func _probe_set_presentation(source_theme: Theme, font_size: int, large_targets: bool) -> void:
+ 	theme = PRESENTATION.confirmation_theme(source_theme, font_size, large_targets)
+ 	var roles := PRESENTATION.roles_from_theme(theme)
+ 	get_label().add_theme_font_override("font", theme.default_font)

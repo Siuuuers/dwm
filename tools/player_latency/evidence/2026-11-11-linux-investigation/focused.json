@@ -1,0 +1,197 @@
+{
+  "settings-base-a": {
+    "auto": false,
+    "display": "headless",
+    "engine": "4.6.3-stable (official)",
+    "limits": "Source project; Day1 opening after authored setup; first open is not cold OS cache. Process-frame and post-draw endpoints are not physical display latency. Assertions and event construction are outside timers.",
+    "locale": "en",
+    "reveal": "instant",
+    "revision": "02cb4ddaf038db8bcd6d920f268c201dab232f46",
+    "samples": [
+      {
+        "attempt": 1,
+        "content_id": 1865022445016,
+        "first_open": true,
+        "input_dispatch_us": 277229,
+        "input_to_following_process_frame_us": 281220,
+        "input_to_post_draw_us": null,
+        "locale_control_enabled": true,
+        "theme_id": -9223370129687962940,
+        "theme_reused": false
+      },
+      {
+        "attempt": 2,
+        "content_id": 1865022445016,
+        "first_open": false,
+        "input_dispatch_us": 69399,
+        "input_to_following_process_frame_us": 72073,
+        "input_to_post_draw_us": null,
+        "locale_control_enabled": true,
+        "theme_id": -9223370129687962940,
+        "theme_reused": true
+      },
+      {
+        "attempt": 3,
+        "content_id": 1865022445016,
+        "first_open": false,
+        "input_dispatch_us": 61979,
+        "input_to_following_process_frame_us": 63953,
+        "input_to_post_draw_us": null,
+        "locale_control_enabled": true,
+        "theme_id": -9223370129687962940,
+        "theme_reused": true
+      },
+      {
+        "attempt": 4,
+        "content_id": 1865022445016,
+        "first_open": false,
+        "input_dispatch_us": 56667,
+        "input_to_following_process_frame_us": 58600,
+        "input_to_post_draw_us": null,
+        "locale_control_enabled": true,
+        "theme_id": -9223370129687962940,
+        "theme_reused": true
+      },
+      {
+        "attempt": 5,
+        "content_id": 1865022445016,
+        "first_open": false,
+        "input_dispatch_us": 61531,
+        "input_to_following_process_frame_us": 63916,
+        "input_to_post_draw_us": null,
+        "locale_control_enabled": true,
+        "theme_id": -9223370129687962940,
+        "theme_reused": true
+      }
+    ],
+    "text_size": 125,
+    "window_size": [
+      64,
+      64
+    ]
+  },
+  "settings-base-b": {
+    "auto": false,
+    "display": "headless",
+    "engine": "4.6.3-stable (official)",
+    "limits": "Source project; Day1 opening after authored setup; first open is not cold OS cache. Process-frame and post-draw endpoints are not physical display latency. Assertions and event construction are outside timers.",
+    "locale": "en",
+    "reveal": "instant",
+    "revision": "02cb4ddaf038db8bcd6d920f268c201dab232f46",
+    "samples": [
+      {
+        "attempt": 1,
+        "content_id": 1865022445017,
+        "first_open": true,
+        "input_dispatch_us": 308872,
+        "input_to_following_process_frame_us": 312807,
+        "input_to_post_draw_us": null,
+        "locale_control_enabled": true,
+        "theme_id": -9223370129687962939,
+        "theme_reused": false
+      },
+      {
+        "attempt": 2,
+        "content_id": 1865022445017,
+        "first_open": false,
+        "input_dispatch_us": 53888,
+        "input_to_following_process_frame_us": 55849,
+        "input_to_post_draw_us": null,
+        "locale_control_enabled": true,
+        "theme_id": -9223370129687962939,
+        "theme_reused": true
+      },
+      {
+        "attempt": 3,
+        "content_id": 1865022445017,
+        "first_open": false,
+        "input_dispatch_us": 57991,
+        "input_to_following_process_frame_us": 59983,
+        "input_to_post_draw_us": null,
+        "locale_control_enabled": true,
+        "theme_id": -9223370129687962939,
+        "theme_reused": true
+      },
+      {
+        "attempt": 4,
+        "content_id": 1865022445017,
+        "first_open": false,
+        "input_dispatch_us": 55552,
+        "input_to_following_process_frame_us": 57539,
+        "input_to_post_draw_us": null,
+        "locale_control_enabled": true,
+        "theme_id": -9223370129687962939,
+        "theme_reused": true
+      },
+      {
+        "attempt": 5,
+        "content_id": 1865022445017,
+        "first_open": false,
+        "input_dispatch_us": 58585,
+        "input_to_following_process_frame_us": 60549,
+        "input_to_post_draw_us": null,
+        "locale_control_enabled": true,
+        "theme_id": -9223370129687962939,
+        "theme_reused": true
+      }
+    ],
+    "text_size": 125,
+    "window_size": [
+      64,
+      64
+    ]
+  },
+  "startup-final": {
+    "display": "headless",
+    "engine_ticks_us": 5253100,
+    "revision": "02cb4ddaf038db8bcd6d920f268c201dab232f46"
+  },
+  "f5-fresh": {
+    "capture_callback_calls": 6,
+    "capture_callback_inclusive_us": 943,
+    "capture_scope": "fixture canonical reading, run and audio input callback only; excludes enclosing save work",
+    "case": "fresh",
+    "diagnostic_only": true,
+    "engine": "4.6.3-stable (official)",
+    "fixture_limit": "test-authored short scene and empty host; repeated saves do not model longer reading history",
+    "frame_gap_window": "preceding process frame through first process frame after Saved presentation",
+    "input_dispatch_us": 25961,
+    "input_to_frame_post_draw_us": null,
+    "input_to_saved_draw_us": null,
+    "max_process_frame_gap_us": 37598,
+    "prior_quick_saves": 0,
+    "profile_enabled": false,
+    "quicksave_bytes": 4656,
+    "quicksave_sha256": "31ee2d6a1da02f17536c86b3b1b3c630cd7d1c2f00c093c6c4b1407c61b26496",
+    "reading_history_entries": 1,
+    "recovery_journal_entries": 0,
+    "renderer": "headless"
+  },
+  "probe_sha256": {
+    "tests/manual/benchmark_settings_reopen.gd": "78dd64469bec7b54ceecc2be3551b53ada3839851ad0a616465d0c4cc9c4d5da",
+    "tests/manual/benchmark_player_latency.gd": "7d0d3690a69a2ba5bc16e8822c8dd4c63efb8b1c6e5343b291dd9d76bdf2551e",
+    "tests/manual/benchmark_player_startup.gd": "815c43428ab8d75968219ff06141309d74e1775739ce90cf881158438ac1dba7",
+    "tests/manual/benchmark_f5_save_latency.gd": "503771d154f145312e0c2481f36fed456c89e3ba1b3ccbe12ab98cd7ba2aef56"
+  },
+  "f5-repeated": {
+    "capture_callback_calls": 6,
+    "capture_callback_inclusive_us": 914,
+    "capture_scope": "fixture canonical reading, run and audio input callback only; excludes enclosing save work",
+    "case": "repeated",
+    "diagnostic_only": true,
+    "engine": "4.6.3-stable (official)",
+    "fixture_limit": "test-authored short scene and empty host; repeated saves do not model longer reading history",
+    "frame_gap_window": "preceding process frame through first process frame after Saved presentation",
+    "input_dispatch_us": 23514,
+    "input_to_frame_post_draw_us": null,
+    "input_to_saved_draw_us": null,
+    "max_process_frame_gap_us": 33750,
+    "prior_quick_saves": 3,
+    "profile_enabled": false,
+    "quicksave_bytes": 4656,
+    "quicksave_sha256": "7cd03086a73054896084924be4a75f5429b8f9c394bd528a54617fbad50c0c18",
+    "reading_history_entries": 1,
+    "recovery_journal_entries": 0,
+    "renderer": "headless"
+  }
+}
