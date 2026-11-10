@@ -1,9 +1,6 @@
 class_name FrozenReplayContext
 extends RefCounted
 
-## Replay has the exact historical signature as its sole fact source. This is a
-## separate schema from a canonical run projection: absent historical selectors
-## and inapplicable run receipts are both omitted, never reconstructed from Run.
 const SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 
@@ -19,8 +16,6 @@ static func build(signature: Dictionary, mode: String = "gallery_replay") -> Dic
 		"context_source": "reached_signature", "execution_mode": mode})
 	if entry.day != null: fields["day"] = int(entry.day)
 	if entry.ending_id != null: fields["ending_id"] = entry.ending_id
-	# Aliases carry the same saved facts under canonical prose names. They never
-	# turn a legacy signature into a complete canonical context.
 	if entry.role == "solo_ending_step": fields["stored_tone"] = fields.tone
 	if entry.role in ["solo_ending_step", "pair_ending_step", "alone_step"]:
 		fields["playback_mode"] = "residue" if str(fields.ending_form).ends_with("_residue") else "full"

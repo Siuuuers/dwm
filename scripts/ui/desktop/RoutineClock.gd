@@ -1,5 +1,4 @@
 extends Label
-## Read-only audience local time. No gameplay clock or background elapsed-time model.
 
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const NAMES := {"en": "Local time", "zh-CN": "本地时间", "zh-HK": "本地時間",

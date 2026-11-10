@@ -1,6 +1,5 @@
 extends Control
 class_name GalleryRecordPaper
-## One clipped written record; its owner retains selection, actions, and replay.
 
 signal presentation_changed
 signal focus_target_removed(hide_focus: bool)
@@ -9,7 +8,6 @@ const VIEW_SIZE := Vector2(520, 512)
 const COPY := {"en": "Record details", "zh-CN": "记录详情", "zh-HK": "記錄詳情", "ja": "記録の詳細", "ko": "기록 상세"}
 
 class RecordMedia extends Node2D:
-	# Paint only: no hit area, focus, image control, or assistive target.
 	var texture: Texture2D
 	var ink := Color.BLACK
 	func _draw() -> void:
@@ -38,7 +36,6 @@ func _init() -> void:
 	clip_contents = true
 	focus_mode = Control.FOCUS_NONE
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	# Separate pointer custody from semantic focus, so a touch drag never steals it.
 	_pointer = Control.new()
 	_pointer.name = "PaperPointer"
 	_pointer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -123,7 +120,6 @@ func set_actions(selector: Control, version_register: Control = null) -> void:
 	refresh_layout()
 
 func _forward_action_drag(event: InputEvent) -> void:
-	# Native buttons forward wheel events, but stop touch/pan at their hit area.
 	if event is InputEventScreenDrag or event is InputEventPanGesture: _gui_input(event)
 
 func refresh_layout(reset_scroll: bool = false) -> void:
@@ -153,7 +149,6 @@ func refresh_layout(reset_scroll: bool = false) -> void:
 	_sync_focus_mode()
 	if is_inside_tree():
 		var focused := get_viewport().gui_get_focus_owner()
-		# Localized row wrapping can move the focused row while total height stays equal.
 		var version_focus := focused != null and is_instance_valid(_register) and _register.is_ancestor_of(focused)
 		if focused != null and _body.is_ancestor_of(focused) and (content_extent != old.x or version_focus):
 			reveal_control(focused)
@@ -184,8 +179,6 @@ func reveal_control(control: Control) -> void:
 	var local_transform := _body.get_global_transform().affine_inverse() * control.get_global_transform()
 	var rect: Rect2 = (local_transform * Rect2(Vector2.ZERO, control.size)).grow(8)
 	if rect.size.y > VIEW_SIZE.y:
-		# A long wrapped cue cannot fit at once. Keep the visible interior stable
-		# instead of alternating between its two edges on repeated layout/reveal.
 		scroll_to(clampf(scroll_offset, rect.position.y, rect.end.y - VIEW_SIZE.y))
 		return
 	if rect.position.y < scroll_offset: scroll_to(rect.position.y)

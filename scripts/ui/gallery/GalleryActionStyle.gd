@@ -1,5 +1,4 @@
 extends StyleBox
-## State paint has no content margins and never changes the action's geometry.
 
 var state: StringName
 var ink: Color

@@ -1,26 +1,11 @@
 class_name HospitalRules
 extends RefCounted
 
-## Pure Schedule-Done Hospital law (Plan 01 Task 7 Step 7.3, dwm-p2r.14).
-##
-## OWNS: the exact Hospital completion envelope and the immutable Sylvia witness/care receipt.
-##
-## DOES NOT OWN: identity. This module derives no child, reads no issuer, and touches no owner. It
-## returns the ordered derivation PLAN that the Hospital transaction turns into
-## `P01.hospital.resolution` -> `P01.hospital.miss[]` -> optional `P01.hospital.sylvia_witness`.
-## Miss ordinals here are exactly the ordinals that matrix requires, so no producer owns a local
-## ordinal builder.
-##
-## EMITS NO APPLICATION COMMAND. Plan 01 changes no affection, dark, attitude, tier, caring-message
-## history, board/challenge result, or mastery. The witness record CARRIES those deltas as frozen
-## facts for `dwm-oyo.4` to apply later; nothing here applies them.
 
 const REQUEST_KEYS: Array[String] = ["committed_entries", "required", "source_day"]
 
-## Every Hospital supersession has exactly one reason.
 const MISS_REASON := "prevented_by_fainting"
 
-## Frozen witness facts. These are recorded, never applied, by Plan 01.
 const WITNESS_KIND := "sylvia_hospital_witness"
 const WITNESS_RESOLUTION_KIND := "schedule_done"
 const WITNESS_FRIEND_ID := "sylvia"
@@ -29,23 +14,12 @@ const WITNESS_DARK_DELTA := 1
 const WITNESS_ATTITUDE := "fixated"
 const WITNESS_TIER_TRANSITION := "advance_one_or_stay_love"
 
-## The registry-owned kinds that are dates. `ordinary` entries are never dates, whatever their
-## action id happens to read.
 const DATE_KINDS: Array[String] = ["solo", "group"]
 
 const FIRST_DAY := 1
 const LAST_DAY := 7
 
 
-## Returns the exact ordered Hospital derivation plan for one Schedule-Done resolution.
-##
-## `value` is exactly `{required, date_schedule_entry_ids, misses, witness}`:
-##   * `date_schedule_entry_ids` is every committed date in committed slot order, INCLUDING when
-##     Hospital did not trigger -- the date stage needs that order either way, and `[]` is explicit.
-##   * `misses` is empty unless Hospital triggered. When it did, every committed date is superseded
-##     exactly once, ordinals zero-based over that filtered slot-ordered list.
-##   * `witness` is null, or the single record for the first committed, sourced Sylvia date that
-##     Hospital superseded.
 static func plan_resolution(request: Dictionary) -> Dictionary:
 	if typeof(request) != TYPE_DICTIONARY:
 		return _fail(&"invalid_hospital_request", "the request must be a dictionary")
@@ -78,9 +52,6 @@ static func plan_resolution(request: Dictionary) -> Dictionary:
 	var misses: Array[Dictionary] = []
 	var witness: Variant = null
 	if required:
-		# Hospital supersedes EVERY committed date before any dating board runs, and records each
-		# supersession exactly once. The ordinal is the position in this filtered, slot-ordered
-		# list -- never the raw slot index and never completion order.
 		for ordinal: int in range(ordered.size()):
 			var entry: Dictionary = ordered[ordinal]
 			misses.append({
@@ -100,8 +71,6 @@ static func plan_resolution(request: Dictionary) -> Dictionary:
 	}}
 
 
-## The committed date entries, ascending by slot index. Ordinary entries are filtered out by the
-## registry-owned `action_kind` alone.
 static func _dates_in_slot_order(committed_entries: Array) -> Dictionary:
 	var dates: Array[Dictionary] = []
 	for entry_value: Variant in committed_entries:
@@ -119,12 +88,6 @@ static func _dates_in_slot_order(committed_entries: Array) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"dates": dates}}
 
 
-## The single Sylvia witness, or null.
-##
-## A witness requires a date that Hospital actually superseded, whose sole participant is Sylvia,
-## and which carries the exact source receipt that proves it was an accepted, read offer. An
-## unsourced, uncommitted, other-friend, or non-date entry cannot witness, and neither can any
-## entry when Hospital did not trigger.
 static func _witness_for(ordered_dates: Array[Dictionary], misses: Array[Dictionary],
 		source_day: int) -> Variant:
 	for ordinal: int in range(ordered_dates.size()):

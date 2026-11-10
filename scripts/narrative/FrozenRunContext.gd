@@ -1,9 +1,6 @@
 class_name FrozenRunContext
 extends RefCounted
 
-## Pure saved-document validation. RunSnapshotSchema calls this after the owning
-## structural schemas, before any restore participant installs the candidate.
-## No cache is repaired and no value is sampled from a live Run or Profile.
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const CAPTION_REGISTRY := preload("res://scripts/narrative/NarrativeCaptionRegistry.gd")
 const READING_NEXT := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
@@ -34,7 +31,6 @@ static func configure_scene_validation(issuer: Object, creation_owner: Object = 
 	if creation_owner != null: _scene_creation_owner = creation_owner
 	return {"ok": true}
 
-## Output reuse is valid only for the same already-bound proof owners.
 static func scene_validation_uses(issuer: Object, creation_owner: Object) -> bool:
 	return is_instance_valid(issuer) and _scene_issuer == issuer and _scene_creation_owner == creation_owner
 
@@ -57,12 +53,8 @@ static func validate(snapshot: Dictionary, require_complete: bool = false) -> Di
 		else:
 			if not checkpoint is Dictionary: return _fail(&"reading_session_invalid")
 			result = _validate_reading_checkpoint_body(checkpoint, snapshot)
-		# Keep the source validation's fresh commands for the semantic anchor join.
 		if result.ok: result["scene_commands"] = terminal.scene_commands
 		return result
-	# Scene reading must never enter the historical day/Contacts owner branches.
-	# This nonwired slice deliberately cannot establish G's issuer/NewRun/trigger
-	# authority from presentation copies or a caller-provided success Boolean.
 	var scene_checkpoint: Variant = snapshot.get("narrative_checkpoint")
 	if _is_scene_checkpoint(scene_checkpoint):
 		return validate_reading_checkpoint(scene_checkpoint, snapshot)
@@ -95,10 +87,6 @@ static func validate(snapshot: Dictionary, require_complete: bool = false) -> Di
 		return validate_reading_checkpoint(checkpoint, snapshot)
 	return narrative
 
-## The framed History's source is the saved physical Dating owner and its already
-## admitted presentations. Checking the current line alone would let an attacker
-## replace an earlier entry's immutable frame while retaining a valid frontier.
-## Catalogue, exact signatures and stable-line availability remain bridge-owned.
 static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictionary) -> Dictionary:
 	if _scene_terminal_plan(snapshot):
 		var terminal := _validate_scene_terminal(snapshot)
@@ -108,12 +96,8 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 		return result
 	return _validate_reading_checkpoint_body(checkpoint, snapshot)
 
-## Both entry points authenticate terminal authority before this synchronous body.
 static func _validate_reading_checkpoint_body(checkpoint: Dictionary, snapshot: Dictionary,
 		scene_receipts: Dictionary = {}) -> Dictionary:
-	# Save capture reaches this pure boundary before a Run is serialized, while
-	# restore also has the participant's exact envelope checks. Both paths must
-	# refuse bytes that would be unwritable by the versioned reading producer.
 	if not _exact(checkpoint, ["content_version", "entry_id", "frozen_context", "manifest_fingerprint",
 			"stage", "transaction_id", "reading_session"]) \
 			or typeof(checkpoint.get("content_version")) != TYPE_INT or checkpoint.content_version <= 0 \
@@ -122,8 +106,6 @@ static func _validate_reading_checkpoint_body(checkpoint: Dictionary, snapshot: 
 	for key: String in ["entry_id", "manifest_fingerprint", "stage", "transaction_id"]:
 		if not FROZEN._field(checkpoint[key], "id"): return _fail(&"reading_session_invalid")
 	if _is_scene_checkpoint(checkpoint):
-		# Historical terminal fixtures carry an independently authenticated source.
-		# Current Scene saves never enter this receipt-based compatibility branch.
 		if not scene_receipts.is_empty():
 			var legacy: Dictionary = SCENE_READING.expand_player_checkpoint(checkpoint)
 			if not legacy.ok: return legacy
@@ -138,8 +120,6 @@ static func _validate_reading_checkpoint_body(checkpoint: Dictionary, snapshot: 
 			var frames := derive_scene_frames(scene_receipts.admissions, reading)
 			if frames.ok: frames["scene_commands"] = scene_receipts.commands
 			return frames
-		# Only current presentation belongs to a player checkpoint. Its Scene owner
-		# supplies identity directly; no historical admission receipts are rebuilt.
 		var supplied_reading: Variant = checkpoint.get("reading_session")
 		if not supplied_reading is Dictionary: return _fail(&"reading_session_invalid")
 		if supplied_reading.get("schema_version") == 5:
@@ -173,8 +153,6 @@ static func _validate_reading_checkpoint_body(checkpoint: Dictionary, snapshot: 
 			if not operation.ok: return operation
 		if reading.ledger.captions.back().beat.owning_entry_id != checkpoint.entry_id:
 			return _fail(&"reading_physical_owner_mismatch")
-		# This local projection checks the same physical Solo owner; saved v4 bytes
-		# remain intact. Marker programme and receipt converse stay Bridge-owned.
 		var frontier: Dictionary = reading.frontier.duplicate(true)
 		var boundary: String = reading.boundary
 		if boundary == "notification":
@@ -233,8 +211,6 @@ static func _validate_reading_checkpoint_body(checkpoint: Dictionary, snapshot: 
 			or checkpoint.get("transaction_id") != admitted[checkpoint.entry_id].transaction_id \
 			or (admitted.has(post_entry) and checkpoint.entry_id != post_entry):
 		return _fail(&"reading_entry_context_mismatch")
-	# The physical result may already have admitted post facts while the bridge is
-	# still between entries. Such future facts do not fabricate a History frame.
 	if reading.boundary == "line":
 		if not _exact(reading.frontier, ["line_id", "publication_id"]) \
 				or not FROZEN._field(reading.frontier.line_id, "id") \
@@ -260,8 +236,6 @@ static func _validate_reading_checkpoint_body(checkpoint: Dictionary, snapshot: 
 		post_seen = post_seen or entry == post_entry
 	return {"ok": true, "value": {"entry_contexts": admitted}}
 
-## Discriminate malformed scene envelopes as scene too, so removing version or
-## changing it cannot fall through to a historical owner with weaker assumptions.
 static func _is_scene_checkpoint(checkpoint: Variant) -> bool:
 	if not checkpoint is Dictionary: return false
 	var reading: Variant = checkpoint.get("reading_session")
@@ -270,9 +244,6 @@ static func _is_scene_checkpoint(checkpoint: Variant) -> bool:
 			or reading.has("registration_sha256") or reading.has("occurrence_id"))) \
 			or (frame is Dictionary and (frame.get("role") is String and frame.role == "scene"))
 
-## Input is the ledger authenticated earlier in this call, never a saved proof.
-## Validate the one current presentation against authoritative Scene facts and
-## installed content. The frame's historical field name is an occurrence alias.
 static func derive_current_scene_frames(scene: Dictionary, reading: Dictionary) -> Dictionary:
 	if not READING_NEXT.valid_scene_reading_shape(reading): return _fail(&"reading_session_invalid")
 	var occurrence: Variant = scene.get("active_occurrence_id")
@@ -321,10 +292,6 @@ static func _validate_scene_envelope(checkpoint: Dictionary) -> Dictionary:
 		return _fail(&"reading_entry_context_mismatch")
 	return {"ok": true, "value": {}}
 
-## Pure structural derivation only. The map contains authenticated scene admission RESULTS,
-## keyed by their immutable command IDs, after the owning scene contract has
-## authenticated the complete canonical receipts. This function neither proves
-## issuer custody nor accepts a Run; validate() intentionally remains fail-closed.
 static func derive_scene_frames(admissions: Dictionary, reading: Dictionary) -> Dictionary:
 	if not READING_NEXT.valid_scene_reading_shape(reading): return _fail(&"reading_session_invalid")
 	var registered := SCENE_ENTRIES.scene_contract_tables()
@@ -396,9 +363,6 @@ static func _scene_checkpoint_reference(value: Variant) -> bool:
 		if character not in "0123456789abcdef": return false
 	return true
 
-## The ordered plan owns step identity and completion. History may retain the
-## just-completed tail while the durable cursor (and frozen cache) move forward.
-## A future cached presentation is not an admitted History frame.
 static func _ending_reading(checkpoint: Dictionary, snapshot: Dictionary, reading: Dictionary) -> Dictionary:
 	if snapshot.get("route_id") != "ending": return _saved_run_failure(snapshot, "ending_route")
 	if not _exact(reading, ["schema_version", "family", "catalogue_fingerprint", "boundary", "ledger", "frontier"]) \
@@ -485,10 +449,6 @@ static func _ending_reading(checkpoint: Dictionary, snapshot: Dictionary, readin
 		return _fail(&"reading_physical_boundary_mismatch")
 	return {"ok": true, "value": {"entry_contexts": admitted.duplicate(true)}}
 
-## Hospital has one frame, independently bound to the retained Schedule-Done
-## request and Contacts sources. The checkpoint's own frame never supplies its
-## command identity. A completed anchor is needed by the coordinator's produced
-## checkpoints, including those after increment_day; it is not a playable line.
 static func _hospital_reading(checkpoint: Dictionary, snapshot: Dictionary, reading: Dictionary) -> Dictionary:
 	if snapshot.get("route_id") != "hospital": return _saved_run_failure(snapshot, "hospital_route")
 	if not _exact(reading, ["schema_version", "family", "catalogue_fingerprint", "boundary", "ledger", "frontier"]) \
@@ -523,8 +483,6 @@ static func _hospital_reading(checkpoint: Dictionary, snapshot: Dictionary, read
 	var sources := _contact_sources(snapshot.contacts, true)
 	if not sources.ok: return sources
 	var route: Dictionary = snapshot.gameplay.route_context
-	# This authority concerns the retained Schedule-Done plan. Other historical
-	# condition plans are validated by the outer Run owner, not replayed here.
 	var hospital := _hospital(route, {"active_resolution_plan": plan}, snapshot.contacts, snapshot.gameplay, true)
 	if not hospital.ok: return hospital
 	var request: Variant = route.get(HOSPITAL_KEY, {}).get("requests", {}).get(plan.get("resolution_id"))
@@ -612,8 +570,6 @@ static func _dating(route: Dictionary, lifecycle: Dictionary, contacts: Dictiona
 		if phase not in ["pre_challenge", "post_challenge"] or fields.get("run_id") != lifecycle.get("run_id") \
 				or fields.get("day") != context.get("day"):
 			return _fail(&"frozen_context_attempt_mismatch")
-		# A pair's previously reached group/deferred label remains in the same board
-		# cache when its trusted command changes presentation mode after Restore.
 		var allowed: Array = [_dating_entry(context, phase)]
 		if not solo:
 			var other := context.duplicate(true)
@@ -658,7 +614,6 @@ static func _has_pair_rollover_source(lifecycle: Dictionary, contacts: Dictionar
 	if plan is Dictionary and plan.get("source_day") == day \
 			and _stage(plan, "invitation_rollover").get("state") in ["pending", "active"]:
 		return true
-	# The original presentation stays pending after its later rollover commits.
 	for receipt: Dictionary in contacts.get("transaction_receipts", {}).values():
 		if receipt.get("kind") == "resolve_day_end" and receipt.get("day") == day and receipt.get("pl_window") is Dictionary:
 			return true
@@ -739,8 +694,6 @@ static func _condition_candidates(plan: Dictionary, lifecycle: Dictionary, conta
 		var candidate_contacts: Dictionary = owner.get("contacts", contacts)
 		var sources := _contact_sources(candidate_contacts, route.has(CONTACTS.CACHE_KEY) or required)
 		if not sources.ok: return sources
-		# A historical prepared bag may precede its pair rollover; the Run's later
-		# append-only receipt proves that old pending snapshot without rewriting it.
 		var dating_contacts := {"transaction_receipts": contacts.get("transaction_receipts", {}).duplicate()}
 		for key: String in candidate_contacts.get("transaction_receipts", {}):
 			var receipt: Dictionary = candidate_contacts.transaction_receipts[key]
@@ -751,8 +704,6 @@ static func _condition_candidates(plan: Dictionary, lifecycle: Dictionary, conta
 		if not dating.ok: return dating
 		var ending := _ending(route, lifecycle, false)
 		if not ending.ok: return ending
-		# These prepared gameplay bags belong to earlier stage boundaries. Validate
-		# their own cache bytes, without recursing through the enclosing plan again.
 		var saved_lifecycle := {"run_id": lifecycle.get("run_id"), "day": plan.get("source_day"),
 			"state": "PLAYING", "active_resolution_plan": null, "active_condition_hospital_plan": null,
 			"condition_hospital_history": {}}
@@ -815,9 +766,9 @@ static func _hospital_misses(missed: Array, lifecycle: Dictionary, route: Dictio
 
 static func _narrative_checkpoint(checkpoint: Variant, route: Dictionary, lifecycle: Dictionary, required: bool) -> Dictionary:
 	if not checkpoint is Dictionary:
-		return _ok() # The owning Run schema checks the transport container.
+		return _ok()
 	if not checkpoint.has("entry_id") and not checkpoint.has("frozen_context"):
-		return _ok() # Generic physical-owner restart keeps its existing transport.
+		return _ok()
 	if not checkpoint.has("entry_id") or not checkpoint.has("frozen_context"):
 		return _fail(&"frozen_run_narrative_context_invalid") if required else _ok()
 	var context: Variant = checkpoint.frozen_context
@@ -894,8 +845,6 @@ static func _condition_hospital(plan: Dictionary, contacts: Dictionary, required
 			or context.presentation.fields.qualifying_cause != "condition_hospital" \
 			or context.source_entry_ids != closure.get("source_receipt_ids") or context.miss_receipt_ids != closure.get("miss_receipt_ids"):
 		return _fail(&"hospital_frozen_source_mismatch")
-	# Load remaps the active plan's live identities, but preserves this prepared
-	# request and its committed closure output. Bind to that saved causal receipt.
 	if request.resolution_id != _dictionary(closure.get("closure_receipt")).get("transaction_id") \
 			or request.stage_id != str(request.resolution_id) + ":present_hospital":
 		return _fail(&"hospital_frozen_request_mismatch")
@@ -951,9 +900,6 @@ static func _validate_scene_terminal(snapshot: Dictionary) -> Dictionary:
 	var source: Dictionary = snapshot.duplicate(true)
 	source.route_id = "scene"
 	source.lifecycle.ending_plan = null
-	# Concrete terminal verification is synchronous and read-only: no gameplay can
-	# change the ledger between these joins. Keep every source envelope/frame check;
-	# only the already-completed receipt traversal is shared within this call.
 	return _validate_reading_checkpoint_body(plan.source_reading_checkpoint, source, authenticated.value)
 
 static func _stage(plan: Dictionary, id: String) -> Dictionary:
@@ -962,10 +908,6 @@ static func _stage(plan: Dictionary, id: String) -> Dictionary:
 	return {}
 
 static func _contact_sources(contacts: Dictionary, full: bool) -> Dictionary:
-	# The outer Run schema proves primitive purity, not Contacts' member types.
-	# Guard source indexes used by every producer before typed iteration. A new
-	# Contacts cache additionally requires the existing Contacts owner schema;
-	# all causal generation candidates already satisfy that same contract.
 	for key: String in ["transaction_receipts", "schedule_source_receipts", "sylvia_hospital_witness_receipts"]:
 		var index: Variant = contacts.get(key, {})
 		if not index is Dictionary: return _fail(&"frozen_run_contact_sources_invalid")

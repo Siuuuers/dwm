@@ -1,6 +1,5 @@
 class_name MinesweeperRegisterQuery
 extends RefCounted
-## Partial register projection of retained owner facts. No new metric or command authority.
 
 const PERFORMANCE := preload("res://scripts/domain/minesweeper/BoardPerformance.gd")
 const BOARD_QUERY := preload("res://scripts/application/minesweeper/MinesweeperBoardPresentationQuery.gd")
@@ -25,8 +24,6 @@ static func desktop(snapshot: Dictionary, game_state: Object) -> Dictionary:
 	}}
 
 
-## Derives the history-backed register facts without constructing another board projection.
-## Presentation may retain this narrow result beside the exact owner projection it already read.
 static func retained_metrics(snapshot: Dictionary) -> Dictionary:
 	var no_flag := "intact"
 	var foresight: Variant = null
@@ -49,15 +46,11 @@ static func retained_metrics(snapshot: Dictionary) -> Dictionary:
 		if flags.size() != history.flagged_indices.size(): return _unavailable()
 		for index: int in history.flagged_indices:
 			if not flags.has(index): return _unavailable()
-	# Unmaterialized shells have no Foresight. Display uses the same versioned performance
-	# rule as completion, with no arbitrary upper cap.
 	return {"ok": true, "value": {
 		"foresight": foresight, "no_flag": no_flag,
 	}}
 
 
-## The register's difficulty, resolved from the same retained facts desktop() uses and nothing
-## else (dwm-634.1). Returns null when the snapshot names no legal difficulty.
 static func difficulty_of(snapshot: Dictionary, game_state: Object) -> Variant:
 	if not is_instance_valid(game_state): return null
 	var difficulty: Variant = null
@@ -89,8 +82,6 @@ static func difficulty_of(snapshot: Dictionary, game_state: Object) -> Variant:
 
 
 static func _journal_difficulty(snapshot: Dictionary, wrapper: Dictionary) -> Variant:
-	# The retained coordinator stores a checkpoint-only board marker; its full paid receipt
-	# lives in the first-Reveal command result. Resolve that evidence without changing the save.
 	var marker: Dictionary = wrapper.paid_start_receipt
 	if marker.size() != 1 or not marker.get("checkpoint_id") is String \
 			or marker.checkpoint_id.strip_edges().is_empty(): return null
@@ -121,8 +112,6 @@ static func _journal_difficulty(snapshot: Dictionary, wrapper: Dictionary) -> Va
 				or receipt.board_revision > int(board.revision) \
 				or not receipt.get("first_cell") is int or not board.revealed_indices.has(receipt.first_cell) \
 				or board.mine_indices.has(receipt.first_cell): return null
-		# First Reveal retains the already accepted shell marks. Only that exact Flag/Unflag
-		# prefix may precede the paid-start receipt; later Reveal/Chord history cannot stand in.
 		for index in range(receipt.board_revision):
 			var action: Dictionary = board.actions[index]
 			if str(action.get("kind", "")) != "set_flag" or int(action.get("revision", -1)) != index + 1:

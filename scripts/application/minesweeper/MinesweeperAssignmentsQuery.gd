@@ -1,8 +1,6 @@
 class_name MinesweeperAssignmentsQuery
 extends RefCounted
-## Read-only run receipts, reduced to the nine accepted assignment statuses.
 
-# Validate the accepted presentation order against the registry on every read.
 const _EXPECTED_IDS := [
 	"complete_beginner", "complete_intermediate", "complete_expert",
 	"no_flag_finish", "foresight_finish",

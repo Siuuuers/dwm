@@ -1,6 +1,5 @@
 class_name ArtManifest
 extends RefCounted
-## Optional artwork is explicit presentation data; it never changes gameplay or saved facts.
 const GALLERY_IDS := ["picture1", "picture2", "picture3", "picture4", "picture5"]
 const PLACEMENTS_PATH := "res://data/manifests/art_placements.json"
 const IMAGE_EXTENSIONS := ["png", "svg", "webp", "jpg", "jpeg"]
@@ -22,8 +21,6 @@ static func reload_placements(path: String = PLACEMENTS_PATH) -> bool:
 	if not parsed.get("assets") is Dictionary or not parsed.get("scenes") is Dictionary:
 		return false
 	_placements = parsed
-	# JSON imports every coordinate as a float. Use the same integral-number
-	# representation as saved Run state before retaining resolved rectangles.
 	var overlays: Variant = _placements.get("overlay_labels", {})
 	if overlays is Dictionary:
 		for preset: Variant in overlays.values():
@@ -50,7 +47,6 @@ static func _key(category: String, asset_id: String) -> String:
 static func get_asset_path(asset_id: String) -> String:
 	return str(_asset(asset_id).get("path", ""))
 
-# Compatibility for the older instance API; preloaded scripts also have Resource.get_path().
 static func get_path(category: String, asset_id: String) -> String:
 	return get_asset_path(_key(category, asset_id))
 
@@ -85,7 +81,6 @@ static func get_scene_art(entry_id: String) -> Dictionary:
 	return {"background": str(value.get("background", "")), "portraits": portraits,
 		"cg": str(value.get("cg", ""))}
 
-## Explicit entry-label bindings; absent entries do not imply checkpoint arrival.
 static func get_presentation_commands(entry_id: String) -> Dictionary:
 	var entries: Variant = _catalog().get("presentation_entries", {})
 	if entries is Dictionary:
@@ -102,7 +97,6 @@ static func get_presentation_commands(entry_id: String) -> Dictionary:
 		"message": "Invalid presentation commands at entry: " + entry_id,
 		"details": {"entry_id": entry_id}}
 
-## Apply one authored arrival to detached live state. Load calls resolution only.
 static func apply_entry_presentation(entry_id: String, previous: Dictionary) -> Dictionary:
 	var commands := get_presentation_commands(entry_id)
 	if not commands.ok: return commands
@@ -132,7 +126,6 @@ static func apply_entry_presentation(entry_id: String, previous: Dictionary) -> 
 		if not resolved.ok: return resolved
 	return {"ok": true, "value": {"state": state, "autosave": autosave}}
 
-## Inline story commands resolve once into the Run-owned visible state.
 static func validate_presentation_commands(commands: Array) -> Dictionary:
 	for command: Dictionary in commands:
 		if command.kind == "scene":
@@ -162,8 +155,6 @@ static func make_scene_presentation(entry_id: String) -> Dictionary:
 		"audio_plan_id": "", "overlays": []})
 	return state
 
-## Older compatible captions omitted presentation and used their entry's base
-## layout. Resolve only that declaration; never replay arrival or inline commands.
 static func entry_base_presentation(commands: Array) -> Dictionary:
 	var preset_id := ""
 	for command: Dictionary in commands:
@@ -211,7 +202,6 @@ static func apply_presentation_commands(commands: Array, previous: Dictionary) -
 					if state.overlays[index].slot == command.slot: state.overlays.remove_at(index)
 	return {"ok": true, "value": {"state": state, "autosave": autosave}}
 
-## Load resolves the saved visible selection directly, never executing commands.
 static func resolve_saved_presentation(state: Dictionary) -> Dictionary:
 	if state.is_empty(): return {"ok": true, "value": {}}
 	if not state.has("background"):
@@ -239,8 +229,6 @@ static func resolve_saved_presentation(state: Dictionary) -> Dictionary:
 		if not portrait is String: return _presentation_reference_error("saved portrait", "shape")
 	return {"ok": true, "value": state.duplicate(true)}
 
-## Named checkpoints reuse the existing scene art and audio plan identities. This
-## resolves saved presentation directly; it never enters a checkpoint or saves.
 static func resolve_presentation(checkpoint_id: String, overlay_labels: Array) -> Dictionary:
 	var catalog := _catalog()
 	var checkpoints: Variant = catalog.get("presentation_checkpoints", {})
@@ -315,7 +303,6 @@ static func get_missing_art_report() -> Dictionary:
 			result[asset_id] = get_asset_path(asset_id)
 	return result
 
-## Temporary presentation overrides support art previews without writing the catalog or saves.
 static func set_overlay_info(category: String, asset_id: String, path: String,
 		expected_size: Vector2i, status: String) -> void:
 	_catalog()
@@ -323,18 +310,11 @@ static func set_overlay_info(category: String, asset_id: String, path: String,
 	_overlay_records[_key(category, asset_id)] = {"path": path,
 		"size": [expected_size.x, expected_size.y], "status": status}
 
-# ---- Semantic visual identity (Phase 01 Task 6, DEVIATION-11 Ruling C) ----
-# Required narrative visual records retain their original validation contract.
-# Optional placements above are separate from required playback dependencies.
 
-## The record's EXACT closed field set, sorted. Plan Task 6 fixes these five and no others.
 const VISUAL_RECORD_FIELDS := ["fallback_visual_id", "required", "resource_path", "resource_type", "visual_id"]
 
-## Closed allowlist. The plan's record shape names Texture2D literally; a second type is added only
-## when a verified asset of that type exists.
 const VISUAL_RESOURCE_TYPES := ["Texture2D"]
 
-## No art is a required playback dependency in the initial optional-art build.
 const VISUAL_RECORDS: Array = []
 
 const ART_MANIFEST_RECORD_SHAPE := &"ART_MANIFEST_RECORD_SHAPE"
@@ -354,9 +334,6 @@ const ART_MANIFEST_REQUIRED_SUBSTITUTION_FORBIDDEN := &"ART_MANIFEST_REQUIRED_SU
 static func visual_records() -> Array:
 	return VISUAL_RECORDS.duplicate(true)
 
-## `record` is Variant, not Dictionary, so the not-an-object law is reachable from a fixture, which
-## is the shape DialogicEntryManifest.validate_ids_document uses for the same reason. The missing
-## key check runs BEFORE the size check so the message can name the field that is absent.
 static func validate_visual_record(record: Variant) -> Dictionary:
 	if not (record is Dictionary):
 		return _visual_fail(ART_MANIFEST_RECORD_SHAPE, "a visual record must be an object")
@@ -386,8 +363,6 @@ static func validate_visual_record(record: Variant) -> Dictionary:
 			"%s: fallback_visual_id must be null or a nonempty visual id" % str(visual_id))
 	return {"ok": true, "value": fields.duplicate(true)}
 
-## Every record valid, every id unique, and every declared fallback itself a DECLARED and TERMINAL
-## record. Terminality is the cycle guard: without it, following a fallback could loop.
 static func validate_visual_registry(records: Array) -> Dictionary:
 	var declared: Dictionary = {}
 	for record: Variant in records:
@@ -411,11 +386,6 @@ static func validate_visual_registry(records: Array) -> Dictionary:
 				"%s: a fallback is terminal and %s declares one of its own" % [visual_id, str(fallback)])
 	return {"ok": true, "value": declared.keys()}
 
-## Requiredness is a property of the (entry, visual) EDGE, carried by visual_ids.required on the
-## entry record, so it arrives as a PARAMETER. The record's own `required` is only a consent flag:
-## it declares whether this visual is ELIGIBLE to be required, and never makes one required.
-## The registry's own named code is propagated verbatim rather than re-wrapped, so the caller sees
-## the validator that owns the defect.
 static func resolve_visual(records: Array, visual_id: String, required: bool) -> Dictionary:
 	var validated := validate_visual_registry(records)
 	if not validated.get("ok", false):

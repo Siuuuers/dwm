@@ -1,6 +1,4 @@
 extends RefCounted
-## Shop roles project shared authored accessibility tuples onto Shop materials.
-## Room materials and structure age; copy, selection and focus stay authored.
 
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const PALETTES := preload("res://scripts/ui/minesweeper/MinesweeperPaletteRegistry.gd")
@@ -27,8 +25,6 @@ static func _resolve_context(palette: StringName, day: Variant = 1, high_contras
 		"paper": authored.paper,
 		"structure": authored.paper_structure,
 	}, tint, high_contrast, colour_preset)
-	# Laminate is a second paper-like room material. Its Day-1 primitive stays
-	# separate from document paper while taking the same cold-week delta.
 	var laminate: Dictionary = WEEK_TINT.apply({"paper": authored.secondary_dark_copy},
 		tint, high_contrast, colour_preset)
 	return {

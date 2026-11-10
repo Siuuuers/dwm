@@ -1,8 +1,6 @@
 class_name Day7ConditionEndingSource
 extends RefCounted
 
-## Read-only admission of the existing terminal destination outbox. The policy receipt freezes
-## pre-action invitation reads; later Contacts reads cannot choose a different ending on retry.
 const CONSEQUENCE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
 const ACTION := preload("res://scripts/domain/desktop/DesktopActionReceipt.gd")
 const CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
@@ -79,8 +77,6 @@ static func validate(state: Dictionary, lifecycle: Dictionary, schedule: Diction
 			or not bool(action.condition_after.carried_sequela) \
 			or (int(action.condition_after.pressure) < 10 and int(action.condition_after.health) > 0):
 		return _fail("the receipted condition did not trigger a departure")
-	# The production causal sequence is a content identity, not an issuer child. Reconstruct
-	# its exact preimage from the retained action and the current consequence counters.
 	var sequence := {"transaction_id": action.transaction_id,
 		"transaction_issuer_receipt": action.transaction_issuer_receipt, "run_id": action.run_id,
 		"branch_id": action.branch_id, "desktop_timeline_generation": action.desktop_timeline_generation,

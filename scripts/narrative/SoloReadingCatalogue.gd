@@ -1,6 +1,4 @@
 extends RefCounted
-## Finite noncanonical selector admission for the first Solo pre/post pair.
-## This compiler owns no live state, ledger, native event or reached receipt.
 
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
@@ -54,8 +52,6 @@ static func compile(document: Dictionary) -> Dictionary:
 			var encoded := WRITER.stringify(selectors)
 			if not encoded.ok: return encoded
 			if projections.has(encoded.value): return _fail(&"reading_selector_ambiguous")
-			# A native label has one fixed programme. Separate selector rows may
-			# reuse it only when their complete authored line programmes agree.
 			if labels.has(variant.label) and labels[variant.label] != variant.lines:
 				return _fail(&"reading_label_conflict")
 			projections[encoded.value] = true
@@ -90,8 +86,6 @@ static func compile(document: Dictionary) -> Dictionary:
 		entries[expected] = row.duplicate(true)
 	return {"ok": true, "value": {"entries": entries}}
 
-## Resolve only an independently admitted canonical frame. Missing rows refuse;
-## no wildcard/default, runtime rescan or invented post-board fact is permitted.
 static func select(entry: Dictionary, presentation: Dictionary) -> Dictionary:
 	var entry_id: Variant = entry.get("entry_id")
 	if not entry_id is String or entry_id not in [PRE_ENTRY, POST_ENTRY] \

@@ -115,7 +115,7 @@ Existing write-failure handling, shared save validation and accessibility remain
 - Preserve current approved player behavior. Development saves may be incompatible when an authorized simplification requires it; do not introduce migrations solely for unshipped formats.
 - Record each proven retirement in the existing `docs/retired-features/` structure before deleting implementation and its exclusive tests.
 - Improve names only when their meaning becomes clearer. Update direct, dynamic, serialized and test references.
-- Remove explanatory comments in touched first-party scope, preserving required legal notices and machine directives. Avoid an unrelated repository-wide sweep.
+- The 11 November follow-up narrows comment removal to runtime GDScript in `scripts/` and `autoload/`; preserve all test/tool comments, required legal notices and machine directives.
 - Use focused checks. No new injection campaign, broad matrix, generic state-machine framework, speculative hardening, or host-sensitive timing gate.
 - The bounded cleanup below is completed; do not repeat its historical assignment.
 

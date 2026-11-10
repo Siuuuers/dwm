@@ -1,6 +1,4 @@
 extends RefCounted
-## Opt-in process-local observations. Never a validation proof or saved state.
-## Configuration includes compilation: these inclusive totals must not be summed.
 static var _active := false
 static var _record: Dictionary = {}
 static var _started_us := 0
@@ -27,8 +25,6 @@ static func finish_sample(kind: String, started_us: int, ok: bool) -> void:
 	_record[kind + "_us"] += Time.get_ticks_usec() - started_us
 	if not ok: _record[kind + "_failures"] += 1
 
-## Snapshot phases are inclusive children of the existing operation scope.
-## This helper has no dependency on the schema whose calls it observes.
 static func snapshot_phase(observation: Dictionary, phase: String, started_us: int) -> int:
 	if observation.is_empty(): return 0
 	var now: int = Time.get_ticks_usec()
@@ -40,7 +36,6 @@ static func finish_snapshot(started_us: int, observation: Dictionary, ok: bool) 
 	var records: Array = _record["snapshot_validations"]
 	observation["elapsed_us"] = Time.get_ticks_usec() - started_us
 	observation["ok"] = ok
-	# Ordinal is completion order; an interrupted call emits no fabricated record.
 	observation["ordinal"] = records.size()
 	records.append(observation)
 

@@ -1,25 +1,6 @@
 class_name ScheduleStateSchema
 extends RefCounted
 
-## The canonical committed-Schedule state schema (Plan 01 Task 4, dwm-p2r.13).
-##
-## This module owns the exact top-level `committed_schedule` aggregate frozen at plan lines 324-353:
-## its member set, its committed entry records, its embedded commit receipt, and the equalities that
-## bind the three together. It is pure: no registry, no GameState, no Contacts, no files, no signal,
-## no mutation of any input.
-##
-## It owns NO registry law. Route, effects, motivation cost, allowed days, kind and participants
-## come only from `ScheduleActionRegistry` through `ScheduleRules`; a caller-authored `route_id`,
-## `effect_ids` or `motivation_cost` is rejected here purely as an unknown member.
-##
-## RECONCILED IN TASK 5 (was a recorded divergence). A receipt-backed EMPTY Done aggregate
-## (`entries == []` with a non-null `empty_schedule_done` commit receipt) is legal under the frozen
-## contract and is validated here. `ScheduleRules._committed_structure` used to reject that shape,
-## so Task 4 never routed a receipt-backed empty aggregate through `ScheduleRules`. Task 5 aligned
-## the two NULLABILITY rules when `RunSnapshotSchema` began delegating committed validation to this
-## module, so `ScheduleRules` now admits the shape. Receipt CONTENTS remain this module's law alone:
-## `ScheduleRules` cannot call into here without forming a cyclic script dependency, so a caller
-## must validate through `validate_aggregate` before relying on `ScheduleRules.build_route_plan`.
 
 const _CANONICAL_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
@@ -32,26 +13,21 @@ const DAY7_SLOT := 0
 const COMMITTED_STATE := "committed"
 const FINGERPRINT_LENGTH := 64
 
-## Exact aggregate members (sorted).
 const AGGREGATE_KEYS: Array[String] = [
 	"commit_receipt", "day", "entries", "registry_fingerprint", "schema_version",
 ]
-## Exact committed entry members (sorted).
 const ENTRY_KEYS: Array[String] = [
 	"action_id", "action_kind", "commit_transaction_id", "day", "participants",
 	"schedule_entry_id", "schedule_entry_provenance", "slot_index", "source_receipt_id", "state",
 ]
-## Exact commit receipt members (sorted).
 const COMMIT_RECEIPT_KEYS: Array[String] = [
 	"causal_day_instance", "day", "motivation_charged", "receipt_id", "receipt_provenance",
 	"registry_fingerprint", "schedule_entry_ids", "source_receipt_ids", "transaction_id",
 	"transaction_issuer_receipt", "view_fingerprint",
 ]
-## Exact issuer child provenance members (sorted); identical to the `.16` issuer contract.
 const PROVENANCE_KEYS: Array[String] = [
 	"child_id", "child_kind", "ordinal", "parent_receipt_id", "schema_version", "source_ids",
 ]
-## Exact root issuer receipt members (sorted).
 const ISSUER_RECEIPT_KEYS: Array[String] = [
 	"counter", "namespace", "numeric_value", "purpose", "receipt_id", "token",
 ]
@@ -63,10 +39,7 @@ const EMPTY_DONE_CHILD_KIND := "empty_schedule_done"
 const ROOT_PURPOSE := "transaction_id"
 
 
-# ---- construction ----
 
-## The canonical empty aggregate. `registry_fingerprint` is the current fingerprint for a fresh
-## logical day, or null for the migrated form; nothing else may omit it.
 static func empty_aggregate(day: int, registry_fingerprint: Variant) -> Dictionary:
 	if typeof(day) != TYPE_INT or day < FIRST_DAY or day > LAST_DAY:
 		return _fail(&"invalid_day", "day must be an int in %d..%d" % [FIRST_DAY, LAST_DAY],
@@ -84,7 +57,6 @@ static func empty_aggregate(day: int, registry_fingerprint: Variant) -> Dictiona
 	}})
 
 
-# ---- validation ----
 
 static func validate_aggregate(aggregate: Variant) -> Dictionary:
 	if typeof(aggregate) != TYPE_DICTIONARY:
@@ -113,7 +85,6 @@ static func validate_aggregate(aggregate: Variant) -> Dictionary:
 			"a nonempty aggregate embeds its exact commit receipt", {"field": "commit_receipt"})
 	var fingerprint: Variant = value["registry_fingerprint"]
 	if fingerprint == null:
-		# Legal only for the migrated empty, uncommitted aggregate.
 		if not entries.is_empty() or receipt != null:
 			return _fail(&"invalid_committed_schedule",
 				"only an empty, uncommitted aggregate may omit the registry fingerprint",
@@ -202,7 +173,6 @@ static func validate_commit_receipt(receipt: Variant) -> Dictionary:
 	return _ok({"commit_receipt": _detach(value)})
 
 
-# ---- canonical projection (the plan's exact J/H notation) ----
 
 static func canonical_json(value: Variant) -> Dictionary:
 	var emitted: Dictionary = _CANONICAL_WRITER.stringify(value)
@@ -219,7 +189,6 @@ static func canonical_sha256(value: Variant) -> Dictionary:
 	return _ok({"sha256": _sha256_hex(str((canonical["value"] as Dictionary)["text"]))})
 
 
-# ---- entry / receipt law ----
 
 static func _entry_error(raw: Variant, index: int, day: int, transaction_id: Variant,
 		seen_ids: Dictionary, previous_slot: int) -> Dictionary:
@@ -370,7 +339,6 @@ static func _issuer_receipt_error(raw: Variant, transaction_id: String) -> Dicti
 	return {}
 
 
-# ---- helpers ----
 
 static func _exact_keys(value: Dictionary, expected: Array[String], code: StringName) -> Dictionary:
 	var keys: Array = value.keys()

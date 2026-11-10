@@ -1,8 +1,4 @@
 extends RefCounted
-## Pause role literals copied from SettingsPaletteRegistry.gd at pinned commit
-## 26de279be5f6490ff453db359b1964ec10596962; no runtime dependency on that worktree.
-## Source bytes SHA-256: ca8e8d6950e567a451349598a985ba35bac893f6c57568c8860b6490f5358815
-## Exact lookup only: no runtime colour transform or substitute tuple.
 
 const ROLE_NAMES := ["habitat","face","paper","paper_ink","secondary_ink","ink","structure","filed","focus","paper_focus","danger","destructive","secondary_dark_ink","inward_preview"]
 

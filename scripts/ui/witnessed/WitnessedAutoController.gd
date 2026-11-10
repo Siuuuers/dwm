@@ -1,6 +1,4 @@
 extends Node
-## Profile-owned Auto state with one session-local, presentation-bound delay.
-## DialogicBridge remains the sole owner of narrative advancement.
 
 signal state_changed
 
@@ -94,8 +92,6 @@ func is_auto_enabled() -> bool:
 	return _auto_enabled
 
 
-## Optional host-owned completion gate. It is consulted only after the foreground delay reaches
-## zero; speech never enters custody admission and never pauses the countdown itself.
 func bind_completion_barrier(barrier: Callable) -> void:
 	_completion_barrier = barrier
 
@@ -168,7 +164,6 @@ func _process(delta: float) -> void:
 	_request_in_progress = true
 	_bridge.call("request_auto_step", expected)
 	_request_in_progress = false
-	# A synchronous publication may already have armed the next exact source.
 	if request_generation == _generation:
 		_eligible_last_tick = false
 

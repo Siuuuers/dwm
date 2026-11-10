@@ -1,8 +1,4 @@
 extends RefCounted
-## Versioned, nonrecursive Next plan inside the existing reading checkpoint.
-## The source ledger is immutable; only the exact declared ordered suffix can
-## become the destination. Authored catalogue and Profile admission stay with
-## the bridge. This pure schema never grants witnessing or performs traversal.
 
 const JSON_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
@@ -22,7 +18,6 @@ static func create(plan: Dictionary, phase: String) -> Dictionary:
 	return {"ok": true, "value": {"schema_version": 1,
 		"operation_id": str(encoded.value).sha256_text(), "phase": phase, "plan": plan.duplicate(true)}}
 
-## The complete source/destination projection, useful to the one semantic owner.
 static func project(plan: Dictionary, phase: String) -> Dictionary:
 	if typeof(plan.get("schema_version")) == TYPE_INT and plan.schema_version == 3:
 		var made := _create_scene_operation(plan, phase)
@@ -145,9 +140,6 @@ static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code}
 
 
-## Version 4 is a genuine marker-aware reading cursor, never a caption alias.
-## These structural checks are complemented by the session's trusted programme
-## checks and the Run owner's converse receipt check before mutation.
 const MARKER_READING_KEYS := ["schema_version", "catalogue_fingerprint", "marker_program_fingerprint",
 	"boundary", "ledger", "frontier", "next_operation"]
 const MARKER_PLAN_KEYS := ["schema_version", "entry_id", "source_reading", "traversed_captions", "destination"]
@@ -282,8 +274,6 @@ static func _hash(value: Variant) -> bool:
 		if character not in "0123456789abcdef": return false
 	return true
 
-## Scene indices address authenticated semantic programme nodes, never native
-## event resources. Shape validation cannot confer programme/receipt authority.
 const SCENE_LEDGER := preload("res://scripts/narrative/NarrativeCaptionLedger.gd")
 const SCENE_READING_KEYS := ["schema_version", "registration_sha256", "entry_id", "occurrence_id",
 	"program_index", "boundary", "ledger", "frontier", "next_operation"]
@@ -291,8 +281,6 @@ const SCENE_READING_KEYS := ["schema_version", "registration_sha256", "entry_id"
 static func valid_scene_reading_shape(reading: Dictionary) -> bool:
 	return _valid_scene_reading_shape(reading, {}, {})
 
-## The maps belong to this validation only. A plan can continue the freshly
-## checked source's publication set through its suffix without scanning it again.
 static func _valid_scene_reading_shape(reading: Dictionary, publications: Dictionary,
 		checked_frames: Dictionary) -> bool:
 	var keys: Array = SCENE_READING_KEYS.duplicate()
@@ -464,9 +452,6 @@ static func _validate_scene_operation(reading: Dictionary, entry_id: String) -> 
 	if not _same(without_operation(reading), _scene_projection(operation.plan, operation.phase)): return _fail(&"reading_next_projection_mismatch")
 	return {"ok": true, "value": operation.duplicate(true)}
 
-## Fresh operation and programme proof for a reading owner that already validated
-## the selected endpoint. Return only its detached opposite endpoint; the plan hash
-## binds both phases and never needs to be recomputed merely to change phase.
 static func validate_scene_operation_path(reading: Dictionary, entry_id: String, nodes: Array) -> Dictionary:
 	var checked := _validate_scene_operation(reading, entry_id)
 	if not checked.ok: return checked
@@ -480,9 +465,6 @@ static func validate_scene_operation_path(reading: Dictionary, entry_id: String,
 	opposite.next_operation = operation
 	return {"ok": true, "value": opposite}
 
-## Called only with nodes recompiled from the selected immutable registration.
-## Every caption encountered is represented once in the appended suffix; the
-## first control and every backwards jump target terminate this one operation.
 static func validate_scene_path(plan: Dictionary, nodes: Array) -> Dictionary:
 	var checked := _validate_scene_plan_shape(plan)
 	if not checked.ok: return checked
@@ -520,9 +502,6 @@ static func _validate_scene_path(plan: Dictionary, nodes: Array) -> Dictionary:
 		if node.kind == "jump" and edge.to <= edge.from:
 			if target.kind != "caption": return _fail(&"reading_next_path_invalid")
 			stopped = true
-		# The final backward target may already be in this operation's silent
-		# suffix. Its fresh publication is the bounded destination, not another
-		# traversal around the cycle. The stopped guard refuses any later edge.
 		if visited.has(edge.to) and not backward_caption: return _fail(&"reading_next_path_invalid")
 		visited[edge.to] = true
 	var destination: Dictionary = nodes[plan.destination.program_index]

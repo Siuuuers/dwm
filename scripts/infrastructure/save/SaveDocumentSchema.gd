@@ -10,7 +10,6 @@ const DOCUMENT_KEYS := SCENE_DOCUMENT_KEYS
 const SCENE_DOCUMENT_KEYS: Array[String] = [
 	"current_snapshot", "kind", "recovery_journal", "schema_version", "slot_id",
 ]
-# Every CheckpointJournal-accepted kind may be the persisted current bundle.
 const CHECKPOINT_KINDS: Array[String] = [
 	"line", "day_start", "timeline_start", "timeline_complete", "choice",
 	"variable_transaction", "effect_transaction", "safe_marker", "scene_transition",
@@ -20,21 +19,6 @@ const AUTOSAVE_REASONS: Array[String] = ["automatic", "day_start", "ending", "pr
 const MIN_SLOT := 1
 const MAX_SLOT := 7
 
-## `proven_journal` lets a caller that already owns each journal entry's proof hand those objects
-## back, so this builder does not walk two ~150 KB bundles it already validated at their own commits.
-##
-## The caller's obligation, which only it can discharge: `proven_journal[k]` is the journal's
-## retained document bundle for `journal[k]`, i.e. the very object THIS method composed as the
-## document's `current_snapshot` when that bundle was written, proven byte-exact by that bundle's
-## own commit. It is therefore already `_normalize_engine_text()`-converted (this method converted
-## it before validating it), already a `RunSnapshotSchema.validate()` candidate -- so
-## `_normalize_integral_floats()` is the IDENTITY over it -- and primitive by construction, since
-## its canonical emission succeeded. Those are exactly the three properties the skipped journal
-## walks establish, so the composed document is byte-identical either way.
-##
-## A proof set that does not cover the whole journal proves nothing about any entry: no proofs at
-## all, a size mismatch, or one empty entry all run the existing full path over the whole journal.
-## Every other check and its order are unchanged, and the document stays detached from the proofs.
 static func build(
 		kind: StringName,
 		slot_id: Variant,
@@ -46,7 +30,6 @@ static func build(
 		profile: Dictionary = {},
 		proven_current_snapshot: Dictionary = {}
 ) -> Dictionary:
-	# Optional caller-owned diagnostics only. Timers never enter the returned document.
 	var tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 	var discriminator_error := _validate_discriminators(String(kind), slot_id, String(save_reason))
 	tick = _profile_phase(profile, "document_schema_discriminators_us", tick)
@@ -55,7 +38,6 @@ static func build(
 	var proven := _journal_is_proven(journal, proven_journal)
 	tick = _profile_phase(profile, "document_schema_proof_selection_us", tick)
 	if not profile.is_empty(): profile["document_schema_journal_proven"] = proven
-	# Only the internal builder converts immutable engine text; external validation stays strict.
 	var current_proven := not proven_current_snapshot.is_empty() \
 		and is_same(current_bundle.get("snapshot"), proven_current_snapshot)
 	current_bundle = current_bundle.duplicate(true) if current_proven else _normalize_engine_text(current_bundle)
@@ -73,21 +55,6 @@ static func build(
 			_profile_phase(profile, "document_schema_validate_journal_us", tick)
 			return _fail(&"invalid_recovery_journal", journal_error)
 	tick = _profile_phase(profile, "document_schema_validate_journal_us", tick)
-	# The builder already proved its discriminators, current bundle and journal above. Its fixed
-	# envelope cannot gain unknown members; only optional metadata remains to check. So normalize
-	# each member AS the document is composed, in the same member order, and pass the current
-	# bundle's candidate through UNTOUCHED: it came from `_validate_bundle()` ->
-	# `RunSnapshotSchema.validate()`, which already normalized it, and `_normalize_integral_floats()`
-	# is idempotent -- so the whole-document walk that used to run here rebuilt the entire saved
-	# board a second time to reproduce it exactly. That candidate is a tree `RunSnapshotSchema`
-	# freshly allocated and nothing else retains, so the document owns it outright and stays
-	# detached from the caller's bundle, exactly as `_validate_document()` composes it.
-	# `schema_version`, `kind` and `save_reason` are int/String literals and `checkpoint_kind` is
-	# `str()`-ed, so only `slot_id`, the journal and the optional metadata can carry an integral
-	# float. `saved_time` is still normalized BEFORE `validate_saved_time()` reads it below, and
-	# the journal is still rebuilt untyped and detached by `_normalize_integral_floats()` itself,
-	# which allocates a fresh Dictionary/Array at every container node: the `duplicate(true)`
-	# that used to precede it copied the whole retained history a second time per save.
 	var document := {
 		"schema_version": SCENE_DOCUMENT_VERSION,
 		"kind": String(kind),
@@ -114,12 +81,9 @@ static func build(
 	_profile_phase(profile, "document_schema_metadata_us", tick)
 	return {"ok": true, "code": &"ok", "value": document}
 
-## The initial durable candidate cannot use ordinary committed-creation admission.
-## Validate this complete and deliberately narrower Save9 envelope before any write.
 static func validate_scene_new_run_candidate(document: Dictionary, allocation_candidate: Dictionary,
 		profile_material: Dictionary, bundle: Dictionary, issuer: Object,
 		acknowledged_checkpoint: Dictionary = {}) -> Dictionary:
-	# Retired optional metadata never participates in Scene admission.
 	document = document.duplicate()
 	document.erase("save_reason")
 	document.erase("ink_marks")
@@ -150,37 +114,10 @@ static func validate(document: Dictionary, profile: Dictionary = {},
 		scene_seed_receiver: Callable = Callable()) -> Dictionary:
 	return _validate_document(document, [], false, profile, false, scene_seed_receiver)
 
-## `validate()` for an outgoing document whose `recovery_journal` bytes are NOT being emitted from
-## the document itself. The checkpoint port splices each journal entry's bytes from the text its own
-## commit proved for that bundle, so the candidate this returns -- the storage lease for those exact
-## bytes -- must be composed from the bundles those texts belong to, never from the in-memory journal
-## the caller still holds and may have edited since prepare. Every other check runs where it ran in
-## `validate()`, in the same order, over the same document.
-##
-## The caller's obligation, which only it can discharge: `proven_journal[k]` is the bundle whose
-## already-proved canonical text becomes `recovery_journal[k]` in the bytes being written.
-##
-## Equivalence obligations for the composed entries (why no further normalization is needed):
-## - `RunSnapshotSchema._normalize_integral_floats()` is the IDENTITY over them. Every retained
-##   bundle's `snapshot` is a `RunSnapshotSchema.validate()` candidate, i.e. that normalizer's own
-##   output, and it is idempotent; `checkpoint_kind` is a String; `_normalize_engine_text()` below
-##   converts StringNames only and can introduce no float.
-## - `_normalize_engine_text()` IS applied, because a validate candidate is not StringName-free: the
-##   normalizer that produced it converts integral floats only, so engine text (a desktop pending
-##   stage, an active_app_id) survives into it, and `build()` is what converted it when those bytes
-##   were written. It is identity-preserving, so a bundle with no StringName costs no allocation.
-## - The composed Array is deliberately UNTYPED, exactly as `_normalize_integral_floats()` rebuilds
-##   every Array: a proven journal handed in as `Array[Dictionary]` must not leak its typedness into
-##   a candidate that is supposed to match a strict re-parse of JSON.
 static func validate_outgoing(document: Dictionary, proven_journal: Array,
 		profile: Dictionary = {}) -> Dictionary:
 	return _validate_document(document, proven_journal, true, profile)
 
-## Internal splice adapter: the port collected each normalized document proof from the journal
-## under the SAME checkpoint id as its raw bundle and exact spliced text. These journal-owned
-## proofs were normalized before their bytes were proven, never mutated in place, and share the
-## text's retention/reset/restore lifetime. A complete set needs only detached composition; an
-## absent, partial or text-only set retains validate_outgoing()'s raw normalization unchanged.
 static func _validate_outgoing_document_proofs(document: Dictionary, proven_journal: Array,
 		proven_documents: Array, profile: Dictionary = {}) -> Dictionary:
 	if _journal_is_proven(proven_journal, proven_documents):
@@ -198,27 +135,14 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 				"schema_version": document.get("schema_version"), "current_snapshot": proof})
 			if not proof_guard.ok: return proof_guard
 	var tick := Time.get_ticks_usec() if not profile.is_empty() else 0
-	# Normalize each envelope member, and NEVER the current bundle: its `snapshot` is rebuilt by
-	# `_validate_bundle()` -> `RunSnapshotSchema.validate()`, which normalizes it itself, and that
-	# candidate overwrites whatever a whole-document walk would have produced here. The caller's
-	# document is not deep-copied first either: `_normalize_integral_floats()` allocates a FRESH
-	# Dictionary/Array at every container node, so a prior `duplicate(true)` rebuilt the same tree
-	# twice. The leaves the normalizer passes through by reference rather than copying (Packed
-	# arrays, Objects) can never reach a saved document: `RunSnapshotSchema.validate_primitive_tree()`
-	# refuses them with `invalid_primitive` and `CanonicalJsonWriter._emit()` with `unsupported_type`.
-	# Required members retain their validation order. Scene-only optional metadata is
-	# projected here: retired reason and malformed time cannot reject valid progress.
 	var candidate := {}
 	for key: Variant in document:
-		# Retired decoration is accepted from old saves and discarded at this boundary.
 		if key == "ink_marks": continue
 		if key == "save_reason": continue
 		if key == "saved_time":
 			var display_time := normalize_optional_saved_time(document[key])
 			if not display_time.is_empty(): candidate[key] = display_time
 			continue
-		# The outgoing splice replaces the caller's journal with proven bundles below;
-		# retain only its container here so the existing array check keeps its order.
 		if key == "current_snapshot" or (use_proven_journal and key == "recovery_journal"):
 			candidate[key] = document[key]
 		else:
@@ -253,10 +177,6 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 		return bundle_result
 	if bundle_result.value.candidate.schema_version != candidate.schema_version:
 		return _fail(&"invalid_document_shape", "Save and Run versions must agree")
-	# `_validate_bundle()` proved this bundle holds exactly `checkpoint_kind` and `snapshot`, so
-	# compose the candidate's bundle from those two proven parts rather than mutating the caller's
-	# container. `checkpoint_kind` is a scalar and still goes through the normalizer, so its value
-	# and type are exactly what the whole-document walk produced.
 	candidate["current_snapshot"] = {
 		"checkpoint_kind": RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(
 			current_bundle["checkpoint_kind"]),
@@ -270,9 +190,6 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 		var proof_error := _scene_proof_error(candidate.recovery_journal, proven_journal)
 		_profile_phase(profile, "outgoing_schema_proof_equality_us", proof_tick)
 		if not proof_error.is_empty(): return _fail(&"invalid_recovery_journal", proof_error)
-		# The document's own entries are not validated here because they are not what is being
-		# written: the caller's proven bundles are, one per entry, in this order. See
-		# `validate_outgoing()` for the obligation that carries and the equivalence it rests on.
 		var composition_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 		var composed: Array = []
 		if normalized_proofs:
@@ -294,8 +211,6 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 	var scene_error := _scene_journal_error(candidate.current_snapshot, candidate.recovery_journal,
 		{}, "", admitted_bundles if scene_seed_receiver.is_valid() else null)
 	if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
-	# Admission detaches the receiver material from its public candidate.
-	# Legacy admission does not prove complete journal snapshots.
 	if scene_seed_receiver.is_valid():
 		scene_seed_receiver.call(candidate.duplicate(true), admitted_bundles.duplicate(true))
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
@@ -343,8 +258,6 @@ static func _scene_proof_error(journal: Array, proofs: Array) -> String:
 			return "scene journal proof does not match its bundle"
 	return ""
 
-## Opt-in nested observations only: none of these values enter a save candidate.
-## A missing return produces no completed timing. Parent and child durations are not additive.
 static func _profile_compose_build_journal(journal: Array, proofs: Array, proven: bool,
 		profile: Dictionary) -> Array:
 	var started := Time.get_ticks_usec() if not profile.is_empty() else 0
@@ -365,7 +278,6 @@ static func _profile_scene_journal_error(current: Dictionary, journal: Array,
 	var error := _scene_journal_error(current, journal, profile, phase)
 	var elapsed := Time.get_ticks_usec() - started
 	profile[phase + "_scene_journal_us"] = elapsed
-	# Residual includes cross-entry checks, labels and diagnostic bookkeeping, not only checks.
 	profile[phase + "_journal_checks_and_observation_us"] = elapsed - int(profile[phase + "_journal_bundle_us"])
 	profile[phase + "_scene_journal_ok"] = error.is_empty()
 	return error
@@ -387,7 +299,6 @@ static func _profile_validate_scene_journal_bundle(raw: Dictionary,
 
 static func _profile_bundle_labels(raw: Dictionary) -> Dictionary:
 	var record := {}
-	# Read only existing scalars, defensively; no normalization, copy, hash or owner call.
 	var snapshot: Variant = raw.get("snapshot")
 	if snapshot is Dictionary:
 		if typeof(snapshot.get("checkpoint_sequence")) == TYPE_INT:
@@ -404,7 +315,6 @@ static func _profile_bundle_labels(raw: Dictionary) -> Dictionary:
 					record["playback_stage"] = String(stage)
 	return record
 
-## These subphases are nested inside the checkpoint port's inclusive schema timers.
 static func _profile_phase(profile: Dictionary, phase: String, started_us: int) -> int:
 	if profile.is_empty(): return 0
 	var now := Time.get_ticks_usec()
@@ -414,13 +324,10 @@ static func _profile_phase(profile: Dictionary, phase: String, started_us: int) 
 static func prepare_candidate(document: Dictionary) -> Dictionary:
 	return validate(document)
 
-## A missing or malformed Scene timestamp means unknown, never the current time.
-## Use one detached projection for admission, retained comparisons and Backup UI.
 static func normalize_optional_saved_time(value: Variant) -> Dictionary:
 	var normalized: Variant = RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(value)
 	return normalized if validate_saved_time(normalized) else {}
 
-## Optional outer metadata; absence means legacy time unknown, never current wall time.
 static func validate_saved_time(value: Variant) -> bool:
 	if typeof(value) != TYPE_DICTIONARY:
 		return false
@@ -438,8 +345,6 @@ static func validate_saved_time(value: Variant) -> bool:
 	var clock := Time.get_datetime_dict_from_unix_time(local_seconds)
 	return str(value["hhmm"]) == "%02d:%02d" % [clock["hour"], clock["minute"]]
 
-## Storage location is sufficient for Scene documents. Save reason describes the
-## write operation, not the progress a later Load is allowed to restore.
 static func _validate_locator(kind: String, slot_id: Variant) -> String:
 	match kind:
 		"slot":
@@ -490,8 +395,6 @@ static func _validate_journal(journal: Array) -> String:
 			return str(primitive.get("message", "journal entry %d must be primitive" % index))
 	return ""
 
-## Whether `proven_journal` discharges `build()`'s proof obligation for every entry of `journal`:
-## one non-empty Dictionary per entry, in the entries' own order. A partial set is no set.
 static func _journal_is_proven(journal: Array, proven_journal: Array) -> bool:
 	if proven_journal.is_empty() or proven_journal.size() != journal.size():
 		return false
@@ -500,9 +403,6 @@ static func _journal_is_proven(journal: Array, proven_journal: Array) -> bool:
 			return false
 	return true
 
-## The persisted journal composed from the proofs alone. Deep-copied so the document is detached
-## from the objects the journal keeps, and rebuilt UNTYPED exactly as
-## `_normalize_integral_floats()` rebuilds every Array on the full path.
 static func _proven_entries(proven_journal: Array) -> Array:
 	var composed: Array = []
 	for proof: Variant in proven_journal:
@@ -513,11 +413,6 @@ static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message}
 
 
-## Identity-preserving: a subtree that holds no StringName is returned AS IS, so the common
-## StringName-free build allocates nothing here. Exact mirror of
-## `SaveManagerCheckpointPort._normalize_json_string_types()`. Detachment is unaffected --
-## `build()` replaces the bundle with `_validate_bundle()`'s own candidate and still detaches
-## the journal when it composes the document -- so the persisted document never aliases an input.
 static func _normalize_engine_text(value: Variant) -> Variant:
 	match typeof(value):
 		TYPE_STRING_NAME: return String(value)

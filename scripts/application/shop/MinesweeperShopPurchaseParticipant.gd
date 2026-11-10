@@ -3,34 +3,6 @@ extends RefCounted
 
 const _NOTE_RULES := preload("res://scripts/domain/shop/RunNotePurchaseRules.gd")
 
-## Shop purchase participant (Plan 02 Task 7, dwm-p2r.32.7, req.shop.capabilities,
-## req.desktop.cross_app_actions, req.minesweeper.safety_capabilities), amendment SS8 and 12.6.
-##
-## Transacts Lucky Charm / Debug Key / Supportz purchases prospectively and exactly once. Task
-## boundary discipline (controller ruling): this participant's public result for a purchase is
-## PENDING, never audience success. `prepare_purchase()` validates everything, acquires/retains the
-## shared `causal_transaction` mutation-gate lease, and durably checkpoints the source-only
-## unpromoted action candidate while live economy/board/sequence/outboxes stay byte-equal -- only
-## `DesktopConsequenceState`'s own `pending` record changes. Task 8 alone freezes downstream
-## participants at the distinct `action_prepared` checkpoint, repeats the causal admission CAS, and
-## forward-commits. `commit(candidate)` therefore rejects unless the gate lease is active AND the
-## matching pending transaction has already reached `sequence_committed` -- only then does it apply
-## the real economy delta (spend currency, grant capability, or decrement the Supportz floor).
-##
-## COOPERATION WITH TASK 6 (sixth addendum): `DesktopConsequenceState.prepare_action_handoff()`
-## creates the pending record already at stage `action_prepared` -- Task 6's own documented
-## collapse of the frozen contract's two-stage `action_checkpointed -> action_prepared` pre-admission
-## span into one stage. This participant does not fight that: "action_checkpointed" in the brief's
-## prose is read as "the durable, unpromoted state `prepare_action_handoff()` + a checkpoint already
-## produce", not a second DesktopConsequenceState stage string this task invents.
-##
-## quote()'s `quote_id` and the action receipt's `action_id` are both registered CHILD_KINDS members
-## (`shop_quote`, `desktop_action`) -- no CHILD_KINDS extension was needed. `commit_receipt_id`/
-## `commit_receipt_provenance` reuse `action_id`/`action_id_provenance` byte-for-byte (own documented
-## design choice, see class doc below on `_build_action_receipt()`): Plan 02's own frozen production
-## derivation table (plan02-frozen-contracts.md lines 491-499) is explicitly "the one authoritative
-## production derivation table" and has no row for a distinct commit-receipt identity, so minting a
-## second one would be "an unlisted semantic convention" the table's own law forbids.
 
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const _CAPABILITY_RULES := preload("res://scripts/domain/minesweeper/MinesweeperCapabilityRules.gd")
@@ -65,23 +37,14 @@ var _identity_issuer: Object = null
 var _mutation_gate: ApplicationMutationGate = null
 var _publication_ledger: Object = null
 
-## Keyed by transaction_id; the sole in-memory idempotency ledger for prepare_purchase(). Consulted
-## FIRST, but never the sole source of truth -- see prepare_purchase()'s own live-state recognition
-## branch for the "fresh participant instance after a crash" case, where this ledger is empty but
-## DesktopConsequenceState's durable pending record survives.
 var _transactions: Dictionary = {}
 var _committed_transactions: Dictionary = {}
-## Task 8 (dwm-p2r.32) addition: a separate idempotency ledger for the recovery-boundary
-## commit_recovery_action(), so it never collides with commit()'s own pre-Task-8 transaction identity.
 var _recovery_committed: Dictionary = {}
 var _gate_token := ""
 var _catalog: Object
 var _source_checkpoint_capture: Callable
 
 
-# -------------------------------------------------------------------------------------------------
-# Configuration
-# -------------------------------------------------------------------------------------------------
 
 func configure_publication_ledger(publication_ledger: Object) -> Dictionary:
 	if publication_ledger == null or not publication_ledger.has_method("record_before_emit"):
@@ -127,15 +90,7 @@ func configure(state_port: Object, consequence_state_port: Object, checkpoint_po
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
-# -------------------------------------------------------------------------------------------------
-# quote() -- pure apart from retaining idempotency truth in the participant candidate.
-# -------------------------------------------------------------------------------------------------
 
-## `quote_id` is child kind `shop_quote` anchored to the full transaction receipt. Idempotent on an
-## identical (item_id, transaction_id) replay; a second, different item under the SAME transaction
-## conflicts (brief line 51's "a second item under the same transaction conflicts" applies at
-## `prepare_purchase()` too, but is caught here first since quote() is where the retained record is
-## first written).
 func configure_catalog(catalog: Object, capture_inputs: Callable) -> Dictionary:
 	if catalog == null or not catalog.has_method("get_shop_item") or not capture_inputs.is_valid():
 		return _fail(&"invalid_shop_catalog_capture", "", {})
@@ -221,11 +176,6 @@ func quote(item_id: String, transaction_id: String, transaction_issuer_receipt: 
 	return {"ok": true, "code": &"ok", "value": quote_record.duplicate(true), "receipt": quote_record.duplicate(true)}
 
 
-# -------------------------------------------------------------------------------------------------
-# prepare_purchase() -- validates everything, acquires/retains the causal_transaction lease, and
-# durably checkpoints the unpromoted pending action. Public result is PENDING, never audience
-# success (Task-7 boundary ruling).
-# -------------------------------------------------------------------------------------------------
 
 func prepare_purchase(request: Dictionary) -> Dictionary:
 	var ready := _require_configured()
@@ -237,15 +187,12 @@ func prepare_purchase(request: Dictionary) -> Dictionary:
 	var transaction_id := str(request["transaction_id"])
 	var request_fingerprint := _canonical_sha256(request)
 
-	# 1. Own in-memory ledger: exact replay or conflict for an already-prepared transaction.
 	var entry: Dictionary = _transactions.get(transaction_id, {}) as Dictionary
 	if entry.has("prepare_result"):
 		if str(entry.get("prepare_request_fingerprint", "")) == request_fingerprint:
 			return (entry["prepare_result"] as Dictionary).duplicate(true)
 		return _fail(&"transaction_conflict", "this transaction was already prepared with different bytes", {})
 
-	# 2. Recognize a durable pending transaction that survived a participant restart even though
-	#    this in-memory ledger is empty (DesktopConsequenceState's own record is the durable truth).
 	var consequence_captured: Dictionary = _consequence_state_port.call(&"capture")
 	if not consequence_captured.get("ok", false):
 		return consequence_captured
@@ -339,9 +286,6 @@ func prepare_purchase(request: Dictionary) -> Dictionary:
 		economy_candidate["source_checkpoint"] = {"checkpoint_id": source_snapshot.checkpoint_id,
 			"snapshot_sha256": _canonical_sha256(source_snapshot)}
 
-	# `participant_snapshot_ids` is a free-form Dictionary (no exact-key law on it) -- reused here to
-	# carry exactly what a restarted participant needs to recognize and resume this purchase from
-	# DesktopConsequenceState's own durable pending record alone, with no other in-memory state.
 	var recovery_payload := {
 		"source_kind": _ACTION_KIND, "action_receipt": receipt.duplicate(true),
 		"run_revision_before": int(live_state["run_revision"]),
@@ -361,13 +305,6 @@ func prepare_purchase(request: Dictionary) -> Dictionary:
 	var handoff_candidate: Dictionary = (handoff_prepared["value"] as Dictionary)["candidate"]
 
 
-	# `kind` is a free-form descriptive operation label -- this codebase's own established
-	# convention (DesktopConsequenceState.prepare_recovery_advance()'s own headers use
-	# "consequence_advance"/"consequence_cleanup", never an echo of `stage`), not a value validated
-	# against any closed vocabulary. `operation_ordinal=0` matches the frozen table's
-	# `action_checkpointed=0`: this is the FIRST checkpoint ever written for this newly pending
-	# transaction, and no earlier Task-6 code path checkpoints the pre-admission pending record at
-	# all (first-Reveal never opens one), so there is no established ordinal to defer to here.
 	var checkpoint_header := {
 		"kind": &"shop_purchase_action_checkpoint", "operation_ordinal": 0, "run_id": str(facts["run_id"]),
 		"source_ids": [transaction_id], "stage": "action_prepared", "transaction_id": transaction_id,
@@ -388,9 +325,6 @@ func prepare_purchase(request: Dictionary) -> Dictionary:
 			_gate_token = ""
 		return checkpoint_committed
 
-	# The disk checkpoint is now durable. From here forward this participant never rewinds on
-	# failure (mirrors DesktopCausalSequencePort's own CRITICAL-1 discipline): a live-adopt failure
-	# past this point is a genuine anomaly, returned as-is with the gate left retained.
 	var consequence_committed: Dictionary = _consequence_state_port.call(&"commit", handoff_candidate)
 	if not consequence_committed.get("ok", false):
 		return consequence_committed
@@ -428,10 +362,6 @@ func capture() -> Dictionary:
 	}}, "receipt": {}}
 
 
-# -------------------------------------------------------------------------------------------------
-# commit() -- the Task-7 boundary's forward commit. Rejects unless the gate lease is active AND the
-# matching pending transaction has already reached sequence_committed.
-# -------------------------------------------------------------------------------------------------
 
 func commit(candidate: Dictionary) -> Dictionary:
 	var ready := _require_configured()
@@ -509,11 +439,6 @@ func rollback(backup: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"restored": true}, "receipt": {}}
 
 
-## Records the at-most-once external observation of this action through the configured publication
-## ledger's shared `action_source` kind (frozen contract line 337: the SAME kind
-## MinesweeperRoundCoordinator will eventually use for round-completion actions, keyed by
-## `action_receipt.commit_receipt_id`), then releases the causal_transaction lease -- the Task-7
-## boundary's "release only after publication/abandonment" (rollback() is the abandonment path).
 func publish(publication: Dictionary) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
@@ -543,18 +468,6 @@ func publish(publication: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": {}}
 
 
-# -------------------------------------------------------------------------------------------------
-# Task 8 (dwm-p2r.32) additions: the frozen three-method action-source recovery surface consumed by
-# DesktopConsequenceCoordinator. `action_candidate` here is the SELF-SUFFICIENT economy candidate
-# `GameStateMinesweeperShopPort.prepare_purchase()` already builds (`{transaction_id,item_id,
-# currency,price,grant_inventory_item_id}`). `prepare_purchase()` returns that exact detached value
-# together with its ordinal-0 checkpoint receipt so the production presentation facade can hand the
-# already-prepared transaction to `DesktopConsequenceCoordinator.accept_prepared_action()` without
-# reconstructing either value, exactly like `MinesweeperRoundCoordinator.complete_round()` does.
-# A genuinely reconstructed participant (empty `_transactions`) needs no recognition step here: the
-# pair (action_candidate, action_receipt) is already everything `commit_recovery_action()` needs,
-# independent of any process-local ledger.
-# -------------------------------------------------------------------------------------------------
 
 func validate_recovery_action(action_candidate: Dictionary, action_receipt: Dictionary) -> Dictionary:
 	var ready := _require_configured()
@@ -579,11 +492,6 @@ func validate_recovery_action(action_candidate: Dictionary, action_receipt: Dict
 	}}, "receipt": {}}
 
 
-## The source's sole live commit for this recovery boundary: applies the real economy delta (spend
-## currency, grant capability, decrement the Supportz floor) through the SAME `GameStateMinesweeperShopPort
-## .commit()`/`DesktopConsequenceState.prepare_record_supportz_purchase()` calls the pre-Task-8 `commit()`
-## already uses, but against its OWN ledger (`_recovery_committed`) so this new surface never collides
-## with `commit()`'s own pre-Task-8 transaction identity/replay law.
 func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictionary) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
@@ -634,18 +542,6 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 	return result
 
 
-## The source's sole audience boundary for this recovery path: records the at-most-once external
-## observation through the SAME shared `action_source` publication-ledger kind and key convention
-## `publish()` already established (Ruling B).
-##
-## dwm-p2r.35.7 remediation (finding 3): this method used to release the retained `causal_transaction`
-## lease here, immediately after recording -- but this is callback index 1 of up to 3 in
-## DesktopConsequenceCoordinator's own departure publication plan (causal_sequence, action_source,
-## optional board_fate), so releasing here left board-fate publish and terminal cleanup running
-## UNLEASED, contradicting `DesktopBoardFatePort`'s own class-doc argument that its one known
-## candidate-hash-collision limitation "is not reachable in production" BECAUSE the coordinator holds
-## the lease across one departure's whole prepare-to-publish span. The release now happens only in
-## `release_recovery_lease()`, which the coordinator calls after terminal cleanup succeeds.
 func publish_recovery_action(publication: Dictionary) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
@@ -677,12 +573,6 @@ func publish_recovery_action(publication: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": receipt.duplicate(true)}
 
 
-## dwm-p2r.35.7 remediation (finding 3): the fourth frozen recovery-method addition, called by
-## DesktopConsequenceCoordinator._resume_forward() only AFTER terminal cleanup succeeds -- see that
-## method's own doc comment for why the release moved out of publish_recovery_action(). Idempotent
-## no-op when no token is held (a resume_pending()-driven forward recovery in a fresh process never
-## acquired one in the first place, since this participant -- not the coordinator -- is the actual
-## lease holder).
 func release_recovery_lease() -> Dictionary:
 	if _gate_token != "":
 		_mutation_gate.release(_GATE_OWNER, _gate_token)
@@ -690,16 +580,7 @@ func release_recovery_lease() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"released": true}, "receipt": {}}
 
 
-# -------------------------------------------------------------------------------------------------
-# Internal helpers
-# -------------------------------------------------------------------------------------------------
 
-## A durably pending purchase recognized after a participant restart: this in-memory ledger is
-## empty, but DesktopConsequenceState's own record -- the durable truth -- survived. The gate lease
-## is re-established here too, since a restarted process retains no in-memory token either. The
-## economy candidate is deterministically REBUILT (never re-fetched from state_port/registry) from
-## exactly the same free-form `participant_snapshot_ids` this participant itself wrote at prepare
-## time -- item_id/currency/price fully determine it, per prepare_purchase()'s own candidate shape.
 func _recognize_live_pending(pending: Dictionary, request_fingerprint: String, transaction_id: String) -> Dictionary:
 	var recovery_payload: Dictionary = pending.get("recovery_payload", {})
 	var snapshot_ids: Dictionary = recovery_payload.get("participant_snapshot_ids", {})
@@ -725,8 +606,6 @@ func _recognize_live_pending(pending: Dictionary, request_fingerprint: String, t
 		"action_receipt": (recovered_receipt as Dictionary).duplicate(true),
 		"candidate": {"transaction_id": transaction_id},
 		"action_candidate": economy_candidate.duplicate(true),
-		# A fresh-process source-checkpoint recovery is owned by DesktopConsequenceCoordinator.resume_pending;
-		# it has no in-memory handle to the checkpoint-port receipt used by live admission.
 		"prepared_checkpoint_receipt": {},
 	}, "receipt": {}}
 	var entry: Dictionary = _transactions.get(transaction_id, {}) as Dictionary
@@ -741,9 +620,6 @@ func _recognize_live_pending(pending: Dictionary, request_fingerprint: String, t
 	return {"ok": true, "value": {"result": result.duplicate(true)}}
 
 
-## Reverses _build_action_receipt()'s own addition of the four identity fields, reproducing
-## H(action_candidate) purely from an already-produced receipt -- used only by the restart-recovery
-## path above, which has no other route back to this hash.
 func _action_candidate_sha256_from_receipt(receipt: Dictionary) -> String:
 	var action_candidate: Dictionary = receipt.duplicate(true)
 	for identity_field: String in ["action_id", "action_id_provenance", "commit_receipt_id", "commit_receipt_provenance"]:
@@ -771,10 +647,6 @@ func _validate_supportz_eligibility(causal_day_instance: String, transaction_id:
 	return {"ok": true}
 
 
-## `commit_receipt_id`/`commit_receipt_provenance` reuse `action_id`/`action_id_provenance`
-## byte-for-byte (see the class doc's own note on why: Plan 02's frozen production derivation table
-## has no distinct row for a second commit-identity, and inventing one would be exactly the
-## "unlisted semantic convention" that table's own law forbids).
 func _build_action_receipt(transaction_id: String, transaction_issuer_receipt: Dictionary,
 		quote_record: Dictionary, facts: Dictionary, condition_after: Dictionary = {}) -> Dictionary:
 	var condition := {

@@ -1,8 +1,6 @@
 class_name DesktopContinuationOperationJournal
 extends RefCounted
 
-## Durable New Run / selected Load continuation-operation journal (Plan 02 Task 1, dwm-p2r.16).
-## External to every selectable snapshot: this uses its injected atomic storage and source-loader.
 const JOURNAL_PATH := "desktop-continuation-operations.json"
 const SCHEMA_VERSION := 5
 const SCENE_SCHEMA_VERSION := SCHEMA_VERSION
@@ -108,12 +106,8 @@ var _creation_storage_recovery := false
 var _loaded := false
 var _load_in_progress := false
 var _validated_loading_creations: Dictionary = {}
-# Exact texts accepted by the strict parser or canonical writer. Atomic storage rechecks
-# outgoing/current/backup bytes; retain this bounded proof window and return detached values.
-# Loading still validates the full journal schema, including on a cached parse.
 var _validated_text_documents: Dictionary = {}
 var _validated_text_order: Array[String] = []
-# One detached canonical proof per current operation; historical receipts never change on a forward step.
 var _operation_text_cache: Dictionary = {}
 var _schema_error: StringName = &"journal_schema_invalid"
 var _scene_restore_retirement_checked := false
@@ -136,8 +130,6 @@ func configure(storage: Object, source_loader: Object) -> Dictionary:
 	return {"ok": true}
 
 
-## Bind trusted installed registration and the existing identity owner before loading
-## a journal containing scene creation. Retained candidates never supply this authority.
 func configure_scene_new_run_validation(bundle: Dictionary, issuer: Object) -> Dictionary:
 	var contract: Script = load("res://scripts/domain/narrative/SceneEventContract.gd")
 	var registered: Dictionary = contract.validate_bundle_structure(bundle)
@@ -154,9 +146,6 @@ func configure_scene_new_run_validation(bundle: Dictionary, issuer: Object) -> D
 	return {"ok": true}
 
 
-## Bootstrap must settle the durable NewRun pair before Profile initializes.
-## Ordinary retained Load semantics require the later live owners. This synchronous
-## scope permits only creation recovery and never exports a fully loaded journal.
 func with_creation_storage_recovery(work: Callable) -> Dictionary:
 	if _creation_storage_recovery or _load_in_progress or not work.is_valid():
 		return _failed(&"creation_storage_recovery_busy", "invalid or nested recovery scope")
@@ -168,9 +157,6 @@ func with_creation_storage_recovery(work: Callable) -> Dictionary:
 	return result
 
 
-## Application startup retires the former durable scene Load protocol before any
-## creation recovery or ordinary journal read. Shared creation records stay.
-## No migration marker is needed: after one successful write there is nothing to remove.
 func retire_scene_restore_operations() -> Dictionary:
 	var ready := _require_configured("retire_scene_restore_operations")
 	if not ready.get("ok", false): return ready
@@ -199,8 +185,6 @@ func retire_scene_restore_operations() -> Dictionary:
 			return _failed(_schema_error, "retired scene restore must match its operation key")
 		document.operations.erase(key)
 		removed += 1
-	# The old selected_document is deliberately not admitted against today's story.
-	# Every retained operation still passes its ordinary validation before mutation.
 	var validated := _validate_document(document)
 	if not validated.get("ok", false): return validated
 	if removed == 0:
@@ -211,8 +195,6 @@ func retire_scene_restore_operations() -> Dictionary:
 	var encoded := _serialize_document(document)
 	if not encoded.get("ok", false): return encoded
 	_remember_validated_text(str(encoded.value), document)
-	# This exact transition is also allowed during early creation recovery; the
-	# general _write guard remains restricted to creation transactions there.
 	var written: Dictionary = _storage.call(&"write_atomic", JOURNAL_PATH, str(encoded.value),
 		Callable(self, "_parse_known_document"), true)
 	if not written.get("ok", false):
@@ -360,8 +342,6 @@ func advance(request: Dictionary) -> Dictionary:
 	return {"ok": true, "value": progressed.duplicate(true)}
 
 
-## Records readback proof for one frozen New Run durability target. Target order is strict and an
-## identical replay is idempotent; changed proof at an occupied target is a conflict.
 func record_new_run_target(transaction_id: String, request_fingerprint: String,
 		target: StringName, revision: String) -> Dictionary:
 	var ready := _require_configured("record_new_run_target")
@@ -426,8 +406,6 @@ func get_operation(transaction_id: String) -> Dictionary:
 	return {"ok": true, "value": (_document["operations"][transaction_id] as Dictionary).duplicate(true)}
 
 
-## Read successful creation order from the physical continuation owner, not the
-## Profile dictionary's insertion order or the mere presence of a draw receipt.
 func capture_completed_creation_chronology(issuer: Object) -> Dictionary:
 	var ready := _require_configured("capture_completed_creation_chronology")
 	if not ready.get("ok", false): return ready
@@ -473,9 +451,6 @@ func capture_completed_creation_chronology(issuer: Object) -> Dictionary:
 	return {"ok": true, "value": ordered}
 
 
-## During selected-source semantic validation only independently validated
-## creation records may answer authority queries; the surrounding journal remains
-## untrusted until every operation succeeds. SaveManager still proves root/Profile.
 func get_creation_operation(transaction_id: String) -> Dictionary:
 	if not _load_in_progress: return get_operation(transaction_id)
 	if not _validated_loading_creations.has(transaction_id):
@@ -498,15 +473,12 @@ func list_incomplete() -> Dictionary:
 		if (stage == STAGE_COMPLETED and not _activation_pending(operation)) or stage == STAGE_ABORTED:
 			continue
 		if _creation_storage_recovery and not _is_new_run(operation):
-			# Only conflict classification is needed early; no selected restore source escapes.
 			listed.append({"kind": operation["kind"], "transaction_id": operation["transaction_id"]})
 		else:
 			listed.append(operation.duplicate(true))
 	return {"ok": true, "value": listed}
 
 
-## Uncertain completion/acknowledgement is resolved from atomic storage while the
-## caller retains custody. A read failure is not evidence that the write refused.
 func reload_operation_from_storage(transaction_id: String) -> Dictionary:
 	_loaded = false
 	return get_operation(transaction_id)
@@ -618,11 +590,6 @@ func _write(document: Dictionary, changed_transaction: String = "") -> Dictionar
 	if _creation_storage_recovery and (changed_transaction.is_empty()
 			or not _is_new_run(document.get("operations", {}).get(changed_transaction, {}))):
 		return _failed(&"creation_storage_recovery_only", changed_transaction)
-	# Every caller uses a validated entry path: commit/target call _validate_operation, advance
-	# constructs an exhaustive legal transition, and diagnostic clearing only nulls an
-	# already-validated failure. _document itself was validated on load. Avoid rescanning all
-	# historical completed operations on every forward step. Reuse their exact canonical bytes;
-	# changed operations still pass through the canonical writer.
 	var emitted := _serialize_document(document, changed_transaction)
 	if not emitted.get("ok", false):
 		return _failed(&"journal_serialization_failed", str(emitted.get("message", "cannot serialize journal")))
@@ -631,16 +598,10 @@ func _write(document: Dictionary, changed_transaction: String = "") -> Dictionar
 		&"write_atomic", JOURNAL_PATH, str(emitted["value"]), Callable(self, "_parse_known_document"), true
 	)
 	if not write_result.get("ok", false):
-		# An atomic adapter may report failure after the destination promotion became durable.
-		# Drop the process-local cache so the next operation reconciles physical bytes before retry.
 		_loaded = false
 		return _storage_failure(write_result)
 	return {"ok": true}
 
-## The surrounding schema is fixed and was validated on load/construction. Only internal writers
-## that clone _document and replace exactly one operation may name changed_transaction; every other
-## operation then reuses its detached canonical proof. Generic callers omit the hint and retain the
-## type-preserving comparison (Dictionary == would equate 1 and 1.0).
 func _serialize_document(document: Dictionary, changed_transaction: String = "") -> Dictionary:
 	var operations: Dictionary = document["operations"]
 	for transaction_id: String in _operation_text_cache.keys():
@@ -669,8 +630,6 @@ func _serialize_operation(operation: Dictionary) -> Dictionary:
 func _parse_known_document(text: String) -> Dictionary:
 	if _validated_text_documents.has(text):
 		_touch_validated_text(text)
-		# JsonFileStorage uses this value only as a validation witness during an atomic write.
-		# The journal retains its separately validated document and reloads through _parse_document.
 		return {"ok": true, "code": &"ok", "value": {}}
 	return _parse_document(text)
 
@@ -694,8 +653,6 @@ func _remember_validated_text(text: String, document: Dictionary) -> void:
 		_validated_text_order.erase(text)
 	_validated_text_documents[text] = document.duplicate(true)
 	_validated_text_order.append(text)
-	# Reconciliation touches the old backup after the current final. Keep that stale text
-	# alongside outgoing/current/next-backup so the next outgoing insertion evicts only stale proof.
 	while _validated_text_order.size() > 4:
 		_validated_text_documents.erase(_validated_text_order.pop_front())
 
@@ -712,9 +669,6 @@ func _validate_document(document: Variant) -> Dictionary:
 		return _failed(_schema_error, "invalid schema_version")
 	if typeof(document.get("operations", {})) != TYPE_DICTIONARY:
 		return _failed(_schema_error, "operations is not a dictionary")
-	# Creation candidate validation is independent of ordinary committed Load.
-	# Prove this finite subset first so retained scene restores can resolve their
-	# initial admission without recursively loading this same journal.
 	var validated_creations: Dictionary = {}
 	for key: Variant in document["operations"]:
 		var raw: Variant = document["operations"][key]
@@ -1602,8 +1556,6 @@ func _storage_failure(result: Dictionary, fallback: StringName = &"journal_stora
 func _failed(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": "DesktopContinuationOperationJournal: " + message}
 
-## Scene activation is acknowledged only by SaveManager after physical readiness.
-## This durable marker is not a live-session capability and never authorizes Start alone.
 func acknowledge_scene_activation(transaction_id: String, request_fingerprint: String) -> Dictionary:
 	var ready := _require_configured("acknowledge_scene_activation")
 	if not ready.get("ok", false): return ready
@@ -1687,8 +1639,6 @@ func _validate_scene_source(operation: Dictionary) -> Dictionary:
 		var display_time := _SAVE_DOCUMENT.normalize_optional_saved_time(progress_document.get("saved_time"))
 		progress_document.erase("saved_time")
 		if not display_time.is_empty(): progress_document["saved_time"] = display_time
-		# SaveDocumentSchema normalizes the current snapshot but retains historical
-		# journal bytes after validating them. Mirror that boundary for equality.
 		progress_document.current_snapshot.snapshot.erase("audio_context")
 		progress_document.current_snapshot.snapshot.erase("active_app_id")
 		if not _CANONICAL_WRITER._deep_same(progress_document, admitted["value"]["candidate"]):
@@ -1709,9 +1659,6 @@ func _validate_scene_source(operation: Dictionary) -> Dictionary:
 			return _failed(_schema_error, "retained recovery bundle is malformed")
 		var snapshot: Dictionary = bundle["snapshot"]
 		if snapshot.get("checkpoint_id") != locator["checkpoint_id"]: continue
-		# Normal Save9 admission above already validates all bundles; storage recovery
-		# keeps its existing identity-only check for the selected bundle here.
-		# A repeated checkpoint identity is ambiguous even when only one hash matches.
 		matches += 1
 		if _canonical_sha256(bundle) != locator["bundle_id"] \
 				or _canonical_sha256(snapshot) != locator["document_sha256"]:
@@ -1728,8 +1675,6 @@ func _validate_scene_source(operation: Dictionary) -> Dictionary:
 
 
 
-## Only the immutable envelope is independent of initialized Profile/scene owners.
-## Full Save9 and snapshot admission still runs after the early scope is discarded.
 func _validate_retained_scene_envelope(document: Dictionary) -> Dictionary:
 	var keys: Array[String] = _SAVE_DOCUMENT.SCENE_DOCUMENT_KEYS.duplicate()
 	if document.has("save_reason"): keys.append("save_reason")

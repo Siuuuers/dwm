@@ -1,6 +1,4 @@
 extends Node
-## Owns physical window output. Shared Settings transactions own persistence;
-## ProfileRestoreParticipant composes this output with silent Profile restoration.
 
 const PORT := preload("res://scripts/display/WindowModePort.gd")
 const PATH := &"preferences.display.window_mode"
@@ -48,8 +46,6 @@ func initialize(profile: Node, transactions: RefCounted) -> Dictionary:
 	if not prepared.ok: return prepared
 	var captured: Dictionary = _port.capture_output()
 	_available = captured.get("ok", false)
-	# Headless has no physical window. It retains an explicit unavailable capability;
-	# a production native refusal is never converted into a successful mode change.
 	if not _available and captured.get("code") != &"window_output_unavailable": return captured
 	_initialized = true
 	var bound: Dictionary = _transactions.bind_window_output(self)
@@ -127,7 +123,6 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 	var captured: Dictionary = _port.capture_output()
 	if not captured.get("ok", false): return captured
 	_applying = true
-	# Preserve the mode-only adapter contract for the original baseline.
 	var applied: Dictionary = _port.apply_mode(plan.window_mode) if window_size == "1280x720" else _port.apply_mode(plan.window_mode, window_size)
 	if applied.get("ok", false):
 		var matches: bool = _port.output_matches(plan.window_mode) if window_size == "1280x720" else _port.output_matches(plan.window_mode, window_size)

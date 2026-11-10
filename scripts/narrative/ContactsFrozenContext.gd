@@ -1,8 +1,6 @@
 class_name ContactsFrozenContext
 extends RefCounted
 
-## Presentation facts accompany their causal Contacts generation. Existing snapshots
-## are never rebuilt from later relationship values or the next day's group action.
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const RELATIONSHIP := preload("res://scripts/domain/relationship/ProvisionalProgressionRules.gd")
@@ -69,8 +67,6 @@ static func echo_card(echo: Dictionary) -> Dictionary:
 		"entry_role": "echo_fallback", "day": 7, "due_echoes": [{"echo_id": echo.get("echo_id"),
 		"presentation_atom_id": echo.get("presentation_atom_id")}]})
 
-## Call within the authoritative mutation, before its existing checkpoint. Only new
-## generation rows may sample live relationships; an old missing offer fails closed.
 static func capture_generation(before: Dictionary, candidate: Dictionary, source_day: int,
 		relationships: Dictionary, attitudes: Dictionary, cache: Dictionary, missed: Array = []) -> Dictionary:
 	var checked := validate_cache(cache, before, false, missed, source_day)
@@ -109,7 +105,6 @@ static func capture_generation(before: Dictionary, candidate: Dictionary, source
 		detached = retained.value
 	return _ok(detached)
 
-## All detached producers call this before constructing their durable checkpoint.
 static func capture_candidate(before: Dictionary, candidate: Dictionary, gameplay: Dictionary, source_day: int) -> Dictionary:
 	var route: Dictionary = gameplay.get("route_context", {}).duplicate(true)
 	var captured := capture_generation(before, candidate, source_day,
@@ -121,8 +116,6 @@ static func capture_candidate(before: Dictionary, candidate: Dictionary, gamepla
 	detached["route_context"] = route
 	return _ok(detached)
 
-## Only current, not-yet-shown ordinary cards and Day 7 echo cards may be admitted
-## lazily. Historical offer facts are captured by generation, never by projection.
 static func prepare_projection(contacts: Dictionary, gameplay: Dictionary, day: int, friend: String = "") -> Dictionary:
 	var route: Dictionary = gameplay.get("route_context", {}).duplicate(true)
 	var cache: Dictionary = route.get(CACHE_KEY, empty_cache()).duplicate(true)
@@ -254,8 +247,6 @@ static func _source_matches(state: Dictionary, cache: Dictionary, presentation: 
 			if expected.ok and expected.value == presentation: return true
 		return false
 	if fields.entry_role == "group_contact_offer" and fields.contact_variation in ["offer", "need_reply_priscilla_first", "need_reply_lavinia_first"]:
-		# A virtual offer/guard phase has its own registered identity. Message cards
-		# cannot borrow that phase's receipt by changing their variation fields.
 		if entry_id != "contact.invitation.group.priscilla_lavinia.day%d.%s" % [int(fields.day), fields.contact_variation]: return false
 		for source: Dictionary in state.get("transaction_receipts", {}).values():
 			if source.get("day") != fields.day: continue
@@ -272,8 +263,6 @@ static func _source_matches(state: Dictionary, cache: Dictionary, presentation: 
 		for message: Dictionary in state.get("messages", {}).get(friend, []):
 			if entry_id_for_message(state, friend, message) != entry_id: continue
 			if fields.entry_role in ["solo_invitation_offer", "ending_invitation_offer"]: return true
-			# Consequences have no live relationship inputs. Validate their closure
-			# fields separately; the hospital miss annotation lives in gameplay.
 			if fields.entry_role == "consequence_followup":
 				var expected := _followup(state, friend, message, fields.entry_id, missed)
 				return expected.ok and expected.value == presentation
@@ -315,8 +304,6 @@ static func _followup(state: Dictionary, friend: String, message: Dictionary, en
 				or witness.get("care_followup_day") != message.target_day \
 				or witness.get("care_followup_entry_id") != "care.sylvia.day%d" % int(message.target_day):
 			return _fail(&"contacts_frozen_message_source_invalid")
-		# Schedule Hospital commits the witness before invitation rollover closes
-		# its action. This context names the actual care handoff, never a future close.
 	else:
 		if entry_id.contains(".group."): action_id = "group:priscilla_lavinia:day%d" % source_day
 		for transition: Dictionary in _message_operation(state, message).get("state_transitions", []):
@@ -343,8 +330,6 @@ static func _message_existed(messages: Array, candidate: Dictionary) -> bool:
 	return false
 
 static func _relationship(relationship: Dictionary, attitude: String) -> Dictionary:
-	# New Run intentionally stores sparse Dating state. Its absent progression
-	# fields mean the same initial friend/zero state as the gameplay owner.
 	var tier: Variant = relationship.get("relationship_state", "friend")
 	var dark_points: Variant = relationship.get("dark_points", 0)
 	if not tier is String or typeof(dark_points) != TYPE_INT:

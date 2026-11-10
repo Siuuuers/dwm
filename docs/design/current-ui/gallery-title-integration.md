@@ -58,3 +58,14 @@ See [the acceptance summary](../../../evidence/gallery_title/summary.json) and
 [render measurements](../../../evidence/gallery_title/measurements.json). Logs
 retain the existing Unicode NUL diagnostics and 24 Dialogic fixture orphans;
 passing is not a leak-free claim.
+
+
+## Native accessibility ordering
+
+The existing Godot 4.6 workaround places hidden `TitleChrome` last in
+`GalleryScene`, and keeps `RecoveryLayer` before `WitnessedSourceCanvas` in the
+reading layout. Hidden containers can cause later siblings to disappear from
+the Windows accessibility tree; recovery draw order is controlled separately
+by its CanvasLayer. Preserve this ordering when changing those layouts. This
+retains the implementation rationale from `1f7a3f1196f3450cef9a514300012e32c00c7d36`,
+not new Windows assistive-technology qualification.

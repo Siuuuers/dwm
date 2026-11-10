@@ -1,20 +1,10 @@
 class_name ProvisionalProgressionRules
 extends RefCounted
 
-## Temporary mechanical policy approved for implementation on 2026-09-07.
-##
-## Remaining unspecified recovery and ending tuning is provisional. The fixed solo
-## promotion windows and affection thresholds follow design section 8.3. The confirmed
-## boundaries are kept here: code owns the decisions, progression is explicit
-## and once-only, Hospital requires both condition boundaries, and Day 7 freezes
-## one ordered plan before presentation.
 
 const RULESET_ID := "provisional.relationship.2026-09-07.v1"
 const RULESET_STATUS := "provisional_noncanonical"
 
-# Provisional source copy and timing, pending authored scene detail. These finite atoms
-# belong to existing Day 2 scenes; capture/fresh-run comparison and deliberate withholding
-# are accepted laws. Only these source lines, copy and 15-second duration are provisional.
 const OBSERVER_WITHHOLDING_MS := 15000
 const OBSERVER_ATOMS := {
 	"priscilla": {"entry_id": "dating.solo.priscilla.day2.pre_challenge",
@@ -35,8 +25,6 @@ const PAIR_FORMS: Array[String] = [
 	"ambiguous_sweet", "ambiguous_dark", "love_sweet", "love_dark",
 ]
 
-# Fixed third/fourth invitation valves: seven-day design section 8.3, lines 535-546.
-# The fourth slot never repairs a missed third; frozen prior effect receipts are not reevaluated.
 const PROGRESSION_WINDOWS := {
 	"dating.solo.priscilla.day4": "priscilla",
 	"dating.solo.priscilla.day6": "priscilla",
@@ -48,7 +36,6 @@ const PROGRESSION_WINDOWS := {
 
 const THIRD_VALVE_WINDOWS := ["dating.solo.priscilla.day4", "dating.solo.lavinia.day5", "dating.solo.sylvia.day4"]
 
-# Affection thresholds and Dating outcome deltas follow the accepted design. Other tuning is provisional.
 const AMBIGUOUS_MOMENTUM := 4
 const LOVE_MOMENTUM := 8
 const DARK_TONE_THRESHOLD := 2

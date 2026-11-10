@@ -1,73 +1,5 @@
 class_name DialogicEntryManifest
 extends RefCounted
-## Closed semantic entry contract (Seven-Day Flow Plan 01 Task 2, sub-commit 2A, dwm-oyo.2).
-##
-## data/manifests/dialogic_entries.json registers all 137 externally callable entries: the 119 day
-## entries of specification sections 13.1 through 13.7 and the 18 ending presentation entries the
-## 13.8 table expands to. The manifest is closed. An unknown suffix never resolves through
-## permissive pattern parsing, and resolve_entry fails by name rather than guessing a neighbour.
-##
-## WHY SOME LAWS LIVE HERE AND NOT IN THE SCHEMA (dwm-oyo.2 DEVIATION-3 Ruling 3).
-## scripts/validation/JsonSchemaValidator.gd implements exactly ten keywords - type, const, enum,
-## required, properties, additionalProperties, items, minItems, minLength, uniqueItems - and
-## silently ignores every other keyword, pattern and oneOf included. So four of the laws Task 2
-## demands cannot be written into schemas/manifests/dialogic-entries.schema.json at all:
-##
-##   ENTRY_MANIFEST_DUPLICATE_LOCATOR_PAIR   two entries naming one physical {path,label}
-##   ENTRY_MANIFEST_ABSOLUTE_OS_PATH         a locator escaping the resource sandbox
-##   ENTRY_MANIFEST_NON_RES_PATH             a locator that is not a shipped res:// master
-##   ENTRY_MANIFEST_LABEL_ENTRY_MISMATCH     a label unequal to its registered semantic entry
-##
-## tests/unit/test_dialogic_entry_manifest.gd proves, executably, that the published schema alone
-## accepts all four. Do not delete any of them believing the schema still covers it. The converse
-## also holds: locale closure and every closed vocabulary live in the schema alone, because enum
-## and additionalProperties really are enforced, and restating them here would create a law no
-## mutation could reach.
-##
-## BINDING ON SUB-COMMIT 2B: atom_namespace IS A DECLARED HOME, NOT A STRING PREFIX. The plan's
-## own mandated atom ids nest under NEITHER owning entry - atom.echo.lavinia.day1.reply.a.fallback
-## .day7 belongs to contact.ordinary.lavinia.day1, and atom.pair.day2.group.full belongs to
-## dating.group.priscilla_lavinia.day2.post_challenge. Specification 12.6 says an atom record
-## declares "kind, owning entry/stage, and optional associated line ID", so ownership is DECLARED,
-## and 12.2 asks only that the line and atom namespaces be "compatible". validate_atom_id MUST
-## resolve ownership from the atom record's declared owning entry and MUST NEVER require the atom id
-## to carry atom_namespace as a string prefix; requiring one would reject every atom id the plan
-## mandates. The ENTRY_MANIFEST_NAMESPACE_MISMATCH law below constrains only the FIELD on this
-## record - that the declared home is derived from the stable entry id rather than from a path -
-## and grants no licence to derive membership from string shape.
-##
-## KNOWN UNTESTED PATHS, recorded rather than hidden. The backslash branch of
-## _is_absolute_os_path, the per-record ENTRY_MANIFEST_DOCUMENT_SHAPE branch, fingerprint's
-## empty-string return, and the three load-time codes ENTRY_MANIFEST_FILE_MISSING,
-## ENTRY_MANIFEST_PARSE_FAILED and ENTRY_MANIFEST_SCHEMA_MISSING need filesystem manipulation or a
-## malformed Variant to reach, and are KNOWINGLY UNCOVERED by the sub-commit 2A suite. The suite
-## does pin their spelling by reading this file as text, so a rename cannot pass unnoticed.
-## _check_allowlist takes a typed Array and relies on the schema having already proved the type;
-## that reliance is the reason its old type guard was removed rather than kept as a dead law.
-##
-## TWO LAYERINGS MEASURED IN THE SUB-COMMIT 2A MUTATION CAMPAIGN, both deliberate. Disabling the
-## duplicate-locator-pair law (site G01) still rejects the same document, but as
-## ENTRY_MANIFEST_LABEL_ENTRY_MISMATCH; disabling the absolute-OS-path law (site G02) still rejects
-## its document, but as ENTRY_MANIFEST_NON_RES_PATH. Neither outer law is therefore redundant: it
-## is what turns a vague rejection into the specific one a caller can act on, and the suite asserts
-## the exact code, so removing either half is caught.
-##
-## LAW ORDER IS LOAD BEARING. Two entries can only share a locator pair by also breaking
-## label-equals-entry on one of them, so the pair check runs first; a label mismatch on its own
-## leaves the pair unique, so both laws stay independently reachable. For the same reason the
-## duplicate entry_id check precedes the label check, and the duplicate context_schema_id check
-## precedes the convention check. Reordering these silently collapses two laws into one.
-##
-## FALLBACK LAW (specification 14.1). A missing selected-locale locator falls back only to the
-## exact same semantic label in English. A missing or duplicated English locator is a FAILURE, not
-## a fallback: it starts nothing and preserves the pending event. Fallback may change language
-## only, never day, route, friend, entry, ending or consequence, which holds structurally here
-## because the fallback is read from the same record.
-##
-## SUB-COMMIT 2B adds load_ids_default, validate_ids_document, validate_signal, validate_line_id
-## and validate_atom_id over data/manifests/dialogic_ids.json, and gives resolve_entry one distinct
-## code for a retired label. Its own header, further down this file, states those laws, the order
-## they run in and what they deliberately do not promise.
 
 const MANIFEST_PATH := "res://data/manifests/dialogic_entries.json"
 const SCHEMA_PATH := "res://schemas/manifests/dialogic-entries.schema.json"
@@ -98,9 +30,6 @@ static var _first_target_id := ""
 const SCENE_TEST_FLAG := "--scene-reading-fixture"
 const SCENE_TEST_BUNDLE_PATH := "res://tests/fixtures/dialogic/scene_reading_registration.json"
 
-## First owner access precedes consumers' caches, including autoload consumers.
-## Normal startup selects the shipped story; the explicit debug switch selects the test fixture.
-## The exact environment value supports GUT, which rejects unknown CLI flags.
 static func _select_startup_fixture() -> Dictionary:
 	if _startup_selection_checked:
 		return {"ok": true} if _startup_selection_error.is_empty() else _startup_selection_error.duplicate(true)
@@ -135,7 +64,6 @@ static func first_target_id() -> String:
 	if not _select_startup_fixture().ok: return ""
 	return _first_target_id
 
-## Process-local engineering seam. Save data is never a configuration source.
 static func configure_test_scene_registration(bundle: Dictionary) -> Dictionary:
 	if not OS.has_feature("debug"):
 		return _scene_fail("test_only")
@@ -145,8 +73,6 @@ static func configure_test_scene_registration(bundle: Dictionary) -> Dictionary:
 	if not checked.ok: return checked
 	return _configure_scene_registration(bundle)
 
-## Runtime trusts shipped authored content. CI explicitly validates its DTL;
-## this owner prepares the registration indexes once for the installed process.
 static func _configure_scene_registration(bundle: Dictionary) -> Dictionary:
 	if _registration_used or not _scene_bundle.is_empty():
 		return _scene_fail("registration_already_selected")
@@ -166,8 +92,6 @@ static func scene_registration() -> Dictionary:
 	if _scene_bundle.is_empty(): return _fail(&"scene_registration_absent", "no scene registration selected")
 	return {"ok": true, "value": _scene_bundle.duplicate(true)}
 
-## The selected registration owns this recursively immutable derived projection.
-## Callers with arbitrary bundles must still validate those inputs independently.
 static func scene_contract_tables() -> Dictionary:
 	var startup := _select_startup_fixture()
 	if not startup.ok: return startup
@@ -175,8 +99,6 @@ static func scene_contract_tables() -> Dictionary:
 	if _scene_bundle.is_empty(): return _fail(&"scene_registration_absent", "no scene registration selected")
 	return {"ok": true, "value": _scene_contract_tables, "bundle": _scene_bundle}
 
-## Only this exact frozen bundle can reuse the owner's prepared tables. Do not
-## select startup here: configuration itself calls the structural validator.
 static func prepared_scene_contract(bundle: Variant) -> Dictionary:
 	if _scene_bundle.is_empty() or not is_same(bundle, _scene_bundle): return {}
 	return {"ok": true, "value": _scene_contract_tables}
@@ -264,7 +186,6 @@ static func _validate_scene_manifest(document: Dictionary) -> Dictionary:
 		if not signals.ok: return signals
 	return {"ok": true, "value": document.duplicate(true)}
 
-## Validate the complete bundle before any consumer can populate a cache.
 static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 	var header := validate_scene_bundle_header(bundle)
 	if not header.ok: return header
@@ -340,14 +261,11 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 		for plan: Dictionary in bundle.audio_catalogue.plans:
 			if plan.music != null: audio_plans[plan.plan_id] = true
 		for asset: Dictionary in bundle.audio_catalogue.assets: audio_assets[asset.asset_id] = asset
-	# Invocation-local only: native parsing is shared across entries in one DTL,
-	# while every entry still reads current bytes and validates its own programme.
 	var parsed_sources := {}
 	for id: String in entries:
 		var row: Dictionary = programmes.value.get(id, {})
 		if not _scene_version(row.get("content_version")) or row.content_version != entries[id].content_version \
 				or not row.get("markers") is Array: return _scene_fail("programme version")
-		# Shape-check before the native compiler consumes any marker fields.
 		for marker: Variant in row.markers:
 			if not _scene_exact(marker, ["marker_id", "label", "after_line_id", "kind", "payload"]):
 				return _scene_fail("marker shape")
@@ -360,8 +278,6 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 		if not native.ok: return native
 		if row.content_sha256 != native.value.content_sha256 or row.program_sha256 != native.value.program_sha256:
 			return _scene_fail("programme hash")
-		# Authored references are admitted with the installed programme, never
-		# searched or revalidated while a player advances through captions.
 		for node: Dictionary in native.value.nodes:
 			var art_commands: Dictionary = preload("res://scripts/data/ArtManifest.gd").validate_presentation_commands(node.get("presentation_commands", []))
 			if not art_commands.ok: return art_commands
@@ -404,7 +320,6 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 			expected_signals.append(marker.kind)
 		for signal_id: String in native_signals:
 			if signal_id not in expected_signals: return _scene_fail("DTL signal coverage")
-		# A marker must immediately follow its authenticated source caption label boundary.
 		var thought_ids := {}
 		for node: Dictionary in native.value.nodes:
 			if node.has("self_talk"): thought_ids[node.self_talk.line_id] = true
@@ -425,8 +340,6 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 		expected_grants.sort()
 		if actual_marker_order != declared_marker_order or entries[id].allowed_signals != expected_grants:
 			return _scene_fail("marker order/grants")
-	# Initial passage replay supports linear ordinary entries only. Native nodes,
-	# not registry order alone, prove exactly which captions the player reads.
 	var passages: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(bundle, compiled)
 	if not passages.ok: return passages
 	for passage: Dictionary in passages.value.records.values():
@@ -448,9 +361,6 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 	if not tables.ok: return tables
 	return {"ok": true, "value": bundle.duplicate(true)}
 
-## Shared closed envelope admission, not a replacement for full DTL validation.
-## The Contacts owner preloads this script, so load its pure validator only at
-## call time. Never call its installed-registration reader from this path.
 static func validate_scene_bundle_header(bundle: Variant) -> Dictionary:
 	if not bundle is Dictionary or typeof(bundle.get("schema_version")) != TYPE_INT:
 		return _scene_fail("bundle shape")
@@ -529,7 +439,6 @@ static func _validate_scene_tables(bundle: Dictionary, entries: Dictionary, prog
 		var supported: bool = geometry.ok and (geometry.value == authored_geometry or (host in ["canonical_solo", "canonical_pair"] and beginner.value == authored_geometry))
 		if not supported or (host != "desktop_app" and row.difficulty_id != host):
 			return _scene_fail("unsupported board profile")
-		# Explicit scene discriminator selects the existing inventory capability projection.
 		if row.generator_version != "dwm_generator_v1" or row.verifier_version != "visible_deduction_v1" \
 				or row.capability_policy_id != "owned_inventory_v1": return _scene_fail("unsupported board policy")
 	for row: Dictionary in challenges.value.values():
@@ -587,88 +496,7 @@ static func _validate_scene_tables(bundle: Dictionary, entries: Dictionary, prog
 	return {"ok": true}
 
 
-# --------------------------------------------------------------------------------------------
-# Sub-commit 2B: the exact ID registries.
-# --------------------------------------------------------------------------------------------
 
-## Sub-commit 2B: load_ids_default, validate_ids_document, validate_signal, validate_line_id and
-## validate_atom_id, over data/manifests/dialogic_ids.json.
-##
-## HOW THE TWO DOCUMENTS RELATE. The `document` parameter of validate_signal, validate_line_id and
-## validate_atom_id is the ENTRIES document, uniformly with validate_document and resolve_entry, so
-## a caller that already holds one manifest never has to hold two. The ids registry is read from
-## disk by _load_ids_registry, mirroring _load_schema. validate_ids_document is the one public entry
-## point that takes the ids document EXPLICITLY, so every named IDS_MANIFEST_ failure code is
-## reachable from a fixture and can be killed individually in a mutation campaign.
-##
-## THE SCHEMA/CODE SPLIT, again (DEVIATION-3 Ruling 3). schemas/manifests/dialogic-ids.schema.json
-## owns every closed vocabulary and every record shape, because enum, additionalProperties, minItems,
-## minLength and uniqueItems really are enforced. The laws below are exactly the ones no implemented
-## keyword can express, and none of them restates the schema:
-##
-##   IDS_MANIFEST_BLOCK_SHAPE                a registry block that is not an array of records
-##   IDS_MANIFEST_COUNT_MISMATCH             a declared count that disagrees with its collection
-##   IDS_MANIFEST_DUPLICATE_ID               one id registered twice inside a block
-##   IDS_MANIFEST_UNKNOWN_OWNING_ENTRY       a declared owner absent from the 2A entries manifest
-##   IDS_MANIFEST_UNKNOWN_PRESENTATION_ENTRY a declared presentation site absent from it
-##   IDS_MANIFEST_ATOM_PARTITION_INVALID     an echo atom without an echo id, or a pair atom with one
-##   IDS_MANIFEST_ECHO_BINDING_INVALID       an echo id that is not Ruling G's derivation
-##   IDS_MANIFEST_ASSOCIATED_LINE_INVALID    an associated line id that is not a registered line
-##   IDS_MANIFEST_SIGNAL_PAYLOAD_INVALID     a payload list missing its envelope or stored unsorted
-##   IDS_MANIFEST_SIGNAL_STAGE_INVALID       a source stage outside this document's own vocabulary
-##   IDS_MANIFEST_RETIRED_ID_INVALID         a retired label that restores, or that is also callable
-##   IDS_MANIFEST_PAIR_WITNESS_MISMATCH      the pair.combination.witness / pair atom iff law
-##   IDS_MANIFEST_ORDINARY_TRIPLE_MISMATCH   three replies, three lines, three atoms apiece
-##
-## LAW ORDER IS LOAD BEARING HERE TOO. Block shape runs before the schema so a non-array block is
-## named rather than reported as a bare type error. Counts run before duplicates, because appending
-## a duplicate record breaks both; the duplicate law stays independently reachable by appending a
-## duplicate AND raising the declared count to match. Duplicates in turn run before the two tally
-## laws, because a duplicated atom also breaks the three-apiece tally. The atom partition check runs
-## before the echo derivation, so a null echo id on an echo atom is named as a partition break rather
-## than as a failed derivation. Reordering any of these silently collapses two laws into one.
-##
-## RULING B, RESTATED WHERE IT IS IMPLEMENTED. validate_atom_id resolves ownership from the atom
-## record's declared owning_entry_id and its declared presented_in_entry_ids. It NEVER requires the
-## atom id to carry the owning entry's atom_namespace as a string prefix, because not one of the 22
-## atom ids the plan mandates does: atom.echo.lavinia.day1.reply.a.fallback.day7 belongs to
-## contact.ordinary.lavinia.day1, whose atom_namespace is atom.contact.ordinary.lavinia.day1. The
-## same holds for validate_line_id under DEVIATION-4 Ruling E: specification 12.6 forbids deriving a
-## line id from path, line number, translated text or label position, and a namespace prefix is the
-## same kind of derivation. The suite measures the prefix relation separately and labels that
-## measurement a CHANGE DETECTOR rather than a proof.
-##
-## RULING C, AND WHAT THE SUCCESS VALUE REPORTS. An atom resolves at the entry that OWNS it or at an
-## entry that PRESENTS it, and the success value's `match` field says which, so a caller can tell a
-## Day-7 fallback presentation from an ordinary-entry ownership claim. The owner is tested first, so
-## the four pair atoms, whose owner and only presentation site are the same entry, report "owner".
-##
-## WHAT validate_signal DOES NOT PROMISE. Four payload fields have no registry in this phase.
-## playback_token is minted per entry by the bridge and receipt_id per command by the state owner,
-## so specification 12.8 gives neither any vocabulary at all; evidence_id and combination_id await
-## the approved content card the plan defers Observer evidence and pair combinations to. All four are
-## constrained to a non-empty string and to nothing stronger. That is deliberately weaker than a
-## registry lookup and is written down here rather than dressed up as a closed law.
-##
-## observer.evidence.commit IS REGISTERED AND UNGRANTABLE. The plan holds production Observer
-## evidence capabilities absent until an approved content card supplies an exact source entry and
-## atom, and no entry in the 2A manifest lists the signal, so every emission is refused as
-## SIGNAL_NOT_GRANTED. The registry still carries its payload row, because 12.8 declares it.
-##
-## THE ONE 2A BEHAVIOUR CHANGE. resolve_entry now consults the retired-id block before reporting
-## ENTRY_MANIFEST_UNKNOWN_ENTRY, so a legacy ending.<friend>.true label arriving from an old save is
-## refused as ENTRY_MANIFEST_RETIRED_ENTRY, by name, rather than as an anonymous stranger. It is
-## additive over exactly three strings; every other entry id reaches the same code it did before.
-## When the ids registry is unreadable the check falls through to the old code, so a missing registry
-## degrades a diagnostic rather than changing which ids resolve.
-##
-## KNOWN UNTESTED PATHS ADDED BY THIS SUB-COMMIT, recorded rather than hidden.
-## IDS_MANIFEST_FILE_MISSING, IDS_MANIFEST_PARSE_FAILED, IDS_MANIFEST_SCHEMA_MISSING and
-## IDS_MANIFEST_ENTRIES_UNAVAILABLE all need a file to be absent or corrupt on disk, which the suite
-## does not do; the evidence_id half of the opaque-field guard cannot be reached at all while no
-## entry grants observer.evidence.commit. All are KNOWINGLY UNCOVERED and their spellings are pinned
-## by the suite reading this file as text. resolve_entry's explicit registry seam covers the otherwise
-## unreachable reject_on_restore=false diagnostic branch without accepting that invalid registry.
 
 const IDS_MANIFEST_PATH := "res://data/manifests/dialogic_ids.json"
 const IDS_SCHEMA_PATH := "res://schemas/manifests/dialogic-ids.schema.json"
@@ -680,7 +508,6 @@ const REPLY_SIGNAL := "message.reply.commit"
 const PAIR_WITNESS_SIGNAL := "pair.combination.witness"
 const REPLIES_PER_ORDINARY_ENTRY := 3
 
-## Each declared count beside the collection it counts.
 const REGISTRY_COUNTS := [
 	["atom_count", "atoms"],
 	["ending_form_count", "ending_form_union"],
@@ -692,7 +519,6 @@ const REGISTRY_COUNTS := [
 	["source_stage_count", "source_stages"],
 ]
 
-## Each block of records beside the field that identifies one.
 const REGISTRY_RECORDS := [
 	["atoms", "atom_id"],
 	["reply_ids", "reply_id"],
@@ -701,14 +527,10 @@ const REGISTRY_RECORDS := [
 	["signals", "signal_id"],
 ]
 
-## Every block whose records declare an owning entry.
 const OWNED_BLOCKS := ["atoms", "reply_ids", "reply_lines"]
 
-## Specification 12.4 makes the playback token mandatory and 12.5 makes every command an idempotent
-## receipt, so no registered payload may drop either; 12.8 prints entry_id on all five rows.
 const PAYLOAD_ENVELOPE := ["entry_id", "playback_token", "receipt_id"]
 
-## The four payload fields with no registry in this phase. See the header.
 const OPAQUE_PAYLOAD_FIELDS := ["combination_id", "evidence_id", "playback_token", "receipt_id"]
 
 
@@ -897,8 +719,6 @@ static func resolve_entry(document: Dictionary, entry_id: String, locale: String
 	return _resolved(entry_id, default_locale, locale, english, true)
 
 
-## The SHA-256 of the document's canonical serialization. Empty only when the document cannot be
-## canonicalized at all, which CanonicalJsonWriter reports for a non-JSON Variant.
 static func fingerprint(document: Dictionary) -> String:
 	if document.get("schema_version") == 2:
 		if not _select_startup_fixture().ok: return ""
@@ -923,10 +743,6 @@ static func _load_schema() -> Dictionary:
 	return {"ok": true, "value": parsed["value"]}
 
 
-## Only the two laws the published schema cannot express live here. The schema already declares
-## allowed_signals as an array with uniqueItems, and validate_document runs it first, so a type
-## guard and a duplicate scan in this function would be laws no mutation could reach - exactly what
-## the header warns against. They were present in the first revision of this file and are removed.
 static func _check_allowlist(entry_id: String, signal_ids: Array) -> Dictionary:
 	if not signal_ids.has(WITNESS_SIGNAL):
 		return _fail(&"ENTRY_MANIFEST_SIGNAL_LIST_INVALID",
@@ -960,8 +776,6 @@ static func _locator_is_usable(locator: Dictionary, entry_id: String) -> bool:
 	return str(locator.get("label", "")) == entry_id
 
 
-## A drive-letter prefix or a leading separator means the locator has left the resource sandbox.
-## res:// and user:// both carry a non-colon second character, so neither is misread as a drive.
 static func _is_absolute_os_path(path: String) -> bool:
 	if path.begins_with("/") or path.begins_with("\\"):
 		return true
@@ -1006,7 +820,6 @@ static func load_ids_default() -> Dictionary:
 	return {"ok": true, "value": parsed["value"]}
 
 
-## The registry document, taken explicitly so every law below is reachable from a fixture.
 static func validate_ids_document(ids_document: Dictionary) -> Dictionary:
 	if ids_document.get("kind") == "scene_ids_registry":
 		if _scene_bundle.is_empty() or ids_document != _scene_bundle.ids_registry:
@@ -1172,9 +985,6 @@ static func validate_ids_document(ids_document: Dictionary) -> Dictionary:
 	return {"ok": true, "value": ids_document}
 
 
-## DEVIATION-4 Ruling E. Ownership is the record's declared owning_entry_id and NOTHING about the
-## shape of line_id. A stranger that happens to sit under the owner's line_namespace is still
-## refused, because membership here is registration.
 static func validate_line_id(document: Dictionary, entry_id: String, line_id: String) -> Dictionary:
 	if document.get("schema_version") == 2:
 		var selected := scene_registration()
@@ -1204,16 +1014,11 @@ static func validate_line_id(document: Dictionary, entry_id: String, line_id: St
 	return _fail(&"LINE_ID_UNREGISTERED", "%s is not a registered line id" % line_id)
 
 
-## Separate opt-in caption registration; the reply/Observer registry is not a
-## complete narrative beat catalog. This never grants Profile visited membership.
 static func validate_caption_registry(document: Dictionary, registry: Dictionary) -> Dictionary:
 	return preload("res://scripts/narrative/NarrativeCaptionRegistry.gd").validate_document(
 		registry, _entry_index(document).keys())
 
 
-## DEVIATION-4 Ruling C. An atom resolves at the entry that OWNS it or at an entry that PRESENTS it,
-## and the success value's match field reports which. RULING B: nothing here reads the shape of
-## atom_id, because no atom id the plan mandates nests under its owner's atom_namespace.
 static func validate_atom_id(document: Dictionary, entry_id: String, atom_id: String) -> Dictionary:
 	var registry := load_ids_default()
 	if not registry.get("ok", false):
@@ -1232,10 +1037,6 @@ static func validate_atom_id(document: Dictionary, entry_id: String, atom_id: St
 	return _fail(&"ATOM_ID_UNREGISTERED", "%s is not a registered presentation atom" % atom_id)
 
 
-## Specification 12.8's allowlist, composed rather than duplicated: the payload must name the same
-## entry, the entry must be registered and must grant the signal, the stage must be one the signal
-## allows, the payload field set must be EXACTLY the registered list, and every id it carries is
-## delegated to the validator that owns it, so the caller sees that validator's own named code.
 static func validate_signal(document: Dictionary, entry_id: String, stage: StringName,
 		signal_id: String, payload: Dictionary) -> Dictionary:
 	if str(payload.get("entry_id", "")) != entry_id:
@@ -1364,9 +1165,6 @@ static func _atom_resolved(record: Dictionary, match_kind: String) -> Dictionary
 	}
 
 
-## True only for a label the registry both lists as retired AND marks reject_on_restore. Omission
-## loads the shipped registry; an explicit empty registry never reads disk. If the shipped registry
-## cannot be read, resolve_entry degrades to its old generic code without resolving the entry.
 static func _is_retired_label(entry_id: String, retired_registry: Variant = null) -> bool:
 	var registry: Dictionary = {}
 	if retired_registry == null:

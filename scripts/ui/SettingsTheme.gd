@@ -46,7 +46,6 @@ static func _build_context(locale: String, percent: int, palette_id: StringName 
 	var font := FontVariation.new()
 	font.base_font = primary
 	var fallbacks: Array[Font] = []
-	# Every language name must remain readable while another language is selected.
 	for companion_locale: String in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
 		var companion := TYPOGRAPHY.font(companion_locale, percent, font_style)
 		if companion != primary:
@@ -76,7 +75,6 @@ static func _build_context(locale: String, percent: int, palette_id: StringName 
 	for state: String in ["font_color", "font_hover_color", "font_disabled_color"]:
 		result.set_color(state, "PopupMenu", roles.paper_ink)
 	result.set_constant("v_separation", "PopupMenu", 16)
-	# Slider values and the preview thumb are drawn from separate committed/live values.
 	for state: String in ["slider", "grabber_area", "grabber_area_highlight"]:
 		result.set_stylebox(state, "HSlider", StyleBoxEmpty.new())
 	var transparent := Image.create(24, 32, false, Image.FORMAT_RGBA8)
@@ -134,7 +132,6 @@ static func confirmation_theme(source: Theme, font_size: int, large_targets: boo
 		result.set_stylebox(state, "Button", box(roles.face))
 	for state: String in ["font_color", "font_hover_color", "font_pressed_color", "font_hover_pressed_color", "font_focus_color", "font_disabled_color"]:
 		result.set_color(state, "Button", roles.ink)
-	# The native title is part of the same document, with no unrelated window skin.
 	var border := box(roles.paper, roles.paper_ink, 2)
 	border.expand_margin_left = 2
 	border.expand_margin_right = 2
@@ -198,7 +195,6 @@ static func apply_category(button: Button, selected: bool) -> void:
 
 static func apply_volume_value(label: Label, preview: bool) -> void:
 	var roles := roles_for(label)
-	# Both states reserve the same space; contact never moves the surrounding rows.
 	label.add_theme_stylebox_override("normal", box(roles.inward_preview if preview else roles.paper, roles.structure if preview else Color.TRANSPARENT, 2))
 	label.add_theme_color_override("font_color", roles.ink if preview else roles.paper_ink)
 
@@ -327,7 +323,6 @@ class StateSpecimen extends Control:
 		elif state == "Focus":
 			SettingsTheme.draw_focus(self, rect, "paper")
 		elif state == "Warning":
-			# Warning's double rule and triangular glyph supplement its literal label.
 			draw_line(rect.position, Vector2(rect.end.x, rect.position.y), roles.paper_ink, 2)
 			draw_line(rect.position + Vector2(0, 4), Vector2(rect.end.x, rect.position.y + 4), roles.paper_ink, 2)
 			var p := rect.position + Vector2(8, 16)

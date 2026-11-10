@@ -1,15 +1,6 @@
 class_name DesktopBoardRestoreParticipant
 extends RefCounted
 
-## Restore participant wrapping a live DesktopBoardState (Plan 02 Task 6, dwm-p2r.32, Phase C).
-## Mirrors DesktopConsequenceRestoreParticipant's shape: no owner indirection, silent apply
-## (brief line 382, Step 6.8 -- "applying consequence before board lets a restored SETTLING board
-## validate its pending journal owner", so this participant is always driven AFTER the consequence
-## one in SaveManager's participant order and never publishes anything itself).
-##
-## DesktopBoardState.capture() returns its state dict directly (no {ok,value} envelope, unlike most
-## of this codebase's other prepare/commit seams) -- this participant wraps that raw dict into the
-## uniform {ok,value} shape every SaveManager participant is required to return.
 
 const DESKTOP_BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 
@@ -20,8 +11,6 @@ func _init(state: Object, issuer: Object = null) -> void:
 	_state = state
 	_issuer = issuer
 
-## `input.state` is a schema-valid v4 board capture (already remapped, for a restore, by
-## DesktopContinuationRemapper before this participant ever sees it).
 func prepare(input: Dictionary) -> Dictionary:
 	if typeof(input.get("state")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_board_input", "board participant requires input.state")

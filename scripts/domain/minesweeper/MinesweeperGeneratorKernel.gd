@@ -1,39 +1,6 @@
 class_name MinesweeperGeneratorKernel
 extends RefCounted
 
-## The one pure candidate/search kernel for bounded certified board generation (Plan 02 Task 4,
-## dwm-p2r13). Used identically by the runtime adapter (mode candidate_search), the certified
-## fallback builder (mode fallback_construction), and the benchmark tool (mode candidate_search).
-## No fallback input, manifest loader, file I/O, clock, environment read, default operation limit,
-## or internal unbounded loop -- every draw comes from the three explicit RNG states the caller
-## restores/threads through begin()/advance(), and every verifier call is bounded by a limit this
-## kernel computes (per_candidate_cost, see advance()) so it can never itself receive
-## generation_budget_exhausted.
-##
-## GeneratorKernelSpec is the exact pure projection of BoardSpec with no board token or issuer-
-## receipt member; production and tooling both build it, but only production first validates the
-## complete trusted BoardSpec/nonce receipts (MinesweeperBoardGenerator's job, not this kernel's --
-## the kernel cannot distinguish or authorize production identity).
-##
-## Candidate construction: the pool is every cell except forced_cell (and, when capability_ids
-## contains "first_cell_zero", forced_cell's neighbors too). At the current extra_tier, a partial
-## Fisher-Yates selection of the pool is drawn from placement_rng_state and its first
-## base_mine_count+extra_tier cells become mine_indices for one verifier call. A rule-application
-## step in MinesweeperNoGuessVerifier can never revisit an already-decided cell (each step strictly
-## shrinks the undetermined set), so trace length is bounded by width*height-1; this kernel always
-## offers verify() a budget of exactly width*height, which is therefore always sufficient for a
-## DEFINITIVE resolution (certified or guess_required) -- generation_budget_exhausted can never
-## occur from an internal call, so "operations" are accounted as a flat, exact, deterministic
-## width*height per candidate attempted, regardless of outcome. This is a per-attempt *budget
-## consumed* accounting, not a measure of the verifier's own (smaller, outcome-dependent) trace
-## length; see task-4-report.md for the rationale.
-##
-## Extra-tier descent: extra_tier starts at min(requested_mine_count-base_mine_count, the maximum
-## extra that structurally fits outside the exclusions) and descends by one after every
-## guess_required candidate, wrapping back to that same maximum once tier 0 also fails -- an
-## unbounded, deterministic, ever-continuing descending sweep. advance() stops (returns status
-## "searching") as soon as fewer than width*height operations remain in its own operation_limit,
-## never mid-candidate, so a slice never wastes a partial, unresumable verify() call.
 
 const _RNG := preload("res://scripts/domain/minesweeper/DeterministicRng32.gd")
 const _VERIFIER := preload("res://scripts/domain/minesweeper/MinesweeperNoGuessVerifier.gd")
@@ -221,9 +188,6 @@ static func advance(frontier: Dictionary, operation_limit: int) -> Dictionary:
 
 		var failure_code: StringName = StringName(verified.get("code", &"unknown_failure"))
 		if failure_code != &"guess_required":
-			# A technical/invariant failure (should be unreachable given the fixed per_candidate_cost
-			# bound and exclusion-respecting candidate construction above) always fails closed rather
-			# than silently substituting a guessing board.
 			return verified
 		last_failure_code = failure_code
 		extra_tier -= 1
@@ -242,9 +206,6 @@ static func advance(frontier: Dictionary, operation_limit: int) -> Dictionary:
 	}}, "receipt": {}}
 
 
-## The exact GeneratorKernelSpec projection validator, mirroring MinesweeperBoardSchema.validate_spec
-## for the fields this projection shares with BoardSpec (same types/closed values), minus the
-## pressure/penalty/board-token/receipt members this projection deliberately excludes.
 static func validate_spec(spec: Dictionary) -> Dictionary:
 	var shape := _exact_keys(spec, SPEC_KEYS, &"spec_member_set_invalid")
 	if not shape.get("ok", false):
@@ -313,7 +274,6 @@ static func is_legal_status(status: Variant) -> bool:
 	return STATUSES.has(StringName(status))
 
 
-# ---- shared helpers ----
 
 static func _effective_max_extra(spec: Dictionary, available_cells: int) -> int:
 	var base_mine_count: int = int(spec["base_mine_count"])
@@ -360,13 +320,6 @@ static func _neighbors(index: int, width: int, height: int) -> Array[int]:
 	return result
 
 
-## Partial Fisher-Yates selection of `mine_count` elements from `pool`, driven entirely by
-## `rng.sample_bounded()`; `pool` itself is never mutated. Only min(mine_count, pool.size()-1)
-## swaps are performed (not a full pool.size()-1 shuffle) -- the well-known partial-shuffle
-## technique for drawing a uniform random k-subset in random order, load-bearing for expert-board
-## performance where pool.size() can be ~475 but mine_count is far smaller. Every draw advances
-## rng's own internal state (and therefore its draw_count), which is exactly the "mine
-## permutations ... consume only minesweeper_placement_v1" law.
 static func sample_mine_indices(pool: Array[int], mine_count: int, rng: RefCounted) -> Array[int]:
 	var working: Array[int] = pool.duplicate()
 	var n: int = working.size()

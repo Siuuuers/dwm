@@ -1,39 +1,18 @@
 class_name ScheduleRules
 extends RefCounted
 
-## Pure accepted-schema Schedule validation (Plan 01 Task 1, dwm-p2r.12).
-##
-## The registry is INJECTED. This module never reads DataCatalog, GameState, Contacts, scenes, or
-## files, never mutates its inputs, and never charges motivation -- motivation is a commit-time
-## fact owned by GameStateScheduleCommitPort.
-##
-## Draft validation and candidate validation are the SAME rule set: a candidate is accepted only by
-## validating the prospective whole draft. That is what makes "Add accepted" imply "Done accepts",
-## with existing-state failure surfacing before any candidate fault.
-##
-## Route, effects and cost are registry-derived. A caller-supplied route/effect/cost/unlock field is
-## malformed input, never authority.
-##
-## Selectively reimplemented from quarantined evidence branch feat/p2r7-strict-schedule-validation
-## (base 49947e5, tip 5e9ab64). Deliberately NOT ported: the nine-key caller route/effects shape,
-## global duplicate action IDs, add-time motivation, Day-4 Priscilla placement, unlock/eligibility
-## dictionaries, and date_completed proof.
 
-## Exact draft entry keys (sorted). Anything more or less is malformed.
 const DRAFT_KEYS: Array[String] = [
 	"action_id", "action_kind", "day", "draft_entry_id", "participants", "slot_index",
 	"source_receipt_id",
 ]
-## Exact committed entry keys (sorted), including issuer child provenance.
 const COMMITTED_KEYS: Array[String] = [
 	"action_id", "action_kind", "commit_transaction_id", "day", "participants",
 	"schedule_entry_id", "schedule_entry_provenance", "slot_index", "source_receipt_id", "state",
 ]
-## Exact top-level committed aggregate keys (sorted).
 const AGGREGATE_KEYS: Array[String] = [
 	"commit_receipt", "day", "entries", "registry_fingerprint", "schema_version",
 ]
-## Exact source receipt keys (sorted).
 const SOURCE_KEYS: Array[String] = [
 	"action_id", "day", "kind", "participants", "previous_receipt_id", "receipt_id",
 	"receipt_provenance",
@@ -45,16 +24,13 @@ const DATE_KINDS: Array[String] = ["solo", "group"]
 const FIRST_DAY := 1
 const LAST_DAY := 7
 const ENDING_DAY := 7
-## Days 1-6 expose exactly seven boxes at slots 0..6 and allow at most two dates.
 const DAY_BOXES := 7
 const MAX_DATES := 2
-## The single Day-7 destination sits at slot zero; an empty Day-7 schedule is the legal Alone state.
 const DAY7_SLOT := 0
 const SCHEMA_VERSION := 1
 const COMMITTED_STATE := "committed"
 
 
-# ---- accepted public surface ----
 
 static func validate_draft(day: int, entries: Array, registry: Object, expected_fingerprint: String,
 		source_receipts: Dictionary) -> Dictionary:
@@ -78,14 +54,12 @@ static func validate_draft(day: int, entries: Array, registry: Object, expected_
 
 static func validate_draft_candidate(day: int, existing: Array, candidate: Dictionary,
 		registry: Object, expected_fingerprint: String, source_receipts: Dictionary) -> Dictionary:
-	# Existing state is judged first, so a corrupt draft is never reported as a candidate fault.
 	var existing_result := validate_draft(day, existing, registry, expected_fingerprint,
 		source_receipts)
 	if not existing_result.get("ok", false):
 		return existing_result
 	var prospective: Array = existing.duplicate()
 	prospective.append(candidate)
-	# Candidate success IS whole-draft success; there is no second, divergent rule set.
 	var prospective_result := validate_draft(day, prospective, registry, expected_fingerprint,
 		source_receipts)
 	if not prospective_result.get("ok", false):
@@ -107,8 +81,6 @@ static func validate_committed(committed_schedule: Dictionary, registry: Object,
 
 
 static func build_route_plan(committed_schedule: Dictionary, registry: Object) -> Dictionary:
-	# Transient projection recomputed from committed IDs plus the saved fingerprint. Never
-	# persisted as a second authority, and never echoing a caller-supplied fact.
 	var structure := _committed_structure(committed_schedule, registry)
 	if not structure.get("ok", false):
 		return structure
@@ -119,8 +91,6 @@ static func build_route_plan(committed_schedule: Dictionary, registry: Object) -
 		return law
 	var routed: Array[Dictionary] = []
 	if day != ENDING_DAY:
-		# A Day-7 destination emits no physical route descriptor; its only output is the
-		# provenance handoff owned by a later task.
 		var ordered := projected.duplicate()
 		ordered.sort_custom(func(left: Dictionary, right: Dictionary) -> bool:
 			return int(left["slot_index"]) < int(right["slot_index"]))
@@ -141,7 +111,6 @@ static func build_route_plan(committed_schedule: Dictionary, registry: Object) -
 	return _ok({"route_plan": routed})
 
 
-# ---- shared law ----
 
 static func _guard_registry(day: int, registry: Object, expected_fingerprint: String) -> Dictionary:
 	if typeof(day) != TYPE_INT or day < FIRST_DAY or day > LAST_DAY:
@@ -206,7 +175,6 @@ static func _validate_law(day: int, entries: Array, registry: Object, source_rec
 	var structure := _day_structure_error(day, entries, date_count)
 	if not structure.is_empty():
 		return structure
-	# A group date supersedes its participants' solos; they cannot coexist in one schedule.
 	for participant: Variant in group_participants:
 		if solo_participants.has(str(participant)):
 			return _fail(&"superseded_solo_date",
@@ -217,7 +185,6 @@ static func _validate_law(day: int, entries: Array, registry: Object, source_rec
 
 static func _day_structure_error(day: int, entries: Array, date_count: int) -> Dictionary:
 	if day == ENDING_DAY:
-		# Empty is the legal Alone state; otherwise exactly one solo destination at slot zero.
 		if entries.size() > 1:
 			return _fail(&"too_many_entries", "Day 7 holds at most one entry",
 				{"day": day, "entry_count": entries.size()})
@@ -274,9 +241,6 @@ static func _source_error(entry: Dictionary, record: Dictionary, source_receipts
 		return _fail(&"invalid_source_receipt", "a date requires its acceptance receipt",
 			{"action_id": action_id})
 	if not authenticate:
-		# build_route_plan is handed no receipt index, so it authenticates structure only. This is
-		# an explicit mode, never inferred from an empty index -- inferring it would silently
-		# accept an unresolvable source wherever a caller passed {}.
 		return {}
 	if not source_receipts.has(str(source_id)):
 		return _fail(&"unresolved_source_receipt", "the source receipt does not resolve",
@@ -310,7 +274,6 @@ static func _source_error(entry: Dictionary, record: Dictionary, source_receipts
 	return {}
 
 
-# ---- shape ----
 
 static func _draft_shape_error(entry: Dictionary, day: int) -> Dictionary:
 	var keys: Array = entry.keys()
@@ -376,34 +339,16 @@ static func _committed_structure(aggregate: Dictionary, registry: Object) -> Dic
 		return _fail(&"invalid_committed_schedule", "entries must be an array", {"field": "entries"})
 	var entries: Array = aggregate["entries"]
 	var receipt: Variant = aggregate["commit_receipt"]
-	# RECONCILED IN TASK 5 (dwm-p2r.13). A receipt-backed EMPTY aggregate is LEGAL: it is the
-	# `empty_schedule_done` Done commit that ScheduleStateSchema validates and that Task 6 route
-	# projection must be able to carry. This module previously rejected that shape, which is why
-	# Task 4 never routed a receipt-backed empty through here.
 	if receipt != null and typeof(receipt) != TYPE_DICTIONARY:
 		return _fail(&"invalid_committed_schedule",
 			"the commit receipt is a dictionary or null", {"field": "commit_receipt"})
 	if not entries.is_empty() and receipt == null:
 		return _fail(&"invalid_committed_schedule",
 			"a nonempty aggregate embeds its exact commit receipt", {"field": "commit_receipt"})
-	# KNOWN RESIDUAL GAP, recorded rather than hidden. This module has no receipt-CONTENT law of its
-	# own; before Task 5 that did not matter because the empty+receipt shape was unreachable here.
-	# Widening the nullability rule makes it reachable, so `{entries: [], commit_receipt: <garbage>}`
-	# with a matching fingerprint now passes this structural check while
-	# ScheduleStateSchema.validate_aggregate still rejects it on its exact member set.
-	#
-	# It is NOT closed here on purpose: delegating to ScheduleStateSchema from this module -- by
-	# preload or by global class_name -- forms a cyclic script dependency that makes both modules
-	# fail to compile, which is a far worse failure than a latent permissive branch. No production
-	# path reaches it today (GameStateScheduleCommitPort routes only NONEMPTY aggregates through
-	# ScheduleRules, and every persisted aggregate is validated by ScheduleStateSchema first).
-	# Task 6 owns route projection for the receipt-backed empty Day-7 case and should close this by
-	# having its caller validate through ScheduleStateSchema before calling build_route_plan.
 	if registry == null or not registry.has_method("fingerprint"):
 		return _fail(&"invalid_registry", "an injected registry is required", {})
 	var fingerprint: Variant = aggregate["registry_fingerprint"]
 	if fingerprint == null:
-		# Legal only for a migrated empty aggregate.
 		if not entries.is_empty() or receipt != null:
 			return _fail(&"invalid_committed_schedule",
 				"only a migrated empty aggregate may omit the registry fingerprint",
@@ -445,7 +390,6 @@ static func _committed_structure(aggregate: Dictionary, registry: Object) -> Dic
 	return _ok({"projected": projected})
 
 
-# ---- helpers ----
 
 static func _record_for(registry: Object, action_id: String) -> Dictionary:
 	var found: Dictionary = registry.find_record(action_id)
@@ -456,7 +400,6 @@ static func _record_for(registry: Object, action_id: String) -> Dictionary:
 
 
 static func _same_sequence(left: Array, right: Array) -> bool:
-	# Order is semantic: the canonical Priscilla-Lavinia pair is not the same as its reverse.
 	if left.size() != right.size():
 		return false
 	for index: int in range(left.size()):
@@ -479,9 +422,3 @@ static func _ok(value: Dictionary) -> Dictionary:
 
 static func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": details}
-
-
-# The provisional loose-shape date-candidate adapter and its legacy helpers retired here in Plan 01
-# Task 5 (dwm-p2r.13), together with its last caller and its characterization tests, exactly as its
-# own retirement note required. The registry is now the sole authority for day windows,
-# participants, repeatability and date limits.

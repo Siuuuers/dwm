@@ -1,16 +1,12 @@
 class_name CheckpointJournal
 extends RefCounted
 
-## Monotonic, bounded, single-run in-memory checkpoint journal
-## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 5).
 
 const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 const LINE_RETENTION := 32
 const MANUAL_SAVE_RETENTION := 32
-# Legacy snapshots retain two recent semantic fallbacks for completed-action recovery.
-# Older snapshots duplicate the complete run; durable story/receipt history lives inside current.
 const SEMANTIC_RETENTION := 2
 const SEMANTIC_KINDS: Array[String] = [
 	"day_start", "timeline_start", "timeline_complete", "choice", "variable_transaction",
@@ -23,11 +19,6 @@ var _run_id := ""
 var _next_sequence := 1
 var _current: Dictionary = {}
 var _earlier: Array[Dictionary] = []
-# What the checkpoint port proved for a bundle in a completed durable write, keyed by checkpoint_id:
-# {"text": canonical text, "document_bundle": private deep copy of the document bundle those bytes
-# describe}. ONE map, so the two proofs share one lifetime and cannot diverge -- the journal owns
-# bundle lifetime, so a proof lives exactly as long as its bundle stays a retained private
-# duplicate; nothing else may seed or outlive it.
 var _bundle_proofs: Dictionary = {}
 
 func reset(run_id: String) -> Dictionary:
@@ -45,11 +36,6 @@ func peek_next_sequence(run_id: String) -> Dictionary:
 		return _fail(&"run_mismatch", run_id)
 	return {"ok": true, "code": &"ok", "value": {"checkpoint_sequence": _next_sequence}}
 
-## `proven_candidate` lets a caller that just produced `snapshot` FROM `RunSnapshotSchema` hand the
-## very same object back as its own proof, so this method does not validate a 150 KB snapshot a
-## second time. The proof is IDENTITY, never deep equality: only the object the caller watched come
-## out of a validation can stand in for one, and anything else -- a copy, a lookalike, the empty
-## default -- falls through to the full validation below. No refusal and no refusal order moves.
 func prepare_record(snapshot: Dictionary, checkpoint_kind: StringName,
 		proven_candidate: Dictionary = {}) -> Dictionary:
 	var kind := String(checkpoint_kind)
@@ -68,8 +54,6 @@ func prepare_record(snapshot: Dictionary, checkpoint_kind: StringName,
 	if int(candidate_snapshot["checkpoint_sequence"]) != _next_sequence:
 		return _fail(&"sequence_mismatch",
 			"expected %d, got %d" % [_next_sequence, int(candidate_snapshot["checkpoint_sequence"])])
-	# Current scene snapshots contain the complete durable state. Previous full
-	# snapshots are no longer Load fallbacks; keep legacy retention unchanged.
 	var earlier: Array[Dictionary] = []
 	if candidate_snapshot.get("schema_version") != RUN_SNAPSHOT_SCHEMA.SCENE_SCHEMA_VERSION:
 		earlier = _earlier.duplicate(true)
@@ -105,8 +89,6 @@ func prepare_reset_with_initial(snapshot: Dictionary, checkpoint_kind: StringNam
 		"earlier": [],
 	}}}
 
-## Creation/recovery uses only its retained candidate materials here. This path
-## does not ask for the completed creation whose checkpoint it is establishing.
 func prepare_scene_new_run_reset(snapshot: Dictionary, allocation_candidate: Dictionary,
 		profile_material: Dictionary, bundle: Dictionary, issuer: Object) -> Dictionary:
 	var validated: Dictionary = RUN_SNAPSHOT_SCHEMA.validate_scene_new_run_candidate(
@@ -154,14 +136,10 @@ func commit_prepared(candidate: Dictionary) -> Dictionary:
 
 func _install_prepared(candidate: Dictionary) -> Dictionary:
 	var candidate_kind := str(candidate["candidate_kind"])
-	# A validated restore seed replaces the complete saved history, including when
-	# its cursor equals the live cursor. SaveManager owns restore consent and replay.
 	_run_id = str(candidate["run_id"])
 	_next_sequence = int(candidate["next_sequence"])
 	_current = (candidate["current"] as Dictionary).duplicate(true)
 	_earlier.assign((candidate["earlier"] as Array).duplicate(true))
-	# A record extends the same history, so only bundles that just left retention are forgotten.
-	# A reset or a seed installs bytes this journal never proved, even under a retained id.
 	if candidate_kind == "record":
 		_forget_unretained_bundle_proofs()
 	else:
@@ -169,11 +147,6 @@ func _install_prepared(candidate: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok",
 		"value": {"checkpoint_id": str(_current["snapshot"]["checkpoint_id"])}}
 
-## The port proved this exact canonical text for the CURRENT bundle at that bundle's own commit.
-## `document_bundle` is the document bundle those proven bytes describe -- the object the port's
-## `SaveDocumentSchema.build()` composed as the document's `current_snapshot` -- kept as a private
-## deep copy under the same id and the same forget rules as the text. A caller with no document to
-## offer passes none and only the text is remembered.
 func remember_committed_bundle_text(checkpoint_id: String, text: String,
 		document_bundle: Dictionary = {}) -> bool:
 	if text.is_empty() or _current.is_empty():
@@ -183,12 +156,6 @@ func remember_committed_bundle_text(checkpoint_id: String, text: String,
 	_bundle_proofs[checkpoint_id] = {"text": text, "document_bundle": document_bundle.duplicate(true)}
 	return true
 
-## A full Autosave can first persist a previously memory-only or cold-seeded earlier bundle.
-## The port calls this only AFTER a successful write, exact reread and journal commit, and proves
-## that `text` is the canonical region actually written for `document_bundle`. A checkpoint id
-## alone is insufficient: caller edits may have made the written and retained bundles differ.
-## Keep the journal value on the left so engine StringName values compare to normalized strings;
-## numeric widening remains a mismatch. Proofs share the existing retention/reset/restore rules.
 func remember_written_retained_bundle(checkpoint_id: String, text: String,
 		document_bundle: Dictionary) -> bool:
 	if text.is_empty() or document_bundle.is_empty():
@@ -196,8 +163,6 @@ func remember_written_retained_bundle(checkpoint_id: String, text: String,
 	var retained := get_retained_bundle(checkpoint_id)
 	if retained.is_empty() or not CANONICAL_JSON._deep_same(retained, document_bundle):
 		return false
-	# Full document validation preserves primitive fallback entries even when their snapshot is
-	# unusable. Prove the stronger invariant needed by the future builder fast path exactly once.
 	var keys: Array = document_bundle.keys()
 	keys.sort()
 	if keys != ["checkpoint_kind", "snapshot"] or document_bundle.get("snapshot") is not Dictionary:
@@ -209,36 +174,20 @@ func remember_written_retained_bundle(checkpoint_id: String, text: String,
 	if not validated.get("ok", false) or not CANONICAL_JSON._deep_same(
 			document_bundle["snapshot"], validated["value"]["candidate"]):
 		return false
-	# Validation already produced fresh plain containers; the unchanged exact-value checks above
-	# prove they describe these bytes. Keep that detached candidate instead of copying the input.
 	_bundle_proofs[checkpoint_id] = {"text": text, "document_bundle": {
 		"checkpoint_kind": kind, "snapshot": validated["value"]["candidate"],
 	}}
 	return true
 
-## The remembered canonical text of a still-retained bundle; "" once that bundle left retention.
 func get_retained_bundle_text(checkpoint_id: String) -> String:
 	var proof: Dictionary = _bundle_proofs.get(checkpoint_id, {})
 	return str(proof.get("text", ""))
 
-## The document bundle this journal remembers for `checkpoint_id`, or {} when it remembers none.
-## Returned by reference, like `get_retained_bundle()` below: the one caller is the checkpoint port,
-## which hands it to `SaveDocumentSchema.build()` as that journal entry's proof, and `build()`
-## duplicates it into the document it composes. Safe to hand out unduplicated because this journal
-## never mutates a remembered proof in place -- `remember_committed_bundle_text()` stores its own
-## deep copy and every forget rule replaces or erases the whole entry.
 func get_retained_bundle_document(checkpoint_id: String) -> Dictionary:
 	var proof: Dictionary = _bundle_proofs.get(checkpoint_id, {})
 	var document_bundle: Dictionary = proof.get("document_bundle", {})
 	return document_bundle
 
-## This journal's OWN retained bundle for `checkpoint_id`, or {} when it retains none. Returned by
-## reference, like `get_retained_bundle_text()` beside it: the one caller is the checkpoint port,
-## composing the storage lease for bytes it is splicing from this bundle's remembered text, and a
-## lease must describe the journal's own bundle rather than any caller-held copy of it. Safe to hand
-## out unduplicated because this journal never mutates a retained bundle in place -- `commit_prepared`
-## replaces `_current` and `_earlier` wholesale with fresh deep copies -- and the port only ever
-## reads it back through readers that duplicate.
 func get_retained_bundle(checkpoint_id: String) -> Dictionary:
 	if not _current.is_empty() \
 			and str((_current["snapshot"] as Dictionary)["checkpoint_id"]) == checkpoint_id:
@@ -266,8 +215,6 @@ func get_current_bundle() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"bundle": _current.duplicate(true)}}
 
 func get_bundles_for_disk() -> Array[Dictionary]:
-	# A freshly loaded older Save9 can still have retained history. New writes
-	# omit it without changing the admitted source or any pending continuation.
 	if _current.get("snapshot", {}).get("schema_version") == RUN_SNAPSHOT_SCHEMA.SCENE_SCHEMA_VERSION:
 		return []
 	return _earlier.duplicate(true)
@@ -296,8 +243,6 @@ func prepare_seed(document: Dictionary, selected_bundle: Dictionary) -> Dictiona
 		})
 	return _prepare_seed_from_valid_bundles(valid_bundles, selected_bundle, diagnostics)
 
-## Internal composition seam. Callers own exact normalized admission material;
-## arbitrary documents must enter through prepare_seed().
 func _prepare_seed_from_valid_bundles(valid_bundles: Array, selected_bundle: Dictionary,
 		diagnostics: Array[Dictionary]) -> Dictionary:
 	var selected_id := ""
@@ -350,7 +295,6 @@ func restore_state(backup: Dictionary) -> Dictionary:
 	_next_sequence = int(backup["next_sequence"])
 	_current = (backup["current"] as Dictionary).duplicate(true)
 	_earlier.assign((backup["earlier"] as Array).duplicate(true))
-	# A backup is caller-supplied: this journal cannot prove any restored bundle's bytes.
 	_bundle_proofs = {}
 	return {"ok": true, "code": &"ok"}
 

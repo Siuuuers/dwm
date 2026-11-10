@@ -1,8 +1,6 @@
 class_name EndingFrozenContext
 extends RefCounted
 
-## Ordered endings retain admission facts before any step plays. A current step
-## adds only its existing playback token and already-completed prerequisite receipts.
 const CONTEXT := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 const FRIENDS := ["priscilla", "lavinia", "sylvia"]
@@ -119,9 +117,6 @@ static func build(plan: Dictionary, index: int, seed: Dictionary, playback_id: S
 	if not frozen.ok: return frozen
 	return _ok({"signature": projected, "presentation": frozen.value})
 
-## Scene admission selects a registered neutral presentation directly. It carries
-## no relationship eligibility, day closure or legacy ending seed. The Run owner
-## authenticates admission before this pure projection is used.
 static func build_scene(plan: Dictionary, playback_id: String) -> Dictionary:
 	var admission: Variant = plan.get("admission")
 	if plan.get("source_kind") != "scene" or typeof(plan.get("schema_version")) != TYPE_INT \

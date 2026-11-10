@@ -1,8 +1,5 @@
 class_name NarrativeCaptionLedger
 extends RefCounted
-## Live internal prerequisite for semantic History, not a durable save or visited
-## receipt. Semantic identity comes from registrations; opaque publication IDs
-## distinguish occurrences. Repeated delivery of one publication is idempotent.
 
 const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const REGISTRY := preload("res://scripts/narrative/NarrativeCaptionRegistry.gd")
@@ -54,10 +51,6 @@ func matches_live_history(retained: NarrativeCaptionLedger) -> bool:
 func initialize(session_token: String, frozen_context: Dictionary,
 		entry_manifest: Dictionary, registry: Dictionary, entry_contexts_required: bool = false,
 		scene: bool = false) -> Dictionary:
-	# Primitive-only captured context is immutable here; this does not perform
-	# canonical FrozenPresentationContext admission or install Dialogic variables.
-	# The first fixture supplies explicitly synthetic context. A later canonical
-	# owner must supply its already admitted context and exact authored catalog.
 	if not _session_token.is_empty(): return _fail(&"caption_session_already_initialized")
 	if session_token.strip_edges().is_empty() or frozen_context.is_empty() \
 			or not FROZEN._primitive(frozen_context):
@@ -76,11 +69,6 @@ func initialize(session_token: String, frozen_context: Dictionary,
 		_by_line[beat.line_id] = beat
 	return {"ok": true}
 
-## Opt-in frames arrive at their causal entry boundary, not at session creation.
-## Legacy families retain one immutable frame per entry. Scene frames are keyed
-## by the admitted occurrence and entry, so re-entry does not overwrite History.
-## The caller owns canonical admission; representation checks here do not
-## authenticate a receipt or authorize a traversal.
 func admit_entry_context(session_token: String, entry_id: String, context: Dictionary,
 		occurrence_id: String = "") -> Dictionary:
 	if _session_token.is_empty(): return _fail(&"caption_session_uninitialized")
@@ -103,9 +91,6 @@ func admit_entry_context(session_token: String, entry_id: String, context: Dicti
 	_entry_contexts[key] = detached
 	return {"ok": true}
 
-## Rebuild only this internal sequence. The canonical owner must independently
-## admit the context/catalog; this does not read or migrate a Run save. Validate
-## the complete candidate before installing any state, including a valid prefix.
 func restore_snapshot(session_token: String, frozen_context: Dictionary,
 		entry_manifest: Dictionary, registry: Dictionary, saved: Dictionary,
 		entry_contexts: Dictionary = {}, entry_contexts_required: bool = false,
@@ -114,8 +99,6 @@ func restore_snapshot(session_token: String, frozen_context: Dictionary,
 	if scene or saved.has("schema_version"):
 		return _restore_scene_snapshot(session_token, frozen_context, entry_manifest, registry,
 			saved, entry_contexts)
-	# The caller pins the mode even before the first entry is admitted. Saved
-	# field removal must not turn an empty framed session into an unguarded one.
 	var framed := entry_contexts_required
 	if saved.has("entry_contexts") != framed: return _fail(&"caption_entry_context_mismatch")
 	var fields := ["session_token", "frozen_context", "captions"]
@@ -124,8 +107,6 @@ func restore_snapshot(session_token: String, frozen_context: Dictionary,
 			or not saved.session_token is String \
 			or not saved.frozen_context is Dictionary or not saved.captions is Array:
 		return _fail(&"caption_snapshot_invalid")
-	# Preserve the existing component-root depth contract. Snapshot wrappers do
-	# not consume context/signature depth admitted by initialize/valid_beat.
 	if not FROZEN._primitive(saved.frozen_context): return _fail(&"caption_snapshot_invalid")
 	if saved.session_token != session_token: return _fail(&"caption_foreign_session")
 	if saved.frozen_context != frozen_context: return _fail(&"caption_context_mismatch")
@@ -166,8 +147,6 @@ func restore_snapshot(session_token: String, frozen_context: Dictionary,
 	_publication_serial = _sequence.size()
 	return {"ok": true}
 
-## Occurrences belong to the retained session, not a reusable Godot instance ID.
-## Unpublished allocations are transient; reconstruction skips every retained ID.
 func allocate_publication(session_token: String, entry_id: String, occurrence_id: String = "") -> Dictionary:
 	var checked := check_session(session_token, entry_id, occurrence_id)
 	if not checked.ok: return checked
@@ -185,8 +164,6 @@ func check_session(session_token: String, entry_id: String, occurrence_id: Strin
 	if session_token != _session_token: return _fail(&"caption_foreign_session")
 	if not _has_registered_entry(entry_id): return _fail(&"caption_entry_unregistered")
 	if _scene:
-		# These frames were admitted, detached and recursively frozen by this owner.
-		# Arbitrary saved frames still go through resolve_scene_frame's full proof.
 		var key := scene_frame_key(occurrence_id, entry_id)
 		if key.is_empty() or not _entry_contexts.has(key): return _fail(&"caption_entry_context_missing")
 		return {"ok": true, "value": _entry_contexts[key].duplicate(true)}
@@ -196,7 +173,6 @@ func check_session(session_token: String, entry_id: String, occurrence_id: Strin
 	return {"ok": true}
 
 func _has_registered_entry(entry_id: String) -> bool:
-	# Membership comes only from admitted beats, including entries not yet published.
 	return _registered_entries.has(entry_id)
 
 func publish_line(session_token: String, publication_id: String, entry_id: String, line_id: String,
@@ -250,8 +226,6 @@ func publish_caption(session_token: String, publication_id: String, beat: Dictio
 	_published[publication_id] = publication
 	return {"ok": true, "value": {"duplicate": false, "ordinal": _sequence.size() - 1}}
 
-## A hot presentation admission check must not copy the retained History or
-## scan the catalogue. The published tail already proves registration ownership.
 func is_current_occurrence(session_token: String, entry_id: String, frontier: Dictionary,
 		occurrence_id: String = "") -> bool:
 	if _session_token.is_empty() or session_token != _session_token or _sequence.is_empty() \
@@ -269,14 +243,10 @@ func is_current_occurrence(session_token: String, entry_id: String, frontier: Di
 func snapshot() -> Dictionary:
 	var result := {"session_token": _session_token, "frozen_context": _frozen_context.duplicate(true),
 		"captions": _sequence.duplicate(true)}
-	# Keep the original opt-in format for callers without per-entry frames. The
-	# beat's owning_entry_id binds each occurrence to its one admitted frame.
 	if _entry_contexts_required: result["entry_contexts"] = _entry_contexts.duplicate(true)
 	if _scene: result["schema_version"] = 2
 	return result
 
-## These helpers validate representation, not issuer authority. The reading/save
-## owner supplies independently authenticated frames before ledger admission.
 static func scene_frame_key(occurrence_id: String, entry_id: String) -> String:
 	if occurrence_id.strip_edges().is_empty() or entry_id.strip_edges().is_empty(): return ""
 	var encoded := CANONICAL_JSON.stringify([occurrence_id, entry_id])
@@ -359,8 +329,6 @@ func _restore_scene_snapshot(session_token: String, frozen_context: Dictionary,
 	_published = candidate._published
 	_sequence = candidate._sequence
 	_publication_serial = _sequence.size()
-	# A compact player restore retains only the current genuine publication.
-	# Traversal clones must not reuse the identifiers omitted from the saved reading.
 	for row: Dictionary in _sequence:
 		var publication: String = row.publication_id
 		if publication.begins_with("caption:") and publication.trim_prefix("caption:").is_valid_int():

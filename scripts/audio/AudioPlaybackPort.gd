@@ -125,9 +125,6 @@ func create_parallel_tween(channel_id: StringName, tracks: Array[Dictionary], du
 	return _ok({"duration": duration})
 
 
-## Freezes long-lived semantic playback without seeking or reconstructing it. Transient story
-## players are stopped and deliberately are not part of the resume capsule; Pause UI remains on
-## its separate, untouched pool.
 func begin_pause_suspension(
 		freeze_player_ids: Array[StringName], stop_player_ids: Array[StringName]
 ) -> Dictionary:
@@ -172,7 +169,6 @@ func begin_pause_suspension(
 		if tween.is_running():
 			_restore_pause_capture(capture)
 			return _failure(&"invalid_audio_runtime")
-	# Do irreversible transient stops last, after every fallible reversible readback.
 	for player_id: StringName in stop_player_ids:
 		var player: AudioStreamPlayer = _players[player_id]
 		player.stop()
@@ -287,8 +283,6 @@ func set_output_mode(mode: String) -> Dictionary:
 	if _mono_effect == null:
 		_mono_effect = AudioEffectStereoEnhance.new()
 		_mono_effect.resource_name = "DWM owned mono output"
-	# Godot 4.6 AudioEffectStereoEnhance: pan_pullout=0 downmixes stereo to mono.
-	# https://docs.godotengine.org/en/4.6/classes/class_audioeffectstereoenhance.html
 	_mono_effect.pan_pullout = 0.0
 	_mono_effect.surround = 0.0
 	_mono_effect.time_pullout_ms = 0.0
@@ -330,8 +324,6 @@ func _restore_output_state(state: Dictionary) -> Dictionary:
 	AudioServer.set_bus_effect_enabled(bus,index,bool(state.enabled))
 	return _ok({})
 
-## Output-only Settings transaction capsule. Reading must not create buses, restart streams,
-## replace tweens, or disturb a retained Pause suspension.
 func capture_output() -> Dictionary:
 	var buses := {}
 	var names: Array = _bus_states.keys()

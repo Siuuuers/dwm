@@ -1,9 +1,6 @@
 class_name ContactsPresentationPort
 extends RefCounted
 
-## Detached UI projection over the real Contacts owner. The catalog contains explicitly supplied
-## approved plain text keyed by exact message identity. Empty production catalogs are intentional:
-## missing prose is a technical failure, never an invitation to print IDs or invent correspondence.
 const CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const ORDINARY_REPLIES := preload("res://scripts/domain/contact/OrdinaryReplyEchoState.gd")
 const DAY7_FOLLOWUPS := preload("res://scripts/domain/contact/Day7FollowupState.gd")
@@ -60,8 +57,6 @@ func get_echo_presentation(echo: Dictionary) -> Dictionary:
 	return FROZEN.read(cached.value, "echo.fallback.day7", str(echo.get("echo_id", "")))
 
 
-## Mandatory Day 7 cards reuse exact saved messages and the ordinary localized bubble
-## projection. Merely obtaining a card never advances a read watermark.
 func get_day7_followup_cards(primary: String = "en", secondary: String = "") -> Dictionary:
 	if _scene_enabled(): return _ok({"cards": []})
 	if _game_state == null: return _fail(&"contacts_presentation_unconfigured")
@@ -108,7 +103,6 @@ func open_friend(friend_id: String, primary: String = "en", secondary: String = 
 	var state: Dictionary = (_game_state.get("contacts") as Dictionary).duplicate(true)
 	var day: int = int(_game_state.get("day"))
 	if not _needs_open(state, day, friend_id):
-		# Viewing empty/history-only threads creates no acceptance or durable read receipt.
 		return current
 	var guard := _admit_candidate.bind(state, day, friend_id,
 		primary.replace("_", "-"), secondary.replace("_", "-"))

@@ -1,5 +1,4 @@
 extends Button
-## One semantic locator. Focus/selection never performs a record operation.
 
 const MINIMUM_SIZE := Vector2(188, 176)
 
@@ -59,8 +58,6 @@ func _layout_labels() -> void:
 		return
 	var top := 4.0
 	for label in [identity_label, state_label]:
-		# Keep full glyphs clear of the paper edge at the common measured width.
-		# No height cap: impossible content remains detectable by enclosure checks.
 		label.size = Vector2(size.x - 8, 0)
 		label.size.y = label.get_minimum_size().y
 		label.position = Vector2(4, top)
@@ -81,7 +78,6 @@ func _draw() -> void:
 	var face := get_theme_color("filed" if selected else "face", "Backup")
 	draw_rect(Rect2(Vector2.ZERO, size), face)
 	draw_rect(Rect2(0, 4, size.x, 156), get_theme_color("paper", "Backup"))
-	# Stable filing lip; authored fingerprint/Bloom material is not synthesized.
 	draw_rect(Rect2(floorf((size.x - 48) / 4.0) * 2.0, 168, 48, 8), ink if selected else get_theme_color("structure", "Backup"))
 	if unavailable:
 		draw_rect(Rect2(size.x - 12, 164, 2, 8), ink)

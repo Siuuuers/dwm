@@ -1,8 +1,6 @@
 class_name HospitalFrozenContext
 extends RefCounted
 
-## Presentation records refer to the accepted sources that Hospital prevents. An
-## eligible Sylvia scene may precede its witness; eligibility never mints one.
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const CONTEXT_KEYS := ["day", "kind", "miss_receipt_ids", "presentation", "source_entry_ids"]

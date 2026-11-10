@@ -1,17 +1,6 @@
 class_name GameStateMinesweeperPort
 extends RefCounted
 
-## Production Minesweeper state port (dwm-p2r.9 Plan 06 Task 2).
-##
-## Bridges MinesweeperRoundCoordinator to the real GameState facade. It owns NO
-## reward, task, or counter rules of its own: every economic effect is produced by
-## GameState's existing production functions, applied to a DETACHED GameState clone
-## so preparation never mutates live state and never emits a domain signal. Only
-## `commit()`/`rollback()` touch live state, and only `publish()` emits.
-##
-## `latch_fatal`, `is_fatal_latched`, and `guard_external` delegate to the ONE
-## already-configured ApplicationMutationGate. This adapter keeps no local fatal
-## field and no retained-failure cache; it returns the gate's exact results.
 
 const GAME_STATE_SCRIPT_PATH := "res://autoload/GameState.gd"
 const CHECKPOINT_PROVIDER_KEYS: Array[String] = [
@@ -22,8 +11,6 @@ const DEFAULT_CONTENT_VERSION := 1
 
 const COUNTER_KEYS: Array[String] = ["money", "app_rounds", "pressure"]
 
-## Task IDs each outcome records, by difficulty. `no_flag` and `foresight` keep the
-## approved perfect-equivalent REWARD while recording their own distinct task IDs.
 const _COMPLETION_TASK_IDS := {
 	"exploded": [],
 	"cleared": ["complete_%s"],
@@ -42,9 +29,6 @@ func _init(game_state: Object = null) -> void:
 	_game_state = game_state
 
 
-## Accepts the ONE ApplicationMutationGate Bootstrap constructed, and proves GameState
-## retained that same object. There is no public gate getter on GameState, so identity is
-## asserted through the instance id `configure_mutation_gate` already reports.
 func configure(mutation_gate: Object) -> Dictionary:
 	if _game_state == null:
 		return _fail(&"invalid_minesweeper_state_port", "port requires a GameState")
@@ -70,8 +54,6 @@ func configure(mutation_gate: Object) -> Dictionary:
 		"receipt": {}}
 
 
-## Takes the EXACT five Callables Bootstrap already handed the day-resolution state port, so
-## both checkpoint producers read one set of provider identities.
 func configure_checkpoint_providers(providers: Dictionary) -> Dictionary:
 	if typeof(providers) != TYPE_DICTIONARY or providers.size() != CHECKPOINT_PROVIDER_KEYS.size():
 		return _fail(&"invalid_checkpoint_providers", "providers must be exactly " + str(CHECKPOINT_PROVIDER_KEYS))
@@ -92,7 +74,6 @@ func configure_checkpoint_providers(providers: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
-# ---- Frozen coordinator port surface ----
 
 func capture() -> Dictionary:
 	if _game_state == null:
@@ -100,8 +81,6 @@ func capture() -> Dictionary:
 	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
 	return {"ok": true, "code": &"ok", "value": {"backup": {
 		"save": _game_state.to_save_dict(),
-		# Contacts ride the round transaction as a SIBLING section (dwm-p2r.17), mirroring
-		# capture_live_run_state: the whitelist walk cannot carry them.
 		"contacts": (_game_state.get("contacts") as Dictionary).duplicate(true),
 		"run_id": str(lifecycle.get("run_id", "")),
 		"day": int(lifecycle.get("day", 1)),
@@ -150,8 +129,6 @@ func prepare_begin(request: Dictionary, round_id: String) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {
 		"candidate": candidate,
 		"active_round": active_round.duplicate(true),
-		# Captured from the STILL-UNCONSUMED live run: the pre-board checkpoint must record the
-		# state a restart would resume from, not the state the round has already spent.
 		"pre_board_checkpoint_inputs": _checkpoint_inputs(lifecycle),
 		"start_receipt": {
 			"round_id": round_id, "context": context, "difficulty": difficulty,
@@ -166,8 +143,6 @@ func prepare_complete(active_round: Dictionary, result: Dictionary, transaction_
 	var context := str(active_round.get("context", ""))
 	var difficulty := str(active_round.get("difficulty", ""))
 	var outcome := str(result.get("outcome", ""))
-	# Optional derived reasons are an input only: durable receipts retain their closed schema.
-	# Legacy callers without this field keep their existing outcome/task mapping.
 	var reasons: Array = []
 	if result.has("perfect_reasons"):
 		if not result.perfect_reasons is Array:
@@ -187,22 +162,15 @@ func prepare_complete(active_round: Dictionary, result: Dictionary, transaction_
 	if clone == null:
 		return _fail(&"invalid_minesweeper_state_port", "could not build a detached candidate")
 	var before := _counters(clone)
-	# Snapshot the receipt ids BEFORE the round, so the diff below reports exactly the contact
-	# transactions THIS round recorded and nothing older (dwm-p2r.17).
 	var receipts_before: Dictionary = (((clone.get("contacts") as Dictionary) \
 		.get("transaction_receipts", {})) as Dictionary).duplicate(true)
 	if context == "app":
-		# The production reward/task/message/group rules run UNCHANGED on the clone; every signal
-		# they emit lands on an out-of-tree node with no listeners.
 		clone.call(&"finish_minesweeper_app_round", {
 			"context": "app", "difficulty": difficulty, "outcome": outcome, "task_ids": task_ids,
 		})
 	else:
-		# Dating rounds consume no app round and award no app money, task, or group activation.
 		clone.call(&"clear_unfinished_minesweeper_round")
 	var after := _counters(clone)
-	# Classify each NEW contact receipt by the kind the DOMAIN recorded -- the port never
-	# re-derives the activation rule (dwm-p2r.17, the bead's own design sentence).
 	var receipts_after: Dictionary = ((clone.get("contacts") as Dictionary) \
 		.get("transaction_receipts", {})) as Dictionary
 	var group_activation_id: Variant = null
@@ -268,8 +236,6 @@ func prepare_complete(active_round: Dictionary, result: Dictionary, transaction_
 	}}
 
 
-## Owner method: inserts the previewed checkpoint id into the detached receipt and candidate,
-## then rebuilds the post-result checkpoint inputs from THAT final candidate.
 func finalize_complete(prepared_completion: Dictionary, checkpoint_id: String) -> Dictionary:
 	if checkpoint_id.is_empty():
 		return _fail(&"invalid_checkpoint_id", "checkpoint_id must be nonempty")
@@ -287,7 +253,6 @@ func finalize_complete(prepared_completion: Dictionary, checkpoint_id: String) -
 		"candidate": candidate,
 		"domain_receipt": receipt,
 		"domain_events": events,
-		# Built from the FINAL candidate, so the durable snapshot records the completed round.
 		"post_result_checkpoint_inputs": _checkpoint_inputs(lifecycle, candidate),
 	}}
 
@@ -295,7 +260,6 @@ func finalize_complete(prepared_completion: Dictionary, checkpoint_id: String) -
 func prepare_abort(active_round: Dictionary, reason: StringName, transaction_id: String) -> Dictionary:
 	if _game_state == null:
 		return _fail(&"invalid_minesweeper_state_port", "port requires a GameState")
-	# The pre-board run candidate, with no reward and no event.
 	var clone: Object = _detached_clone()
 	if clone == null:
 		return _fail(&"invalid_minesweeper_state_port", "could not build a detached candidate")
@@ -303,9 +267,6 @@ func prepare_abort(active_round: Dictionary, reason: StringName, transaction_id:
 	var restored: Dictionary = clone.call(&"to_save_dict")
 	if str(active_round.get("context", "")) == "app":
 		restored["minesweeper_rounds_left"] = int(restored.get("minesweeper_rounds_left", 0)) + 1
-	# The abort candidate is consumed by rollback() (the coordinator funnels it there), so it
-	# carries the ROLLBACK shape -- "save" beside "contacts" -- not the commit shape
-	# (dwm-p2r.17; the eleventh review's catch).
 	var abort_candidate := {
 		"save": restored,
 		"contacts": (clone.get("contacts") as Dictionary).duplicate(true),
@@ -338,8 +299,6 @@ func commit(candidate: Dictionary) -> Dictionary:
 	return applied
 
 
-## Desktop settlement already owns the causal lease and durable recovery candidate.
-## Apply absolute prepared values silently; restore APIs would reset the lifecycle.
 func commit_desktop_completion(candidate: Dictionary) -> Dictionary:
 	if _gate == null or not _gate.is_internal_owner_active(&"causal_transaction"):
 		return _fail(&"causal_transaction_lease_required", "")
@@ -368,7 +327,6 @@ func publish_desktop_completion(receipt: Dictionary, events: Array) -> Dictionar
 	return published
 
 
-## The view is a refresh of persisted unread Contacts, so accepting it twice never adds messages.
 func accept_desktop_notification(record: Dictionary) -> Dictionary:
 	var action: Dictionary = record.get("action_receipt", {})
 	var condition: Dictionary = record.get("condition_receipt", {})
@@ -389,7 +347,6 @@ func accept_desktop_notification(record: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
-## Emission waits until the full checkpoint is durable and command custody has been released.
 func publish_desktop_notifications() -> void:
 	for key: String in _accepted_notifications:
 		if _published_notifications.has(key): continue
@@ -420,8 +377,6 @@ func rollback(backup: Dictionary) -> Dictionary:
 	return applied
 
 
-## Pre-emission failpoint: the WHOLE batch is validated before the first emission, so a
-## failure guarantees zero signals and a retry stays well defined.
 func publish(receipt: Dictionary, domain_events: Array) -> Dictionary:
 	if _game_state == null:
 		return _fail(&"invalid_minesweeper_state_port", "port requires a GameState")
@@ -469,18 +424,13 @@ func guard_external(operation_id: StringName) -> Dictionary:
 	return _gate.call(&"guard_external", operation_id)
 
 
-# ---- Internal helpers ----
 
-## Builds an out-of-tree GameState carrying the live whitelisted state. Production reward,
-## task, message, and group rules run here so preparation stays free of live mutation.
 func _detached_clone() -> Object:
 	var clone: Object = load(GAME_STATE_SCRIPT_PATH).new()
 	if clone == null:
 		return null
 	clone.call(&"reset_game")
 	clone.call(&"apply_save_dict", _game_state.call(&"to_save_dict"))
-	# The whitelist round trip resets contacts to defaults; seed the live section so the
-	# production message/group rules run against real contacts on the clone (dwm-p2r.17).
 	clone.set("contacts", (_game_state.get("contacts") as Dictionary).duplicate(true))
 	return clone
 
@@ -501,20 +451,6 @@ func _task_ids_for(outcome: String, difficulty: String) -> Array:
 	return ids
 
 
-## Resolves the ONE active dating route SUBSTAGE (dwm-p2r.23). The untrusted request carries no
-## friend or entry identifier; every trusted value is read from the active resolution plan
-## itself: the entry from the substage's own id, the friends from the FROZEN committed entry's
-## participants, the route transaction from the substage record. The parent stage is NOT
-## required to be active -- it stays pending while its substage runs -- so the descend inspects
-## every stage's substages and matches on the substage's own state and kind. A date Hospital
-## superseded is refused even while its substage sits ACTIVE between the route door's begin and
-## the caller's completion: the durable supersession set in the completed hospital stage's
-## receipt is the authority, never the live flag -- the same law the presentation settle seam
-## keeps (dwm-p2r.27). The deferred-pair presentation is a top-level STAGE with no substage:
-## when that stage is ACTIVE the pair evidence is minted STAGE-LEVEL from the Hospital-
-## superseded committed GROUP entry (dwm-p2r.30). The substage branch's superseded-date
-## refusal deliberately does not reach it -- the pair IS the presentation of a superseded
-## entry, so refusing superseded entries there would refuse its whole reason to exist.
 func _resolve_dating_evidence() -> Dictionary:
 	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
 	var plan: Variant = lifecycle.get("active_resolution_plan")
@@ -556,8 +492,6 @@ func _resolve_dating_evidence() -> Dictionary:
 	return _fail(&"DATING_ROUTE_NOT_ACTIVE", "no active route substage")
 
 
-## The entry ids Hospital already superseded, read from this plan's COMPLETED hospital stage
-## receipt -- the durable authority, never the live flag (FINDING-4's law, dwm-p2r.27's read).
 func _superseded_entry_ids(plan: Dictionary) -> Array:
 	for stage_value: Variant in (plan.get("stages", []) as Array):
 		if typeof(stage_value) != TYPE_DICTIONARY:
@@ -576,14 +510,6 @@ func _superseded_entry_ids(plan: Dictionary) -> Array:
 	return []
 
 
-## The pair evidence for the ACTIVE deferred-pair STAGE (dwm-p2r.30): the Hospital-superseded
-## committed GROUP entry that stage exists to present. The derivation is the day-resolution
-## port's own `_deferred_pair_entry_id` law repeated byte-for-byte -- scan the FROZEN
-## committed entries for action_kind == "group" with membership in the durable superseded
-## set -- so the two ports agree BY CONSTRUCTION. First match wins to stay identical with
-## that law; uniqueness is a MANIFEST invariant (the registry's two group actions carry
-## disjoint allowed_days), not a registry-code law. FAILS CLOSED when nothing matches:
-## tampered restored bytes or the empty-site transient mint no evidence here.
 func _superseded_group_evidence(
 		plan: Dictionary, superseded: Array, stage_transaction_id: String) -> Dictionary:
 	var aggregate: Dictionary = plan.get("committed_schedule", {}) as Dictionary
@@ -607,8 +533,6 @@ func _superseded_group_evidence(
 	return _fail(&"DATING_ROUTE_NOT_ACTIVE", "no superseded group entry for the pair stage")
 
 
-## The deduped, nonblank participants of the FROZEN committed entry with this id -- the trusted
-## friend source the docstring above promises, read from the plan's own committed_schedule.
 func _committed_participants(plan: Dictionary, entry_id: String) -> Array:
 	var aggregate: Dictionary = plan.get("committed_schedule", {}) as Dictionary
 	for entry_value: Variant in (aggregate.get("entries", []) as Array):
@@ -626,9 +550,6 @@ func _committed_participants(plan: Dictionary, entry_id: String) -> Array:
 	return []
 
 
-## The COMPLETE six-key bundle the real SaveManagerCheckpointPort requires. When a final
-## candidate is supplied its whitelisted values replace the live gameplay bag, so the durable
-## snapshot records what the transaction produces rather than what it started from.
 func _checkpoint_inputs(lifecycle: Dictionary, candidate: Variant = null) -> Dictionary:
 	var snapshot_input: Dictionary = _game_state.call(&"capture_run_snapshot_input")
 	snapshot_input["lifecycle"] = lifecycle.duplicate(true)
@@ -640,8 +561,6 @@ func _checkpoint_inputs(lifecycle: Dictionary, candidate: Variant = null) -> Dic
 			if gameplay.has(key):
 				gameplay[key] = gameplay_section[key]
 		snapshot_input["gameplay"] = gameplay
-		# The candidate's contacts REPLACE the live read, so the post-result checkpoint can
-		# never record post-round gameplay beside pre-round contacts (dwm-p2r.17).
 		var candidate_contacts: Variant = source.get("contacts")
 		if typeof(candidate_contacts) == TYPE_DICTIONARY:
 			snapshot_input["contacts"] = (candidate_contacts as Dictionary).duplicate(true)
@@ -669,8 +588,6 @@ func _fail(code: StringName, message: String) -> Dictionary:
 
 
 
-## Scene completion shares the established money and task rules without invoking
-## legacy contact/calendar/condition consequences on the detached candidate.
 func prepare_scene_complete(difficulty: String, board: Dictionary) -> Dictionary:
 	if _game_state == null or difficulty not in ["beginner", "intermediate", "expert"] \
 			or not board.get("terminal", false) or board.get("outcome") not in ["cleared", "exploded"]:

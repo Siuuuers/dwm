@@ -1,37 +1,6 @@
 class_name ScheduleActionRegistry
 extends RefCounted
 
-## The immutable, versioned v1 Schedule action registry (Plan 01 Task 2, dwm-wks).
-##
-## Route, effects, motivation cost, allowed days, kind, participants, repeatability and
-## source-receipt class come ONLY from this registry. Drafts, saves, scenes and action-ID spelling
-## can neither supply nor override them; nothing here parses an action ID for facts.
-##
-## The consumed surface is the one dwm-p2r.12 ratified at b09bd05, NOT the superseded block at
-## plan lines 203-212. ScheduleRules duck-types on exactly two methods:
-##
-##     func fingerprint() -> String                        # bare lowercase hex
-##     func find_record(action_id: String) -> Dictionary   # CommandResult, value={record}
-##
-## ScheduleRules._guard_registry compares str(registry.fingerprint()) against a stored digest, so
-## fingerprint() MUST stay a bare String; a CommandResult here fails every validation closed.
-##
-## Schema note: the shape contract is embedded as `_SCHEMA` so a load reads exactly one file, and
-## schemas/manifests/schedule-actions.schema.json publishes the same contract for tooling and CI.
-## test_schedule_action_registry.gd asserts the two cannot drift apart.
-##
-## Cross-manifest effect-vocabulary parity deliberately lives in the tooling validator, never here:
-## tests/support/ScheduleRegistryFixtures.stale_records() uses an effect id outside effects.json and
-## must keep constructing so the stale-fingerprint rejection test stays honest.
-##
-## TASK-2 SAME-OWNER ADAPTER (Amendment Plan 03 Task 2, dwm-oyo.3; DEVIATION-18 Ruling 18-A
-## item 4, recorded 2026-09-02 on the bead). The plan's consumed-interface lock names
-## lookup(action_id, expected_fingerprint) and snapshot(expected_fingerprint); the ratified
-## surface above ships find_record(action_id). The sanctioned "one thin same-owner adapter"
-## (plan Global Constraints line 19) lands HERE, in the owning file: lookup() verifies the
-## caller's expected fingerprint against fingerprint() and then delegates to find_record();
-## snapshot() returns a fingerprint-verified detached copy of the records. Neither issues a
-## validation receipt -- pure lookup law -- and the ratified two-method surface is unchanged.
 
 const MANIFEST_PATH := "res://data/manifests/schedule_actions.v1.json"
 const SCHEMA_PATH := "res://schemas/manifests/schedule-actions.schema.json"
@@ -40,15 +9,10 @@ const _STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const _SCHEMA_VALIDATOR := preload("res://scripts/validation/JsonSchemaValidator.gd")
 
-## Canonical ordered participants for the only legal group action.
 const GROUP_PAIR := ["priscilla", "lavinia"]
 const MINIMUM_DAY := 1
 const MAXIMUM_DAY := 7
 
-## Mirrors schemas/manifests/schedule-actions.schema.json byte-for-byte in meaning. The mini
-## validator supports only const/enum/type/required/properties/additionalProperties/uniqueItems/
-## items/minLength, so nullable fields are expressed as enums rather than type unions, and every
-## ordering or cross-record law is hand-written in _validate_semantics below.
 const _SCHEMA := {
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
 	"type": "object",
@@ -97,9 +61,6 @@ const _SCHEMA := {
 	},
 }
 
-## Retained after the first successful load. A later edit to the manifest file never takes effect
-## in this process; a genuinely changed registry is caught downstream, where ScheduleRules compares
-## this fingerprint against the one persisted beside a committed Schedule.
 static var _current: RefCounted = null
 
 var _records: Dictionary = {}
@@ -111,7 +72,6 @@ func _init(records: Dictionary = {}, fingerprint: String = "") -> void:
 	_fingerprint = fingerprint
 
 
-# ---- construction ----
 
 static func load_current() -> Dictionary:
 	if _current != null:
@@ -131,9 +91,6 @@ static func load_current() -> Dictionary:
 	return built
 
 
-## Validates, canonicalizes and fingerprints an in-memory manifest through the exact path
-## load_current uses. Tests and the CLI validator both enter here, so neither can claim a record is
-## trusted without earning it.
 static func from_manifest(manifest: Dictionary) -> Dictionary:
 	var shape: Dictionary = _SCHEMA_VALIDATOR.validate(manifest, _SCHEMA)
 	if not shape.get("ok", false):
@@ -154,7 +111,6 @@ static func from_manifest(manifest: Dictionary) -> Dictionary:
 	return _loaded(registry)
 
 
-# ---- the surface ScheduleRules consumes ----
 
 func fingerprint() -> String:
 	return _fingerprint
@@ -172,12 +128,8 @@ func find_record(action_id: String) -> Dictionary:
 	}
 
 
-# ---- the Task-2 consumed-interface-lock adapter (Ruling 18-A item 4) ----
 
 
-## Fingerprint-verified lookup from the Plan 03 consumed-interface lock. A caller-supplied
-## fingerprint string alone is never proof: it must equal this registry's own fingerprint
-## before any record is served. Pure lookup issues no validation receipt.
 func lookup(action_id: String, expected_fingerprint: Variant) -> Dictionary:
 	var guard := _expected_fingerprint_error(expected_fingerprint)
 	if not guard.is_empty():
@@ -185,8 +137,6 @@ func lookup(action_id: String, expected_fingerprint: Variant) -> Dictionary:
 	return find_record(action_id)
 
 
-## Fingerprint-verified detached snapshot from the same lock. Mutating the returned records
-## can never reach the retained registry.
 func snapshot(expected_fingerprint: Variant) -> Dictionary:
 	var guard := _expected_fingerprint_error(expected_fingerprint)
 	if not guard.is_empty():
@@ -214,9 +164,7 @@ func _expected_fingerprint_error(expected_fingerprint: Variant) -> Dictionary:
 	return {}
 
 
-# ---- validation ----
 
-## Cross-record and ordering laws the schema dialect cannot express.
 static func _validate_semantics(records: Array) -> Dictionary:
 	if records.is_empty():
 		return _fail(&"empty_registry", "the registry declares no actions", {})
@@ -275,8 +223,6 @@ static func _validate_semantics(records: Array) -> Dictionary:
 					return _fail(&"invalid_source_class", "a solo action reads a solo receipt",
 						{"action_id": action_id})
 			"group":
-				# Canonical order is Priscilla then Lavinia; a reversed pair is a tamper, not a
-				# synonym, because participant order is semantic.
 				if participants != GROUP_PAIR:
 					return _fail(&"invalid_participants",
 						"the group pair is exactly Priscilla then Lavinia",
@@ -290,7 +236,6 @@ static func _validate_semantics(records: Array) -> Dictionary:
 	return {}
 
 
-# ---- helpers ----
 
 static func _digest(canonical: String) -> String:
 	var context := HashingContext.new()

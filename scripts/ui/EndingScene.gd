@@ -1,14 +1,11 @@
 extends Control
 class_name EndingScene
 
-## Presents the exact saved ending command; only physical completion advances its cursor.
 
 const TRANSPORT_BUTTON := preload("res://scripts/ui/witnessed/WitnessedTransportButton.gd")
 const RECOVERY_THEME := preload("res://scripts/ui/SettingsTheme.gd")
 const RUN_PRESENTATION := preload("res://scripts/ui/witnessed/WitnessedRunPresentation.gd")
 
-# get_node_or_null keeps the scene instantiable bare (e.g. EndingScene.new() in tests) without
-# erroring on the unique-name lookups when the .tscn children are absent.
 @onready var _ending_body_label: Label = get_node_or_null("%EndingBodyLabel")
 @onready var _return_to_menu_button: TRANSPORT_BUTTON = get_node_or_null("%ReturnToMenuButton")
 @onready var _recovery_panel: PanelContainer = get_node_or_null("%RecoveryPanel")
@@ -35,7 +32,6 @@ func _ready() -> void:
 			_retry_admitted, get_node_or_null("/root/InputManager"))
 		_return_to_menu_button.activated.connect(_on_return_pressed)
 	_set_playback_status(false)
-	# Routing must finish installing current_scene before a no-dialogue ending can return.
 	_show_ending.call_deferred()
 
 
@@ -99,8 +95,6 @@ func _retry_admitted() -> bool:
 
 
 func _refresh_recovery() -> void:
-	# A locale or frontier change retires in-flight input before publishing both labels.
-	# Normal playback contributes no heading, error, or Return action to the witnessed stream.
 	_recovery_copy_ready = false
 	var restore_focus := is_instance_valid(_return_to_menu_button) and _return_to_menu_button.has_focus()
 	var first_exposure := is_instance_valid(_recovery_panel) and not _recovery_panel.visible
@@ -137,7 +131,6 @@ func _style_recovery() -> void:
 	var percent: int = _profile.get_preference("preferences.accessibility.text_size", 100)
 	var high_contrast: bool = _profile.get_preference("preferences.accessibility.high_contrast", false)
 	var colour: String = _profile.get_preference("preferences.accessibility.colour_differentiation", "standard")
-	# Technical recovery stays clean; it is not a fictional week-tinted surface.
 	var material := RECOVERY_THEME.build(_localization.get_locale(), percent, _recovery_palette, high_contrast, colour, 1,
 		str(_profile.get_preference("preferences.accessibility.font_style", "pixel")))
 	if material == null: return
@@ -153,9 +146,6 @@ func _style_recovery() -> void:
 	_return_to_menu_button.add_theme_stylebox_override("focus", focus)
 
 
-# ---- Resumable ending playback (dwm-p2r.7 Task 6, req.ending.playback) ----
-# The stage advances ONLY from a matching playback_completed callback, never on start.
-# Ports are injected; .7 uses recording fakes, .8 supplies the real Dialogic-backed port.
 
 const _STATE_PORT_METHODS: Array[String] = ["request_next_ending_command", "complete_ending_playback_stage"]
 const _PLAYBACK_PORT_METHODS: Array[String] = ["start_ending_id", "is_ready"]
@@ -163,7 +153,6 @@ const _PLAYBACK_PORT_SIGNALS: Array[String] = ["playback_completed", "playback_f
 
 var _ending_state_port: Object = null
 var _ending_playback_port: Object = null
-# A non-empty pending command means a start has fired and we await its matching completion.
 var _pending_ending_command: Dictionary = {}
 var _last_completed_transaction_id := ""
 var _pending_completion: Dictionary = {}
@@ -199,8 +188,6 @@ func resume_ending() -> Dictionary:
 		return _ending_fail(&"ending_completion_retry_required", "retry the saved physical completion")
 	if not _pending_ending_command.is_empty():
 		return {"ok": true, "code": &"ok", "value": {"started": true}}
-	# Background commands have no physical playback. Drain the bounded gallery/completion tail;
-	# stop as soon as one timeline has started and await its matching callback.
 	for _guard in range(8):
 		var next: Dictionary = _ending_state_port.request_next_ending_command()
 		if not next.get("ok", false):
@@ -233,8 +220,6 @@ func resume_ending() -> Dictionary:
 
 
 func on_ending_playback_completed(completion: Dictionary) -> void:
-	# A completion that does not match the pending command (or an out-of-band one after the stage
-	# already advanced, which clears the pending command) is ignored.
 	if not _completion_matches_pending(completion):
 		return
 	if not _pending_completion.is_empty() and _pending_completion != completion: return
@@ -247,7 +232,6 @@ func on_ending_playback_completed(completion: Dictionary) -> void:
 	var result: Dictionary = _ending_state_port.complete_ending_playback_stage(
 		str(context["transaction_id"]), context["expected_stage"], receipt)
 	if result.get("ok", false):
-		# Consume before resuming so a duplicate callback cannot advance the new command.
 		_last_completed_transaction_id = str(context["transaction_id"])
 		_pending_ending_command = {}
 		_pending_completion = {}
@@ -256,7 +240,6 @@ func on_ending_playback_completed(completion: Dictionary) -> void:
 			_last_playback_failure = resumed.duplicate(true)
 			_set_playback_status(true)
 	else:
-		# Keep the exact completion while the state owner rolls back its unsaved cursor.
 		_last_playback_failure = result.duplicate(true)
 		_set_playback_status(true)
 
@@ -273,7 +256,6 @@ func on_ending_playback_failed(failure: Dictionary) -> void:
 	_set_playback_status(true)
 
 
-## Read-only source witness for Pause/Backup; the scene retains the exact command.
 func get_presentation_projection() -> Dictionary:
 	return _pending_ending_command.duplicate(true)
 

@@ -1,5 +1,4 @@
 extends Label
-## One shell-owned, noninteractive Quick voice. Placement/collision belongs to the host.
 signal status_announced(text: String)
 const PRESENTATION := preload("res://scripts/ui/desktop/DesktopTheme.gd")
 const BACKUP := preload("res://scripts/ui/BackupApp.gd")
@@ -91,7 +90,7 @@ func advance_eligible_time(delta: float) -> void:
 	if not is_finite(delta) or delta < 0 or not _eligible or key.is_empty(): return
 	if not visible or not _announced:
 		_show_current()
-		return # Never charge the interval before first publication.
+		return
 	if not is_visible_in_tree(): return
 	var generation := _generation
 	_validation_elapsed += delta
@@ -117,14 +116,12 @@ func _show_current() -> void:
 	var parent_item := get_parent() as CanvasItem
 	if parent_item != null and not parent_item.is_visible_in_tree(): return
 	if not _validate_current() or not _eligible: return
-	# Parent visibility is part of actual publication, not merely local `visible`.
 	show()
 	if not is_visible_in_tree(): return
 	if _announced: return
 	_announced = true
 	accessibility_live = DisplayServer.LIVE_OFF
 	text = ""
-	# Godot 4.6 Control.accessibility_live / DisplayServer.LIVE_POLITE.
 	accessibility_live = DisplayServer.LIVE_POLITE
 	text = _status_text()
 	accessibility_name = text

@@ -1,5 +1,4 @@
 extends RefCounted
-## Dating dispositions and shared board classification; no relationship input changes performance.
 const PERFORMANCE := preload("res://scripts/domain/minesweeper/BoardPerformance.gd")
 const RNG := preload("res://scripts/domain/minesweeper/DeterministicRng32.gd")
 const DISPOSITIONS := ["hatred", "upset", "amused"]

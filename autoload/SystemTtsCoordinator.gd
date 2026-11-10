@@ -1,6 +1,4 @@
 extends Node
-## One transient Primary speech owner, independent of profile and story receipts.
-## Admission is synchronous; native speech waits for the shared game-mix fade.
 
 signal speech_admitted(token: int, source: String)
 signal speech_completed(token: int, outcome: StringName)
@@ -48,7 +46,6 @@ func request_speech(text: String, locale: String, rate: StringName, source: Stri
 	_sequence += 1
 	var token := _sequence
 	stop(&"replaced")
-	# A completion listener may synchronously admit a newer owner.
 	if token != _sequence: return _failure(&"speech_request_superseded")
 	_active = {"token": token, "source": source, "text": text,
 		"voice": voice, "rate": RATES[rate], "duck_started": false, "dispatched": false}
@@ -97,7 +94,6 @@ func _retire(outcome: StringName, stop_native: bool) -> void:
 	var old := _active
 	_active = {}
 	var token: int = old.token
-	# Reserve recovery before any native stop can synchronously call listeners.
 	if _recovering.is_empty(): _recovery_ok = true
 	_recovering[token] = true
 	if stop_native and old.dispatched:

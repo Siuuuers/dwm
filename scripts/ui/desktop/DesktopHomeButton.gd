@@ -1,5 +1,4 @@
 extends Button
-## Operational Home pictogram, independent of locale font coverage.
 var return_arrow := false
 var current_on_launcher := true:
 	set(value):
@@ -17,7 +16,6 @@ func _draw() -> void:
 		return
 	var ink := get_theme_color("face" if current_on_launcher else "ink", "Desktop")
 	draw_rect(Rect2(0, 0, 64, 64), get_theme_color("current" if current_on_launcher else "face", "Desktop"))
-	# Pixel steps preserve the frame's native 2:1 grid.
 	if return_arrow:
 		draw_rect(Rect2(20, 30, 26, 4), ink)
 		for step in 6:

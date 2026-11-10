@@ -1,7 +1,5 @@
 class_name WitnessedTransportRecovery
 extends Control
-## Presentation-only recovery for a refused Witnessed reading command.
-## CaptionLayer retains the semantic request and decides whether Retry or Cancel is lawful.
 
 signal retry_requested
 signal cancel_requested

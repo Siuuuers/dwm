@@ -1,11 +1,6 @@
 class_name DesktopActionReceipt
 extends RefCounted
 
-## Frozen desktop action receipt shape (Plan 02 Task 7, dwm-p2r.32.7, req.desktop
-## .cross_app_actions), plan02-frozen-contracts.md brief lines 56-76. This is the exact record every
-## successfully prepared `minesweeper_round`/`shop_purchase` action produces; it becomes committed
-## only after causal admission (Task 8). This file is a pure structural law -- validate/fingerprint
-## only -- and never touches live state, an issuer, or a checkpoint port.
 
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
@@ -18,8 +13,6 @@ const _KEYS: Array[String] = [
 ]
 const ACTION_KINDS: Array[String] = ["minesweeper_round", "shop_purchase"]
 const _CONDITION_KEYS: Array[String] = ["health", "pressure", "carried_sequela"]
-## Mirrors DesktopIdentityNonceIssuer.PROVENANCE_KEYS exactly: every anchored-child provenance in
-## this codebase (issuer-minted or remapped) carries precisely these six members.
 const _PROVENANCE_KEYS: Array[String] = [
 	"child_id", "child_kind", "ordinal", "parent_receipt_id", "schema_version", "source_ids",
 ]
@@ -75,9 +68,6 @@ static func validate(receipt: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"receipt": receipt.duplicate(true)}, "receipt": {}}
 
 
-## Lowercase SHA-256 of the canonical detached receipt, used by callers as the receipt's own
-## content-identity anchor (e.g. `action_candidate_sha256` in the recovery payload). Only ever
-## fingerprints an already-`validate()`d receipt.
 static func fingerprint(receipt: Dictionary) -> Dictionary:
 	var validated := validate(receipt)
 	if not validated.get("ok", false):

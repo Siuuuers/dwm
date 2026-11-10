@@ -1,60 +1,21 @@
 class_name GameStateDesktopBoardPort
 extends RefCounted
 
-## Production GameState-facing desktop-board state port (Plan 02 Task 5, dwm-p2r.32,
-## req.minesweeper.round_contract). Delivered under this renamed path per the controller's
-## coexistence ruling: the brief's `GameStateMinesweeperPort.gd` path is owned by the retained
-## .9-era round transaction and is never read or edited by this file.
-##
-## Receives its GameState object by injection (configure()) and mutates only detached candidates
-## via the prepare/commit/rollback pattern GameState already uses for its Schedule commit seam
-## (capture_schedule_commit_state / prepare_schedule_commit_candidate / commit_schedule_commit_
-## candidate / rollback_schedule_commit_state) -- this port never installs a raw setter, never
-## touches `stats`/`minesweeper_rounds_left` outside prepare_*()/commit()/rollback(), and never
-## calls SaveManager, ApplicationBootstrap, or any storage path. Full production wiring into
-## GameState/ApplicationBootstrap is Task 9's job; this file is untested directly by Task 5's own
-## suite (no dedicated unit test is in its Create set) -- Task 5 proves the coordinator contract
-## exclusively against FakeDesktopBoardStatePort.
-##
-## One deliberate, explicitly flagged identity-context gap remains:
-##
-## 1. `branch_id`, `desktop_timeline_generation`, and `causal_day_instance` are NOT yet fields on
-##    GameState/RunLifecycle -- the plan adds them to the v4 Run snapshot only in Task 6. Since this
-##    port may not edit GameState.gd, it cannot derive them from there. They are supplied instead as
-##    `desktop_identity_context` at configure() time by whoever wires this port into production
-##    (Task 6/9), never invented or derived here.
-## Board dimensions and base mine counts come from MinesweeperBoardCatalog, the closed current-v1
-## host/difficulty source shared with presentation. This desktop port requests only `desktop_app`.
-##
-## "starts-today" (frozen contracts: "increments starts-today once") has no existing GameState
-## field either, and is not one of the first-Reveal receipt's exact keys -- it is kept entirely as
-## this port's OWN bookkeeping (`_starts_today`, keyed by causal_day_instance), never written onto
-## GameState, so it costs zero edits to autoload/GameState.gd.
 
 const _CAPABILITY_RULES := preload("res://scripts/domain/minesweeper/MinesweeperCapabilityRules.gd")
 const _BOARD_SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
 const _BOARD_CATALOG := preload("res://scripts/domain/minesweeper/MinesweeperBoardCatalog.gd")
 
 const _STAT_PRESSURE := "pressure"
-## Plan 02 Task 8 (dwm-p2r.32) additions, mirroring GameStateMinesweeperShopPort's own established
-## constants exactly: MinesweeperRoundCoordinator.complete_round() needs the same condition-triple
-## facts Shop's own action receipts already carry.
 const _CONDITION_SEQUELA := "sequela"
 
 var _game_state: Object = null
 var _identity_issuer: Object = null
 var _desktop_identity_context: Variant = {}
 var _starts_today: Dictionary = {}
-## Plan 02 Task 6 (dwm-p2r.32), Phase D: additive DI seam beyond the frozen 8-method interface (own
-## design choice -- prepare_first_reveal_consequence()'s frozen 4-arg signature has no room for a
-## live consequence-state reference, so it is injected here instead, mirroring configure()'s own
-## established "additive seam" pattern above). Duck-typed to DesktopConsequenceState's own capture().
 var _consequence_state_port: Object = null
 
 
-## Additive configuration seam beyond the frozen 8-method interface (needed since GameState and
-## the identity issuer arrive by injection, never constructed here). Idempotent on identical
-## replay; a changed owner is refused before any mutation.
 func configure(game_state: Object, identity_issuer: Object, desktop_identity_context: Variant) -> Dictionary:
 	if game_state == null or not game_state.has_method("get_stat"):
 		return _fail(&"invalid_game_state", "game_state must expose get_stat", {})
@@ -82,8 +43,6 @@ func configure(game_state: Object, identity_issuer: Object, desktop_identity_con
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
-## Plan 02 Task 6 (dwm-p2r.32), Phase D addition. Idempotent on the same instance; a different one
-## is refused, matching every other configure seam in this file.
 func configure_consequence_state_port(consequence_state_port: Object) -> Dictionary:
 	if consequence_state_port == null or not consequence_state_port.has_method("capture"):
 		return _fail(&"invalid_consequence_state_port", "consequence_state_port must expose capture", {})
@@ -95,10 +54,6 @@ func configure_consequence_state_port(consequence_state_port: Object) -> Diction
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
-## Plan 02 Task 6 (dwm-p2r.32), Phase D addition (own design choice): DesktopFirstRevealSnapshotComposer's
-## `base_snapshot_input` needs GameState's own full capture; this port is the only production seam
-## with a GameState reference, so it exposes a thin, read-only forward here rather than the
-## coordinator/caller reaching into GameState directly.
 func capture_base_snapshot_input() -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
@@ -113,7 +68,6 @@ func guard_external(_operation_id: StringName) -> Dictionary:
 	if _desktop_identity_context is Callable:
 		var session: Dictionary = _game_state.validate_live_session(_game_state.capture_live_session().value)
 		if not session.get("ok", false): return session
-	# Visibility-only restore/navigation remains usable; all canonical play still waits.
 	if _operation_id not in [&"resume", &"suspend"] and _game_state.has_method("require_day7_presentations_complete"):
 		var presentations: Dictionary = _game_state.require_day7_presentations_complete()
 		if not presentations.get("ok", false): return presentations
@@ -130,8 +84,6 @@ func capture() -> Dictionary:
 	var rounds_left: int = int(_game_state.minesweeper_rounds_left)
 	var round_floor: int = int(_game_state.minesweeper_round_floor)
 	var causal_day_instance: String = str(identity_context["causal_day_instance"])
-	# Live ports survive Load and use the persisted completed-round count.
-	# Fixed-context fixtures retain their isolated preparation bookkeeping.
 	var next_ordinal: int = int(_game_state.minesweeper_app_rounds_finished_today) + 1 \
 		if _desktop_identity_context is Callable else int(_starts_today.get(causal_day_instance, 0)) + 1
 	var eligible: bool = rounds_left > round_floor and next_ordinal >= 1 and next_ordinal <= 5
@@ -150,7 +102,6 @@ func capture() -> Dictionary:
 	}, "receipt": {}}
 
 
-## Pure inventory projection; the preparation pump decides when to freeze a spec.
 func get_generation_capabilities() -> Dictionary:
 	var ready := _require_configured()
 	if not ready.ok: return ready
@@ -255,9 +206,6 @@ func prepare_first_reveal(board_candidate: Dictionary, transaction_id: String,
 		"mine_indices": board["mine_indices"], "mine_count": board["mine_count"],
 	}
 	var layout_sha256: String = JSON.stringify(layout_view).sha256_text()
-	# The receipt's own identity is an issuer-derived anchored child of the ledger-verified
-	# transaction receipt -- never a hand-built string. "board_start" is a registered CHILD_KINDS
-	# member; source_ids is the closed, sorted, nonblank singleton [transaction_id].
 	var derived: Dictionary = _identity_issuer.call(&"derive_child", {
 		"child_kind": "board_start", "ordinal": 0,
 		"parent_receipt_id": str(transaction_issuer_receipt.get("receipt_id", "")),
@@ -283,19 +231,6 @@ func prepare_first_reveal(board_candidate: Dictionary, transaction_id: String,
 	}, "receipt": {}}
 
 
-## Plan 02 Task 6 (dwm-p2r.32), Phase D, brief line 295 ("Production first-Reveal candidate law").
-## Reuses prepare_first_reveal()'s exact GameState cost/counter law unchanged (its own `board_
-## candidate` parameter is the SAME raw `{identity,difficulty_id,cell_index,board,proof_sha256}`
-## shape prepare_first_reveal() already takes -- Task 5's own established convention, not the
-## DesktopBoardState.prepare_first_reveal() candidate the coordinator separately prepares), then
-## additionally returns a DesktopConsequenceState first-Reveal checkpoint marker bound to the
-## currently-live consequence run_revision (see the class doc's DESIGN CHOICE note on
-## _consequence_state_port -- first Reveal never opens a causal-sequence pending transaction, so
-## this marker asserts revision agreement rather than carrying a content change). This method does
-## NOT produce the "DesktopBoardState adoption candidate" the brief's prose also mentions -- that is
-## DesktopBoardState.prepare_first_reveal()'s OWN output, which the coordinator prepares separately
-## (exactly as Task 5's existing _first_reveal() already does) and hands to validate_first_reveal_
-## candidates()/the composer directly.
 func prepare_first_reveal_consequence(board_candidate: Dictionary, transaction_id: String,
 		transaction_issuer_receipt: Dictionary, expected_checkpoint_id: String) -> Dictionary:
 	var base := prepare_first_reveal(board_candidate, transaction_id, transaction_issuer_receipt, expected_checkpoint_id)
@@ -317,9 +252,6 @@ func prepare_first_reveal_consequence(board_candidate: Dictionary, transaction_i
 	return {"ok": true, "code": &"ok", "value": value, "receipt": {}}
 
 
-## Recomputes identity/transaction/revision/checkpoint parity across all three candidates (brief
-## line 295: "recomputes their identity, transaction, pre/post revision, paid-start receipt,
-## checkpoint ID, and board proof/hash parity"). Read-only; touches no live state.
 func validate_first_reveal_candidates(game_state_candidate: Dictionary,
 		board_candidate: Dictionary, consequence_candidate: Dictionary) -> Dictionary:
 	var ready := _require_configured()
@@ -397,11 +329,6 @@ func publish(_publication: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": {}}
 
 
-## dwm-634.1: the four spec identities mint in memory. First Reveal's own pre-board checkpoint runs
-## the saves root's before-write hook, which flushes the issuer ledger BEFORE the checkpoint's own
-## bytes, so each of these receipts is durable before any document that references it -- and the
-## issuer root is rewritten once for that frame instead of once per mint. An issuer without the
-## deferred seam keeps the durable path.
 func _mint(purpose: StringName, label: String) -> Dictionary:
 	var issued: Dictionary = _identity_issuer.call(&"issue_deferred", purpose) \
 		if _identity_issuer.has_method("issue_deferred") else _identity_issuer.call(&"issue", purpose)

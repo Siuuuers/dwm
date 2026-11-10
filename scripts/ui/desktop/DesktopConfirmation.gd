@@ -1,9 +1,6 @@
 extends Control
-## Shared in-run confirmation host. It owns geometry and input custody only.
 
 const KEY := preload("res://scripts/ui/backup/BackupKey.gd")
-# A literal Warning triangle and exclamation; working geometry, not an assertion
-# that a previously registered glyph asset was found or accepted.
 const WARNING_GLYPH := ["000001100000", "000010010000", "000010010000",
 	"000100001000", "000101101000", "001001100100", "001001100100",
 	"010000000010", "010001100010", "100000000001", "111111111111"]
@@ -113,7 +110,6 @@ func _notification(what: int) -> void:
 		DisplayServer.accessibility_update_set_flag(element, DisplayServer.FLAG_MODAL, true)
 
 func _layout_sheet(sheet: Control) -> void:
-	# Keep confirmation actions above the fixed desktop footer at every scale.
 	sheet.size = Vector2(560, minf(480, maxf(0, size.y - 96)))
 	sheet.position = Vector2(120, minf(112, maxf(16, size.y - 80 - sheet.size.y)))
 
@@ -143,7 +139,6 @@ func _exit_tree() -> void:
 func _finish(accepted: bool) -> void:
 	if _settled or (not accepted and not _cancelable): return
 	_settled = true
-	# Consume before lower controls or a finished observer regain custody.
 	get_viewport().set_input_as_handled()
 	_restore_custody()
 	hide()
@@ -151,7 +146,6 @@ func _finish(accepted: bool) -> void:
 	queue_free()
 
 func invalidate_pending_input() -> void:
-	# Keep the contact ledger until release; restoring custody must not revive consent.
 	_native_source = ""
 	_cancel_touch()
 	_await_neutral = (not _held.is_empty() or Input.is_action_pressed(&"ui_accept")
@@ -221,7 +215,6 @@ func _input(event: InputEvent) -> void:
 				if activate: _finish(button == confirm_button)
 			elif source == _native_source and not _double_or_canceled(event):
 				_native_source = ""
-				# Native Button GUI receives only its own admitted release.
 			else:
 				get_viewport().set_input_as_handled()
 		return

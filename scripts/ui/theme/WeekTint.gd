@@ -1,13 +1,7 @@
 extends RefCounted
-## Week tint: the room ages from the shipped Day 1 tuple (tint 0.0) toward a colder Day 7
-## endpoint (tint 1.0). Amendment 2026-09-12, Section 5 (corrected: shipped = Day 1).
-## Room roles only. Hue never rotates: only OK-HSL lightness and saturation move.
-## High contrast keeps zero amplitude; CVD presets move lightness only.
-## Callers evaluate this only at boundaries (login, day advance, return, Load); it never animates.
 
 const CURVE := {1: 0.0, 2: 0.08, 3: 0.20, 4: 0.38, 5: 0.58, 6: 0.80, 7: 1.0}
 const ROOM_ROLES: Array[String] = ["habitat", "face", "paper", "structure", "secondary_ink", "inward_preview"]
-## Cold endpoint deltas at tint 1.0: role -> [lightness_delta, saturation_delta] in OK HSL.
 const COLD_DELTAS := {
 	"habitat": [-0.035, -0.015],
 	"face": [-0.05, -0.012],

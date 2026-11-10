@@ -1,14 +1,6 @@
 class_name MinesweeperCapabilityRules
 extends RefCounted
 
-## Lucky Charm / Debug Key / Supportz capability composition and eligibility rules
-## (Plan 02 Task 2, dwm-p2r.32.1), per amendment SS7.1-7.2, 8.
-##
-## Pure domain rules: no board, save, currency, or shop-purchase mutation happens here. Every
-## function is a deterministic projection of its explicit inputs onto the frozen board-capability
-## vocabulary and Supportz signed round floor; callers apply the produced effects/spec inputs.
-## Item facts (capability_ids, price, cap, effect_ids) are read live from MinesweeperShopRegistry
-## on every call -- never cached or copied into a local table here.
 
 const _SHOP_REGISTRY := preload("res://scripts/domain/shop/MinesweeperShopRegistry.gd")
 
@@ -23,7 +15,6 @@ const _BASE_ORDINALS := [1, 2]
 const _MAX_BRANCH_PURCHASES := 3
 
 
-# ---- capability composition ----
 
 static func resolve_owned(inventory: Dictionary) -> Dictionary:
 	var owned_ids: Dictionary = {"first_cell_safe": true}
@@ -45,7 +36,6 @@ static func resolve_owned(inventory: Dictionary) -> Dictionary:
 	return _ok({"capability_ids": capability_ids})
 
 
-# ---- BoardSpec extras projection: raw_extra = floor(pressure / 3) + penalty_points_today ----
 
 static func build_spec_inputs(owned: Dictionary, pressure: int, penalty_points_today: int) -> Dictionary:
 	var shape := _exact_keys(owned, _OWNED_KEYS, &"owned_member_set_invalid")
@@ -75,7 +65,6 @@ static func build_spec_inputs(owned: Dictionary, pressure: int, penalty_points_t
 	})
 
 
-# ---- Supportz: two-completion eligibility (SS8.3-8.4) ----
 
 static func supportz_eligible(state: Dictionary) -> Dictionary:
 	var counted := _count_qualifying_base_completions(state)
@@ -89,7 +78,6 @@ static func supportz_eligible(state: Dictionary) -> Dictionary:
 	return _ok({"eligible": eligible})
 
 
-# ---- Supportz: prospective signed round-floor effect (SS8.4) ----
 
 static func prepare_supportz_effect(state: Dictionary, causal_day_instance: String,
 		transaction_id: String) -> Dictionary:
@@ -129,7 +117,6 @@ static func prepare_supportz_effect(state: Dictionary, causal_day_instance: Stri
 	})
 
 
-# ---- helpers ----
 
 static func _owns(inventory: Dictionary, item_id: String) -> bool:
 	if not inventory.has(item_id):
@@ -144,8 +131,6 @@ static func _owns(inventory: Dictionary, item_id: String) -> bool:
 			return false
 
 
-## Counts the set of qualifying (kind=complete, matching causal_day_instance, ordinal in {1,2})
-## receipts and requires BOTH base ordinals present -- not merely two receipts.
 static func _count_qualifying_base_completions(state: Dictionary) -> Dictionary:
 	var shape := _exact_keys(state, _SUPPORTZ_STATE_KEYS, &"supportz_state_member_set_invalid")
 	if not shape.get("ok", false):

@@ -1,8 +1,6 @@
 class_name PresentationSignature
 extends RefCounted
 
-## Presentation identity excludes run IDs, physical locators and receipt provenance.
-## The closed role fields are versioned separately from Profile and prose content.
 const MANIFEST_PATH := "res://data/manifests/dialogic_entries.json"
 const JSON_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const SOLO := {"tier":"string", "tone":"string", "attitude":"string", "echo_ids":"strings"}
@@ -12,7 +10,6 @@ const ENDING_ALONE := {"ending_role":"string", "ending_form":"string"}
 static var _entries: Dictionary = {}
 
 static func semantic_ending_id(ending_id: String) -> String:
-	# Two persisted legacy IDs name the same accepted Observer identities.
 	if ending_id in ["ending.priscilla.observation", "ending.lavinia.observation"]:
 		return ending_id.trim_suffix(".observation") + ".observer"
 	return ending_id
@@ -102,7 +99,6 @@ static func _dating_signature(record: Dictionary, fields: Dictionary, post: bool
 			if record.get("schema_version") == 3 and outcome == "perfect" and relationship != "foresight":
 				return _fail("invalid_dating_presentation_result")
 			projected["relationship_outcome"] = relationship
-			# The retained terminal choice proves whether the post-clear mine was used.
 			projected["special_mine_phase"] = "not_reached" if outcome == "exploded" or (record.get("schema_version") == 3 and outcome == "perfect") else ("detonated" if relationship == "dark" else "declined")
 			projected["promotion_result"] = fields.get("promotion_result", "none")
 			if projected.promotion_result not in ["none", "friend", "ambiguous", "love"]:

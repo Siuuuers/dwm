@@ -1,12 +1,6 @@
 class_name DatingEndingRules
 extends RefCounted
 
-## Pure Day-7 ending-selection core
-## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 7).
-##
-## Phase 2R scope: this is the pure primary/epilogue selection used by legacy
-## Day-8 migration to recompute a synchronized non-group primary. Issue .7
-## extends THIS class with Hospital/playback behaviour; no second resolver.
 
 const CANONICAL_ENDING_IDS: Array[String] = [
 	"ending.alone",
@@ -15,8 +9,6 @@ const CANONICAL_ENDING_IDS: Array[String] = [
 	"ending.sylvia.sweet", "ending.sylvia.dark",
 	"ending.sylvia.special", "ending.priscilla_lavinia",
 ]
-## True-observation postscripts (story/05 sec 1): canonical, but never primaries. Sylvia is
-## Special-only (no Observer end); the Priscilla-Lavinia postscript is deferred.
 const POSTSCRIPT_IDS: Array[String] = ["ending.lavinia.observation", "ending.priscilla.observation"]
 const FRIEND_IDS: Array[String] = ["priscilla", "lavinia", "sylvia"]
 const SELECTION_INPUT_KEYS: Array[String] = [
@@ -24,7 +16,6 @@ const SELECTION_INPUT_KEYS: Array[String] = [
 	"pl_post_ending", "sylvia_special",
 ]
 
-## Hospital outcome seam (dwm-p2r.7, req.flow.hospital_order).
 const HOSPITAL_INPUT_KEYS: Array[String] = [
 	"condition_effect_ids", "day", "health", "pressure",
 	"scheduled_date_outcomes", "transaction_id",
@@ -33,13 +24,10 @@ const DATE_OUTCOME_KEYS: Array[String] = ["action_id", "friend_ids", "outcome"]
 const DATE_OUTCOMES: Array[String] = [
 	"attended", "not_attended", "prevented_by_fainting", "cancelled_by_fainting",
 ]
-## Only these two mean the date was lost to the faint.
 const FAINTING_LOST_OUTCOMES: Array[String] = ["prevented_by_fainting", "cancelled_by_fainting"]
 const HOSPITAL_RECOVERED_HEALTH := 6
 const HOSPITAL_RECOVERED_PRESSURE := 3
 
-## Selects the primary Day-7 ending and any inter-friend epilogue from a fully
-## detached, primitive input Dictionary. Never touches live state.
 static func select_primary_ending(inputs: Dictionary) -> Dictionary:
 	var shape_error := _validate_inputs(inputs)
 	if shape_error != "":
@@ -69,12 +57,8 @@ static func select_primary_ending(inputs: Dictionary) -> Dictionary:
 		"epilogue_ending_id": epilogue_ending_id,
 	}}
 
-## Recomputes a legacy group-primary Day-8 save into a synchronized non-group
-## primary with the group ending demoted to an epilogue.
 static func recompute_synchronized_primary(inputs: Dictionary) -> Dictionary:
 	var forced := inputs.duplicate(true)
-	# The synchronized recompute never keeps priscilla_lavinia as the primary;
-	# it is demoted to the epilogue slot while the Angela pairing wins.
 	forced["pl_post_ending"] = false
 	var primary := select_primary_ending(forced)
 	if not primary.get("ok", false):
@@ -94,13 +78,10 @@ static func _friend_ending(friend_id: String, dating_route_state: Dictionary, af
 		return "ending.alone"
 	var drs: Dictionary = dating_route_state.get(friend_id, {})
 	var dark_points := int(drs.get("dark_points", 0))
-	# Tone is binary (story/05 §1): Sweet or Totally Dark. The true-path is no longer a
-	# destination -- it is the conjunctively-gated true (observation) postscript.
 	if dark_points >= 2:
 		return "ending.%s.dark" % friend_id
 	return "ending.%s.sweet" % friend_id
 
-## Primary ending resolver (dwm-p2r.7 Task 6, req.ending.primary).
 const PRIMARY_INPUT_KEYS: Array[String] = [
 	"completed_candidate", "dark_points", "day", "hospital_skipped_sylvia_solo_count", "receipt_index",
 ]
@@ -110,15 +91,10 @@ const CANDIDATE_KEYS: Array[String] = [
 const UNLOCK_RECEIPT_KEYS: Array[String] = ["action_id", "day", "friend_id", "kind", "previous_receipt_id", "receipt_id"]
 const COMPLETION_RECEIPT_KEYS: Array[String] = ["action_id", "day", "friend_id", "kind", "outcome", "previous_receipt_id", "receipt_id"]
 
-## Selects exactly one primary Day-7 ending from validated state. A completed candidate counts
-## only when its unlock -> schedule_add -> date_completed(attended) receipt chain agrees exactly;
-## a scheduled-only or faint-prevented date is not a candidate. Tone is binary (story/05 §1):
-## Sylvia Special, then Dark, then Sweet, then Alone. Never mutates input.
 static func resolve_primary_ending(input: Dictionary) -> Dictionary:
 	var shape_error := _validate_primary_input(input)
 	if shape_error != "":
 		return {"ok": false, "code": &"invalid_primary_input", "message": shape_error}
-	# Rule 1: Sylvia Special outranks any completed candidate.
 	if int(input["hospital_skipped_sylvia_solo_count"]) >= 2:
 		return _primary_result("ending.sylvia.special", "sylvia_special")
 	var candidate: Variant = input["completed_candidate"]
@@ -127,18 +103,14 @@ static func resolve_primary_ending(input: Dictionary) -> Dictionary:
 	var walk := _walk_completion_chain(candidate as Dictionary, input["receipt_index"])
 	if not str(walk.get("error", "")).is_empty():
 		return {"ok": false, "code": &"invalid_primary_input", "message": str(walk["error"])}
-	# A well-formed chain that did not end attended is simply not a primary candidate.
 	if not bool(walk["attended"]):
 		return _primary_result("ending.alone", "alone")
 	var friend_id := str((candidate as Dictionary)["friend_id"])
-	# Binary tone (story/05 §1): Totally Dark or Sweet; true-path is a separate postscript.
 	if int(input["dark_points"]) >= 2:
 		return _primary_result("ending.%s.dark" % friend_id, "dark")
 	return _primary_result("ending.%s.sweet" % friend_id, "sweet")
 
 
-## Valid Day-7 primaries after the story/05 §1 binary-tone reconciliation (true-path retired).
-## priscilla_lavinia is epilogue-only and never a primary.
 const VALID_PRIMARY_IDS: Array[String] = [
 	"ending.alone",
 	"ending.priscilla.sweet", "ending.priscilla.dark",
@@ -146,11 +118,8 @@ const VALID_PRIMARY_IDS: Array[String] = [
 	"ending.sylvia.sweet", "ending.sylvia.dark", "ending.sylvia.special",
 ]
 const ENDING_PLAN_KEYS: Array[String] = ["epilogue_id", "playback_stage", "primary_id"]
-# Stage names match the frozen RunSnapshotSchema/RunLifecycle PLAYBACK_SEQUENCE (the schema wins
-# over plan-04's COMPLETED wording).
 const PLAYBACK_STAGES: Array[String] = ["PRIMARY_PENDING", "PRIMARY_PLAYED", "EPILOGUE_PLAYED", "GALLERY_RECORDED"]
 
-## Composes the primary and epilogue resolvers into a fresh EndingPlan at PRIMARY_PENDING.
 static func build_ending_plan(primary_input: Dictionary, epilogue_input: Dictionary) -> Dictionary:
 	var primary := resolve_primary_ending(primary_input)
 	if not primary.get("ok", false):
@@ -180,8 +149,6 @@ static func validate_ending_plan(plan: Dictionary) -> Dictionary:
 		return {"ok": false, "code": &"invalid_ending_plan", "message": "unknown playback stage: " + str(plan["playback_stage"])}
 	return {"ok": true, "code": &"ok"}
 
-## The single next playback command for the plan's current stage (start-only; the caller
-## advances the stage from its validated completion callback, never from this).
 static func next_playback_command(plan: Dictionary) -> Dictionary:
 	var validated := validate_ending_plan(plan)
 	if not validated.get("ok", false):
@@ -199,15 +166,11 @@ static func next_playback_command(plan: Dictionary) -> Dictionary:
 				command = {"kind": &"record_gallery", "expected_stage": &"PRIMARY_PLAYED"}
 		"EPILOGUE_PLAYED":
 			command = {"kind": &"record_gallery", "expected_stage": &"EPILOGUE_PLAYED"}
-		_:  # GALLERY_RECORDED
+		_:
 			command = {"kind": &"complete_run", "expected_stage": &"GALLERY_RECORDED"}
 	return {"ok": true, "code": &"ok", "value": command}
 
 
-## Optional inter-friend epilogue (req.ending.epilogue). Returns ending.priscilla_lavinia only
-## when both counted Priscilla-Lavinia encounters occurred (pl_window_count >= 2, from the .6
-## four-way window; a prevented window never counts). Null otherwise. It never changes the
-## primary ending. Value is the epilogue id or null.
 const EPILOGUE_INPUT_KEYS: Array[String] = ["pl_window_count"]
 
 static func resolve_epilogue(input: Dictionary) -> Dictionary:
@@ -219,9 +182,6 @@ static func resolve_epilogue(input: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": epilogue, "receipt": {"kind": "epilogue", "epilogue_id": epilogue}}
 
 
-## Conjunctive true-observation postscript gate (story/05 sec 1/3): per pairing, the observation
-## postscript unlocks iff board mastery AND observer behaviour. Sylvia is Special-only (never here);
-## the Priscilla-Lavinia postscript is deferred. Pure; never mutates the input.
 static func resolve_postscript(input: Dictionary) -> Dictionary:
 	if not _keys_match(input, ["lavinia", "priscilla"]):
 		return {"ok": false, "code": &"invalid_postscript_input", "message": "keys must be exactly [lavinia, priscilla]"}
@@ -305,9 +265,6 @@ static func _keys_match(value: Dictionary, expected: Array[String]) -> bool:
 	return keys == want
 
 
-## Resolves Hospital consequences as a pure result (req.flow.hospital_order). Recovery is
-## fixed; the only variable is how many Sylvia SOLO dates the faint cost, which later feeds
-## the Sylvia Special check. Never advances the day and never mutates the input.
 static func resolve_hospital_outcome(input: Dictionary) -> Dictionary:
 	var shape_error := _validate_hospital_input(input)
 	if shape_error != "":
@@ -318,7 +275,6 @@ static func resolve_hospital_outcome(input: Dictionary) -> Dictionary:
 		if str(outcome["outcome"]) not in FAINTING_LOST_OUTCOMES:
 			continue
 		var friend_ids: Array = outcome["friend_ids"]
-		# Only a SOLO Sylvia date feeds the counter; a lost group date never does.
 		if friend_ids.size() == 1 and str(friend_ids[0]) == "sylvia":
 			skipped.append(str(outcome["action_id"]))
 	skipped.sort()
@@ -372,7 +328,6 @@ static func _validate_hospital_input(input: Dictionary) -> String:
 		if typeof(outcome["friend_ids"]) != TYPE_ARRAY or (outcome["friend_ids"] as Array).is_empty():
 			return "friend_ids must be a nonempty array"
 		var friend_ids: Array = outcome["friend_ids"]
-		# One friend is a solo; two must be the canonical sorted Priscilla-Lavinia pair.
 		if friend_ids.size() == 2:
 			if [str(friend_ids[0]), str(friend_ids[1])] != ["priscilla", "lavinia"]:
 				return "a group outcome must name the canonical sorted priscilla+lavinia pair"

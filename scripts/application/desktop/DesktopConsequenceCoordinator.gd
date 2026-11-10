@@ -1,84 +1,12 @@
 class_name DesktopConsequenceCoordinator
 extends RefCounted
 
-## Prepared-action causal consequence coordinator (Plan 02 Task 8, dwm-p2r.32,
-## req.desktop.cross_app_actions, req.minesweeper.causal_departure, req.minesweeper.round_contract).
-## Consumes Task 6's `DesktopCausalSequencePort`/`ApplicationMutationGate` and Task 8's own
-## `DesktopBoardFatePort` unchanged. Dispatches only by the validated, persisted
-## `pending_transaction.source_kind` -- it never infers a source from candidate shape, current board,
-## or receipt naming.
-##
-## RULING A (checkpoint ordinal/stage convention, owned by this task): a pre-admission action-source
-## transaction crosses exactly TWO physically distinct checkpoint writes that both keep
-## `DesktopConsequenceState.pending.stage="action_prepared"` (Task 6's own documented collapse of the
-## frozen contract's two-stage `action_checkpointed(0) -> action_prepared(1)` span into one live
-## stage string) -- ordinal 0 is the SOURCE PARTICIPANT's own durable, unpromoted checkpoint
-## (`payload_phase="source_checkpoint"`, written by `MinesweeperShopPurchaseParticipant.prepare_purchase()`
-## or `MinesweeperRoundCoordinator.complete_round()` BEFORE this coordinator is ever consulted), and
-## ordinal 1 is THIS coordinator's own complete admission-ready payload
-## (`payload_phase="admission_ready"`), written here in `accept_prepared_action()` and never
-## overwriting ordinal 0's bytes. This is exactly the convention Task 7's Shop participant already
-## established for its own ordinal-0 write (`operation_ordinal=0` with `stage="action_prepared"`) --
-## Task 8 applies the SAME convention to `MinesweeperRoundCoordinator.complete_round()`'s own ordinal-0
-## write, and adds the matching ordinal-1 write here, uniformly for both source kinds.
-## `payload_phase` (inside `recovery_payload`, not `DesktopConsequenceState.pending.stage`) is the
-## real signal distinguishing "durable but not yet admission-ready" (0) from "admission-ready" (1);
-## no ordinal/stage cross-validation is added inside `DesktopConsequenceState.gd` itself (out of this
-## task's file scope, and the checkpoint port's own occupied-slot conflict law already protects
-## against an ordinal being silently overwritten with different bytes).
-##
-## RULING B (receipt/ledger conventions): `MinesweeperRoundCoordinator.complete_round()` reuses
-## `action_id`/`action_id_provenance` byte-for-byte as `commit_receipt_id`/`commit_receipt_provenance`
-## on its own `DesktopActionReceipt`, exactly matching the Shop participant's own documented
-## convention (Task 7 report: "Plan 02's frozen production derivation table... has no row for a
-## distinct commit-identity"). Its `publish_recovery_action()` records through the SAME publication
-## ledger `action_source` kind, keyed `"action_source:" + action_receipt.commit_receipt_id`, matching
-## `MinesweeperShopPurchaseParticipant.publish()`'s own established key convention exactly -- both
-## source kinds share the ledger's one `action_source` kind coherently.
-##
-## SCOPE NOTE (own documented judgment call, not literally spelled out): the frozen recovery_payload's
-## `consequence_candidate`/`consequence_candidate_sha256` pair (nonnull for every `payload_phase=
-## admission_ready` payload regardless of departure decision -- brief line 367) has no other concrete
-## definition anywhere in the frozen contracts text once its own containing `pending_transaction` is
-## excluded as self-referential. This coordinator resolves it as a detached PREVIEW of what
-## `pending.publication_progress` will look like once `sequence_committed -> publication_pending`
-## fires: `{publication_plan_sha256, callback_ids, next_callback_index:0, callback_receipts:{}}` --
-## genuinely a "consequence" planning artifact prepared alongside `publication_plan` before admission,
-## and the one candidate/hash pair every payload_phase=admission_ready payload needs regardless of
-## departure/no-departure, matching that law exactly.
-##
-## KNOWN GAP, LEFT OPEN AND FLAGGED (dwm-p2r.35.3 remediation, finding A-C3 review note; not fixed by
-## this remediation -- see that finding's own writeup for why): `DesktopConsequenceState.pending
-## .participant_receipts` is threaded through every `prepare_recovery_advance()` call in this file
-## (`_advance_to_publication_pending()`, `_advance_publication_progress()`, `_terminal_cleanup()`) but
-## every one of those call sites passes a literal `{}`, and `prepare_recovery_advance()` itself
-## unconditionally overwrites `pending_after["participant_receipts"]` with whatever it is handed
-## (`DesktopConsequenceState.gd`, inside `prepare_recovery_advance()`) -- so this field is durably
-## persisted as an always-empty dictionary at every stage, never the per-participant receipts its own
-## name implies. This coordinator does retain the equivalent information durably elsewhere (per-
-## callback publication receipts live in `pending.publication_progress.callback_receipts`; the
-## admission-time causal/action/board-fate receipts live inside `recovery_payload`'s own free-form
-## additions and `publication_plan` recipes -- see `_action_receipt_from_payload()`/
-## `_board_fate_receipt_from_payload()` above), so no recovery path in THIS plan actually reads
-## `participant_receipts` back. But nothing establishes that `participant_receipts` is dead-by-design
-## rather than dead-by-oversight, and a downstream plan that reads this file's own doc comments or the
-## frozen `DesktopContinuationOperationJournal` interface signature (which names an unrelated,
-## differently-shaped `participant_receipts` field of its own) could reasonably expect THIS field to
-## carry real per-participant presence rules it never does. Populating it correctly would mean
-## inventing an unstated semantic convention for what belongs in it -- the frozen contracts text never
-## defines presence rules for this exact field (unlike `action_receipt`/`condition_receipt`/
-## `board_fate_receipt`/etc., whose presence-by-stage IS frozen) -- which is a genuine design decision
-## beyond this remediation wave's scope, not a mechanical wiring fix. Left exactly as found;
-## explicitly flagged here so a future plan is told, not left to discover it the hard way.
 
 const _ACTION_RECEIPT := preload("res://scripts/domain/desktop/DesktopActionReceipt.gd")
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 const _GATE_OWNER := &"causal_transaction"
 const _ACTION_SOURCE_KINDS: Array[String] = ["minesweeper_round", "shop_purchase"]
-## dwm-p2r.35.7 remediation (finding 3): added `release_recovery_lease` -- see _resume_forward()'s own
-## doc comment on why the causal_transaction release moved out of publish_recovery_action() and into
-## this fourth, coordinator-driven method.
 const _SOURCE_RECOVERY_METHODS: Array[String] = [
 	"validate_recovery_action", "commit_recovery_action", "publish_recovery_action", "release_recovery_lease",
 ]
@@ -87,8 +15,6 @@ const _ACCEPT_REQUEST_KEYS: Array[String] = [
 	"expected_board_identity", "expected_board_revision",
 ]
 
-## Review-fix pass (dwm-p2r.32.8, CRITICAL 1/2): the frozen `destination_intent`/`notification_intent`
-## shapes and the (ordinal, stage) pairing this coordinator itself authors (IMPORTANT 3).
 const _DESTINATION_INTENT_KEYS: Array[String] = [
 	"intent_id", "intent_id_provenance", "kind", "day", "causal_day_instance",
 	"source_condition_receipt_id", "source_condition_receipt_provenance",
@@ -107,8 +33,6 @@ var _causal_sequence_port: Object = null
 var _board_fate_port: Object = null
 var _checkpoint_port: Object = null
 var _mutation_gate: ApplicationMutationGate = null
-## Review-fix pass (dwm-p2r.32.8, CRITICAL 1) additive DI seam -- see configure_identity_issuer()'s
-## own doc comment.
 var _identity_issuer: Object = null
 
 var _minesweeper_round_source_port: Object = null
@@ -121,23 +45,10 @@ var _completion_checkpoint_capture := Callable()
 var _completion_checkpoints: Dictionary = {}
 var _recovery_gate_token := ""
 
-## Same-process idempotency ledger for `accept_prepared_action()`, keyed by `action_receipt
-## .transaction_id`: `{"request_fingerprint":String,"result":Dictionary}`. Cross-restart resumption
-## does not depend on this map -- it depends only on `DesktopConsequenceState`'s own durable pending
-## record, which `resume_pending()` reads fresh.
 var _accepted: Dictionary = {}
 
-## The day's LATEST fully committed condition receipt, keyed by causal_day_instance (dwm-oyo.3
-## slice, 2026-08-24). `DesktopConsequenceSourcePort.resolve_condition_receipt` reads this so a
-## Schedule-Done resolution consumes honest policy output rather than fabricated condition truth.
-## Process-local by the same law as `_accepted` above: forward recovery of an in-flight admitted
-## transaction re-lands it (retention sits at `_resume_forward`'s completion), while a fresh process
-## with no pending transaction fails closed at the source port instead -- the durable per-day
-## condition record is later Plan-03 work, recorded on dwm-oyo.3.
 var _committed_condition_receipts: Dictionary = {}
 
-## DWM_CONSEQUENCE_PROFILE gate, read from the environment once per instance in _init(). Every
-## profile marker below costs exactly one boolean check while the variable is unset.
 var _profile_enabled: bool = false
 
 
@@ -145,9 +56,6 @@ func _init() -> void:
 	_profile_enabled = OS.get_environment("DWM_CONSEQUENCE_PROFILE") == "1"
 
 
-# -------------------------------------------------------------------------------------------------
-# Configuration
-# -------------------------------------------------------------------------------------------------
 
 func configure(state_port: Object, causal_sequence_port: Object, board_fate_port: Object,
 		checkpoint_port: Object, mutation_gate: ApplicationMutationGate) -> Dictionary:
@@ -181,7 +89,6 @@ func configure(state_port: Object, causal_sequence_port: Object, board_fate_port
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
-## Notification acceptance projects existing saved Contacts; it never repeats gameplay effects.
 func configure_notification_consumer(consumer: Callable, publisher: Callable) -> Dictionary:
 	if not consumer.is_valid() or not publisher.is_valid(): return _fail(&"invalid_notification_consumer", "", {})
 	if _notification_consumer.is_valid() and (_notification_consumer != consumer or _notification_publisher != publisher):
@@ -191,8 +98,6 @@ func configure_notification_consumer(consumer: Callable, publisher: Callable) ->
 	return {"ok": true}
 
 
-## The composition captures current gameplay and substitutes the supplied cleaned consequence
-## candidate. The full Autosave commits before the sidecar is allowed to forget this transaction.
 func configure_completion_checkpoint_capture(capture_inputs: Callable) -> Dictionary:
 	if not capture_inputs.is_valid() or _checkpoint_port == null \
 			or not _has_all_methods(_checkpoint_port, ["prepare", "commit"]):
@@ -203,10 +108,6 @@ func configure_completion_checkpoint_capture(capture_inputs: Callable) -> Dictio
 	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
 
 
-## Mandatory before either condition/departure configure seam or `resume_pending()`. Retains exactly
-## the existing production `MinesweeperRoundCoordinator` for `minesweeper_round` and
-## `MinesweeperShopPurchaseParticipant` for `shop_purchase`; validates all four recovery methods on
-## both, and rejects one object claiming both roles.
 func configure_action_source_ports(minesweeper_round_source_port: Object,
 		shop_purchase_source_port: Object) -> Dictionary:
 	if minesweeper_round_source_port == null \
@@ -249,12 +150,6 @@ func configure_condition_departure_ports(condition_policy_port: Object, schedule
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
-## Review-fix pass (dwm-p2r.32.8) additive DI seam beyond configure()'s frozen 5-argument signature
-## (own design choice, matching MinesweeperRoundCoordinator's own established
-## configure_durable_checkpoint()/configure_consequence_checkpoint() precedent for "the frozen seam is
-## too narrow, add a second one"): accept_prepared_action()'s own outer receipt_id/receipt_provenance
-## (CRITICAL 1) needs a derive_child()-capable issuer, which the frozen configure() has no parameter
-## for.
 func configure_identity_issuer(identity_issuer: Object) -> Dictionary:
 	if identity_issuer == null or not identity_issuer.has_method("derive_child"):
 		return _fail(&"invalid_identity_issuer", "an exact anchored-child-derivation capability is required", {})
@@ -267,13 +162,6 @@ func configure_identity_issuer(identity_issuer: Object) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
-## Plan 03's frozen Schedule-departure extension (consumed-interface lock): STUBBED under
-## DEVIATION-18 Ruling 18-A (maintainer AskUserQuestion, recorded 2026-09-02 on dwm-oyo.3).
-## Plan 03 Task 6 implements the real binding and composition; until then both methods fail closed
-## exactly like the repo's unconfigured playback ports (DialogicPlaybackCompletionPort /
-## DialogicSignalCommandPort's `not_configured` precedent), so no caller can mistake the unshipped
-## extension for a configured surface and the frozen five-argument signature is already load-bearing
-## for Task 1's downstream-contract census.
 @warning_ignore("unused_parameter")
 func configure_schedule_departure_ports(schedule_port: Object, day_start_port: Object,
 		schedule_view_port: Object, terminal_intent_port: Object,
@@ -283,7 +171,6 @@ func configure_schedule_departure_ports(schedule_port: Object, day_start_port: O
 		{})
 
 
-## See configure_schedule_departure_ports() above -- the same DEVIATION-18 Ruling 18-A stub pair.
 @warning_ignore("unused_parameter")
 func request_schedule_departure(raw_request: Dictionary) -> Dictionary:
 	return _fail(&"not_configured",
@@ -291,20 +178,11 @@ func request_schedule_departure(raw_request: Dictionary) -> Dictionary:
 		{})
 
 
-## The day's latest fully committed condition receipt as detached bytes, or `{}` when no completed
-## transaction has committed one this process (dwm-oyo.3 slice; see `_committed_condition_receipts`'
-## own doc comment for the honesty boundary). Read-only: consumed by
-## `DesktopConsequenceSourcePort.resolve_condition_receipt`, which turns the empty read into a
-## fail-closed `condition_receipt_unavailable` rather than fabricating condition truth.
 func committed_condition_receipt(causal_day_instance: String) -> Dictionary:
 	var receipt: Variant = _committed_condition_receipts.get(causal_day_instance)
 	return (receipt as Dictionary).duplicate(true) if typeof(receipt) == TYPE_DICTIONARY else {}
 
 
-# -------------------------------------------------------------------------------------------------
-# accept_prepared_action() -- validate -> reserve -> evaluate policy -> (departure: board fate +
-# ScheduleView) -> checkpoint ordinal 1 -> admission CAS -> forward commit -> publish -> cleanup.
-# -------------------------------------------------------------------------------------------------
 
 func accept_prepared_action(request: Dictionary) -> Dictionary:
 	var profile_tick := _settlement_profile_start()
@@ -337,11 +215,6 @@ func accept_prepared_action(request: Dictionary) -> Dictionary:
 		return _fail(&"causal_transaction_lease_required",
 			"accept_prepared_action requires the source participant to already hold the causal_transaction lease", {})
 
-	# dwm-p2r.35.7 remediation (finding 1): moved after receipt validation/transaction_id extraction
-	# (was checked first, before this coordinator had any idea which transaction it was even
-	# targeting) so pre-admission abandonment (plan02-frozen-contracts.md line 2271) can target only
-	# the matching pending transaction, never a blind global abandon. See _abandon_pre_admission()'s
-	# own doc comment for what "abandoned" means here.
 	if _condition_policy_port == null or _schedule_view_port == null:
 		var abandoned := _abandon_pre_admission(transaction_id, source_kind)
 		if not abandoned.get("ok", false):
@@ -372,9 +245,6 @@ func accept_prepared_action(request: Dictionary) -> Dictionary:
 	if str(pending_dict["stage"]) == "action_prepared" and not already_admission_ready:
 		result = _prepare_and_admit(action_receipt, source_kind, transaction_id, request, live_state, pending_dict)
 	elif str(pending_dict["stage"]) == "action_prepared" and already_admission_ready:
-		# Ordinal 1 is durable but the admission CAS itself did not complete before a crash: replay
-		# the reservation deterministically (prepare_reservation() is byte-identical-replay-safe at
-		# the same transaction_id) rather than re-running policy/board-fate/view preparation again.
 		result = _resume_and_admit(action_receipt, source_kind, transaction_id, pending_dict)
 	else:
 		result = _resume_forward(action_receipt, source_kind, transaction_id, live_state, pending_dict)
@@ -385,29 +255,6 @@ func accept_prepared_action(request: Dictionary) -> Dictionary:
 	return result
 
 
-## dwm-p2r.35.7 remediation (finding 1): plan02-frozen-contracts.md line 2271 -- "Until Plan 03 injects
-## its real condition policy and sole ScheduleView/route composition, a merely pre-admission
-## accept_prepared_action() returns condition_departure_ports_unconfigured before causal admission,
-## marks only the already-durable unpromoted source checkpoint abandoned through the injected
-## checkpoint port, releases causal_transaction, and commits no live participant; it never creates or
-## promotes a consequence checkpoint." This method performs the first and third of those: marking the
-## checkpoint port's own durable record abandoned, and clearing DesktopConsequenceState's own pending
-## bookkeeping back to null through the state port's established prepare_restore()/commit()
-## "live-adopt" seam (the SAME seam _checkpoint_and_adopt()/adopt_durable_checkpoint_if_live_is_behind()
-## already use elsewhere in this file) -- a bookkeeping cleanup of this coordinator's OWN transaction
-## ledger, never "committing a participant" in this file's own established vocabulary (source/board/
-## view -- see _resume_forward()'s three forward-commit steps). It calls neither
-## prepare_consequence_checkpoint() nor commit_consequence_checkpoint(): no new ordinal is ever
-## created or promoted, matching the frozen law's own closing clause exactly. Releasing the actual
-## `causal_transaction` gate TOKEN is the caller's job: this coordinator never acquires that lease
-## itself (only the source participant does, and only it retains the token to release it with) -- see
-## MinesweeperRoundCoordinator._call_accept_and_finalize()'s own release on this exact failure code.
-##
-## Returns ok:true on successful abandonment (a coordinator-internal disposition, never surfaced to
-## an external caller directly) or a genuine failure if no matching pre-admission pending exists to
-## abandon. Both callers -- this method's own condition_departure_ports_unconfigured branch above,
-## and resume_pending()'s pre-admission branch below -- translate a successful abandonment into
-## their own appropriate public result.
 func _abandon_pre_admission(transaction_id: String, source_kind: String) -> Dictionary:
 	var captured: Dictionary = _state_port.call(&"capture")
 	if not captured.get("ok", false):
@@ -440,8 +287,6 @@ func _abandon_pre_admission(transaction_id: String, source_kind: String) -> Dict
 		"value": {"transaction_id": transaction_id, "source_kind": source_kind}, "receipt": {}}
 
 
-## Fresh admission path: reservation -> policy -> (departure: board fate + view) -> ordinal-1
-## checkpoint -> live-adopt -> admission CAS -> forward.
 func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transaction_id: String,
 		request: Dictionary, live_state: Dictionary, pending_dict: Dictionary) -> Dictionary:
 	var profile_tick := _settlement_profile_start()
@@ -476,8 +321,6 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
 	var condition_receipt: Dictionary = condition_value["condition_receipt"]
 	var is_departure := str(condition_receipt["decision"]) != "no_departure"
 
-	# CRITICAL 2 (Review-fix pass): read and validate the intents the policy evaluated alongside
-	# condition_receipt, instead of discarding them here as before.
 	var destination_intent: Variant = condition_value.get("destination_intent")
 	var notification_intent: Variant = condition_value.get("notification_intent")
 	var intent_pairing := _validate_intent_pairing(is_departure, destination_intent, notification_intent)
@@ -529,9 +372,6 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
 		destination_intent, notification_intent)
 	var recovery_payload: Dictionary = recovery_built["recovery_payload"]
 
-	# The ONE derivation over these immutable payload bytes: `_build_admission_ready_payload()` above
-	# is the only producer of new payload bytes per transaction, and no later path mutates
-	# `recovery_payload` in place, so this proof is threaded to the seams below rather than repeated.
 	var recovery_payload_sha256 := _canonical_sha256(recovery_payload)
 	var pending_after: Dictionary = pending_dict.duplicate(true)
 	pending_after["recovery_payload"] = recovery_payload.duplicate(true)
@@ -571,9 +411,6 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
 		sequence_candidate, causal_sequence_receipt, recovery_payload, pending_after)
 
 
-## Ordinal 1 is durable (`recovery_payload.payload_phase=="admission_ready"`) but the admission CAS
-## itself never completed before a crash. Replays `prepare_reservation()` deterministically from the
-## retained request/candidate rather than re-running policy/board-fate/view preparation.
 func _resume_and_admit(action_receipt: Dictionary, source_kind: String, transaction_id: String,
 		pending_dict: Dictionary) -> Dictionary:
 	var recovery_payload: Dictionary = pending_dict["recovery_payload"]
@@ -590,8 +427,6 @@ func _resume_and_admit(action_receipt: Dictionary, source_kind: String, transact
 		sequence_candidate, causal_sequence_receipt, recovery_payload, pending_dict)
 
 
-## Repeats the shared last-sequence/run-revision CAS, then dispatches forward recovery in the frozen
-## source-kind order.
 func _admit_and_forward(action_receipt: Dictionary, source_kind: String, transaction_id: String,
 		reservation_request: Dictionary, sequence_candidate: Dictionary, causal_sequence_receipt: Dictionary,
 		recovery_payload: Dictionary, pending_after: Dictionary) -> Dictionary:
@@ -630,11 +465,6 @@ func _admit_and_forward(action_receipt: Dictionary, source_kind: String, transac
 	return _resume_forward(action_receipt, source_kind, transaction_id, {}, {})
 
 
-## Forward-only recovery from `sequence_committed` onward, driven entirely by the LIVE persisted
-## pending record (never a process-local cache): commit action candidate -> board fate (departure
-## only) -> ScheduleView (departure only) -> publication callbacks -> terminal cleanup. `live_state`/
-## `pending_dict` are accepted for the fresh-admission call path's convenience but are re-read from a
-## live capture when empty, so a genuinely reconstructed coordinator resumes identically.
 func _resume_forward(action_receipt: Dictionary, source_kind: String, transaction_id: String,
 		live_state: Dictionary, pending_dict: Dictionary) -> Dictionary:
 	var profile_tick := _settlement_profile_start()
@@ -653,14 +483,9 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 	var source_port: Object = _minesweeper_round_source_port if source_kind == "minesweeper_round" else _shop_purchase_source_port
 	var action_candidate: Dictionary = recovery_payload["action_candidate"]
 	var is_departure: bool = recovery_payload["board_candidate"] != null
-	# CRITICAL 2 (Review-fix pass): retained on recovery_payload by _build_admission_ready_payload()
-	# so a reconstructed coordinator resuming forward recovery (resume_pending()) reads the SAME
-	# intents the policy evaluated during the original _prepare_and_admit() pass, never recomputes them.
 	var destination_intent: Variant = recovery_payload.get("destination_intent")
 	var notification_intent: Variant = recovery_payload.get("notification_intent")
 
-	# A fresh process must re-prepare frozen board fate against the exact restored source
-	# before committing the source's NONE projection. No condition policy is rerun.
 	if is_departure and _board_fate_port.has_method("prepare_recovery_departure"):
 		var projected: Dictionary = _build_projected_board_candidate(source_kind, action_receipt, action_candidate)
 		if not projected.get("ok", false): return projected
@@ -669,14 +494,12 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 			_board_fate_receipt_from_payload(recovery_payload))
 		if not recovered_fate.get("ok", false): return recovered_fate
 
-	# 1. Commit the action source (its sole live commit).
 	profile_tick = _settlement_profile_phase("forward", "capture_and_recovery_prepare", profile_tick)
 	var source_committed: Dictionary = source_port.call(&"commit_recovery_action", action_candidate, action_receipt)
 	if not source_committed.get("ok", false):
 		return source_committed
 	profile_tick = _settlement_profile_phase("forward", "source_commit_inclusive", profile_tick)
 
-	# 2. Board fate (departure only).
 	var schedule_view_commit_receipt: Variant = null
 	if is_departure:
 		var board_candidate: Dictionary = recovery_payload["board_candidate"]
@@ -684,7 +507,6 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 		if not board_committed.get("ok", false):
 			return board_committed
 
-		# 3. ScheduleView (departure only).
 		var condition_receipt_for_view: Dictionary = recovery_payload["condition_candidate"]
 		var view_committed: Dictionary = _schedule_view_port.call(&"commit_condition_departure", {
 			"condition_receipt": condition_receipt_for_view,
@@ -698,12 +520,6 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 		schedule_view_commit_receipt = (view_committed["receipt"] as Dictionary).duplicate(true)
 
 	profile_tick = _settlement_profile_phase("forward", "departure_commits", profile_tick)
-	# 4. Advance to publication_pending if not already there. CRITICAL 2 (Review-fix pass): this is
-	# the ONE edge that persists destination_intent/notification_intent onto the durable pending
-	# record -- DesktopConsequenceState.prepare_recovery_advance() only overwrites pending.destination_
-	# intent/notification_intent when passed non-null, so every LATER advance below (which always
-	# passes null) leaves whatever was set here untouched, landing both fields in the persisted
-	# pending record exactly once per transaction, replay-safe under crash-then-resume.
 	if str(pending_dict["stage"]) != "publication_pending":
 		var advanced := _advance_to_publication_pending(transaction_id, pending_dict, destination_intent, notification_intent)
 		if not advanced.get("ok", false):
@@ -711,7 +527,6 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 		pending_dict = advanced["pending_dict"]
 
 	profile_tick = _settlement_profile_phase("forward", "publication_pending_inclusive", profile_tick)
-	# 5. Run every publication callback in order.
 	var publication_plan: Array = recovery_payload["publication_plan"]
 	var progress: Dictionary = pending_dict["publication_progress"]
 	while int(progress["next_callback_index"]) < publication_plan.size():
@@ -730,14 +545,11 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 		if _profile_enabled:
 			profile_tick = _settlement_profile_phase("forward", "progress_" + str(recipe["participant"]), profile_tick)
 
-	# 6. Terminal cleanup, once the cursor is complete.
 	var cleaned := _terminal_cleanup(transaction_id)
 	if not cleaned.get("ok", false):
 		return cleaned
 	profile_tick = _settlement_profile_phase("forward", "cleanup_inclusive", profile_tick)
 
-	# The live source owns the original lease; a reconstructed coordinator owns its recovery
-	# lease. Both are released only after the completed snapshot and terminal sidecar are durable.
 	var source_released: Dictionary = source_port.call(&"release_recovery_lease")
 	if not source_released.get("ok", false):
 		return source_released
@@ -746,18 +558,10 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 		return recovery_released
 	if _notification_publisher.is_valid(): _notification_publisher.call()
 
-	# CRITICAL 1 (Review-fix pass): return the frozen accept_prepared_action() success shape exactly,
-	# never the fabricated {action_receipt,source_kind,departure} shape this returned before. Every
-	# ingredient below is already durably retained on recovery_payload/publication_plan or just
-	# computed above, so this assembly is itself replay-safe (a second _resume_forward() call for the
-	# same transaction reaches the same bytes).
 	var causal_sequence: int = int(((recovery_payload["causal_sequence_reservation_candidate"] as Dictionary)
 		["causal_sequence_receipt"] as Dictionary)["causal_sequence"])
 	var board_fate_receipt: Variant = (_board_fate_receipt_from_payload(recovery_payload) if is_departure else null)
 	var condition_receipt: Dictionary = recovery_payload["condition_candidate"]
-	# dwm-oyo.3 slice (2026-08-24): the transaction is fully committed, published, and cleaned up, so
-	# its condition receipt is now the day's condition truth -- retained for the Schedule-Done
-	# consequence source's resolve_condition_receipt read (see the field's own doc comment).
 	_committed_condition_receipts[str(action_receipt["causal_day_instance"])] = \
 		condition_receipt.duplicate(true)
 	var value := {
@@ -774,9 +578,6 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 
 func _advance_to_publication_pending(transaction_id: String, pending_dict: Dictionary,
 		destination_intent: Variant, notification_intent: Variant) -> Dictionary:
-	# dwm-p2r.35.7 remediation (finding 5): the frozen shape (plan02-frozen-contracts.md lines 311-317)
-	# carries its own admitted publication_plan_sha256/callback_ids -- both already durable inside
-	# recovery_payload since ordinal 1, never recomputed here.
 	var recovery_payload: Dictionary = pending_dict["recovery_payload"]
 	var callback_ids: Array[String] = []
 	for recipe: Variant in (recovery_payload["publication_plan"] as Array):
@@ -797,13 +598,6 @@ func _advance_to_publication_pending(transaction_id: String, pending_dict: Dicti
 	return {"ok": true, "pending_dict": (checkpointed["state_after"]["pending"] as Dictionary)}
 
 
-## `pending_dict` supplies the two fields the causal-sequence callback materializes at publish time
-## rather than reading from its own recipe (frozen contract: "the coordinator reads the immutable
-## admission receipt from the pending record, never from a recipe, and materializes the
-## causal-sequence call as exactly {causal_sequence_receipt,admission_checkpoint_receipt}") --
-## `admission_checkpoint_receipt` lives on the pending record itself; `causal_sequence_receipt` is
-## recovered from this coordinator's own retained reservation candidate (see the class-doc SCOPE NOTE
-## on `recovery_payload`'s free-form additions).
 func _run_publication_callback(recipe: Dictionary, recovery_payload: Dictionary, action_receipt: Dictionary,
 		source_port: Object, pending_dict: Dictionary) -> Dictionary:
 	var participant := str(recipe["participant"])
@@ -836,9 +630,6 @@ func _run_publication_callback(recipe: Dictionary, recovery_payload: Dictionary,
 			return _fail(&"consequence_publication_participant_invalid", participant, {})
 
 
-## `board_fate_receipt` is not itself a separate recovery_payload field (see the class-doc SCOPE
-## NOTE): it is recovered from the departure's own publication_plan recipe, the one place its exact
-## bytes are durably retained.
 func _board_fate_receipt_from_payload(recovery_payload: Dictionary) -> Dictionary:
 	for recipe: Variant in (recovery_payload["publication_plan"] as Array):
 		var entry: Dictionary = recipe
@@ -847,11 +638,6 @@ func _board_fate_receipt_from_payload(recovery_payload: Dictionary) -> Dictionar
 	return {}
 
 
-## Review-fix pass (dwm-p2r.32.8) bug fix -- see resume_pending()'s own doc comment at its call site.
-## Mirrors _board_fate_receipt_from_payload()'s identical recovery pattern: the full action_receipt is
-## not a top-level recovery_payload field, but IS durably retained inside publication_plan's own
-## "action_source" recipe, present for every payload_phase=admission_ready payload regardless of
-## departure/no-departure.
 func _action_receipt_from_payload(recovery_payload: Dictionary) -> Dictionary:
 	for recipe: Variant in (recovery_payload["publication_plan"] as Array):
 		var entry: Dictionary = recipe
@@ -865,8 +651,6 @@ func _advance_publication_progress(transaction_id: String, callback_id: String, 
 	var callback_receipts: Dictionary = (progress["callback_receipts"] as Dictionary).duplicate(true)
 	callback_receipts[callback_id] = {"callback_id": callback_id, "source_receipt": source_receipt, "disposition": disposition}
 	var next_index: int = int(progress["next_callback_index"]) + 1
-	# dwm-p2r.35.7 remediation (finding 5): the frozen shape carries no "complete" member of its own --
-	# completeness is derived (next_callback_index >= callback_ids.size()) wherever needed, not stored.
 	var new_progress := {
 		"publication_plan_sha256": str(progress["publication_plan_sha256"]),
 		"callback_ids": (progress["callback_ids"] as Array).duplicate(true),
@@ -911,7 +695,6 @@ func _accept_completion_notification(completed: Dictionary) -> Dictionary:
 		return {"ok": true, "value": {"state": completed}}
 	var accepted: Dictionary = _notification_consumer.call(entry.duplicate(true))
 	if not accepted.get("ok", false): return accepted
-	# Use the existing domain publication operation on the detached cleanup candidate.
 	var detached := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd").new()
 	var restored: Dictionary = detached.prepare_restore(completed)
 	if not restored.get("ok", false): return restored
@@ -926,7 +709,6 @@ func _accept_completion_notification(completed: Dictionary) -> Dictionary:
 
 func _checkpoint_completion(transaction_id: String, stage_candidate: Dictionary) -> Dictionary:
 	var profile_tick := _settlement_profile_start()
-	# Older domain-only compositions can omit the capture. Production Bootstrap always binds it.
 	if not _completion_checkpoint_capture.is_valid():
 		return {"ok": true}
 	if not _mutation_gate.is_internal_owner_active(_GATE_OWNER):
@@ -982,8 +764,6 @@ func _release_recovery_gate() -> Dictionary:
 func _checkpoint_and_adopt(checkpoint_header: Dictionary, stage_candidate: Dictionary,
 		proven_recovery_payload_sha256: String = "") -> Dictionary:
 	var profile_tick := _settlement_profile_start()
-	# Built only while profiling: every phase helper returns 0 when disabled, so nothing reads the
-	# scope string then and composing it on every adopt is pure overhead.
 	var profile_scope := ""
 	if _profile_enabled:
 		profile_scope = "ordinal_" + str(checkpoint_header.get("operation_ordinal"))
@@ -1022,39 +802,11 @@ func _settlement_profile_phase(scope: String, phase: String, tick: int) -> int:
 	return Time.get_ticks_usec()
 
 
-# -------------------------------------------------------------------------------------------------
-# resume_pending() -- empty-process restart. Uses only restored source kind, action candidate/hash,
-# action receipt, publication recipe, and the retained production source object.
-# -------------------------------------------------------------------------------------------------
 
-## Stage rank for `adopt_durable_checkpoint_if_live_is_behind()`'s own "is live behind the durable
-## checkpoint" comparison -- the pre-admission pair collapses to the same rank since neither is ever
-## the checkpoint's own stage (the checkpoint port only ever stores an ordinal>=1 header; ordinal 0's
-## own pre-admission document is never adopted here, matching the frozen law that a pre-admission
-## checkpoint carries no live mutation obligation).
 const _STAGE_RANK: Dictionary = {
 	"action_prepared": 0, "prepared_checkpointed": 0, "sequence_committed": 1, "publication_pending": 2,
 }
 
-## dwm-p2r.35.3 remediation (finding A-C3, "no reader"): the durable admission checkpoint
-## (SaveManagerCheckpointPort's desktop-consequence-checkpoint.json) is the ONLY thing guaranteed
-## durable at the exact moment a source-kind transaction is admitted -- "the admission checkpoint is
-## now durable on disk... From here forward this coordinator never rewinds" (DesktopCausalSequencePort
-## .commit()'s own CRITICAL-1 comment). The containing v4 RunSnapshot autosave, by contrast, only
-## captures whatever was live at ITS OWN last write: a crash between admission-checkpoint-commit and
-## the next autosave leaves the durably admitted transaction invisible to ordinary Restore/New-Run
-## bootstrap, and resume_pending() below -- driven entirely by the state port's own live capture() --
-## would silently see nothing pending.
-##
-## Called at the top of resume_pending() (also reachable directly, e.g. for a caller that wants to
-## adopt without immediately forward-recovering). Reads the checkpoint port's own durable record and,
-## ONLY when live state does not already reflect an equally or more advanced record for the SAME
-## transaction, adopts it through the state port's own capture()/prepare_restore()/commit() seam --
-## never a raw dictionary write -- so every later step (including resume_pending()'s own forward
-## recovery) then sees it exactly as if the RunSnapshot itself had captured it. Never regresses: live
-## state already at or ahead of the durable checkpoint (or already tracking a DIFFERENT transaction --
-## which the exclusive `causal_transaction` gate owner should make impossible, but this stays
-## conservative rather than guessing) is left untouched.
 func adopt_durable_checkpoint_if_live_is_behind() -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
@@ -1118,8 +870,6 @@ func resume_pending() -> Dictionary:
 	if str(pending_dict["stage"]) == "action_prepared":
 		var retained_payload: Dictionary = pending_dict["recovery_payload"]
 		if str(retained_payload.get("payload_phase", "")) == "admission_ready":
-			# Ordinal 1 froze policy and all source candidates before the admission write. Resume
-			# those bytes under a fresh lease, without rerunning policy or requiring the old UI call.
 			var admission_lease := _acquire_recovery_gate()
 			if not admission_lease.get("ok", false):
 				return admission_lease
@@ -1128,8 +878,6 @@ func resume_pending() -> Dictionary:
 			if not admitted.get("ok", false):
 				return admitted
 			return {"ok": true, "code": &"ok", "value": {"resumed": true, "source_kind": source_kind}, "receipt": {}}
-		# Ordinal 0 has no admitted action or policy obligation. Its original request was not
-		# durable, so abandon that unpromoted checkpoint and let the player act again.
 		var abandoned := _abandon_pre_admission(str(pending_dict["transaction_id"]), source_kind)
 		if not abandoned.get("ok", false):
 			return abandoned
@@ -1139,14 +887,6 @@ func resume_pending() -> Dictionary:
 			"resume_pending only resumes an already-admitted action-source transaction", {})
 
 	var recovery_payload: Dictionary = pending_dict["recovery_payload"]
-	# Review-fix pass (dwm-p2r.32.8) bug fix, discovered by the new CRITICAL 2 forward-recovery-replay
-	# test: recovery_payload has never carried a top-level "action_receipt" key (its only keys are the
-	# frozen admission-ready 17 plus this task's own free-form additions) -- this line has read an
-	# absent key since the original implementation, unreachable until a test actually drove
-	# resume_pending() over a transaction with a live pending recovery_payload (the pre-existing test
-	# only exercised the trivial "no pending transaction" branch). The full action_receipt IS durably
-	# retained, inside publication_plan's own "action_source" recipe (brief line 367's own
-	# publication_plan; mirrors _board_fate_receipt_from_payload()'s identical recovery pattern).
 	var action_receipt: Dictionary = _action_receipt_from_payload(recovery_payload)
 	var transaction_id := str(pending_dict["transaction_id"])
 	var leased := _acquire_recovery_gate()
@@ -1158,14 +898,7 @@ func resume_pending() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"resumed": true, "source_kind": source_kind}, "receipt": {}}
 
 
-# -------------------------------------------------------------------------------------------------
-# Shared helpers
-# -------------------------------------------------------------------------------------------------
 
-## `minesweeper_round`'s projection is the source's own already-NONE post-completion candidate,
-## carried inside `action_candidate.board_projection` (added by `MinesweeperRoundCoordinator
-## .complete_round()`). `shop_purchase` never touches the board: its projection is the port's own
-## current live board capture, read through `DesktopBoardFatePort.capture()`.
 func _build_projected_board_candidate(source_kind: String, action_receipt: Dictionary,
 		action_candidate: Dictionary) -> Dictionary:
 	if source_kind == "minesweeper_round":
@@ -1215,29 +948,14 @@ func _build_admission_ready_payload(source_kind: String, action_receipt: Diction
 		"schedule_view_after": schedule_view_after, "schedule_view_after_sha256": schedule_view_after_sha256,
 		"consequence_candidate": consequence_preview, "consequence_candidate_sha256": _canonical_sha256(consequence_preview),
 		"publication_plan": publication_plan, "publication_plan_sha256": publication_plan_sha256,
-		# Own free-form additions (not part of the frozen 17-key admission-ready shape, but
-		# DesktopConsequenceState._validate_pending() places no exact-key requirement on
-		# recovery_payload's own internal shape -- only that it is a Dictionary matching its own
-		# hash): the exact causal-sequence reservation inputs/outputs, retained so a crash between
-		# the ordinal-1 write and the admission CAS can deterministically replay
-		# prepare_reservation() without re-running policy/board-fate/view preparation.
 		"causal_sequence_reservation_request": reservation_request.duplicate(true),
 		"causal_sequence_reservation_candidate": sequence_candidate.duplicate(true),
-		# CRITICAL 2 (Review-fix pass, dwm-p2r.32.8): another free-form addition alongside the pair
-		# above, for the identical reason -- a reconstructed coordinator's _resume_forward() must read
-		# the SAME intents _prepare_and_admit() validated, never recompute them from a policy port it
-		# may not even have live access to during forward recovery.
 		"destination_intent": ((destination_intent as Dictionary).duplicate(true) if destination_intent != null else null),
 		"notification_intent": ((notification_intent as Dictionary).duplicate(true) if notification_intent != null else null),
 	}
 	return {"recovery_payload": recovery_payload}
 
 
-## CRITICAL 2 (Review-fix pass): shape-validates each nonnull intent against its frozen exact-key
-## contract, then enforces the brief's own departure/no-departure pairing law -- "a DEPARTURE enqueues
-## exactly one destination intent and suppresses notification; a NO-DEPARTURE may enqueue zero-or-one
-## notification intent and never calls the view port" -- so a misbehaving/misarmed condition policy
-## can never smuggle an invalid combination past this coordinator.
 func _validate_intent_pairing(is_departure: bool, destination_intent: Variant, notification_intent: Variant) -> Dictionary:
 	if destination_intent != null:
 		if typeof(destination_intent) != TYPE_DICTIONARY:
@@ -1269,24 +987,6 @@ func _validate_intent_pairing(is_departure: bool, destination_intent: Variant, n
 	return {"ok": true}
 
 
-## IMPORTANT 3 (Review-fix pass) -- CORRECTED (dwm-p2r.35.3 remediation, finding A-C3): this comment
-## previously justified leaving ordinal 0 (authored by the two source participants,
-## MinesweeperRoundCoordinator/MinesweeperShopPurchaseParticipant) and ordinals 8-12 (authored by
-## DesktopConsequenceState.prepare_recovery_advance(), reached only through this file's own
-## _checkpoint_and_adopt()) unguarded, by asserting "the checkpoint port's occupied-slot conflict law
-## already rejects a rewrite of an already-written (transaction_id, ordinal) with different bytes."
-## That law did not exist at the time this was written -- SaveManagerCheckpointPort.
-## commit_consequence_checkpoint() unconditionally overwrote one fixed-path document on every write,
-## tracked no slot, and could never return consequence_checkpoint_conflict. Even with that law now
-## implemented (it protects only against a REWRITE of an already-occupied slot, never a WRONG
-## ordinal/stage pairing on a slot's first write), the actual fix is that SaveManagerCheckpointPort
-## .prepare_consequence_checkpoint() itself now cross-checks EVERY checkpoint header --
-## DesktopConsequenceState.validate_checkpoint_ordinal_stage(), covering ordinals 0, 1, 2, and 8-12 --
-## since that method is the one place every author's write already passes through, regardless of
-## which file authors the header. This coordinator's own check below remains as a fast, early-fail
-## convenience for the two ordinals (1, 2) it directly authors as literal dict headers -- most prone
-## to a copy-paste mistake, since nothing else forces their ordinal and stage string to agree -- not
-## because it is the only guard.
 func _validate_ordinal_stage_pairing(header: Dictionary) -> Dictionary:
 	var ordinal := int(header["operation_ordinal"])
 	var expected_stage: Variant = _ORDINAL_STAGE_LAW.get(ordinal)
@@ -1297,15 +997,6 @@ func _validate_ordinal_stage_pairing(header: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
-## CRITICAL 1 (Review-fix pass): derives accept_prepared_action()'s own outer receipt_id/receipt_
-## provenance through the injected identity issuer, mirroring MinesweeperRoundCoordinator._build_
-## round_action_receipt()'s established derive_child() pattern exactly -- same parent_receipt_id
-## source (the action's own transaction_issuer_receipt), same ordinal-0 convention. PROMINENT FLAG
-## (see the Task-8 report's Review-fix pass section): "action_consequence" is not one of the 22
-## originally frozen CHILD_KINDS members -- no existing kind represents this coordinator's own outer
-## envelope receipt, since every existing kind is either a domain artifact or one of the ingredient
-## receipts this envelope already carries by name -- so CHILD_KINDS was extended additively by one
-## member (dwm-p2r.32.8) to cover it, with matching enumeration-test coverage.
 func _build_action_consequence_receipt(action_receipt: Dictionary, transaction_id: String,
 		causal_sequence: int, is_departure: bool) -> Dictionary:
 	if _identity_issuer == null:
@@ -1374,8 +1065,5 @@ func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary
 
 
 
-## Bootstrap calls this only when the application owner is being destroyed.
-## The round source retains this consequence coordinator for settlement.
-## Break that lifetime cycle without transactions, signals, or durable writes.
 func release_runtime_dependencies() -> void:
 	_minesweeper_round_source_port = null

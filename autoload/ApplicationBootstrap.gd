@@ -4,7 +4,6 @@ signal application_ready()
 signal development_subset_ready(subset_id: StringName)
 signal startup_recovery_changed()
 
-## The cache disappears with its desktop scene; the host owner outlives both.
 class ContactsDesktopEvictionPort extends RefCounted:
 	var view: WeakRef
 	func dispatch_desktop_eviction(command: Dictionary) -> Dictionary:
@@ -28,7 +27,6 @@ const ENDING_PLAYBACK_PORT := preload("res://scripts/application/ending/Dialogic
 const DIALOGIC_RUNTIME_ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const DIALOGIC_TIMELINE_CATALOG := preload("res://scripts/data/DialogicTimelineCatalog.gd")
 const DIALOGIC_ENTRY_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
-## Narrative manifest content version supplied to every narrative checkpoint input.
 const NARRATIVE_CONTENT_VERSION := 1
 const DESKTOP_APP_HOST_STATE := preload("res://scripts/domain/desktop/DesktopAppHostState.gd")
 const RUN_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/RunRestoreParticipant.gd")
@@ -115,7 +113,6 @@ var _startup_route_hold_token := ""
 var _debug_gate_factory: Callable
 var _selected_root := ""
 var _profile_storage: RefCounted
-## The run-save storage root; retained so the identity ledger can flush before every save.
 var _saves_storage: RefCounted = null
 var _application_gate: Object = null
 var _content_error_layer: CanvasLayer
@@ -133,7 +130,6 @@ var _retained_checkpoint_port: RefCounted = null
 var _narrative_checkpoint_adapter: Object = null
 var _ending_playback_port: Object = null
 var _desktop_host_state: RefCounted = null
-## At most one Phase-3-owned desktop eviction port. Assigned via register_desktop_eviction_port.
 var _desktop_eviction_port: Object = null
 var _desktop_consequence_state: RefCounted = null
 var _scene_shop_catalog: RefCounted = null
@@ -143,11 +139,7 @@ var _retained_minesweeper_save_port: RefCounted = null
 var _retained_minesweeper_coordinator: RefCounted = null
 var _checkpoint_provider_bundle: Dictionary = {}
 var _retained_restore_participants: Dictionary = {}
-## The identity-allocation restore participant (separate from the 8-key set above; applies once,
-## before it, only for a restore). Constructed and handed to SaveManager during `initialize_saves`.
 var _retained_desktop_publication_ledger: RefCounted = null
-## The Plan-02 application-level round coordinator (no class_name; preload by path). Its base
-## The real generator and durable checkpoint path share the restored board owner.
 var _retained_minesweeper_round_coordinator_app: RefCounted = null
 var _retained_minesweeper_generation_port: RefCounted = null
 var _retained_game_state_desktop_board_port: RefCounted = null
@@ -181,8 +173,6 @@ func request_quit() -> void:
 			return
 	get_tree().quit()
 
-## A broken required content reference cannot publish or save another state.
-## Keep the first diagnosis on screen until the player chooses Quit.
 func show_content_error(result: Dictionary) -> void:
 	if is_instance_valid(_content_error_layer): return
 	var projected: Dictionary = FATAL_DIAGNOSTIC_PROJECTOR.project_failure(
@@ -205,8 +195,6 @@ func show_content_error(result: Dictionary) -> void:
 		"confirm": "Quit", "cancelable": false, "warning": false}
 	confirmation.finished.connect(func(_accepted: bool): request_quit())
 	_content_error_layer.add_child(confirmation)
-	# This fatal dialog lives outside the active scene. Suspend the other root
-	# branches too. An in-flight Next may still restore its prior focus custody.
 	for root_child: Node in get_tree().root.get_children():
 		if root_child != self: confirmation._suspend(root_child)
 	var viewport := get_viewport()
@@ -273,8 +261,6 @@ func get_scene_startup_recovery() -> Dictionary:
 	return {"ok": true, "value": _scene_startup_recovery.duplicate(true)}
 
 
-## A committed scene Load retries activation of the same durable operation.
-## It never enters the New Run recovery path or releases readiness early.
 func retry_scene_startup_activation(transaction_id: String) -> Dictionary:
 	if _startup_recovery_busy:
 		return _failure(&"scene_startup_retry_busy", "Startup recovery is already running")
@@ -298,7 +284,6 @@ func retry_scene_startup_activation(transaction_id: String) -> Dictionary:
 			_scene_startup_recovery.clear()
 			startup_recovery_changed.emit()
 	if not result.get("ok", false):
-		# A failure after the durable commit keeps this exact recovery reachable.
 		_scene_startup_recovery["cause"] = result.duplicate(true)
 	_startup_recovery_busy = false
 	return result
@@ -459,8 +444,6 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			if save_manager == null or not save_manager.has_method("initialize"):
 				return _failure(&"missing_stage_adapter", "SaveManager initializer is unavailable")
 			_saves_storage = JSON_STORAGE.new(_selected_root.path_join("saves"))
-			# The issuer stage already ran; bind the hook only after this storage exists.
-			# Flush deferred identity receipts before initialization or later save writes.
 			var gated: Dictionary = _saves_storage.configure_before_write(Callable(self, "_flush_before_run_save"))
 			if not gated.get("ok", false): return gated
 			var save_initialized: Dictionary = save_manager.call(&"initialize", _saves_storage)
@@ -470,24 +453,17 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 				save_manager.connect("live_session_ready", _on_saved_session_activated)
 			if _application_gate.has_signal("transaction_released") and not _application_gate.is_connected("transaction_released", _queue_live_continuation):
 				_application_gate.connect("transaction_released", _queue_live_continuation)
-			# Construct and retain the ONE real checkpoint port here; the narrative adapter and
-			# the scene gameplay stage reuse this exact instance.
 			if _retained_checkpoint_port == null:
 				_retained_checkpoint_port = SAVE_CHECKPOINT_PORT.new(save_manager)
 				if _application_gate != null:
 					var save_latched: Dictionary = _retained_checkpoint_port.configure_fatal_latch(_application_gate)
 					if not save_latched.get("ok", false):
 						return save_latched
-				# dwm-p2r.32 Plan 02 Task 9: SaveManager needs the exact retained production issuer
-				# for New Run/restore identity allocation and continuation reconciliation. The
-				# identity issuer stage already ran (STAGE_ORDER position 3), so it exists here.
 				if _desktop_identity_nonce_issuer != null:
 					var save_issuer: Dictionary = save_manager.call(&"configure_identity_issuer",
 						_desktop_identity_nonce_issuer)
 					if not save_issuer.get("ok", false):
 						return save_issuer
-			# Settle a retained New Acc pair before Profile or any preference consumer
-			# reads it. The later continuation pass still installs every live owner.
 			var profile := _target(&"ProfileManager")
 			if profile == null or not profile.has_method("configure_new_run_storage") \
 					or not save_manager.has_method("configure_new_run_profile_owner") \
@@ -497,8 +473,6 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			if not profile_bound.get("ok", false): return profile_bound
 			var recovery_bound: Dictionary = save_manager.call(&"configure_new_run_profile_owner", profile)
 			if not recovery_bound.get("ok", false): return recovery_bound
-			# Journal loading validates retained scene creations, including completed ones,
-			# before Profile initialization. Bind their immutable validation inputs first.
 			var scene_creation := _configure_registered_scene_creation()
 			if not scene_creation.get("ok", false): return scene_creation
 			return save_manager.call(&"reconcile_new_run_storage")
@@ -510,8 +484,6 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			var bound: Dictionary = bridge.call(&"bind_profile_preferences", profile)
 			if not bound.get("ok", false):
 				return bound
-			# Narrative/ending wiring exists only where the save stage ran; the profile/locale
-			# development subsets deliberately stop at preference binding.
 			if _retained_checkpoint_port == null:
 				return bound
 			return _wire_narrative_and_ending_ports(bridge)
@@ -574,8 +546,6 @@ func _construct_and_inject_mutation_gate(mode: StringName) -> Dictionary:
 	var gate: Object
 	var targets: Array
 	if mode == MODE_FINAL:
-		# The only final-mode resolution of Plan 02's missing_production_gate_factory:
-		# construct the unchanged Task-3 gate once and inject the exact eight targets.
 		_state["gate_injection"]["factory_invocation_count"] = 1
 		gate = _create_production_mutation_gate()
 		targets = FINAL_GATE_TARGETS
@@ -619,7 +589,6 @@ func _construct_and_inject_mutation_gate(mode: StringName) -> Dictionary:
 
 func _publish_startup_route_hold() -> Dictionary:
 	if _startup_route_owner == null and _startup_route_hold_token.is_empty():
-		# Focused stage harnesses may replace FINAL gate construction entirely.
 		return {"ok": true, "code": &"ok", "value": {"published": false}}
 	if _startup_route_owner == null or not is_instance_valid(_startup_route_owner) \
 			or not _startup_route_owner.has_method("publish_startup_route_hold") \
@@ -641,8 +610,6 @@ func _construct_identity_issuer_and_contact_commands() -> Dictionary:
 		return _failure(&"missing_stage_adapter", "GameState identity seam is unavailable")
 	if _desktop_issuer_root_store == null:
 		_desktop_issuer_root_store = DESKTOP_ISSUER_ROOT_STORE.new()
-		# The issuer root reuses the exact root-scoped JsonFileStorage object already retained for
-		# profile data. Selectable saves still receive their distinct `_selected_root/saves` adapter.
 		var root_configured: Dictionary = _desktop_issuer_root_store.configure(
 			_profile_storage, CRYPTO_DESKTOP_NAMESPACE_SOURCE.new())
 		if not root_configured.get("ok", false):
@@ -698,7 +665,6 @@ func _wire_narrative_and_ending_ports(bridge: Object) -> Dictionary:
 			[audio, "get_semantic_audio_context"]]:
 		if not (requirement[0] as Object).has_method(str(requirement[1])):
 			return _failure(&"missing_stage_adapter", "Narrative wiring target is missing " + str(requirement[1]))
-	# Bind the low-level runtime adapter to the installed Dialogic autoload when present.
 	var runtime_adapter: RefCounted = null
 	var dialogic := get_node_or_null("/root/Dialogic")
 	if dialogic != null:
@@ -762,11 +728,8 @@ func _active_app_id_context() -> Variant:
 	if _desktop_host_state == null:
 		return null
 	var active: Variant = _desktop_host_state.capture_persistent_state().get("active_app_id", null)
-	# The host owns StringName IDs; the narrative provider owns primitive Strings.
-	# Preserve null and malformed values so the strict consumer can still refuse.
 	return String(active) if typeof(active) == TYPE_STRING_NAME else active
 
-## Scene availability belongs to the retained Pause owner, without Save capture.
 func _can_capture_backup_checkpoint_inputs() -> bool:
 	if not _state.get("ready", false) or _application_gate == null or _checkpoint_provider_bundle.is_empty():
 		return false
@@ -789,7 +752,6 @@ func _capture_backup_checkpoint_inputs() -> Dictionary:
 	return _failure(&"backup_capture_unavailable", "The paused scene desktop is not ready")
 
 
-## SaveManager rechecks the actual retained Pause source rather than trusting a route flag.
 func _admit_paused_desktop_backup(inputs: Dictionary) -> bool:
 	var router := _target(&"SceneRouter")
 	if router == null or inputs.get("route_id") != "main" or not get_tree().paused: return false
@@ -797,7 +759,6 @@ func _admit_paused_desktop_backup(inputs: Dictionary) -> bool:
 	return paused.get("ok", false) and paused.value == inputs
 
 
-## The retained Pause or active Dating owner validates its exact source first.
 func _capture_paused_checkpoint_inputs() -> Dictionary:
 	var bridge := _target(&"DialogicBridge")
 	var game := _target(&"GameState")
@@ -829,8 +790,6 @@ func configure_contacts_desktop(desktop: Node) -> Dictionary:
 	var registered := _ensure_desktop_eviction_port()
 	if not registered.get("ok", false):
 		return registered
-	# Restored Backup can query live capture synchronously while being mounted.
-	# Bind first, including failed projections that still need owner eviction.
 	_contacts_desktop_eviction_port.view = weakref(desktop)
 	var mounted: Dictionary = desktop.configure_contacts(_contacts_presentation_port,
 		_target(&"LocalizationManager"), _target(&"ProfileManager"),
@@ -893,9 +852,6 @@ func _desktop_amendment_probe_fields() -> Dictionary:
 		"save_document_schema_version": SAVE_DOCUMENT_SCHEMA_VERSION,
 		"registry_versions": {"minesweeper_shop": MINESWEEPER_SHOP_REGISTRY.REGISTRY_VERSION},
 		"desktop_graph_constructed": desktop_graph_constructed,
-		# Still false: the destination-outbox dispatcher (hospital_day / day7_terminal consumers)
-		# remains Plan-03 Task-7 work outside the dwm-oyo.3 slice.
-		# dwm-oyo.3 slice (2026-08-24): the condition pair, consequence source, and Done dispatcher.
 	}
 
 
@@ -903,10 +859,6 @@ static func _instance_id(retained: Object) -> int:
 	return retained.get_instance_id() if retained != null else 0
 
 
-## Constructs and configures exactly one CausalDayAdvanceIdentityPort against the retained
-## production identity issuer, then injects it into the coordinator. Identical startup replay
-## reuses the same instance rather than building a second one, so the coordinator's replacement
-## guard is never tripped by a legitimate re-run.
 func _configure_causal_day_advance_identity() -> Dictionary:
 	if _desktop_identity_nonce_issuer == null:
 		return _failure(&"missing_identity_issuer",
@@ -972,8 +924,6 @@ func _configure_restore_participants() -> Dictionary:
 		"route": route_participant,
 		"narrative": NARRATIVE_RESTORE_PARTICIPANT.new(bridge),
 	}
-	# A headless process has no native window to capture or restore. Its explicit
-	# unavailable capability is retained; it supplies no window acceptance evidence.
 	if window_capability.value.available:
 		var configured_window: Dictionary = participants.profile.configure_window_output(window)
 		if not configured_window.get("ok", false): return configured_window
@@ -985,7 +935,6 @@ func _configure_restore_participants() -> Dictionary:
 	return configured
 
 
-## Bind creation validation before storage recovery; no live playback starts here.
 func _configure_registered_scene_creation() -> Dictionary:
 	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_contract_tables()
 	if not selected.get("ok", false):
@@ -994,10 +943,9 @@ func _configure_registered_scene_creation() -> Dictionary:
 	var configured: Dictionary = saves.configure_scene_new_run(_target(&"DialogicBridge"))
 	if not configured.get("ok", false): return configured
 	var first_target: String = DIALOGIC_ENTRY_MANIFEST.first_target_id()
-	if first_target.is_empty() or selected.bundle.get("schema_version") != 3: return {"ok": true} # Older test registrations configure their own opening.
+	if first_target.is_empty() or selected.bundle.get("schema_version") != 3: return {"ok": true}
 	return saves.configure_scene_title_new_run(first_target)
 
-## Complete existing scene owners only for an explicitly installed registration.
 func _configure_registered_scene_runtime() -> Dictionary:
 	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_contract_tables()
 	if not selected.get("ok", false):
@@ -1047,7 +995,6 @@ func _configure_desktop_production_graph() -> Dictionary:
 	var scene_round_bound: Dictionary = game_state.configure_scene_round_runtime(_desktop_board_state, _retained_minesweeper_state_port)
 	if not scene_round_bound.get("ok", false): return scene_round_bound
 
-	# One distinct root-scoped desktop publication ledger, loaded before any recovery/publish call.
 	if _retained_desktop_publication_ledger == null:
 		var ledger: RefCounted = DESKTOP_PUBLICATION_LEDGER.new()
 		var ledger_configured: Dictionary = ledger.configure(_profile_storage)
@@ -1059,10 +1006,6 @@ func _configure_desktop_production_graph() -> Dictionary:
 		_retained_desktop_publication_ledger = ledger
 	var ledger: RefCounted = _retained_desktop_publication_ledger
 
-	# Reconcile the external New-Run/restore continuation journal before any run mutation is enabled
-	# (frozen contract: "reconciles the external operation journal ... before enabling any run
-	# mutation"). SaveManager's own issuer/identity-allocation participant were configured during
-	# initialize_saves; this is a pure reconciliation pass over any incomplete operation.
 	var save_manager := _target(&"SaveManager")
 	if save_manager != null and save_manager.has_method("reconcile_incomplete_continuations"):
 		var reconciled: Dictionary = save_manager.call(&"reconcile_incomplete_continuations")
@@ -1074,7 +1017,6 @@ func _configure_desktop_production_graph() -> Dictionary:
 	if not _desktop_identity_provider.is_valid():
 		return _failure(&"desktop_identity_unavailable", "GameState live identity is required")
 
-	# Every command captures the currently activated run through the same stable reader.
 	if _retained_game_state_desktop_board_port == null:
 		var board_port: RefCounted = GAME_STATE_DESKTOP_BOARD_PORT.new()
 		var board_port_configured: Dictionary = board_port.configure(
@@ -1085,20 +1027,12 @@ func _configure_desktop_production_graph() -> Dictionary:
 	var board_consequence: Dictionary = _retained_game_state_desktop_board_port.configure_consequence_state_port(_desktop_consequence_state)
 	if not board_consequence.get("ok", false): return board_consequence
 
-	# The Plan-02 application-level round coordinator adopts Bootstrap's ALREADY-shared board state
-	# (constructed by _configure_restore_participants and wrapped by DesktopBoardRestoreParticipant)
-	# instead of the empty one its own _init() constructs, so DesktopBoardFatePort, the restore
-	# participant, and this coordinator all drive the exact same live object (Task 8's own documented
-	# concern: "the SAME direct-property-access pattern Task 6's own restore tests already
-	# established for this exact wiring gap"). Done immediately after construction, before anything
-	# else touches the coordinator's board.
 	if _retained_minesweeper_round_coordinator_app == null:
 		var round_coordinator: RefCounted = MINESWEEPER_ROUND_COORDINATOR_APP.new()
 		round_coordinator.set("_board_state", _desktop_board_state)
 		var round_ledger: Dictionary = round_coordinator.configure_publication_ledger(ledger)
 		if not round_ledger.get("ok", false):
 			return round_ledger
-		# Install durable checkpoint capability before enabling the generation path.
 		var save_board_port: RefCounted = SAVE_MANAGER_DESKTOP_BOARD_PORT.new(_retained_checkpoint_port)
 		var save_board_configured: Dictionary = save_board_port.configure(_retained_checkpoint_port)
 		if not save_board_configured.get("ok", false):
@@ -1154,7 +1088,6 @@ func _configure_minesweeper_rounds(game_state: Object, save_manager: Object) -> 
 		return _failure(&"missing_stage_adapter", "Minesweeper rounds require the configured checkpoint providers")
 	if not game_state.has_method("_install_minesweeper_round_coordinator"):
 		return _failure(&"missing_stage_adapter", "GameState Minesweeper seam is unavailable")
-	# ONE state adapter, proving GameState retained the very gate Bootstrap injected.
 	var state_port: RefCounted = _retained_minesweeper_state_port
 	if state_port == null:
 		state_port = MINESWEEPER_STATE_PORT.new(game_state)
@@ -1168,7 +1101,6 @@ func _configure_minesweeper_rounds(game_state: Object, save_manager: Object) -> 
 	if not providers_configured.get("ok", false):
 		return providers_configured
 	_retained_minesweeper_state_port = state_port
-	# ONE save adapter over the SAME real checkpoint port; it owns only the board lock owner.
 	var save_port: RefCounted = _retained_minesweeper_save_port
 	if save_port == null:
 		save_port = MINESWEEPER_SAVE_PORT.new()
@@ -1204,9 +1136,6 @@ func _connect_desktop_day_change(game_state: Object) -> void:
 		game_state.day_changed.connect(_on_day_changed)
 
 
-## Constructs and registers the one route-independent desktop eviction adapter. It can safely
-## receive a day change before a desktop scene mounts; configure_contacts_desktop later binds its
-## weak presentation view without replacing either retained port identity.
 func _ensure_desktop_eviction_port() -> Dictionary:
 	if _contacts_desktop_eviction_port == null:
 		_contacts_desktop_eviction_port = ContactsDesktopEvictionPort.new()
@@ -1289,8 +1218,6 @@ func _stage_target(stage_id: StringName) -> StringName:
 	}.get(stage_id, &"")
 
 func _target(target_name: StringName) -> Node:
-	# Absolute-path lookups require an active tree; outside one (e.g. a bare-node
-	# unit harness) there is no target to resolve.
 	if not is_inside_tree():
 		return null
 	return get_node_or_null("/root/" + String(target_name))
@@ -1408,8 +1335,6 @@ func _queue_live_continuation() -> void:
 
 
 func _resume_live_continuation() -> void:
-	# Route finalization may have queued change_scene_to_file for the end of this frame.
-	# Let that mount finish before publishing the exact physical continuation into it.
 	await get_tree().process_frame
 	_live_continuation_queued = false
 	var game_state := _target(&"GameState")
@@ -1420,12 +1345,8 @@ func _resume_live_continuation() -> void:
 	if _application_gate.is_active() or _application_gate.is_fatal_latched(): return
 	var router := _target(&"SceneRouter")
 	if router.has_method("is_restore_publication_held") and router.is_restore_publication_held(): return
-	# Native scene changes mount at frame end. Keep the exact pending session until
-	# scene_changed wakes us; publishing now would be overwritten by that mount.
 	if get_tree().current_scene == null: return
 	var lifecycle: Dictionary = game_state._run_lifecycle.to_dict()
-	# Scene activation is already acknowledged by SaveManager/Bridge/Router.
-	# It has no legacy calendar continuation to resume.
 	if game_state._run_lifecycle.is_scene_run():
 		_pending_live_continuation = {}
 		if lifecycle.get("state") == "COMPLETED" and not lifecycle.has("ending_plan"):
@@ -1433,8 +1354,6 @@ func _resume_live_continuation() -> void:
 		return
 	_pending_live_continuation = {}
 
-## The terminal checkpoint retains the final ending anchor. Its live History
-## retires only once the completed Run has actually published the Menu scene.
 func _retire_completed_ending_after_menu() -> void:
 	var scene := get_tree().current_scene
 	var router := _target(&"SceneRouter")
@@ -1479,7 +1398,6 @@ func _wire_scene_event_owner(game_state: Node, bridge: Node) -> Dictionary:
 		Callable(game_state, "scene_event_context"))
 
 
-## SceneHost owns only chrome. All commands pass through the retained application owners.
 func configure_scene_host_view(host: Control) -> void:
 	host.configure_scene_controls({
 		"computer_open": open_scene_computer.bind(host),
@@ -1496,7 +1414,6 @@ func _scene_host_admitted(host: Control) -> bool:
 		and _state.get("ready", false) and _target(&"SceneRouter").get_current_route_id() == "scene" \
 		and not _target(&"SceneRouter").is_restore_publication_held()
 
-## Preserve the real reading frontier while the first-Reveal composer owns its detached board.
 func _capture_desktop_board_scene_context(projected_input: Dictionary) -> Dictionary:
 	var host: Node = get_tree().current_scene
 	if not host is Control or host.scene_file_path != "res://scenes/narrative/SceneHost.tscn" \
@@ -1506,8 +1423,6 @@ func _capture_desktop_board_scene_context(projected_input: Dictionary) -> Dictio
 	var bridge := _target(&"DialogicBridge")
 	var session: Dictionary = game.capture_live_session()
 	if not session.get("ok", false): return session
-	# Cost-free desktop markers already own the causal transaction lease. Keep that
-	# internal read available while refusing Restore/NewRun and every external busy gate.
 	var internal: bool = _application_gate.is_internal_owner_active(&"causal_transaction")
 	var admitted: Dictionary = game.capture_desktop_identity_context() if internal else game.validate_live_session(session.value)
 	if not admitted.get("ok", false): return admitted
@@ -1578,14 +1493,11 @@ func open_scene_computer(host: Control) -> Dictionary:
 
 func _scene_challenge_published(host: Control, panel: Control) -> void:
 	if panel.public_view.get("phase") == "terminal":
-		# Leave the board's input dispatch before replacing its background caption.
 		_complete_scene_challenge.call_deferred(host, panel)
 
 func _complete_scene_challenge(host: Control, panel: Control) -> void:
 	if not is_instance_valid(panel) or not _scene_host_admitted(host) or not host.is_computer_open() \
 			or panel.public_view.get("phase") != "terminal": return
-	# A deferred publication can outlive its story cue during recovery. Only the
-	# current binding may close the computer and consume this physical result.
 	var game := _target(&"GameState")
 	var current: Dictionary = game.capture_scene_challenge_command()
 	if not current.get("ok", false): return

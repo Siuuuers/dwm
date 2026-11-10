@@ -1,8 +1,5 @@
 extends Button
 class_name ShopItemBox
-## Ordinary public product card. Shop owns inspection, selection, and purchases.
-## The catalog measures complete text bands for its single-page grid.
-## Host custody transitions use set_admitted(), not direct writes to disabled.
 
 signal inspection_requested
 
@@ -45,7 +42,6 @@ func _apply_palette_context(palette: StringName, day: Variant = 1, high_contrast
 	return true
 
 func configure(record: Dictionary, price_copy: String, availability_copy: String) -> void:
-	# Consume the validated ordinary projection, never raw gameplay catalog rows.
 	cancel_contact()
 	item_id = record.id
 	_art = record.card_art
@@ -89,7 +85,6 @@ func _ready() -> void:
 	for event: Signal in [focus_entered, focus_exited, button_down, button_up]:
 		event.connect(queue_redraw)
 	visibility_changed.connect(cancel_contact)
-	# Theme propagation reaches child Label metrics after the root notification.
 	theme_changed.connect(func(): refresh_layout.call_deferred())
 	refresh_layout()
 	if _copy.is_empty():
@@ -132,8 +127,6 @@ func refresh_layout() -> void:
 func cancel_contact() -> void:
 	_held = false
 	_hover = false
-	# BaseButton also retains keyboard/controller press state. Reset that state
-	# when this semantic target loses custody, including same-frame replacement.
 	var was_disabled := disabled
 	disabled = true
 	disabled = was_disabled

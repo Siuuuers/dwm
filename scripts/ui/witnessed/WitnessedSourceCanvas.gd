@@ -1,7 +1,4 @@
 extends Control
-## Keep the frozen composition drawn while a reading recovery owns inspection.
-## Keep RecoveryLayer before this node: Godot 4.6's Windows accessibility tree
-## can omit later siblings of this hidden container. Its CanvasLayer controls draw order.
 
 var accessibility_withdrawn := false:
 	set(value):

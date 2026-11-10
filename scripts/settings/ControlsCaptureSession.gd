@@ -1,5 +1,4 @@
 extends RefCounted
-## One transient capture. No InputMap, profile, timer, or gameplay operations.
 const REGISTRY := preload("res://scripts/settings/ControlsActionRegistry.gd")
 
 var _active := false

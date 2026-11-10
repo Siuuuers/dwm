@@ -37,7 +37,6 @@ func set_presentation(source_theme: Theme, font_size: int, large_targets: bool) 
 		button.add_theme_font_override("font", theme.default_font)
 		button.add_theme_font_size_override("font_size", font_size)
 		button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	# Reserve a small physical glyph lane without putting a symbol into the caption.
 	for state: String in ["normal", "hover", "pressed", "hover_pressed", "disabled"]:
 		var final_style := PRESENTATION.box(roles.face)
 		final_style.content_margin_left = 40 if risk_class == "danger" else 16
@@ -47,7 +46,6 @@ func set_presentation(source_theme: Theme, font_size: int, large_targets: bool) 
 
 
 func popup_scoped() -> void:
-	# Measure at the native content width without overriding its anchored layout.
 	var label := get_label()
 	var body_height := label.get_theme_font("font").get_multiline_string_size(
 		dialog_text, HORIZONTAL_ALIGNMENT_LEFT, CONTENT_WIDTH - 48,
@@ -55,7 +53,6 @@ func popup_scoped() -> void:
 	).y
 	var button_height := maxf(get_ok_button().get_combined_minimum_size().y, get_cancel_button().get_combined_minimum_size().y)
 	var content_height := ceili(body_height + button_height + 80)
-	# Windows do not inherit the computer canvas transform like Controls do.
 	var source := get_parent() as Control
 	var source_scale := (source.get_global_transform_with_canvas() if is_embedded() else source.get_screen_transform()).get_scale()
 	content_scale_factor = minf(source_scale.x, source_scale.y)

@@ -1,5 +1,4 @@
 extends RefCounted
-## Read-only projection of committed run counts and explicitly registered notes.
 
 const PurchaseRules = preload("res://scripts/domain/shop/RunNotePurchaseRules.gd")
 

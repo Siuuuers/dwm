@@ -1,8 +1,6 @@
 class_name PairDeckDrawPort
 extends RefCounted
 
-## One Profile-owned run draw, shared by ordinary and condition-Hospital resolution.
-## Profile may safely lead Run after a failed checkpoint; it must never be rolled back.
 const DRAW := preload("res://scripts/domain/relationship/PairDeckDraw.gd")
 const CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const PAIR := "priscilla_lavinia"
@@ -39,7 +37,6 @@ func configure(game_state: Object, profile: Object, gate: Object,
 
 func prepare_schedule(install_for_presentation: bool = false) -> Dictionary:
 	if _gate == null: return _fail(&"pair_deck_unconfigured")
-	# Never borrow another same-kind causal transaction.
 	var acquired: Dictionary = _gate.acquire(&"causal_transaction")
 	if not acquired.get("ok", false): return acquired
 	var result := _prepare_owned()
@@ -79,8 +76,6 @@ func _prepare_owned() -> Dictionary:
 		receipt = validated.value
 		if saved != null and saved != receipt: return _fail(&"pair_deck_saved_receipt_conflict")
 	elif saved != null:
-		# A deliberate full Profile reset may leave a saved run behind. Preserve its
-		# exact prior draw rather than pretending its first meeting has not happened.
 		receipt = saved.duplicate(true)
 	elif not str(legacy.value).is_empty():
 		receipt = DRAW.build_legacy(str(legacy.value)).value
@@ -125,9 +120,6 @@ func _established_form(pair: Dictionary, inspect_legacy_history: bool) -> Dictio
 		established = portrayed
 		reached = true
 	if inspect_legacy_history:
-		# First-lock history is appropriate only for this immutable run-wide form. It
-		# lets a selected pre-pair save retain a form the original run already reached;
-		# it is never used to infer current-branch board mastery or relationship facts.
 		var run_id: String = str(_game._run_lifecycle.to_dict().run_id)
 		for day: int in [2, 6]:
 			var prior: Dictionary = _profile.get_dating_attempt(run_id, "dating.pair.priscilla_lavinia.day%d" % day)
@@ -139,9 +131,6 @@ func _established_form(pair: Dictionary, inspect_legacy_history: bool) -> Dictio
 				return _fail(&"pair_deck_established_form_conflict")
 			established = portrayed
 			reached = true
-		# Offscreen meetings can reach the visible pair ending without any pair board.
-		# Its two atomically stored Profile receipts prove the exact source run/form,
-		# even when the selected save precedes both meetings. Clear Gallery keeps them.
 		var profile: Dictionary = _profile.get_profile_snapshot()
 		var prefix: String = "ending:%s:pair-form:" % run_id
 		for witness_id: String in profile.pair_form_witness_receipts:
@@ -162,8 +151,6 @@ func _established_form(pair: Dictionary, inspect_legacy_history: bool) -> Dictio
 	return _ok(established)
 
 func _draw(witnessed: Array) -> Dictionary:
-	# Probability of rejection is at most 1/2^32; the cap fails closed if an injected
-	# source is broken rather than spinning forever. This is independent of run IDs.
 	for _attempt: int in range(32):
 		var nonce: Variant = _nonce_source.call() if _nonce_source.is_valid() else _rng.randi()
 		if typeof(nonce) != TYPE_INT: return _fail(&"invalid_pair_draw_nonce")
@@ -181,8 +168,5 @@ static func _fail(code: StringName) -> Dictionary:
 
 
 
-## Bootstrap calls this only when the application owner is being destroyed.
-## The condition owner retains the adapter that owns this draw port.
-## Break that lifetime cycle without transactions, signals, or durable writes.
 func release_runtime_dependencies() -> void:
 	_condition_owner = null

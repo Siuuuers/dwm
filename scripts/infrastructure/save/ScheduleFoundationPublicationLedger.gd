@@ -1,21 +1,6 @@
 class_name ScheduleFoundationPublicationLedger
 extends RefCounted
 
-## Durable Schedule-foundation publication ledger (Plan 01 Task 4, dwm-p2r.13).
-##
-## One append-only document at one fixed relative path, written through the SAME approved
-## root-scoped `StorageAdapter` object that owns the desktop issuer root. It is deliberately NOT a
-## selectable save artifact: selected Load, New Run, profile reset, ordinary candidate rollback and
-## recovery-journal rewind never reach it, and nothing here registers a restore participant.
-##
-## AT-MOST-ONCE BOUNDARY. `record_before_emit()` writes and RE-READS the exact candidate before its
-## caller may emit an observation signal. A process loss after the durable record but before or
-## after the signal is therefore an intentional at-most-once boundary: a cold instance re-reads the
-## record from storage and answers `first_delivery=false`. No in-memory flag is ever treated as
-## restart proof -- `_loaded` only caches bytes that came from storage in this process.
-##
-## `_SCHEMA` and `_RECORD_SCHEMA` mirror schemas/save/schedule-foundation-publication-ledger.schema.json;
-## the key, hash and receipt-binding laws the mini dialect cannot express are hand-written below.
 
 const FIXED_PATH := "schedule-foundation-publications.json"
 const SCHEMA_VERSION := 1
@@ -33,7 +18,6 @@ const REQUEST_KEYS: Array[String] = [
 ]
 const KINDS: Array[String] = ["schedule_commit", "day_resolution_start"]
 
-## The exact publication member set and bound receipt member for each kind.
 const PUBLICATION_KEYS := {
 	"schedule_commit": ["committed_schedule", "schedule_commit_receipt"],
 	"day_resolution_start": ["day_resolution_start_receipt", "resolution_plan"],
@@ -43,8 +27,6 @@ const PUBLICATION_RECEIPT_MEMBER := {
 	"day_resolution_start": "day_resolution_start_receipt",
 }
 
-## The exact StorageAdapter capability this ledger consumes; it never constructs storage itself and
-## never chooses a `user://` root.
 const STORAGE_METHODS: Array[String] = [
 	"read_text", "write_atomic", "reconcile", "exists", "describe_root",
 ]
@@ -78,7 +60,6 @@ var _document: Dictionary = {}
 var _loaded := false
 
 
-# ---- frozen public surface ----
 
 func configure(storage: Object) -> Dictionary:
 	if storage == null:
@@ -100,8 +81,6 @@ func configure(storage: Object) -> Dictionary:
 	return _ok({"already_configured": false})
 
 
-## Reconciles and reads the durable document, or initializes the exact empty one when the fixed path
-## is absent. Both branches re-read, strict-parse, schema/key/value-validate and detach.
 func load() -> Dictionary:
 	var ready := _require_configured("load")
 	if not ready.get("ok", false):
@@ -194,7 +173,6 @@ func record_before_emit(request: Dictionary) -> Dictionary:
 	return _ok({"record": candidate.duplicate(true), "first_delivery": true})
 
 
-# ---- internals ----
 
 func _require_configured(method_name: String) -> Dictionary:
 	if _storage == null:
@@ -251,8 +229,6 @@ func _parse_document(text: String) -> Dictionary:
 func _validate_document(document: Variant) -> Dictionary:
 	if typeof(document) != TYPE_DICTIONARY:
 		return _failed(&"publication_ledger_schema_invalid", "the document must be a dictionary")
-	# The strict member/type laws run BEFORE the schema dialect: its `const` comparison raises on a
-	# type-changed member instead of reporting it.
 	var keys: Array = (document as Dictionary).keys()
 	keys.sort()
 	if keys != DOCUMENT_KEYS:

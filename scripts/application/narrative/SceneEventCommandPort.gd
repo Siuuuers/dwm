@@ -1,7 +1,5 @@
 class_name SceneEventCommandPort
 extends RefCounted
-## Synchronous admission through the shared causal gate. The injected owner keeps
-## the only receipt map and commits before adopting. Fatal custody is irreversible.
 
 const CONTRACT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
@@ -42,7 +40,6 @@ func _dispatch_owned(event: Dictionary, digest: String, lease: String) -> Dictio
 	var context: Dictionary = raw.value
 	if event.get("schema_version") == 2 and context.get("family") != "scene":
 		return _fail(&"event_context_family_mismatch")
-	# Absent flags fail closed. The caller cannot supply its own admission context.
 	if context.get("mode") != "canonical" or context.get("suspended") != false or context.get("computer_held") != false:
 		return _fail(&"event_presentation_held")
 	if context.get("source") != event.source: return _fail(&"event_source_mismatch")
@@ -50,8 +47,6 @@ func _dispatch_owned(event: Dictionary, digest: String, lease: String) -> Dictio
 	var proven: Dictionary = _issuer.verify_issued(event.issuer_receipt, &"transaction_id")
 	if not proven.get("ok", false): return proven
 	if event.command_id != event.issuer_receipt.get("token"): return _fail(&"event_command_mismatch")
-	# Authenticate before lookup. Lookup must compare digest and report unresolved
-	# custody without invoking effects. It is the authoritative owner's operation.
 	var retained: Variant = _owner.call(&"lookup_scene_event", event.command_id, digest)
 	if not retained is Dictionary or typeof(retained.get("ok")) != TYPE_BOOL:
 		return _fail(&"event_owner_result_invalid")
@@ -100,7 +95,6 @@ func configure_owned_handoff(authority: Object, validator: Callable) -> Dictiona
 	_owned_validator = validator
 	return {"ok": true}
 
-## Caller retains its exact lease on every outcome, including fatal uncertainty.
 func dispatch_owned(envelope: Dictionary, lease: String, seal: Dictionary) -> Dictionary:
 	if _owned_active or not is_instance_valid(_owned_authority) or not _owned_validator.is_valid() \
 			or not _gate.is_lease_active(&"causal_transaction", lease): return _fail(&"event_lease_lost")

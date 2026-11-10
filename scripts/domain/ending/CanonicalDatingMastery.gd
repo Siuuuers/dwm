@@ -1,6 +1,4 @@
 extends RefCounted
-## Current loaded slot heads are the membership authority (design section 10.4).
-## Profile history supplies proof for those exact heads; it is never scanned or unioned.
 const ATTEMPTS := preload("res://scripts/profile/DatingAttemptLedger.gd")
 const WINDOWS := {"priscilla": [1, 2, 4, 6], "lavinia": [2, 3, 5, 6],
 	"priscilla_lavinia": [2, 6]}
@@ -18,9 +16,6 @@ static func required_slots() -> Array[String]:
 		slots.append_array(slots_for(scope))
 	return slots
 
-## selected_attempts is keyed by semantic slot and obtained with all four Profile lookup
-## arguments. A missing/invalid proof makes only that scope ineligible; it never fills a gap
-## from another attempt, branch or week. No relationship tone or Observer behavior is inferred.
 static func evaluate(run_id: String, heads: Dictionary, selected_attempts: Dictionary) -> Dictionary:
 	var mastery := {"priscilla": false, "lavinia": false, "priscilla_lavinia": false}
 	if run_id.strip_edges().is_empty(): return mastery
@@ -45,8 +40,6 @@ static func _perfect_head(run_id: String, slot: String, raw_head: Variant, raw_a
 	if attempt.get("run_id") != run_id or attempt.get("slot_id") != slot \
 			or attempt.get("attempt_id") != head.attempt_id or attempt.get("branch_id") != head.branch_id:
 		return false
-	# Reuse the existing board/entry/materialization/effect/completion contract. In particular,
-	# a claimed Perfect outcome cannot replace an actual cleared board and terminal receipt.
 	if not ATTEMPTS.validate_attempt(attempt).get("ok", false): return false
 	return attempt.record.phase == "completed" and attempt.completion_receipt != null \
 		and attempt.record.outcome == "perfect" and attempt.clear_receipt != null \

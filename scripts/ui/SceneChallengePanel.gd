@@ -1,6 +1,4 @@
 extends Control
-## View only. The host supplies the admitted command and trusted presentation port.
-## No physical tokens, board identities, retry policy, or save authority live here.
 
 signal presentation_failed(code: StringName)
 signal presentation_changed()
@@ -125,7 +123,6 @@ func refresh() -> bool:
 			if button.get_parent() != dock: button.reparent(dock, false)
 		if not dock.configure_scene(value.host, _locale, _percent, _large, _palette,
 				_high_contrast, _colour_preset, _font_style): return _fail(&"scene_panel_invalid_view")
-		# The scene host provides direct controls; no Pause surface here.
 		dock.buttons.pause.hide()
 		for key: String in ["flag", "drag", "rules"]:
 			dock.buttons[key].reparent(toolbar, false)
@@ -146,7 +143,6 @@ func refresh() -> bool:
 		toolbar.position = Vector2(8, worksheet.size.y + 4)
 		toolbar.size = Vector2(PANEL_SIZE.x - 16, bar_height)
 		queue_redraw()
-	# Detach the publication once; never derive a substitute board after refusal.
 	var publication: Dictionary = value.duplicate(true)
 	if not worksheet.present(publication.board): return _fail(&"scene_panel_invalid_view")
 	public_view = publication
@@ -187,7 +183,6 @@ func _dispatch(action: StringName, index: int, revision: int) -> void:
 	if not result is Dictionary or not result.get("ok", false):
 		_fail(StringName(result.get("code", "scene_panel_action_refused")) if result is Dictionary else &"scene_panel_action_refused")
 		return
-	# Dispatch envelopes need not contain the panel host. Pull the authoritative view.
 	refresh()
 
 func _fail(code: StringName) -> bool:

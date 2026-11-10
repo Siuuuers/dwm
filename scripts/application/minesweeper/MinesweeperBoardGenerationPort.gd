@@ -1,9 +1,6 @@
 class_name MinesweeperBoardGenerationPort
 extends RefCounted
 
-## Production name-and-envelope adapter between MinesweeperRoundCoordinator's generation seam and
-## the manifest-validating MinesweeperBoardGenerator. It owns no search state: every frontier is a
-## detached, validated preparation that can be checkpointed and supplied to a later slice.
 
 const _GENERATOR := preload("res://scripts/domain/minesweeper/MinesweeperBoardGenerator.gd")
 
@@ -60,8 +57,6 @@ func run_search_slice(frontier: Dictionary) -> Dictionary:
 		"done": true,
 		"layout": layout,
 		"forced_cell": int(preparation["forced_cell"]),
-		# The generator proves certification internally but its persisted preparation contract does
-		# not retain the verifier trace digest. The coordinator explicitly permits null here.
 		"proof_sha256": null,
 	})
 

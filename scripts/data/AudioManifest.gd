@@ -24,9 +24,6 @@ const BGM_IDS := [
 	"ending_priscilla_lavinia", "ending_sweet", "ending_dark",
 ]
 
-## Exact ending-id -> track map (dwm-p2r.8 handoff contract sec 4). Keys equal
-## DatingEndingRules.CANONICAL_ENDING_IDS; there is no suffix inference and no ending_alone
-## fallback. The retired .true ids resolve to nothing and fail before AudioManager mutation.
 const ENDING_TRACKS := {
 	"ending.alone": "ending_alone",
 	"ending.priscilla.sweet": "ending_priscilla_sweet",
@@ -140,8 +137,6 @@ func _dating_track(context: Dictionary) -> String:
 
 
 func _ending_track(ending_id: String) -> String:
-	# Exact map only: empty, unknown, and retired .true ids resolve to "" and the caller fails
-	# with unknown_audio_context before any AudioManager mutation.
 	return str(ENDING_TRACKS.get(ending_id, ""))
 
 
@@ -176,7 +171,6 @@ func _failure(code: StringName) -> Dictionary:
 
 const SCENE_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
-## Pure definition checks: media availability is the playback owner's responsibility.
 static func validate_scene_catalogue(catalogue: Variant, entry_ids: Array) -> Dictionary:
 	if not _scene_keys(catalogue, ["kind", "schema_version", "assets", "plans", "bindings"]):
 		return _scene_failure()
@@ -214,8 +208,6 @@ static func validate_scene_catalogue(catalogue: Variant, entry_ids: Array) -> Di
 	for plan: Variant in catalogue.plans:
 		if not _scene_keys(plan, ["plan_id", "revision", "variant_id", "ambience_asset_id", "entrance_ms", "load_anchor_id", "load_anchor_ms", "authorial", "essential", "missing_media", "music", "cues"]):
 			return _scene_failure()
-		# Version 1 remains ambience-only. Version 2 admits one authored bed on
-		# its proper channel; it does not combine independent channel timelines.
 		var asset_id: Variant = plan.ambience_asset_id
 		if catalogue.schema_version >= 2 and plan.music != null:
 			if plan.ambience_asset_id != null: return _scene_failure()
@@ -273,7 +265,6 @@ static func make_scene_context(registration: Dictionary, entry_id: String, admis
 	return _make_scene_selection_context(registration, checked, selection, admission_receipt_id)
 
 
-## Named presentation selects an existing plan independently of the reading entry.
 static func make_named_presentation_context(registration: Dictionary, plan_id: String,
 		admission_receipt_id: String) -> Dictionary:
 	var checked: Dictionary = _scene_registration(registration)
@@ -304,7 +295,6 @@ static func _make_scene_selection_context(registration: Dictionary, checked: Dic
 		"admission_receipt_id": admission_receipt_id, "selection": selection}}
 
 
-## Receipt-to-entry authority belongs to A's validated ledger, not this resolver.
 static func resolve_scene_context(context: Dictionary, registration: Dictionary) -> Dictionary:
 	var checked: Dictionary = _scene_registration(registration)
 	if not checked.ok:

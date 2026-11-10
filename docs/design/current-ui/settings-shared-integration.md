@@ -136,3 +136,12 @@ boundaries remain manual. Shared system TTS, session History, Backup Save/Load,
 and exact-variant Next are still unfinished. See the scoped tests, native
 accessibility proof, and limitations in
 [the Auto evidence](../../../evidence/witnessed_auto/README.md).
+
+
+## Volume control visibility
+
+`SettingsPanelController` clears pointer ownership and cancels a live volume
+preview when its control is hidden: Godot can drop the native pointer grab
+without emitting `drag_ended`. Waiting only for that signal would retain an
+unfinished preview. This preserves the implementation rationale from
+`1f7a3f1196f3450cef9a514300012e32c00c7d36`; it adds no new behavior or test claim.

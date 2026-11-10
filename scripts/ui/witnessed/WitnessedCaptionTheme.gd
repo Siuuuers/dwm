@@ -1,5 +1,4 @@
 extends RefCounted
-## Caption materials only; no narrative or transport state.
 
 const PALETTES := preload("res://scripts/ui/witnessed/WitnessedPaletteRegistry.gd")
 
@@ -27,7 +26,6 @@ static func build(locale: String, text_percent: int, palette: String,
 	result.set_color(&"font_shadow_color", &"RichTextLabel", Color.TRANSPARENT)
 	result.set_color(&"font_outline_color", &"RichTextLabel", Color(0.05, 0.05, 0.05, 0.9))
 	result.set_constant(&"outline_size", &"RichTextLabel", 2)
-	# Captions remain text over artwork in every scene.
 	var leaf := StyleBoxEmpty.new()
 	for side: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
 		leaf.set_content_margin(side, 16)
@@ -45,7 +43,6 @@ static func build(locale: String, text_percent: int, palette: String,
 	track.set_border_width_all(2)
 	track.content_margin_left = target_size / 2.0
 	track.content_margin_right = target_size / 2.0
-	# Keep the visible gutter narrow inside its full native pointer target.
 	track.expand_margin_left = -(target_size - 12) / 2.0
 	track.expand_margin_right = -(target_size - 12) / 2.0
 	result.set_stylebox(&"scroll", &"VScrollBar", track)

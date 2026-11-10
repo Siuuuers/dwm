@@ -1,29 +1,6 @@
 class_name ScheduleWarningPolicy
 extends RefCounted
 
-## The finite, pure Schedule Done warning policy (Amendment Plan 03 Task 3 Step 3,
-## dwm-oyo.3; amendment section 10). One stateless retained class object; no configure
-## lifecycle; every method is a static function of its arguments and every result is
-## detached.
-##
-## The context is EXACTLY twelve keys. No board is represented only by board_identity=null
-## plus board_phase="NONE"; an existing board carries its full five-member identity
-## (matching the context's own run/branch/generation/causal-day) and one registered
-## non-NONE phase. base_round_ordinal is 1..5 or null, null only after opportunity
-## exhaustion; unfinished_base_board is a base-ordinal-1-2 fact and holds only in the four
-## unfinished-capable phases.
-##
-## The warning-state fingerprint is lowercase SHA-256 of canonical JSON over EXACTLY
-## {view_projection, context}, where view_projection is {day, causal_day_instance,
-## entries, date_entry_seen}. It excludes pending_warning and consumed_warning_receipts;
-## consumed receipts are queried only AFTER fingerprint computation (keyed
-## fingerprint|kind) and are never part of their own key. This fingerprint is separate
-## from Task 2's full-view optimistic-concurrency fingerprint.
-##
-## The queue exists only on Days 1-6 while the date-entry-seen latch is false. The closed
-## order is unread date-enabling message -> accepted-but-unscheduled date -> base
-## Minesweeper -> Done proceeds; once the finite queue is exhausted for one unchanged
-## fingerprint, Done stays reachable.
 
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
@@ -31,28 +8,23 @@ const UNREAD_INVITATION := "unread_invitation"
 const ACCEPTED_DATE := "accepted_date"
 const BASE_MINESWEEPER := "base_minesweeper"
 
-## Exact context keys (sorted).
 const CONTEXT_KEYS: Array = [
 	"accepted_unscheduled_date_ids", "base_opportunity_remaining", "base_round_ordinal",
 	"board_identity", "board_phase", "branch_id", "causal_day_instance",
 	"desktop_timeline_generation", "eligible_unread_date_message_ids", "motivation",
 	"run_id", "unfinished_base_board",
 ]
-## Exact board identity keys (sorted), Plan 02's DesktopIdentity member set.
 const BOARD_IDENTITY_KEYS: Array = [
 	"app_round_ordinal", "branch_id", "causal_day_instance",
 	"desktop_timeline_generation", "run_id",
 ]
-## The closed board phase set.
 const BOARD_PHASES: Array = [
 	"NONE", "PAID_UNSTARTED", "PREPARING", "PREPARED_UNSTARTED", "ACTIVE_VISIBLE", "ACTIVE_SUSPENDED",
 	"SETTLING",
 ]
-## The phases in which a base board counts as unfinished (amendment 10.5; plan line 364).
 const UNFINISHED_PHASES: Array = [
 	"PAID_UNSTARTED", "PREPARING", "PREPARED_UNSTARTED", "ACTIVE_VISIBLE", "ACTIVE_SUSPENDED",
 ]
-## Exact top-level view keys (sorted), Task 2's frozen shape.
 const VIEW_KEYS: Array = [
 	"causal_day_instance", "condition_departure_receipts", "consumed_warning_receipts",
 	"date_entry_seen", "day", "entries", "pending_warning",
@@ -91,7 +63,6 @@ static func next_warning(view: Dictionary, context: Dictionary) -> Dictionary:
 	if not fingerprinted.get("ok", false):
 		return fingerprinted
 	var digest := str((fingerprinted["value"] as Dictionary)["fingerprint"])
-	# Global eligibility: Days 1-6 only, and only while the date-entry-seen latch is false.
 	if int(view["day"]) < 1 or int(view["day"]) > 6 or bool(view["date_entry_seen"]):
 		return _ok({"warning": null})
 	var has_non_date := false
@@ -108,8 +79,6 @@ static func next_warning(view: Dictionary, context: Dictionary) -> Dictionary:
 	eligibility[BASE_MINESWEEPER] = (bool(context["unfinished_base_board"]) \
 			or bool(context["base_opportunity_remaining"])) \
 			and (motivation > 0 or (motivation == 0 and has_non_date))
-	# Consumed receipts are queried only after the fingerprint is computed; they key the
-	# exhaustion of THIS exact state, never the fingerprint itself.
 	var consumed: Dictionary = view["consumed_warning_receipts"]
 	for kind: String in [UNREAD_INVITATION, ACCEPTED_DATE, BASE_MINESWEEPER]:
 		if not bool(eligibility[kind]):
@@ -123,7 +92,6 @@ static func next_warning(view: Dictionary, context: Dictionary) -> Dictionary:
 	return _ok({"warning": null})
 
 
-# ---- the context law ----
 
 static func _context_error(context: Dictionary) -> Dictionary:
 	var keys: Array = context.keys()
@@ -227,7 +195,6 @@ static func _sorted_unique_error(value: Variant, field: String) -> Dictionary:
 	return {}
 
 
-# ---- the view projection ----
 
 static func _view_shape_error(view: Dictionary) -> Dictionary:
 	var keys: Array = view.keys()
@@ -262,7 +229,6 @@ static func _view_projection(view: Dictionary) -> Dictionary:
 	}
 
 
-# ---- helpers ----
 
 static func _digest(canonical: String) -> String:
 	var context := HashingContext.new()

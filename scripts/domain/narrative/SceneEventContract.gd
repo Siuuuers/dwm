@@ -1,9 +1,6 @@
 class_name SceneEventContract
 extends RefCounted
 const _VALIDATION_TIMING := preload("res://scripts/narrative/SceneValidationTiming.gd")
-## Isolated, nonwired contract foundation. Registration is supplied by a trusted owner,
-## never by DTL. This validates semantic input, not content approval or disk durability.
-## A production adapter must bind registration/identity/frontier to one supported Run.
 
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const SCENE_RECEIPT_ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
@@ -53,8 +50,6 @@ static func inspect(envelope: Variant) -> Dictionary:
 				if not _id(parameter) or typeof(value[parameter]) not in [TYPE_STRING, TYPE_INT, TYPE_BOOL]:
 					return _fail(&"event_payload_invalid")
 		elif not _id(value): return _fail(&"event_payload_invalid")
-	# The live token is deliberately not semantic identity. Receipt authentication is
-	# delegated to the existing issuer by the application port, not reimplemented here.
 	var semantic: Dictionary = envelope.duplicate(true)
 	semantic.erase("playback_token")
 	var encoded: Dictionary = WRITER.stringify(semantic)
@@ -77,7 +72,6 @@ const ANCHOR_KEYS := ["session_id", "entry_id", "content_version", "catalogue_fi
 const RESULT_KEYS := ["event_id", "ordinal", "notification"]
 
 static func occurrence_key(source: Dictionary) -> String:
-	# IDs can contain colons; a canonical tuple keeps distinct occurrences distinct.
 	return str(WRITER.stringify([source.scene_occurrence, source.entry_id]).value)
 
 static func registration_fingerprint(record: Dictionary) -> Dictionary:
@@ -110,7 +104,6 @@ static func validate_receipts(receipts: Dictionary) -> Dictionary:
 	var occurrences := {}
 	for command: Variant in receipts:
 		var receipt: Variant = receipts[command]
-		# The owning Run schema validates legacy variants.
 		if not receipt is Dictionary or receipt.get("kind") != "scene_event": continue
 		if not _keys(receipt, RECEIPT_KEYS): return _fail(&"event_receipt_invalid")
 		if typeof(command) != TYPE_STRING or receipt.transaction_id != command:
@@ -126,7 +119,6 @@ static func validate_receipts(receipts: Dictionary) -> Dictionary:
 		if not saved.reading_anchor is Dictionary: return _fail(&"event_anchor_invalid")
 		var rebuilt: Dictionary = make_receipt(envelope, saved.reading_anchor)
 		if not rebuilt.ok: return rebuilt
-		# Canonical comparison checks nested field types as well as values (1 != 1.0).
 		var actual: Dictionary = WRITER.stringify(receipt)
 		var expected: Dictionary = WRITER.stringify(rebuilt.value)
 		if not actual.get("ok", false) or actual.value != expected.value or not _same_types(receipt, rebuilt.value):
@@ -139,7 +131,6 @@ static func validate_receipts(receipts: Dictionary) -> Dictionary:
 		if group.source != envelope.source: return _fail(&"event_receipt_source_changed")
 		if not group.receipts.is_empty():
 			var prior_anchor: Dictionary = group.receipts[0].scene_event.reading_anchor
-			# Publication and line may advance; the owner binds each to its ledger.
 			for field: String in ["session_id", "entry_id", "content_version", "catalogue_fingerprint"]:
 				if prior_anchor[field] != saved.reading_anchor[field]: return _fail(&"event_anchor_changed")
 		group.receipts.append(receipt.duplicate(true))
@@ -182,8 +173,6 @@ static func _valid_anchor(anchor: Dictionary, source: Dictionary) -> bool:
 		and anchor.content_version == source.content_version
 
 static func _id(value: Variant) -> bool:
-	# Semantic identifiers, never resource paths or executable snippets. Content text
-	# and localized parameters are registry-owned and compared in full at admission.
 	if typeof(value) != TYPE_STRING or value.is_empty() or value.length() > 256: return false
 	for index in range(value.length()):
 		var code: int = value.unicode_at(index)
@@ -200,10 +189,6 @@ static func _keys(value: Variant, expected: Array) -> bool:
 static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code}
 
-# Nonwired scene2 helpers. The selected DialogicEntryManifest owner must validate
-# its four nested registries and actual DTL bytes/compiled positions before use.
-# These pure checks cannot authenticate disk durability, Profile history, live
-# issuer custody or programme installation. Legacy receipt generation stays exact.
 const SCENE_PAYLOAD_KEYS := {
 	"thought.pass": ["opportunity_id", "yes_target_id", "pass_target_id"],
 	"thought.accept": ["opportunity_id", "yes_target_id", "pass_target_id"],
@@ -308,12 +293,10 @@ static func validate_bundle_structure(bundle: Variant) -> Dictionary:
 static func _validate_bundle_structure_observed_body(bundle: Variant) -> Dictionary:
 	if not _json_data(bundle):
 		return _fail(&"scene_bundle_invalid")
-	# One envelope/Contacts definition owner; no full DTL admission or cache here.
 	var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
 	if manifest == null: return _fail(&"scene_bundle_invalid")
 	var header: Dictionary = manifest.validate_scene_bundle_header(bundle)
 	if not header.get("ok", false): return _fail(&"scene_bundle_invalid")
-	# Deliberately no replacement for A's nested validators or caller trust flag.
 	var nested_encodings := {}
 	for key: String in ["entry_manifest", "context_registry", "ids_registry", "caption_registry"]:
 		if not bundle[key] is Dictionary or bundle[key].is_empty():
@@ -411,9 +394,6 @@ static func _validate_bundle_structure_observed_body(bundle: Variant) -> Diction
 				if not _table_has(tables.contacts, marker.payload.contact_event_id): return _fail(&"scene_contact_registration_invalid")
 				if marker.kind == "contact.return" and tables.contacts[marker.payload.contact_event_id].entry_id != bound.entry_id:
 					return _fail(&"scene_contact_registration_invalid")
-	# The header admits only fixed ASCII member names. The intervening checks are
-	# synchronous and callback-free, so reuse this call's checked registry encodings.
-	# Every remaining value still reaches the canonical writer at this final stage.
 	var members: Array = bundle.keys()
 	members.sort()
 	var parts: Array[String] = []
@@ -428,8 +408,6 @@ static func _validate_bundle_structure_observed_body(bundle: Variant) -> Diction
 		parts.append('"' + key + '":' + value)
 	var canonical := "{" + ",".join(parts) + "}"
 
-	# Legacy low-level callers fingerprint opaque caption registries. Only the
-	# new passage contract requires inspecting their nested caption structure.
 	for registered: Dictionary in markers.values():
 		if registered.marker.kind not in ["passage.start", "passage.finish"]: continue
 		var passages: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(bundle)
@@ -448,8 +426,6 @@ static func inspect_scene(envelope: Variant, bundle: Variant) -> Dictionary:
 	var context := _inspect_scene_context(envelope, bundle)
 	return context.inspection if context.ok else context
 
-## Call-local computed material only. Public entrypoints always inspect fresh inputs.
-## No issuer, Profile, saved-data or cross-call validation authority is retained here.
 static func _inspect_scene_context(envelope: Variant, bundle: Variant) -> Dictionary:
 	var shaped := _inspect_scene_versioned_shape(envelope)
 	if not shaped.ok: return shaped
@@ -613,15 +589,11 @@ static func _validate_scene_result_inspected(envelope: Dictionary, result: Varia
 			return _fail(&"scene_result_unsupported")
 	return {"ok": true}
 
-## Current recall reads only this Run's explicit outcomes. It never closes a board,
-## consults newer Profile attempts, or reapplies consequences.
 static func resolve_scene_challenge_recall(event: Dictionary, outcomes: Variant, bundle: Dictionary) -> Dictionary:
 	var checked := _inspect_scene_context(event, bundle)
 	if not checked.ok: return checked
 	if event.kind != "challenge.recall" or not _positive_int(event.issuer_receipt.get("counter")):
 		return _fail(&"scene_challenge_recall_invalid")
-	# This selector uses its explicitly validated bundle, not a second global
-	# registration lookup. Save admission separately checks all registered facts.
 	if not outcomes is Dictionary: return _fail(&"scene_challenge_recall_invalid")
 	for occurrence: Variant in outcomes:
 		var outcome: Variant = outcomes[occurrence]
@@ -644,9 +616,6 @@ static func resolve_scene_challenge_recall(event: Dictionary, outcomes: Variant,
 	if found.is_empty(): return _fail(&"scene_challenge_recall_missing")
 	return {"ok": true, "value": found}
 
-## Private join for _validate_scene_receipts_registered only: its first pass has
-## reconstructed and authenticated every command and bound the recall event.
-## Historical recalls exclude closures issued later, even when current facts include them.
 static func _resolve_scene_challenge_recall_history(event: Dictionary, commands: Dictionary) -> Dictionary:
 	var found := {}
 	for receipt: Dictionary in commands.values():
@@ -671,8 +640,6 @@ static func _completion_matches(parent: Dictionary, request: Dictionary, complet
 		"parent_receipt_id": request.parent_receipt_id, "child_kind": request.child_kind,
 		"ordinal": request.ordinal, "source_ids": request.source_ids, "child_id": child}})
 
-## Shape only: GameState closure admission joins this retained physical slot to
-## the exact selected record/ref and the current authenticated story binding.
 static func _attempt_proof(proof: Variant, run_id: String) -> bool:
 	if not _keys(proof, ["run_id", "slot_id", "attempt_id", "branch_id", "generation", "revision", "record_sha256", "publication"]): return false
 	if not _id(proof.run_id) or not _id(proof.slot_id) or proof.run_id != run_id \
@@ -688,7 +655,6 @@ static func validate_scene_admission(result: Variant, bundle: Dictionary) -> Dic
 	if not checked.ok: return checked
 	return _validate_scene_admission_registered(result, checked)
 
-# Reuse only immediately computed pure tables, never across an authority callback.
 static func _validate_scene_admission_registered(result: Variant, checked: Dictionary) -> Dictionary:
 	if not _json_data(result) or not _keys(result, ["kind", "occurrence_id", "entry_id", "target_id", "source_checkpoint", "trigger_command_id", "return_to"]) \
 			or typeof(result.kind) != TYPE_STRING or result.kind != "scene_admitted" \
@@ -708,16 +674,12 @@ static func _validate_scene_admission_registered(result: Variant, checked: Dicti
 				or not _table_has(checked.value.targets, back.target_id): return _fail(&"scene_admission_invalid")
 		var return_target: Dictionary = checked.value.targets[back.target_id].target
 		if return_target.kind != "return" or return_target.entry_id != back.entry_id: return _fail(&"scene_admission_invalid")
-	# Pristine NewRun, issuer-backed occurrence and checkpoint/parent receipt resolution
-	# are authenticated by the live owner, not by this structural helper.
 	return {"ok": true}
 
 static func _checkpoint(value: Variant) -> bool:
 	return _keys(value, CHECKPOINT_KEYS) and _id(value.checkpoint_id) and _positive_int(value.checkpoint_sequence) and _hash(value.snapshot_sha256)
 
 
-## Full scene command ledger admission. The Run owner separately checks the applied
-## effect/variable partitions, physical Profile proofs and anchors against the actual ledger.
 static func validate_scene_receipts(receipts: Dictionary, bundle: Dictionary, issuer: Object,
 		creation_owner: Object = null, contacts: Dictionary = {}) -> Dictionary:
 	var started_us: int = _VALIDATION_TIMING.start_sample()
@@ -725,7 +687,6 @@ static func validate_scene_receipts(receipts: Dictionary, bundle: Dictionary, is
 	_VALIDATION_TIMING.finish_sample("receipt_validation", started_us, bool(result.get("ok", false)))
 	return result
 
-## Bound callers select the canonical owner directly; no caller-supplied proof.
 static func validate_selected_scene_receipts(receipts: Dictionary, issuer: Object,
 		creation_owner: Object = null, contacts: Dictionary = {}) -> Dictionary:
 	var started_us: int = _VALIDATION_TIMING.start_sample()
@@ -803,7 +764,6 @@ static func _validate_scene_receipts_registered(receipts: Dictionary, bundle: Di
 			return _fail(&"scene_receipt_invalid")
 		var envelope: Dictionary = saved.semantic.duplicate(true)
 		envelope["playback_token"] = "receipt.validation"
-		# This call already admitted the bundle; only the receipt's envelope is new.
 		var shaped := _inspect_scene_versioned_shape(envelope)
 		if not shaped.ok: return shaped
 		var context := _bind_scene_context(envelope, shaped, registered)
@@ -946,8 +906,6 @@ static func _validate_scene_receipts_registered(receipts: Dictionary, bundle: Di
 		var source_admission: Dictionary = admission_receipts.get(trigger.semantic.source.scene_occurrence, {})
 		if source_admission.is_empty() or source_admission.scene_admission.issuer_receipt.counter >= admission_receipts[admission_id].scene_admission.issuer_receipt.counter:
 			return _fail(&"scene_admission_cycle")
-	# A suspended parent cannot allocate another exit until its child has returned.
-	# Issuer order is already the admission ancestry order; Load retains these bytes.
 	for entry_receipt: Dictionary in commands.values():
 		if entry_receipt.scene_event.result.kind != "contact_entry_accepted": continue
 		var entered: Dictionary = entry_receipt.scene_event.semantic
@@ -969,8 +927,6 @@ static func _validate_scene_receipts_registered(receipts: Dictionary, bundle: Di
 	return {"ok": true, "value": {"admissions": admissions, "admission_receipts": admission_receipts,
 		"occurrences": occurrences, "commands": commands}}
 
-## A scene admission has its own issued command root; it is not a fabricated DTL
-## marker. The existing child derivation authenticates the complete request.
 static func make_scene_admission(identity: Dictionary, root_issuer_receipt: Dictionary,
 		target_id: String, source_checkpoint: Dictionary, trigger_command_id: Variant,
 		return_to: Variant, bundle: Dictionary, issuer: Object) -> Dictionary:
@@ -1004,7 +960,6 @@ static func _validate_scene_admission_identity(identity: Dictionary,
 	return {"ok": true}
 
 
-## Call-local structural tables; identity proofs remain freshly checked by both callers.
 static func _make_scene_admission_registered(identity: Dictionary, root_issuer_receipt: Dictionary,
 		target_id: String, source_checkpoint: Dictionary, trigger_command_id: Variant,
 		return_to: Variant, registered: Dictionary, issuer: Object) -> Dictionary:
@@ -1059,8 +1014,6 @@ static func _validate_scene_admission_receipt(receipt: Dictionary, registered: D
 	return {"ok": true}
 
 
-## Prepared initial admission proves reproducible material only. It never grants
-## committed Load authority or a live session before the owning creation completes.
 static func prepare_scene_initial_admission(allocation_candidate: Dictionary,
 		profile_material: Dictionary, target_id: String, bundle: Dictionary, issuer: Object) -> Dictionary:
 	var materials := _validate_initial_materials(allocation_candidate, profile_material, issuer)
@@ -1070,7 +1023,6 @@ static func prepare_scene_initial_admission(allocation_candidate: Dictionary,
 	return _prepare_scene_initial_admission_registered(allocation_candidate, profile_material, target_id, registered, issuer)
 
 
-## Only structural registration tables are reused; materials and creation proofs stay fresh.
 static func _prepare_scene_initial_admission_registered(allocation_candidate: Dictionary,
 		profile_material: Dictionary, target_id: String, registered: Dictionary, issuer: Object) -> Dictionary:
 	if not registered.value.targets.has(target_id): return _fail(&"scene_target_unregistered")
@@ -1159,8 +1111,6 @@ static func _validate_initial_materials(candidate: Dictionary, profile: Dictiona
 			or not _id(request.transaction_id): return _fail(&"scene_initial_allocation_invalid")
 	for key: String in ["run_id", "branch_id", "causal_day_instance"]:
 		if not _id(candidate[key]): return _fail(&"scene_initial_allocation_invalid")
-	# Strict integer/null/string receipts precede issuer methods, whose historical
-	# internals may coerce types. Full reproduction then authenticates their values.
 	for key: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance", "transaction_id"]:
 		var receipt: Variant = request.transaction_issuer_receipt if key == "transaction_id" else candidate[key + "_issuer_receipt"]
 		if not _keys(receipt, ["counter", "namespace", "numeric_value", "purpose", "receipt_id", "token"]) \
@@ -1189,7 +1139,6 @@ static func _validate_initial_materials(candidate: Dictionary, profile: Dictiona
 
 static func _validate_committed_initial_admission(receipt: Dictionary, registered: Dictionary,
 		issuer: Object, creation_owner: Object) -> Dictionary:
-	# Caller-supplied dictionaries/callbacks cannot assert durable creation authority.
 	if creation_owner == null or creation_owner.get_script() != load("res://autoload/SaveManager.gd"):
 		return _fail(&"scene_creation_owner_unbound")
 	var captured: Dictionary = creation_owner.call(&"capture_committed_scene_creation", receipt.transaction_id)
@@ -1243,8 +1192,6 @@ static func _target_valid(target: Variant, entries: Dictionary) -> bool:
 	var entry: Dictionary = entries[target.entry_id]
 	if target.content_version != entry.content_version or target.program_sha256 != entry.program_sha256: return false
 	if target.kind in ["scene", "ending", "contact"]: return target.label == target.entry_id
-	# Internal labels need not be effect markers. The trusted registration/DTL
-	# owner authenticates their existence in the installed compiled programme.
 	return true
 
 static func _index_sorted(rows: Variant, key: String) -> Dictionary:
@@ -1285,8 +1232,6 @@ static func _equal(actual: Variant, expected: Variant) -> bool:
 	return _same_types(actual, expected) and actual == expected
 
 static func _json_data(value: Variant, depth: int = 0) -> bool:
-	# Writer intentionally normalizes StringName; scene contracts instead require
-	# JSON primitive types before hashing. Bound recursion also refuses cyclic input.
 	if depth > 128: return false
 	match typeof(value):
 		TYPE_NIL, TYPE_BOOL, TYPE_INT, TYPE_STRING: return true
@@ -1303,8 +1248,6 @@ static func _json_data(value: Variant, depth: int = 0) -> bool:
 
 
 
-## Terminal authority remains separate from an ordinary scene admission. The
-## issued root binds the already-durable final event and its source checkpoint.
 const SCENE_TERMINAL_KEYS := ["schema_version", "kind", "admission_id", "source_identity", "issuer_receipt",
 	"source_occurrence_id", "source_admission_receipt_id", "trigger_command_id", "trigger_sha256",
 	"source_checkpoint", "target_id", "target", "registration_fingerprint", "request_fingerprint", "provenance"]
@@ -1436,14 +1379,11 @@ static func validate_scene_terminal_admission(record: Dictionary, bundle: Dictio
 	if not _equal(rebuilt.value, record): return _fail(&"scene_terminal_admission_mismatch")
 	return {"ok": true}
 
-## Only the selected owner supplies structural tables; receipt and physical proofs stay fresh.
 static func validate_selected_scene_terminal_admission(record: Dictionary, issuer: Object,
 		receipts: Dictionary, creation_owner: Object = null, contacts: Dictionary = {}) -> Dictionary:
 	var checked := _validate_selected_scene_terminal_with_ledger(record, issuer, receipts, creation_owner, contacts)
 	return {"ok": true} if checked.ok else checked
 
-## Call-local authenticated material for the synchronous terminal/source reading join.
-## Concrete production issuer verification only reads the already-loaded root.
 static func _validate_selected_scene_terminal_with_ledger(record: Dictionary, issuer: Object,
 		receipts: Dictionary, creation_owner: Object, contacts: Dictionary) -> Dictionary:
 	var shaped := validate_scene_terminal_admission_shape(record, issuer)
@@ -1469,8 +1409,6 @@ static func _validate_selected_scene_terminal_with_ledger(record: Dictionary, is
 	if not _equal(rebuilt.value, record): return _fail(&"scene_terminal_admission_mismatch")
 	return {"ok": true, "value": ledger.value}
 
-## A saved quote authenticates the accepted purchase, never a later catalogue price.
-## Purchases are outside authored marker order; the Run ledger joins their admission.
 static func scene_shop_purchase_shape_valid(receipt: Variant) -> bool:
 	if not _json_data(receipt) or not _keys(receipt,
 			["transaction_id", "request_fingerprint", "kind", "source_id", "scene_shop_purchase"]): return false
@@ -1622,8 +1560,6 @@ static func validate_scene_round_completion(receipt: Dictionary, issuer: Object)
 	return {"ok": true}
 
 
-## Optional explicit authoring metadata. Historical programmes without this map
-## keep their original transition semantics and exact hashes.
 static func validate_story_days(programme: Dictionary) -> Dictionary:
 	if not programme.has("story_days"): return {"ok": true, "value": {}}
 	var days: Variant = programme.story_days
@@ -1645,8 +1581,6 @@ static func scene_day_boundary(bundle: Dictionary, source_entry: String, target_
 	if difference not in [0, 1]: return _fail(&"scene_story_day_order_invalid")
 	return {"ok": true, "value": difference == 1}
 
-## The original event survives Load; the live causal identity does not. Bind the
-## allocation to both, so retry is stable without sharing a day token across branches.
 static func scene_day_renewal_request(trigger: Dictionary, identity: Dictionary) -> Dictionary:
 	var event: Dictionary = trigger.scene_event
 	var source_ids: Array[String] = ["identity=" + _sha(identity),

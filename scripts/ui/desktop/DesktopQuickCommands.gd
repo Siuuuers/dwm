@@ -1,5 +1,4 @@
 extends Node
-## Live desktop shortcut presentation; Backup owns target preparation and durability.
 const EDGE := preload("res://scripts/ui/desktop/QuickStatusEdge.gd")
 const BACKUP_COPY := preload("res://scripts/ui/BackupApp.gd").COPY
 const BACKUP_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
@@ -60,7 +59,6 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
 		_foreground = false
 		if is_instance_valid(edge): edge.set_eligible(false)
-		# An out/in pair before the next frame still consumes its old consent.
 		if not _pending_token.is_empty():
 			_cancel_pending()
 			if is_instance_valid(_desktop._confirmation): _desktop._confirmation._finish(false)
@@ -101,8 +99,6 @@ func _source_snapshot() -> Dictionary:
 	return {"day": _desktop._day, "app": active, "desktop": _desktop.get_instance_id()}
 
 static func _focus_custody_enabled(control: Control) -> bool:
-	# The desktop itself is not focusable. Resolve inherited custody separately
-	# from focus_mode, honoring the closest explicit recursive override.
 	var current := control
 	while current != null:
 		if current.focus_behavior_recursive != Control.FOCUS_BEHAVIOR_INHERITED:
@@ -148,7 +144,6 @@ func _request(action: String) -> void:
 		var shown: Dictionary = _desktop.present_confirmation(_load_copy(value.record), _confirm_load, _cancel_load)
 		if not shown.get("ok", false): _cancel_load()
 		return
-	# Production commit is synchronous: no fabricated Saving frame or focus move.
 	var token := _pending_token
 	_pending_token = ""
 	_in_operation = true
@@ -157,7 +152,6 @@ func _request(action: String) -> void:
 	last_result = result.duplicate(true)
 	if not is_inside_tree() or not _base_admitted() or _source_snapshot() != _source: return
 	if result.get("ok", false):
-		# Each completed Save gets its own notice, without recapturing live state.
 		edge.clear_status()
 		_publish("saved", {}, _source)
 		return
@@ -176,7 +170,6 @@ func _confirm_load() -> void:
 	var result: Dictionary = _port.commit_action(token)
 	_in_operation = false
 	last_result = result.duplicate(true)
-	# Successful restore owns scene replacement and focus. Never touch its new tree.
 	if result.get("ok", false) or not is_inside_tree() or not _base_admitted(): return
 	_restore_focus()
 	var now: Dictionary = _port.get_quick_capability("load")

@@ -1,9 +1,6 @@
 class_name ProvisionalCorrespondenceCatalog
 extends RefCounted
 
-## Minimal functional correspondence authorized for the playable foundation. This is provisional
-## interface copy, not canonical story dialogue; it covers only the fixed message identities the
-## current Contacts state machine can emit.
 
 const _CALENDAR := preload("res://scripts/domain/contact/SevenDayCalendar.gd")
 const _CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
@@ -70,8 +67,6 @@ static func build() -> Dictionary:
 	for source_day: int in _CALENDAR.solo_days_for("sylvia"):
 		var care_day := source_day + 1
 		_put(catalog, "care.sylvia.day%d" % care_day, "hospital_care")
-	# Provisional reactions share the existing missed-question identity and durable
-	# Hospital miss receipt; they do not create duplicate queued messages or choices.
 	for friend: String in _GROUP_FRIENDS:
 		for source_day: int in _CALENDAR.solo_days_for(friend):
 			var id := "missed_question:%s:day%d" % [friend, source_day + 1]
@@ -90,6 +85,5 @@ static func _put(catalog: Dictionary, message_id: String, kind: String) -> void:
 
 static func _texts(kind: String) -> Dictionary:
 	var texts: Dictionary = (_COPY[kind] as Dictionary).duplicate(true)
-	# UI-only drafts keep the exact authored English correspondence.
 	for locale: String in ["ja", "ko"]: texts[locale] = texts.en
 	return texts

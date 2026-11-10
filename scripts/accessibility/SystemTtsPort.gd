@@ -1,7 +1,5 @@
 class_name SystemTtsPort
 extends Node
-## Thin owner of Godot's DisplayServer text-to-speech queue. Voice choice,
-## source lifetime, and reading-rate policy belong to the coordinator.
 
 signal utterance_finished(token: int, outcome: StringName)
 
@@ -57,8 +55,6 @@ func speak(text: String, voice_id: String, rate: float, token: int) -> Dictionar
 	if _active_token != 0: return _failure(&"utterance_active")
 	if not _ensure_callbacks(): return _failure(&"text_to_speech_unavailable")
 
-	# Godot's enqueue call has no completion result. Register custody first so a
-	# synchronous test backend or prompt native callback cannot outrun the token.
 	_highest_token = token
 	_active_token = token
 	_display.tts_speak(text, voice_id, 100, 1.0, rate, token, false)
@@ -69,8 +65,6 @@ func stop() -> Dictionary:
 	var retired_token := _active_token
 	_active_token = 0
 	if not _display_contract_available(): return _failure(&"text_to_speech_unavailable")
-	# Retire before calling Godot: Windows can report CANCELED for the current
-	# utterance and every queued utterance as a consequence of this call.
 	_display.tts_stop()
 	return _success({"token": retired_token})
 

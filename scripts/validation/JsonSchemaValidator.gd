@@ -1,7 +1,5 @@
 class_name JsonSchemaValidator
 extends RefCounted
-## Project schema subset: local references, oneOf, primitive/object/array constraints.
-## Recursive or external references are refused; this is not a complete JSON Schema implementation.
 
 static func validate(value: Variant, schema: Dictionary) -> Dictionary:
 	var errors: Array[Dictionary] = []

@@ -40,7 +40,6 @@ func prepare_presentation(profile: Dictionary) -> Dictionary:
 	if _localization != null and _localization.has_method("get_font_paths"):
 		font_paths = _localization.get_font_paths(str(profile["font_profile"]))
 	else:
-		# Standalone preview roots can still resolve without a configured owner.
 		var loaded: Dictionary = CATALOG.load_bundle("res://localization/manifest.json")
 		if not loaded.get("ok", false):
 			return loaded
@@ -63,7 +62,6 @@ func prepare_presentation(profile: Dictionary) -> Dictionary:
 		if face == null: return _fail(&"font_load_failed")
 		fonts.assign([face])
 	if profile.has("font_style"):
-		# Shared faces are immutable; the detached Theme owns only the selection.
 		theme.default_font = fonts[0]
 	elif not fonts.is_empty():
 		var primary: Font = fonts[0].duplicate(true)
@@ -73,7 +71,6 @@ func prepare_presentation(profile: Dictionary) -> Dictionary:
 		primary.fallbacks = fallbacks
 		theme.default_font = primary
 	elif _locale_font_active:
-		# An empty profile restores the target font, including an inherited default.
 		theme.default_font = project_font
 	return _success({
 		"project_font": project_font,

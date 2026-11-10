@@ -1,7 +1,5 @@
 class_name WitnessedSpeechStatus
 extends Label
-## Nonmodal factual status for a failed Primary system-speech utterance.
-## The Caption owner decides whether a completion still belongs to the visible publication.
 
 const COPY_KEY := "witnessed.speech.failed"
 const LOCALES := ["en", "zh-CN", "zh-HK", "ja", "ko"]

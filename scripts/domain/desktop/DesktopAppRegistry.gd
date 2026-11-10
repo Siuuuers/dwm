@@ -1,10 +1,6 @@
 class_name DesktopAppRegistry
 extends RefCounted
 
-# Frozen Phase 2R desktop app registry. This is the sole app-ID-to-path resolver
-# for Phase 3. It carries no player-facing composition, no UI state, and no
-# filesystem probing: scene paths are exact literals and focus targets are the
-# stable Control nodes each app scene exposes.
 
 const _ENTRIES := {
 	&"minesweeper": {"scene": "res://scenes/apps/MinesweeperApp.tscn", "focus": NodePath("%HideButton")},
@@ -26,8 +22,6 @@ func has_app(app_id: StringName) -> bool:
 	return _ENTRIES.has(app_id)
 
 
-# Sole app-ID-to-path resolver. Unknown IDs return a safe error; this never
-# throws and never touches the filesystem.
 func get_record(app_id: StringName) -> Dictionary:
 	if not _ENTRIES.has(app_id):
 		return {"ok": false, "code": &"unknown_app_id"}
@@ -35,9 +29,6 @@ func get_record(app_id: StringName) -> Dictionary:
 	return {"ok": true, "scene": entry["scene"], "focus_target": entry["focus"]}
 
 
-# Structural integrity only. Duplicate IDs are impossible by dictionary keying;
-# this rejects duplicate scene paths, empty/non-String scenes, and empty/!NodePath
-# focus targets. On-tree focus resolution lives in the host-state tests.
 func validate_all() -> Dictionary:
 	var seen_paths := {}
 	for id in _ENTRIES.keys():

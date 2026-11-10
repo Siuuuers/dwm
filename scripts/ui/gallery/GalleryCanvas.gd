@@ -1,5 +1,4 @@
 extends Control
-## Paint-only material, unavailable leaf, and inert overflow witness.
 
 var unavailable_record := false
 var replay_start_failed := false
@@ -35,7 +34,6 @@ func _draw() -> void:
 		for y: int in range(0, int(unavailable_height) - 4, 8):
 			draw_rect(Rect2(894, unavailable_top + 2 + y, 16, 2), ink)
 	if index_extent > 592:
-		# Compute on the native master, then display every value at exact 2:1.
 		var extent := index_extent / 2
 		var thumb := maxf(8, floorf(296 * 296 / extent))
 		var offset := floorf((296 - thumb) * (index_offset / 2) / (extent - 296))

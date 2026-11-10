@@ -7,8 +7,6 @@ const DRAWER := preload("res://scripts/ui/backup/BackupDrawer.gd")
 const KEY := preload("res://scripts/ui/backup/BackupKey.gd")
 const BACKUP_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 const LOCATORS := ["autosave", "quick", "slot:1", "slot:2", "slot:3", "slot:4", "slot:5", "slot:6", "slot:7"]
-# Cloud Label matrix: English Autosave147px; Japanese older-state360px.
-# A180px text measure plus two4px edges is the smallest even common width.
 const DRAWER_WIDTH := DRAWER.MINIMUM_SIZE.x
 const DRAWER_HEIGHT := DRAWER.MINIMUM_SIZE.y
 const DRAWER_GAP := 8.0
@@ -76,7 +74,6 @@ var _retry_enabled := false
 var _title_login := false
 
 func configure_title_login() -> void:
-	# Set before mounting: title has one load mode and no phantom mode controls.
 	_title_login = true
 	active_mode = "load"
 
@@ -89,7 +86,6 @@ func _ready() -> void:
 	super._ready()
 	custom_minimum_size = Vector2(BODY_MIN_WIDTH, 656)
 	if _title_login:
-		# Own only this content body's placement inside the unchanged title host.
 		size.x = minf(BODY_PREFERRED_WIDTH, get_parent().size.x)
 		position.x = floorf((get_parent().size.x - size.x) / 4.0) * 2.0
 	else:
@@ -176,8 +172,6 @@ func _ready() -> void:
 	if _port != null:
 		refresh_view()
 
-## A owns admission and action custody. Validate the public presentation snapshot
-## before replacing services, dismissing consent or changing any installed view.
 func configure_scene_backup(port: Object, localization: Object = null,
 		profile: Object = null, palette: StringName = &"after_hours") -> Dictionary:
 	if _pending_token != null or is_instance_valid(confirmation) or _in_operation or _recovering:
@@ -196,7 +190,6 @@ func configure_scene_backup(port: Object, localization: Object = null,
 	var next := _projection_records(result, true)
 	if next.is_empty():
 		return {"ok": false, "code": &"invalid_backup_projection"}
-	# The validated snapshot is adopted once, without a second port read.
 	for binding in [[_port, "projection_changed", _on_projection_changed],
 			[_localization, "locale_changed", _on_locale_changed],
 			[_profile, "preference_changed", _on_preference_changed]]:
@@ -285,8 +278,6 @@ func set_confirmation_host(host: Object) -> void:
 func can_return_home() -> bool:
 	return not _recovering and not _in_operation and not is_instance_valid(confirmation)
 
-## Pause may enter the real in-run cabinet from an external semantic command.
-## An empty mode preserves the established Pause-row entry and its same-day view state.
 func focus_entry(mode: StringName = &"") -> bool:
 	if _title_login or not is_node_ready() or not is_instance_valid(_port) \
 			or _in_operation or _recovering or is_instance_valid(confirmation) \
@@ -299,15 +290,11 @@ func focus_entry(mode: StringName = &"") -> bool:
 	show_window()
 	return true
 
-## Only skip a notification already covered by this view's successful read.
-## Explicit refreshes still inspect; other subscribers retain their own state.
 func _on_projection_changed() -> void:
 	var revision := _projection_revision(_port)
 	if _projection_valid and revision >= 0 and revision == _displayed_projection_revision:
 		return
 	if not is_visible_in_tree():
-		# Hidden cabinets have no reader. Keep the next preview/entry fresh without
-		# preparing every saved slot in response to background capability changes.
 		_projection_valid = false
 		return
 	refresh_view()
@@ -346,7 +333,6 @@ func refresh_view() -> Dictionary:
 	_refresh_presentation()
 	return result
 
-## Surface validation only: never re-admit a Save, derive a family or grant an action.
 func _projection_records(result: Variant, require_family: bool) -> Dictionary:
 	if not result is Dictionary or typeof(result.get("ok")) != TYPE_BOOL or not result.ok:
 		return {}
@@ -635,8 +621,6 @@ func _commit_pending() -> void:
 	var result: Dictionary = await _port.commit_action(token)
 	_in_operation = false
 	last_result = result.duplicate(true)
-	# Scene activation can return a pending failure after detaching this view.
-	# Neither successful nor failed results may rebuild or focus outgoing controls.
 	if is_queued_for_deletion() or not is_inside_tree():
 		return
 	if not result.get("ok", false):
@@ -752,7 +736,6 @@ func _information_input(event: InputEvent) -> void:
 		info_scroll.scroll_vertical += -240 if event.keycode == KEY_PAGEUP else 240
 		get_viewport().set_input_as_handled()
 
-## True means this child consumed one retreat; false yields to its enclosing host.
 func handle_back() -> bool:
 	if _in_operation: return true
 	if is_instance_valid(confirmation):
@@ -842,7 +825,6 @@ func _record_time(record: Dictionary, _selected: bool = false) -> String:
 	var saved_time: Variant = record.get("saved_time")
 	if record.get("family") == "legacy_day":
 		return _day_time(record.get("day"), saved_time)
-	# Scene and unknown records carry no inferred calendar or authored scene title.
 	return str(saved_time) if saved_time != null else "--:--"
 
 func _day_time(day: Variant, saved_time: Variant) -> String:
@@ -918,12 +900,9 @@ func _layout_action_buttons() -> void:
 	var key_width := action_dock.size.x if count == 1 else (action_dock.size.x - ACTION_GAP) / 2.0
 	var row_height := 64.0
 	for key in action_buttons.values():
-		# Establish wrapping width before measuring the full selected-size caption.
 		key.size.x = key_width
 		key._sync_caption()
 		row_height = maxf(row_height, ceilf((key.caption.get_minimum_size().y + 8.0) / 2.0) * 2.0)
-	# Full selected-size status/action captions own their required height. The
-	# remaining inspector area is the only scroll owner; no text is capped.
 	var dock_height := maxf(112.0, row_height)
 	var status_height := maxf(96.0, ceilf((status_label.get_minimum_size().y + 8.0) / 2.0) * 2.0)
 	var top := 16.0 if _title_login else 96.0
@@ -939,7 +918,6 @@ func _layout_action_buttons() -> void:
 	_measure_information.call_deferred(_measure_revision)
 	_body.queue_redraw()
 	_info_overlay.queue_redraw()
-	# The host retains horizontal order and owns the vertical action-row space.
 	var row_top := maxf(0.0, floorf((action_dock.size.y - row_height) / 2.0))
 	var index := 0
 	for key: Button in action_buttons.values():

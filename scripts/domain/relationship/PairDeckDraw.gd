@@ -1,8 +1,6 @@
 class_name PairDeckDraw
 extends RefCounted
 
-## A receipt proves the exact unseen-first pool and rejection-sampled choice.
-## Randomness is supplied by the application; validation consumes no RNG.
 const CANON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const FORMS: Array[String] = ["ambiguous_dark", "ambiguous_sweet", "love_dark", "love_sweet"]
 const RULESET_ID := "pair.deck.2026-09-08.v1"
@@ -22,7 +20,6 @@ static func build_draw(witnessed_forms: Array, rng_nonce: int) -> Dictionary:
 		if form not in witnessed: pool.append(form)
 	if pool.is_empty(): pool = FORMS.duplicate()
 	if rng_nonce < 0 or rng_nonce >= NONCE_RANGE: return _fail(&"invalid_pair_draw_nonce")
-	# Reject the incomplete bucket rather than biasing the three-form pool with modulo.
 	if rng_nonce >= NONCE_RANGE - NONCE_RANGE % pool.size():
 		return _fail(&"pair_draw_nonce_rejected")
 	return _ok({"selection_kind": "draw", "form": pool[rng_nonce % pool.size()],
@@ -31,8 +28,6 @@ static func build_draw(witnessed_forms: Array, rng_nonce: int) -> Dictionary:
 
 static func build_legacy(form: String) -> Dictionary:
 	if form not in FORMS: return _fail(&"invalid_pair_draw_form")
-	# Historical selection inputs were not recorded. This marker preserves only the
-	# established form and does not invent a witnessed set or past random draw.
 	return _ok({"selection_kind": "legacy_established", "form": form,
 		"witnessed_forms": [], "witness_fingerprint": _fingerprint([]),
 		"rng_nonce": null, "ruleset_id": RULESET_ID})
@@ -75,9 +70,6 @@ static func _ok(value: Variant) -> Dictionary:
 static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code}
 
-## New policy uses the same immutable per-run ledger. Its chronology is the
-## structurally validated predecessor chain, never Dictionary order or a counter.
-## The joint New Run owner authenticates issuer identities and successful creation.
 static func validate_scene(receipt: Variant) -> Dictionary:
 	if not receipt is Dictionary or not _scene_keys(receipt, SCENE_KEYS): return _fail(&"invalid_scene_assignment")
 	for key: String in ["ruleset_id", "form", "selection_kind", "creation_transaction_id"]:
@@ -135,8 +127,6 @@ static func validate_ledger(ledger: Variant) -> Dictionary:
 	if visited.size() != scenes.size(): return _fail(&"scene_assignment_disconnected")
 	return _ok({"tail_run_id": cursor, "scene_count": scenes.size(), "legacy_count": legacy_count})
 
-## Empty ledger permits only structural initial selection. The application must
-## also prove no successful legacy predecessor exists outside this delayed ledger.
 static func prepare_scene_assignment(ledger: Dictionary, run_id: String, creation_transaction_id: String,
 		rng_nonce: Variant = null) -> Dictionary:
 	if not _scene_id(run_id) or not _scene_id(creation_transaction_id) \
@@ -148,7 +138,6 @@ static func prepare_scene_assignment(ledger: Dictionary, run_id: String, creatio
 		if retained.ruleset_id != SCENE_RULESET_ID or retained.creation_transaction_id != creation_transaction_id:
 			return _fail(&"scene_assignment_run_conflict")
 		if retained.selection_kind == "alternate" and rng_nonce != null: return _fail(&"invalid_scene_assignment_nonce")
-		# A controlled replacement nonce cannot reroll an already accepted first run.
 		return _ok(retained.duplicate(true))
 	for receipt: Dictionary in ledger.values():
 		if receipt.ruleset_id == SCENE_RULESET_ID and receipt.creation_transaction_id == creation_transaction_id:

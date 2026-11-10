@@ -1,7 +1,6 @@
 extends PanelContainer
 class_name DialogueBox
 
-## Shared dialogue box: speaker/text/log/skip/auto/next (prompt_docs/requirements/dialogic_skip.md).
 
 signal next_pressed()
 signal skip_pressed()
@@ -18,9 +17,6 @@ signal log_pressed()
 
 var auto_enabled: bool = false
 
-## Injected DialogicBridge (dwm-p2r.8, Plan-05 Task 4). The box owns NO text array, event index,
-## variable store, or advancement state: it emits commands and renders what Dialogic presents.
-## Its visible log is run-specific and is never the ProfileManager visited set.
 var _narrative_bridge: Object = null
 
 
@@ -53,7 +49,6 @@ func _on_next_pressed() -> void:
 	next_pressed.emit()
 
 func _on_skip_pressed() -> void:
-	# One held-skip step per press; the bridge owns reveal/visited/advance and the boundary stop.
 	if _narrative_bridge != null:
 		_narrative_bridge.call(&"request_skip_step")
 	skip_pressed.emit()

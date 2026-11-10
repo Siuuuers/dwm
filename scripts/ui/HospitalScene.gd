@@ -1,22 +1,11 @@
 extends Control
 class_name HospitalScene
 
-## Hospital recovery PRESENTATION (Plan 01 Task 8, dwm-p2r.14).
-##
-## WHAT CHANGED AND WHY. This scene used to start the faint timeline itself and then call
-## `GameState.apply_hospital_recovery_and_advance_day()` and route to main or to an ending. That made
-## a Control node the owner of recovery, of the day, and of the ending -- three things a scene must
-## never decide. All of it is gone.
-##
-## Retains the coordinator-owned command. The existing Dialogic owner presents
-## the shared fainting DTL, with Sylvia art only when eligible. Normal dialogue
-## completion returns to the resolver; this host owns no controls or gameplay.
 
 const _PORT_METHODS: Array[String] = ["begin", "complete"]
 const _CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const _FROZEN_CONTEXT := preload("res://scripts/narrative/HospitalFrozenContext.gd")
 
-## Pure projection of already validated Run receipts. A different day/source never supplies art.
 static func art_participants(contacts: Dictionary, context: Dictionary, committed_schedule: Dictionary = {}) -> Array[String]:
 	if context.has("presentation"):
 		var checked := _FROZEN_CONTEXT.validate(context)
@@ -41,8 +30,6 @@ static func art_participants(contacts: Dictionary, context: Dictionary, committe
 		elif witness.get("resolution_kind") == "schedule_done" \
 				and str(witness.get("schedule_entry_id", "")) in context.source_entry_ids:
 			return ["sylvia"]
-	# Schedule-Done writes the witness after physical presentation. Its current committed
-	# entry plus the accepted Contacts receipt already prove attendance before that write.
 	if committed_schedule.get("day") == context.day:
 		for entry: Dictionary in committed_schedule.get("entries", []):
 			if entry.get("action_kind") != "solo" or entry.get("participants") != ["sylvia"] \
@@ -62,8 +49,6 @@ var _completion_retry: Callable
 var _completion_admission: Callable
 
 
-## Technical recovery appears only after the retained coordinator reports a failed step.
-## It retries that coordinator; the scene never acknowledges or restarts narrative playback.
 func show_completion_recovery(retry: Callable, admission: Callable) -> bool:
 	if not retry.is_valid() or not admission.is_valid() or admission.call() != true:
 		return false
@@ -126,9 +111,6 @@ func _refresh_completion_recovery(_locale: String = "") -> bool:
 	return _completion_recovery.present(true, false, &"hospital")
 
 
-## The ONE injection seam. Called by `SceneRouter` before `add_child()`, so `_ready()` always runs
-## against a configured scene or against nothing at all. Identical replay is idempotent; a
-## replacement port is refused rather than adopted.
 func configure_presentation(port: Object, presentation_command: Dictionary) -> Dictionary:
 	if port == null or not _has_methods(port, _PORT_METHODS):
 		return _fail(&"invalid_presentation_port", "the presentation port contract is incomplete")
@@ -150,8 +132,6 @@ func is_presentation_configured() -> bool:
 	return _presentation_port != null and not _presentation_command.is_empty()
 
 
-## The exact command this scene was given, for tests and for a restore that re-projects it. Detached,
-## so a caller cannot mutate the scene's copy.
 func get_presentation_projection() -> Dictionary:
 	return _presentation_command.duplicate(true)
 

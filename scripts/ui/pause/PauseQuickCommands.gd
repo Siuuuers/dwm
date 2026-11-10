@@ -1,8 +1,6 @@
 extends Node
 signal load_cancelled
 signal load_finished(result: Dictionary)
-## Quick input for the retained Pause source. The existing Backup port owns all
-## permissions, prepared tokens, durability and restore compensation.
 const EDGE := preload("res://scripts/ui/desktop/QuickStatusEdge.gd")
 const COPY := preload("res://scripts/ui/BackupApp.gd").COPY
 const BACKUP_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
@@ -16,8 +14,6 @@ class WindowContacts extends Node:
 		_retire = retire
 		process_mode = Node.PROCESS_MODE_ALWAYS
 	func _input(event: InputEvent) -> void:
-		# Window packets bypass the parent input group. Native popup handling may
-		# already have hidden the Window, so forward its final release as well.
 		if not is_instance_valid(_owner): return
 		_owner.observe_physical_contact(event)
 		if _retire.is_valid(): _retire.call()
@@ -69,8 +65,6 @@ func configure(surface: Control, port: Object, input_owner: Object,
 	return true
 
 func _retain_on_window_custody(node: Node) -> void:
-	# Mounted Settings windows can open and close between process frames. Retire
-	# their observed contacts at the boundary, including internal option popups.
 	if node is Window:
 		node.visibility_changed.connect(retain_contacts)
 		var observer := WindowContacts.new(_input_owner, retain_contacts)
@@ -98,8 +92,6 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
 		_foreground = false
 		if is_instance_valid(edge): edge.set_eligible(false)
-		# Invalidate consent at the event boundary, including an out/in pair that
-		# occurs before the next frame. Focus restoration waits for foreground.
 		_cancel_pending()
 		if is_instance_valid(_confirmation): _confirmation._finish(false)
 	elif what == NOTIFICATION_APPLICATION_FOCUS_IN: _foreground = true
@@ -123,8 +115,6 @@ func _source_snapshot() -> Dictionary:
 
 func observe_input(event: InputEvent) -> void:
 	_input_owner.observe_physical_contact(event)
-	# Both commands share presentation custody; their canonical capabilities are
-	# checked separately by the Backup owner at dispatch.
 	if not _admitted("save"): retain_contacts()
 
 func handle_input(event: InputEvent) -> bool:
@@ -145,8 +135,6 @@ func handle_input(event: InputEvent) -> bool:
 	_request(action)
 	return true
 
-## The live-reading F9 owner has already consumed its one physical activation
-## and acquired literal Pause custody. Reuse the same token and consent flow.
 func request_load() -> Dictionary:
 	if not _admitted("load"): return {"ok": false, "code": &"pause_load_unavailable"}
 	_request("load")
@@ -164,8 +152,6 @@ func _request(action: String) -> void:
 	_focus_restore_pending = false
 	var settings: Control = _surface._hosts.get(&"settings")
 	if action == "load" and _return_host == &"settings" and is_instance_valid(settings):
-		# Showing consent hides Settings. Retain the same origin for its deferred
-		# visibility-focus callback so it cannot overwrite Cancel's exact focus.
 		settings.remember_focus()
 	var backup: Control = _surface._hosts.get(&"backup")
 	if _return_host == &"backup" and is_instance_valid(backup) and focus != null and backup.is_ancestor_of(focus):
@@ -206,8 +192,6 @@ func _commit(action: String) -> void:
 	_in_operation = false
 	last_result = result.duplicate(true)
 	if action == "load": load_finished.emit(result.duplicate(true))
-	# Successful Load owns the destination tree. A compensated failure may own a
-	# new suspension handle, so publish its refusal only on that current source.
 	if action == "load" and result.get("ok", false): return
 	if not is_inside_tree() or not _source_owned(): return
 	if action == "save" and _source_snapshot() != _source: return
@@ -216,7 +200,6 @@ func _commit(action: String) -> void:
 		if restored.get("scene_id") != _source.get("scene_id") or restored.get("source") != _source.get("source"): return
 		_source = restored
 	if action == "save" and result.get("ok", false):
-		# Each completed Save gets its own notice, without recapturing live state.
 		edge.clear_status()
 		_publish("saved", {}, _source)
 		return

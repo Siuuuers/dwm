@@ -1,10 +1,6 @@
 class_name GameStateMinesweeperShopPort
 extends RefCounted
 
-## GameState source for durable Shop purchases. The three Minesweeper capability items keep
-## their closed registry operations; ordinary items prepare authored effects on a detached state.
-## Preparation never changes live balances. The participant owns admission, save/retry, and
-## publication; this port only captures, applies, restores, and publishes the source values.
 
 const _NOTE_RULES := preload("res://scripts/domain/shop/RunNotePurchaseRules.gd")
 
@@ -12,9 +8,6 @@ const _STAT_PRESSURE := "pressure"
 const _RETIRED_ITEM_IDS := ["coffee", "pep_note", "bandage_pack", "healthy_meal", "protein_box"]
 const _CONDITION_SEQUELA := "sequela"
 
-## The closed item-id union this port interprets. Kept separate from MinesweeperShopRegistry's own
-## CAPABILITY_UNION: this list is about WHICH items grant a capability via inventory ownership, not
-## which board capabilities exist.
 const _CAPABILITY_ITEM_IDS: Array[String] = ["lucky_charm", "debug_key"]
 const _SUPPORTZ_ITEM_ID := "supportz"
 
@@ -24,8 +17,6 @@ var _game_state: Object = null
 var _desktop_identity_context: Variant = {}
 
 
-## Idempotent on identical replay; a changed owner or context is refused before any mutation,
-## mirroring every other configure seam in this codebase.
 func configure(game_state: Object, desktop_identity_context: Variant) -> Dictionary:
 	if game_state == null or not game_state.has_method("get_stat"):
 		return _fail(&"invalid_game_state", "game_state must expose get_stat", {})
@@ -90,17 +81,11 @@ func capture() -> Dictionary:
 	}, "receipt": {}}
 
 
-## Validates affordability and the Lucky/Debug once-per-branch ownership cap against LIVE GameState
-## facts, then returns a detached candidate carrying only the item id / currency / price / capability
-## grant (never precomputed absolute balances): `commit()` re-derives the actual mutation through
-## GameState's own signal-emitting economy methods, so a race between prepare and commit fails
-## closed there rather than silently overwriting a balance that moved in between.
 func prepare_purchase(item: Dictionary, quote: Dictionary, transaction_id: String,
 		transaction_issuer_receipt: Dictionary) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
-	# New admission only: the participant recognizes exact pending recovery before this seam.
 	if _game_state.has_method("require_day7_presentations_complete"):
 		var presentations: Dictionary = _game_state.require_day7_presentations_complete()
 		if not presentations.get("ok", false): return presentations
@@ -144,11 +129,6 @@ func prepare_purchase(item: Dictionary, quote: Dictionary, transaction_id: Strin
 	}, "receipt": {}}
 
 
-## The Task-7 boundary forward commit: this is called only once the participant's own commit() has
-## confirmed the matching pending action transaction is already `sequence_committed`, so every call
-## here is the audience-visible economy application. Re-validates affordability at commit time
-## through GameState's own try_spend_*() (rather than trusting prepare_purchase()'s earlier check)
-## so a balance that moved between prepare and commit fails closed instead of going negative.
 func commit(candidate: Dictionary) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
@@ -191,8 +171,6 @@ func commit(candidate: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"committed": true}, "receipt": {}}
 
 
-## Ordinary items use the authored resolver only on a detached GameState. The resulting complete
-## gameplay values enter the same durable purchase flow as the three capability items.
 func _prepare_ordinary(item: Dictionary, quote: Dictionary, transaction_id: String) -> Dictionary:
 	var item_id := str(item.get("item_id", ""))
 	if item_id in _RETIRED_ITEM_IDS:
@@ -317,7 +295,6 @@ func _capture_identity() -> Dictionary:
 	return captured if shaped.get("ok", false) else shaped
 
 
-## Content registration is detached, validated and immutable for this port's lifetime.
 func configure_note_catalogue(catalogue: Variant) -> Dictionary:
 	var checked: Dictionary = _NOTE_RULES.validate_counts_and_catalogue({}, catalogue)
 	if not checked.get("ok", false): return checked
@@ -363,12 +340,9 @@ func _prepare_note(item: Dictionary, quote: Dictionary, transaction_id: String) 
 		"backup": {"gameplay": source.duplicate(true), "contacts": contacts.duplicate(true)}}}
 
 
-## Recovery checks the frozen full-state delta without consulting content or today's price.
-## The participant binds transaction identity and hash to its durable pending action.
 func validate_note_candidate(candidate: Dictionary) -> Dictionary:
 	var expected_keys: Array = ["transaction_id", "item_id", "currency", "price",
 		"ordinary_source_gameplay", "ordinary_source_contacts", "ordinary_gameplay", "ordinary_contacts"]
-	# The participant adds checkpoint custody after this port prepares the detached candidate.
 	if candidate.has("source_checkpoint"):
 		expected_keys.append("source_checkpoint")
 		if not candidate.source_checkpoint is Dictionary:
@@ -413,8 +387,6 @@ func validate_note_candidate(candidate: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
-## Variant equality alone permits equal-valued numeric type substitutions.
-## Preserve every nested value and key type, independent of dictionary order.
 func _same_note_state(left: Variant, right: Variant) -> bool:
 	if typeof(left) != typeof(right): return false
 	if left is Dictionary:

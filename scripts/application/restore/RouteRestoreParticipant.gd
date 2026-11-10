@@ -1,10 +1,6 @@
 class_name RouteRestoreParticipant
 extends RefCounted
 
-## Restore participant wrapping SceneRouter's semantic route + target-layout
-## readiness (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 7).
-## SceneRouter owns the route-ready token and physical transition. This participant
-## carries the saved desktop host state within the same prepared route transaction.
 
 var _owner: Object = null
 var _desktop_host: Object = null
@@ -40,10 +36,6 @@ func publish_scene_activation(operation_id: String) -> Dictionary:
 	if not checked.get("ok", false): return checked
 	return _owner.publish_scene_activation(operation_id)
 
-## One Bootstrap-owned DesktopAppHostState. When configured, prepare() derives the desktop
-## subplan from the supplied active_app_id/day and apply/rollback rebuild the host state
-## (dwm-p2r.9 Plan 02 Task 1). A second configuration with the same object is idempotent;
-## a different object is rejected.
 func configure_desktop_host(host: Object) -> Dictionary:
 	if host == null or not host.has_method("prepare_restore") or not host.has_method("get_state") \
 			or not host.has_method("reset") or not host.has_method("open_app") \
@@ -95,7 +87,6 @@ func capture() -> Dictionary:
 	return captured
 
 func apply_silent(plan: Dictionary) -> Dictionary:
-	# Preserve SceneRouter's token contract; no scene is instantiated by this adapter.
 	var desktop_backup := {}
 	if _desktop_host != null and plan.has("desktop"):
 		if typeof(plan["desktop"]) != TYPE_DICTIONARY:

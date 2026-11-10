@@ -25,7 +25,6 @@ var _holder: StringName
 var _generation: int = 0
 var _busy: bool = false
 var _drag: Dictionary = {}
-# Native mouse contact can outlive its admitted preview after cancellation.
 var _pointer_path: StringName = &""
 var _preview_operations: Array[RefCounted] = []
 var _test_kind: String = ""
@@ -189,7 +188,6 @@ func commit_preference(path: StringName, value: Variant, preview_handle: Variant
 	elif path == FONT_STYLE:
 		result = _localization.set_font_style(str(value)) if _localization.has_method("set_font_style") else _failure()
 	elif path == &"preferences.language.secondary_locale_id" and value == _value(PRIMARY):
-		# The locale owner already swaps the complete language tuple atomically.
 		result = _localization.set_locale(str(_value(&"preferences.language.secondary_locale_id")))
 	else:
 		result = _profile.set_preference(path, value)
@@ -256,7 +254,6 @@ func _on_volume_focus_exited(path: StringName) -> void:
 func _on_volume_visibility_changed(path: StringName) -> void:
 	if _controls[path].is_visible_in_tree():
 		return
-	# Godot drops the native grab on hide without emitting drag_ended.
 	if _pointer_path == path:
 		_pointer_path = &""
 	if _drag.get("path") == path and not _drag.get("ending", false):
@@ -269,7 +266,6 @@ func _on_volume_changed(value: float, path: StringName) -> void:
 		return
 	if (_pointer_path == path and _drag.get("path") != path) \
 			or (_drag.get("path") == path and _drag.get("ending", false)):
-		# Cancelled contact is still physically held: it cannot become immediate steps.
 		_controls[path].set_value_no_signal(float(_value(path)))
 		_refresh_volume_presentation(path)
 		return
@@ -371,8 +367,6 @@ func _cancel_volume_preview(handle: Variant) -> void:
 
 
 func _await_preview_operations(operations: Array[RefCounted]) -> void:
-	# Await only work already issued by the departing presentation. A later
-	# presentation's operations neither extend this wait nor get cancelled here.
 	for operation: RefCounted in operations:
 		while operation in _preview_operations:
 			await _preview_operation_finished
@@ -494,7 +488,6 @@ func back() -> bool:
 
 
 func depart() -> void:
-	# Invalidate both identities before cleanup can yield to a reopened panel.
 	var handle: Variant = _detach_volume_drag()
 	var test := _detach_test()
 	var pending_previews: Array[RefCounted] = _preview_operations.duplicate()
@@ -506,8 +499,6 @@ func depart() -> void:
 		for control: Control in _controls.values():
 			if control is OptionButton:
 				control.get_popup().hide()
-	# Retire the detached source before the first await. A reopened presentation may
-	# own a different speech source while the old duck finishes recovering.
 	await _stop_detached_test(test)
 	if handle != null and _has_audio_sink():
 		await _cancel_volume_preview(handle)

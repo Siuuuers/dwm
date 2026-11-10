@@ -1,5 +1,4 @@
 extends Control
-## Title-only presentation. Busy copy describes the current operation, never a guessed percentage.
 
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const BUSY_COPY := {
@@ -61,8 +60,6 @@ func set_busy(stage: String) -> void:
 	_refresh_status()
 
 func _process(_delta: float) -> void:
-	# Engine delta is clamped after a slow frame. Keep feedback on wall-clock cadence
-	# so save work cannot leave the first dot advancing in slow motion afterwards.
 	var count := 1 + int((Time.get_ticks_usec() - _dot_started_us) / 350000.0) % 3
 	if count != _dot_count:
 		_dot_count = count

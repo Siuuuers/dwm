@@ -1,10 +1,6 @@
 class_name ShopCatalogProjection
 extends RefCounted
 
-## Presentation boundary for a trusted catalog owner. Texture dimensions do not
-## attest provenance; that owner must resolve the lawful same-item art pair and
-## supply authored localized copy. No direct DataCatalog/GameState consumption.
-## Dictionaries/scalars detach; art resources are immutable owner-retained references.
 
 const _ORDER := [
 	"crystal_stutters", "inked_silk_string", "letter_with_wax_seal",
@@ -94,7 +90,6 @@ static func _validate_item(item: Dictionary) -> String:
 	var expected: Array = _CATALOG[item_id]
 	if item["unit_price"] != expected[0]:
 		return "invalid_unit_price"
-	# UI totals must remain exact integer prices, even for malformed owner maxima.
 	@warning_ignore("integer_division")
 	var largest_quantity: int = 9223372036854775807 / int(item["unit_price"])
 	if item["legal_max"] > largest_quantity:

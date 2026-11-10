@@ -1,6 +1,4 @@
 extends "res://scripts/application/backup/BackupPresentationPort.gd"
-## Pause composes the existing opaque Backup transaction. Delete leaves suspension intact;
-## idle-source Load releases it before the normal restore and re-acquires only on exact rollback.
 var _pause: Object
 
 func configure_pause(saves: Object, pause: Object) -> Dictionary:

@@ -4,31 +4,20 @@ extends RefCounted
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 static var _ordinary_ascii := RegEx.create_from_string("\\A[\\x20-\\x21\\x23-\\x5B\\x5D-\\x7E]*\\z")
 
-# Native escaping is byte-identical on printable ASCII, including quotes and backslashes.
 static var _printable_ascii := RegEx.create_from_string("\\A[\\x20-\\x7E]*\\z")
-# Native JSON preserves valid Unicode scalars and the five standard short control escapes.
-# Other C0 controls retain the checked emitter (native vertical tab emits invalid JSON \\v).
 static var _native_string_range := RegEx.create_from_string("\\A[\\x08-\\x0A\\x0C-\\x0D\\x20-\\x{D7FF}\\x{E000}-\\x{10FFFF}]*\\z")
 
 static func stringify(value: Variant) -> Dictionary:
-	# Godot's native encoder is byte-identical for this complete, bounded domain:
-	# exact integers, eligible scalar strings, and unique string-like keys.
-	# Floats, other strings/types, or deeper values retain the checked emitter below.
 	if _can_use_native_encoder(value):
 		return _ok(JSON.stringify(value, "", true))
 	var emitted := _emit(value)
 	if not emitted.get("ok", false):
 		return emitted
-	# Containers compose already checked scalar encodings. Avoid reparsing the entire
-	# document for every internal receipt hash; cold/external reads still use StrictJson.
-	# Defer lossy-scalar failure until emission ends to preserve structural-error precedence.
 	if emitted.get("round_trip_failed", false):
 		return {"ok": false, "code": &"self_check_failed", "message": "Canonical JSON did not round-trip exactly"}
 	return _ok(emitted["value"])
 
 static func _can_use_native_encoder(value: Variant, depth := 0) -> bool:
-	# Stay below native recursion limits and prevent cycles reaching its placeholder
-	# output. An eligibility miss changes neither the original refusal nor its order.
 	if depth > 64:
 		return false
 	match typeof(value):
@@ -109,11 +98,8 @@ static func _emit_float(value: float) -> Dictionary:
 	return _ok(number, not exact)
 
 static func _emit_string(value: String) -> Dictionary:
-	# Exact whole-string match: all excluded characters retain the original emitter.
 	if _ordinary_ascii.search(value) != null:
 		return _ok('"' + value + '"')
-	# This includes retained JSON text ending in a newline, even when a surrounding
-	# float requires the checked container emitter. Unsafe controls still fall through.
 	if _native_string_range.search(value) != null:
 		return _ok('"' + value.json_escape() + '"')
 	var output := "\""
@@ -122,7 +108,6 @@ static func _emit_string(value: String) -> Dictionary:
 		var codepoint := value.unicode_at(index)
 		if codepoint >= 0xD800 and codepoint <= 0xDFFF:
 			return {"ok": false, "code": &"invalid_surrogate", "message": "String contains a lone surrogate code point"}
-		# Godot replaces these malformed internal codepoints during String.chr.
 		round_trip_failed = round_trip_failed or codepoint == 0 or codepoint > 0x10FFFF
 		match codepoint:
 			0x22: output += "\\\""
@@ -163,9 +148,6 @@ static func _emit_dictionary(value: Dictionary) -> Dictionary:
 		normalized[key] = value[original_key]
 		printable_ascii_keys = printable_ascii_keys and _printable_ascii.search(key) != null
 	var keys: Array = normalized.keys()
-	# On printable ASCII, native String order is exactly UTF-8 byte order. Keep the
-	# original comparator for all other keys, including malformed internal strings,
-	# so their emission/refusal order is unchanged.
 	if printable_ascii_keys:
 		keys.sort()
 	else:

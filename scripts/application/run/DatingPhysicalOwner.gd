@@ -1,7 +1,5 @@
 class_name DatingPhysicalOwner
 extends RefCounted
-## Retained physical owner for one Schedule dating challenge. Board truth is reducer-owned;
-## GameState stores the active record so a mid-date save resumes without replaying rewards.
 
 const CATALOG := preload("res://scripts/domain/minesweeper/MinesweeperBoardCatalog.gd")
 const SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
@@ -33,7 +31,6 @@ var _checkpoint_writer: Callable
 var _admitted_command: Dictionary = {}
 var _attempt_gate: Object
 var _first_cell_index := -1
-## dwm-634.2: routine board progress since the last Profile attempt commit; owner-local only.
 var _routine_pending := false
 var _pending_checkpoint: Dictionary = {}
 var _history_selection: Dictionary = {}
@@ -49,7 +46,6 @@ var _scene_checkpoint_in_flight := false
 var _scene_lease := ""
 var _scene_first_reveal_cell := -1
 
-## Production opt-in while the remaining semantic producers migrate separately.
 func configure_frozen_narrative_contexts() -> Dictionary:
 	if _game_state == null or not _game_state.has_method("capture_run_snapshot_input"):
 		return _fail(&"frozen_context_state_unavailable")
@@ -62,7 +58,6 @@ func pull_frozen_narrative_context(physical_token: String, phase: String) -> Dic
 		return _fail(&"frozen_context_phase_mismatch")
 	return _read_frozen_narrative(phase)
 
-## Production actions own a short causal lease. The stage owner still admits begin_physical.
 func configure_attempt_history(gate: Object) -> Dictionary:
 	if gate == null or not gate.has_method("acquire") or not gate.has_method("release"):
 		return _fail(&"invalid_dating_attempt_gate")
@@ -109,8 +104,6 @@ func begin_physical(command: Dictionary) -> Dictionary:
 	if command.get("context") is Dictionary and command.context.get("kind") == "scene_challenge": return _begin_scene(command)
 	var result: Dictionary = _with_checkpoint(_begin_physical.bind(command), false, false)
 	if result.get("ok", false):
-		# An admitted record is rebound from Profile or freshly stored, so nothing is pending;
-		# a refused admission leaves the live board and its pending progress untouched.
 		_routine_pending = false
 		_admitted_command = command.duplicate(true)
 	return result
@@ -127,8 +120,6 @@ func _begin_physical(command: Dictionary) -> Dictionary:
 	var stored: Dictionary = captured.value
 	if not stored.is_empty() and (str(stored.get("completion_transaction_id", "")) == completion_id 			or (_attempt_gate != null and stored.get("context") is Dictionary and not ATTEMPTS.semantic_slot(stored.context).is_empty() and ATTEMPTS.semantic_slot(stored.context) == ATTEMPTS.semantic_slot(command.context))):
 		if not _valid_record(stored, {}): return _fail(&"invalid_restored_dating_challenge")
-		# Validate the saved entry before rebinding the command or reconciling Profile.
-		# A group/deferred remap is a distinct first presentation, frozen separately below.
 		_record = stored.duplicate(true)
 		var restored_context := _validate_retained_frozen_contexts()
 		if not restored_context.ok: return restored_context
@@ -179,16 +170,12 @@ func pull_physical(physical_token: String) -> Dictionary:
 	return _ok(_view())
 
 
-## Presentation-facing Scene Challenge surface. The retained physical API still owns
-## legacy internal start/prepare tests, but the player surface has no Start command.
 func pull_scene_panel(physical_token: String) -> Dictionary:
 	if not _scene_command(): return _fail(&"scene_challenge_unadmitted")
 	var view: Dictionary = _pull_scene(physical_token)
 	if not view.get("ok", false): return view
 	var value: Dictionary = view.value.duplicate(true)
 	if not _record.is_empty():
-		# Retained physics owns its board host and geometry even when its authored
-		# Challenge/profile has been removed from the installed story bundle.
 		value["host"] = str(_record.spec.difficulty_id)
 	else:
 		var profile: Dictionary = _scene_board_profile()
@@ -238,7 +225,6 @@ func dispatch_physical(physical_token: String, action: String, cell_index: int,
 		result = _with_checkpoint(_dispatch_physical.bind(physical_token, action, cell_index, expected_revision), false)
 	var released: Dictionary = _attempt_gate.release(&"causal_transaction", str(acquired.value.token))
 	if not released.get("ok", false): return released
-	# Completion can synchronously start the next stage, so release our action lease first.
 	if result.get("ok", false) and _record.get("phase") == "completed":
 		physical_completion_ready.emit(_completion_receipt())
 	return result
@@ -246,9 +232,6 @@ func dispatch_physical(physical_token: String, action: String, cell_index: int,
 func _dispatch_physical(physical_token: String, action: String, cell_index: int,
 		expected_revision: int) -> Dictionary:
 	if not _adopt(physical_token): return _fail(&"dating_challenge_unavailable")
-	# Retired Observer interactions cannot retain input custody in an older save.
-	# A later restore participant can roll GameState back without touching this retained
-	# owner's local preview. Rebuild that preview from the live branch before accepting input.
 	if _post_ending_history() and _record.phase not in ["pre_challenge", "preparing"] and (
 			_history_target_branch != str(_attempt_identity().branch_id)
 			or _history_reference.get("attempt_id") != _record.spec.board_token):
@@ -261,8 +244,6 @@ func _dispatch_physical(physical_token: String, action: String, cell_index: int,
 		"pre_challenge":
 			if action != "continue": return _fail(&"dating_challenge_command_refused",view)
 			if _post_ending_history():
-				# The saved preliminary presentation spec is not an entered board. A fresh
-				# boundary burns fresh nonces; Load already allocated this branch identity.
 				var fresh: Dictionary = _make_spec(str(_record.host))
 				if not fresh.get("ok", false): return fresh
 				_record.spec = fresh.value
@@ -293,7 +274,6 @@ func _dispatch_physical(physical_token: String, action: String, cell_index: int,
 			var changed: Dictionary = _settle_board() if action == "settle" else _board_action(action,cell_index)
 			if not changed.get("ok",false): return changed
 		"cleared_awaiting_terminal_choice":
-			# Read old saved phases, but the retired special-mine decision cannot be replayed.
 			if action != "continue" or cell_index != -1: return _fail(&"dating_challenge_command_refused")
 			_record.relationship_outcome = "foresight" if _record.outcome == "perfect" else "loved"
 			var chosen: Dictionary = _settle_terminal()
@@ -321,10 +301,6 @@ func _with_checkpoint(operation: Callable, publish_completion: bool, commit_hist
 	var backup: Dictionary = {}
 	var prior: Dictionary = _record.duplicate(true)
 	var prior_history := _history_state()
-	# A routine cell action starts and ends inside an already-materialized challenge board. Its
-	# effect lives in memory until the next boundary (terminal result, suspend, save), so it
-	# writes no checkpoint of its own (dwm-634.1). Entering, materializing and finishing the
-	# board remain boundaries.
 	var routine_start: bool = _record.get("board") != null and str(_record.get("phase", "")) == "challenge"
 	var prior_pending := _routine_pending
 	if _checkpoint_writer.is_valid():
@@ -337,7 +313,6 @@ func _with_checkpoint(operation: Callable, publish_completion: bool, commit_hist
 	var result: Dictionary = operation.call()
 	if _checkpoint_writer.is_valid():
 		var changed: bool = _record != prior
-		# A frozen terminal selection whose effect failed must remain retryable across restart.
 		var retain_retry: bool = changed and str(_record.get("phase", "")) == "settlement_retry"
 		if not result.get("ok", false) and not retain_retry:
 			_game_state.rollback_restore_silent(backup)
@@ -345,10 +320,6 @@ func _with_checkpoint(operation: Callable, publish_completion: bool, commit_hist
 			_restore_history_state(prior_history)
 			return result
 		if changed and routine_start and str(_record.get("phase", "")) == "challenge":
-			# dwm-634.2: routine progress (including an unsettled terminal board) waits in memory;
-			# flush_pending_attempt() commits it before any run save, and settlement is a boundary.
-			# Post-ending branch history keeps its law: a canonical action durably creates or extends
-			# the selected branch, so it still commits per action.
 			if commit_history and _attempt_gate != null:
 				if not _post_ending_history():
 					_routine_pending = true
@@ -390,8 +361,6 @@ func _with_checkpoint(operation: Callable, publish_completion: bool, commit_hist
 	return result
 
 
-## Transaction-local owner state only; never serialized in Run/Profile documents.
-## GameState fences this backup by live session before asking us to restore it.
 func capture_reconciliation_state() -> Dictionary:
 	return _ok({"owner_id": get_instance_id(), "record": _record.duplicate(true),
 		"admitted_command": _admitted_command.duplicate(true), "pending_checkpoint": _pending_checkpoint.duplicate(true),
@@ -426,16 +395,12 @@ func rollback_reconciliation_silent(backup: Dictionary) -> Dictionary:
 	_restore_history_state(history)
 	return _ok({})
 
-## Profile has already committed this move. Roll back gameplay to its checkpoint, then
-## retain this new exact retry payload instead of restoring the older local owner backup.
 func _rollback_run_preserving_retry(backup: Dictionary) -> Dictionary:
 	var retained: Dictionary = capture_reconciliation_state().value
 	var rolled: Dictionary = _game_state.rollback_restore_silent(backup)
 	if not rolled.get("ok", false): return rolled
 	return rollback_reconciliation_silent(retained)
 
-## Called by the run restore participant after the final remapped snapshot is installed.
-## The participant's full backup covers rollback; no Profile write or domain signal occurs here.
 func reconcile_restore_silent(restored_snapshot: Dictionary) -> Dictionary:
 	if _attempt_gate == null: return _ok({})
 	var snapshot: Dictionary = _game_state.capture_run_snapshot_input()
@@ -448,7 +413,6 @@ func reconcile_restore_silent(restored_snapshot: Dictionary) -> Dictionary:
 		_pending_checkpoint = {}
 		_routine_pending = false
 		_clear_history_state()
-		# The reading/event owner must re-admit its authenticated command before input.
 		_admitted_command = {}
 		_history_reference = route_context.get("dating_active_attempt_ref", {}).duplicate(true)
 		_scene_first_reveal_cell = -1
@@ -457,18 +421,11 @@ func reconcile_restore_silent(restored_snapshot: Dictionary) -> Dictionary:
 		and int(stored.get("context", {}).get("day", 0)) == int(snapshot.lifecycle.day)
 	if active_dating:
 		if not _valid_record(stored, {}): return _fail(&"invalid_restored_dating_challenge")
-		# Refusal must preserve the retained owner too: its pending board progress
-		# is part of the restore backup, not just the public gameplay snapshot.
 		var previous_record := _record
 		_record = stored.duplicate(true)
 		var frozen := _validate_retained_frozen_contexts()
 		_record = previous_record
 		if not frozen.ok: return frozen
-	# A selected snapshot can remove the scene attempt or replace it with legacy
-	# Dating. Retained scene admission belongs to the prior execution branch and
-	# must not keep exposing or flushing its future board after that restore.
-	# Validate the replacement first; the restore owner's backup can reinstate this
-	# complete local custody if a later participant refuses the transaction.
 	if _scene_command() or _record.get("schema_version") == 4 or _pending_checkpoint.get("schema_version") == 4:
 		_record = {}
 		_admitted_command = {}
@@ -538,8 +495,6 @@ func _restore_attempt(command: Dictionary, silent: bool = false, certified_entry
 		return _apply_record_effect(silent)
 	var attempt_id := str(_record.spec.board_token)
 	var branch_id := str(identity.branch_id)
-	# A same-branch Profile-ahead write is a recovery, not a selected older-save fork.
-	# Selected Load already allocates a new branch, so it cannot hit sibling progress here.
 	var current: Dictionary = _profile.get_dating_attempt(run_id, slot, attempt_id, branch_id)
 	if current.get("ok", false):
 		_select_committed_attempt(current.value)
@@ -549,7 +504,6 @@ func _restore_attempt(command: Dictionary, silent: bool = false, certified_entry
 	if not reference is Dictionary: return _fail(&"invalid_dating_attempt_reference")
 	var source: Dictionary
 	if reference.is_empty():
-		# v6 active saves predate explicit pointers; their board ID resolves its original branch.
 		source = _profile.get_dating_attempt(run_id, slot, attempt_id)
 	else:
 		var keys: Array = reference.keys()
@@ -561,8 +515,6 @@ func _restore_attempt(command: Dictionary, silent: bool = false, certified_entry
 		if source.get("ok", false) and source.value.generation != reference.generation:
 			return _fail(&"invalid_dating_attempt_reference")
 	if not source.get("ok", false):
-		# A saved search has not entered Profile history yet. Certification after Load
-		# admits this exact frozen spec; any existing branch history above still wins.
 		if certified_entry and reference.is_empty() and str(current.get("code", "")) == "dating_attempt_missing" \
 				and str(source.get("code", "")) == "dating_attempt_missing" \
 				and _record.schema_version == 3 and _record.phase == "challenge" \
@@ -582,8 +534,6 @@ func _restore_attempt(command: Dictionary, silent: bool = false, certified_entry
 	_history_target_branch = branch_id
 	_history_revision = int(preview.value.expected_revision)
 	_history_committed = false
-	# Keep the saved source reference until a canonical action durably creates this progress.
-	# The record and effects remain exactly those in the selected save, not the parent's latest.
 	return _game_state.store_dating_challenge_state(_record, not silent)
 
 func _commit_attempt() -> Dictionary:
@@ -623,19 +573,12 @@ func _commit_attempt() -> Dictionary:
 		_routine_pending = false
 	return committed
 
-## Commits routine board progress that is still only in memory, so a run save never leaves
-## Profile behind the board it saves (dwm-634.2). Runs inside the caller's causal lease when one
-## is active, otherwise takes and releases its own; a foreign lease refuses pending progress.
 func flush_pending_attempt() -> Dictionary:
 	if _record.get("schema_version") == 4 and not _scene_command():
 		if _scene_fatal: return _fail(&"scene_challenge_fatal_custody")
-		# Restore journal writes can run after silent reconciliation, before playable
-		# readmission. Unchanged staged state has no source progress to flush.
 		if not _routine_pending and _pending_checkpoint.is_empty() \
 				and _attempt_gate != null and _attempt_gate.is_internal_owner_active(&"restore"):
 			return _ok({"committed": false})
-		# A selected closed board is already the Run's exact current physical
-		# record. Its saved outcome needs no historical closure proof or write.
 		if not _routine_pending and _pending_checkpoint.is_empty() \
 				and is_instance_valid(_game_state) and _game_state.has_method("capture_scene_challenge_closure"):
 			var closed: Dictionary = _game_state.capture_scene_challenge_closure(_record.context)
@@ -692,7 +635,6 @@ func _apply_record_effect(silent: bool = false) -> Dictionary:
 	if not published.get("ok", false): return published
 	var frozen: Dictionary = _freeze_post_challenge_presentation()
 	if not frozen.ok: return frozen
-	# Preserve the frozen physical receipt, including its original replay marker.
 	return _game_state.store_dating_challenge_state(_record, not silent)
 
 func _retry_checkpoint() -> Dictionary:
@@ -762,7 +704,6 @@ func _board_action(action: String, index: int) -> Dictionary:
 		var layout: Dictionary = generated.value.layout
 		if not SCHEMA.validate_layout(layout, _record.spec).get("ok", false):
 			return _fail(&"invalid_dating_layout")
-		# Same frozen explosion stream and one independent draw per sorted mine as the generator.
 		if _record.schema_version != 4:
 			_record.mine_dispositions = RULES.dispositions(_record.spec, layout.mine_indices.size()) \
 				if _record.host == "canonical_solo" else []
@@ -784,17 +725,14 @@ func _board_action(action: String, index: int) -> Dictionary:
 	_record.board = reduced.value.board.duplicate(true)
 	_record.board.outcome = str(_record.board.outcome)
 	for entry: Dictionary in _record.board.actions: entry.kind = str(entry.kind)
-	# dwm-634.2: a terminal board only paints here; `settle` runs its settlement on a later frame.
 	return _ok({})
 
-## The settlement a terminal reveal deferred: outcome, terminal choice or effect (dwm-634.2).
 func _settle_board() -> Dictionary:
 	if not _record.board is Dictionary or not bool(_record.board.terminal): return _fail(&"dating_challenge_command_refused", _view())
 	_record.perfect_reasons = RULES.perfect_reasons(_record.board, int(_record.schema_version))
 	_record.outcome = "exploded" if str(_record.board.outcome) == "exploded" else (
 		"cleared" if _record.perfect_reasons.is_empty() else "perfect")
 	if _record.host == "canonical_pair":
-		# Pair board truth is observation/mastery only; pair closure already owns its semantics.
 		_record.applied_result = {"board_only": true}
 		_record.phase = "post_challenge"
 		return _ok({})
@@ -808,16 +746,12 @@ func _settle_board() -> Dictionary:
 	_record.relationship_outcome = _record.mine_dispositions[mine_ordinal]
 	return _settle_terminal()
 
-## Routine cell actions keep the board in memory until a checkpoint boundary, so their receipts
-## stay in memory too (dwm-634.1); the run-save storage flushes them before any save.
 func _issue_board_transaction() -> Dictionary:
 	if _issuer.has_method("issue_deferred"):
 		return _issuer.call(&"issue_deferred", &"transaction_id")
 	return _issuer.call(&"issue", &"transaction_id")
 
 func _settle_terminal() -> Dictionary:
-	# Persist the selected terminal fact before applying effects, so retries never offer a second
-	# choice. GameState checks the exact fact under this one completion transaction on replay.
 	_record.phase = "settlement_retry"
 	var frozen: Dictionary = _game_state.store_dating_challenge_state(_record)
 	if not frozen.get("ok", false): return frozen
@@ -859,10 +793,6 @@ func _entry() -> Dictionary:
 	return {"type":"twofriends" if c.kind=="twofriends_if_deferred" else "group",
 		"friend_ids":c.participants.duplicate(),"day":c.day}
 
-## A finite provisional scene atom is admitted by the same physical command as the board.
-## No history/replay adapter receives this capability. Window progress lives only in Run.
-## Freeze pre-challenge presentation facts with the admitted Run state, before its
-## initial checkpoint. Restoring this pending view never consults later live attributes.
 func _freeze_pre_challenge_presentation() -> Dictionary:
 	if _record.phase != "pre_challenge" or not _profile.has_method("record_reached_presentation"):
 		return _ok({})
@@ -911,8 +841,6 @@ func acknowledge_pre_challenge_render(physical_token: String) -> Dictionary:
 		if not released.ok: return released
 	return recorded
 
-## Freeze only after the exact terminal relationship effect has been applied. This lives
-## beside the physical record in the existing saved route context, never in Profile attempts.
 func _freeze_post_challenge_presentation() -> Dictionary:
 	if _record.phase not in ["post_challenge", "completed"] or not _profile.has_method("record_reached_presentation"):
 		return _ok({})
@@ -921,9 +849,6 @@ func _freeze_post_challenge_presentation() -> Dictionary:
 		if not stored.get("fields") is Dictionary: return _fail(&"invalid_saved_presentation_fields")
 		var saved_fields: Dictionary = stored.fields.duplicate(true)
 		if _record.host == "canonical_pair" and saved_fields.get("pair_mode") != _record.context.kind:
-			# The trusted presentation command may re-admit this exact pair slot as a
-			# deferred encounter. Verify the original frozen signature before changing
-			# only its presentation mode; the board, form and Profile attempt stay exact.
 			var prior_record: Dictionary = _record.duplicate(true)
 			prior_record.context.kind = saved_fields.get("pair_mode")
 			var prior_signature: Dictionary = PRESENTATION_SIGNATURE.from_dating_post_challenge(prior_record, saved_fields)
@@ -990,10 +915,6 @@ func _read_frozen_narrative(phase: String) -> Dictionary:
 			return _fail(&"frozen_context_effect_receipt_required")
 	return checked
 
-## The automatic pre-to-board handoff is when the canonical attempt is selected.
-## Pre prose has no attempt ID: its preliminary spec is not an entered board. A
-## locked Profile attempt or fresh post-ending attempt can replace that spec here.
-## Move only the owner's cache binding; already-presented facts stay byte-identical.
 func _bind_frozen_pre_to_entered_attempt() -> Dictionary:
 	if not _frozen_narrative_enabled: return _ok({})
 	var saved: Variant = _game_state.route_context.get("dating_frozen_contexts_v1")
@@ -1042,8 +963,6 @@ func _freeze_narrative_projection(phase: String, signature_fields: Dictionary) -
 		return _read_frozen_narrative(phase)
 	if existing is Dictionary and existing.get("board_token") == _record.spec.board_token \
 			and _record.host == "canonical_pair":
-		# A trusted command may change only the pair's presentation mode. Preserve
-		# the same board's already-frozen facts, even if live receipts changed later.
 		var prior_kind := "twofriends" if _record.context.kind == "group" else "group"
 		var prior_id := "dating.%s.priscilla_lavinia.day%d.%s" % [prior_kind, int(_record.context.day), phase]
 		if existing.entries.has(prior_id):
@@ -1070,8 +989,6 @@ func _freeze_narrative_projection(phase: String, signature_fields: Dictionary) -
 		fields.merge({"friend_id": str(_record.context.participants[0]),
 			"challenge_slot": entry_id.trim_suffix("." + phase), "tier": signature_fields.tier,
 			"tone": signature_fields.tone, "attitude": signature_fields.attitude,
-			# Current registered echoes are presented in Day7 fallback only. This empty
-			# set grants no echo receipt and never borrows an unregistered dating atom.
 			"due_echoes": []})
 		if phase == "post_challenge":
 			var effect: Variant = _record.applied_result.get("receipt")
@@ -1094,8 +1011,6 @@ func _freeze_narrative_projection(phase: String, signature_fields: Dictionary) -
 			return _fail(&"frozen_context_pair_receipt_required")
 		var count: Variant = null
 		if receipt.is_empty():
-			# Schedule-Done commits its one count at invitation_rollover AFTER dating.
-			# A pending plan is not a receipt. Hospital's earlier closure is already above.
 			var plan: Variant = identity.get("active_resolution_plan")
 			var pending := false
 			if plan is Dictionary and plan.get("source_day") == _record.context.day \
@@ -1172,8 +1087,6 @@ func dispatch_observer(physical_token: String, atom_id: String, action: String, 
 	return result
 
 func _observer_source() -> Dictionary:
-	# Current-build suspension (dwm-6gk). Original admission and tests are preserved
-	# at archive/observer-interactions-2026-09-21. No evidence is fabricated.
 	return {}
 
 func _observer_state(source: Dictionary) -> Dictionary:
@@ -1235,7 +1148,6 @@ func _dispatch_observer(source: Dictionary, action: String, elapsed_ms: int) -> 
 			var committed: Dictionary = _profile.record_observer_evidence(receipt)
 			if not committed.ok: return committed
 		elif action == "compare" and not str(state.capture_receipt_id).is_empty():
-			# The renderer opens the overlay first, then acknowledges its actual visible text.
 			state["comparison_shown"] = true
 		elif action == "compare_rendered" and state.comparison_shown and not str(state.capture_receipt_id).is_empty():
 			var receipt := _observer_receipt(source, "verification")
@@ -1452,8 +1364,6 @@ func _valid_record(value: Dictionary, command: Dictionary) -> bool:
 	var dispositions: Array = RULES.dispositions(value.spec, board.mine_count) if expected_host == "canonical_solo" else []
 	if value.mine_dispositions != dispositions: return false
 	if not board.terminal or value.phase == "challenge":
-		# dwm-634.2: a terminal board still in `challenge` is painted but unsettled; it carries no
-		# outcome until its `settle` command runs on a later frame.
 		return value.phase == "challenge" and value.outcome == null and value.relationship_outcome == null \
 			and value.perfect_reasons.is_empty() and value.applied_result.is_empty()
 	var reasons: Array = RULES.perfect_reasons(board, int(value.schema_version))
@@ -1484,9 +1394,6 @@ func _fail(code: StringName, value: Dictionary={}) -> Dictionary:
 	if not value.is_empty(): result["value"]=value.duplicate(true)
 	return result
 
-## Nonwired scene policy. The configured authority owns authenticated playable/closed
-## command receipts and builds the full Run checkpoint through the real checkpoint port.
-## A caller-supplied bundle, checkpoint hash, or boolean alone grants no admission.
 func configure_scene_challenges(bundle: Dictionary, authority: Object) -> Dictionary:
 	if _issuer == null or _attempt_gate == null or authority == null:
 		return _fail(&"scene_challenge_dependencies_unavailable")
@@ -1513,8 +1420,6 @@ func _scene_authorize(command: Dictionary) -> Dictionary:
 	return _scene_authority.validate_scene_challenge_command(command.duplicate(true),
 		_scene_bundle if not prepared.is_empty() else _scene_bundle.duplicate(true))
 
-## Admission alone creates no attempt. Preserve already admitted in-memory moves
-## before a manual departure; readmission must not replace them with Profile's prefix.
 func admit_scene_continuation(command: Dictionary) -> Dictionary:
 	var admitted := _scene_authorize(command)
 	if not admitted.ok: return admitted
@@ -1527,8 +1432,6 @@ func prepare_scene_departure(command: Dictionary) -> Dictionary:
 	return flush_pending_attempt()
 
 func _scene_input_open() -> bool:
-	# Injected unit authorities own their own control admission. Real GameState
-	# exposes the exact live control; retained End custody cannot authorize input.
 	if not is_instance_valid(_scene_authority): return false
 	if not _scene_authority.has_method("capture_scene_challenge_command"): return true
 	var current: Dictionary = _scene_authority.capture_scene_challenge_command()
@@ -1537,7 +1440,6 @@ func _scene_input_open() -> bool:
 func _scene_story_binding() -> Dictionary:
 	if _scene_authority.has_method("capture_scene_challenge_binding"):
 		return _scene_authority.capture_scene_challenge_binding(_admitted_command.duplicate(true))
-	# Retained isolated authorities bind one command directly.
 	return _ok({"challenge_id": _admitted_command.context.challenge_id,
 		"scene_occurrence": _admitted_command.context.scene_occurrence,
 		"playable_command_id": _admitted_command.context.playable_command_id})
@@ -1545,8 +1447,6 @@ func _scene_story_binding() -> Dictionary:
 func _scene_closed() -> Dictionary:
 	return _scene_authority.capture_scene_challenge_closure(_admitted_command.context.duplicate(true))
 
-## Closed-board presentation and no-op flush use only the selected Run record.
-## Never replace that record with a later Profile attempt while checking closure.
 func _scene_closed_record_matches(closed: Dictionary) -> bool:
 	if closed.is_empty() or not is_instance_valid(_game_state) \
 			or _routine_pending or not _pending_checkpoint.is_empty(): return false
@@ -1728,7 +1628,6 @@ func _scene_start(first_reveal_index: int = -1) -> Dictionary:
 		var plain: Dictionary = ENVELOPE.plain_frontier(begun.value.frontier)
 		if not plain.ok: return plain
 		_record.envelope.preparation = plain.value
-		# A retained accepted Reveal is distinct from legacy internal Start.
 		_record.envelope.forced_cell = first_reveal_index
 		_record.phase = "preparing"
 	_clear_history_state()
@@ -1736,8 +1635,6 @@ func _scene_start(first_reveal_index: int = -1) -> Dictionary:
 
 func _scene_prepare() -> Dictionary:
 	var accepted_reveal: int = int(_record.envelope.forced_cell)
-	# Use the existing domain preparation owner: the legacy generation-port adapter
-	# deliberately hides exhausted frontiers, which this family must retain.
 	var advanced: Dictionary = preload("res://scripts/domain/minesweeper/MinesweeperBoardGenerator.gd").run_debug_slice(_record.envelope.preparation)
 	if not advanced.ok: return advanced
 	var plain: Dictionary = ENVELOPE.plain_frontier(advanced.value.preparation)
@@ -1783,7 +1680,6 @@ func _scene_publication_reference(reference: Variant) -> bool:
 		and reference.state_sha256 is String and reference.state_sha256.length() == 64 \
 		and reference.state_sha256.is_valid_hex_number(false) and reference.state_sha256 == reference.state_sha256.to_lower()
 
-## End checkpoints the current Run record before committing its story outcome.
 func close_scene_challenge(token: String) -> Dictionary:
 	var view := _pull_scene(token)
 	if not view.ok: return view
@@ -1796,7 +1692,6 @@ func close_scene_challenge(token: String) -> Dictionary:
 	var released: Dictionary = _attempt_gate.release(&"causal_transaction", str(lease.value.token))
 	return result if released.ok else released
 
-## GameState's authenticated End event owns this lease; never acquire a second one.
 func close_scene_challenge_owned(lease: String) -> Dictionary:
 	if _scene_authority != _game_state or not _attempt_gate.is_lease_active(&"causal_transaction", lease) \
 			or not _scene_lease.is_empty(): return _fail(&"scene_challenge_lease_required")
@@ -1807,8 +1702,6 @@ func close_scene_challenge_owned(lease: String) -> Dictionary:
 	_scene_lease = ""
 	return result
 
-## Classify only the closure projection; schema-4 board state and scoring stay owned.
-## Historical four-target registrations deliberately keep Perfect under won.
 static func scene_closure_outcome(record: Dictionary, targets: Dictionary) -> String:
 	if record.is_empty(): return "never_started"
 	if record.state == "in_progress": return "unfinished"
@@ -1870,12 +1763,8 @@ func _close_scene_locked() -> Dictionary:
 	return closed
 
 func _flush_scene_pending() -> Dictionary:
-	# A source save may invoke its configured before-write hook. That nested hook
-	# observes the Run record being checkpointed; it must not start a second save.
 	if _scene_checkpoint_in_flight: return _ok({"committed": false})
 	if _scene_fatal: return _fail(&"scene_challenge_fatal_custody")
-	# Save owns a presentation pause. Already checkpointed state needs no new
-	# playable admission; actual pending writes still validate their source below.
 	if _record.is_empty() or (not _routine_pending and _pending_checkpoint.is_empty()): return _ok({"committed": false})
 	var closed := _scene_closed()
 	if not closed.ok: return closed
@@ -1899,8 +1788,6 @@ func _flush_scene_pending() -> Dictionary:
 	return _ok({"committed": true}) if result.ok else result
 
 func _retain_scene_failure_custody(result: Dictionary) -> void:
-	# Trusted owners classify actual transaction custody. An absent acknowledgement
-	# is never interpreted as a safe retry merely from a human-readable error name.
 	var unwritten: bool = typeof(result.get("committed")) == TYPE_BOOL and result.committed == false
 	var rolled_back: bool = typeof(result.get("rolled_back")) == TYPE_BOOL and result.rolled_back == true
 	_scene_fatal = not (unwritten or rolled_back) or result.get("committed") == true \

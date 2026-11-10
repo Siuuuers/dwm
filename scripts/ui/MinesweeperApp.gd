@@ -1,6 +1,5 @@
 extends AppWindowBase
 class_name MinesweeperApp
-## Cached desktop body. Lifecycle admission precedes visibility; gameplay stays in the injected port.
 
 signal recovery_requested(code: StringName)
 signal foreground_availability_changed()
@@ -73,8 +72,6 @@ func set_desktop_height(height: int) -> void:
 func _fit_host() -> void:
 	var host := get_parent() as Control
 	if host == null or host.size.x <= 0 or host.size.y <= 0: return
-	# Desktop enlargement belongs to the shared canvas; small standalone hosts
-	# still fit the complete app without adding another enlargement factor.
 	var factor := minf(1.0, minf(host.size.x / 800.0, host.size.y / 656.0))
 	var height := floori(host.size.y / factor / 2.0) * 2
 	if _desktop_layout_height > 0:
@@ -98,8 +95,6 @@ func set_footer_host(host: Control) -> void:
 func _process(_delta: float) -> void:
 	if _busy or _port == null or not _port.has_method("advance_preparation") or panel == null \
 			or not last_result.get("ok",false) or not panel.has_valid_presentation(): return
-	# dwm-634.1: a terminal click paints first; its settlement runs here on the next frame and
-	# waits for nothing (not focus, not a held contact), because it is a durable save.
 	var settling: bool = _port.has_method("has_pending_settlement") and _port.has_pending_settlement()
 	if not settling:
 		if not _preparation_foreground or not is_visible_in_tree() or get_tree().paused \
@@ -333,8 +328,6 @@ func _apply_preferences() -> bool:
 	var retained_scroll: Vector2i = panel.worksheet.get_scroll()
 	if not panel._configure_context(locale,percent,large,_palette,high_contrast,colour,font_style,_day, _scene_presentation):
 		var previous_height: int = panel.layout_height
-		# Large text can outgrow the compact board. Keep its readable layout and
-		# let the desktop scroll the page instead of rejecting valid preferences.
 		if _desktop_layout_height <= 0 or previous_height >= 656 or not panel.set_layout_height(656): return false
 		if not panel._configure_context(locale,percent,large,_palette,high_contrast,colour,font_style,_day, _scene_presentation):
 			panel.set_layout_height(previous_height)

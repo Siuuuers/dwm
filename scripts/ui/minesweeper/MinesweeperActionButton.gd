@@ -1,5 +1,4 @@
 extends Button
-## A released action with owner-published selection; input never changes commitment.
 
 const ROW := preload("res://scripts/ui/minesweeper/MinesweeperSheetRow.gd")
 const MIN_WIDTH := 80
@@ -29,12 +28,10 @@ func _ready() -> void:
 
 
 func _enter_tree() -> void:
-	# Godot preserves its combined-minimum cache during off-tree configuration.
 	update_minimum_size()
 	size = custom_minimum_size
 
 
-## Size chrome from the same shaped copy and padding used when it is drawn.
 static func single_line_width(copy: String, next_theme: Theme, large: bool) -> int:
 	var padding := 24 if large else 20
 	var measured := ROW.measure_copy(copy,next_theme,MAX_WIDTH-padding)
@@ -54,7 +51,6 @@ func configure(copy: String, next_theme: Theme, large: bool, width_logical: int 
 	_baselines = measured.baselines
 	_text_height = measured.height
 	_inset = inset
-	# Drawing owns the copy; native Button owns released input and accessibility.
 	text = ""
 	accessibility_name = copy
 	custom_minimum_size = Vector2(width_logical,maxf(64 if large else 48,_text_height+inset*2+4))
@@ -69,7 +65,6 @@ func present_state(enabled: bool, next_selected: bool) -> void:
 	disabled = not enabled
 	focus_mode = Control.FOCUS_ALL if enabled else Control.FOCUS_NONE
 	if not enabled and is_inside_tree(): release_focus()
-	# Localized selection descriptions belong to the owner, via accessibility_description.
 	queue_redraw()
 
 
@@ -92,10 +87,8 @@ func _draw() -> void:
 	draw_rect(face,_role(&"selected_plane" if selected else &"controlled_face"))
 	draw_rect(face.grow(-1),structure,false,2)
 	if selected:
-		# The trailing filing seam persists through focus, contact, and disabled state.
 		draw_rect(Rect2(face.end.x-4,face.position.y+2,2,face.size.y-4),structure)
 	if disabled:
-		# Blocked action edge stays outside the copy/face and inside the hit allocation.
 		draw_rect(Rect2(face.position.x,size.y-4,face.size.x,2),_role(&"dark_registration"))
 	if not disabled:
 		if is_pressed():

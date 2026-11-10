@@ -1,9 +1,4 @@
 extends RefCounted
-## Attempts and branch progress remain retained; each branch stores one latest record.
-## Pre-ending callers keep the first lock. Post-ending callers explicitly choose a branch
-## or a fresh entry. Rehearsal never enters this ledger.
-## Provisional first-click rule: Continue freezes spec/nonces; the first reveal freezes
-## its safe index and materialized layout before that move is published.
 
 const CATALOG := preload("res://scripts/domain/minesweeper/MinesweeperBoardCatalog.gd")
 const BOARD := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
@@ -28,8 +23,6 @@ const SLOT_KEYS := ["first_attempt_id", "attempts"]
 const HISTORY_KEYS := ["generation", "origin_branch_id", "entry_receipt", "progress_by_branch"]
 const PROGRESS_KEYS := ["revision", "record", "materialization_receipt", "clear_receipt", "terminal_receipt", "effect_receipt", "completion_receipt"]
 
-## Default lookup retains the first entered attempt and its original progress (the pre-ending lock).
-## An explicit attempt/branch reference never silently falls back to another timeline.
 static func read(ledger: Dictionary, run_id: String, slot_id: String,
 		attempt_id: String = "", branch_id: String = "") -> Dictionary:
 	var slot: Dictionary = ledger.get(run_id, {}).get(slot_id, {})
@@ -42,8 +35,6 @@ static func read(ledger: Dictionary, run_id: String, slot_id: String,
 	if not history.progress_by_branch.has(branch): return _fail(&"dating_branch_missing")
 	return _ok(_flatten(run_id, slot_id, selected, branch, history))
 
-## Selection is explicit: empty keeps the first lock; branch updates an existing branch;
-## fresh enters a new board; continue copies a selected save only as part of this candidate.
 static func prepare_update(ledger: Dictionary, run_id: String, slot_id: String, branch_id: String,
 		record: Dictionary, expected_revision: int, first_cell_index: int = -1,
 		frozen_effect: Dictionary = {}, selection: Dictionary = {}) -> Dictionary:
@@ -128,8 +119,6 @@ static func prepare_update(ledger: Dictionary, run_id: String, slot_id: String, 
 	if not checked.ok: return checked
 	return _ok({"ledger": candidate, "attempt": attempt.duplicate(true), "changed": true})
 
-## Read-only preview. Do not commit it during Load; pass its selection with the first
-## canonical action to prepare_update(expected_revision=0), then commit that one candidate.
 static func prepare_continuation(ledger: Dictionary, run_id: String, slot_id: String,
 		attempt_id: String, source_branch_id: String, branch_id: String, saved_record: Dictionary) -> Dictionary:
 	if branch_id.strip_edges().is_empty() or branch_id == source_branch_id: return _fail(&"invalid_dating_selection")
@@ -152,7 +141,6 @@ static func _copy_saved(source: Dictionary, saved_record: Dictionary, branch_id:
 	var copied := _prepare_flat({}, source.run_id, source.slot_id, branch_id, saved_record, 0, first_cell, saved_effect)
 	if not copied.ok: return copied
 	var attempt: Dictionary = copied.value.attempt
-	# Validate provenance as a prefix of the source, never import its later receipts.
 	var source_first: int = int(source.materialization_receipt.first_cell_index) if source.materialization_receipt != null else -1
 	var source_effect: Dictionary = source.effect_receipt.value if source.effect_receipt != null else {}
 	var checked := _prepare_flat({source.run_id: {source.slot_id: attempt}}, source.run_id,
@@ -203,7 +191,6 @@ static func validate(ledger: Variant) -> Dictionary:
 					if progress.record.schema_version == 4 and slot.attempts.size() != 1: return _fail(&"scene_challenge_attempt_already_started")
 	return _ok(ledger.duplicate(true))
 
-## Every prior attempt and branch stays retained; only its latest progress advances.
 static func preserves(previous: Dictionary, candidate: Dictionary) -> bool:
 	for run_id: String in previous:
 		if not candidate.has(run_id): return false
@@ -305,7 +292,6 @@ static func validate_v6(ledger: Variant) -> Dictionary:
 			if attempt.run_id != run_id or attempt.slot_id != slot_id: return _fail(&"invalid_dating_ledger")
 	return _ok(ledger.duplicate(true))
 
-## Ordinary Profile commits/restores preserve history; only full reset may remove it.
 static func _preserves_flat(previous: Dictionary, candidate: Dictionary) -> bool:
 	for run_id: String in previous:
 		if not candidate.has(run_id): return false
@@ -365,7 +351,6 @@ static func validate_attempt(attempt: Dictionary) -> Dictionary:
 				or effect.receipt_id != str(attempt.attempt_id) + ":effect" or not effect.value is Dictionary \
 				or not _valid_effect(effect.value, record, str(attempt.slot_id)):
 			return _fail(&"invalid_dating_effect_receipt")
-	# Pair boards have no relationship effect; their physical completion is still irreversible.
 	if record.host == "canonical_solo" and record.phase in ["post_challenge", "completed"] \
 			and attempt.effect_receipt == null: return _fail(&"dating_effect_receipt_required")
 	if record.host == "canonical_solo" and record.phase in ["post_challenge", "completed"]:
@@ -476,8 +461,6 @@ static func _valid_record(record: Dictionary) -> bool:
 	var dispositions: Array = RULES.dispositions(record.spec, board.mine_count) if host == "canonical_solo" else []
 	if record.mine_dispositions != dispositions: return false
 	if not board.terminal or record.phase == "challenge":
-		# dwm-634.2: a terminal board still in `challenge` is painted but unsettled; it carries no
-		# outcome until its `settle` command runs on a later frame.
 		return record.phase == "challenge" and record.outcome == null and record.relationship_outcome == null \
 			and record.perfect_reasons.is_empty() and record.applied_result.is_empty()
 	var reasons: Array = RULES.perfect_reasons(board, int(record.schema_version))
@@ -509,16 +492,12 @@ static func _ok(value: Variant) -> Dictionary:
 static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code, "message": "Dating attempt commitment is invalid or would change history"}
 
-## Resolve the original retained execution branch, never the latest sibling. The
-## checkpoint's actual write acknowledgement belongs to the source save owner;
-## this resolver validates its immutable shape, not the continued presence of bytes.
 static func resolve_attempt_proof(ledger: Dictionary, proof: Dictionary) -> Dictionary:
 	if not _valid_proof_shape(proof): return _fail(&"invalid_scene_attempt_proof")
 	var found: Dictionary = read(ledger, proof.run_id, proof.slot_id, proof.attempt_id, proof.branch_id)
 	if not found.ok: return found
 	return validate_attempt_proof(found.value, proof)
 
-## Allows the Profile owner's existing exact four-key lookup to supply the record.
 static func validate_attempt_proof(attempt: Dictionary, proof: Dictionary) -> Dictionary:
 	if not _valid_proof_shape(proof): return _fail(&"invalid_scene_attempt_proof")
 	if not validate_attempt(attempt).ok or attempt.record.schema_version != 4 \
@@ -666,8 +645,6 @@ static func _valid_proof_shape(proof: Dictionary) -> bool:
 		return false
 	return true
 
-## This pure branch verifies comparison material; Profile's privately configured
-## live authority must authorize the selected absence before any durable write.
 static func _prepare_absent_start(ledger: Dictionary, run_id: String, slot_id: String, branch_id: String,
 		record: Dictionary, expected_revision: int, first_cell: int, selection: Dictionary) -> Dictionary:
 	if record.schema_version != 4 or not _scene_json(selection) or expected_revision != 0 \
@@ -685,13 +662,10 @@ static func _prepare_absent_start(ledger: Dictionary, run_id: String, slot_id: S
 		if record[key] != original.record[key]: return _fail(&"dating_entry_conflict")
 	var current: Dictionary = read(ledger, run_id, slot_id, original.attempt_id, branch_id)
 	if current.ok:
-		# Profile-before-Run retry must never replace progress with a new revision1.
 		return _ok({"ledger": ledger.duplicate(true), "attempt": current.value, "changed": false})
 	if branch_id == original.branch_id or record.envelope.shell != ENVELOPE.make().shell \
 			or not _valid_fresh_scene_entry(record, first_cell):
 		return _fail(&"invalid_scene_absence_start")
-	# A selected absence may create exactly its own first Reveal, never copy the
-	# source branch's later moves. Debug entry retains only its initial frontier.
 	if record.spec.capability_ids.has("forced_no_guess"):
 		if record.board != null or record.phase != "preparing" or record.envelope.preparation == null \
 				or record.envelope.preparation.slice_sequence != 0:

@@ -1,5 +1,4 @@
 extends Control
-## Scene artwork and the profile's independent solo/group portrait dividers.
 const ART := preload("res://scripts/data/ArtManifest.gd")
 const PANEL_SPLIT := preload("res://scripts/ui/desktop/DesktopPanelSplit.gd")
 const APERTURE_HEIGHT := {100: 448, 125: 392, 150: 328}
@@ -86,7 +85,6 @@ func configure_entry(entry_id: String, text_percent: int = 100,
 		ART.get_texture(str(placement.get("cg", ""))), text_percent, challenge, entry_id.begins_with("dating.") or split_panels,
 		&"solo" if entry_id.begins_with("dating.solo.") else &"group", caption_overlay)
 
-## Consume one resolved presentation; the Run owns checkpoint/overlay state.
 func configure_presentation(presentation: Dictionary, text_percent: int = 100,
 		challenge: bool = false, show_portraits: bool = true, caption_overlay: bool = false) -> void:
 	_entry_id = presentation.scene_entry_id
@@ -101,7 +99,7 @@ func configure_presentation(presentation: Dictionary, text_percent: int = 100,
 	_overlays.size = size
 	for overlay: Dictionary in presentation.overlays:
 		var texture := ART.get_texture(overlay.asset_id)
-		if texture == null: continue # Existing optional-art policy.
+		if texture == null: continue
 		var rect := _texture_rect("Overlay%d" % _overlays.get_child_count(), TextureRect.STRETCH_KEEP_ASPECT_CENTERED)
 		rect.set_meta("overlay_label", overlay.label)
 		rect.reparent(_overlays)
@@ -222,7 +220,6 @@ func handle_split_input(event: InputEvent, source_control: Control) -> bool:
 	var point: Vector2 = source_control.get_global_transform_with_canvas() * event.position
 	var handle_point := handle.get_global_transform_with_canvas().affine_inverse() * point
 	if not is_split_dragging() and not Rect2(Vector2.ZERO, handle.size).has_point(handle_point): return false
-	# The caption canvas is above the artwork; route only the divider's gesture.
 	var local_event: InputEvent = event.duplicate()
 	local_event.position = handle_point
 	_split._on_handle_gui_input(local_event)
@@ -246,8 +243,6 @@ func _layout_dating_art() -> void:
 		slot.clip_contents = false
 		if not portrait.visible: continue
 		var center := width * (index + 0.5) / _portrait_count
-		# Existing opaque paintings cannot overlap without covering the other face.
-		# Cut-out portraits can share the full panel and overlap naturally.
 		if _portrait_count == 2 and (_opaque_portraits[0] or _opaque_portraits[1]):
 			slot.position.x = index * width / _portrait_count
 			slot.size.x = width / _portrait_count

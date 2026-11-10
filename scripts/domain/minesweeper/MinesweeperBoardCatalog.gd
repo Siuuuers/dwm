@@ -1,6 +1,5 @@
 class_name MinesweeperBoardCatalog
 extends RefCounted
-## Closed public board dimensions and base mine counts for current-v1 hosts.
 
 const _DESKTOP := {
 	"beginner": {"width": 8, "height": 8, "base_mine_count": 10},

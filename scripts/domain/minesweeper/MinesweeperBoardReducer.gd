@@ -1,12 +1,6 @@
 class_name MinesweeperBoardReducer
 extends RefCounted
 
-## Deterministic minesweeper board reducer (Plan 02 Task 3, dwm-p2r13). Every method recomputes
-## adjacency from the hidden mine_indices and re-derives the revealed/flagged/terminal truth
-## itself; no caller-supplied redundant field (adjacency_counts, terminal, outcome, mine_count)
-## is ever trusted. Replaying a transaction_id already present in the ledger with the identical
-## action is a no-op that returns the unchanged board; reusing a transaction_id for a different
-## action, or acting on a terminal board, always rejects.
 
 const _SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
 
@@ -225,7 +219,6 @@ static func chord(board: Dictionary, cell_index: int, transaction_id: String) ->
 	return {"ok": true, "code": &"ok", "value": {"board": board_out}, "receipt": {}}
 
 
-# ---- shared helpers ----
 
 static func _parse_layout(layout: Dictionary) -> Dictionary:
 	if not (layout.has("width") and layout.has("height") and layout.has("mine_indices")):

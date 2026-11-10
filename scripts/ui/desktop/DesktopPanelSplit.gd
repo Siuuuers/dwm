@@ -111,7 +111,6 @@ func _input(event: InputEvent) -> void:
 	if not _input_admitted():
 		_retire_drag()
 		return
-	# Own the remainder of a resize gesture even when it leaves the grip.
 	var captured: bool = (_mouse_dragging and (event is InputEventMouseMotion or
 		(event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed))) \
 		or (_touch_index >= 0 and ((event is InputEventScreenTouch or event is InputEventScreenDrag) and event.index == _touch_index))
@@ -137,7 +136,6 @@ func _input(event: InputEvent) -> void:
 
 
 func _observe_consumed_contact(event: InputEvent) -> void:
-	# Global capture runs before the autoload: keep its contact ledger in sync.
 	var input_owner := get_node_or_null("/root/InputManager")
 	if input_owner != null and input_owner.has_method("observe_physical_contact"):
 		input_owner.observe_physical_contact(event)
@@ -294,7 +292,6 @@ func _begin_drag(pointer_x: float, mouse: bool = true) -> void:
 
 
 func _update_drag(pointer_x: float) -> void:
-	# Keep both panes and their hit targets stable until the pointer is released.
 	_preview_width = clampf(snappedf(_drag_origin_width + pointer_x - _drag_origin_x, width_step),
 		minimum_first_width, maximum_first_width)
 	_handle.preview_offset = _preview_width - _angela_width

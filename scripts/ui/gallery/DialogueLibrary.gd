@@ -1,5 +1,4 @@
 extends Control
-## A read-only projection. Only accepted story reading changes discovery membership.
 signal navigation_changed
 signal empty_focus_requested
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
@@ -125,7 +124,6 @@ func _show_passage(retain_scroll: bool) -> void:
 		if str(passage.id) != _selected: continue
 		_add_text(str(passage.title))
 		for entry: Dictionary in passage.entries:
-			# Unread prose never enters a Label, tooltip, metadata or accessibility name.
 			if entry.read:
 				if str(entry.kind) == "thought": _add_text(str(_copy.thought))
 				_add_text(str(entry.text), str(entry.content_locale))

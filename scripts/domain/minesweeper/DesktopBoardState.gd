@@ -1,22 +1,6 @@
 class_name DesktopBoardState
 extends RefCounted
 
-## Canonical desktop Minesweeper board state machine (Plan 02 Task 5, dwm-p2r.32, req.minesweeper
-## .board_lifecycle). Closed phases NONE -> PREPARING -> PREPARED_UNSTARTED -> ACTIVE_VISIBLE
-## <-> ACTIVE_SUSPENDED -> SETTLING, driven entirely by prepare_*()/commit() candidates -- no
-## method ever mutates `_phase`/`_identity`/`_candidate`/`_board`/`_settlement` directly outside
-## commit(). Every frozen input, command revision, preparation frontier, cell, mine, proof,
-## terminal result, and settlement field is plain Dictionary/Array/primitive domain data, never
-## live Node state.
-##
-## `commit()` is the sole transaction-id ledger: a repeat of an already-recorded transaction_id
-## with an IDENTICAL request fingerprint replays the stored result verbatim (duplicate request
-## equality, no re-mutation); a repeat with a DIFFERENT fingerprint conflicts; every prepare_*()
-## also independently checks `expected_revision` against the live top-level revision counter
-## (stale revision) before it will build a candidate at all.
-##
-## Current Scene boards retain the board and its frozen spec in a wrapper. Payment is the
-## current round_paid fact. Legacy boards retain their separately admitted payment receipt.
 
 const _IDENTITY := preload("res://scripts/domain/desktop/DesktopIdentity.gd")
 const _INSPECTION_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
@@ -40,8 +24,6 @@ const _PHASES: Array[String] = [
 	_PHASE_ACTIVE_VISIBLE, _PHASE_ACTIVE_SUSPENDED, _PHASE_SETTLING,
 ]
 
-## Which of {identity, candidate, board, settlement} must be non-null per phase, per the frozen
-## Canonical desktop state phase-invariant table.
 const _PHASE_INVARIANTS := {
 	_PHASE_UNPAID: {"identity": false, "candidate": true, "board": false, "settlement": false},
 	_PHASE_PAID: {"identity": true, "candidate": true, "board": false, "settlement": false},
@@ -66,14 +48,9 @@ var _board: Variant = null
 var _settlement: Variant = null
 var _command_receipts: Dictionary = {}
 var _terminal_receipts: Dictionary = {}
-# Scene saves own this current fact; legacy restores derive it from terminal records.
 var _settled_inspection := false
-# Current allowance consumption; preparation can be either paid or unpaid.
 var _round_paid := false
-# Structural Scene format also survives unconfigured projection/inspection clones.
 var _scene_snapshot_format := false
-# Explicit Run9 admission. Legacy owners retain their separately admitted contract.
-# A configures the actual retained issuer before scene restore or live commands.
 var _scene_payment_issuer: Object = null
 
 
@@ -83,7 +60,6 @@ func configure_scene_payments(issuer: Object) -> Dictionary:
 		return _fail(&"scene_payment_issuer_required", "", {})
 	if _scene_payment_issuer != null and _scene_payment_issuer != issuer:
 		return _fail(&"scene_payment_issuer_already_configured", "", {})
-	# Configure before installing data; never bless an already installed legacy board.
 	if _scene_payment_issuer == null and (_phase != _PHASE_NONE or _revision != 0 \
 			or _identity != null or _candidate != null or _board != null or _settlement != null \
 			or not _command_receipts.is_empty() or not _terminal_receipts.is_empty()):
@@ -99,7 +75,6 @@ func prepare_restore_scene(snapshot: Dictionary, issuer: Object) -> Dictionary:
 	return prepare_restore(snapshot)
 
 
-# Player saves carry current facts. Live backups keep genuine retry responses separately.
 static func project_player_state(snapshot: Dictionary) -> Dictionary:
 	if typeof(snapshot.get("settled_inspection")) != TYPE_BOOL or not snapshot.get("command_receipts") is Dictionary:
 		return {"ok": false, "code": &"current_scene_board_required"}
@@ -133,7 +108,6 @@ func reset() -> void:
 	_round_paid = false
 
 
-## Cheap foreground-pump readiness; full commands still use detached capture().
 func preparation_header() -> Dictionary:
 	return {"phase": _phase, "revision": _revision}
 
@@ -152,10 +126,6 @@ func capture() -> Dictionary:
 	return snapshot
 
 
-# ---------------------------------------------------------------------------------------------
-# prepare_*() -- every method validates against LIVE state and returns a detached candidate; none
-# mutates internal state. Only commit() mutates.
-# ---------------------------------------------------------------------------------------------
 
 func prepare_restore(snapshot: Dictionary) -> Dictionary:
 	var keys := _CAPTURE_KEYS.duplicate()
@@ -351,8 +321,6 @@ func prepare_first_reveal(input: Dictionary, materialized: Dictionary,
 	if _scene_snapshot_format:
 		for key: String in ["width", "height", "mine_indices", "mine_count"]:
 			if board[key] != layout_valid.value.layout[key]: return _fail(&"materialized_board_layout_mismatch", "", {})
-	# First Reveal remains one implicit action; accepted pre-Reveal Flag/Unflag actions
-	# are retained verbatim, including flags that were later removed.
 	var shell := shell_state()
 	if int(board["revision"]) != shell.actions.size() or board.actions != shell.actions or board.flagged_indices != shell.flagged_indices:
 		return _fail(&"invalid_materialized_input", "first Reveal must retain the saved shell history", {})
@@ -439,9 +407,6 @@ func prepare_settlement(input: Dictionary, settlement: Dictionary) -> Dictionary
 		settlement.duplicate(true))
 
 
-# ---------------------------------------------------------------------------------------------
-# commit() -- the sole mutator and the sole transaction-id ledger.
-# ---------------------------------------------------------------------------------------------
 
 func commit(candidate: Dictionary) -> Dictionary:
 	if not candidate.has("kind") or not (candidate["kind"] is StringName):
@@ -516,10 +481,6 @@ func commit(candidate: Dictionary) -> Dictionary:
 
 
 func _compact_prior_command_results() -> void:
-	# Only the latest accepted command needs its exact retry response. Retain older receipt
-	# fingerprints and acknowledgement results so repeats complete and changed requests conflict,
-	# without copying every historical board into each live backup. First-Reveal acknowledgments
-	# remain genuine retry results. Legacy full results compact only on a new accepted input.
 	for entry: Variant in _command_receipts.values():
 		if not entry is Dictionary or str(entry.get("command_kind", "")) not in ["board_command", "visibility"]: continue
 		if not entry.get("result") is Dictionary or not entry.get("post_revision") is int: continue
@@ -527,8 +488,6 @@ func _compact_prior_command_results() -> void:
 		if str(prior.get("code", "")) != "board_command_already_applied":
 			entry["result"] = {"ok": true, "code": &"board_command_already_applied",
 				"value": {"already_applied": true, "revision": int(entry["post_revision"])}, "receipt": {}}
-		# Only the known full receipt loses metadata. Preserve opaque extensions and malformed
-		# legacy entries on their existing result-compaction path; minimal receipts skip above.
 		if entry.size() != 6 or not entry.has_all(["request_fingerprint", "identity_fingerprint", "pre_revision"]): continue
 		if typeof(entry.request_fingerprint) != TYPE_STRING or typeof(entry.identity_fingerprint) != TYPE_STRING \
 				or typeof(entry.pre_revision) != TYPE_INT: continue
@@ -536,9 +495,6 @@ func _compact_prior_command_results() -> void:
 			entry.erase(field)
 
 
-# ---------------------------------------------------------------------------------------------
-# shared helpers
-# ---------------------------------------------------------------------------------------------
 
 func _validate_common(input: Dictionary) -> Dictionary:
 	if not input.has("transaction_id") or typeof(input["transaction_id"]) != TYPE_STRING \
@@ -548,10 +504,6 @@ func _validate_common(input: Dictionary) -> Dictionary:
 		return _fail(&"invalid_expected_revision", "input.expected_revision must be an integer", {})
 	if not input.has("identity") or typeof(input["identity"]) != TYPE_DICTIONARY:
 		return _fail(&"invalid_identity", "input.identity is required", {})
-	# The caller (coordinator, or a direct test) owns what "the request" conceptually is -- e.g. the
-	# coordinator's own public request dict, which has a different shape than this `input` -- so the
-	# fingerprint used for duplicate/conflict detection is supplied here rather than recomputed from
-	# `input` itself.
 	if not input.has("request_fingerprint") or typeof(input["request_fingerprint"]) != TYPE_STRING \
 			or str(input["request_fingerprint"]).strip_edges().is_empty():
 		return _fail(&"invalid_request_fingerprint", "input.request_fingerprint must be a nonblank string", {})
@@ -635,8 +587,6 @@ func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary
 	return {"ok": false, "code": code, "message": message, "details": details}
 
 
-## An unpaid shell contains no allocation or hidden layout. A paid replacement keeps
-## the paid round and ordinal while freezing only the new layout spec.
 func shell_state() -> Dictionary:
 	if _candidate is Dictionary:
 		return {"flagged_indices": _candidate.get("flagged_indices", []).duplicate(true),
@@ -691,7 +641,6 @@ func prepare_shell_flag(input: Dictionary, shell: Dictionary) -> Dictionary:
 
 
 func _validate_shell_input(input: Dictionary) -> Dictionary:
-	# Only the unpaid shell permits a null identity; active command validation stays strict.
 	var copy := input.duplicate(true)
 	if copy.get("identity") == null: copy["identity"] = {}
 	var checked := _validate_common(copy)
@@ -737,8 +686,6 @@ func _copy_preparation_shell(target: Dictionary) -> void:
 		if _candidate.has(key): target[key] = _candidate[key].duplicate(true)
 
 
-## Existing active phases retain read-only inspection; the receipt binds the exact
-## wrapper including payment/current spec, independent of branch/visibility revision.
 func has_settled_inspection() -> bool:
 	return _settled_inspection
 
@@ -772,7 +719,6 @@ static func is_settled_inspection(snapshot: Dictionary) -> bool:
 	return false
 
 
-## Scene settlement belongs to the current terminal board, never historical records.
 static func _validate_scene_settlement(snapshot: Dictionary) -> Dictionary:
 	if typeof(snapshot.get("settled_inspection")) != TYPE_BOOL:
 		return {"ok": false, "code": &"invalid_scene_settlement"}
@@ -805,8 +751,6 @@ func prepare_dismiss_inspection(input: Dictionary) -> Dictionary:
 	return _envelope(input, &"dismiss_inspection", _PHASE_NONE, null, null, null, null)
 
 
-## Match saved integral-number normalization before strict canonical serialization.
-## The writer also canonicalizes StringName keys/values and ordinary/typed arrays.
 static func _inspection_normalize(value: Variant) -> Variant:
 	match typeof(value):
 		TYPE_STRING_NAME:
@@ -825,7 +769,6 @@ static func _inspection_normalize(value: Variant) -> Variant:
 
 
 
-# Prospective state only; preparation and refused commits cannot mutate live data.
 func _scene_candidate_snapshot(candidate: Dictionary) -> Dictionary:
 	var projected := capture()
 	projected.phase = str(candidate.get("phase_after", ""))
@@ -852,7 +795,6 @@ func _scene_candidate_snapshot(candidate: Dictionary) -> Dictionary:
 	return projected
 
 
-# Current payment is a fact, not a match against an earlier day's round ordinal.
 static func _validate_current_payment_status(snapshot: Dictionary) -> Dictionary:
 	if typeof(snapshot.get("round_paid")) != TYPE_BOOL:
 		return {"ok": false, "code": &"invalid_round_paid"}
@@ -864,7 +806,6 @@ static func _validate_current_payment_status(snapshot: Dictionary) -> Dictionary
 	return {"ok": true}
 
 
-# Validate only the current board facts. Live command results belong to retry handling.
 func _validate_current_scene_board(snapshot: Dictionary) -> Dictionary:
 	if not _PHASES.has(snapshot.get("phase")):
 		return _fail(&"invalid_scene_board_phase", "", {})

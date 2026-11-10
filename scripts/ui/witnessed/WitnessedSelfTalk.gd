@@ -1,5 +1,4 @@
 extends Control
-## A bounded current-thought viewport. Earlier thoughts belong to History.
 signal review_changed
 signal return_to_live_requested
 signal input_started
@@ -157,8 +156,6 @@ func _shape() -> void:
 func _update_window() -> void:
 	var line_height := ceilf(_font.get_height(_font_size)) if _font != null else 24.0
 	_choice_height = maxf(52, line_height + 16) + 18
-	# The generic Yes control is single-language. Only an actual paired option
-	# supplies a measured two-language height through SceneHost.
 	if _dual and _choice_height_override > 0:
 		_choice_height = _choice_height_override
 	_text_height = line_height * 3
@@ -197,8 +194,6 @@ func _visible_rows() -> Array[Dictionary]:
 	var start := _review_start if is_reviewing() else _live_line_start
 	var result: Array[Dictionary] = []
 	var height := 0.0
-	# With choices, top 16 + height 240 ends at 256, above the earliest
-	# caption field at 264. Keep the text-only viewport at its existing 216.
 	var limit := 240.0 - _choice_height - 8 if _choice_row_visible else 216.0
 	for index: int in range(start, _lines.size()):
 		if not _dual and result.size() == 3: break
@@ -213,7 +208,6 @@ func get_projection() -> Dictionary:
 		"dual_enabled":_dual, "history_count":_rows.size(), "live_start":_live_start, "row_count":_lines.size()}
 
 func _draw() -> void:
-	# Keep existing text wrapping while giving its frame a small outer inset.
 	var frame := Rect2(Vector2(-6, -6), Vector2(size.x + 12, _text_height + 12))
 	draw_rect(frame, _border, false)
 	var top := 0.0

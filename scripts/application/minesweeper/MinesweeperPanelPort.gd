@@ -1,7 +1,5 @@
 class_name MinesweeperPanelPort
 extends RefCounted
-## Composes public board, register and assignment facts without exposing domain snapshots.
-## A successfully settled terminal board remains a detached application view until New Board.
 
 const BOARD_PORT := preload("res://scripts/application/minesweeper/MinesweeperPresentationPort.gd")
 const REGISTER := preload("res://scripts/application/minesweeper/MinesweeperRegisterQuery.gd")
@@ -57,8 +55,6 @@ func pull() -> Dictionary:
 	if not _held_terminal.is_empty():
 		if not _owner.has_method("get_configuration_context"):
 			return _present_success(_held_terminal)
-		# Production retains the board and completion receipt in the canonical owner.
-		# Refresh from that owner; this cache is never authority for a completed result.
 		_clear_held_terminal()
 	var initial: Variant = _owner.call(&"get_state")
 	if not initial is Dictionary or not initial.get("ok", false) \
@@ -83,14 +79,10 @@ func pull() -> Dictionary:
 	if board.value.revision != snapshot.revision or board.value.custody != register.value.custody \
 			or board.value.mine_estimate != register.value.mine_estimate:
 		return _unavailable()
-	# Nonterminal reads remain a strict before/after snapshot transaction.
 	var final_state: Variant = _owner.call(&"get_state")
 	if not final_state is Dictionary or not final_state.get("ok", false) \
 			or final_state.get("value") != snapshot:
 		return _unavailable()
-	# dwm-634.1: the register and assignments are pure functions of that unchanged snapshot and
-	# of GameState, which nothing mutates inside this synchronous read; recomputing them proved
-	# only what the snapshot comparison already proves.
 	var configuration: Dictionary = _board_port.get_configuration(board.value)
 	if not configuration.get("ok", false): return _unavailable()
 	var actions: Array[String] = []
@@ -125,7 +117,6 @@ func dispatch(action: String, index: int, revision: int) -> Dictionary:
 	if result.get("value") is Dictionary and bool(result.value.get("terminal", false)):
 		var assignments: Dictionary = ASSIGNMENTS.from_sources(_game_state, _catalog)
 		if not assignments.get("ok", false) or _presented_view.is_empty(): return _unavailable()
-		# dwm-634.1: a pending settlement publishes the terminal board unsettled; the pump settles it.
 		var settled_now: bool = result.get("ok", false) and result.get("code") != &"minesweeper_settlement_pending"
 		var terminal := _terminal_view(result.value, _presented_view.register,
 			assignments.value, settled_now)
@@ -145,7 +136,6 @@ func dispatch(action: String, index: int, revision: int) -> Dictionary:
 	if routine_context.get("ok", false):
 		var routine_view := _routine_view(result.value, routine_context.value, routine_inputs, revision)
 		if not routine_view.is_empty(): return _present_success(routine_view)
-	# First Reveal and any context mismatch retain the strict full refresh transaction.
 	return pull()
 
 
@@ -177,7 +167,6 @@ func advance_preparation(expected_revision: int) -> Dictionary:
 	return refreshed
 
 
-## dwm-634.1: true while a terminal click's settlement still has to run on a later frame.
 func has_pending_settlement() -> bool:
 	return not _held_terminal.is_empty() and not bool(_held_terminal.get("settled", true)) \
 			and _board_port != null and _board_port.has_method("has_pending_settlement") \
@@ -343,8 +332,6 @@ func _has_fresh_difficulty() -> bool:
 	if not _presented or not is_instance_valid(_owner) or not is_instance_valid(_issuer) \
 			or _presented_session.is_empty() or _session_marker() != _presented_session:
 		return false
-	# The unpaid tier can change without a board revision. Read it without adopting a new
-	# board-port identity: that port must still reject commands from a stale presentation.
 	var current: Variant = _owner.call(&"get_state")
 	if not current is Dictionary or not current.get("ok", false) \
 			or not current.get("value") is Dictionary:

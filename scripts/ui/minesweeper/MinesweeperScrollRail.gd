@@ -1,5 +1,4 @@
 extends Control
-## Presentation-only worksheet scroll rail. Values and geometry remain native-pixel integers.
 
 signal scroll_requested(native_value: int)
 
@@ -194,7 +193,6 @@ func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO,size),get_theme_color(&"controlled_face",&"Minesweeper"))
 	draw_rect(Rect2(1,1,size.x-2,size.y-2),get_theme_color(&"dark_registration",&"Minesweeper"),false,2)
 	var thumb: Rect2 = _local_thumb()
-	# The hit rail stays generous; only the centred thumb is visually narrow.
 	var cross := 0 if vertical else 1
 	var inset := maxf(3.0, (thumb.size[cross] - 8.0) / 2.0)
 	thumb.position[cross] += inset

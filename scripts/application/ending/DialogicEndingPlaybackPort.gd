@@ -1,9 +1,5 @@
 class_name DialogicEndingPlaybackPort
 extends RefCounted
-## Production `.7` EndingPlaybackPort adapter for primary/epilogue playback (dwm-p2r.8, Plan-05
-## Task 2). Passes the four-key playback_context unchanged to DialogicBridge.start_ending_id(),
-## returns an immediate-start receipt, and advances Plan04's stage ONLY from the physical-completion
-## signal. It never widens the `.7` interface and owns no lifecycle-stage meaning.
 
 signal playback_completed(completion: Dictionary)
 signal playback_failed(failure: Dictionary)
@@ -185,7 +181,6 @@ func _on_failed(playback_token: String, ending_id: String, result: Dictionary) -
 	playback_failed.emit(failure)
 
 
-## Return discards this process-local binding, without completing or failing the old run.
 func _on_retired(playback_token: String, ending_id: String) -> void:
 	if str(_active.get("token", "")) != playback_token \
 			or str(_active.get("ending_id", "")) != ending_id:
@@ -194,8 +189,6 @@ func _on_retired(playback_token: String, ending_id: String) -> void:
 
 
 func _drain_early_events() -> void:
-	# A no-dialogue timeline may finish inside start_ending_id. Defer only that early callback
-	# until both this port and the scene have retained the exact admitted command.
 	var events := _early_events.duplicate(true)
 	_early_events.clear()
 	for event: Dictionary in events:

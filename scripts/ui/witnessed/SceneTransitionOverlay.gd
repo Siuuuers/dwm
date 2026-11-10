@@ -1,6 +1,4 @@
 extends TextureRect
-## One outgoing framebuffer, retained across Dialogic layout replacement.
-## Bridge owns timing and admission; this surface only draws the captured pixels.
 const DISSOLVE := preload("res://scripts/ui/witnessed/SceneTransitionOverlay.gdshader")
 
 var caret: Control
@@ -25,14 +23,11 @@ func capture_source() -> bool:
 	size = get_viewport().get_visible_rect().size
 	var final := get_viewport().get_final_transform()
 	_dissolve.set_shader_parameter("source_size", Vector2(source.get_size()))
-	# Exclude the command row; the separate caret mask preserves its live tag.
 	_dissolve.set_shader_parameter("rail_top", (final * Vector2(0, preload("res://scripts/ui/witnessed/WitnessedTransportRail.gd").CONTROL_TOP)).y)
 	_dissolve.set_shader_parameter("caret_rect", Vector4.ZERO)
 	_dissolve.set_shader_parameter("divider_rect", Vector4.ZERO)
 	_dissolve.set_shader_parameter("preview_rect", Vector4.ZERO)
 	if is_instance_valid(caret) and caret.is_visible_in_tree():
-		# Only the painted tag (including its focus stroke) stays live. The
-		# transparent part of its larger hit target remains scene artwork.
 		var tag := Rect2(Vector2((caret.size.x - 32) * 0.5, caret.size.y - 24), Vector2(32, 24)).grow(3)
 		var rect: Rect2 = final * caret.get_global_transform_with_canvas() * tag
 		_dissolve.set_shader_parameter("caret_rect", Vector4(rect.position.x, rect.position.y, rect.size.x, rect.size.y))

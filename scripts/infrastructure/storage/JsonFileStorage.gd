@@ -9,17 +9,7 @@ const HASH_PATTERN := "^[0-9a-f]{64}$"
 var _root_dir: String
 var _file_ops: RefCounted
 var _leases: Dictionary = {}
-## The facts the LAST public `reconcile()` of a path proved from disk, kept only so ONE synchronous
-## write of that same path can reuse them instead of classifying the same family a second time
-## (owner ruling 2026-09-14). Erased at the top of every mutation exactly as a lease is, and consumed
-## by the write that reuses it, so it can never answer for a later call. The reuse is sound only
-## because the owner that opts in -- `DesktopPublicationLedger.record_before_emit()` -- runs its
-## reconcile and its write inside ONE synchronous, single-threaded call, with nothing able to run,
-## and therefore nothing able to mutate the family, in between.
 var _reconciled: Dictionary = {}
-## Optional pre-write gate (dwm-634.1). The owner of this root may run one Callable before any
-## durable mutation, so a save can first persist state that the saved bytes will reference. A
-## refusal fails the write closed before any marker or candidate byte is written.
 var _before_write: Callable = Callable()
 
 func _init(root_dir: String, file_ops: RefCounted = null) -> void:
@@ -48,8 +38,6 @@ func describe_root() -> String:
 func exists(relative_path: String) -> bool:
 	return _validate_relative_path(relative_path).get("ok", false) and _file_ops.call(&"exists", _path(relative_path))
 
-## Unlike read_text, raw inspection does not reconcile, validate a save, or grant
-## a lease. Invalid UTF-8 still has exact revision evidence but no text projection.
 func inspect_revision(relative_path: String) -> Dictionary:
 	var safe := _validate_relative_path(relative_path)
 	if not safe.get("ok", false):
@@ -98,11 +86,6 @@ func write_atomic_if_revision(relative_path: String, text: String, validator: Ca
 		return _recover_revision_start(relative_path, validator, marker)
 	return _promote_fresh_revision(relative_path, validator, marker, bytes)
 
-## dwm-634.1: the writer just validated, wrote and flushed this candidate under the marker's
-## outgoing hash, so the happy path promotes it with renames and removals plus one read-back of
-## the promoted final, which is the artifact every later start will read. The artifacts
-## and their order are exactly those v2 reconciliation expects, so any refused step falls back to
-## _reconcile_revision over the same family instead of guessing.
 func _promote_fresh_revision(relative_path: String, validator: Callable, marker: Dictionary,
 		bytes: PackedByteArray) -> Dictionary:
 	if marker["previous_hash"] != null:
@@ -167,8 +150,6 @@ func _raw_artifact(path: String) -> Dictionary:
 	var read: Dictionary = _file_ops.call(&"read_bytes", path)
 	if not read.get("ok", false):
 		return read
-	# HashingContext.update rejects an empty buffer; an empty file still has an
-	# exact SHA-256 revision and must remain distinguishable from absent.
 	var raw_hash: String = "".sha256_text() if read["value"].is_empty() else _file_ops.call(&"sha256", read["value"])
 	return {"ok": true, "hash": raw_hash, "bytes": read["value"]}
 
@@ -197,9 +178,6 @@ func _revision_family(relative_path: String, marker: Dictionary, require_marker:
 	family["ok"] = true
 	return family
 
-## V2 has one immutable durable intent. Hash-bound artifacts, rather than marker
-## rewrites, identify interrupted stages. Opaque prior bytes are only rollback
-## custody and are never classified as a playable document or granted a lease.
 func _reconcile_revision(relative_path: String, validator: Callable, marker: Dictionary) -> Dictionary:
 	var family := _revision_family(relative_path, marker)
 	if not family.get("ok", false):
@@ -234,7 +212,6 @@ func _reconcile_revision(relative_path: String, validator: Callable, marker: Dic
 			var preserved: Dictionary = _file_ops.call(&"rename_path", _path(relative_path), _revision_prior_path(relative_path))
 			if not preserved.get("ok", false):
 				return _fatal(&"indeterminate_commit", "Prior preservation requires reconciliation")
-		# Recheck exact ownership after preservation, before replacing the final.
 		family = _revision_family(relative_path, marker)
 		if not family.get("ok", false):
 			return family
@@ -244,8 +221,6 @@ func _reconcile_revision(relative_path: String, validator: Callable, marker: Dic
 		if not promoted.get("ok", false):
 			return _fatal(&"indeterminate_commit", "Promotion requires reconciliation")
 		return _finish_revision_write(relative_path, validator, marker)
-	# No outgoing candidate survived: restore only the exact bound prior, never a
-	# schema-valid but foreign backup. A restored opaque prior creates no lease.
 	if family["final"]["hash"] == null and family["prior"]["hash"] != null:
 		var restored: Dictionary = _file_ops.call(&"rename_path", _revision_prior_path(relative_path), _path(relative_path))
 		if not restored.get("ok", false):
@@ -310,8 +285,6 @@ func read_text(relative_path: String) -> Dictionary:
 		return path_result
 	if not _leases.has(relative_path):
 		var missing := _failure(&"reconcile_required", "A fresh reconciliation lease is required")
-		# No physical read was attempted. Callers may establish this path's initial
-		# lease, while a read that detects changed bytes must still refuse its attempt.
 		missing["reason"] = &"lease_missing"
 		return missing
 	var lease: Dictionary = _leases[relative_path]
@@ -335,10 +308,6 @@ func read_text(relative_path: String) -> Dictionary:
 		return _failure(&"reconcile_required", "Final artifact is no longer valid UTF-8")
 	return {"ok": true, "value": decoded["value"]}
 
-## Public reconcile. Identical to `_reconcile()` below except that a proved classification is also
-## remembered for the ONE `write_atomic_reconciled()` of this path that may immediately follow it.
-## The write inside `write_atomic()` takes `_reconcile()` directly, so a write can never leave a
-## classification of a family it is in the middle of mutating behind it.
 func reconcile(relative_path: String, validator: Callable) -> Dictionary:
 	var result := _reconcile(relative_path, validator)
 	if result.get("ok", false):
@@ -386,15 +355,6 @@ func _reconcile(relative_path: String, validator: Callable) -> Dictionary:
 func write_atomic(relative_path: String, text: String, validator: Callable, keep_backup: bool = true) -> Dictionary:
 	return _write_atomic(relative_path, text, validator, keep_backup, false)
 
-## Opt-in twin of `write_atomic()` for an owner that called `reconcile()` on this same instance and
-## path inside ONE synchronous call and is now writing what that reconcile told it (owner ruling
-## 2026-09-14). The classification reconcile already proved from disk answers this write's "what is
-## already there", so the family is read and hashed once per write rather than twice. Nothing else
-## differs: the same marker sequence, the same temp write and flush, the same rename order, the same
-## one read-back of the promoted final, and the same refusal codes in the same order -- it is
-## literally the same body. A classification that is missing (already consumed, erased by a mutation
-## of this path, or taken with a different validator) simply takes the full reconcile below, so the
-## reuse can only ever be skipped, never wrong.
 func write_atomic_reconciled(relative_path: String, text: String, validator: Callable, keep_backup: bool = true) -> Dictionary:
 	return _write_atomic(relative_path, text, validator, keep_backup, true)
 
@@ -418,8 +378,6 @@ func _write_atomic(relative_path: String, text: String, validator: Callable, kee
 	if not gate.get("ok", false):
 		return gate
 	var outgoing_hash: String = _file_ops.call(&"sha256", outgoing_bytes)
-	# A configured pre-write hook is the one thing that CAN run between an owner's reconcile and its
-	# write, so a root that owns one never reuses a classification taken before the hook ran.
 	var existing: Dictionary = {}
 	if not reconciled.is_empty() and not _before_write.is_valid() and reconciled.get("validator") == validator:
 		existing = reconciled
@@ -440,8 +398,6 @@ func _write_atomic(relative_path: String, text: String, validator: Callable, kee
 	step = _write_and_flush(_next_path(relative_path), outgoing_bytes)
 	if not step.get("ok", false):
 		return _recover_known_write(intent, validator)
-	# dwm-634.1: the candidate was validated before it was written and flushed under the hash the
-	# marker carries; recovery re-reads it on any interruption, so the happy path does not.
 	marker = _make_write_marker(relative_path, "next_validated", outgoing_hash, previous_hash, outgoing_hash, null, keep_backup)
 	step = _write_marker(relative_path, marker)
 	if not step.get("ok", false):
@@ -463,8 +419,6 @@ func _write_atomic(relative_path: String, text: String, validator: Callable, kee
 	step = _file_ops.call(&"rename_path", _next_path(relative_path), _path(relative_path))
 	if not step.get("ok", false):
 		return _recover_known_write(intent, validator)
-	# The one read-back that stays: the promoted final is what every later start will read, so
-	# it must re-read to the outgoing hash and validate before the transaction is declared won.
 	var verified_final := _classify_document(_path(relative_path), validator)
 	if verified_final["state"] != &"valid" or verified_final["hash"] != outgoing_hash or verified_final["bytes"] != outgoing_bytes:
 		return _recover_known_write(intent, validator)
@@ -710,8 +664,6 @@ func _write_marker(relative_path: String, marker: Dictionary) -> Dictionary:
 	var emitted: Dictionary = CANONICAL_WRITER.stringify(marker)
 	if not emitted.get("ok", false):
 		return emitted
-	# dwm-634.1: a flushed marker is trusted as written; every recovery path re-reads and
-	# validates the marker it finds, so a corrupt marker still fails closed on the next reconcile.
 	return _write_and_flush(_marker_path(relative_path), (emitted["value"] as String).to_utf8_buffer())
 
 func _write_and_flush(path: String, bytes: PackedByteArray) -> Dictionary:

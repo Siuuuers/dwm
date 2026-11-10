@@ -1,5 +1,4 @@
 extends RefCounted
-## Versioned, detached challenge shell and prepared layout. No live owner or global RNG.
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const JSON_READER := preload("res://scripts/validation/StrictJson.gd")
 const BOARD := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
@@ -18,7 +17,6 @@ static func make() -> Dictionary:
 static func plain_frontier(frontier: Dictionary) -> Dictionary:
 	var encoded: Dictionary = WRITER.stringify(frontier)
 	if not encoded.ok: return encoded
-	# StrictJson retains integral numbers while removing runtime StringName enums.
 	return JSON_READER.parse_object(str(encoded.value))
 
 static func special_cell(spec: Dictionary, layout: Dictionary) -> int:
@@ -77,16 +75,11 @@ static func advances(before: Dictionary, after: Dictionary) -> bool:
 	return old.prepared_layout == current.prepared_layout and old.forced_cell == current.forced_cell \
 		and (old.special_cell < 0 or old.special_cell == current.special_cell)
 
-## Scene preparation is evidence, not merely a monotonically increasing counter.
-## Replay the existing bounded generator, including its reserved fallback, without
-## changing the algorithm or accepting a caller's asserted certificate.
 static func _scene_preparation_matches(spec: Dictionary, envelope: Dictionary) -> bool:
 	var forced_cell: int = int(envelope.forced_cell)
 	if envelope.preparation is Dictionary:
 		forced_cell = int(envelope.preparation.get("forced_cell", -1))
 	if forced_cell < 0: return false
-	# Preserve byte-identical replay for historical random-forced entries. Only a
-	# genuinely different player-selected cell uses the explicit-cell constructor.
 	var begun: Dictionary = GENERATOR.begin_debug(spec)
 	if not begun.ok: return false
 	if int(begun.value.preparation.forced_cell) != forced_cell:
@@ -161,7 +154,6 @@ static func _scene_advances(before: Dictionary, after: Dictionary) -> bool:
 			or current.shell.actions.slice(0, old.shell.actions.size()) != old.shell.actions: return false
 	if before.board != null and current.shell != old.shell: return false
 	if old.preparation != null and current.preparation != null:
-		# Both frontiers were independently replayed from the same immutable spec.
 		return current.preparation.slice_sequence >= old.preparation.slice_sequence \
 			and current.forced_cell == old.forced_cell \
 			and current.preparation.forced_cell == old.preparation.forced_cell

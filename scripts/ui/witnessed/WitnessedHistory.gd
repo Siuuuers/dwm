@@ -1,5 +1,4 @@
 extends Control
-## Opaque, inspect-only projection. The retained lifecycle owner suspends the source.
 signal close_requested
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 
@@ -155,7 +154,6 @@ func configure(presentation: Theme, localization: Object, input_owner: Node, adm
 	close_button.add_theme_stylebox_override(&"focus", StyleBoxEmpty.new())
 	for state: StringName in [&"font_color", &"font_hover_color", &"font_pressed_color", &"font_focus_color", &"font_disabled_color"]:
 		close_button.add_theme_color_override(state, _roles[&"text"])
-	# Keep the existing 48/64 target and thumb minimums; recolour its well only.
 	var track := theme.get_stylebox(&"scroll", &"VScrollBar").duplicate() as StyleBoxFlat
 	track.bg_color = _roles[&"field"]
 	track.border_color = _roles[&"rule"]

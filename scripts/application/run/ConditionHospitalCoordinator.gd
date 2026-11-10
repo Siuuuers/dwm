@@ -42,8 +42,6 @@ func configure(state_port: Object, consequence_state: Object, stage_adapter: Obj
 	return _ok({"already_configured": false})
 
 
-## Advances one durable boundary: destination acceptance, pending->active, active->completed, or
-## completed-plan retirement. Presentations pause with their active command persisted.
 func resume() -> Dictionary:
 	var ready := _ready()
 	if not ready.get("ok", false): return ready
@@ -158,8 +156,6 @@ func _complete(plan: Dictionary, stage: Dictionary) -> Dictionary:
 		var executed: Dictionary = _adapter.call(&"execute_stage", plan.duplicate(true), stage.duplicate(true))
 		if not executed.get("ok", false): return executed
 		if bool((executed.get("value", {}) as Dictionary).get("awaiting_presentation", false)):
-			# The active command was checkpointed before execution. Physical owners need
-			# their own causal leases; completion will reacquire ours on the next resume.
 			var released := _release_gate()
 			if not released.get("ok", false): return released
 			return _ok({"boundary": "awaiting_presentation", "stage_id": stage_id})
@@ -269,7 +265,6 @@ func _ensure_gate() -> Dictionary:
 	if not _gate_token.is_empty():
 		if has_owned_causal_lease(): return _ok({"held": true})
 		return _fail(&"condition_hospital_gate_ownership_lost")
-	# Another causal_transaction owner is still foreign custody without our token.
 	if _gate.is_active(): return _fail(&"condition_hospital_transaction_blocked")
 	var acquired: Dictionary = _gate.acquire(_OWNER)
 	if acquired.get("ok", false): _gate_token = str(acquired["value"]["token"])
@@ -282,8 +277,6 @@ func _release_gate() -> Dictionary:
 		return _ok({"released": false})
 	if not has_owned_causal_lease():
 		return _fail(&"condition_hospital_gate_ownership_lost")
-	# release emits transaction_released synchronously. Retire our capability before
-	# that notification; retain it if release fails so the same operation can retry.
 	var token := _gate_token
 	_gate_token = ""
 	var released: Dictionary = _gate.release(_OWNER, token)

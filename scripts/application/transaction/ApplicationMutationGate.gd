@@ -1,8 +1,6 @@
 class_name ApplicationMutationGate
 extends RefCounted
 
-## The sole production mutation gate and irreversible process-fatal fence
-## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 3).
 
 signal capability_changed(capability: Dictionary)
 signal transaction_released
@@ -57,7 +55,6 @@ func is_internal_owner_active(owner_id: StringName) -> bool:
 		return false
 	return _active_owner != &"" and owner_id == _active_owner
 
-## Read-only proof for a retained internal capability; owner kind alone is insufficient.
 func is_lease_active(owner_id: StringName, token: String) -> bool:
 	return not _fatal_latched and not token.is_empty() \
 		and owner_id == _active_owner and token == _active_token

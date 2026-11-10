@@ -1,5 +1,4 @@
 extends DialogicLayoutLayer
-## Transient public caption copies, not canonical History, receipts, or restore ownership.
 
 const CAPTION_THEME := preload("res://scripts/ui/witnessed/WitnessedCaptionTheme.gd")
 const SELF_TALK := preload("res://scripts/ui/witnessed/WitnessedSelfTalk.gd")
@@ -281,8 +280,6 @@ func _speech_allows_auto(expected_frontier: Dictionary) -> bool:
 func _speak_publication(generation: int) -> void:
 	if _scene_transition_held(): return
 	if generation != _speech_generation or not _speech_candidate: return
-	# Consume once even when Off, unavailable, restored, or denied. Preferences,
-	# focus return and duplicate native signals cannot replay this publication.
 	_speech_candidate = false
 	_speech_pending = false
 	if not _speech_admitted() or not is_instance_valid(_speech_profile) \
@@ -373,8 +370,6 @@ func _before_normal_accept() -> bool:
 	if is_instance_valid(_transport_bridge) and _transport_bridge.has_method("capture_scene_pending_marker") \
 			and _transport_bridge.capture_scene_pending_marker().get("ok", false):
 		if _next_admitted(): _request_reading_command(&"next", true)
-		# The acknowledged marker owner handles this accept; native labels/Return
-		# must never run independently of its saved receipt.
 		return false
 	return true
 
@@ -388,7 +383,6 @@ func _acknowledge_visible_line() -> bool:
 		return not has_proof
 	if not has_proof:
 		return not _transport_bridge.call("requires_line_presentation_acknowledgement")
-	# A rendered canonical proof stays mandatory if a callback replaces its owner.
 	if _pause_covered or not _has_caption() or not caption_text.is_visible_in_tree(): return false
 	_refresh_self_talk()
 	var result: Dictionary = _transport_bridge.call("acknowledge_current_line_presentation", _presented_line)
@@ -429,7 +423,6 @@ func _scene_transition_held() -> bool:
 		and _transport_bridge.is_scene_transition_active()
 
 func _on_scene_transition_changed(active: bool) -> void:
-	# Retire both edges: a press during the dissolve cannot become a fresh action.
 	accept_input.retire_input()
 	transport_rail.retire_input()
 	auto_controller.retire_current()
@@ -715,7 +708,6 @@ func _on_auto_requested() -> void:
 func _on_normal_accept_requested() -> void:
 	auto_controller.retire_current()
 	_retire_transport()
-	# Text's own coroutine settles after this signal and before the deferred arm.
 	_try_arm_auto.call_deferred()
 
 func _on_playback_ended() -> void:
@@ -810,8 +802,6 @@ func _execute_reading_command(request: Dictionary, retry: bool = false) -> Dicti
 	_next_pending = true
 	_sync_next_presentation()
 	_sync_transport()
-	# Bridge lifetime spans native Return. No presenter-owned coroutine may await
-	# it: the native layout can be removed and freed before durable settlement.
 	_transport_bridge.call("request_next", request.frontier.duplicate(true))
 	return {"pending": true}
 
@@ -838,14 +828,11 @@ func _on_next_request_finished(expected_frontier: Dictionary, result: Dictionary
 	_retire_next_request()
 	if not owner_current:
 		if is_inside_tree():
-			# A reused presenter releases only its obsolete visual custody. Its new
-			# owner supplies acknowledgement, speech and destination Focus.
 			if retry: _dismiss_reading_recovery(false, false)
 			_sync_next_presentation(false)
 			_sync_transport()
 		return
 	_complete_next_presentation()
-	# Retry admission remains live until its result has been classified.
 	_reading_retry_in_progress = retry
 	_finish_reading_command(request, result, retry)
 
@@ -857,7 +844,6 @@ func _finish_reading_command(request: Dictionary, result: Dictionary, retry: boo
 		or (result.get("fatal", false) and _reading_request_owner_matches(request))
 	_reading_retry_in_progress = false
 	if retry:
-		# Profile publication can synchronously replace the whole scene/source.
 		if not still_current:
 			_dismiss_reading_recovery(false)
 		else:
@@ -887,7 +873,6 @@ func _reading_request_matches(request: Dictionary) -> bool:
 	if request.get("kind") == &"next" and request.get("fatal", false):
 		return _reading_request_owner_matches(request)
 	var revision := _reading_profile_revision()
-	# The retry may commit exactly one Auto preference before Skip rechecks admission.
 	var revision_matches: bool = revision == request.profile_revision or (_reading_retry_in_progress \
 		and request.profile_revision >= 0 and revision == request.profile_revision + 1)
 	return not request.is_empty() and is_instance_valid(_reading_profile) \
@@ -959,9 +944,6 @@ func _configure_recovery_presentation() -> void:
 
 func _on_reading_input_custody_changed() -> void:
 	_retire_transport()
-	# Restore can publish its destination while source input/tree suspension is
-	# still held. Re-read after the handoff settles; never retain that temporary
-	# refusal as the new caption's permanent Accept/Next frontier.
 	_refresh_reading_session.call_deferred()
 
 func _retire_transport() -> void:
@@ -987,7 +969,6 @@ func configure_run_presentation(owner: Object) -> bool:
 func _on_timeline_started() -> void:
 	_dismiss_reading_recovery(false)
 	_retire_transport()
-	# A reused layout observes the installed run at this boundary, never during reveal.
 	var owner: Object = _run_owner if is_instance_valid(_run_owner) else get_node_or_null("/root/GameState")
 	configure_run_presentation(owner)
 	if not _ending_caption_handoff: reset_caption_stack()
@@ -995,7 +976,6 @@ func _on_timeline_started() -> void:
 func is_reading_recovery_active() -> bool:
 	return not _reading_recovery.is_empty()
 
-## Transient navigation anchor only. Canonical source admission belongs to the coordinator.
 func capture_pause_view(source: Dictionary) -> Dictionary:
 	_sync_timed_hold_projection()
 	var timed_hold := not _timed_hold_frontier.is_empty()
@@ -1023,8 +1003,6 @@ func cover_pause_view(anchor: Dictionary) -> bool:
 	recovery_layer.hide()
 	_retire_transport()
 	accept_input.cancel_pending_accept()
-	# Ancestor visibility hides the complete source from pointer and assistive traversal,
-	# without assigning empty text or changing the native node's own visibility flag.
 	canvas.hide()
 	_sync_focus()
 	caption_text.set_process(false)
@@ -1046,7 +1024,6 @@ func restore_pause_view(anchor: Dictionary) -> bool:
 		focused.grab_focus()
 	if focused in [transport_rail.get_node("History"), transport_rail.get_node("Save"), transport_rail.get_node("Load")]:
 		_load_focus_restore_id = int(_pause_view.focus_id)
-	# Focus restoration and container settling must never replace the user's pan.
 	_layout_generation += 1
 	_publication_pending = false
 	_scroll_restore_waiting = false
@@ -1062,8 +1039,6 @@ func restore_pause_view(anchor: Dictionary) -> bool:
 			&"next" if _reading_recovery.get("stage") == &"next" else &"preference")
 	return true
 
-## Only an explicit admitted Backup/Save command may revise the held reveal.
-## The opaque anchor, native node, source and publication stay owned by Pause.
 func complete_pause_reading_reveal(anchor: Dictionary, bridge: Object, handle: Dictionary) -> Dictionary:
 	if not _pause_covered or not _valid_pause_anchor(anchor) or not is_instance_valid(bridge) \
 			or not _pause_view.get("timed_hold_frontier", {}).is_empty() \
@@ -1090,8 +1065,6 @@ func _valid_pause_anchor(anchor: Dictionary) -> bool:
 		and (_pause_view.get("timed_hold_frontier", {}).is_empty()
 			or _pause_view.timed_hold_frontier == _capture_timed_hold_frontier()))
 
-## Pure Bridge admission identifies a live native non-skippable hide-text Wait.
-## This view never owns its timer, completion, or durable narrative state.
 func _capture_timed_hold_frontier() -> Dictionary:
 	if not is_inside_tree() or not is_node_ready() or not is_instance_valid(_transport_bridge) \
 			or not _transport_bridge.has_method("capture_pause_frontier"): return {}
@@ -1116,8 +1089,6 @@ func _sync_timed_hold_projection() -> void:
 		caption_text.focus_previous = NodePath()
 		review_current.focus_next = NodePath()
 		review_current.focus_previous = NodePath()
-	# Hide the entire caption subtree, including retained copies and scrollbar,
-	# while the stationary rail remains visible in the existing canvas.
 	scroll.visible = not holding
 	overlay.visible = not holding
 	canvas.queue_redraw()
@@ -1151,8 +1122,6 @@ func configure_dating_overlay(enabled: bool) -> void:
 
 func _bind_dating_split_surface() -> void:
 	if not is_inside_tree(): return
-	# Only the sibling Dialogic art layer belongs to this caption owner. A retained
-	# physical challenge or art-only hold must keep its own input admission.
 	for surface: Node in get_tree().get_nodes_in_group("dating_split_surface"):
 		var layer := surface.get_parent()
 		if layer == null or layer.get_parent() != get_parent() or layer.get_script() == null \
@@ -1187,7 +1156,6 @@ func configure_presentation(locale: String = "en", text_percent: int = 100, pale
 	var next_theme := CAPTION_THEME.build(locale, text_percent, palette, high_contrast, colour_preset, large_targets, day, _dating_overlay, font_style)
 	if next_theme == null:
 		return false
-	# Caption and rail publish one locale tuple. Refusal leaves both unchanged.
 	if is_instance_valid(transport_rail) and not transport_rail.configure_presentation(next_theme, locale, text_percent, font_style):
 		return false
 	var metrics_changed := _caption_theme == null or _locale != locale.replace("_", "-") or _text_percent != text_percent or _large_targets != large_targets or _font_style != font_style
@@ -1209,12 +1177,9 @@ func configure_presentation(locale: String = "en", text_percent: int = 100, pale
 		if metrics_changed:
 			var bar := get_scroll_bar()
 			if bar.visible:
-				# Native ScrollBar retires its held drag on hide. Restore visibility
-				# synchronously before layout, keeping its value and focus owner.
 				bar.hide()
 				bar.show()
 		canvas.theme = next_theme
-		# Colour-only updates preserve native reveal, scroll and pending contacts.
 		if metrics_changed or first_mount:
 			_retire_transport()
 			accept_input.cancel_pending_accept()
@@ -1245,8 +1210,6 @@ func reset_caption_stack() -> void:
 	if is_instance_valid(stack):
 		_layout_stack()
 
-## The adapter admits only the natural end of this registered ending session.
-## Keep the existing display while its completion owner settles; it accepts no input.
 func begin_ending_caption_handoff(session_token: String) -> bool:
 	if not is_inside_tree() or session_token.is_empty() or session_token != _ending_caption_session \
 			or not _has_caption() or caption_text.revealing or _review_offset != 0:
@@ -1310,8 +1273,6 @@ func reproject_retained_captions(captions: Array, full_scrollback: bool = false)
 	for copy: Variant in captions:
 		if typeof(copy) != TYPE_STRING or String(copy).strip_edges().is_empty():
 			return false
-	# Pair metadata belongs only to these exact encountered copies. Legacy callers
-	# may replace transient text without supplying semantic translation rows.
 	var matching_pairs := _paired_scrollback.size() == captions.size()
 	if matching_pairs:
 		for index: int in captions.size():
@@ -1320,7 +1281,6 @@ func reproject_retained_captions(captions: Array, full_scrollback: bool = false)
 				break
 	if not matching_pairs: _paired_scrollback.clear()
 	if _review_offset > 0: _set_review_offset(0)
-	# Authenticated memory refresh changes only older copies, not current speech.
 	if not full_scrollback: _cancel_speech()
 	_retained.assign(captions.slice(maxi(0, captions.size() - 2)))
 	_scrollback.assign(captions)
@@ -1377,8 +1337,6 @@ func get_caption_projection() -> Dictionary:
 
 func _on_about_to_show_text(_info: Dictionary) -> void:
 	if _ending_caption_handoff and get_node("/root/Dialogic").current_timeline == null: return
-	# Restore the native caption subtree before arming this publication's speech.
-	# Visibility callbacks during hold exit must not consume its fresh candidate.
 	_sync_timed_hold_projection()
 	if not _current_copy.is_empty():
 		_current_copy = caption_text.get_parsed_text()
@@ -1387,14 +1345,9 @@ func _on_about_to_show_text(_info: Dictionary) -> void:
 	_cancel_speech()
 	_dismiss_reading_recovery(false)
 	auto_controller.retire_current()
-	# Old caption text can remain in the node until the next text_started signal.
-	# It must not borrow legacy admission while the replacement has no proof yet.
 	_line_waiting_for_text = true
 	_presented_line.clear()
-	# A press or queued assistive action belongs to its presented beat. The Skip
-	# session itself may continue across ordinary text through the bridge policy.
 	if is_instance_valid(transport_rail): transport_rail.retire_input()
-	# Runs before replacement, catching a clear even when its native node was already hidden.
 	if caption_text.get_parsed_text().is_empty():
 		reset_caption_stack()
 	_speech_candidate = true
@@ -1410,7 +1363,6 @@ func _on_text_started(info: Dictionary) -> void:
 		_retained.append(_current_copy)
 		if _retained.size() > 2:
 			_retained.pop_front()
-	# Only already-parsed display text crosses this seam; never character/portrait data.
 	_current_copy = caption_text.get_parsed_text()
 	_refresh_bilingual_caption()
 	_review_offset = 0
@@ -1447,8 +1399,6 @@ func _sync_native_processing() -> void:
 		caption_text.set_process(false)
 		return
 	if not _timed_hold_frontier.is_empty():
-		# Native instant empty clears can retain a stale revealing flag. Retire it
-		# without inventing a text publication or emitting reveal completion.
 		if caption_text.get_parsed_text().is_empty():
 			caption_text.revealing = false
 			caption_text.visible_characters = -1
@@ -1458,7 +1408,6 @@ func _sync_native_processing() -> void:
 		caption_text.set_process(false)
 		return
 	if caption_text.get_parsed_text().is_empty():
-		# Native empty clears can leave revealing true; cancellation must emit no finish.
 		caption_text.revealing = false
 		caption_text.visible_characters = -1
 		caption_text.set_process(false)
@@ -1474,7 +1423,6 @@ func _sync_native_processing() -> void:
 			previous.hide()
 			_request_layout()
 	else:
-		# Hidden real text pauses without discarding its native reveal position.
 		caption_text.set_process(caption_text.is_visible_in_tree())
 
 func _apply_preferences() -> void:
@@ -1544,8 +1492,6 @@ func _sync_secondary_reveal() -> void:
 	secondary_caption.visible_ratio = caption_text.visible_ratio if _review_offset == 0 else 1.0
 
 func _on_locale_changed(_locale_id: String) -> void:
-	# Localization repaints the same native text and advances its reveal generation.
-	# Keep Pause's view anchor current only while the captured source still owns it.
 	if _pause_covered and is_instance_valid(caption_text) \
 			and int(_pause_view.get("caption_id", 0)) == caption_text.get_instance_id() \
 			and _pause_view.get("runtime", {}) == _pause_runtime_identity():
@@ -1656,16 +1602,10 @@ func _measure_leaves(leaves: Array[RichTextLabel], width: float) -> float:
 		var height := maxi(minimum, int(ceil((content_height + 32) / 2.0)) * 2)
 		if paired and leaf == secondary_caption:
 			height = int(ceil((content_height + leaf.get_theme_constant("line_separation")) / 2.0)) * 2
-		# Keep the entire focus/pointer target inside the viewport. On the last
-		# leaf, place its spare height above the shaped text so the row and
-		# target retain the approved bar-top boundary without clipping the target.
 		var material := leaf.get_theme_stylebox("normal")
 		if not leaf.has_theme_stylebox_override("normal"):
 			material = material.duplicate()
 			leaf.add_theme_stylebox_override("normal", material)
-		# A translation continues the same text block with native line spacing.
-		# Keep the Primary's spare pointer-target height above the pair, not
-		# between the two languages. The passive Secondary needs no target padding.
 		material.set_content_margin(SIDE_TOP, height - content_height if paired or leaf == leaves.back() else 16)
 		material.set_content_margin(SIDE_BOTTOM, 0 if paired or leaf == leaves.back() else 16)
 		leaf.update_minimum_size()
@@ -1679,8 +1619,6 @@ func _restore_scroll(generation: int, value: float, publication: bool) -> void:
 	var bar := get_scroll_bar()
 	var expected_extent := maxf(0, stack.size.y - scroll.size.y)
 	if not is_equal_approx(maxf(0, bar.max_value - bar.page), expected_extent):
-		# Container range updates can follow this deferred callback. Keep publication
-		# intent until a later frame sees the real range; never spin in deferred calls.
 		if _scroll_restore_retries > 0:
 			_scroll_restore_retries -= 1
 			_scroll_restore_value = value
@@ -1837,7 +1775,6 @@ func _on_self_talk_split_changed(_rect: Rect2) -> void:
 
 func _layout_self_talk() -> void:
 	if not is_instance_valid(self_talk) or _caption_theme == null: return
-	# Former StatHud inset in the left AngelaCanvas; only geometry is retained.
 	var panel_width := 480.0
 	if is_instance_valid(_dating_split_surface): panel_width = _dating_split_surface.get_portrait_width()
 	self_talk.position = Vector2(16, 16)

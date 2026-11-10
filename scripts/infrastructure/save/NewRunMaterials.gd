@@ -1,9 +1,6 @@
 class_name NewRunMaterials
 extends RefCounted
 
-## Strict validator for the complete detached material retained by a New Run decision.
-## It owns no I/O: the continuation journal stores these bytes and SaveManager later proves each
-## target independently.
 
 const SAVE_DOCUMENT_SCHEMA := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
@@ -65,8 +62,6 @@ static func _validate_scene(materials: Dictionary, initial_context: Dictionary,
 	if not allocation.get("ok", false): return allocation
 	if not materials.profile is Dictionary:
 		return _fail(&"new_run_profile_invalid", "scene profile material must be an object")
-	# The existing Profile owner owns the exact G7 material and assignment-chain law.
-	# Load here to avoid introducing an eager autoload dependency into historical validation.
 	var profile_owner: Script = load("res://autoload/ProfileManager.gd")
 	var profile: Dictionary = profile_owner.validate_scene_new_run_material(materials.profile)
 	if not profile.get("ok", false): return profile
@@ -201,8 +196,6 @@ static func _validate_autosave(value: Variant, initial_context: Dictionary,
 	if not validated.get("ok", false):
 		return _fail(&"new_run_autosave_invalid", "Autosave bytes do not satisfy the current schema")
 	var document: Dictionary = validated["value"]["candidate"]
-	# Retained creation bytes may contain retired metadata. Prove their exact
-	# canonical form while the validated candidate owns only current progress.
 	var canonical := _canonical_text(parsed.value)
 	if canonical.is_empty() or outgoing_text != canonical + "\n":
 		return _fail(&"new_run_autosave_invalid", "Autosave bytes are not canonical with one final newline")
@@ -280,8 +273,6 @@ static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message}
 
 
-## Acknowledged creation records are immutable evidence, not pending writes.
-## Project their retained initial reading without compiling today's DTL.
 static func _project_acknowledged_initial_checkpoint(checkpoint: Dictionary, version: Variant) -> Dictionary:
 	const READING := preload("res://scripts/narrative/SoloReadingSession.gd")
 	const TRAVERSAL := preload("res://scripts/narrative/ReadingTraversalOperation.gd")

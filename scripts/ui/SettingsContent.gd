@@ -64,7 +64,6 @@ var _selected_extension: Control
 var _reset_consent: Dictionary = {}
 var _confirmation_generation: int = 0
 var _reset_busy := false
-# Presentation of ProfileManager's retained mutation fence; never an unlock owner.
 var _profile_write_uncertain := false
 var _write_recovery: Control
 
@@ -164,8 +163,6 @@ func _exit_tree() -> void:
 
 
 func _process(_delta: float) -> void:
-	# Recovery and audio settlement can finish without a profile change signal.
-	# Observe only the visible title command; execution still checks admission again.
 	if host_context == "title" and _selected == "records" and is_visible_in_tree():
 		_refresh_entire_profile_admission()
 
@@ -566,11 +563,9 @@ func apply_text_size(percent: int, large_targets: bool) -> void:
 	for button: Button in _rails.values():
 		var label := button.get_child(0) as Label
 		var advance := theme.default_font.get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-		# Use the remaining rail width before splitting a nearly fitting category word.
 		var inset := 4.0 if advance > 172.0 and advance <= 184.0 else 10.0
 		label.offset_left = inset
 		label.offset_right = -inset
-		# Match AUTOWRAP_WORD_SMART, including long words such as Accessibility.
 		var breaks := TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
 		var text_height := theme.default_font.get_multiline_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, 192.0 - inset * 2.0, font_size, -1, breaks).y
 		button.custom_minimum_size.y = maxf(64.0 if large_targets else 52.0, text_height + 16.0)
@@ -607,7 +602,6 @@ func current_locale() -> String:
 
 
 func get_palette_id() -> StringName:
-	# Pending title intent is never a substitute for a captured in-run palette.
 	if host_context != "title":
 		return _run_palette
 	var profile: Variant = _services.get("profile")
@@ -661,8 +655,6 @@ func is_profile_write_uncertain() -> bool:
 func _on_profile_write_failed(result: Dictionary) -> void:
 	if _profile_write_uncertain or not (result.get("fatal", false) or result.get("code") == &"indeterminate_commit"):
 		return
-	# Fence immediately. The output transaction still owns its synchronous failure
-	# compensation; presentation cleanup must wait until its stack has unwound.
 	_profile_write_uncertain = true
 	interaction_enabled = false
 	call_deferred("_present_profile_write_uncertainty")
@@ -719,7 +711,6 @@ func _draw_selected_extension() -> void:
 	var bottom := minf(row.end.y, rail_scroll.position.y + rail_scroll.size.y - 8)
 	if bottom <= top:
 		return
-	# Only paint crosses the spine: no target, focus, or category semantics move.
 	var extension := Rect2(224, top, 16, bottom - top)
 	var roles := PRESENTATION.roles_for(self)
 	_selected_extension.draw_rect(extension, roles.filed)

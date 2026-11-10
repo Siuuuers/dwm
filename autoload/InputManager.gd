@@ -1,7 +1,4 @@
 extends Node
-# InputManager (CONTRACTS §7): owns input actions, controller mappings, focus helpers,
-# and safe rebinds. Does not hardcode keyboard-only logic in UI. Every gameplay button
-# must be keyboard/controller focusable.
 
 signal input_scheme_changed(scheme: String)
 signal controller_connected(device_id: int)
@@ -10,8 +7,6 @@ signal input_bindings_changed()
 signal source_input_custody_changed()
 
 const ACTION_REGISTRY := preload("res://scripts/settings/ControlsActionRegistry.gd")
-# These names are no longer active shortcuts. Stored legacy records stay in the
-# profile as provenance; their installed events must not survive the cutover.
 const _RETIRED_GAME_ACTIONS := [
 	"game_open_log", "game_skip_text", "game_toggle_auto", "game_hint",
 	"game_close_window", "game_next_tab", "game_prev_tab", "game_page_next",
@@ -36,7 +31,6 @@ var _retired_suspension_ids: Dictionary = {}
 
 
 func _enter_tree() -> void:
-	# Observe releases during Pause without consuming input from its ALWAYS UI.
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
 
@@ -61,8 +55,6 @@ func resume(handle: Variant) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"resumed": true}}
 
 
-## No-save Return retires input custody without inventing physical releases.
-## Retrying the same retirement must not quarantine a later fresh contact again.
 func retire_suspended_source(handle: Variant) -> Dictionary:
 	if _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"session_abandonment"):
 		return _input_lifecycle_failure(&"session_abandonment_custody_required")
@@ -92,8 +84,6 @@ func is_source_input_admitted() -> bool:
 		and Engine.get_process_frames() != _resume_frame
 
 
-## Contact identity is independent of action mappings. Callers receive no mutable
-## ownership of the ledger, and a released contact never reuses its generation.
 func get_physical_contacts() -> Dictionary:
 	return _physical_contacts.duplicate()
 
@@ -108,15 +98,12 @@ func _input(event: InputEvent) -> void:
 	observe_physical_contact(event)
 
 
-## Embedded input windows forward here before consuming their packets. A parent
-## delivery of the same press/release is harmless and does not create a new edge.
 func observe_physical_contact(event: InputEvent) -> void:
 	var contact := get_physical_contact_id(event)
 	if contact.is_empty():
 		return
 	if event.is_pressed():
 		if not _physical_contacts.has(contact):
-			# An echo without its original press is not a fresh activation.
 			if event is InputEventKey and event.echo: return
 			_contact_generation += 1
 			_physical_contacts[contact] = _contact_generation
@@ -129,7 +116,6 @@ func _physical_contact(event: InputEvent) -> String:
 	if event is InputEventKey:
 		return "key:%s:%s" % [event.device, event.physical_keycode if event.physical_keycode else event.keycode]
 	if event is InputEventMouseButton:
-		# Wheel packets are impulses and do not provide a held release frontier.
 		if event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN, MOUSE_BUTTON_WHEEL_LEFT, MOUSE_BUTTON_WHEEL_RIGHT]:
 			return ""
 		return "mouse:%s:%s" % [event.device, event.button_index]
@@ -179,8 +165,6 @@ func initialize(profile: Node) -> Dictionary:
 func apply_profile_mappings(_action_id: StringName = &"") -> Dictionary:
 	if _profile == null: return {"ok": false, "code": &"not_initialized"}
 	var mappings: Dictionary = _profile.get_input_mappings()
-	# A profile publication may change several actions. Apply the complete committed
-	# map before notifying listeners, even when reached through a per-action signal.
 	var actions: Array = _game_action_ids()
 	for action_value in actions:
 		var action := String(action_value)
@@ -219,14 +203,11 @@ func _game_action_ids() -> Array:
 
 
 func ensure_default_input_map() -> void:
-	# Ensure ui_* exist (Godot usually provides them; add empty ones if missing so lookups are safe).
 	for action in _REQUIRED_UI_ACTIONS:
 		if not InputMap.has_action(action):
 			InputMap.add_action(action)
 	for action in _RETIRED_GAME_ACTIONS:
 		if InputMap.has_action(action): InputMap.erase_action(action)
-	# Only create the canonical actions. The profile publishes their complete
-	# bindings, or none while import resolution is pending.
 	for action in _game_action_ids():
 		if not InputMap.has_action(action):
 			InputMap.add_action(action)
@@ -292,11 +273,8 @@ func rebind_action(action_name: String, event: InputEvent) -> Dictionary:
 		var joy_event := event as InputEventJoypadButton
 		if joy_event.button_index < 0 or joy_event.button_index >= JOY_BUTTON_SDL_MAX:
 			return {"ok": false, "reason": "invalid_button", "action": action_name}
-		# Bind a controller position, not the transient device that supplied it.
 		record = {"kind": "joypad_button", "button_index": joy_event.button_index, "device": -1}
 	else: return {"ok": false, "reason": "unsupported_event", "action": action_name}
-	# ProfileManager preserves the other slot, checks the complete canonical map,
-	# and publishes only after commit. A conflict requires an explicit Swap path.
 	var events: Array[Dictionary] = [record]
 	return _profile.set_input_mapping(StringName(action_name), events)
 
@@ -305,7 +283,6 @@ func reset_bindings_to_default() -> Dictionary:
 	return {"ok": false, "code": &"controls_reset_confirmation_required"}
 
 
-# ---- Focus helpers ----
 func focus_first_control(root: Node) -> bool:
 	var target := _find_first_focusable(root)
 	if target != null:

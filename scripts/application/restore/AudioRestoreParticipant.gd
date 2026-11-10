@@ -1,9 +1,6 @@
 class_name AudioRestoreParticipant
 extends RefCounted
 
-## Restore participant wrapping AudioManager, driven by the prepared profile
-## preferences plus the bundle audio context
-## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 7).
 
 var _owner: Object = null
 

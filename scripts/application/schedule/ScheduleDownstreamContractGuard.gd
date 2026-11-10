@@ -1,38 +1,6 @@
 class_name ScheduleDownstreamContractGuard
 extends RefCounted
 
-## Executable downstream-contract guard (Amendment Plan 03 Task 1 Step 4, dwm-oyo.3, created under
-## the full dwm-oyo.3 grant recorded 2026-09-02 on the bead). It locks the `.7` Schedule and `.9`
-## desktop transaction contracts this plan composes but never reimplements: every shape it checks
-## comes from the consumed-interface-lock section of
-## docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-03-seven-day-flow-integration.md,
-## which is the sole authority over this file -- with ONE recorded exception below.
-##
-## DEVIATION-18 RULING 18-A (maintainer AskUserQuestion, recorded 2026-09-02 on dwm-oyo.3; HYBRID:
-## fix safety, defer shapes). `validate_day_resolution_start_result()` validates the SHIPPED
-## Plan-01 day-start shapes -- success value {start_receipt, committed_schedule, route_plan,
-## schedule_commit_receipt_id, board_fate_receipt_id} with the shipped eight-member start receipt
-## (no registry_fingerprint) -- rather than the lock's {day_resolution_candidate, resolution_plan,
-## day_resolution_start_receipt} shape; that divergence is reconciled by the first consuming task
-## (Task 6/7), never patched in a second owner. One further characterized-from-shipped shape,
-## recorded honestly beside it: the lock fixes prepare_admission's SEMANTICS but pins no
-## success-value schema (plan line 99), so `validate_causal_admission_result()` checks the
-## combined-candidate value the shipped DesktopCausalSequencePort returns. Every other validator
-## checks the lock verbatim.
-##
-## PURE BY LAW (plan Task 1 "Interfaces"): no domain state, no mutation authority. Every method is
-## a static function of its arguments. `validate_ports()` checks frozen method presence on the six
-## injected production participants without calling any mutation; the board-fate check requires
-## BOTH the current-board and the projected-action prepare methods, and the coordinator check
-## requires the (Ruling 18-A stubbed) Schedule-departure extension pair.
-##
-## VERDICT SEMANTICS (frozen by the Task-1 RED suite): each `validate_*_result()` checks one
-## participant result against the master envelope. A conforming SUCCESS -- exactly
-## {ok, code, value, receipt} with that participant's exact candidate/receipt schema (the
-## board-fate validator requires both nullable source-action receipt members in every fate
-## receipt) -- and a conforming FAILURE -- exactly {ok, code, message, details} -- both return
-## ok:true with value naming which form was seen. Any deviation fails closed naming the exact
-## member or schema difference, so a predecessor mismatch is returned to Plan 01 or Plan 02.
 
 const _SUCCESS_KEYS: Array = ["code", "ok", "receipt", "value"]
 const _FAILURE_KEYS: Array = ["code", "details", "message", "ok"]
@@ -93,7 +61,6 @@ const _DAY_START_RECEIPT_KEYS: Array = [
 	"resolution_id", "schedule_commit_receipt_id", "schedule_entry_ids", "source_day",
 ]
 
-## Frozen method census per injected participant, in validate_ports() argument order.
 const _PORT_METHOD_ROWS: Array = [
 	["schedule_port", ["prepare_commit", "capture", "commit", "rollback", "publish"]],
 	["day7_provenance", ["configure", "validate_handoff"]],
@@ -108,9 +75,6 @@ const _PORT_METHOD_ROWS: Array = [
 ]
 
 
-# -------------------------------------------------------------------------------------------------
-# validate_ports() -- method presence only; calls no mutation.
-# -------------------------------------------------------------------------------------------------
 
 static func validate_ports(schedule_port: Object, day7_provenance: Object,
 		causal_sequence_port: Object, board_fate_port: Object, consequence_coordinator: Object,
@@ -131,9 +95,6 @@ static func validate_ports(schedule_port: Object, day7_provenance: Object,
 	return _ok({"ports_validated": true})
 
 
-# -------------------------------------------------------------------------------------------------
-# Result validators -- one per downstream participant result.
-# -------------------------------------------------------------------------------------------------
 
 static func validate_schedule_result(result: Dictionary) -> Dictionary:
 	var form := _validate_envelope(result, "schedule prepare")
@@ -428,10 +389,6 @@ static func validate_consequence_result(result: Dictionary) -> Dictionary:
 	return _ok({"form": "success"})
 
 
-## SHIPPED shapes per DEVIATION-18 Ruling 18-A (see the class doc): value
-## {start_receipt, committed_schedule, route_plan, schedule_commit_receipt_id,
-## board_fate_receipt_id}, receipt an exact detached copy of the shipped eight-member
-## start_receipt. The lock-shape divergence is reconciled by the first consuming task (Task 6/7).
 static func validate_day_resolution_start_result(result: Dictionary) -> Dictionary:
 	var form := _validate_envelope(result, "day-resolution start")
 	if not form.get("ok", false):
@@ -476,12 +433,7 @@ static func validate_day_resolution_start_result(result: Dictionary) -> Dictiona
 	return _ok({"form": "success"})
 
 
-# -------------------------------------------------------------------------------------------------
-# Internal helpers -- pure, static, stateless.
-# -------------------------------------------------------------------------------------------------
 
-## The master envelope law: exactly {ok, code, value, receipt} with ok=true, or exactly
-## {ok, code, message, details} with ok=false. Returns value={form:"success"|"failure"}.
 static func _validate_envelope(result: Dictionary, context: String) -> Dictionary:
 	var keys: Array = result.keys()
 	keys.sort()

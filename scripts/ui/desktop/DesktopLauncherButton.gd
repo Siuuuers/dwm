@@ -1,5 +1,4 @@
 extends Button
-## Fixed launcher target with an inert pixel icon and a literal accessible name.
 
 var caption: Label
 var icon_id: StringName
@@ -45,7 +44,6 @@ func _icon_rect(x: int, y: int, width: int, height: int, color: Color) -> void:
 	draw_rect(Rect2(64 + x * 2, 8 + y * 2, width * 2, height * 2), color)
 
 func _draw_app_icon(face: Color, ink: Color, structure: Color) -> void:
-	# Original 24x24 pixel silhouettes, drawn on the same two-pixel grid.
 	match icon_id:
 		&"minesweeper":
 			_icon_rect(2, 2, 20, 20, ink)

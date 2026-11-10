@@ -1,27 +1,12 @@
 class_name GameStateDesktopConditionContextPort
 extends RefCounted
 
-## Read-only condition-context adapter over the retained GameState facade (Plan 03 Task 7 line 854,
-## created ahead of the full task under the dwm-oyo.3 slice authority recorded 2026-08-24 on
-## dwm-p2r.21 / dwm-oyo.3).
-##
-## THE SEAM. `DesktopConditionPolicyPort` owns the faint predicate but no state: everything it reads
-## arrives through `snapshot_for()`, and every child it persists derives through `derive_child()` /
-## `validate_child()` below -- so the one `.16` issuer stays the sole identity root and the policy
-## never touches GameState directly.
-##
-## SLICE SCOPE, stated honestly. This port validates the two frozen Plan-02 receipts against each
-## other and against the live lifecycle identity, and captures the exact 11-key context. The full
-## Task-7 depth -- action-outbox ownership proof and the Contacts accepted/read-state refinement of
-## "unfulfilled" -- remains owned by Plan 03 Task 7; today's capture takes the current day's issued
-## Schedule source receipts as the consumable set, which is the whole set Plan 01 can have issued.
 
 const ACTION_RECEIPT := preload("res://scripts/domain/desktop/DesktopActionReceipt.gd")
 
 const _ISSUER_METHODS: Array[String] = ["derive_child", "validate_child", "verify_issued"]
 const _GAME_STATE_METHODS: Array[String] = ["get_stat", "capture_run_snapshot_input"]
 const _REQUEST_KEYS: Array[String] = ["action_receipt", "causal_sequence_receipt"]
-## The exact Plan-02 causal-sequence receipt member set (Plan 03 line 99), sorted.
 const _SEQUENCE_RECEIPT_KEYS: Array[String] = [
 	"branch_id", "causal_day_instance", "causal_sequence", "desktop_timeline_generation",
 	"receipt_id", "receipt_provenance", "run_id", "run_revision", "source_commit_receipt_id",
@@ -50,10 +35,6 @@ func configure(game_state: Object, identity_issuer: Object) -> Dictionary:
 		"value": {"configured": true, "already_configured": false}, "receipt": {}}
 
 
-## Captures the exact 11-key condition context for ONE validated action/sequence receipt pair.
-## Evaluation precedes the source commit, so the action receipt owns the prepared condition_after.
-## Lifecycle, Schedule and preexisting Contacts sources still come from the live facade.
-## Read-only: nothing on the facade is mutated and every returned member is detached.
 func snapshot_for(request: Dictionary) -> Dictionary:
 	if _game_state == null or _identity_issuer == null:
 		return {"ok": false, "code": &"port_not_configured", "message": "", "details": {}}
@@ -95,7 +76,6 @@ func snapshot_for(request: Dictionary) -> Dictionary:
 	}}, "receipt": {}}
 
 
-## Delegates child derivation to the one retained issuer; the policy port never holds the issuer.
 func derive_child(request: Dictionary) -> Dictionary:
 	if _identity_issuer == null:
 		return {"ok": false, "code": &"port_not_configured", "message": "", "details": {}}
@@ -112,9 +92,6 @@ func validate_child(provenance: Dictionary, expected_kind: StringName) -> Dictio
 		"ok": false, "code": &"context_child_unavailable", "message": "", "details": {}}
 
 
-## The receipts must describe ONE transaction inside the CURRENT live identity. The lifecycle is the
-## authority for run/branch/generation/causal-day/day, exactly as `GameStateDayResolutionPort` reads
-## it; `run_revision` stays receipt-supplied because the consequence state, not GameState, owns it.
 func _receipts_mismatch(action_receipt: Dictionary, sequence_receipt: Dictionary) -> String:
 	if str(sequence_receipt["transaction_id"]) != str(action_receipt["transaction_id"]):
 		return "the sequence receipt settles another transaction"
@@ -136,9 +113,6 @@ func _receipts_mismatch(action_receipt: Dictionary, sequence_receipt: Dictionary
 	return ""
 
 
-## The current day's issued Schedule source receipts, sorted by (action_id, receipt_id), minus any
-## receipt the CURRENT action itself unlocked -- an unlock emitted by the current action is not a
-## read receipt (Plan 03 line 872).
 func _current_day_sources(day: int, unlock_receipt_ids: Array) -> Array:
 	var index: Variant = (_game_state.get("contacts") as Dictionary).get("schedule_source_receipts")
 	if typeof(index) != TYPE_DICTIONARY:
@@ -160,8 +134,6 @@ func _current_day_sources(day: int, unlock_receipt_ids: Array) -> Array:
 	return sources
 
 
-## The first (already-sorted) consumable source naming Sylvia, or null. Detached: the same capture
-## the sources array carries, duplicated again so the two projections never alias.
 func _sylvia_source(sources: Array) -> Variant:
 	for source: Variant in sources:
 		if ((source as Dictionary).get("participants", []) as Array).has("sylvia"):
@@ -170,14 +142,9 @@ func _sylvia_source(sources: Array) -> Variant:
 
 
 func _dark_mode_active() -> bool:
-	# Dark Mode is captured at New Run; a friend's accumulated tone is a separate fact.
 	return bool(_game_state._run_lifecycle.to_dict().get("dark_mode", false))
 
 
-## `open | committed | resolving` (Plan 03 line 854). Resolving means an ACTIVE, incomplete
-## resolution plan; a completed plan is deliberately never cleared (RunLifecycle's own succession
-## law), so completeness -- not presence -- is the discriminator. Committed means the current day's
-## canonical committed aggregate carries its commit receipt.
 func _schedule_done_state() -> String:
 	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
 	var plan: Variant = lifecycle.get("active_resolution_plan")

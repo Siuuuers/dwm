@@ -1,8 +1,6 @@
 class_name ConditionHospitalContactsAdapter
 extends RefCounted
 
-## Closes the frozen, already accepted sources. No draft Schedule is committed and no
-## date outcome or Sylvia relationship change is fabricated by a Hospital visit.
 const CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const CANON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
@@ -20,8 +18,6 @@ static func prepare(contacts: Dictionary, plan: Dictionary, issuer: Object) -> D
 	if not proven.get("ok", false): return proven
 	if provenance.child_id != resolution_id:
 		return _fail(&"condition_hospital_resolution_mismatch")
-	# Derived IDs are not root-ledger entries. Every child uses the verified transaction
-	# parent; the frozen resolution remains part of its explicit semantic source set.
 	var root_id := str(provenance.parent_receipt_id)
 	var sources: Array = plan.accepted_sources
 	for index: int in range(sources.size()):
@@ -62,8 +58,6 @@ static func prepare(contacts: Dictionary, plan: Dictionary, issuer: Object) -> D
 				"affection_delta": 2, "dark_delta": 1, "attitude": "fixated",
 				"tier_transition": "advance_one_or_stay_love"}
 			detached.sylvia_hospital_witness_receipts[witness.receipt_id] = witness
-	# The canonical closure owner also expires unread invitations and classifies the
-	# Day-2/6 pair window. Its receipt freezes that classification for later stages.
 	var closed: Dictionary = CONTACTS.prepare_resolve_day_end(detached, int(plan.source_day),
 		{"solo_attended_action_ids": [], "group_outcome": "prevented_by_fainting"}, resolution_id)
 	if not closed.get("ok", false): return closed

@@ -1,14 +1,8 @@
 class_name WindowModePort
 extends RefCounted
-## Physical main-window output only. Profile, custody and compensation belong to
-## the caller. The Windows backend is verified synchronously, never by a timer.
-## Windows owns maximized borderless geometry. Godot adjusts its reported client
-## size in that mode; native verification independently checks the usable bounds.
 
 const BASELINE := Vector2i(1280, 720)
 const WINDOW_SIZES := {"1280x720": BASELINE, "1600x900": Vector2i(1600, 900), "1920x1080": Vector2i(1920, 1080)}
-# Leave room for ordinary Windows borders and the title bar. The native readback
-# remains authoritative if the platform rejects the requested client size.
 const FRAME_ALLOWANCE := Vector2i(32, 64)
 const MAIN := DisplayServer.MAIN_WINDOW_ID
 const WINDOWED := DisplayServer.WINDOW_MODE_WINDOWED
@@ -72,8 +66,6 @@ func get_available_window_sizes() -> Array[String]:
 	return sizes
 
 func _fitted_size(id: String, usable: Vector2i) -> Vector2i:
-	# A saved preference may be reopened on a smaller monitor. Fit safely without
-	# rewriting that preference; it remains available on the original monitor.
 	var desired: Vector2i = WINDOW_SIZES[id]
 	var available := Vector2i(maxi(1, usable.x - FRAME_ALLOWANCE.x), maxi(1, usable.y - FRAME_ALLOWANCE.y))
 	var factor := minf(1.0, minf(float(available.x) / desired.x, float(available.y) / desired.y))
@@ -104,17 +96,12 @@ func _matches_borderless(actual: Dictionary) -> bool:
 	if not actual.borderless: return false
 	var usable: Variant = _platform.screen_get_usable_rect(actual.screen)
 	if not _valid_rect(usable): return false
-	if actual.mode == MAXIMIZED: return true # Native window manager owns the geometry.
-	# Godot can report WINDOWED for the same usable rectangle, or nonexclusive
-	# fullscreen when no desktop area is reserved. Both require exact bounds.
+	if actual.mode == MAXIMIZED: return true
 	return actual.mode in [WINDOWED, DisplayServer.WINDOW_MODE_FULLSCREEN] \
 		and actual.position == usable.position and actual.size == usable.size
 
 func _write(target: Dictionary) -> void:
-	# Reapplying proven output must not disturb the native window.
 	if _matches_snapshot(_read(), target): return
-	# Geometry setters are ignored in maximized/fullscreen mode. Restore that mode
-	# last; never overwrite unrelated flags (topmost, resizability, transparency).
 	_platform.window_set_mode(WINDOWED, MAIN)
 	_platform.window_set_flag(BORDERLESS, target.borderless, MAIN)
 	_platform.window_set_current_screen(target.screen, MAIN)
@@ -124,13 +111,10 @@ func _write(target: Dictionary) -> void:
 	if target.mode != WINDOWED: _platform.window_set_mode(target.mode, MAIN)
 
 func _available() -> bool:
-	# Godot owns the embedded window; native setters are ignored and cannot be proved.
 	if _engine.is_embedded_in_editor(): return false
 	if not is_instance_valid(_platform): return false
 	for method: StringName in METHODS:
 		if not _platform.has_method(method): return false
-	# Headless returns dummy window values; Wayland does not support positioning.
-	# No other backend is claimed until its completion/rollback is verified.
 	return _platform.get_name() == "Windows" and MAIN in _platform.get_window_list() \
 		and _platform.get_screen_count() > 0
 

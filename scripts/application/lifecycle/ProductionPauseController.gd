@@ -1,6 +1,4 @@
 extends Node
-## Transient production composition of the existing Pause, suspension and session-exit owners.
-## No Pause token is saved; exact live scene/session and native reading frontier own admission.
 const COORDINATOR := preload("res://scripts/application/lifecycle/ApplicationLifecycleCoordinator.gd")
 const SURFACE := preload("res://scenes/overlay/PauseSurface.tscn")
 const EXIT := preload("res://scripts/application/desktop/SessionExitCoordinator.gd")
@@ -11,8 +9,6 @@ const CAPTION := preload("res://scripts/ui/witnessed/WitnessedCaptionLayer.gd")
 const PRELUDE := preload("res://scripts/ui/Day7PreludeSurface.gd")
 const QUICK := preload("res://scripts/ui/pause/PauseQuickCommands.gd")
 
-## Idle desktop/challenge sources have no narrative to suspend. A real reading source
-## delegates to the bridge's exact retained runtime; foreign activity is never accepted as idle.
 class NarrativeSuspension extends RefCounted:
 	var bridge: Object
 	var held: Dictionary = {}
@@ -24,7 +20,6 @@ class NarrativeSuspension extends RefCounted:
 		live = bridge.has_active_playback()
 		if live:
 			var result: Dictionary = bridge.begin_suspend(handle)
-			# A failed begin may retain physical custody, so retain the same handle for compensation.
 			var state: Dictionary = bridge.get_state()
 			if not state.get("ok", false) or state.value.state != &"Active": held = handle.duplicate(true)
 			return result
@@ -129,8 +124,6 @@ func configure(services: Dictionary, router: Object) -> Dictionary:
 	_services.localization.locale_changed.connect(_locale_changed)
 	return {"ok": true}
 
-## Called after GUI and the current scene's input. Text fields, open sheets and consumed
-## Back actions retain priority. The same press cannot both open and close Pause.
 func _unhandled_input(event: InputEvent) -> void:
 	if not _handle.is_empty():
 		if is_instance_valid(_history_caption): return
@@ -147,7 +140,6 @@ func _unhandled_input(event: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 	request_pause()
 
-## Scene sheets use the existing suspension/restore custody without a Pause menu.
 func open_scene_settings() -> Dictionary:
 	return await _open_scene_sheet(&"settings", &"")
 
@@ -197,12 +189,9 @@ func _quick_source_snapshot() -> Dictionary:
 	return {"handle": _handle.duplicate(true), "scene_id": _scene.get_instance_id(),
 		"source": _captured_source.duplicate(true)}
 
-## Projection only rules out unavailable sources. Native frontier/session capture belongs
-## to the activation boundary, never to a caption's per-frame rail projection.
 func can_open_witnessed_backup_load(caption: Node) -> bool:
 	return _can_open_witnessed_surface(caption) and _router.get_current_route_id() != "hospital"
 
-## History shares live-reading admission, but not Hospital's manual Save/Load restriction.
 func _can_open_witnessed_surface(caption: Node) -> bool:
 	if _services.is_empty() or not is_inside_tree() or _busy or _loading \
 			or not _handle.is_empty() or get_tree().paused:
@@ -223,8 +212,6 @@ func _can_open_witnessed_surface(caption: Node) -> bool:
 		return false
 	return _services.gate.guard_external(&"universal_pause").get("ok", false)
 
-## The real Pause owner retains source and Back custody. A rejected Backup entry
-## leaves its ordinary Continue surface available instead of abandoning suspension.
 func open_witnessed_backup_load(caption: Node) -> Dictionary:
 	if not can_open_witnessed_backup_load(caption): return _failure(&"pause_backup_unavailable")
 	if _router.get_current_route_id() == "scene": return await open_scene_backup("load")
@@ -253,7 +240,6 @@ func open_witnessed_quick_load(caption: Node) -> Dictionary:
 		return _failure(&"scene_sheet_unavailable")
 	var requested: Dictionary = _quick_commands.request_load()
 	if not requested.get("ok", false):
-		# No consent was exposed. Release only this proven unchanged source.
 		var resumed: Dictionary = await request_continue()
 		return requested if resumed.get("ok", false) else resumed
 	_direct_quick_load = true
@@ -274,7 +260,6 @@ func can_open_witnessed_backup_save(caption: Node) -> bool:
 		and _services.bridge.has_method("can_capture_reading_checkpoint") \
 		and _services.bridge.can_capture_reading_checkpoint()
 
-## Family admission is a pure retained-owner query; it never serializes or reveals a caption.
 func _reading_save_owner_available(route: String) -> bool:
 	if route == "scene":
 		return _router.has_method("capture_scene_host_projection") \
@@ -291,8 +276,6 @@ func open_witnessed_backup_save(caption: Node) -> Dictionary:
 	if not can_open_witnessed_backup_save(caption): return _failure(&"pause_save_unavailable")
 	if _router.get_current_route_id() == "scene": return await open_scene_backup("save")
 	if _find_caption(get_tree().root) != caption: return _failure(&"pause_source_changed")
-	# Reveal belongs to this admitted Save command, before literal Pause custody.
-	# Once suspended, the native source must stay byte-for-byte resumable.
 	var checkpoint: Dictionary = _services.bridge.capture_reading_checkpoint(true)
 	if not checkpoint.get("ok", false): return checkpoint
 	if not can_open_witnessed_backup_save(caption): return _failure(&"pause_source_changed")
@@ -350,8 +333,6 @@ func request_pause(show_surface: bool = true) -> Dictionary:
 	last_result = await coordinator.request_pause(&"production_pause")
 	_busy = false
 	if not last_result.get("ok", false):
-		# Preserve the coordinator's actual recovery handle; a failed partial acquisition
-		# cannot leave a silently frozen game with no Retry/Continue surface.
 		var state: Dictionary = coordinator.get_state()
 		if state.value.state != &"Recovery": return last_result
 		_handle = state.value.handle.duplicate(true)
@@ -403,15 +384,12 @@ func request_return() -> Dictionary:
 func _retire_pause() -> Dictionary:
 	return coordinator.retire_suspended_source(_handle)
 
-## The bridge proves a native Text or transient artwork frontier; the current scene and
-## full live-session handle prove its run custody. Artwork never fabricates a text witness.
 func capture_pause_source() -> Dictionary:
 	if _services.is_empty() or not is_inside_tree(): return _failure(&"pause_source_unavailable")
 	var scene := get_tree().current_scene as Control
 	if scene == null or scene.is_queued_for_deletion(): return _failure(&"pause_source_unavailable")
 	var route: String = _router.get_current_route_id()
 	if route not in ["main", "dating", "hospital", "ending", "scene"]: return _failure(&"pause_source_unavailable")
-	# Recovery owns its registered actions; refuse before capturing a session or frontier.
 	if _find_caption(get_tree().root, true) != null: return _failure(&"pause_recovery_active")
 	var guarded: Dictionary = _services.gate.guard_external(&"universal_pause")
 	if not guarded.get("ok", false): return guarded
@@ -450,7 +428,6 @@ func _capture_day7_projection() -> Dictionary:
 		projection = current
 	return {"ok": true, "value": projection}
 
-## Independent scene projection is reread at every acquisition/resume boundary.
 func capture_scene_projection(scene: Object) -> Dictionary:
 	if not is_instance_valid(scene) or scene != get_tree().current_scene: return {}
 	var route: String = _router.get_current_route_id()
@@ -571,8 +548,6 @@ func can_save_backup() -> bool:
 	var capture: Callable = _services.get("backup_capture", Callable())
 	var route: String = str(_captured_source.get("route_id", ""))
 	if not _captured_source.get("frontier", {}).is_empty():
-		# Projection and capture remain read-only even for a partial reveal. Actual
-		# Backup entry or Quick Save prepares the retained caption separately.
 		return capture.is_valid() and _reading_save_owner_available(route) \
 			and is_instance_valid(_caption) and _caption.get_script() == CAPTION \
 			and is_instance_valid(_caption.caption_text) \
@@ -590,14 +565,10 @@ func _admit_surface_entry(action: StringName) -> bool:
 	return last_result.get("ok", false)
 
 
-## Explicit command only: opening ordinary Backup or activating paused Quick Save
-## completes the admitted line under the existing suspension and view custody.
-## Load's direct entry and all background capture providers keep literal reveal.
 func prepare_backup_save() -> Dictionary:
 	var admitted := _backup_admission()
 	if not admitted.get("ok", false): return admitted
 	if _captured_source.get("frontier", {}).is_empty(): return {"ok": true}
-	# Inspection/Delete remain available when saving is disabled; Load has its own gate.
 	if not can_save_backup(): return {"ok": true}
 	if _captured_source.get("route_id") == "scene":
 		var checkpoint: Dictionary = _services.bridge.capture_reading_checkpoint(false)
@@ -609,8 +580,6 @@ func prepare_backup_save() -> Dictionary:
 	return _backup_admission()
 
 
-## Save keeps the exact source suspended. The configured provider captures live canonical
-## owners; the retained physical owner proves these bytes belong to this scene's command.
 func capture_backup_checkpoint_inputs() -> Dictionary:
 	if not can_save_backup(): return _failure(&"pause_save_unavailable")
 	if not _captured_source.get("frontier", {}).is_empty(): return _capture_reading_backup_inputs()
@@ -654,8 +623,6 @@ func capture_backup_checkpoint_inputs() -> Dictionary:
 		return _failure(&"pause_source_changed")
 	return {"ok": true, "value": inputs.duplicate(true)}
 
-## The board owns the native surface, but its admitted reading session still owns
-## earlier History. An idle source may carry only that completed-entry boundary.
 func _capture_between_entry_reading_checkpoint() -> Dictionary:
 	var bridge: Object = _services.bridge
 	if not bridge.has_method("has_reading_session") or not bridge.has_reading_session():
@@ -719,12 +686,8 @@ func _capture_scene_reading_backup_inputs() -> Dictionary:
 			or inputs.get("snapshot_input", {}).get("gameplay", {}).get("route_context", {}).get("active_dating_challenge", {}) != prior.value \
 			or not _backup_admission().get("ok", false):
 		return _failure(&"pause_source_changed")
-	# These are live producer inputs, not a serialized Run9 document. SaveManager
-	# builds and validates the complete versioned candidate before issuing consent.
 	return {"ok": true, "value": inputs.duplicate(true)}
 
-## Ending reuses the same live Run producer and immutable reading checkpoint.
-## Scene command, session custody and saved authority must all stay unchanged.
 func _capture_ending_reading_backup_inputs() -> Dictionary:
 	if not _reading_save_owner_available("ending"): return _failure(&"pause_save_unavailable")
 	var checkpoint: Dictionary = _services.bridge.capture_reading_checkpoint(false)
@@ -740,8 +703,6 @@ func _capture_ending_reading_backup_inputs() -> Dictionary:
 			or not after.get("ok", false) or after.value != checkpoint.value \
 			or not _backup_admission().get("ok", false):
 		return _failure(&"pause_source_changed")
-	# Scene endings provide live Run9 inputs, just like scene reading above.
-	# SaveManager composes and validates the complete saved document before consent.
 	if not inputs.snapshot_input.has("scene"):
 		var snapshot: Dictionary = inputs.snapshot_input.duplicate(true)
 		snapshot["route_id"] = "ending"
@@ -758,8 +719,6 @@ func can_load_backup() -> bool:
 func capture_restore_destination_session() -> Dictionary:
 	var captured: Dictionary = _services.game_state.capture_live_session()
 	if not captured.get("ok", false): return captured
-	# SaveManager still holds its restore lease while the handoff publishes. The
-	# retained session bytes must stay exact; admission was proved before that lease.
 	if not _services.gate.is_internal_owner_active(&"restore"):
 		var valid: Dictionary = _services.game_state.validate_live_session(captured.value)
 		if not valid.get("ok", false): return valid
@@ -769,7 +728,6 @@ func release_for_backup_load() -> Dictionary:
 	if not can_load_backup(): return _failure(&"pause_load_unavailable")
 	_busy = true
 	surface.set_interactive(false)
-	# The Day 7 overlay has no Dialogic frontier, but is still a held reading view.
 	_witnessed_load = not _captured_source.get("frontier", {}).is_empty() \
 		or not _captured_source.get("day7_prelude", {}).is_empty()
 	var released: Dictionary = coordinator.begin_restore_handoff(_handle) if _witnessed_load \
@@ -786,7 +744,6 @@ func finish_backup_load(result: Dictionary) -> Dictionary:
 	if not _loading: return _failure(&"pause_load_unavailable")
 	if result.get("code") == &"scene_activation_pending":
 		result = await _await_scene_backup_load(result)
-	# Never compensate a committed/indeterminate Load back into its old source.
 	if not result.get("ok", false) and (result.get("recovery_required", false) \
 			or result.get("committed", false) or result.get("fatal", false) or result.get("code") == &"APPLICATION_FATAL"):
 		last_result = {"ok": false, "code": &"pause_load_recovery_required", "recovery_required": true,
@@ -797,7 +754,6 @@ func finish_backup_load(result: Dictionary) -> Dictionary:
 	var current_session: Dictionary = _services.game_state.capture_live_session()
 	var changed: bool = current_session.get("ok", false) and current_session.value != _captured_source.session
 	if result.get("ok", false) and changed:
-		# The normal restore owns the new route/session. No old view or audio is restored.
 		surface.close_surface()
 		_handle.clear()
 		_captured_source.clear()
@@ -806,8 +762,6 @@ func finish_backup_load(result: Dictionary) -> Dictionary:
 		return result
 	var source := capture_pause_source()
 	if not source.get("ok", false) or source.value != _captured_source:
-		# An indeterminate/foreign restore cannot be advertised as a reversible failure.
-		# Keep its owner recovery boundary inert rather than resuming either session.
 		get_tree().paused = true
 		last_result = {"ok": false, "code": &"pause_load_recovery_required", "recovery_required": true, "details": {"cause": result}}
 		return last_result
@@ -820,8 +774,6 @@ func finish_backup_load(result: Dictionary) -> Dictionary:
 		var state: Dictionary = coordinator.get_state()
 		if state.value.state == &"Recovery": _handle = state.value.handle.duplicate(true)
 		else:
-			# Source is unchanged but reacquisition failed cleanly: the exact original view
-			# is still active. Close the stale overlay; the failed Load made no new session.
 			surface.close_surface()
 			_handle.clear()
 			_captured_source.clear()
@@ -918,7 +870,5 @@ static func _failure(code: StringName) -> Dictionary: return {"ok": false, "code
 func _preview_backup_host(action: StringName) -> void:
 	if action != &"backup": return
 	var backup: Control = surface._hosts.get(&"backup")
-	# Preserve the root preview's first snapshot without entering or focusing it.
-	# Actual entry still takes a fresh projection through show_window().
 	if is_instance_valid(backup) and not backup._projection_valid:
 		backup.refresh_view()
