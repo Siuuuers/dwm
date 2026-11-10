@@ -16,6 +16,7 @@ on:
       - '.github/workflows/dtl-first-preflight.yml'
       - 'tools/testing/self_talk_panel_scope.py'
       - 'tools/testing/progression_scope.py'
+      - 'tools/testing/challenge_transition_scope.py'
       - 'tools/testing/test_inventory_preflight.py'
       - 'tools/authoring/**'
       - 'autoload/**'
@@ -46,6 +47,7 @@ jobs:
           sparse-checkout: |
             /tools/testing/self_talk_panel_scope.py
             /tools/testing/progression_scope.py
+            /tools/testing/challenge_transition_scope.py
             /tools/testing/test_inventory_preflight.py
             /.github/workflows/dtl-first-preflight.yml
       - name: Prepare disposable checkout for credential cleanup
@@ -54,7 +56,7 @@ jobs:
           git submodule foreach --recursive 'true'
       - name: Verify inventory acceptance modes
         run: python tools/testing/test_inventory_preflight.py
-      - name: Retain authoring checks unless this is the proven presentation slice
+      - name: Retain authoring checks unless a focused job owns the reviewed slice
         id: scope
         shell: python
         run: |
@@ -62,6 +64,7 @@ jobs:
           sys.path.insert(0, "tools/testing")
           from self_talk_panel_scope import is_self_talk_panel
           from progression_scope import is_progression
+          from challenge_transition_scope import is_challenge_transition
           with open(os.environ['GITHUB_EVENT_PATH']) as source:
               event = json.load(source)
           base = event.get('pull_request', {}).get('base', {}).get('sha')
@@ -70,7 +73,7 @@ jobs:
               diff = subprocess.run(['git', 'diff', '--name-only', '-z', base, 'HEAD'], capture_output=True)
               if diff.returncode == 0:
                   paths = set(diff.stdout.decode().strip('\0').split('\0'))
-                  selected = is_self_talk_panel(paths, base) or is_progression(paths, base)
+                  selected = is_self_talk_panel(paths, base) or is_progression(paths, base) or is_challenge_transition(paths, base)
           with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
               output.write(f'presentation_only={str(selected).lower()}\n')
           print('Focused Linux workflow owns this reviewed slice' if selected else 'Authoring preflight required')

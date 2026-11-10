@@ -50,6 +50,8 @@ def select(paths, event_name='pull_request', sources=None, selector=SELECTOR, di
             return subprocess.CompletedProcess(args, 0, archive.getvalue())
         if args[:2] == ['git', 'show'] and args[2].endswith(':scripts/domain/run/RunSnapshotSchema.gd'):
             return subprocess.CompletedProcess(args, 0, b'const SCENE_GAMEPLAY_KEYS := ["current"]')
+        if args[:2] == ['git', 'show'] and args[2].endswith(':autoload/GameState.gd'):
+            return subprocess.CompletedProcess(args, 1, b'')
         raise AssertionError('Unexpected selector command: ' + repr(args))
 
     with tempfile.TemporaryDirectory() as temporary:
@@ -64,6 +66,56 @@ def select(paths, event_name='pull_request', sources=None, selector=SELECTOR, di
 
 
 class WindowsCoverageTests(unittest.TestCase):
+    def test_challenge_scope_agrees_across_workflows_and_keeps_fallback(self):
+        from challenge_transition_scope import METHODS, TESTS, TOOLS, COMPANIONS
+        dtl = (ROOT / '.github/workflows/dtl-first-preflight.yml').read_text()
+        dtl_selector = textwrap.dedent(dtl.split('        shell: python\n        run: |\n', 1)[1].split('  authoring:', 1)[0])
+        sources = {ref + ':' + path: content
+                   for ref in ('a' * 40, 'HEAD')
+                   for path, content in (('.github/workflows/windows-tests.yml', WORKFLOW),
+                                         ('.github/workflows/dtl-first-preflight.yml', dtl))}
+        for path, methods in METHODS.items():
+            for ref, value in (('a' * 40, 1), ('HEAD', 2)):
+                sources[ref + ':' + path] = ''.join(
+                    f'func {method}():\n\treturn {value}\n\n' for method in sorted(methods)
+                ) + 'func validate_saved_anchor():\n\treturn 1\n'
+        for paths in (set(METHODS), set(METHODS) | TESTS | COMPANIONS, TOOLS | COMPANIONS):
+            for event, data in (
+                ('pull_request', {'pull_request': {'base': {'sha': 'a' * 40}}}),
+                ('push', {'before': 'a' * 40}),
+                ('pull_request', {'action': 'synchronize', 'before': 'b' * 40,
+                                  'pull_request': {'base': {'sha': 'a' * 40}}}),
+            ):
+                commands = []
+                result = select(paths, sources=sources, event_name=event, event_data=data, commands=commands)
+                self.assertEqual(result['challenge_transition'], 'true')
+                self.assertEqual(result['inventory_tooling'], 'false')
+                self.assertEqual(result['comparison'], 'false')
+                self.assertFalse(any('b' * 40 in arg or '.zip' in arg for args in commands for arg in args))
+            self.assertEqual(select(paths, sources=sources, selector=dtl_selector)['presentation_only'], 'true')
+        paths = set(METHODS)
+        for extra in (DAY, 'autoload/SaveManager.gd', 'scripts/domain/run/RunSnapshotSchema.gd'):
+            self.assertEqual(select(paths | {extra}, sources=sources)['challenge_transition'], 'false')
+            self.assertEqual(select(paths | {extra}, sources=sources, selector=dtl_selector)['presentation_only'], 'false')
+        for path in METHODS:
+            changed = dict(sources)
+            changed['HEAD:' + path] += 'func unrelated():\n\tpass\n'
+            self.assertEqual(select(paths, sources=changed)['challenge_transition'], 'false')
+            self.assertEqual(select(paths, sources=changed, selector=dtl_selector)['presentation_only'], 'false')
+        for kwargs in ({'event_name': 'workflow_dispatch'}, {'diff_code': 128}, {'event_data': {}}):
+            self.assertEqual(select(paths, sources=sources, **kwargs)['challenge_transition'], 'false')
+        docs = {'docs/agent/2026-11-10-challenge-ci-coverage-handoff.md'}
+        self.assertEqual(select(docs)['docs_only'], 'true')
+        self.assertEqual(select(docs)['challenge_transition'], 'false')
+
+    def test_challenge_scope_gates_every_unrelated_expensive_job(self):
+        for job in ('focused-tests', 'windows-export', 'public-surfaces', 'rendered-journeys', 'rendered-desktop'):
+            header = WORKFLOW.split('  ' + job + ':', 1)[1].split('    steps:', 1)[0]
+            self.assertIn("needs.test-scope.outputs.challenge_transition != 'true'", header)
+        self.assertIn("if: needs.test-scope.outputs.challenge_transition == 'true'", WORKFLOW)
+        self.assertIn('Full fallback: no reviewed narrow scope matched', WORKFLOW)
+        self.assertIn('Unmatched change scope:', WORKFLOW)
+
     def test_native_audio_integration_selects_its_own_workflow(self):
         paths = {
             '.github/workflows/audio-prototype.yml',

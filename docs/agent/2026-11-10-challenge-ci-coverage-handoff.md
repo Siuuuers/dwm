@@ -2,7 +2,13 @@
 
 ## Start here
 
-This draft is documentation only. CI routing has not been changed. Continue implementation in this PR after checking current master and any concurrent changes.
+Implementation now shares `challenge_transition_scope.py` between main validation and DTL preflight. The focused Linux runner imports once and runs the reviewed suites in seven processes, isolating immutable registrations and sharing storage only for the deliberate Save/Load pair. Runtime behavior is unchanged.
+
+The historical #246 diff now selects `challenge_transition=true`, disables inventory/comparison, and selects `presentation_only=true` in DTL preflight. The five broad main-workflow jobs explicitly exclude this route. Unknown runtime or content changes retain existing coverage. A fallback diagnostic reports the unmatched paths before engine setup.
+
+The authored End probe from #246 is now committed as `tests/integration/test_scene_challenge_transition_authored.gd`; it checks title-to-Day1-result traversal and exactly one `never_started` Challenge outcome. The focused runner expects the current source-declared tests and validates exact JUnit suite/method identities, passing status and nonzero assertions. It does not substitute a full-week journey.
+
+Validation and final Actions evidence are recorded in PR #247. The assignment below preserves the original investigation and acceptance requirements.
 
 Observable outcome: a change confined to the reviewed Challenge transition methods and their tests selects one focused Linux validation job; unrelated rendering, localization, audio and export jobs do not start. The same scope decision prevents unrelated DTL authoring preflight. Unmatched runtime changes retain existing broader coverage.
 
@@ -82,6 +88,6 @@ The old connected creator wrongly expected live publication to write autosave. T
 
 No game behavior changes, new injection tests, broad lint framework, speculative security work, blanket validation removal or timing thresholds. Selector regression tests are the useful guard here; the command-lookup lint already shipped in #246.
 
-Optimize checkout/download and job dependencies only when measurements identify additional cost after routing is corrected. Shorter code does not prove lower latency. No Windows/render/audio qualification or new speedup claim is required for this documentation-only handoff.
+Optimize checkout/download and job dependencies only when measurements identify additional cost after routing is corrected. Shorter code does not prove lower latency. No Windows/render/audio qualification or in-game speedup claim is made for this CI change.
 
 Suggested starting request: “Continue this draft's CI coverage-selection handoff. Inspect current master and reproduce the historical #246 fallback, then implement the smallest shared classification and focused runner. Use lightweight checks and report the selected jobs before launching CI.”
