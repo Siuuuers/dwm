@@ -113,7 +113,9 @@ func load_connected() -> void:
 	assert_eq(fixture.bridge._reading_session.boundary, "control")
 	var native: Dictionary = fixture.adapter.capture_scene_control_position(fixture.bridge._reading_session)
 	if not _ok(native): return
-	assert_eq(native.value, witness.checkpoint.reading_session)
+	var expanded: Dictionary = fixture.RUN.SCENE_READING.expand_player_checkpoint(witness.checkpoint)
+	if not _ok(expanded): return
+	assert_eq(native.value, expanded.value.reading_session)
 	var admitted: Dictionary = fixture.admit_challenge()
 	if not _ok(admitted): return
 	if witness.mode == "profile_ahead": assert_eq(fixture.panel().value.phase, "never_started")

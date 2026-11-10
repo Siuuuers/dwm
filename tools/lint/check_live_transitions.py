@@ -16,6 +16,9 @@ PAUSE = 'scripts/application/lifecycle/ProductionPauseController.gd'
 BINDINGS = 'scripts/ui/SettingsControlsSheet.gd'
 CAPTION = 'scripts/ui/witnessed/WitnessedCaptionLayer.gd'
 RULES = (
+    (GAME, ('_retained_scene_challenge_command',),
+     r'\b_scene_runtime_event_context\s*\(',
+     'Retained Challenge command lookup must not capture runtime context; checkpoint and End boundaries own capture'),
     (CAPTION, ('_ready',),
      r'\bconfigure_presentation\s*\([\s\S]*?\b_apply_preferences\s*\(|\b_configure_recovery_presentation\s*\(',
      'Apply actual caption preferences first and defer recovery styling until requested'),

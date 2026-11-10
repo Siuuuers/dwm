@@ -4676,7 +4676,7 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 				if cue.kind == "music": snapshot_input.scene["music_plan_id"] = cue.id
 		var material := {"snapshot_input": snapshot_input, "checkpoint": target_checkpoint, "event": event}
 		_scene_playable = {"native_token": native.value, "material": material,
-			"prepared": prepared.duplicate(true), "source_session": _reading_session, "source_reading": source.reading_session.duplicate(true),
+			"prepared": prepared.duplicate(true), "source_session": _reading_session,
 			"source_entry": _active_entry.duplicate(true), "runtime": _runtime_adapter,
 			"candidate": candidate.value.candidate, "lease": lease, "owner": owner,
 			"presentation_autosave": presentation_autosave}
@@ -4722,10 +4722,8 @@ func _scene_playable_current() -> bool:
 	if not owner.get("ok", false): return false
 	var native: Dictionary = _runtime_adapter.validate_scene_source(_scene_playable.native_token, _reading_session)
 	if not native.ok: return false
-	var source: Dictionary = _reading_session.capture(_scene_playable.source_reading.frontier)
 	var candidate: Dictionary = _scene_playable.candidate.capture(_scene_playable.material.checkpoint.reading_session.frontier)
-	return source.ok and candidate.ok \
-		and _READING_TRAVERSAL._same(source.value, _scene_playable.source_reading) \
+	return candidate.ok \
 		and _READING_TRAVERSAL._same(candidate.value, _scene_playable.material.checkpoint.reading_session)
 
 
@@ -4951,6 +4949,17 @@ func capture_scene_event_boundary() -> Dictionary:
 			"entry_id": checkpoint.entry_id, "content_version": checkpoint.content_version,
 			"catalogue_fingerprint": reading.registration_sha256 if _reading_session.family == "scene" else reading.catalogue_fingerprint,
 			"publication_id": anchor_frontier.publication_id, "line_id": anchor_frontier.line_id}}}
+
+func validate_live_scene_event_anchor(anchor: Dictionary, checkpoint: Dictionary) -> Dictionary:
+	if not has_reading_session() or _reading_session.family != "scene" or not _marker_context.is_empty():
+		return _command_failure(&"event_anchor_invalid")
+	var current := capture_scene_event_boundary()
+	if not current.ok: return current
+	if not _READING_TRAVERSAL._same(anchor, current.value.anchor) \
+			or not _READING_TRAVERSAL._same(checkpoint, current.value.checkpoint):
+		return _command_failure(&"event_anchor_invalid")
+	var anchors: Array[Dictionary] = [anchor]
+	return _reading_session.validate_scene_event_anchors(anchors)
 
 ## A historical anchor is not the live frontier. The active session proves exact
 ## ledger membership; previous occurrences prove their immutable registered beat.

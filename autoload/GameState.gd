@@ -4341,7 +4341,7 @@ func _prepare_scene_playable_event(event: Dictionary, digest: String, lease: Str
 	# Callback arguments and returned material must not alias the caller or owners.
 	event = event.duplicate(true)
 	var prior := _command_receipts.duplicate(true)
-	var source_input := capture_run_snapshot_input().duplicate(true)
+	var source_input := capture_run_snapshot_input()
 	if not _SCENE_EVENT._equal(source_input.get("command_receipts"), prior):
 		return _transaction_failure(&"event_adoption_source_changed", "")
 	var captured := _scene_runtime_event_context()
@@ -4380,7 +4380,7 @@ func _prepare_scene_playable_event(event: Dictionary, digest: String, lease: Str
 		if source_input.get("scene", {}).get("registration_sha256") != inspected.value.registration_fingerprint \
 				or current.anchor.catalogue_fingerprint != inspected.value.registration_fingerprint:
 			return _transaction_failure(&"event_registration_mismatch", "")
-		var anchored: Dictionary = _scene_event_bridge.validate_scene_event_anchor(
+		var anchored: Dictionary = _scene_event_bridge.validate_live_scene_event_anchor(
 			current.anchor.duplicate(true), checkpoint.duplicate(true))
 		if not anchored.get("ok", false): return anchored
 		var result := {"kind": "challenge_playable", "challenge_occurrence":
@@ -4718,20 +4718,17 @@ func capture_scene_challenge_command() -> Dictionary:
 	return {"ok": true, "value": {"command": command.value, "bundle": registered.bundle,
 		"checkpoint": held.value.checkpoint.duplicate(true)}}
 
-func _capture_retained_scene_challenge_command(expected_context: Dictionary = {}) -> Dictionary:
+func _retained_scene_challenge_command(expected_context: Dictionary = {}) -> Dictionary:
 	var command := _current_scene_challenge_command(_scene_snapshot_references)
 	if not command.ok: return command
 	if not expected_context.is_empty() and not _SCENE_EVENT._equal(expected_context, command.value.context):
 		return _transaction_failure(&"scene_challenge_command_refused", "")
 	var registered := _SCENE_MANIFEST.scene_contract_tables()
 	if not registered.ok: return registered
-	var current := _scene_runtime_event_context()
-	if not current.ok: return current
-	return {"ok": true, "value": {"command": command.value, "bundle": registered.bundle,
-		"checkpoint": current.value.checkpoint.duplicate(true)}}
+	return {"ok": true, "value": {"command": command.value, "bundle": registered.bundle}}
 
 func validate_scene_challenge_command(command: Dictionary, bundle: Dictionary) -> Dictionary:
-	var current := _capture_retained_scene_challenge_command(command.get("context", {}))
+	var current := _retained_scene_challenge_command(command.get("context", {}))
 	if not current.ok: return current
 	var detached := command.duplicate(true)
 	detached.erase("physical_token")
@@ -4914,7 +4911,7 @@ func _accept_scene_end(event: Dictionary, digest: String, lease: String) -> Dict
 		return _transaction_failure(&"scene_challenge_end_unavailable", "")
 	var current := _scene_runtime_event_context()
 	if not current.ok: return current
-	var retained := _capture_retained_scene_challenge_command()
+	var retained := _retained_scene_challenge_command()
 	if not retained.ok: return retained
 	var configured := configure_scene_challenge_runtime()
 	if not configured.ok: return configured
@@ -4930,7 +4927,7 @@ func _accept_scene_end(event: Dictionary, digest: String, lease: String) -> Dict
 func validate_scene_challenge_end(command: Dictionary) -> Dictionary:
 	if _scene_end_operation.is_empty() or not _mutation_gate.is_lease_active(&"causal_transaction", _scene_end_operation.lease):
 		return _transaction_failure(&"scene_challenge_end_unavailable", "authenticated End required")
-	var current := _capture_retained_scene_challenge_command(command.get("context", {}))
+	var current := _retained_scene_challenge_command(command.get("context", {}))
 	if not current.ok: return current
 	var detached := command.duplicate(true)
 	detached.erase("physical_token")
@@ -4964,7 +4961,7 @@ func commit_scene_challenge_closure(command: Dictionary, result: Dictionary) -> 
 	var made := _SCENE_EVENT.make_scene_receipt(operation.event, current.value.anchor, result, registration.bundle)
 	if not made.ok: return made
 	if made.value.request_fingerprint != operation.digest: return _transaction_failure(&"event_digest_mismatch", "")
-	var candidate := capture_run_snapshot_input().duplicate(true)
+	var candidate := capture_run_snapshot_input()
 	candidate.command_receipts[operation.event.command_id] = made.value
 	candidate.gameplay.scene_challenge_outcomes[result.challenge_occurrence] = {
 		"challenge_id": operation.event.payload.challenge_id, "outcome": result.outcome,
@@ -4985,8 +4982,10 @@ func commit_scene_challenge_checkpoint(record: Dictionary, reference: Dictionary
 	if not _scene_challenge_operation.is_empty() or not is_instance_valid(_mutation_gate) \
 			or not _mutation_gate.is_lease_active(&"causal_transaction", lease):
 		return _transaction_failure(&"scene_challenge_lease_required", "")
-	var admitted := _capture_retained_scene_challenge_command()
+	var admitted := _retained_scene_challenge_command()
 	if not admitted.ok: return admitted
+	var current := _scene_runtime_event_context()
+	if not current.ok: return current
 	if record.get("context") != admitted.value.command.context \
 			or record.get("completion_transaction_id") != admitted.value.command.completion_transaction_id \
 			or record.get("command_sha256") != admitted.value.command.command_sha256 \
@@ -4999,10 +4998,10 @@ func commit_scene_challenge_checkpoint(record: Dictionary, reference: Dictionary
 			or candidate.gameplay.route_context.get("dating_active_attempt_ref") != reference:
 		return _transaction_failure(&"scene_challenge_candidate_mismatch", "")
 	_scene_challenge_operation = {"lease": lease, "session": live.value.duplicate(true),
-		"snapshot": candidate, "checkpoint": admitted.value.checkpoint.duplicate(true),
+		"snapshot": candidate, "checkpoint": current.value.checkpoint.duplicate(true),
 		"record": record.duplicate(true), "reference": reference.duplicate(true)}
 	var saved: Dictionary = _narrative_checkpoint_port.commit_scene_challenge(candidate.duplicate(true),
-		admitted.value.checkpoint.duplicate(true))
+		current.value.checkpoint.duplicate(true))
 	_scene_challenge_operation = {}
 	if not saved.get("ok", false) and saved.get("committed", false):
 		return _scene_event_fatal(saved.get("code", &"scene_challenge_commit_uncertain"))
@@ -5017,11 +5016,12 @@ func _validate_scene_challenge_checkpoint(snapshot: Dictionary, checkpoint: Dict
 			or not _SCENE_EVENT._equal(checkpoint, operation.checkpoint): return false
 	_scene_challenge_validating = true
 	var live := capture_live_session()
-	var admitted := _capture_retained_scene_challenge_command()
-	var valid: bool = live.get("ok", false) and admitted.get("ok", false)
+	var admitted := _retained_scene_challenge_command()
+	var current := _scene_runtime_event_context() if admitted.ok else admitted
+	var valid: bool = live.get("ok", false) and current.get("ok", false)
 	if valid:
 		valid = _SCENE_EVENT._equal(live.value, operation.session) \
-			and _SCENE_EVENT._equal(admitted.value.checkpoint, checkpoint)
+			and _SCENE_EVENT._equal(current.value.checkpoint, checkpoint)
 		valid = valid and _SCENE_EVENT._equal(capture_run_snapshot_input(), snapshot) \
 			and _scene_challenge_record_matches(operation.record, operation.reference)
 	_scene_challenge_validating = false

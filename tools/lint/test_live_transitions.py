@@ -22,6 +22,7 @@ class LiveTransitionDependencies(unittest.TestCase):
 
     def test_rejects_each_regression(self):
         cases = [
+            (GAME, '_retained_scene_challenge_command', '_scene_runtime_event_context()'),
             (CAPTION, '_ready', 'configure_presentation()\n\t_apply_preferences()'),
             (CAPTION, '_ready', '_configure_recovery_presentation()'),
             (BINDINGS, '_ready', 'set_presentation(fallback, 24, false)'),
@@ -52,6 +53,7 @@ class LiveTransitionDependencies(unittest.TestCase):
                 self.assertEqual(len(violations(self.sources)), 1)
 
     def test_save_restore_and_other_functions_are_outside_scope(self):
+        self.sources[GAME] += 'func commit_scene_challenge_checkpoint():\n\t_scene_runtime_event_context()\n'
         self.sources[SESSION] += 'func restore_player():\n\treturn restore(saved, entry)\n'
         self.sources[PROFILE] += 'func flush_reading_history():\n\t_persist_candidate(profile)\n'
         self.sources[ADAPTER] += 'static func content_hash():\n\treturn text.sha256_text()\n'
