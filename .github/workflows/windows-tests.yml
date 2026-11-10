@@ -56,6 +56,7 @@ jobs:
       self_talk: ${{ steps.scope.outputs.self_talk }}
       self_talk_panel: ${{ steps.scope.outputs.self_talk_panel }}
       progression: ${{ steps.scope.outputs.progression }}
+      challenge_transition: ${{ steps.scope.outputs.challenge_transition }}
       shop_cosmetics: ${{ steps.scope.outputs.shop_cosmetics }}
       save_ink: ${{ steps.scope.outputs.save_ink }}
       scene_transition: ${{ steps.scope.outputs.scene_transition }}
@@ -73,6 +74,10 @@ jobs:
             /tools/testing/test_inventory_runner.py
             /tools/testing/self_talk_panel_scope.py
             /tools/testing/progression_scope.py
+            /tools/testing/challenge_transition_scope.py
+            /tools/testing/test_challenge_transition_scope.py
+            /tools/testing/run_challenge_transition_checks.py
+            /tools/testing/test_challenge_transition_runner.py
             /tools/testing/Invoke-CloudTests.ps1
           persist-credentials: true
       - name: Prepare disposable checkout for credential cleanup
@@ -83,6 +88,8 @@ jobs:
         run: |
           python tools/testing/test_windows_coverage.py
           python tools/testing/test_inventory_runner.py
+          python tools/testing/test_challenge_transition_scope.py
+          python tools/testing/test_challenge_transition_runner.py
       - name: Select narrow runtime coverage or full validation
         id: scope
         shell: python
@@ -91,6 +98,7 @@ jobs:
           sys.path.insert(0, "tools/testing")
           from self_talk_panel_scope import is_self_talk_panel
           from progression_scope import is_progression
+          from challenge_transition_scope import is_challenge_transition
           with open(os.environ["GITHUB_EVENT_PATH"]) as event_file:
               event = json.load(event_file)
           base = event.get("pull_request", {}).get("base", {}).get("sha") or event.get("before", "")
@@ -148,6 +156,7 @@ jobs:
           self_talk = False
           self_talk_panel = False
           progression = False
+          challenge_transition = False
           shop_cosmetics = False
           save_ink = False
           scene_transition = False
@@ -256,6 +265,7 @@ jobs:
                   }))
                   inventory_only = bool(paths & inventory_sources) and paths <= inventory_sources | inventory_companions
                   progression = is_progression(paths, base)
+                  challenge_transition = is_challenge_transition(paths, base)
                   # DTL authoring changes cross compiler, save and renderer owners.
                   # Only this reviewed file set qualifies; unrelated source gets full coverage.
                   dtl_first_paths = {
@@ -772,7 +782,7 @@ jobs:
                   self_talk = bool(paths) and paths <= self_talk_paths and bool(paths & {"scripts/ui/witnessed/WitnessedSelfTalk.gd", "tests/unit/test_scene_self_talk.gd", "tests/ui/render_self_talk_journey.gd"})
                   self_talk_panel = is_self_talk_panel(paths, base)
                   comparison_paths = paths
-                  previous = event.get("before", "") if event.get("action") == "synchronize" and not (native_audio or ci_jobs or docs_only or inventory_only) else ""
+                  previous = event.get("before", "") if event.get("action") == "synchronize" and not (native_audio or ci_jobs or docs_only or inventory_only or challenge_transition) else ""
                   if re.fullmatch(r"[0-9a-f]{40}", previous):
                       available = subprocess.run(["git", "cat-file", "-e", previous], capture_output=True)
                       if available.returncode != 0:
@@ -788,7 +798,7 @@ jobs:
           # Current native Save/Load and terminal fixtures qualify incompatible schemas;
           # skipping this old-input measurement does not establish a speedup.
           comparison = comparison or (focused and not previous)
-          if native_audio or audio_prototype or ci_jobs or docs_only or inventory_only or progression or dtl_content or dtl_first or reading_layout or readability or bilingual_reading or dialogue_library or playtest_polish or self_talk or self_talk_panel or shop_cosmetics or scene_transition or save_ink: comparison = False
+          if native_audio or audio_prototype or ci_jobs or docs_only or inventory_only or progression or challenge_transition or dtl_content or dtl_first or reading_layout or readability or bilingual_reading or dialogue_library or playtest_polish or self_talk or self_talk_panel or shop_cosmetics or scene_transition or save_ink: comparison = False
           if comparison:
               archive = "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip"
               archive_bytes = subprocess.run(["git", "show", "HEAD:" + archive], capture_output=True, check=True).stdout
@@ -806,7 +816,7 @@ jobs:
                   if keys != saved_keys:
                       comparison = False
                       print("Archived startup/Load measurement is incompatible with " + ref + "; current-build correctness coverage remains required.")
-          if native_audio:
+          if native_audio or challenge_transition:
               inventory_tooling = False
           if ci_jobs:
               inventory_tooling = 'inventory-tooling' in ci_jobs
@@ -822,7 +832,10 @@ jobs:
               if os.environ["GITHUB_EVENT_NAME"] == "pull_request":
                   print("Source lint runs in its independent PR workflow")
               print("Skipped: gameplay, rendering, audio and export; exact tooling scope" if inventory_only else "Skipped: no groups due to inventory classification")
-          print("Selected " + ("native audio integration coverage" if native_audio else "isolated audio prototype coverage" if audio_prototype else ", ".join(ci_jobs) if ci_jobs else "documentation checks" if docs_only else "inventory tooling Linux coverage" if inventory_only else "progression Linux coverage" if progression else "self-talk panel Linux coverage" if self_talk_panel else "DTL content and manual-edit recovery coverage" if dtl_content else "DTL compiler/save/runtime coverage" if dtl_first else "readability and display-default coverage" if readability else "reading layout coverage" if reading_layout else "bilingual reading coverage" if bilingual_reading else "runtime resource/Backup coverage" if focused else "full validation"))
+          print("Selected " + ("native audio integration coverage" if native_audio else "isolated audio prototype coverage" if audio_prototype else ", ".join(ci_jobs) if ci_jobs else "documentation checks" if docs_only else "inventory tooling Linux coverage" if inventory_only else "Challenge transition Linux coverage" if challenge_transition else "progression Linux coverage" if progression else "self-talk panel Linux coverage" if self_talk_panel else "DTL content and manual-edit recovery coverage" if dtl_content else "DTL compiler/save/runtime coverage" if dtl_first else "readability and display-default coverage" if readability else "reading layout coverage" if reading_layout else "bilingual reading coverage" if bilingual_reading else "runtime resource/Backup coverage" if focused else "full validation"))
+          if not any((native_audio, audio_prototype, ci_jobs, docs_only, inventory_only, progression, challenge_transition, dtl_content, dtl_first, inline_audio, reading_layout, readability, bilingual_reading, dialogue_library, playtest_polish, self_talk, self_talk_panel, shop_cosmetics, scene_transition, save_ink, focused)):
+              print("Full fallback: no reviewed narrow scope matched, or the change base is unavailable.")
+              print("Unmatched change scope: " + (", ".join(sorted(paths)) if paths else "no usable diff; retain full validation"))
           with open(os.environ["GITHUB_OUTPUT"], "a") as output:
               output.write("ci_jobs=" + json.dumps(ci_jobs) + "\n")
               output.write(f"native_audio={str(native_audio).lower()}\n")
@@ -844,6 +857,7 @@ jobs:
               output.write(f"self_talk={str(self_talk).lower()}\n")
               output.write(f"self_talk_panel={str(self_talk_panel).lower()}\n")
               output.write(f"progression={str(progression).lower()}\n")
+              output.write(f"challenge_transition={str(challenge_transition).lower()}\n")
               output.write("focused=" + str(focused).lower() + "\n")
               output.write("comparison=" + str(comparison).lower() + "\n")
 
@@ -851,7 +865,7 @@ jobs:
     # Independent suites use committed source; inventory verification remains a
     # separate required result and cannot be satisfied by diagnostic regeneration.
     needs: test-scope
-    if: ${{ needs.test-scope.result == 'success' && needs.test-scope.outputs.native_audio != 'true' && needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' }}
+    if: ${{ needs.test-scope.result == 'success' && needs.test-scope.outputs.native_audio != 'true' && needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.challenge_transition != 'true' }}
     name: Windows / ${{ matrix.suite }}
     runs-on: windows-2022
     timeout-minutes: ${{ matrix.suite == 'current_terminal_fixture' && 35 || 20 }}
@@ -1111,7 +1125,7 @@ jobs:
 
   windows-export:
     needs: test-scope
-    if: needs.test-scope.outputs.native_audio != 'true' && needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true'
+    if: needs.test-scope.outputs.native_audio != 'true' && needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.challenge_transition != 'true' && needs.test-scope.outputs.focused != 'true'
     name: Windows / exported release startup
     runs-on: windows-2022
     timeout-minutes: 35
@@ -1215,7 +1229,7 @@ jobs:
 
   public-surfaces:
     needs: test-scope
-    if: needs.test-scope.outputs.native_audio != 'true' && needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true'
+    if: needs.test-scope.outputs.native_audio != 'true' && needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.challenge_transition != 'true' && needs.test-scope.outputs.focused != 'true'
     name: Windows / public API surface contracts
     runs-on: windows-2022
     timeout-minutes: 20
@@ -1366,7 +1380,7 @@ jobs:
 
   rendered-journeys:
     needs: test-scope
-    if: needs.test-scope.outputs.native_audio != 'true' && needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
+    if: needs.test-scope.outputs.native_audio != 'true' && needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.challenge_transition != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
     name: Rendered current Gallery components
     runs-on: ubuntu-24.04
     timeout-minutes: 25
@@ -1467,7 +1481,7 @@ jobs:
           retention-days: 7
   rendered-desktop:
     needs: test-scope
-    if: contains(needs.test-scope.outputs.ci_jobs, '"rendered-desktop"') || needs.test-scope.outputs.native_audio != 'true' && needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
+    if: contains(needs.test-scope.outputs.ci_jobs, '"rendered-desktop"') || needs.test-scope.outputs.native_audio != 'true' && needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.challenge_transition != 'true' && needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
     name: Rendered desktop and dialogue / Linux software OpenGL
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -1909,6 +1923,40 @@ jobs:
             .godot/ci/self-talk-*.json
             .godot/ci/*transition*.png
             .godot/ci/scene-transition-*.json
+          include-hidden-files: true
+          if-no-files-found: error
+
+  challenge-transition:
+    name: Linux / Challenge transitions
+    needs: test-scope
+    if: needs.test-scope.outputs.challenge_transition == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          git submodule foreach --recursive 'true'
+      - name: Install Godot 4.6.3 standard
+        run: |
+          archive="$RUNNER_TEMP/godot-4.6.3-linux.zip"
+          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$archive"
+          printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$archive" | sha256sum --check
+          unzip -q "$archive" -d "$RUNNER_TEMP/godot-4.6.3-linux"
+          editor="$RUNNER_TEMP/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64"
+          chmod +x "$editor"
+          echo "GODOT_CONSOLE_PATH=$editor" >> "$GITHUB_ENV"
+          "$editor" --version
+      - name: Check live transitions and fresh-process Save/Load
+        run: python tools/testing/run_challenge_transition_checks.py --godot "$GODOT_CONSOLE_PATH"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: challenge-transition-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/challenge-transition/
           include-hidden-files: true
           if-no-files-found: error
 
