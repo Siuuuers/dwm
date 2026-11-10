@@ -2,7 +2,7 @@ extends "res://tests/integration/authored_week_child.gd"
 
 func test_load_keeps_current_global_presentation_and_reuses_unchanged_run_theme() -> void:
 	_phase = "create"
-	if not _setup_authored(false): return
+	if not _setup_authored(false, "Day1"): return
 	get_node("/root/SceneRouter").goto_menu()
 	if not await _new_from_title(1, _expected[0].line_id): return
 	var proof: Dictionary = await _save_authored(1, "global-presentation")
