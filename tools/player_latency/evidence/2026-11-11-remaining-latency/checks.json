@@ -1,0 +1,63 @@
+{
+  "runtime_revision": "ffba1b00d2a18752e1d95a9be5dcb46c4eb129b1",
+  "consumer": {
+    "tests": 13,
+    "assertions": 183,
+    "exit_code": 0
+  },
+  "settings_matched": {
+    "processes": 4,
+    "assertions_per_process": 105,
+    "exit_codes": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "aged": {
+    "assertions": 4285,
+    "exit_code": 0
+  },
+  "creator": {
+    "assertions": 3748,
+    "exit_code": 0
+  },
+  "load": {
+    "processes": 3,
+    "assertions_per_process": 118,
+    "exit_codes": [
+      0,
+      0,
+      0
+    ]
+  },
+  "f5": {
+    "processes": 3,
+    "assertions_per_process": 24,
+    "exit_codes": [
+      0,
+      0,
+      0
+    ]
+  },
+  "startup_clean": {
+    "processes": 3,
+    "exit_codes": [
+      0,
+      0,
+      0
+    ]
+  },
+  "startup_engine_diagnostic": {
+    "exit_code": 0,
+    "teardown_errors": 18,
+    "acceptance": false
+  },
+  "lints": [
+    "comment lint: 0 violations",
+    "live transition lint: 0 violations",
+    "git diff --check: exit0"
+  ],
+  "windows": "Not run; browser signed out; no workflow-dispatch connector action."
+}

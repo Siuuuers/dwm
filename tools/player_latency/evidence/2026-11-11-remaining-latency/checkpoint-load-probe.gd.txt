@@ -1,0 +1,63 @@
+extends "res://tests/integration/compact_history_restore_child.gd"
+
+var measured_loads := 0
+
+func _load_authored(slot: int, proof: Dictionary) -> bool:
+	assert_eq(ProjectSettings.globalize_path("user://"), proof.user_dir)
+	assert_eq(AUTHORED_MANIFEST.scene_registration_fingerprint(), proof.registration_sha256)
+	var path := "user://saves/slot_%d.json" % slot
+	assert_eq(FileAccess.get_sha256(path), proof.slot_sha256)
+	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
+	var app: Control
+	if measured_loads == 0:
+		get_node("/root/SceneRouter").goto_menu()
+		if not await _wait_route(MENU): return false
+		var menu: Node = get_tree().current_scene
+		saves.live_session_ready.connect(func() -> void: _ready_observation = _native_observation())
+		if not await _press_authored(menu.get_node("%LogInButton")): return false
+		app = menu._backup_app_instance
+	else:
+		var pause: Node = get_node("/root/SceneRouter")._production_pause
+		var opened: Dictionary = await pause.open_scene_backup("load")
+		assert_true(opened.get("ok", false))
+		if not opened.get("ok", false): return false
+		app = pause.surface._hosts[&"backup"]
+	ready_count = 0
+	assert_not_null(app, "Title LogIn mounts Backup")
+	if not is_instance_valid(app): return false
+	if not await _press_authored(app.drawer_buttons.get("slot:%d" % slot)): return false
+	var expanded: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(proof.checkpoint)
+	if not _ok(expanded): return false
+	var line_id: String = expanded.value.reading_session.frontier.line_id
+	var load_started := Time.get_ticks_usec()
+	print("LOAD_BEGIN ", measured_loads, " ", load_started)
+	if not await _press_authored(app.action_buttons.get("load")): return false
+	if is_instance_valid(app) and is_instance_valid(app.confirmation):
+		if not await _press_authored(app.confirmation.confirm_button): return false
+	if not await _await_ready(): return false
+	if not await _wait_line(line_id): return false
+	print("CHECKPOINT_LOAD_US ", measured_loads, " ", Time.get_ticks_usec() - load_started)
+	measured_loads += 1
+	assert_eq(_ready_observation.line_id, line_id)
+	assert_true(_ready_observation.visible)
+	assert_false(_ready_observation.revealing)
+	assert_true(_ready_observation.event_done)
+	assert_eq(float(_ready_observation.visible_ratio), 1.0)
+	assert_eq(_ready_observation.ledger, expanded.value.reading_session.ledger)
+	assert_eq(bridge.capture_reading_checkpoint(false).value, expanded.value)
+	var current: Dictionary = game.capture_run_snapshot_input()
+	assert_eq(current.lifecycle.run_id, proof.snapshot.lifecycle.run_id)
+	assert_eq(current.lifecycle.branch_id, proof.snapshot.lifecycle.branch_id)
+	for key: String in ["gameplay", "scene"]:
+		assert_eq(current[key], proof.snapshot[key], "Load preserves " + key)
+	assert_eq(profile.get_profile_snapshot(), profile_before, "Load preserves current profile")
+	assert_eq(FileAccess.get_sha256(path), proof.slot_sha256)
+	await _screenshot("authored-restored-slot-%d" % slot)
+	return true
+
+
+func test_checkpoint_load_cost() -> void:
+	await load_older_save_preserves_later_global_discoveries()
+	var proof: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://compact-history-proof.json")).value
+	for attempt in range(3):
+		if not await _load_authored(1, proof): return

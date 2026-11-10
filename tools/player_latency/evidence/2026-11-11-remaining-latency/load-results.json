@@ -1,0 +1,154 @@
+{
+  "revision": "ffba1b00d2a18752e1d95a9be5dcb46c4eb129b1",
+  "tracked_patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "tracked_working_tree_dirty": false,
+  "probe_source": "tools/player_latency/evidence/2026-11-05-load-texture-recovery.json",
+  "probe_sha256": "c0a21427543c4af06c519fce996f6b47ec1b509d8e2218b830e6c0ec596ce9f4",
+  "runner_sha256": "a1cd6a51a9d70d94e3da2e495e44f2de3dc2469c17931e1f9059e2f78a755ae3",
+  "engine": "4.6.3.stable.official.7d41c59c4",
+  "environment": {
+    "XDG_DATA_HOME": "/workspace/scratch/e593b0792a01/dwm/.godot/phase2r_tests/remaining-load-current/data",
+    "DWM_TEST_ROOT": "/workspace/scratch/e593b0792a01/dwm/.godot/phase2r_tests/remaining-load-current/test-root",
+    "DWM_BENCHMARK_REVISION": "ffba1b00d2a18752e1d95a9be5dcb46c4eb129b1",
+    "DWM_SAVE_LOAD_PROFILE": "",
+    "DWM_SCENE_VALIDATION_PROFILE": ""
+  },
+  "runs": [
+    {
+      "label": "creator",
+      "command": [
+        "godot",
+        "--headless",
+        "--path",
+        "/workspace/scratch/e593b0792a01/dwm",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gtest=res://tests/integration/test_compact_history_create.gd",
+        "-gunit_test_name=test_save_then_add_later_library_discovery",
+        "-gjunit_xml_file=/workspace/scratch/e593b0792a01/dwm/.godot/ci/remaining/load-results/creator.xml",
+        "-gexit"
+      ],
+      "log": ".godot/ci/remaining/load-results/creator.log",
+      "report": ".godot/ci/remaining/load-results/creator.xml",
+      "exit_code": 0,
+      "process_elapsed_ms": 34807.40257999787,
+      "log_sha256": "c48aaffc56b3b027c6c6c505576b8bfb55d49aea1f94c1649c3af57bbf851be6",
+      "assertions": 3748,
+      "loads": []
+    },
+    {
+      "label": "load-1",
+      "command": [
+        "godot",
+        "--headless",
+        "--path",
+        "/workspace/scratch/e593b0792a01/dwm",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gtest=res://.godot/ci/remaining/checkpoint-load-probe.gd",
+        "-gunit_test_name=test_checkpoint_load_cost",
+        "-gjunit_xml_file=/workspace/scratch/e593b0792a01/dwm/.godot/ci/remaining/load-results/load-1.xml",
+        "-gexit"
+      ],
+      "log": ".godot/ci/remaining/load-results/load-1.log",
+      "report": ".godot/ci/remaining/load-results/load-1.xml",
+      "exit_code": 0,
+      "process_elapsed_ms": 8037.008328999946,
+      "log_sha256": "7c662796adb5bbb6635b271573fe6ba1ccd75afe9d5896d8c4748fe5636dd892",
+      "assertions": 118,
+      "loads": [
+        {
+          "index": 0,
+          "elapsed_us": 328960,
+          "case": "fresh_process_title_load"
+        },
+        {
+          "index": 1,
+          "elapsed_us": 188477,
+          "case": "same_process_repeated_load"
+        },
+        {
+          "index": 2,
+          "elapsed_us": 179196,
+          "case": "same_process_repeated_load"
+        },
+        {
+          "index": 3,
+          "elapsed_us": 182767,
+          "case": "same_process_repeated_load"
+        }
+      ]
+    },
+    {
+      "label": "load-2",
+      "command": [
+        "godot",
+        "--headless",
+        "--path",
+        "/workspace/scratch/e593b0792a01/dwm",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gtest=res://.godot/ci/remaining/checkpoint-load-probe.gd",
+        "-gunit_test_name=test_checkpoint_load_cost",
+        "-gjunit_xml_file=/workspace/scratch/e593b0792a01/dwm/.godot/ci/remaining/load-results/load-2.xml",
+        "-gexit"
+      ],
+      "log": ".godot/ci/remaining/load-results/load-2.log",
+      "report": ".godot/ci/remaining/load-results/load-2.xml",
+      "exit_code": 0,
+      "process_elapsed_ms": 8287.747091999336,
+      "log_sha256": "63158fef171ef72da78b868befbb662130ee74a0628f0074def1501096bfc965",
+      "assertions": 118,
+      "loads": [
+        {
+          "index": 0,
+          "elapsed_us": 321084,
+          "case": "fresh_process_title_load"
+        },
+        {
+          "index": 1,
+          "elapsed_us": 192565,
+          "case": "same_process_repeated_load"
+        },
+        {
+          "index": 2,
+          "elapsed_us": 202029,
+          "case": "same_process_repeated_load"
+        },
+        {
+          "index": 3,
+          "elapsed_us": 192752,
+          "case": "same_process_repeated_load"
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Linux headless source project; no physical display or audio qualification.",
+    "First Load is a fresh process after service and expected-content setup; OS cache is not cleared.",
+    "Each loader performs Title first Load then three correlated in-game repeated Loads.",
+    "Load timer includes native click-helper frame waits, ready observer and readiness assertions.",
+    "Expected checkpoint expansion is outside the timer; no numeric PID-inequality assertion.",
+    "Whole-process duration includes startup/setup/assertions/teardown and is not Load latency.",
+    "Same absolute user-data path and identical whole isolated seed bytes restored before each loader."
+  ],
+  "seed_user_dir": "/workspace/scratch/e593b0792a01/dwm/.godot/phase2r_tests/remaining-load-current/data/godot/app_userdata/DWM/",
+  "seed_proof_relative_path": "data/godot/app_userdata/DWM/compact-history-proof.json",
+  "seed_slot_relative_path": "data/godot/app_userdata/DWM/saves/slot_1.json",
+  "seed_slot_sha256": "71b928ae01d0b15aaf546611c654ac9c8e8d8d390307663f16711017ed00c71e",
+  "seed_hashes": {
+    "data/godot/app_userdata/DWM/authored-week-compact-history.json": "a8e59be57bf3715745484aeff0894bddac3f4b2a5533cb29c25c463d199ed839",
+    "data/godot/app_userdata/DWM/compact-history-proof.json": "dedd189c6ee69c0c6683ef2c8728854bea32e08bd1ee6641a795788f5366d548",
+    "data/godot/app_userdata/DWM/desktop-issuer-root.json": "29cc6b8e625d6bf6e04754e11175504165eabe498fd02470d999d5ebe9d627ed",
+    "data/godot/app_userdata/DWM/desktop-issuer-root.json.bak": "3461b83849b7442f78dc59c964443408f53e800290c961fad03738bc95d5752e",
+    "data/godot/app_userdata/DWM/desktop-publications.json": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+    "data/godot/app_userdata/DWM/dialogic/saves/global_info.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "data/godot/app_userdata/DWM/logs/godot.log": "b9ff7fd4d345a797d000aea7a913b0cda27581d16197562105cacf53a24d846f",
+    "data/godot/app_userdata/DWM/profile.json": "dcf31821b8d0445450f0aaf8a8ae1df2f5b532948bc8798682506782157410f5",
+    "data/godot/app_userdata/DWM/profile.json.bak": "60583fb9eae962caa9229f7ea53563d5602fe596fe137baaf128444f4b9364ad",
+    "data/godot/app_userdata/DWM/saves/slot_1.json": "71b928ae01d0b15aaf546611c654ac9c8e8d8d390307663f16711017ed00c71e"
+  }
+}

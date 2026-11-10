@@ -68,6 +68,7 @@ var _scene_navigation_failed := false
 var _scene_phase_reader := Callable()
 var _scene_command_dispatch := Callable()
 var _scene_app_prepare := Callable()
+var _theme_inputs: Array = []
 var _day := 1
 var _bootstrap: Node
 var _active_id: StringName = &""
@@ -875,15 +876,19 @@ func _refresh_launcher(refresh_contacts: bool = true) -> void:
 	touch_navigation.visible = bool(_profile.get_preference("preferences.accessibility.large_targets", false)) if _profile != null and _profile.has_method("get_preference") else false
 	_refresh_strip_layout()
 	_refresh_app_scroll()
-	theme = DESKTOP_THEME.build(_locale, _percent, _run_palette, (0.0 if _scene_navigation else WEEK_TINT.tint_for_day(_day)), high_contrast, colour_preset, _font_style)
-	var notice_style := StyleBoxFlat.new()
-	notice_style.bg_color = theme.get_color("face", "Desktop")
-	notice_style.border_color = theme.get_color("structure", "Desktop")
-	notice_style.set_border_width_all(2)
-	for edge: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
-		notice_style.set_content_margin(edge, 16)
-	message_notification.add_theme_stylebox_override("panel", notice_style)
-	delivery_notice.add_theme_stylebox_override("panel", notice_style)
+	var tint := 0.0 if _scene_navigation else WEEK_TINT.tint_for_day(_day)
+	var theme_inputs := [_locale, _percent, _run_palette, tint, high_contrast, colour_preset, _font_style]
+	if theme == null or theme_inputs != _theme_inputs:
+		_theme_inputs = theme_inputs
+		theme = DESKTOP_THEME.build(_locale, _percent, _run_palette, tint, high_contrast, colour_preset, _font_style)
+		var notice_style := StyleBoxFlat.new()
+		notice_style.bg_color = theme.get_color("face", "Desktop")
+		notice_style.border_color = theme.get_color("structure", "Desktop")
+		notice_style.set_border_width_all(2)
+		for edge: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
+			notice_style.set_content_margin(edge, 16)
+		message_notification.add_theme_stylebox_override("panel", notice_style)
+		delivery_notice.add_theme_stylebox_override("panel", notice_style)
 	_refresh_message_notification_copy()
 	_refresh_delivery_caption()
 	var ids: Array[StringName] = _launcher_ids()

@@ -1,0 +1,7 @@
+from pathlib import Path
+import json,os,subprocess,time
+root=Path.cwd();out=root/'.godot/ci/remaining';rows=[]
+for label in ['startup-1','startup-2']:
+ env=dict(os.environ,XDG_DATA_HOME=str(root/'.godot/phase2r_tests'/label/'data'),DWM_STARTUP_AUDIT='1',DWM_BENCHMARK_REVISION=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip());env.pop('DWM_TEST_ROOT',None);Path(env['XDG_DATA_HOME']).mkdir(parents=True,exist_ok=True)
+ args=['godot','--headless','--path','.', '--script','res://tests/manual/benchmark_player_startup.gd'];start=time.monotonic();p=subprocess.run(args,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=150);elapsed=(time.monotonic()-start)*1000;(out/(label+'.log')).write_text(p.stdout);assert p.returncode==0,p.stdout;row=next(json.loads(x.split('PLAYER_STARTUP ',1)[1]) for x in p.stdout.splitlines() if x.startswith('PLAYER_STARTUP '));row.update(label=label,process_launch_to_exit_ms=elapsed,exit_code=p.returncode,command=args);rows.append(row);print(row,flush=True)
+(out/'startup.json').write_text(json.dumps(rows,indent=2)+'\n')

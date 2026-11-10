@@ -1,0 +1,315 @@
+{
+  "baseline_revision": "a7cb921b078047079a62a045269bce5641ee0f9e",
+  "candidate_runtime_revision": "ffba1b00d2a18752e1d95a9be5dcb46c4eb129b1",
+  "order": [
+    "b1",
+    "c1",
+    "c2",
+    "b2"
+  ],
+  "samples": {
+    "b1": {
+      "auto": false,
+      "display": "headless",
+      "engine": "4.6.3-stable (official)",
+      "limits": "Source project; Day1 opening after authored setup; first open is not cold OS cache. Process-frame and post-draw endpoints are not physical display latency. Assertions and event construction are outside timers.",
+      "locale": "en",
+      "reveal": "instant",
+      "revision": "a7cb921b078047079a62a045269bce5641ee0f9e",
+      "samples": [
+        {
+          "attempt": 1,
+          "content_id": 1865022445017,
+          "first_open": true,
+          "input_dispatch_us": 243483,
+          "input_to_following_process_frame_us": 247013,
+          "input_to_post_draw_us": null,
+          "locale_control_enabled": true,
+          "theme_id": -9223370145374659897,
+          "theme_reused": false
+        },
+        {
+          "attempt": 2,
+          "content_id": 1865022445017,
+          "first_open": false,
+          "input_dispatch_us": 55885,
+          "input_to_following_process_frame_us": 57842,
+          "input_to_post_draw_us": null,
+          "locale_control_enabled": true,
+          "theme_id": -9223370145374659897,
+          "theme_reused": true
+        },
+        {
+          "attempt": 3,
+          "content_id": 1865022445017,
+          "first_open": false,
+          "input_dispatch_us": 62902,
+          "input_to_following_process_frame_us": 64723,
+          "input_to_post_draw_us": null,
+          "locale_control_enabled": true,
+          "theme_id": -9223370145374659897,
+          "theme_reused": true
+        },
+        {
+          "attempt": 4,
+          "content_id": 1865022445017,
+          "first_open": false,
+          "input_dispatch_us": 56250,
+          "input_to_following_process_frame_us": 58104,
+          "input_to_post_draw_us": null,
+          "locale_control_enabled": true,
+          "theme_id": -9223370145374659897,
+          "theme_reused": true
+        },
+        {
+          "attempt": 5,
+          "content_id": 1865022445017,
+          "first_open": false,
+          "input_dispatch_us": 56152,
+          "input_to_following_process_frame_us": 58041,
+          "input_to_post_draw_us": null,
+          "locale_control_enabled": true,
+          "theme_id": -9223370145374659897,
+          "theme_reused": true
+        }
+      ],
+      "text_size": 125,
+      "window_size": [
+        64,
+        64
+      ],
+      "exit_code": 0,
+      "assertions": 105
+    },
+    "c1": {
+      "auto": false,
+      "display": "headless",
+      "engine": "4.6.3-stable (official)",
+      "limits": "Source project; Day1 opening after authored setup; first open is not cold OS cache. Process-frame and post-draw endpoints are not physical display latency. Assertions and event construction are outside timers.",
+      "locale": "en",
+      "reveal": "instant",
+      "revision": "candidate",
+      "samples": [
+        {
+          "attempt": 1,
+          "content_id": 1864905004513,
+          "first_open": true,
+          "input_dispatch_us": 201509,
+          "input_to_following_process_frame_us": 204878,
+          "input_to_post_draw_us": null,
+          "locale_control_enabled": true,
+          "theme_id": -9223370145492100409,
+          "theme_reused": false
+        },
+        {
+          "attempt": 2,
+          "content_id": 1864905004513,
+          "first_open": false,
+          "input_dispatch_us": 43133,
+          "input_to_following_process_frame_us": 44725,
+          "input_to_post_draw_us": null,
+          "locale_control_enabled": true,
+          "theme_id": -9223370145492100409,
+          "theme_reused": true
+        },
+        {
+          "attempt": 3,
+          "content_id": 1864905004513,
+          "first_open": false,
+          "input_dispatch_us": 43656,
+          "input_to_following_process_frame_us": 45343,
+          "input_to_post_draw_us": null,
+          "locale_control_enabled": true,
+          "theme_id": -9223370145492100409,
+          "theme_reused": true
+        },
+        {
+          "attempt": 4,
+          "content_id": 1864905004513,
+          "first_open": false,
+          "input_dispatch_us": 45351,
+          "input_to_following_process_frame_us": 46940,
+          "input_to_post_draw_us": null,
+          "locale_control_enabled": true,
+          "theme_id": -9223370145492100409,
+          "theme_reused": true
+        },
+        {
+          "attempt": 5,
+          "content_id": 1864905004513,
+          "first_open": false,
+          "input_dispatch_us": 46734,
+          "input_to_following_process_frame_us": 48488,
+          "input_to_post_draw_us": null,
+          "locale_control_enabled": true,
+          "theme_id": -9223370145492100409,
+          "theme_reused": true
+        }
+      ],
+      "text_size": 125,
+      "window_size": [
+        64,
+        64
+      ],
+      "exit_code": 0,
+      "assertions": 105
+    },
+    "c2": {
+      "auto": false,
+      "display": "headless",
+      "engine": "4.6.3-stable (official)",
+      "limits": "Source project; Day1 opening after authored setup; first open is not cold OS cache. Process-frame and post-draw endpoints are not physical display latency. Assertions and event construction are outside timers.",
+      "locale": "en",
+      "reveal": "instant",
+      "revision": "candidate",
+      "samples": [
+        {
+          "attempt": 1,
+          "content_id": 1864905004513,
+          "first_open": true,
+          "input_dispatch_us": 239320,
+          "input_to_following_process_frame_us": 242753,
+          "input_to_post_draw_us": null,
+          "locale_control_enabled": true,
+          "theme_id": -9223370145492100409,
+          "theme_reused": false
+        },
+        {
+          "attempt": 2,
+          "content_id": 1864905004513,
+          "first_open": false,
+          "input_dispatch_us": 48592,
+          "input_to_following_process_frame_us": 50257,
+          "input_to_post_draw_us": null,
+          "locale_control_enabled": true,
+          "theme_id": -9223370145492100409,
+          "theme_reused": true
+        },
+        {
+          "attempt": 3,
+          "content_id": 1864905004513,
+          "first_open": false,
+          "input_dispatch_us": 44144,
+          "input_to_following_process_frame_us": 45705,
+          "input_to_post_draw_us": null,
+          "locale_control_enabled": true,
+          "theme_id": -9223370145492100409,
+          "theme_reused": true
+        },
+        {
+          "attempt": 4,
+          "content_id": 1864905004513,
+          "first_open": false,
+          "input_dispatch_us": 45136,
+          "input_to_following_process_frame_us": 46856,
+          "input_to_post_draw_us": null,
+          "locale_control_enabled": true,
+          "theme_id": -9223370145492100409,
+          "theme_reused": true
+        },
+        {
+          "attempt": 5,
+          "content_id": 1864905004513,
+          "first_open": false,
+          "input_dispatch_us": 48905,
+          "input_to_following_process_frame_us": 50688,
+          "input_to_post_draw_us": null,
+          "locale_control_enabled": true,
+          "theme_id": -9223370145492100409,
+          "theme_reused": true
+        }
+      ],
+      "text_size": 125,
+      "window_size": [
+        64,
+        64
+      ],
+      "exit_code": 0,
+      "assertions": 105
+    },
+    "b2": {
+      "auto": false,
+      "display": "headless",
+      "engine": "4.6.3-stable (official)",
+      "limits": "Source project; Day1 opening after authored setup; first open is not cold OS cache. Process-frame and post-draw endpoints are not physical display latency. Assertions and event construction are outside timers.",
+      "locale": "en",
+      "reveal": "instant",
+      "revision": "a7cb921b078047079a62a045269bce5641ee0f9e",
+      "samples": [
+        {
+          "attempt": 1,
+          "content_id": 1865022445016,
+          "first_open": true,
+          "input_dispatch_us": 251838,
+          "input_to_following_process_frame_us": 255295,
+          "input_to_post_draw_us": null,
+          "locale_control_enabled": true,
+          "theme_id": -9223370145374659898,
+          "theme_reused": false
+        },
+        {
+          "attempt": 2,
+          "content_id": 1865022445016,
+          "first_open": false,
+          "input_dispatch_us": 55778,
+          "input_to_following_process_frame_us": 58022,
+          "input_to_post_draw_us": null,
+          "locale_control_enabled": true,
+          "theme_id": -9223370145374659898,
+          "theme_reused": true
+        },
+        {
+          "attempt": 3,
+          "content_id": 1865022445016,
+          "first_open": false,
+          "input_dispatch_us": 58067,
+          "input_to_following_process_frame_us": 60048,
+          "input_to_post_draw_us": null,
+          "locale_control_enabled": true,
+          "theme_id": -9223370145374659898,
+          "theme_reused": true
+        },
+        {
+          "attempt": 4,
+          "content_id": 1865022445016,
+          "first_open": false,
+          "input_dispatch_us": 64831,
+          "input_to_following_process_frame_us": 67530,
+          "input_to_post_draw_us": null,
+          "locale_control_enabled": true,
+          "theme_id": -9223370145374659898,
+          "theme_reused": true
+        },
+        {
+          "attempt": 5,
+          "content_id": 1865022445016,
+          "first_open": false,
+          "input_dispatch_us": 85066,
+          "input_to_following_process_frame_us": 87405,
+          "input_to_post_draw_us": null,
+          "locale_control_enabled": true,
+          "theme_id": -9223370145374659898,
+          "theme_reused": true
+        }
+      ],
+      "text_size": 125,
+      "window_size": [
+        64,
+        64
+      ],
+      "exit_code": 0,
+      "assertions": 105
+    }
+  },
+  "source_sha256": {
+    "scripts/ui/ComputerDesktop.gd": "b1986df27190a152c204a6da91be89e82d3a757e604ae292f5578281f8ec3ed7",
+    "tests/manual/benchmark_settings_reopen.gd": "78dd64469bec7b54ceecc2be3551b53ada3839851ad0a616465d0c4cc9c4d5da",
+    "tests/integration/test_scene_desktop_consumer.gd": "54b9ab47c5753c978935c4fe103429ca3d0df48cf0dd18a99abd9e6d7a3addc7"
+  },
+  "limits": [
+    "Linux headless source project, shared AMD EPYC 9V74 host, Godot4.6.3",
+    "Two fresh processes per variant, four correlated repeated samples per process",
+    "First open is not cold OS cache; English/instant reveal/Auto off/125%",
+    "Viewport dispatch and process frames are not physical display latency"
+  ]
+}

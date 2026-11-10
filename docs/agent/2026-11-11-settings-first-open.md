@@ -5,6 +5,10 @@ Follow-up to the [Linux investigation](2026-11-11-linux-latency-investigation.md
 
 ## Result and scope
 
+Follow-up: [remaining-latency investigation](2026-11-11-remaining-latency.md)
+measures Settings subparts, retains unchanged computer-shell presentation, and
+records current fresh Load, F5 Save, startup and aged-route results.
+
 Scene Settings now receives its actual run palette and dayless Scene context
 before entering the tree. Its first `_ready` builds the presentation it will use,
 rather than building default calendar presentation and replacing it afterward.

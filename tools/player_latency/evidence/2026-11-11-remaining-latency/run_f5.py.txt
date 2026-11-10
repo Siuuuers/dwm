@@ -1,0 +1,9 @@
+from pathlib import Path
+import os,subprocess,json
+root=Path.cwd();out=root/'.godot/ci/remaining';rows=[]
+for label,scenario,profile in [('f5-fresh','fresh','0'),('f5-repeated','repeated','0'),('f5-profile','fresh','1')]:
+ isolated=root/'.godot/phase2r_tests'/('remaining-'+label);(isolated/'data').mkdir(parents=True,exist_ok=True);(isolated/'test-root').mkdir(exist_ok=True)
+ env=dict(os.environ,DWM_TEST_ROOT=str(isolated/'test-root'),XDG_DATA_HOME=str(isolated/'data'),DWM_F5_CASE=scenario,DWM_F5_PROFILE=profile,DWM_F5_HEADLESS_DIAGNOSTIC='1')
+ args=['godot','--headless','--path','.', '-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/manual/benchmark_f5_save_latency.gd','-gunit_test_name=test_rendered_f5_latency','-gexit'];p=subprocess.run(args,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=150);(out/(label+'.log')).write_text(p.stdout);assert p.returncode==0,p.stdout;assert 'Asserts' in p.stdout and 'All tests passed!' in p.stdout
+ row=next(json.loads(x.split('DWM_F5_LATENCY ',1)[1]) for x in p.stdout.splitlines() if x.startswith('DWM_F5_LATENCY '));row.update(label=label,exit_code=p.returncode,command=args);rows.append(row);print(label,row['input_dispatch_us'],flush=True)
+(out/'f5.json').write_text(json.dumps(rows,indent=2)+'\n')

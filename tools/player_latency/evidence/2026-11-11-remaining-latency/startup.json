@@ -1,0 +1,34 @@
+[
+  {
+    "display": "headless",
+    "engine_ticks_us": 5028542,
+    "revision": "ffba1b00d2a18752e1d95a9be5dcb46c4eb129b1",
+    "label": "startup-1",
+    "process_launch_to_exit_ms": 5206.492702000105,
+    "exit_code": 0,
+    "command": [
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "res://tests/manual/benchmark_player_startup.gd"
+    ]
+  },
+  {
+    "display": "headless",
+    "engine_ticks_us": 5100099,
+    "revision": "ffba1b00d2a18752e1d95a9be5dcb46c4eb129b1",
+    "label": "startup-2",
+    "process_launch_to_exit_ms": 5286.197865003487,
+    "exit_code": 0,
+    "command": [
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "res://tests/manual/benchmark_player_startup.gd"
+    ]
+  }
+]
