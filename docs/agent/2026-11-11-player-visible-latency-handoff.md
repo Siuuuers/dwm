@@ -5,6 +5,10 @@ Date: 11 November 2026 (Hong Kong). Reviewed master:
 
 ## Outcome and status
 
+Follow-up: [11 November Linux investigation](2026-11-11-linux-latency-investigation.md)
+records the current source baseline, probe limitations and Settings attribution.
+Production code remains unchanged; Windows/rendered qualification is still open.
+
 Determine whether players encounter noticeable stalls in the exported Windows
 game, then reduce the largest reproducible unintended stall without changing
 approved behavior. One performance-session coordinator owns measurements,
