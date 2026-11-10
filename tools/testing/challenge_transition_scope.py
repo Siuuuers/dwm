@@ -46,7 +46,21 @@ def is_challenge_transition(paths, base):
     if not paths or not paths <= METHODS.keys() | TESTS | TOOLS | COMPANIONS:
         return False
     if not paths & (METHODS.keys() | TESTS | TOOLS):
-        return False
+        workflow = '.github/workflows/windows-tests.yml'
+        if workflow not in paths or not paths <= {workflow, 'tools/testing/test_windows_coverage.py'}:
+            return False
+        remaining = []
+        for ref in (base, 'HEAD'):
+            source = subprocess.run(['git', 'show', ref + ':' + workflow], capture_output=True)
+            if source.returncode:
+                return False
+            rest, count = re.subn(
+                rb'(?ms)^  challenge-transition:[ \t]*\n.*?(?=^\S|^  \S|\Z)', b'', source.stdout,
+            )
+            if count != 1:
+                return False
+            remaining.append(rest)
+        return remaining[0] == remaining[1]
     for path, owner in (
         ('.github/workflows/windows-tests.yml', 'test-scope'),
         ('.github/workflows/dtl-first-preflight.yml', 'scope'),
