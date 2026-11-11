@@ -1,0 +1,55 @@
+diff --git a/scripts/ui/SettingsControlsSheet.gd b/scripts/ui/SettingsControlsSheet.gd
+index 0381364..1f93048 100644
+--- a/scripts/ui/SettingsControlsSheet.gd
++++ b/scripts/ui/SettingsControlsSheet.gd
+@@ -282,13 +282,18 @@ func refresh() -> void:
+ 
+ 
+ func set_presentation(source_theme: Theme, font_size: int, large_targets: bool) -> void:
++	if _status != null and capture_dialog != null and capture_dialog.theme != null \
++			and theme == source_theme and _font_size == font_size and _large_targets == large_targets:
++		refresh()
++		return
+ 	theme = source_theme
+ 	_font_size = font_size
+ 	_large_targets = large_targets
+ 	if _status == null or capture_dialog == null:
+ 		return
++	var dialog_theme := PRESENTATION.confirmation_theme(source_theme, font_size, large_targets)
+ 	for dialog: ConfirmationDialog in [capture_dialog, conflict_dialog, original_dialog, import_dialog]:
+-		dialog.theme = PRESENTATION.confirmation_theme(source_theme, font_size, large_targets)
++		dialog.theme = dialog_theme
+ 		dialog.get_label().add_theme_font_size_override("font_size", font_size)
+ 		dialog.get_label().add_theme_font_override("font", dialog.theme.default_font)
+ 	PRESENTATION.apply_scroll(_conflict_scroll, true)
+diff --git a/tests/scene/test_settings_binding_capture.gd b/tests/scene/test_settings_binding_capture.gd
+index 757907f..57aa24a 100644
+--- a/tests/scene/test_settings_binding_capture.gd
++++ b/tests/scene/test_settings_binding_capture.gd
+@@ -356,3 +356,26 @@ func test_binding_cells_and_conflict_fit_nine_presentations() -> void:
+ 			assert_eq(dialog.gui_get_focus_owner(), dialog.get_cancel_button(), context)
+ 			await _press(dialog, KEY_ESCAPE)
+ 			f.content.free()
++
++func test_unchanged_presentation_reuses_dialog_theme_but_refreshes_binding_copy() -> void:
++	var f := _fixture()
++	await _settle()
++	var sheet: Control = f.sheet
++	var source: Theme = sheet.theme
++	var original: Theme = sheet.capture_dialog.theme
++	for dialog: ConfirmationDialog in [sheet.conflict_dialog, sheet.original_dialog, sheet.import_dialog]:
++		assert_same(dialog.theme, original)
++	var button: Button = sheet.button_for("game_quick_save", "keyboard")
++	var expected: String = button.text
++	button.text = "stale display"
++	sheet.set_presentation(source, sheet._font_size, sheet._large_targets)
++	assert_same(sheet.capture_dialog.theme, original)
++	assert_eq(button.text, expected, "reuse still refreshes current bindings")
++	for changed: Array in [[source, sheet._font_size + 1, sheet._large_targets],
++		[source, sheet._font_size + 1, not sheet._large_targets],
++		[source.duplicate(), sheet._font_size + 1, not sheet._large_targets]]:
++		var previous: Theme = sheet.capture_dialog.theme
++		sheet.set_presentation(changed[0], changed[1], changed[2])
++		assert_not_same(sheet.capture_dialog.theme, previous)
++		assert_eq(sheet.capture_dialog.theme.default_font_size, changed[1])
++		assert_eq(sheet.capture_dialog.theme.get_constant("buttons_min_height", "AcceptDialog"), maxi(64 if changed[2] else 48, changed[1] * 2))
