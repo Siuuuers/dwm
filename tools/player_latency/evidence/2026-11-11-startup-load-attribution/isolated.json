@@ -1,0 +1,62 @@
+[
+  {
+    "cached": false,
+    "path": "res://autoload/ApplicationBootstrap.gd",
+    "us": 1677885
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/infrastructure/storage/JsonFileStorage.gd",
+    "us": 45850
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd",
+    "us": 69571
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/infrastructure/identity/CryptoDesktopNamespaceSource.gd",
+    "us": 679
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd",
+    "us": 26960
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/application/run/SaveManagerCheckpointPort.gd",
+    "us": 1324269
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/application/transaction/ApplicationMutationGate.gd",
+    "us": 4376
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/narrative/DialogicEntryManifest.gd",
+    "us": 364693
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/application/transaction/FatalDiagnosticProjector.gd",
+    "us": 7873
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/domain/run/RunSnapshotSchema.gd",
+    "us": 1155100
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/infrastructure/save/SaveDocumentSchema.gd",
+    "us": 1188508
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/validation/StrictJson.gd",
+    "us": 9429
+  }
+]
