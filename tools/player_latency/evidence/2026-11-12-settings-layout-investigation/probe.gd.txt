@@ -1,0 +1,32 @@
+extends "res://tests/manual/benchmark_player_latency.gd"
+
+func test_open_probe() -> void:
+	_phase = "create"
+	if not _setup_authored(false, "Day1"): return
+	get_tree().process_frame.connect(observe_frame)
+	get_node("/root/SceneRouter").goto_menu()
+	if not await _new_from_title(1, _expected[0].line_id): return
+	var host: Node = get_tree().current_scene
+	var caret: Control = host.get_node("SceneControlsLayer/Surface/Controls/CheckComputer")
+	var caption: Node = _caption()
+	var before: Dictionary = bridge.get_reading_history()
+	for attempt: int in 3:
+		for action: String in ["settings", "computer"]:
+			print("OPEN_BEGIN " + action + " " + str(attempt))
+			var started := begin_sample()
+			await _click(caption.transport_rail._settings_button if action == "settings" else caret)
+			assert_true(host.is_computer_open())
+			end_sample(action, started, str(attempt))
+			if action == "settings":
+				var desktop: Node = host.get_computer_mount().get_node("SceneComputerDesktop")
+				assert_eq(desktop._active_id, &"settings")
+				var content: Control = desktop._cached_app_windows[&"settings"].get_content_host()
+				assert_true(content.is_visible_in_tree())
+				assert_eq(content.get_controller()._controls[&"preferences.reading.auto_enabled"].button_pressed, false)
+			started = begin_sample()
+			await _click(caret)
+			end_sample(action + "_close", started, str(attempt))
+			assert_false(host.is_computer_open())
+			for frame: int in 4: await get_tree().process_frame
+			assert_true(caption._history_admitted())
+	assert_eq(bridge.get_reading_history(), before)
