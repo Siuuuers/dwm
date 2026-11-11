@@ -2,11 +2,11 @@ extends Control
 
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const BUSY_COPY := {
-	"en": {"preparing": "Preparing your account", "starting": "Starting your desktop", "retrying": "Resuming startup"},
-	"zh-CN": {"preparing": "正在准备账户", "starting": "正在启动桌面", "retrying": "正在恢复启动"},
-	"zh-HK": {"preparing": "正在準備帳戶", "starting": "正在啟動桌面", "retrying": "正在恢復啟動"},
-	"ja": {"preparing": "アカウントを準備中", "starting": "デスクトップを起動中", "retrying": "起動を再試行中"},
-	"ko": {"preparing": "계정 준비 중", "starting": "데스크톱 시작 중", "retrying": "시작 다시 시도 중"},
+	"en": {"loading": "Loading", "preparing": "Preparing your account", "starting": "Starting your desktop", "retrying": "Resuming startup"},
+	"zh-CN": {"loading": "正在加载", "preparing": "正在准备账户", "starting": "正在启动桌面", "retrying": "正在恢复启动"},
+	"zh-HK": {"loading": "正在載入", "preparing": "正在準備帳戶", "starting": "正在啟動桌面", "retrying": "正在恢復啟動"},
+	"ja": {"loading": "読み込み中", "preparing": "アカウントを準備中", "starting": "デスクトップを起動中", "retrying": "起動を再試行中"},
+	"ko": {"loading": "불러오는 중", "preparing": "계정 준비 중", "starting": "데스크톱 시작 중", "retrying": "시작 다시 시도 중"},
 }
 var wordmark: Label
 var welcome: Label

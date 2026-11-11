@@ -16,43 +16,53 @@ const JSON_STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStor
 const DESKTOP_ISSUER_ROOT_STORE := preload("res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd")
 const CRYPTO_DESKTOP_NAMESPACE_SOURCE := preload("res://scripts/infrastructure/identity/CryptoDesktopNamespaceSource.gd")
 const DESKTOP_IDENTITY_NONCE_ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
-const CONTACT_COMMAND_PORT := preload("res://scripts/application/contact/ContactCommandPort.gd")
-const CONTACTS_PRESENTATION_PORT := preload("res://scripts/application/contact/ContactsPresentationPort.gd")
 const SAVE_CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
-const CAUSAL_DAY_ADVANCE_IDENTITY_PORT := preload("res://scripts/application/run/CausalDayAdvanceIdentityPort.gd")
-const DATING_PRESENTATION_PORT := preload("res://scripts/application/run/DatingPresentationPort.gd")
 const APPLICATION_MUTATION_GATE_SCRIPT := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
-const NARRATIVE_CHECKPOINT_PORT := preload("res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd")
-const ENDING_PLAYBACK_PORT := preload("res://scripts/application/ending/DialogicEndingPlaybackPort.gd")
-const DIALOGIC_RUNTIME_ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
-const DIALOGIC_TIMELINE_CATALOG := preload("res://scripts/data/DialogicTimelineCatalog.gd")
 const DIALOGIC_ENTRY_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const NARRATIVE_CONTENT_VERSION := 1
-const DESKTOP_APP_HOST_STATE := preload("res://scripts/domain/desktop/DesktopAppHostState.gd")
-const RUN_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/RunRestoreParticipant.gd")
-const PROFILE_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/ProfileRestoreParticipant.gd")
-const LOCALIZATION_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/LocalizationRestoreParticipant.gd")
-const AUDIO_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/AudioRestoreParticipant.gd")
-const ROUTE_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/RouteRestoreParticipant.gd")
-const NARRATIVE_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/NarrativeRestoreParticipant.gd")
-const DESKTOP_CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
-const DESKTOP_BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
-const DESKTOP_CONSEQUENCE_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd")
-const DESKTOP_BOARD_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/DesktopBoardRestoreParticipant.gd")
+const RUNTIME_RESOURCES: Array[String] = [
+	"res://scripts/application/contact/ContactCommandPort.gd",
+	"res://scripts/application/contact/ContactsPresentationPort.gd",
+	"res://scripts/application/run/CausalDayAdvanceIdentityPort.gd",
+	"res://scripts/application/run/DatingPresentationPort.gd",
+	"res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd",
+	"res://scripts/application/ending/DialogicEndingPlaybackPort.gd",
+	"res://scripts/narrative/DialogicRuntimeAdapter.gd",
+	"res://scripts/data/DialogicTimelineCatalog.gd",
+	"res://scripts/domain/desktop/DesktopAppHostState.gd",
+	"res://scripts/application/restore/RunRestoreParticipant.gd",
+	"res://scripts/application/restore/ProfileRestoreParticipant.gd",
+	"res://scripts/application/restore/LocalizationRestoreParticipant.gd",
+	"res://scripts/application/restore/AudioRestoreParticipant.gd",
+	"res://scripts/application/restore/RouteRestoreParticipant.gd",
+	"res://scripts/application/restore/NarrativeRestoreParticipant.gd",
+	"res://scripts/domain/desktop/DesktopConsequenceState.gd",
+	"res://scripts/domain/minesweeper/DesktopBoardState.gd",
+	"res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd",
+	"res://scripts/application/restore/DesktopBoardRestoreParticipant.gd",
+	"res://scripts/domain/minesweeper/MinesweeperRoundCoordinator.gd",
+	"res://scripts/application/minesweeper/GameStateMinesweeperPort.gd",
+	"res://scripts/application/minesweeper/SaveManagerMinesweeperPort.gd",
+	"res://scripts/infrastructure/save/DesktopPublicationLedger.gd",
+	"res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd",
+	"res://scripts/application/minesweeper/MinesweeperPanelPort.gd",
+	"res://scripts/application/contact/ProvisionalCorrespondenceCatalog.gd",
+	"res://scripts/data/DataCatalog.gd",
+	"res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd",
+	"res://scripts/application/minesweeper/GameStateDesktopBoardPort.gd",
+	"res://scripts/application/minesweeper/SaveManagerDesktopBoardPort.gd",
+	"res://scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd",
+	"res://scripts/domain/shop/MinesweeperShopRegistry.gd",
+	"res://scripts/ui/desktop/DesktopConfirmation.gd",
+	"res://scripts/ui/backup/BackupTheme.gd",
+	"res://scripts/application/run/DatingPhysicalOwner.gd",
+	"res://scripts/application/desktop/SessionExitCoordinator.gd",
+	"res://scripts/application/narrative/SceneEventCommandPort.gd",
+	"res://scripts/ui/SceneChallengePanel.gd",
+	"res://scripts/application/shop/ShopPresentationPort.gd",
+	"res://scenes/desktop/ComputerDesktop.tscn",
+]
 const FATAL_DIAGNOSTIC_PROJECTOR := preload("res://scripts/application/transaction/FatalDiagnosticProjector.gd")
-const MINESWEEPER_ROUND_COORDINATOR := preload("res://scripts/domain/minesweeper/MinesweeperRoundCoordinator.gd")
-const MINESWEEPER_STATE_PORT := preload("res://scripts/application/minesweeper/GameStateMinesweeperPort.gd")
-const MINESWEEPER_SAVE_PORT := preload("res://scripts/application/minesweeper/SaveManagerMinesweeperPort.gd")
-const DESKTOP_PUBLICATION_LEDGER := preload("res://scripts/infrastructure/save/DesktopPublicationLedger.gd")
-const MINESWEEPER_GENERATION_PORT := preload("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd")
-const MINESWEEPER_PANEL_PORT := preload("res://scripts/application/minesweeper/MinesweeperPanelPort.gd")
-const PROVISIONAL_CORRESPONDENCE := preload("res://scripts/application/contact/ProvisionalCorrespondenceCatalog.gd")
-const GAMEPLAY_DATA_CATALOG := preload("res://scripts/data/DataCatalog.gd")
-const MINESWEEPER_ROUND_COORDINATOR_APP := preload("res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd")
-const GAME_STATE_DESKTOP_BOARD_PORT := preload("res://scripts/application/minesweeper/GameStateDesktopBoardPort.gd")
-const SAVE_MANAGER_DESKTOP_BOARD_PORT := preload("res://scripts/application/minesweeper/SaveManagerDesktopBoardPort.gd")
-const DESKTOP_FIRST_REVEAL_SNAPSHOT_COMPOSER := preload("res://scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd")
-const MINESWEEPER_SHOP_REGISTRY := preload("res://scripts/domain/shop/MinesweeperShopRegistry.gd")
 const RUN_SNAPSHOT_SCHEMA_FOR_PROBE := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const SAVE_DOCUMENT_SCHEMA_FOR_PROBE := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 const RUN_SNAPSHOT_SCHEMA_VERSION := RUN_SNAPSHOT_SCHEMA_FOR_PROBE.SCHEMA_VERSION
@@ -100,6 +110,9 @@ const DEVELOPMENT_STAGE_SETS := {
 	MODE_PROFILE_LOCALE_AUDIO_DEVELOPMENT: [&"select_and_prove_roots", &"construct_and_inject_mutation_gate", &"initialize_profile", &"initialize_localization", &"initialize_input", &"initialize_accessibility", &"initialize_audio", &"initialize_dialogic_bridge"],
 }
 
+var staged_startup := false
+var _title_phase := false
+var _runtime_stage_index := STAGE_ORDER.find(&"initialize_dialogic_bridge")
 var _started := false
 var _quitting := false
 var _start_begun := false
@@ -146,14 +159,15 @@ var _retained_game_state_desktop_board_port: RefCounted = null
 var _retained_save_manager_desktop_board_port: RefCounted = null
 var _desktop_identity_provider := Callable()
 var _state := {
-	"started": false, "ready": false, "mode": &"",
+	"started": false, "ready": false, "title_ready": false, "mode": &"",
 	"completed_stages": [], "planned_blockers": [], "fatal_result": {}, "failed_stage": null,
 	"gate_injection": {"factory_invocation_count": 0, "gate_instance_id": 0, "targets": [], "target_instance_ids": []},
 }
 
 func _ready() -> void:
 	get_tree().auto_accept_quit = false
-	call_deferred("start", _requested_mode_from_debug_args())
+	if not staged_startup:
+		call_deferred("start", _requested_mode_from_debug_args())
 
 func request_quit() -> void:
 	if _quitting: return
@@ -171,6 +185,8 @@ func request_quit() -> void:
 			_content_error_layer = null
 			show_content_error({"code": stopped.code, "message": "Audio is still stopping. Please try Quit again."})
 			return
+	var loader := _target(&"StartupLoader")
+	if loader != null: await loader.shutdown()
 	get_tree().quit()
 
 func show_content_error(result: Dictionary) -> void:
@@ -184,9 +200,9 @@ func show_content_error(result: Dictionary) -> void:
 	_content_error_layer.layer = 128
 	_content_error_layer.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(_content_error_layer)
-	var confirmation := preload("res://scripts/ui/desktop/DesktopConfirmation.gd").new()
+	var confirmation: Control = load("res://scripts/ui/desktop/DesktopConfirmation.gd").new()
 	confirmation.name = "ContentErrorConfirmation"
-	confirmation.theme = preload("res://scripts/ui/backup/BackupTheme.gd").build("en", 100)
+	confirmation.theme = load("res://scripts/ui/backup/BackupTheme.gd").build("en", 100)
 	var message: String = str(result.get("message", result.get("code", "reading_content_error")))
 	for key: String in ["line_id", "position_id", "target_id"]:
 		var id: String = str(result.get("details", {}).get(key, ""))
@@ -248,11 +264,53 @@ func start(mode: StringName = MODE_FINAL) -> Dictionary:
 		if not published.get("ok", false):
 			_state["completed_stages"].erase(&"publish_application_ready")
 			return _record_startup_stage_failure(&"publish_application_ready", published)
+		_state["title_ready"] = true
 		_state["ready"] = true
 		application_ready.emit()
 	else:
 		development_subset_ready.emit(mode)
 	return {"ok": true, "value": get_startup_state()}
+
+func start_title() -> Dictionary:
+	if _started or _start_begun: return _failure(&"bootstrap_already_started", "ApplicationBootstrap starts exactly once")
+	_start_begun = true
+	_title_phase = true
+	_state["started"] = true
+	_state["mode"] = MODE_FINAL
+	for stage_id: StringName in STAGE_ORDER.slice(0, _runtime_stage_index):
+		var result := _run_stage(stage_id, MODE_FINAL)
+		if not result.get("ok", false): return _record_startup_stage_failure(stage_id, result)
+		_state["completed_stages"].append(stage_id)
+	_state["title_ready"] = true
+	return {"ok": true}
+
+
+func prepare_runtime() -> Dictionary:
+	_title_phase = false
+	var injected := _inject_mutation_gate(FINAL_GATE_TARGETS, MODE_FINAL)
+	if not injected.get("ok", false): return _record_startup_stage_failure(&"construct_and_inject_mutation_gate", injected)
+	var identity := _construct_identity_issuer_and_contact_commands()
+	if not identity.get("ok", false): return _record_startup_stage_failure(&"construct_identity_issuer_and_contact_commands", identity)
+	return {"ok": true}
+
+
+func advance_runtime() -> Dictionary:
+	var stage_id: StringName = STAGE_ORDER[_runtime_stage_index]
+	var result := _run_stage(stage_id, MODE_FINAL)
+	if not result.get("ok", false): return _record_startup_stage_failure(stage_id, result)
+	_state["completed_stages"].append(stage_id)
+	_runtime_stage_index += 1
+	if _runtime_stage_index == STAGE_ORDER.size():
+		var published := _publish_startup_route_hold()
+		if not published.get("ok", false):
+			_state["completed_stages"].erase(&"publish_application_ready")
+			return _record_startup_stage_failure(&"publish_application_ready", published)
+		_started = true
+		_state["title_ready"] = true
+		_state["ready"] = true
+		application_ready.emit()
+	return {"ok": true}
+
 
 func get_startup_state() -> Dictionary:
 	return _state.duplicate(true)
@@ -344,6 +402,7 @@ func _continue_startup_after_recovery(failed_stage: StringName, transaction_id: 
 	_state["failed_stage"] = null
 	_started = true
 	if not bool(_state["ready"]):
+		_state["title_ready"] = true
 		_state["ready"] = true
 		application_ready.emit()
 	return {"ok": true, "code": &"ok", "value": get_startup_state()}
@@ -557,8 +616,16 @@ func _construct_and_inject_mutation_gate(mode: StringName) -> Dictionary:
 		gate = produced
 		targets = DEVELOPMENT_GATE_TARGETS[mode]
 	if not _is_compatible_gate(gate): return _failure(&"invalid_mutation_gate", "Factory returned an incompatible gate")
+	_application_gate = gate
+	return _inject_mutation_gate(targets, mode)
+
+
+func _inject_mutation_gate(targets: Array, mode: StringName) -> Dictionary:
+	var gate: Object = _application_gate
 	_state["gate_injection"]["gate_instance_id"] = gate.get_instance_id()
 	for target_name: StringName in targets:
+		if _title_phase and target_name in [&"GameState", &"SceneRouter"]: continue
+		if target_name in _state["gate_injection"]["targets"]: continue
 		_state["gate_injection"]["targets"].append(target_name)
 		var target := _target(target_name)
 		if target == null or not target.has_method("configure_mutation_gate"): return _failure(&"invalid_gate_target", "Gate target is missing or incompatible: %s" % target_name)
@@ -568,7 +635,7 @@ func _construct_and_inject_mutation_gate(mode: StringName) -> Dictionary:
 		_state["gate_injection"]["target_instance_ids"].append(retained_id)
 		if retained_id != gate.get_instance_id(): return _failure(&"mutation_gate_identity_mismatch", "Target retained another gate")
 	_application_gate = gate
-	if mode == MODE_FINAL:
+	if mode == MODE_FINAL and not _title_phase:
 		var route_owner := _target(&"SceneRouter")
 		if route_owner == null or not route_owner.has_method("begin_startup_route_hold") \
 				or not route_owner.has_method("publish_startup_route_hold"):
@@ -605,9 +672,6 @@ func _publish_startup_route_hold() -> Dictionary:
 func _construct_identity_issuer_and_contact_commands() -> Dictionary:
 	if _profile_storage == null:
 		return _failure(&"issuer_storage_unconfigured", "root selection did not retain profile storage")
-	var game_state := _target(&"GameState")
-	if game_state == null or not game_state.has_method("configure_identity_issuer"):
-		return _failure(&"missing_stage_adapter", "GameState identity seam is unavailable")
 	if _desktop_issuer_root_store == null:
 		_desktop_issuer_root_store = DESKTOP_ISSUER_ROOT_STORE.new()
 		var root_configured: Dictionary = _desktop_issuer_root_store.configure(
@@ -623,6 +687,10 @@ func _construct_identity_issuer_and_contact_commands() -> Dictionary:
 			_desktop_issuer_root_store)
 		if not issuer_configured.get("ok", false):
 			return issuer_configured
+	if _title_phase: return {"ok": true}
+	var game_state := _target(&"GameState")
+	if game_state == null or not game_state.has_method("configure_identity_issuer"):
+		return _failure(&"missing_stage_adapter", "GameState identity seam is unavailable")
 	var injected: Dictionary = game_state.call(
 		&"configure_identity_issuer", _desktop_identity_nonce_issuer)
 	if not injected.get("ok", false):
@@ -637,7 +705,7 @@ func _construct_identity_issuer_and_contact_commands() -> Dictionary:
 			!= _desktop_identity_nonce_issuer.get_instance_id():
 		return _failure(&"identity_issuer_mismatch", "GameState retained another issuer")
 	if _contact_command_port == null:
-		_contact_command_port = CONTACT_COMMAND_PORT.new()
+		_contact_command_port = load("res://scripts/application/contact/ContactCommandPort.gd").new()
 	var port_configured: Dictionary = _contact_command_port.configure(
 		game_state, _desktop_identity_nonce_issuer)
 	if not port_configured.get("ok", false):
@@ -668,14 +736,14 @@ func _wire_narrative_and_ending_ports(bridge: Object) -> Dictionary:
 	var runtime_adapter: RefCounted = null
 	var dialogic := get_node_or_null("/root/Dialogic")
 	if dialogic != null:
-		var candidate: RefCounted = DIALOGIC_RUNTIME_ADAPTER.new()
+		var candidate: RefCounted = load("res://scripts/narrative/DialogicRuntimeAdapter.gd").new()
 		if candidate.bind_runtime(dialogic).get("ok", false):
 			runtime_adapter = candidate
-	var initialized: Dictionary = bridge.call(&"initialize", DIALOGIC_TIMELINE_CATALOG, runtime_adapter)
+	var initialized: Dictionary = bridge.call(&"initialize", load("res://scripts/data/DialogicTimelineCatalog.gd"), runtime_adapter)
 	if not initialized.get("ok", false):
 		return initialized
 	if _narrative_checkpoint_adapter == null:
-		_narrative_checkpoint_adapter = NARRATIVE_CHECKPOINT_PORT.new()
+		_narrative_checkpoint_adapter = load("res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd").new()
 		var configured: Dictionary = _narrative_checkpoint_adapter.configure(_retained_checkpoint_port, {
 			"snapshot_input": Callable(game_state, "capture_run_snapshot_input"),
 			"narrative_checkpoint": Callable(bridge, "provide_transaction_narrative_checkpoint"),
@@ -698,7 +766,7 @@ func _wire_narrative_and_ending_ports(bridge: Object) -> Dictionary:
 	if int(bridge_port["value"]["port_instance_id"]) != adapter_id or int(state_port["value"]["port_instance_id"]) != adapter_id:
 		return _failure(&"narrative_checkpoint_identity_mismatch", "A consumer retained another narrative adapter")
 	if _ending_playback_port == null:
-		_ending_playback_port = ENDING_PLAYBACK_PORT.new()
+		_ending_playback_port = load("res://scripts/application/ending/DialogicEndingPlaybackPort.gd").new()
 		var ending_initialized: Dictionary = _ending_playback_port.initialize(bridge)
 		if not ending_initialized.get("ok", false):
 			return ending_initialized
@@ -782,8 +850,8 @@ func configure_contacts_desktop(desktop: Node) -> Dictionary:
 		return _failure(&"invalid_contacts_desktop", "desktop presentation seam required")
 	var game_state := _target(&"GameState")
 	if _contacts_presentation_port == null:
-		_contacts_presentation_port = CONTACTS_PRESENTATION_PORT.new()
-		var configured: Dictionary = _contacts_presentation_port.configure(game_state, _contact_command_port, PROVISIONAL_CORRESPONDENCE.build())
+		_contacts_presentation_port = load("res://scripts/application/contact/ContactsPresentationPort.gd").new()
+		var configured: Dictionary = _contacts_presentation_port.configure(game_state, _contact_command_port, load("res://scripts/application/contact/ProvisionalCorrespondenceCatalog.gd").build())
 		if not configured.get("ok", false):
 			_contacts_presentation_port = null
 			return configured
@@ -850,7 +918,7 @@ func _desktop_amendment_probe_fields() -> Dictionary:
 		"restore_participant_instance_ids": restore_participant_ids,
 		"run_snapshot_schema_version": RUN_SNAPSHOT_SCHEMA_VERSION,
 		"save_document_schema_version": SAVE_DOCUMENT_SCHEMA_VERSION,
-		"registry_versions": {"minesweeper_shop": MINESWEEPER_SHOP_REGISTRY.REGISTRY_VERSION},
+		"registry_versions": {"minesweeper_shop": load("res://scripts/domain/shop/MinesweeperShopRegistry.gd").REGISTRY_VERSION},
 		"desktop_graph_constructed": desktop_graph_constructed,
 	}
 
@@ -864,7 +932,7 @@ func _configure_causal_day_advance_identity() -> Dictionary:
 		return _failure(&"missing_identity_issuer",
 			"the causal day advance identity port requires the retained production issuer")
 	if _retained_causal_day_advance_identity_port == null:
-		_retained_causal_day_advance_identity_port = CAUSAL_DAY_ADVANCE_IDENTITY_PORT.new()
+		_retained_causal_day_advance_identity_port = load("res://scripts/application/run/CausalDayAdvanceIdentityPort.gd").new()
 		var issuer_bound: Dictionary = _retained_causal_day_advance_identity_port.configure(
 			_desktop_identity_nonce_issuer)
 		if not issuer_bound.get("ok", false):
@@ -896,33 +964,33 @@ func _configure_restore_participants() -> Dictionary:
 		or typeof(window_capability.value.get("available")) != TYPE_BOOL:
 		return _failure(&"missing_stage_adapter", "Window output capability is malformed")
 	if _desktop_host_state == null:
-		_desktop_host_state = DESKTOP_APP_HOST_STATE.new()
+		_desktop_host_state = load("res://scripts/domain/desktop/DesktopAppHostState.gd").new()
 		var day: int = 1
 		if game_state.get("day") != null:
 			day = int(game_state.get("day"))
 		_desktop_host_state.reset(day)
-	var route_participant: RefCounted = ROUTE_RESTORE_PARTICIPANT.new(router)
+	var route_participant: RefCounted = load("res://scripts/application/restore/RouteRestoreParticipant.gd").new(router)
 	var host_configured: Dictionary = route_participant.configure_desktop_host(_desktop_host_state)
 	if not host_configured.get("ok", false):
 		return host_configured
 	if _desktop_consequence_state == null:
-		_desktop_consequence_state = DESKTOP_CONSEQUENCE_STATE.new()
+		_desktop_consequence_state = load("res://scripts/domain/desktop/DesktopConsequenceState.gd").new()
 	if _desktop_board_state == null:
-		_desktop_board_state = DESKTOP_BOARD_STATE.new()
+		_desktop_board_state = load("res://scripts/domain/minesweeper/DesktopBoardState.gd").new()
 		var scene_payments: Dictionary = _desktop_board_state.configure_scene_payments(_desktop_identity_nonce_issuer)
 		if not scene_payments.get("ok", false): return scene_payments
 	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_contract_tables()
 	if not selected.get("ok", false):
 		return selected
 	var participants := {
-		"run": RUN_RESTORE_PARTICIPANT.new(game_state),
-		"desktop_consequence": DESKTOP_CONSEQUENCE_RESTORE_PARTICIPANT.new(_desktop_consequence_state),
-		"desktop_board": DESKTOP_BOARD_RESTORE_PARTICIPANT.new(_desktop_board_state, _desktop_identity_nonce_issuer),
-		"profile": PROFILE_RESTORE_PARTICIPANT.new(profile),
-		"localization": LOCALIZATION_RESTORE_PARTICIPANT.new(localization),
-		"audio": AUDIO_RESTORE_PARTICIPANT.new(audio),
+		"run": load("res://scripts/application/restore/RunRestoreParticipant.gd").new(game_state),
+		"desktop_consequence": load("res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd").new(_desktop_consequence_state),
+		"desktop_board": load("res://scripts/application/restore/DesktopBoardRestoreParticipant.gd").new(_desktop_board_state, _desktop_identity_nonce_issuer),
+		"profile": load("res://scripts/application/restore/ProfileRestoreParticipant.gd").new(profile),
+		"localization": load("res://scripts/application/restore/LocalizationRestoreParticipant.gd").new(localization),
+		"audio": load("res://scripts/application/restore/AudioRestoreParticipant.gd").new(audio),
 		"route": route_participant,
-		"narrative": NARRATIVE_RESTORE_PARTICIPANT.new(bridge),
+		"narrative": load("res://scripts/application/restore/NarrativeRestoreParticipant.gd").new(bridge),
 	}
 	if window_capability.value.available:
 		var configured_window: Dictionary = participants.profile.configure_window_output(window)
@@ -981,13 +1049,13 @@ func _configure_desktop_production_graph() -> Dictionary:
 	var reward_gate: Dictionary = game_state.configure_mutation_gate(_application_gate)
 	if not reward_gate.get("ok", false): return reward_gate
 	if _retained_minesweeper_state_port == null:
-		_retained_minesweeper_state_port = MINESWEEPER_STATE_PORT.new(game_state)
+		_retained_minesweeper_state_port = load("res://scripts/application/minesweeper/GameStateMinesweeperPort.gd").new(game_state)
 	var reward_configured: Dictionary = _retained_minesweeper_state_port.configure(_application_gate)
 	if not reward_configured.get("ok", false): return reward_configured
 
 	var snapshot_bound: Dictionary = game_state.configure_desktop_snapshot_provider(Callable(self, "_capture_live_desktop_snapshot"))
 	if not snapshot_bound.get("ok", false): return snapshot_bound
-	if _scene_shop_catalog == null: _scene_shop_catalog = GAMEPLAY_DATA_CATALOG.new()
+	if _scene_shop_catalog == null: _scene_shop_catalog = load("res://scripts/data/DataCatalog.gd").new()
 	var shop_bound: Dictionary = game_state.configure_scene_shop_runtime(_scene_shop_catalog, _desktop_consequence_state)
 	if not shop_bound.get("ok", false): return shop_bound
 	var day_bound: Dictionary = game_state.configure_scene_day_runtime(_retained_causal_day_advance_identity_port, _desktop_board_state, _desktop_consequence_state)
@@ -996,7 +1064,7 @@ func _configure_desktop_production_graph() -> Dictionary:
 	if not scene_round_bound.get("ok", false): return scene_round_bound
 
 	if _retained_desktop_publication_ledger == null:
-		var ledger: RefCounted = DESKTOP_PUBLICATION_LEDGER.new()
+		var ledger: RefCounted = load("res://scripts/infrastructure/save/DesktopPublicationLedger.gd").new()
 		var ledger_configured: Dictionary = ledger.configure(_profile_storage)
 		if not ledger_configured.get("ok", false):
 			return ledger_configured
@@ -1018,7 +1086,7 @@ func _configure_desktop_production_graph() -> Dictionary:
 		return _failure(&"desktop_identity_unavailable", "GameState live identity is required")
 
 	if _retained_game_state_desktop_board_port == null:
-		var board_port: RefCounted = GAME_STATE_DESKTOP_BOARD_PORT.new()
+		var board_port: RefCounted = load("res://scripts/application/minesweeper/GameStateDesktopBoardPort.gd").new()
 		var board_port_configured: Dictionary = board_port.configure(
 			game_state, _desktop_identity_nonce_issuer, _desktop_identity_provider)
 		if not board_port_configured.get("ok", false):
@@ -1028,12 +1096,12 @@ func _configure_desktop_production_graph() -> Dictionary:
 	if not board_consequence.get("ok", false): return board_consequence
 
 	if _retained_minesweeper_round_coordinator_app == null:
-		var round_coordinator: RefCounted = MINESWEEPER_ROUND_COORDINATOR_APP.new()
+		var round_coordinator: RefCounted = load("res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd").new()
 		round_coordinator.set("_board_state", _desktop_board_state)
 		var round_ledger: Dictionary = round_coordinator.configure_publication_ledger(ledger)
 		if not round_ledger.get("ok", false):
 			return round_ledger
-		var save_board_port: RefCounted = SAVE_MANAGER_DESKTOP_BOARD_PORT.new(_retained_checkpoint_port)
+		var save_board_port: RefCounted = load("res://scripts/application/minesweeper/SaveManagerDesktopBoardPort.gd").new(_retained_checkpoint_port)
 		var save_board_configured: Dictionary = save_board_port.configure(_retained_checkpoint_port)
 		if not save_board_configured.get("ok", false):
 			return save_board_configured
@@ -1045,10 +1113,10 @@ func _configure_desktop_production_graph() -> Dictionary:
 		if not save_scene.get("ok", false): return save_scene
 		_retained_save_manager_desktop_board_port = save_board_port
 		var durable: Dictionary = round_coordinator.configure_durable_checkpoint(
-			save_board_port, DESKTOP_FIRST_REVEAL_SNAPSHOT_COMPOSER, _desktop_consequence_state)
+			save_board_port, load("res://scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd"), _desktop_consequence_state)
 		if not durable.get("ok", false):
 			return durable
-		_retained_minesweeper_generation_port = MINESWEEPER_GENERATION_PORT.new()
+		_retained_minesweeper_generation_port = load("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd").new()
 		var playable: Dictionary = round_coordinator.configure(_retained_game_state_desktop_board_port,
 			save_board_port, _retained_minesweeper_generation_port, _desktop_identity_nonce_issuer)
 		if not playable.get("ok", false): return playable
@@ -1059,9 +1127,9 @@ func _configure_desktop_production_graph() -> Dictionary:
 	var completion: Dictionary = _retained_minesweeper_round_coordinator_app.configure_scene_completion(game_state)
 	if not completion.get("ok", false): return completion
 	if _retained_dating_presentation_port == null:
-		_retained_dating_presentation_port = DATING_PRESENTATION_PORT.new()
+		_retained_dating_presentation_port = load("res://scripts/application/run/DatingPresentationPort.gd").new()
 	if _retained_dating_physical_owner == null:
-		var owner: RefCounted = preload("res://scripts/application/run/DatingPhysicalOwner.gd").new()
+		var owner: RefCounted = load("res://scripts/application/run/DatingPhysicalOwner.gd").new()
 		var configured: Dictionary = owner.configure(_desktop_identity_nonce_issuer,
 			game_state, _target(&"ProfileManager"), _retained_minesweeper_generation_port)
 		if not configured.get("ok", false): return configured
@@ -1090,7 +1158,7 @@ func _configure_minesweeper_rounds(game_state: Object, save_manager: Object) -> 
 		return _failure(&"missing_stage_adapter", "GameState Minesweeper seam is unavailable")
 	var state_port: RefCounted = _retained_minesweeper_state_port
 	if state_port == null:
-		state_port = MINESWEEPER_STATE_PORT.new(game_state)
+		state_port = load("res://scripts/application/minesweeper/GameStateMinesweeperPort.gd").new(game_state)
 	var state_configured: Dictionary = state_port.configure(_application_gate)
 	if not state_configured.get("ok", false):
 		return state_configured
@@ -1103,7 +1171,7 @@ func _configure_minesweeper_rounds(game_state: Object, save_manager: Object) -> 
 	_retained_minesweeper_state_port = state_port
 	var save_port: RefCounted = _retained_minesweeper_save_port
 	if save_port == null:
-		save_port = MINESWEEPER_SAVE_PORT.new()
+		save_port = load("res://scripts/application/minesweeper/SaveManagerMinesweeperPort.gd").new()
 	var save_configured: Dictionary = save_port.configure(_retained_checkpoint_port, save_manager)
 	if not save_configured.get("ok", false):
 		return save_configured
@@ -1113,7 +1181,7 @@ func _configure_minesweeper_rounds(game_state: Object, save_manager: Object) -> 
 	_retained_minesweeper_save_port = save_port
 	var coordinator: RefCounted = _retained_minesweeper_coordinator
 	if coordinator == null:
-		coordinator = MINESWEEPER_ROUND_COORDINATOR.new()
+		coordinator = load("res://scripts/domain/minesweeper/MinesweeperRoundCoordinator.gd").new()
 	var coordinator_configured: Dictionary = coordinator.configure(save_port, state_port)
 	if not coordinator_configured.get("ok", false):
 		return coordinator_configured
@@ -1261,7 +1329,7 @@ func configure_session_exit_desktop(desktop: Node) -> Dictionary:
 	if desktop == null or not desktop.has_method("configure_session_exit"):
 		return _failure(&"invalid_exit_desktop", "")
 	if desktop.has_meta("session_exit"): return {"ok": true}
-	var exit: RefCounted = preload("res://scripts/application/desktop/SessionExitCoordinator.gd").new()
+	var exit: RefCounted = load("res://scripts/application/desktop/SessionExitCoordinator.gd").new()
 	var configured: Dictionary = exit.configure(_target(&"GameState"), _target(&"SceneRouter"), _application_gate)
 	if not configured.get("ok", false): return configured
 	configured = desktop.configure_session_exit(exit)
@@ -1388,7 +1456,7 @@ func _wire_scene_event_owner(game_state: Node, bridge: Node) -> Dictionary:
 		if not staged.get("ok", false): return staged
 		_scene_staging_wired = true
 	if _scene_event_command_port == null:
-		_scene_event_command_port = preload("res://scripts/application/narrative/SceneEventCommandPort.gd").new()
+		_scene_event_command_port = load("res://scripts/application/narrative/SceneEventCommandPort.gd").new()
 		var bound: Dictionary = game_state.configure_scene_event_owner(bridge)
 		if not bound.get("ok", false): return bound
 		var configured: Dictionary = _scene_event_command_port.configure(game_state,
@@ -1462,7 +1530,7 @@ func open_scene_computer(host: Control) -> Dictionary:
 	var mount: Control = host.get_challenge_mount()
 	var panel: Control = mount.get_node_or_null("SceneChallengePanel")
 	if panel == null:
-		panel = preload("res://scripts/ui/SceneChallengePanel.gd").new()
+		panel = load("res://scripts/ui/SceneChallengePanel.gd").new()
 		mount.add_child(panel)
 		if not panel.bind(_retained_dating_presentation_port, admitted.value.presentation_command):
 			panel.queue_free()
@@ -1593,18 +1661,18 @@ func _ensure_scene_desktop(host: Control) -> Dictionary:
 	if not session.get("ok", false): return session
 	var admitted: Dictionary = game.validate_live_session(session.value)
 	if not admitted.get("ok", false): return admitted
-	var contacts: RefCounted = CONTACTS_PRESENTATION_PORT.new()
+	var contacts: RefCounted = load("res://scripts/application/contact/ContactsPresentationPort.gd").new()
 	var configured: Dictionary = contacts.configure(game, _contact_command_port)
 	if not configured.get("ok", false): return configured
-	var panel: RefCounted = MINESWEEPER_PANEL_PORT.new()
+	var panel: RefCounted = load("res://scripts/application/minesweeper/MinesweeperPanelPort.gd").new()
 	configured = panel.configure(_retained_minesweeper_round_coordinator_app,
 		_desktop_identity_nonce_issuer, game, _scene_shop_catalog)
 	if not configured.get("ok", false): return configured
-	var shop: RefCounted = preload("res://scripts/application/shop/ShopPresentationPort.gd").new()
+	var shop: RefCounted = load("res://scripts/application/shop/ShopPresentationPort.gd").new()
 	configured = shop.configure_scene(game, _scene_shop_catalog, _desktop_identity_nonce_issuer, _application_gate)
 	if not configured.get("ok", false): return configured
 	var ports := {"contacts": contacts, "panel": panel, "shop": shop}
-	desktop = preload("res://scenes/desktop/ComputerDesktop.tscn").instantiate()
+	desktop = load("res://scenes/desktop/ComputerDesktop.tscn").instantiate()
 	desktop.name = "SceneComputerDesktop"
 	configured = desktop.configure_scene_navigation(_desktop_host_state, _scene_desktop_phase,
 		_scene_desktop_dispatch.bind(panel), _prepare_scene_desktop_app.bind(ports),

@@ -18,6 +18,8 @@ Accessibility Always and Audio Dummy are explicit cloud harness settings, not de
 accessibility or audio-output qualification. Receipts bind these settings across modes.
 Success means bounded machine checks passed. Screenshots require independent visual review;
 UIA names alone do not prove full-line pixels. Capability is not Save/Load acceptance.
+EarlyTitleAction skips the settled title screenshot before the first action. It records
+the earliest externally observed click and optional Loading text, not internal readiness.
 #>
 [CmdletBinding()]
 param(
@@ -29,6 +31,7 @@ param(
     [Parameter(Mandatory)][string]$OutputPath,
     [string]$CapabilityReceipt,
     [string]$CreatorReceipt,
+    [switch]$EarlyTitleAction,
     [ValidateSet('ProjectDefault', 'gl_compatibility')][string]$Renderer = 'ProjectDefault',
     [ValidateSet('ProjectDefault', 'Always')][string]$Accessibility = 'ProjectDefault',
     [ValidateSet('ProjectDefault', 'Dummy')][string]$Audio = 'ProjectDefault',
@@ -84,6 +87,7 @@ $result = [ordered]@{
     scope = 'Ordinary release UI; current authored opening, displayed artwork, manual Save/Load, Computer Home and clean shutdown'
     forced_cleanup = $false; clean_player_exit = $false
     observations = @()
+    early_title_action = [bool]$EarlyTitleAction
     timing_scope = 'External UIA upper bounds, not engine readiness or input-to-photon. Includes provider calls, 100ms polling and 200ms post-invoke wait; excludes settled screenshot waits.'
 }
 
@@ -217,6 +221,16 @@ function Invoke-UI($Element, [string]$Purpose) {
     ([Windows.Automation.InvokePattern]$pattern).Invoke()
     $script:lastInvokeReturned = [Diagnostics.Stopwatch]::GetTimestamp()
     Start-Sleep -Milliseconds 200
+}
+function Observe-TitleAction {
+    if (-not $EarlyTitleAction) { return }
+    $result.launch_to_title_action_ms = ($lastInvokeStarted - $launchStarted) * 1000.0 / [Diagnostics.Stopwatch]::Frequency
+    $script:window = Window
+    # UIA may observe after loading completes; absence is not a readiness failure.
+    $result.title_loading_observed = @(Nodes $window | Where-Object {
+        (Visible $_) -and $_.Current.Name -cmatch '^Loading[.\u2026]*$'
+    }).Count -gt 0
+    Record 'early-title-action' @{ purpose = $lastInvokePurpose; loading_observed = $result.title_loading_observed }
 }
 function Caption([string]$Text) {
     return Wait-One $Text { Nodes $window | Where-Object { (Visible $_) -and $_.Current.ControlType -eq [Windows.Automation.ControlType]::Text -and $_.Current.Name.TrimEnd() -ceq $Text } }
@@ -596,10 +610,11 @@ try {
     $result.process.observed_command_line = [string]$nativeProcess.CommandLine
     $null = Button 'New Acc'
     $result.launch_to_title_observed_ms = ([Diagnostics.Stopwatch]::GetTimestamp() - $launchStarted) * 1000.0 / [Diagnostics.Stopwatch]::Frequency
-    Capture 'title'
+    if (-not $EarlyTitleAction) { Capture 'title' }
     if ($Mode -eq 'Load') {
         Require ($creator.process.pid -ne $child.Id -or $creator.process.started_utc -cne $result.process.started_utc) 'LOAD_NOT_DISTINCT_PROCESS'
         Invoke-UI (Button 'Log in') 'open selected-slot Load from Title'
+        Observe-TitleAction
         $null = Wait-One 'saved slot drawer' { Nodes $window | Where-Object { (Visible $_) -and $_.Current.ControlType -eq [Windows.Automation.ControlType]::Button -and $_.Current.Name -cmatch '^Slot 1, ' } }
         Select-Slot 1
         Capture 'load-slot-selected'
@@ -632,6 +647,7 @@ try {
         Return-HomeAndQuit
     } else {
         Invoke-UI (Button 'New Acc') 'ordinary New Game'
+        Observe-TitleAction
         Observe-Line $opening.text 'new-game'
         Invoke-UI (Button 'Check Computer') 'open Computer'
         $null = Button 'Close Computer'

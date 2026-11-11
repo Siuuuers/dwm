@@ -8,15 +8,22 @@ func observe() -> void:
 		quit(2)
 		return
 	change_scene_to_file(ProjectSettings.get_setting("application/run/main_scene"))
+	var title_tick := 0
 	var deadline := Time.get_ticks_msec() + 120000
 	while Time.get_ticks_msec() < deadline:
 		var bootstrap: Node = root.get_node_or_null("ApplicationBootstrap")
-		if bootstrap != null and bootstrap.get_startup_state().get("ready", false) and is_instance_valid(current_scene) and current_scene.is_node_ready():
+		if bootstrap != null and bootstrap.get_startup_state().get("title_ready", bootstrap.get_startup_state().get("ready", false)) and is_instance_valid(current_scene) and current_scene.is_node_ready():
 			var button: Button = current_scene.get_node_or_null("%NewAccButton")
 			if button != null and button.is_visible_in_tree() and not button.disabled:
-				if DisplayServer.get_name() != "headless": await RenderingServer.frame_post_draw
-				print("PLAYER_STARTUP " + JSON.stringify({"engine_ticks_us": Time.get_ticks_usec(), "display": DisplayServer.get_name(), "revision": OS.get_environment("DWM_BENCHMARK_REVISION")}))
-				quit(0)
+				if title_tick == 0:
+					if DisplayServer.get_name() != "headless": await RenderingServer.frame_post_draw
+					title_tick = Time.get_ticks_usec()
+					print("PLAYER_TITLE " + JSON.stringify({"engine_ticks_us": title_tick}))
+				if not bootstrap.get_startup_state().get("ready", false):
+					await process_frame
+					continue
+				print("PLAYER_STARTUP " + JSON.stringify({"engine_ticks_us": Time.get_ticks_usec(), "title_ticks_us": title_tick, "display": DisplayServer.get_name(), "revision": OS.get_environment("DWM_BENCHMARK_REVISION")}))
+				bootstrap.request_quit()
 				return
 		await process_frame
 	quit(1)
