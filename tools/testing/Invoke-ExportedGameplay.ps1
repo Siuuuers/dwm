@@ -73,6 +73,9 @@ $window = $null
 $dataRoot = $null
 $clock = [Diagnostics.Stopwatch]::StartNew()
 $events = [Collections.Generic.List[object]]::new()
+$lastInvokeStarted = 0L
+$lastInvokeReturned = 0L
+$lastInvokePurpose = ''
 $result = [ordered]@{
     schema_version = 1; mode = $Mode; ok = $false; visual_review_required = $true
     source_commit = $ExpectedCommit.ToLowerInvariant(); archive_sha256 = $ExpectedArchiveSha256.ToLowerInvariant()
@@ -80,6 +83,8 @@ $result = [ordered]@{
     renderer_request = $Renderer; user_root = $user; output_path = $output
     scope = 'Ordinary release UI; current authored opening, displayed artwork, manual Save/Load, Computer Home and clean shutdown'
     forced_cleanup = $false; clean_player_exit = $false
+    observations = @()
+    timing_scope = 'External UIA upper bounds, not engine readiness or input-to-photon. Includes provider calls, 100ms polling and 200ms post-invoke wait; excludes settled screenshot waits.'
 }
 
 function Write-Json([string]$Path, $Value) {
@@ -207,7 +212,10 @@ function Invoke-UI($Element, [string]$Purpose) {
     $pattern = $null
     Require ($Element.TryGetCurrentPattern([Windows.Automation.InvokePattern]::Pattern, [ref]$pattern)) 'UIA_INVOKE_UNSUPPORTED'
     Record 'invoke' @{ purpose = $Purpose; target = (Describe $Element) }
+    $script:lastInvokePurpose = $Purpose
+    $script:lastInvokeStarted = [Diagnostics.Stopwatch]::GetTimestamp()
     ([Windows.Automation.InvokePattern]$pattern).Invoke()
+    $script:lastInvokeReturned = [Diagnostics.Stopwatch]::GetTimestamp()
     Start-Sleep -Milliseconds 200
 }
 function Caption([string]$Text) {
@@ -215,6 +223,12 @@ function Caption([string]$Text) {
 }
 function Observe-Line([string]$Text, [string]$Stage) {
     $null = Caption $Text
+    $observedAt = [Diagnostics.Stopwatch]::GetTimestamp()
+    $result.observations += [ordered]@{
+        stage = $Stage; preceding_action = $lastInvokePurpose
+        invoke_call_ms = ($lastInvokeReturned - $lastInvokeStarted) * 1000.0 / [Diagnostics.Stopwatch]::Frequency
+        invoke_to_caption_observed_ms = ($observedAt - $lastInvokeStarted) * 1000.0 / [Diagnostics.Stopwatch]::Frequency
+    }
     Capture "$Stage-first-observed"
     # Text naming is not visibility proof. Keep a settled screenshot for independent review.
     Start-Sleep -Milliseconds 1600
@@ -570,6 +584,7 @@ try {
         $start.Environment[$name] = $directory
     }
     $child = [Diagnostics.Process]::new(); $child.StartInfo = $start
+    $launchStarted = [Diagnostics.Stopwatch]::GetTimestamp()
     Require ($child.Start()) 'EXPORT_LAUNCH_FAILED'
     $stdoutRead = $child.StandardOutput.ReadToEndAsync()
     $stderrRead = $child.StandardError.ReadToEndAsync()
@@ -580,6 +595,7 @@ try {
     Require ($null -ne $nativeProcess -and [string]$nativeProcess.ExecutablePath -ieq $executable) 'NATIVE_PROCESS_PATH_MISMATCH'
     $result.process.observed_command_line = [string]$nativeProcess.CommandLine
     $null = Button 'New Acc'
+    $result.launch_to_title_observed_ms = ([Diagnostics.Stopwatch]::GetTimestamp() - $launchStarted) * 1000.0 / [Diagnostics.Stopwatch]::Frequency
     Capture 'title'
     if ($Mode -eq 'Load') {
         Require ($creator.process.pid -ne $child.Id -or $creator.process.started_utc -cne $result.process.started_utc) 'LOAD_NOT_DISTINCT_PROCESS'
