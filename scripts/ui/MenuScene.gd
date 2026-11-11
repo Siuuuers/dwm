@@ -682,7 +682,7 @@ func _build_login_shell() -> void:
 	if profile != null:
 		profile.preference_changed.connect(func(_path, _value): _refresh_login_shell())
 	var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
-	if bootstrap != null:
+	if bootstrap != null and not bootstrap.get_startup_state().get("title_ready", false):
 		bootstrap.application_ready.connect(_refresh_login_shell)
 	_refresh_login_shell()
 
