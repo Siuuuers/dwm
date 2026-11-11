@@ -57,12 +57,12 @@ const RUNTIME_RESOURCES: Array[String] = [
 	"res://scripts/application/narrative/SceneEventCommandPort.gd",
 ]
 const BACKGROUND_RESOURCES: Array[String] = [
+	"res://scenes/desktop/ComputerDesktop.tscn",
 	"res://scripts/application/contact/ContactsPresentationPort.gd",
 	"res://scripts/application/minesweeper/MinesweeperPanelPort.gd",
 	"res://scripts/application/contact/ProvisionalCorrespondenceCatalog.gd",
 	"res://scripts/ui/SceneChallengePanel.gd",
 	"res://scripts/application/shop/ShopPresentationPort.gd",
-	"res://scenes/desktop/ComputerDesktop.tscn",
 ]
 const FATAL_DIAGNOSTIC_PROJECTOR := preload("res://scripts/application/transaction/FatalDiagnosticProjector.gd")
 const RUN_SNAPSHOT_SCHEMA_FOR_PROBE := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
