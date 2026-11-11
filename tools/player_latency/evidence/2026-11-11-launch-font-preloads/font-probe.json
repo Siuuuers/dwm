@@ -1,0 +1,28 @@
+[
+  {
+    "display": "headless",
+    "engine_ticks_us": 6694849,
+    "revision": "",
+    "title_ticks_us": 4364031,
+    "label": "baseline",
+    "warning": false,
+    "title": {
+      "engine_ticks_us": 4364031,
+      "simplified_readable_cached": true,
+      "traditional_readable_cached": true
+    }
+  },
+  {
+    "display": "headless",
+    "engine_ticks_us": 5373432,
+    "revision": "",
+    "title_ticks_us": 3517000,
+    "label": "candidate",
+    "warning": false,
+    "title": {
+      "engine_ticks_us": 3517000,
+      "simplified_readable_cached": false,
+      "traditional_readable_cached": false
+    }
+  }
+]
