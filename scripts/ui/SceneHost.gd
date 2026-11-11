@@ -77,6 +77,7 @@ func is_computer_open() -> bool:
 	return _computer_open
 
 func set_computer_open(open: bool) -> void:
+	if _computer_open == open: return
 	var closing := _computer_open and not open
 	_computer_open = open
 	$SceneControlsLayer/Surface/Controls/CheckComputer.queue_redraw()

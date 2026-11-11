@@ -2,6 +2,12 @@ extends GutTest
 ## Host routing contract; production save/restart is covered by the cloud journey.
 const SCENE := preload("res://scenes/narrative/SceneHost.tscn")
 
+class CountingHost extends "res://scripts/ui/SceneHost.gd":
+	var presentation_refreshes := 0
+	func _refresh_presentation(locale: String = "") -> void:
+		presentation_refreshes += 1
+		super._refresh_presentation(locale)
+
 class Actions extends RefCounted:
 	var calls: Array[String] = []
 	var allow := true
@@ -15,6 +21,7 @@ var _actions: Actions
 func before_each() -> void:
 	_actions = Actions.new()
 	_host = SCENE.instantiate()
+	_host.set_script(CountingHost)
 	var actions := {}
 	for action: String in ["computer_open", "computer_close", "apps", "contacts"]:
 		actions[action] = _actions.dispatch.bind(action)
@@ -108,3 +115,23 @@ func test_caret_is_within_bar_separate_from_save_and_outside_computer_and_challe
 	board.size = Vector2(960, 656)
 	_host.get_challenge_mount().add_child(board)
 	assert_eq(board.scale, Vector2.ONE * (928.0 / 960.0))
+
+func test_repeated_computer_state_retains_theme_and_independent_mount_visibility() -> void:
+	_host.set_computer_open(true)
+	var controls: Control = _host.get_node("SceneControlsLayer/Surface/Controls")
+	var presentation: Theme = controls.theme
+	var refreshes: int = _host.presentation_refreshes
+	_host.set_computer_open(true)
+	assert_eq(_host.presentation_refreshes, refreshes)
+	assert_same(controls.theme, presentation)
+	_host.set_computer_content_visible(true)
+	_host.set_computer_open(true)
+	assert_true(_host.get_computer_mount().visible)
+	assert_false(_host.get_challenge_mount().visible)
+	_host.set_computer_content_visible(false)
+	assert_true(_host.get_challenge_mount().visible)
+	_host.set_computer_open(false)
+	assert_false(_host.get_challenge_mount().visible)
+	presentation = controls.theme
+	_host.set_computer_open(false)
+	assert_same(controls.theme, presentation)

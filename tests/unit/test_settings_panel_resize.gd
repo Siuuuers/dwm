@@ -23,6 +23,7 @@ class MemoryProfile extends RefCounted:
 		return commits.size()
 
 class MemoryLocalization extends RefCounted:
+	var availability_reads := 0
 	signal locale_changed(locale: String)
 
 	func has_key(_key: String) -> bool:
@@ -32,6 +33,7 @@ class MemoryLocalization extends RefCounted:
 		return key
 
 	func get_selectable_locales() -> Array[Dictionary]:
+		availability_reads += 1
 		return [{"id": "en", "native_name": "English", "release_status": "complete"}]
 
 class MemoryVolume extends RefCounted:
@@ -168,3 +170,30 @@ func test_live_resize_preserves_category_focus_and_uncommitted_volume_preview() 
 	assert_eq(_profile.commits, [], "layout changes do not publish held settings")
 
 	await controller.cancel_volume_drag()
+
+func test_hidden_departure_skips_refresh_and_reopen_restores_committed_controls() -> void:
+	_app.show_window()
+	await _settle()
+	var localization: MemoryLocalization = _content._services.localization
+	var reads := localization.availability_reads
+	_app.hide()
+	await _settle()
+	assert_eq(localization.availability_reads, reads, "hidden departure does not refresh controls")
+	_profile.values[&"preferences.reading.auto_enabled"] = true
+	_app.show_window()
+	await _settle()
+	assert_gt(localization.availability_reads, reads)
+	assert_true(_content.control_for(&"preferences.reading.auto_enabled").button_pressed)
+	_content.select_category("audio")
+	var controller: RefCounted = _content.get_controller()
+	controller.begin_volume_drag(VOLUME_PATH)
+	await controller._on_volume_changed(0.37, VOLUME_PATH)
+	assert_false(controller._drag.is_empty())
+	_app.hide()
+	await _settle()
+	assert_true(controller._drag.is_empty())
+	assert_false(_volume.cancellations.is_empty(), "hiding still cancels the physical preview")
+	assert_eq(_profile.commits, [])
+	_app.show_window()
+	await _settle()
+	assert_eq(_content.control_for(VOLUME_PATH).value, _profile.get_preference(VOLUME_PATH))

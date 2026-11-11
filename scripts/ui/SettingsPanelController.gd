@@ -503,7 +503,7 @@ func depart() -> void:
 	if handle != null and _has_audio_sink():
 		await _cancel_volume_preview(handle)
 	await _await_preview_operations(pending_previews)
-	refresh()
+	if is_instance_valid(_content) and _content.is_visible_in_tree(): refresh()
 
 
 func get_reset_revision() -> int:
