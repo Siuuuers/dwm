@@ -1,0 +1,39 @@
+extends SceneTree
+const STRICT = preload("res://scripts/validation/StrictJson.gd")
+const WRITER = preload("res://scripts/validation/CanonicalJsonWriter.gd")
+var checked := 0
+func same(a: Variant, b: Variant) -> bool:
+	checked += 1
+	if typeof(a) != typeof(b): return false
+	if a is Dictionary:
+		if a.size() != b.size(): return false
+		for key: Variant in a:
+			if not b.has(key) or not same(a[key], b[key]): return false
+		return true
+	if a is Array:
+		if a.size() != b.size(): return false
+		for i in a.size():
+			if not same(a[i], b[i]): return false
+		return true
+	return a == b
+func _initialize() -> void:
+	for path: String in ["res://data/manifests/scene_story_registration.json", "res://tests/fixtures/dialogic/scene_reading_registration.json"]:
+		var text := FileAccess.get_file_as_string(path)
+		for i in 3:
+			var start := Time.get_ticks_usec()
+			var strict := STRICT.parse_object(text)
+			var strict_us := Time.get_ticks_usec() - start
+			start = Time.get_ticks_usec()
+			var native: Variant = str_to_var(text)
+			var native_us := Time.get_ticks_usec() - start
+			if not strict.ok or not same(strict.value, native):
+				push_error("Registration decoder mismatch: " + path)
+				quit(1)
+				return
+			var a := WRITER.stringify(strict.value)
+			var b := WRITER.stringify(native)
+			if not a.ok or not b.ok or a.value != b.value:
+				quit(1)
+				return
+			print("REGISTRATION_DECODE ", JSON.stringify({"path":path,"strict_us":strict_us,"native_us":native_us,"checked":checked,"sha256":a.value.sha256_text()}))
+	quit()
