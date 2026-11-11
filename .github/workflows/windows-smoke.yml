@@ -3,7 +3,7 @@ name: Focused Windows release smoke
 on:
   workflow_dispatch:
   push:
-    branches: [codex/windows-smoke, codex/windows-load-observation, codex/art-import-comparison, codex/title-background-loading, codex/first-caption-loading, codex/newgame-activation-trim, codex/newgame-preparation-trim, codex/caption-registry-reuse, codex/newgame-preparation-owners, codex/dialogue-parse-investigation]
+    branches: [codex/caption-mount-render-check]
 
 permissions:
   contents: read
@@ -79,65 +79,23 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Cache pinned export templates
-        id: export-templates-cache
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-        with:
-          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
-          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
-      - name: Download verified Godot export templates
-        timeout-minutes: 10
+      - name: Render focused caption layout checks
         run: |
           $ErrorActionPreference = 'Stop'
-          $folder = Join-Path $env:RUNNER_TEMP 'dwm-godot-templates'
-          New-Item -ItemType Directory -Force -Path $folder | Out-Null
-          $archive = Join-Path $folder 'Godot_v4.6.3-stable_export_templates.tpz'
-          if (-not (Test-Path -LiteralPath $archive)) {
-            Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_export_templates.tpz' -OutFile $archive
+          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/caption-mount-rendered'
+          $env:APPDATA = Join-Path $output 'appdata'
+          $env:LOCALAPPDATA = Join-Path $output 'localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $env:GITHUB_WORKSPACE '.godot/phase2r_tests/caption-mount-rendered'
+          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+          foreach ($filter in @('test_dating_subtitles_keep_all_four', 'test_long_dating_caption', 'test_dating_review_and_hospital_scope_reset', 'test_dating_split_mouse', 'test_dating_split_touch')) {
+            $env:DWM_TEST_ROOT = Join-Path $env:GITHUB_WORKSPACE ".godot/phase2r_tests/caption-mount-$filter"
+            New-Item -ItemType Directory -Force -Path $env:DWM_TEST_ROOT | Out-Null
+            & $env:GODOT_CONSOLE_PATH --path $env:GITHUB_WORKSPACE --rendering-method gl_compatibility --audio-driver Dummy --log-file "$output/$filter.log" -s res://addons/gut/gut_cmdln.gd -gconfig= -gtest=res://tests/integration/test_dating_caption_style.gd "-gunit_test_name=$filter" -gexit "-gjunit_xml_file=res://.godot/ci/caption-mount-rendered/$filter.xml"
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            if (Select-String -Path "$output/$filter.log" -Pattern 'SCRIPT ERROR:|ERROR:' -Quiet) { throw 'Rendered checks reported errors.' }
           }
-          $expected = '3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-            throw 'Godot export templates checksum mismatch.'
-          }
-          "GODOT_EXPORT_TEMPLATES_ARCHIVE=$archive" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-      - name: Retain verified export templates for subsequent runs
-        if: steps.export-templates-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-        with:
-          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
-          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
-      - name: Export and launch isolated Windows executable
-        timeout-minutes: 12
-        run: ./tools/testing/Invoke-WindowsExportValidation.ps1
-      - name: Exercise packaged opening, save and fresh-process load
-        timeout-minutes: 15
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $export = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export'
-          $receipt = Get-Content (Join-Path $export 'validation.json') -Raw | ConvertFrom-Json
-          $evidence = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-smoke'
-          $users = Join-Path $env:RUNNER_TEMP 'dwm-windows-smoke'
-          $common = @('-NoProfile', '-File', './tools/testing/Invoke-ExportedGameplay.ps1',
-            '-ArchivePath', (Join-Path $export $receipt.archive.file),
-            '-ExpectedArchiveSha256', $receipt.archive.sha256, '-ExpectedCommit', $env:GITHUB_SHA,
-            '-Renderer', 'ProjectDefault', '-Accessibility', 'Always', '-Audio', 'Dummy')
-          & pwsh @common -Mode Capability -UserRoot "$users/capability" -OutputPath "$evidence/capability"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & pwsh @common -Mode Create -EarlyTitleAction -UserRoot "$users/journey" -OutputPath "$evidence/create" -CapabilityReceipt "$evidence/capability/result.json"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & pwsh @common -Mode Load -EarlyTitleAction -UserRoot "$users/journey" -OutputPath "$evidence/load" -CreatorReceipt "$evidence/create/result.json"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Upload Windows validation build and evidence
+      - uses: actions/upload-artifact@v4
         if: always()
-        uses: actions/upload-artifact@v4
         with:
-          name: windows-smoke-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            .godot/ci/import.log
-            .godot/ci/windows-export/
-            .godot/ci/windows-smoke/
-            !.godot/ci/windows-smoke/*/package/**
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-
+          name: caption-mount-rendered
+          path: .godot/ci/caption-mount-rendered
