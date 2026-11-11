@@ -1,0 +1,50 @@
+[
+  {
+    "display": "headless",
+    "engine_ticks_us": 5763655,
+    "revision": "",
+    "title_ticks_us": 3568666,
+    "label": "baseline",
+    "warning": false
+  },
+  {
+    "display": "headless",
+    "engine_ticks_us": 6038622,
+    "revision": "",
+    "title_ticks_us": 3742870,
+    "label": "candidate",
+    "warning": false
+  },
+  {
+    "display": "headless",
+    "engine_ticks_us": 5734060,
+    "revision": "",
+    "title_ticks_us": 3630933,
+    "label": "candidate",
+    "warning": false
+  },
+  {
+    "display": "headless",
+    "engine_ticks_us": 5835605,
+    "revision": "",
+    "title_ticks_us": 3814204,
+    "label": "baseline",
+    "warning": false
+  },
+  {
+    "display": "headless",
+    "engine_ticks_us": 5739954,
+    "revision": "",
+    "title_ticks_us": 3721947,
+    "label": "candidate",
+    "warning": false
+  },
+  {
+    "display": "headless",
+    "engine_ticks_us": 6358328,
+    "revision": "",
+    "title_ticks_us": 4277506,
+    "label": "baseline",
+    "warning": true
+  }
+]

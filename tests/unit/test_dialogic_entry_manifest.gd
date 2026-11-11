@@ -1412,6 +1412,25 @@ func test_the_manifest_script_exists_and_declares_its_expected_method_surface() 
 			"%s landed in sub-commit 2B; test_dialogic_ids_manifest.gd owns its behaviour" % landed)
 
 
+func test_native_registration_preserves_types_and_fingerprint() -> void:
+	for path: String in [STORY_BUNDLE_PATH, "res://tests/fixtures/dialogic/scene_reading_registration.json"]:
+		var text := FileAccess.get_file_as_string(path)
+		var strict := STRICT_JSON.parse_object(text)
+		assert_true(strict.ok, path)
+		if not strict.ok: continue
+		var native: Variant = str_to_var(text)
+		assert_true(CANONICAL_JSON._deep_same(strict.value, native), "All registration values and types: " + path)
+		assert_eq(_canonical(native).sha256_text(), _canonical(strict.value).sha256_text(), "Registration fingerprint: " + path)
+
+
+func test_native_registration_accepts_canonical_authored_values() -> void:
+	var authored := {"text": "She said \"hello\".\nC:\\Story\t你好 — 🌹", "values": [0, 65107, -2, 0.5, 1e-8, true, false, null]}
+	var encoded := CANONICAL_JSON.stringify(authored)
+	assert_true(encoded.ok)
+	if not encoded.ok: return
+	assert_true(CANONICAL_JSON._deep_same(authored, str_to_var(encoded.value)), "Canonical authored text and numeric types round-trip")
+
+
 func test_load_default_returns_the_shipped_document() -> void:
 	var script := _manifest_script()
 	assert_true(script != null, "expected RED: missing " + SCRIPT_PATH)

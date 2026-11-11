@@ -40,11 +40,12 @@ static func _select_startup_fixture() -> Dictionary:
 		_startup_selection_error = _scene_fail("test_only")
 		return _startup_selection_error.duplicate(true)
 	var path: String = SCENE_TEST_BUNDLE_PATH if fixture else SCENE_STORY_BUNDLE_PATH
-	var parsed := STRICT_JSON.parse_object(FileAccess.get_file_as_string(path))
-	if not parsed.ok:
+	# shortcut: generated Variant-compatible JSON only, revisit decoding if registration parity fails.
+	var parsed: Variant = str_to_var(FileAccess.get_file_as_string(path))
+	if not parsed is Dictionary:
 		_startup_selection_error = _scene_fail("startup registration unavailable: " + path)
 		return _startup_selection_error.duplicate(true)
-	var selected := configure_test_scene_registration(parsed.value) if fixture else _configure_scene_registration(parsed.value)
+	var selected := configure_test_scene_registration(parsed) if fixture else _configure_scene_registration(parsed)
 	if selected.ok:
 		if fixture: _first_target_id = "target_a"
 		else:
