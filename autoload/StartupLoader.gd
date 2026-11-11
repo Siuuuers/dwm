@@ -126,8 +126,11 @@ func _process(_delta: float) -> void:
 					_phase = &"wiring" if prepared.get("ok", false) else &"idle"
 		&"wiring":
 			var result: Dictionary = _bootstrap.advance_runtime()
-			if not result.get("ok", false) or _bootstrap.get_startup_state().ready:
+			if not result.get("ok", false):
 				_phase = &"idle"
+			elif _bootstrap.get_startup_state().ready:
+				_phase = &"idle"
+				queue_resources(_bootstrap.BACKGROUND_RESOURCES)
 
 func shutdown() -> void:
 	_phase = &"closing"

@@ -1,0 +1,14 @@
+import os,subprocess,pathlib,json,shutil
+root=pathlib.Path.cwd();out=root/'.godot/ci/first-caption';user=out/'matched-user';rows=[]
+for i,label in enumerate(['baseline','candidate','candidate','baseline']):
+ if user.exists():shutil.rmtree(user)
+ env=os.environ.copy();env.pop('DWM_TEST_ROOT',None);env.update(DWM_STARTUP_AUDIT='1',XDG_DATA_HOME=str(user),DWM_EARLY_COMPUTER='normal')
+ repo=root.parent/'dwm-caption-baseline' if label=='baseline' else root
+ log=out/f'final-{i}-{label}.log'
+ with log.open('w') as f:p=subprocess.run(['godot','--headless','--path',str(repo),'--script',str(out/'observe.gd')],env=env,stdout=f,stderr=subprocess.STDOUT,timeout=110)
+ s=log.read_text();assert p.returncode==0 and 'ERROR:' not in s,s
+ row=json.loads(next(x.split('FIRST_CAPTION ',1)[1] for x in s.splitlines() if x.startswith('FIRST_CAPTION ')))
+ row.update(label=label,warnings='WARNING:' in s,computer=json.loads(next(x.split('EARLY_COMPUTER ',1)[1] for x in s.splitlines() if x.startswith('EARLY_COMPUTER '))))
+ assert row['text']=='Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.'
+ rows.append(row);(out/'final-matched.json').write_text(json.dumps(rows,indent=2))
+ print({k:v for k,v in row.items() if k!='trace'},flush=True)
