@@ -455,3 +455,38 @@ func test_failed_restore_cannot_retain_membership_from_rejected_registry() -> vo
 	assert_eq(restored.check_session(TOKEN, ENTRY).code, &"caption_entry_unregistered")
 	assert_true(restored.check_session(TOKEN, "fixture.non_canon.foreign_entry").ok)
 
+
+func test_prepared_registration_detaches_source_and_shares_only_immutable_indexes() -> void:
+	var fixture := _fixture()
+	var prepared := LEDGER.prepare_registration(fixture.entry_manifest, fixture.registry)
+	assert_true(prepared.ok)
+	if not prepared.ok: return
+	var registration: NarrativeCaptionLedger = prepared.value
+	var original: Dictionary = fixture.registry.beats[0].duplicate(true)
+	fixture.registry.beats[0].presentation_signature["changed"] = true
+	fixture.registry.beats.clear()
+	assert_eq(registration._registered[original.beat_id], original)
+	assert_eq(registration._session_token, "")
+	assert_true(registration._frozen_context.is_empty())
+	var first := LEDGER.new()
+	var second := LEDGER.new()
+	assert_true(first.initialize(TOKEN, fixture.frozen_context, {}, {}, true, true, registration).ok)
+	assert_true(second.initialize("other", {"session": "other"}, {}, {}, true, true, registration).ok)
+	for field: String in ["_registered", "_registered_entries", "_by_line"]:
+		assert_true(is_same(first.get(field), second.get(field)))
+		assert_true(first.get(field).is_read_only())
+	assert_true(first._registered[original.beat_id].presentation_signature.is_read_only())
+	assert_true(first.admit_entry_context(TOKEN, ENTRY, _scene_frame("visit:1"), "visit:1").ok)
+	assert_true(first.publish_line(TOKEN, "caption:8", ENTRY, "fixture.caption.alpha", "visit:1").ok)
+	assert_true(second._entry_contexts.is_empty())
+	assert_true(second.snapshot().captions.is_empty())
+	assert_eq(second._session_token, "other")
+	var saved := first.snapshot()
+	var restored := LEDGER.new()
+	assert_true(restored.restore_snapshot(TOKEN, fixture.frozen_context, {}, {}, saved,
+		saved.entry_contexts, true, true, registration).ok)
+	assert_eq(restored.snapshot(), saved)
+	assert_true(is_same(restored._registered, first._registered))
+	assert_eq(restored.allocate_publication(TOKEN, ENTRY, "visit:1").value, "caption:9")
+	assert_true(registration._published.is_empty())
+	assert_true(registration._entry_contexts.is_empty())

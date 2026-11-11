@@ -27,9 +27,9 @@ func fork_live() -> NarrativeCaptionLedger:
 	candidate._frozen_context = _frozen_context
 	candidate._entry_contexts_required = _entry_contexts_required
 	candidate._entry_contexts = _entry_contexts.duplicate()
-	candidate._registered = _registered.duplicate()
-	candidate._registered_entries = _registered_entries.duplicate()
-	candidate._by_line = _by_line.duplicate()
+	candidate._registered = _registered
+	candidate._registered_entries = _registered_entries
+	candidate._by_line = _by_line
 	candidate._published = _published.duplicate()
 	candidate._sequence = _sequence.duplicate()
 	candidate._publication_serial = _publication_serial
@@ -50,24 +50,38 @@ func matches_live_history(retained: NarrativeCaptionLedger) -> bool:
 
 func initialize(session_token: String, frozen_context: Dictionary,
 		entry_manifest: Dictionary, registry: Dictionary, entry_contexts_required: bool = false,
-		scene: bool = false) -> Dictionary:
+		scene: bool = false, registration: NarrativeCaptionLedger = null) -> Dictionary:
 	if not _session_token.is_empty(): return _fail(&"caption_session_already_initialized")
 	if session_token.strip_edges().is_empty() or frozen_context.is_empty() \
 			or not FROZEN._primitive(frozen_context):
 		return _fail(&"caption_session_invalid")
-	var checked := MANIFEST.validate_caption_registry(entry_manifest, registry)
-	if not checked.ok: return checked
+	if registration == null:
+		var checked := prepare_registration(entry_manifest, registry)
+		if not checked.ok: return checked
+		registration = checked.value
 	_session_token = session_token
 	_frozen_context = frozen_context.duplicate(true)
 	FROZEN._freeze(_frozen_context)
 	_scene = scene
 	_entry_contexts_required = entry_contexts_required or scene
+	_registered = registration._registered
+	_registered_entries = registration._registered_entries
+	_by_line = registration._by_line
+	return {"ok": true}
+
+static func prepare_registration(entry_manifest: Dictionary, registry: Dictionary) -> Dictionary:
+	var checked := MANIFEST.validate_caption_registry(entry_manifest, registry)
+	if not checked.ok: return checked
+	var registration := NarrativeCaptionLedger.new()
 	for beat: Dictionary in checked.value.beats:
 		FROZEN._freeze(beat)
-		_registered[beat.beat_id] = beat
-		_registered_entries[beat.owning_entry_id] = true
-		_by_line[beat.line_id] = beat
-	return {"ok": true}
+		registration._registered[beat.beat_id] = beat
+		registration._registered_entries[beat.owning_entry_id] = true
+		registration._by_line[beat.line_id] = beat
+	registration._registered.make_read_only()
+	registration._registered_entries.make_read_only()
+	registration._by_line.make_read_only()
+	return {"ok": true, "value": registration}
 
 func admit_entry_context(session_token: String, entry_id: String, context: Dictionary,
 		occurrence_id: String = "") -> Dictionary:
@@ -94,11 +108,11 @@ func admit_entry_context(session_token: String, entry_id: String, context: Dicti
 func restore_snapshot(session_token: String, frozen_context: Dictionary,
 		entry_manifest: Dictionary, registry: Dictionary, saved: Dictionary,
 		entry_contexts: Dictionary = {}, entry_contexts_required: bool = false,
-		scene: bool = false) -> Dictionary:
+		scene: bool = false, registration: NarrativeCaptionLedger = null) -> Dictionary:
 	if not _session_token.is_empty(): return _fail(&"caption_session_already_initialized")
 	if scene or saved.has("schema_version"):
 		return _restore_scene_snapshot(session_token, frozen_context, entry_manifest, registry,
-			saved, entry_contexts)
+			saved, entry_contexts, registration)
 	var framed := entry_contexts_required
 	if saved.has("entry_contexts") != framed: return _fail(&"caption_entry_context_mismatch")
 	var fields := ["session_token", "frozen_context", "captions"]
@@ -291,7 +305,7 @@ static func resolve_scene_frame(frames: Dictionary, occurrence_id: String, entry
 
 func _restore_scene_snapshot(session_token: String, frozen_context: Dictionary,
 		entry_manifest: Dictionary, registry: Dictionary, saved: Dictionary,
-		entry_contexts: Dictionary) -> Dictionary:
+		entry_contexts: Dictionary, registration: NarrativeCaptionLedger) -> Dictionary:
 	if not _has_exact_fields(saved, ["schema_version", "session_token", "frozen_context", "entry_contexts", "captions"]) \
 			or not saved.schema_version is int or saved.schema_version != 2 \
 			or not saved.session_token is String or not saved.frozen_context is Dictionary \
@@ -301,7 +315,7 @@ func _restore_scene_snapshot(session_token: String, frozen_context: Dictionary,
 	if saved.frozen_context != frozen_context: return _fail(&"caption_context_mismatch")
 	if saved.entry_contexts != entry_contexts: return _fail(&"caption_entry_context_mismatch")
 	var candidate := NarrativeCaptionLedger.new()
-	var initialized := candidate.initialize(session_token, frozen_context, entry_manifest, registry, true, true)
+	var initialized := candidate.initialize(session_token, frozen_context, entry_manifest, registry, true, true, registration)
 	if not initialized.ok: return initialized
 	for key: Variant in entry_contexts:
 		if not key is String or not entry_contexts[key] is Dictionary:

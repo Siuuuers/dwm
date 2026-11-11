@@ -1,0 +1,13 @@
+{
+  "run_id": 43005978203,
+  "job_id": 130473433998,
+  "source_commit": "8cdd35942341f4e97b296e5e35c053efa65a04ef",
+  "artifact_id": 13848182854,
+  "artifact_sha256": "7c744c44718b482254fb0c62479a7e7559336152c592b565a864a5f64710f35c",
+  "archive_sha256": "ae5e530f87298cf9e3f57c1857ac1135558bba2c2eba4dc462c85166afca2a84",
+  "screenshots_reviewed": [
+    "create/saved-opening.png",
+    "load/restored-opening.png"
+  ],
+  "visual_result": "Exact opening caption and matching artwork visible; no clipping observed."
+}
