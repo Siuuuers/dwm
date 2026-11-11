@@ -22,7 +22,6 @@ const DIALOGIC_ENTRY_MANIFEST := preload("res://scripts/narrative/DialogicEntryM
 const NARRATIVE_CONTENT_VERSION := 1
 const RUNTIME_RESOURCES: Array[String] = [
 	"res://scripts/application/contact/ContactCommandPort.gd",
-	"res://scripts/application/contact/ContactsPresentationPort.gd",
 	"res://scripts/application/run/CausalDayAdvanceIdentityPort.gd",
 	"res://scripts/application/run/DatingPresentationPort.gd",
 	"res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd",
@@ -45,8 +44,6 @@ const RUNTIME_RESOURCES: Array[String] = [
 	"res://scripts/application/minesweeper/SaveManagerMinesweeperPort.gd",
 	"res://scripts/infrastructure/save/DesktopPublicationLedger.gd",
 	"res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd",
-	"res://scripts/application/minesweeper/MinesweeperPanelPort.gd",
-	"res://scripts/application/contact/ProvisionalCorrespondenceCatalog.gd",
 	"res://scripts/data/DataCatalog.gd",
 	"res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd",
 	"res://scripts/application/minesweeper/GameStateDesktopBoardPort.gd",
@@ -58,6 +55,11 @@ const RUNTIME_RESOURCES: Array[String] = [
 	"res://scripts/application/run/DatingPhysicalOwner.gd",
 	"res://scripts/application/desktop/SessionExitCoordinator.gd",
 	"res://scripts/application/narrative/SceneEventCommandPort.gd",
+]
+const BACKGROUND_RESOURCES: Array[String] = [
+	"res://scripts/application/contact/ContactsPresentationPort.gd",
+	"res://scripts/application/minesweeper/MinesweeperPanelPort.gd",
+	"res://scripts/application/contact/ProvisionalCorrespondenceCatalog.gd",
 	"res://scripts/ui/SceneChallengePanel.gd",
 	"res://scripts/application/shop/ShopPresentationPort.gd",
 	"res://scenes/desktop/ComputerDesktop.tscn",

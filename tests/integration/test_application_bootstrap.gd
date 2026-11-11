@@ -163,6 +163,35 @@ func _make_graph(label: String) -> Dictionary:
 	return {"bootstrap": bootstrap, "targets": targets, "checkpoint_port": checkpoint_port, "root": root}
 
 
+class BackgroundLoader extends "res://autoload/StartupLoader.gd":
+	func _install() -> void: pass
+
+class BackgroundBootstrap extends Node:
+	const BACKGROUND_RESOURCES := BOOTSTRAP.BACKGROUND_RESOURCES
+	var runtime_ready := false
+	var finish := false
+	func advance_runtime() -> Dictionary:
+		runtime_ready = finish
+		return {"ok": true}
+	func get_startup_state() -> Dictionary: return {"ready": runtime_ready}
+
+func test_optional_resources_are_queued_only_after_runtime_ready() -> void:
+	var loader: Node = autofree(BackgroundLoader.new())
+	var bootstrap: Node = autofree(BackgroundBootstrap.new())
+	loader._bootstrap = bootstrap
+	loader._phase = &"wiring"
+	loader._process(0.0)
+	assert_false(bootstrap.runtime_ready)
+	assert_true(loader._pending.is_empty(), "Optional resources cannot compete with required startup")
+	bootstrap.finish = true
+	loader._process(0.0)
+	assert_true(bootstrap.runtime_ready)
+	assert_eq(loader._phase, &"idle")
+	assert_eq(loader._pending, BOOTSTRAP.BACKGROUND_RESOURCES, "The same loader retains idle prewarming")
+	for path: String in BOOTSTRAP.BACKGROUND_RESOURCES:
+		assert_false(path in BOOTSTRAP.RUNTIME_RESOURCES, "Optional views cannot hold runtime readiness")
+
+
 func test_startup_loader_owns_autoload_installation() -> void:
 	var text := FileAccess.get_file_as_string("res://project.godot")
 	var section := text.get_slice("[autoload]", 1).get_slice("[", 0)
