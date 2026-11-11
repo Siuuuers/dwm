@@ -1,0 +1,236 @@
+{
+  "baseline": {
+    "samples": [
+      {
+        "action": "history",
+        "detail": "0",
+        "elapsed_us": 74589,
+        "largest_frame_us": 74090
+      },
+      {
+        "action": "history",
+        "detail": "1",
+        "elapsed_us": 91235,
+        "largest_frame_us": 90732
+      },
+      {
+        "action": "history",
+        "detail": "2",
+        "elapsed_us": 69428,
+        "largest_frame_us": 69072
+      },
+      {
+        "action": "history",
+        "detail": "3",
+        "elapsed_us": 70334,
+        "largest_frame_us": 69824
+      },
+      {
+        "action": "history",
+        "detail": "4",
+        "elapsed_us": 72379,
+        "largest_frame_us": 71124
+      },
+      {
+        "action": "history",
+        "detail": "0",
+        "elapsed_us": 73252,
+        "largest_frame_us": 72888
+      },
+      {
+        "action": "history",
+        "detail": "1",
+        "elapsed_us": 99449,
+        "largest_frame_us": 99092
+      },
+      {
+        "action": "history",
+        "detail": "2",
+        "elapsed_us": 72567,
+        "largest_frame_us": 72163
+      },
+      {
+        "action": "history",
+        "detail": "3",
+        "elapsed_us": 74748,
+        "largest_frame_us": 74356
+      },
+      {
+        "action": "history",
+        "detail": "4",
+        "elapsed_us": 74394,
+        "largest_frame_us": 74027
+      }
+    ],
+    "admission_us": [
+      3375.0,
+      3679.3,
+      3864.75,
+      3720.25,
+      3852.3,
+      3751.3,
+      4102.4,
+      4022.85,
+      3911.2,
+      3564.4
+    ],
+    "median_open_us": 73823.0,
+    "median_admission_us": 3801.8
+  },
+  "candidate": {
+    "samples": [
+      {
+        "action": "history",
+        "detail": "0",
+        "elapsed_us": 67940,
+        "largest_frame_us": 67470
+      },
+      {
+        "action": "history",
+        "detail": "1",
+        "elapsed_us": 95699,
+        "largest_frame_us": 95279
+      },
+      {
+        "action": "history",
+        "detail": "2",
+        "elapsed_us": 63542,
+        "largest_frame_us": 63191
+      },
+      {
+        "action": "history",
+        "detail": "3",
+        "elapsed_us": 62753,
+        "largest_frame_us": 62383
+      },
+      {
+        "action": "history",
+        "detail": "4",
+        "elapsed_us": 64105,
+        "largest_frame_us": 63734
+      },
+      {
+        "action": "history",
+        "detail": "0",
+        "elapsed_us": 68296,
+        "largest_frame_us": 67855
+      },
+      {
+        "action": "history",
+        "detail": "1",
+        "elapsed_us": 78498,
+        "largest_frame_us": 77933
+      },
+      {
+        "action": "history",
+        "detail": "2",
+        "elapsed_us": 61780,
+        "largest_frame_us": 61340
+      },
+      {
+        "action": "history",
+        "detail": "3",
+        "elapsed_us": 66245,
+        "largest_frame_us": 65768
+      },
+      {
+        "action": "history",
+        "detail": "4",
+        "elapsed_us": 64827,
+        "largest_frame_us": 64448
+      }
+    ],
+    "admission_us": [
+      291.45,
+      262.9,
+      267.5,
+      253.9,
+      256.2,
+      276.75,
+      257.1,
+      271.85,
+      274.3,
+      263.25
+    ],
+    "median_open_us": 65536.0,
+    "median_admission_us": 265.375
+  },
+  "acceptance-settled": {
+    "samples": [
+      {
+        "action": "history",
+        "detail": "0",
+        "elapsed_us": 78830,
+        "largest_frame_us": 78333
+      },
+      {
+        "action": "history",
+        "detail": "1",
+        "elapsed_us": 91837,
+        "largest_frame_us": 91268
+      },
+      {
+        "action": "history",
+        "detail": "2",
+        "elapsed_us": 69819,
+        "largest_frame_us": 69443
+      },
+      {
+        "action": "history",
+        "detail": "3",
+        "elapsed_us": 70906,
+        "largest_frame_us": 70416
+      },
+      {
+        "action": "history",
+        "detail": "4",
+        "elapsed_us": 72659,
+        "largest_frame_us": 72152
+      },
+      {
+        "action": "history",
+        "detail": "0",
+        "elapsed_us": 68945,
+        "largest_frame_us": 68454
+      },
+      {
+        "action": "history",
+        "detail": "1",
+        "elapsed_us": 87993,
+        "largest_frame_us": 87531
+      },
+      {
+        "action": "history",
+        "detail": "2",
+        "elapsed_us": 64765,
+        "largest_frame_us": 64273
+      },
+      {
+        "action": "history",
+        "detail": "3",
+        "elapsed_us": 67088,
+        "largest_frame_us": 66656
+      },
+      {
+        "action": "history",
+        "detail": "4",
+        "elapsed_us": 62510,
+        "largest_frame_us": 62054
+      }
+    ],
+    "admission_us": [
+      316.95,
+      250.4,
+      369.95,
+      342.9,
+      282.55,
+      265.15,
+      251.9,
+      257.95,
+      274.35,
+      278.5
+    ],
+    "median_open_us": 70362.5,
+    "median_admission_us": 276.425
+  }
+}

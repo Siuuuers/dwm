@@ -8,6 +8,10 @@ const STYLE := "res://dialogic/styles/witnessed_caption_style.tres"
 
 class NativeBridge extends "res://autoload/DialogicBridge.gd":
 	var localization: Node
+	var history_projections := 0
+	func _scene_day_history(frontier: Dictionary) -> Dictionary:
+		history_projections += 1
+		return super._scene_day_history(frontier)
 	func _current_locale() -> String:
 		return localization.get_locale()
 
@@ -501,6 +505,10 @@ func test_held_control_actions_revalidate_history_and_preserve_read_only_custody
 	if not frontier.ok: return
 	var history: Dictionary = _bridge.get_reading_history()
 	assert_true(history.ok)
+	var projections: int = _bridge.history_projections
+	var source: Dictionary = _bridge.get_reading_history_source()
+	assert_eq(_bridge.history_projections, projections, "admission does not reconstruct captions")
+	assert_eq(source, {"ok": true, "value": {"session_id": history.value.session_id, "frontier": history.value.frontier}})
 	var handle := {"generation": 1, "handle_id": "TEST.control.pause",
 		"holder": &"control_projection_test", "reason": &"universal_pause"}
 	assert_true(_bridge.begin_suspend(handle).ok)
@@ -510,11 +518,13 @@ func test_held_control_actions_revalidate_history_and_preserve_read_only_custody
 	assert_true(_bridge.can_capture_reading_checkpoint())
 	assert_eq(_bridge.capture_reading_checkpoint(false).value, held.checkpoint)
 	assert_eq(_bridge.get_reading_history(), history)
+	assert_eq(_bridge.get_reading_history_source(), source)
 	var paused_index := _runtime.current_event_idx
 	_runtime.current_event_idx = paused_index + 1
 	assert_false(_bridge.can_capture_reading_checkpoint())
 	assert_false(_bridge.capture_reading_checkpoint(false).ok)
 	assert_false(_bridge.get_reading_history().ok)
+	assert_false(_bridge.get_reading_history_source().ok)
 	_runtime.current_event_idx = paused_index
 	assert_true(_bridge.resume(handle).ok)
 	assert_true(_bridge.hold_computer_captions(self).ok)
@@ -539,6 +549,7 @@ func test_held_control_actions_revalidate_history_and_preserve_read_only_custody
 	assert_true(held.session.capture({}).ok, "the altered historical publication remains valid Reading5")
 	assert_false(_bridge.capture_reading_checkpoint(false).ok, "Save freshly proves the retained control")
 	assert_false(_bridge.get_reading_history().ok, "History freshly proves the retained control")
+	assert_false(_bridge.get_reading_history_source().ok, "admission freshly proves the retained control")
 	assert_false(_bridge.capture_scene_optional_frontier().ok, "Next admission freshly proves the retained control")
 	held.ledger._sequence[0] = first
 	assert_eq(_bridge.capture_reading_checkpoint(false).value, held.checkpoint)
