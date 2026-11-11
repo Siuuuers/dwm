@@ -1,0 +1,17 @@
+extends SceneTree
+const STRICT := preload("res://StrictJson.gd")
+func _initialize() -> void:
+	var rows := []
+	for locale: String in ["en", "zh_HK", "zh_CN", "ja", "ko"]:
+		var source := FileAccess.get_file_as_string(OS.get_environment("DWM_SOURCE_ROOT") + "/localization/story/" + locale + ".json")
+		var reference := STRICT.parse_object(source)
+		assert(reference.ok)
+		for order: Array in [["strict", "native"], ["native", "strict"]]:
+			for parser: String in order:
+				var started := Time.get_ticks_usec()
+				var result: Variant = STRICT.parse_object(source).value if parser == "strict" else JSON.parse_string(source)
+				var elapsed := Time.get_ticks_usec()-started
+				assert(result is Dictionary and result == reference.value)
+				rows.append({"locale":locale,"parser":parser,"us":elapsed,"entries":result.size()})
+	print("CATALOG_PARSE ",JSON.stringify(rows))
+	quit(0)
