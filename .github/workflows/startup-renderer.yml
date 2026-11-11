@@ -1,0 +1,56 @@
+name: Focused renderer startup comparison
+on:
+  push:
+    branches: [codex/renderer-comparison]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  compare:
+    runs-on: windows-2022
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: 56a4c96f8210100b0bf95b6cad010a455e328221
+          sparse-checkout: |
+            tools/testing
+            data/manifests
+      - name: Prepare disposable checkout cleanup
+        run: |
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-smoke-42956475457-1
+          run-id: 42956475457
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/accepted-build
+      - name: Compare default and compatibility with the same release pack
+        timeout-minutes: 10
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = Join-Path $env:RUNNER_TEMP 'accepted-build/windows-export/DWM-windows-x86_64-validation.zip'
+          $evidence = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/renderer-comparison'
+          $renderers = @('ProjectDefault','gl_compatibility','gl_compatibility','ProjectDefault')
+          for ($i = 0; $i -lt $renderers.Count; $i++) {
+            $renderer = $renderers[$i]
+            & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Capability `
+              -ArchivePath $archive -ExpectedArchiveSha256 '7e1184a24c8e6315ac664b15ddbaefbeaafbb6dc504c6224db0354506d5603ac' `
+              -ExpectedCommit '56a4c96f8210100b0bf95b6cad010a455e328221' `
+              -UserRoot "$env:RUNNER_TEMP/renderer-user-$i" -OutputPath "$evidence/$i-$renderer" `
+              -Renderer $renderer -Accessibility Always -Audio Dummy
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: renderer-comparison-${{ github.run_id }}
+          path: |
+            .godot/ci/renderer-comparison/
+            !.godot/ci/renderer-comparison/*/package/**
+          include-hidden-files: true
+          retention-days: 7
