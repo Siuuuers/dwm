@@ -350,13 +350,6 @@ func _on_new_acc_pressed() -> void:
 		_show_new_acc_unavailable(false)
 		return
 	_new_acc_owner = owner
-	if not await _present_new_acc_busy("preparing"):
-		_finish_new_acc_transition()
-		return
-	if not is_instance_valid(owner):
-		_finish_new_acc_transition()
-		_show_new_acc_unavailable(false)
-		return
 	var prepared: Dictionary = owner.prepare_new_run_action({
 		"route_id": "main", "dialogic_checkpoint": {}, "active_app_id": null,
 		"audio_context": {}, "content_version": 1})
