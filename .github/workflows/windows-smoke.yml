@@ -3,7 +3,7 @@ name: Focused Windows release smoke
 on:
   workflow_dispatch:
   push:
-    branches: [codex/windows-smoke, codex/windows-load-observation, codex/art-import-comparison, codex/title-background-loading, codex/first-caption-loading]
+    branches: [codex/windows-smoke, codex/windows-load-observation, codex/art-import-comparison, codex/title-background-loading, codex/first-caption-loading, codex/newgame-activation-trim]
 
 permissions:
   contents: read

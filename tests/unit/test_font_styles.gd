@@ -139,10 +139,23 @@ func test_story_fallbacks_preserve_shared_primary_faces() -> void:
 				var primary := TYPOGRAPHY.font(locale, percent, style) as FontFile
 				var size := GALLERY_TYPE.font_size(percent)
 				var metrics := Vector2(primary.get_ascent(size), primary.get_descent(size))
-				var story := TYPOGRAPHY.story_font(locale, percent, style) as FontFile
+				var story := TYPOGRAPHY.story_font(locale, percent, style)
 				assert_not_same(story, primary)
-				assert_true(story.data == primary.data)
-				assert_false(story.allow_system_fallback)
+				if style == "pixel":
+					assert_same(story.base_font, primary)
+					assert_false(primary.allow_system_fallback)
+				else:
+					assert_true(story.data == primary.data)
+					assert_false(story.allow_system_fallback)
+				var previous := primary.duplicate() as FontFile
+				previous.clear_cache()
+				previous.fallbacks = story.fallbacks
+				previous.allow_system_fallback = false
+				var text := "Sylvia — café… 繁體 简体 日本語 한국어 ♡"
+				assert_eq(story.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size),
+					previous.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size))
+				assert_eq(story.get_ascent(size), previous.get_ascent(size))
+				assert_eq(story.get_descent(size), previous.get_descent(size))
 				assert_true(story.has_char(0x0219))
 				assert_true(primary.fallbacks.is_empty())
 				assert_eq(Vector2(primary.get_ascent(size), primary.get_descent(size)), metrics)
