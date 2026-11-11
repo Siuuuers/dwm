@@ -3,7 +3,7 @@ name: Focused Windows release smoke
 on:
   workflow_dispatch:
   push:
-    branches: [codex/windows-smoke, codex/windows-load-observation, codex/art-import-comparison, codex/startup-attribution]
+    branches: [codex/windows-smoke, codex/windows-load-observation, codex/art-import-comparison, codex/startup-attribution, codex/startup-localization]
 
 permissions:
   contents: read
@@ -109,26 +109,8 @@ jobs:
       - name: Export and launch isolated Windows executable
         timeout-minutes: 12
         run: ./tools/testing/Invoke-WindowsExportValidation.ps1
-      - name: Exercise packaged opening, save and fresh-process load
-        timeout-minutes: 15
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $export = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export'
-          $receipt = Get-Content (Join-Path $export 'validation.json') -Raw | ConvertFrom-Json
-          $evidence = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-smoke'
-          $users = Join-Path $env:RUNNER_TEMP 'dwm-windows-smoke'
-          $common = @('-NoProfile', '-File', './tools/testing/Invoke-ExportedGameplay.ps1',
-            '-ArchivePath', (Join-Path $export $receipt.archive.file),
-            '-ExpectedArchiveSha256', $receipt.archive.sha256, '-ExpectedCommit', $env:GITHUB_SHA,
-            '-Renderer', 'ProjectDefault', '-Accessibility', 'Always', '-Audio', 'Dummy')
-          & pwsh @common -Mode Capability -UserRoot "$users/capability" -OutputPath "$evidence/capability"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & pwsh @common -Mode Create -UserRoot "$users/journey" -OutputPath "$evidence/create" -CapabilityReceipt "$evidence/capability/result.json"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & pwsh @common -Mode Load -UserRoot "$users/journey" -OutputPath "$evidence/load" -CreatorReceipt "$evidence/create/result.json"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Diagnose editor-hosted release pack startup
-        if: github.ref == 'refs/heads/codex/startup-attribution'
+        if: startsWith(github.ref, 'refs/heads/codex/startup-')
         timeout-minutes: 3
         run: |
           $ErrorActionPreference = 'Stop'
@@ -155,6 +137,24 @@ jobs:
           }
           @{ source_commit=$env:GITHUB_SHA; pck_sha256=$expectedPack.sha256; archive_sha256=$receipt.archive.sha256; exit_code=$code; scope='Editor-hosted release pack; diagnostic only, not release title readiness'; engine_host_sha256=(Get-FileHash $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant() } | ConvertTo-Json | Set-Content "$out/receipt.json" -Encoding utf8
           if ($code -ne 0) { exit $code }
+      - name: Exercise packaged opening, save and fresh-process load
+        timeout-minutes: 15
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $export = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export'
+          $receipt = Get-Content (Join-Path $export 'validation.json') -Raw | ConvertFrom-Json
+          $evidence = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-smoke'
+          $users = Join-Path $env:RUNNER_TEMP 'dwm-windows-smoke'
+          $common = @('-NoProfile', '-File', './tools/testing/Invoke-ExportedGameplay.ps1',
+            '-ArchivePath', (Join-Path $export $receipt.archive.file),
+            '-ExpectedArchiveSha256', $receipt.archive.sha256, '-ExpectedCommit', $env:GITHUB_SHA,
+            '-Renderer', 'ProjectDefault', '-Accessibility', 'Always', '-Audio', 'Dummy')
+          & pwsh @common -Mode Capability -UserRoot "$users/capability" -OutputPath "$evidence/capability"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & pwsh @common -Mode Create -UserRoot "$users/journey" -OutputPath "$evidence/create" -CapabilityReceipt "$evidence/capability/result.json"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & pwsh @common -Mode Load -UserRoot "$users/journey" -OutputPath "$evidence/load" -CreatorReceipt "$evidence/create/result.json"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Upload Windows validation build and evidence
         if: always()
         uses: actions/upload-artifact@v4
