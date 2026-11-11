@@ -1,0 +1,21 @@
+diff --git a/scripts/ui/SettingsContent.gd b/scripts/ui/SettingsContent.gd
+index 6b480fe..f1160da 100644
+--- a/scripts/ui/SettingsContent.gd
++++ b/scripts/ui/SettingsContent.gd
+@@ -229,7 +229,7 @@ func _build_content() -> void:
+ 		sheet.name = category.to_pascal_case() + "Sheet"
+ 		sheet.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+ 		sheet.add_theme_constant_override("separation", 16)
+-		$SheetScroll/Sheets.add_child(sheet)
++		sheet.visible = category == _selected
+ 		_sheets[category] = sheet
+ 		for suffix: String in CATEGORY_FIELDS[category]:
+ 			var path := StringName("preferences." + suffix)
+@@ -254,6 +254,7 @@ func _build_content() -> void:
+ 			_add_resets(sheet, ["controls"])
+ 		if category == "records":
+ 			_add_resets(sheet, ["preferences", "visited_history", "gallery", "dialogue_library", "entire_profile"])
++		$SheetScroll/Sheets.add_child(sheet)
+ 	_general_status = _label("")
+ 	_general_status.name = "SettingsStatus"
+ 	$SheetScroll/Sheets.add_child(_general_status)

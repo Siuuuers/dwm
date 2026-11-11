@@ -1,0 +1,61 @@
+diff --git a/scripts/ui/SettingsContent.gd b/scripts/ui/SettingsContent.gd
+index 6b480fe..ed69e64 100644
+--- a/scripts/ui/SettingsContent.gd
++++ b/scripts/ui/SettingsContent.gd
+@@ -141,11 +141,12 @@ func _ready() -> void:
+ 	if not _services.has("profile_reset_admission"):
+ 		var application := get_node_or_null("/root/ApplicationBootstrap")
+ 		_services["profile_reset_admission"] = Callable(application, "is_profile_reset_admitted") if application != null else Callable()
++	var profile: Variant = _services.get("profile")
++	_prepare_theme(int(profile.get_preference(&"preferences.accessibility.text_size", REGISTRY.default_value(&"preferences.accessibility.text_size"))) if profile != null else int(REGISTRY.default_value(&"preferences.accessibility.text_size")))
+ 	_build_content()
+ 	refresh_labels()
+ 	_controller = CONTROLLER.new()
+ 	_controller.bind(self, _services)
+-	var profile: Variant = _services.get("profile")
+ 	if is_instance_valid(profile) and profile.has_signal("profile_write_failed"):
+ 		profile.profile_write_failed.connect(_on_profile_write_failed)
+ 	select_category("language")
+@@ -501,8 +502,7 @@ func _refresh_discovered_dark_mode() -> void:
+ 	rows[path].visible = discovered
+ 	controls[path].disabled = controls[path].disabled or not discovered
+ 
+-func apply_text_size(percent: int, large_targets: bool) -> void:
+-	_refresh_discovered_dark_mode()
++func _prepare_theme(percent: int) -> bool:
+ 	var locale := current_locale().replace("_", "-")
+ 	var palette_id := get_palette_id()
+ 	var day: Variant = null if _scene_presentation else (1 if host_context == "title" else _run_day)
+@@ -511,15 +511,14 @@ func apply_text_size(percent: int, large_targets: bool) -> void:
+ 	var contrast_value: Variant = presentation_profile.get_preference(&"preferences.accessibility.high_contrast", false) if presentation_profile != null else false
+ 	var colour_value: Variant = presentation_profile.get_preference(&"preferences.accessibility.colour_differentiation", "standard") if presentation_profile != null else "standard"
+ 	if typeof(contrast_value) != TYPE_BOOL or typeof(colour_value) != TYPE_STRING:
+-		return
++		return false
+ 	var high_contrast: bool = contrast_value
+ 	var colour_preset: String = colour_value
+-	var font_size := roundi(24.0 * float(percent) / 100.0)
+ 	if locale != _presentation_locale or font_style != _presentation_font_style or percent != _presentation_percent or palette_id != _presentation_palette \
+ 			or high_contrast != _presentation_high_contrast or colour_preset != _presentation_colour_preset or day != _presentation_day:
+ 		var candidate := PRESENTATION._build_context(locale, percent, palette_id, high_contrast, colour_preset, day, font_style, _scene_presentation)
+ 		if candidate == null:
+-			return
++			return false
+ 		_presentation_locale = locale
+ 		_presentation_font_style = font_style
+ 		_presentation_percent = percent
+@@ -532,6 +531,14 @@ func apply_text_size(percent: int, large_targets: bool) -> void:
+ 		PRESENTATION.apply_scroll(sheet_scroll, true)
+ 		for category: String in _rails:
+ 			PRESENTATION.apply_category(_rails[category], category == _selected)
++	return true
++
++
++func apply_text_size(percent: int, large_targets: bool) -> void:
++	_refresh_discovered_dark_mode()
++	if not _prepare_theme(percent): return
++	var locale := _presentation_locale
++	var font_size := roundi(24.0 * float(percent) / 100.0)
+ 	$Heading/CategoryHeading.add_theme_font_size_override("font_size", font_size)
+ 	if _controls_sheet != null:
+ 		_controls_sheet.set_presentation(theme, font_size, large_targets)
