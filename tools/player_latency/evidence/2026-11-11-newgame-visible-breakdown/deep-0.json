@@ -1,0 +1,572 @@
+{
+  "caption": {
+    "ack_us": 9360633,
+    "caption_us": 9364649,
+    "click_us": 8981347,
+    "largest_frame_gap_us": 244648,
+    "milestones": {
+      "acknowledged": 9360633,
+      "input_unblocked": 9363977,
+      "native_complete": 9360633,
+      "revealed": 9360633,
+      "visible": 9360633
+    },
+    "runtime_us": 6977326,
+    "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+    "title_us": 4687993,
+    "trace": [
+      {
+        "state": "title||10",
+        "us": 4467202
+      },
+      {
+        "state": "title|res://scenes/menu/MenuScene.tscn|10",
+        "us": 4467907
+      },
+      {
+        "state": "first_draw||10",
+        "us": 4687993
+      },
+      {
+        "state": "drawing|res://scenes/narrative/SceneHost.tscn|10",
+        "us": 4688519
+      },
+      {
+        "state": "runtime|res://scenes/narrative/SceneHost.tscn|10",
+        "us": 4694764
+      },
+      {
+        "state": "runtime|res://scenes/apps/BackupApp.tscn|10",
+        "us": 4722352
+      },
+      {
+        "state": "runtime|res://scripts/application/backup/BackupPresentationPort.gd|10",
+        "us": 4784583
+      },
+      {
+        "state": "runtime|res://scenes/menu/GalleryScene.tscn|10",
+        "us": 4798191
+      },
+      {
+        "state": "runtime|res://scenes/menu/Setting.tscn|10",
+        "us": 4943092
+      },
+      {
+        "state": "runtime|res://autoload/GameState.gd|10",
+        "us": 5095557
+      },
+      {
+        "state": "runtime|res://autoload/EffectResolver.gd|10",
+        "us": 5902153
+      },
+      {
+        "state": "runtime|res://autoload/SceneRouter.gd|10",
+        "us": 5916315
+      },
+      {
+        "state": "runtime|res://scripts/application/contact/ContactCommandPort.gd|10",
+        "us": 6150682
+      },
+      {
+        "state": "runtime|res://scripts/application/run/CausalDayAdvanceIdentityPort.gd|10",
+        "us": 6205930
+      },
+      {
+        "state": "runtime|res://scripts/application/run/DatingPresentationPort.gd|10",
+        "us": 6226543
+      },
+      {
+        "state": "runtime|res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd|10",
+        "us": 6261079
+      },
+      {
+        "state": "runtime|res://scripts/application/ending/DialogicEndingPlaybackPort.gd|10",
+        "us": 6343734
+      },
+      {
+        "state": "runtime|res://scripts/domain/desktop/DesktopAppHostState.gd|10",
+        "us": 6371386
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/RunRestoreParticipant.gd|10",
+        "us": 6385172
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/ProfileRestoreParticipant.gd|10",
+        "us": 6398934
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/LocalizationRestoreParticipant.gd|10",
+        "us": 6405755
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/AudioRestoreParticipant.gd|10",
+        "us": 6412702
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/RouteRestoreParticipant.gd|10",
+        "us": 6419630
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/NarrativeRestoreParticipant.gd|10",
+        "us": 6427049
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd|10",
+        "us": 6530085
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/DesktopBoardRestoreParticipant.gd|10",
+        "us": 6543844
+      },
+      {
+        "state": "runtime|res://scripts/domain/minesweeper/MinesweeperRoundCoordinator.gd|10",
+        "us": 6558014
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/GameStateMinesweeperPort.gd|10",
+        "us": 6578401
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/SaveManagerMinesweeperPort.gd|10",
+        "us": 6605974
+      },
+      {
+        "state": "runtime|res://scripts/infrastructure/save/DesktopPublicationLedger.gd|10",
+        "us": 6613015
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd|10",
+        "us": 6654262
+      },
+      {
+        "state": "runtime|res://scripts/data/DataCatalog.gd|10",
+        "us": 6668270
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd|10",
+        "us": 6737101
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/GameStateDesktopBoardPort.gd|10",
+        "us": 6826892
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/SaveManagerDesktopBoardPort.gd|10",
+        "us": 6847440
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd|10",
+        "us": 6861460
+      },
+      {
+        "state": "runtime|res://scripts/application/narrative/SceneEventCommandPort.gd|10",
+        "us": 6875242
+      },
+      {
+        "state": "runtime||10",
+        "us": 6902695
+      },
+      {
+        "state": "wiring||10",
+        "us": 6930287
+      },
+      {
+        "state": "wiring||11",
+        "us": 6952846
+      },
+      {
+        "state": "wiring||12",
+        "us": 6953480
+      },
+      {
+        "state": "wiring||13",
+        "us": 6959742
+      },
+      {
+        "state": "wiring||14",
+        "us": 6966598
+      },
+      {
+        "state": "idle||15",
+        "us": 6977326
+      },
+      {
+        "state": "idle|res://scenes/desktop/ComputerDesktop.tscn|15",
+        "us": 6980489
+      },
+      {
+        "state": "idle|res://scripts/application/contact/ContactsPresentationPort.gd|15",
+        "us": 7159774
+      },
+      {
+        "state": "idle|res://scripts/application/minesweeper/MinesweeperPanelPort.gd|15",
+        "us": 7242553
+      },
+      {
+        "state": "idle|res://scripts/application/contact/ProvisionalCorrespondenceCatalog.gd|15",
+        "us": 7284411
+      },
+      {
+        "state": "idle|res://scripts/ui/SceneChallengePanel.gd|15",
+        "us": 7318456
+      },
+      {
+        "state": "idle|res://scripts/application/shop/ShopPresentationPort.gd|15",
+        "us": 7401523
+      },
+      {
+        "state": "idle||15",
+        "us": 7435741
+      }
+    ]
+  },
+  "warning": false,
+  "spans": [
+    {
+      "end_us": 9048851,
+      "name": "addons/dialogic/Resources/timeline.gd:process",
+      "start_us": 9015056
+    },
+    {
+      "end_us": 9115395,
+      "name": "autoload/SceneRouter.gd:begin_scene_activation",
+      "start_us": 9114915
+    },
+    {
+      "end_us": 9115436,
+      "name": "autoload/SaveManager.gd:_drive_scene_restore_activation_owned",
+      "start_us": 9114906
+    },
+    {
+      "end_us": 9115874,
+      "name": "autoload/SaveManager.gd:_start_scene_new_run_in_memory",
+      "start_us": 9008963
+    },
+    {
+      "end_us": 9120931,
+      "name": "scripts/ui/SceneHost.gd:_ready",
+      "start_us": 9117005
+    },
+    {
+      "end_us": 9128018,
+      "name": "addons/dialogic/Modules/Style/subsystem_styles.gd:create_layout",
+      "start_us": 9121856
+    },
+    {
+      "end_us": 9128068,
+      "name": "autoload/DialogicBridge.gd:_prepare_witnessed_style",
+      "start_us": 9121793
+    },
+    {
+      "end_us": 9131980,
+      "name": "scripts/narrative/DialogicRuntimeAdapter.gd:start_timeline",
+      "start_us": 9129051
+    },
+    {
+      "end_us": 9132356,
+      "name": "autoload/SaveManager.gd:_drive_scene_restore_activation_owned",
+      "start_us": 9121026
+    },
+    {
+      "end_us": 9132437,
+      "name": "autoload/SceneRouter.gd:_on_scene_activation_mounted",
+      "start_us": 9121000
+    },
+    {
+      "end_us": 9143354,
+      "name": "scripts/data/ArtManifest.gd:get_texture",
+      "start_us": 9143347
+    },
+    {
+      "end_us": 9143412,
+      "name": "scripts/data/ArtManifest.gd:get_texture",
+      "start_us": 9143410
+    },
+    {
+      "end_us": 9143876,
+      "name": "scripts/ui/witnessed/WitnessedArtLayer.gd:refresh_art",
+      "start_us": 9143178
+    },
+    {
+      "end_us": 9143896,
+      "name": "scripts/ui/witnessed/WitnessedArtLayer.gd:_ready",
+      "start_us": 9142780
+    },
+    {
+      "end_us": 9165774,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_apply_story_fonts",
+      "start_us": 9165354
+    },
+    {
+      "end_us": 9166601,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_apply_story_fonts",
+      "start_us": 9166560
+    },
+    {
+      "end_us": 9166703,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_layout_stack",
+      "start_us": 9166539
+    },
+    {
+      "end_us": 9166723,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:configure_presentation",
+      "start_us": 9156076
+    },
+    {
+      "end_us": 9166733,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_apply_preferences",
+      "start_us": 9155491
+    },
+    {
+      "end_us": 9166760,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:configure_run_presentation",
+      "start_us": 9166743
+    },
+    {
+      "end_us": 9166833,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_refresh_dating_overlay",
+      "start_us": 9166774
+    },
+    {
+      "end_us": 9167341,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_acknowledge_visible_line",
+      "start_us": 9167334
+    },
+    {
+      "end_us": 9171668,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_sync_transport",
+      "start_us": 9167362
+    },
+    {
+      "end_us": 9173260,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_sync_transport",
+      "start_us": 9173181
+    },
+    {
+      "end_us": 9173291,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_ready",
+      "start_us": 9146069
+    },
+    {
+      "end_us": 9206622,
+      "name": "addons/dialogic/Resources/timeline.gd:process",
+      "start_us": 9178856
+    },
+    {
+      "end_us": 9206935,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:configure_run_presentation",
+      "start_us": 9206920
+    },
+    {
+      "end_us": 9207043,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_apply_story_fonts",
+      "start_us": 9206993
+    },
+    {
+      "end_us": 9207120,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_layout_stack",
+      "start_us": 9206975
+    },
+    {
+      "end_us": 9207275,
+      "name": "addons/dialogic/Core/DialogicGameHandler.gd:start_timeline",
+      "start_us": 9177941
+    },
+    {
+      "end_us": 9207295,
+      "name": "addons/dialogic/Modules/Style/subsystem_styles.gd:_attach_layout",
+      "start_us": 9132559
+    },
+    {
+      "end_us": 9245542,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_apply_story_fonts",
+      "start_us": 9245480
+    },
+    {
+      "end_us": 9245622,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_layout_stack",
+      "start_us": 9245465
+    },
+    {
+      "end_us": 9245912,
+      "name": "scripts/narrative/DialogicRuntimeAdapter.gd:_on_caption_text_started",
+      "start_us": 9245798
+    },
+    {
+      "end_us": 9246317,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_apply_story_fonts",
+      "start_us": 9246274
+    },
+    {
+      "end_us": 9246343,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_refresh_bilingual_caption",
+      "start_us": 9245946
+    },
+    {
+      "end_us": 9246472,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_apply_story_fonts",
+      "start_us": 9246387
+    },
+    {
+      "end_us": 9246918,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_layout_stack",
+      "start_us": 9246374
+    },
+    {
+      "end_us": 9246963,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_acknowledge_visible_line",
+      "start_us": 9246952
+    },
+    {
+      "end_us": 9247184,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_apply_story_fonts",
+      "start_us": 9247141
+    },
+    {
+      "end_us": 9247352,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_layout_stack",
+      "start_us": 9247132
+    },
+    {
+      "end_us": 9253235,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_sync_transport",
+      "start_us": 9247482
+    },
+    {
+      "end_us": 9284468,
+      "name": "scripts/data/ArtManifest.gd:get_texture",
+      "start_us": 9257768
+    },
+    {
+      "end_us": 9309777,
+      "name": "scripts/data/ArtManifest.gd:get_texture",
+      "start_us": 9284520
+    },
+    {
+      "end_us": 9309835,
+      "name": "scripts/data/ArtManifest.gd:get_texture",
+      "start_us": 9309826
+    },
+    {
+      "end_us": 9312171,
+      "name": "scripts/ui/witnessed/WitnessedArtLayer.gd:refresh_art",
+      "start_us": 9257601
+    },
+    {
+      "end_us": 9318211,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_apply_story_fonts",
+      "start_us": 9318146
+    },
+    {
+      "end_us": 9319697,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:configure_presentation",
+      "start_us": 9312288
+    },
+    {
+      "end_us": 9319792,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_apply_story_fonts",
+      "start_us": 9319746
+    },
+    {
+      "end_us": 9320048,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_layout_stack",
+      "start_us": 9319731
+    },
+    {
+      "end_us": 9320062,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_refresh_dating_overlay",
+      "start_us": 9312241
+    },
+    {
+      "end_us": 9320079,
+      "name": "autoload/DialogicBridge.gd:publish_scene_activation",
+      "start_us": 9256938
+    },
+    {
+      "end_us": 9320127,
+      "name": "autoload/SceneRouter.gd:publish_scene_activation",
+      "start_us": 9320106
+    },
+    {
+      "end_us": 9320189,
+      "name": "autoload/SaveManager.gd:_drive_scene_restore_activation_owned",
+      "start_us": 9255065
+    },
+    {
+      "end_us": 9320202,
+      "name": "autoload/DialogicBridge.gd:_confirm_scene_activation",
+      "start_us": 9253552
+    },
+    {
+      "end_us": 9320249,
+      "name": "scripts/narrative/DialogicRuntimeAdapter.gd:_finish_reading_restore",
+      "start_us": 9247416
+    },
+    {
+      "end_us": 9339722,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_apply_story_fonts",
+      "start_us": 9339561
+    },
+    {
+      "end_us": 9339771,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_refresh_bilingual_caption",
+      "start_us": 9339370
+    },
+    {
+      "end_us": 9340196,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_refresh_self_talk",
+      "start_us": 9339781
+    },
+    {
+      "end_us": 9350728,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_apply_story_fonts",
+      "start_us": 9350676
+    },
+    {
+      "end_us": 9351193,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_layout_stack",
+      "start_us": 9350487
+    },
+    {
+      "end_us": 9351231,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_project_scene_caption_memory",
+      "start_us": 9340544
+    },
+    {
+      "end_us": 9351835,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_refresh_self_talk",
+      "start_us": 9351257
+    },
+    {
+      "end_us": 9352997,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_acknowledge_visible_line",
+      "start_us": 9351247
+    },
+    {
+      "end_us": 9359324,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_sync_transport",
+      "start_us": 9353024
+    },
+    {
+      "end_us": 9359369,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_refresh_reading_session",
+      "start_us": 9339368
+    },
+    {
+      "end_us": 9359612,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_apply_story_fonts",
+      "start_us": 9359562
+    },
+    {
+      "end_us": 9359858,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_layout_stack",
+      "start_us": 9359548
+    },
+    {
+      "end_us": 9363120,
+      "name": "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_sync_transport",
+      "start_us": 9362266
+    }
+  ]
+}
