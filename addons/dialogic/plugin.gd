@@ -27,11 +27,14 @@ func _enable_plugin() -> void:
 
 
 func _disable_plugin() -> void:
-	remove_autoload_singleton(PLUGIN_NAME)
+	if ProjectSettings.has_setting("autoload/" + PLUGIN_NAME):
+		remove_autoload_singleton(PLUGIN_NAME)
 
 
 func _enter_tree() -> void:
-	add_autoload_singleton(PLUGIN_NAME, PLUGIN_HANDLER_PATH)
+	# The game loader installs Dialogic after the title is visible.
+	if not ProjectSettings.has_setting("autoload/StartupLoader"):
+		add_autoload_singleton(PLUGIN_NAME, PLUGIN_HANDLER_PATH)
 
 	editor_view = MainPanel.instantiate()
 	editor_view.plugin_reference = self

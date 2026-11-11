@@ -58,6 +58,10 @@ var save_owner: NewAccOwner
 var settings: DeferredSettings
 
 func before_each() -> void:
+	var loader := get_node("/root/StartupLoader")
+	loader.queue_resources(["res://scenes/narrative/SceneHost.tscn"])
+	while not loader.resources_ready(["res://scenes/narrative/SceneHost.tscn"]):
+		await get_tree().process_frame
 	original_scene = get_tree().current_scene
 	source = Control.new()
 	source.size = Vector2(1280, 720)
@@ -75,10 +79,16 @@ func before_each() -> void:
 	for frame in 3: await get_tree().process_frame
 
 func after_each() -> void:
+	get_node("/root/StartupLoader").set_process(true)
 	get_tree().current_scene = original_scene if is_instance_valid(original_scene) else null
 	if is_instance_valid(source): source.free()
 	if is_instance_valid(destination): destination.free()
 	await get_tree().process_frame
+
+func after_all() -> void:
+	var loader := get_node("/root/StartupLoader")
+	while not loader._active.is_empty() or not loader._pending.is_empty():
+		await get_tree().process_frame
 
 func _install_deferred_settings() -> void:
 	settings = DeferredSettings.new()
@@ -186,3 +196,61 @@ func test_scene_change_during_busy_commit_cancels_preparation_without_starting()
 	assert_eq(save_owner.commits, 0, "retired title cannot commit after the rendered busy frame")
 	assert_has(save_owner.cancels, "prepared-lifetime")
 	assert_eq(get_tree().root.gui_get_focus_owner(), destination_button)
+
+
+func _pause_destination_loading() -> void:
+	var loader := get_node("/root/StartupLoader")
+	loader.set_process(false)
+	for path: String in menu.TITLE_DESTINATIONS.new_acc:
+		loader._loaded.erase(path)
+
+func test_early_click_waits_with_loading_and_dispatches_once() -> void:
+	_pause_destination_loading()
+	menu._new_acc_button.pressed.emit()
+	assert_eq(menu._pending_destination, "new_acc")
+	assert_eq(menu._title_welcome.status.text, "Loading.")
+	assert_true(menu._title_welcome.status.visible)
+	assert_eq(save_owner.prepares, 0)
+	menu._new_acc_button.pressed.emit()
+	menu._gallery_button.pressed.emit()
+	assert_eq(menu._pending_destination, "new_acc", "First accepted click owns the pending intent")
+	get_node("/root/StartupLoader").set_process(true)
+	for frame in 10: await get_tree().process_frame
+	assert_eq(menu._pending_destination, "")
+	assert_eq(save_owner.prepares, 1, "Loaded destination dispatches its original handler once")
+	assert_true(is_instance_valid(menu._confirmation))
+
+func test_scene_change_during_destination_loading_drops_pending_action() -> void:
+	_pause_destination_loading()
+	menu._new_acc_button.pressed.emit()
+	_show_destination(true)
+	await get_tree().process_frame
+	assert_eq(menu._pending_destination, "")
+	get_node("/root/StartupLoader").set_process(true)
+	for frame in 4: await get_tree().process_frame
+	_assert_no_outgoing_preparation()
+
+func test_menu_exit_during_destination_loading_drops_pending_action() -> void:
+	_pause_destination_loading()
+	menu._new_acc_button.pressed.emit()
+	_show_destination(true)
+	source.get_parent().remove_child(source)
+	assert_eq(menu._pending_destination, "")
+	get_node("/root/StartupLoader").set_process(true)
+	for frame in 4: await get_tree().process_frame
+	_assert_no_outgoing_preparation()
+
+func test_loading_waits_for_existing_settings_departure() -> void:
+	_pause_destination_loading()
+	_install_deferred_settings()
+	menu._new_acc_button.pressed.emit()
+	assert_true(settings.departing)
+	assert_true(settings.visible, "Existing Settings departure retains ownership until resolved")
+	assert_false(menu._title_welcome.visible)
+	settings.departure_resolved.emit()
+	assert_false(settings.visible)
+	assert_true(menu._title_welcome.visible)
+	assert_eq(menu._title_welcome.status.text, "Loading.")
+	get_node("/root/StartupLoader").set_process(true)
+	for frame in 10: await get_tree().process_frame
+	assert_eq(save_owner.prepares, 1)

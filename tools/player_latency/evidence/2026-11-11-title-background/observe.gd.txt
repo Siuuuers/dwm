@@ -1,0 +1,72 @@
+extends SceneTree
+var _last_tick := 0
+var _largest_gap := 0
+var _title_seen := false
+var _title_tick := 0
+var _runtime_tick := 0
+var _action_tick := 0
+var _saw_loading := false
+var _clicked := false
+var _mode := OS.get_environment("DWM_TITLE_PROBE")
+var _deadline := 0
+
+func _initialize() -> void:
+	_deadline = Time.get_ticks_msec() + 90000
+	observe.call_deferred()
+
+func observe() -> void:
+	if root.get_node_or_null("StartupLoader") == null:
+		change_scene_to_file("res://scenes/menu/MenuScene.tscn")
+	while Time.get_ticks_msec() < _deadline:
+		var now := Time.get_ticks_usec()
+		if _title_seen and _last_tick > 0:
+			_largest_gap = maxi(_largest_gap, now - _last_tick)
+		_last_tick = now
+		var app := root.get_node_or_null("ApplicationBootstrap")
+		var state: Dictionary = app.get_startup_state() if app != null else {}
+		if state.get("ready", false) and _runtime_tick == 0: _runtime_tick = now
+		var menu := current_scene
+		if is_instance_valid(menu) and menu.scene_file_path == "res://scenes/menu/MenuScene.tscn" and menu.is_node_ready() and menu.visible:
+			if state.get("title_ready", state.get("ready", false)) and not _title_seen:
+				_title_seen = true
+				_title_tick = now
+				print("TITLE_FIRST ", JSON.stringify({"us": now, "runtime_ready": state.get("ready", false), "locale": menu._locale, "percent": menu._percent, "font_style": menu._font_style}))
+			if _title_seen and _mode == "quit":
+				print("TITLE_EARLY_QUIT")
+				app.request_quit()
+				return
+			if _title_seen and _mode == "seed":
+				if not state.get("ready", false):
+					await process_frame
+					continue
+				var profile := root.get_node("ProfileManager")
+				var locale := root.get_node("LocalizationManager")
+				for result: Dictionary in [profile.set_preferences({&"preferences.accessibility.text_size": 150}), locale.set_font_style("readable"), locale.set_locale("zh_HK")]:
+					if not result.ok:
+						print("SEED_FAILED ", result)
+						quit(1)
+						return
+				print("TITLE_SEED_OK")
+				app.request_quit()
+				return
+			if _title_seen and not _clicked and _mode in ["settings", "gallery", "login", "newgame"]:
+				_clicked = true
+				_action_tick = now
+				var button: Button = menu._setting_button if _mode == "settings" else (menu._gallery_button if _mode == "gallery" else (menu._log_in_button if _mode == "login" else menu._new_acc_button))
+				button.pressed.emit()
+				button.pressed.emit()
+				_saw_loading = menu._title_welcome.status.visible and menu._title_welcome._stage == "loading"
+			if _clicked and is_instance_valid(menu._title_welcome):
+				_saw_loading = _saw_loading or (menu._title_welcome.status.visible and menu._title_welcome._stage == "loading")
+			var opened: bool = (_mode == "settings" and menu._setting_host.visible) or (_mode == "gallery" and menu._gallery_host.visible) or (_mode == "login" and menu._backup_app_host.visible and is_instance_valid(menu._backup_app_instance))
+			if _title_seen and ((opened and not menu._title_transition) or (_mode == "idle" and state.get("ready", false))):
+				print("TITLE_RESULT ", JSON.stringify({"mode": _mode, "title_us": _title_tick, "runtime_us": _runtime_tick, "action_ready_us": now, "action_us": _action_tick, "loading_seen": _saw_loading, "largest_frame_gap_us": _largest_gap, "locale": menu._locale, "percent": menu._percent, "font_style": menu._font_style}))
+				app.request_quit()
+				return
+		elif _clicked and _mode == "newgame" and is_instance_valid(menu) and menu.scene_file_path == "res://scenes/narrative/SceneHost.tscn" and menu.is_node_ready():
+			print("TITLE_RESULT ", JSON.stringify({"mode": _mode, "title_us": _title_tick, "runtime_us": _runtime_tick, "action_ready_us": now, "action_us": _action_tick, "loading_seen": _saw_loading, "largest_frame_gap_us": _largest_gap}))
+			app.request_quit()
+			return
+		await process_frame
+	push_error("TITLE_PROBE_TIMEOUT " + _mode)
+	quit(1)

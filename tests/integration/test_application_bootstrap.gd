@@ -45,12 +45,7 @@ const FAKE_GATE := preload("res://tests/support/FakeApplicationMutationGate.gd")
 const FAKE_EVICTION := preload("res://tests/support/FakeDesktopEvictionPort.gd")
 const DAY_IDENTITY_PORT := preload("res://scripts/application/run/CausalDayAdvanceIdentityPort.gd")
 
-## The exact literal autoload order project.godot must reach in this task.
-const EXPECTED_AUTOLOAD_ORDER: Array[String] = [
-	"ProfileManager", "GameState", "SaveManager", "LocalizationManager", "AudioManager",
-	"SystemTtsCoordinator", "WindowModeManager", "EffectResolver", "SceneRouter", "InputManager", "AccessibilityManager", "Dialogic",
-	"DialogicBridge", "ApplicationBootstrap",
-]
+const EXPECTED_AUTOLOAD_ORDER: Array[String] = ["StartupLoader"]
 
 const EXPECTED_STAGE_ORDER: Array[StringName] = [
 	&"select_and_prove_roots",
@@ -168,8 +163,7 @@ func _make_graph(label: String) -> Dictionary:
 	return {"bootstrap": bootstrap, "targets": targets, "checkpoint_port": checkpoint_port, "root": root}
 
 
-func test_project_autoload_order_is_the_exact_final_literal_sequence() -> void:
-	# project.godot reaches its final literal order in THIS task; Task 3 hashes these bytes.
+func test_startup_loader_owns_autoload_installation() -> void:
 	var text := FileAccess.get_file_as_string("res://project.godot")
 	var section := text.get_slice("[autoload]", 1).get_slice("[", 0)
 	var found: Array[String] = []
@@ -179,7 +173,7 @@ func test_project_autoload_order_is_the_exact_final_literal_sequence() -> void:
 			continue
 		found.append(trimmed.get_slice("=", 0).strip_edges())
 	assert_eq(found, EXPECTED_AUTOLOAD_ORDER,
-		"the production autoload order is frozen for the Phase 3 handoff")
+		"one loader installs the title and runtime owners in phases")
 
 
 func test_master_stage_order_is_frozen() -> void:
@@ -555,6 +549,54 @@ func test_new_acc_storage_settles_before_profile_and_failure_stops_all_consumers
 			assert_signal_not_emitted(bootstrap, "application_ready")
 		assert_eq(trace, expected)
 		assert_eq(bootstrap.get_startup_state().ready, not fail_settlement)
+
+class TitleBootstrap extends InjectableBootstrap:
+	func _select_and_prove_roots(_mode: StringName) -> Dictionary:
+		return {"ok": true}
+
+
+func test_title_core_initializes_profile_before_runtime_and_reuses_one_gate() -> void:
+	_scene_validation_scope.clear_validation_bindings()
+	var root := _isolated_root("title-core")
+	var bootstrap: Node = autofree(TitleBootstrap.new())
+	bootstrap.set("_selected_root", root)
+	bootstrap.set("_profile_storage", JSON_STORAGE.new(root))
+	bootstrap.injected_targets = {
+		&"ProfileManager": autofree(PROFILE_MANAGER.new()),
+		&"SaveManager": autofree(SAVE_MANAGER.new()),
+		&"LocalizationManager": autofree(LOCALIZATION_MANAGER.new()),
+		&"AudioManager": autofree(AUDIO_MANAGER.new(FAKE_AUDIO_PORT.new())),
+		&"WindowModeManager": autofree(WINDOW_MODE_MANAGER.new(UnavailableWindowOutput.new())),
+		&"InputManager": autofree(INPUT_MANAGER.new()),
+		&"AccessibilityManager": autofree(ACCESSIBILITY_MANAGER.new()),
+		&"DialogicBridge": autofree(DIALOGIC_BRIDGE.new()),
+	}
+	watch_signals(bootstrap)
+	var title: Dictionary = bootstrap.start_title()
+	assert_true(title.get("ok", false), str(title))
+	if not title.get("ok", false): return
+	var state: Dictionary = bootstrap.get_startup_state()
+	assert_true(state.title_ready)
+	assert_false(state.ready)
+	assert_eq(state.completed_stages, EXPECTED_STAGE_ORDER.slice(0, 10))
+	assert_signal_not_emitted(bootstrap, "application_ready")
+	assert_false(bootstrap.injected_targets.has(&"GameState"))
+	assert_false(bootstrap.injected_targets.has(&"SceneRouter"))
+	var gate: Object = bootstrap.get("_application_gate")
+	var issuer: Object = bootstrap.get("_desktop_identity_nonce_issuer")
+	bootstrap.injected_targets[&"GameState"] = autofree(GAME_STATE.new())
+	add_child(bootstrap.injected_targets[&"GameState"])
+	bootstrap.injected_targets[&"SceneRouter"] = autofree(SCENE_ROUTER.new())
+	var prepared: Dictionary = bootstrap.prepare_runtime()
+	assert_true(prepared.get("ok", false), str(prepared))
+	assert_same(bootstrap.get("_application_gate"), gate)
+	assert_same(bootstrap.get("_desktop_identity_nonce_issuer"), issuer)
+	state = bootstrap.get_startup_state()
+	assert_eq(state.gate_injection.factory_invocation_count, 1)
+	assert_eq(state.gate_injection.targets.size(), 9)
+	for id: int in state.gate_injection.target_instance_ids:
+		assert_eq(id, gate.get_instance_id())
+
 
 func before_each() -> void:
 	_scene_validation_scope.install()

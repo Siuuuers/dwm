@@ -3,7 +3,7 @@ name: Focused Windows release smoke
 on:
   workflow_dispatch:
   push:
-    branches: [codex/windows-smoke, codex/windows-load-observation, codex/art-import-comparison]
+    branches: [codex/windows-smoke, codex/windows-load-observation, codex/art-import-comparison, codex/title-background-loading]
 
 permissions:
   contents: read
@@ -123,9 +123,9 @@ jobs:
             '-Renderer', 'ProjectDefault', '-Accessibility', 'Always', '-Audio', 'Dummy')
           & pwsh @common -Mode Capability -UserRoot "$users/capability" -OutputPath "$evidence/capability"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & pwsh @common -Mode Create -UserRoot "$users/journey" -OutputPath "$evidence/create" -CapabilityReceipt "$evidence/capability/result.json"
+          & pwsh @common -Mode Create -EarlyTitleAction -UserRoot "$users/journey" -OutputPath "$evidence/create" -CapabilityReceipt "$evidence/capability/result.json"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & pwsh @common -Mode Load -UserRoot "$users/journey" -OutputPath "$evidence/load" -CreatorReceipt "$evidence/create/result.json"
+          & pwsh @common -Mode Load -EarlyTitleAction -UserRoot "$users/journey" -OutputPath "$evidence/load" -CreatorReceipt "$evidence/create/result.json"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Upload Windows validation build and evidence
         if: always()

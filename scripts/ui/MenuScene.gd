@@ -2,10 +2,12 @@ extends Control
 class_name MenuScene
 
 
-const BACKUP_APP_SCENE := preload("res://scenes/apps/BackupApp.tscn")
-const SETTING_SCENE := preload("res://scenes/menu/Setting.tscn")
-const GALLERY_SCENE := preload("res://scenes/menu/GalleryScene.tscn")
-const BACKUP_PORT := preload("res://scripts/application/backup/BackupPresentationPort.gd")
+const TITLE_DESTINATIONS := {
+	"new_acc": ["res://scenes/narrative/SceneHost.tscn"],
+	"login": ["res://scenes/apps/BackupApp.tscn", "res://scripts/application/backup/BackupPresentationPort.gd"],
+	"gallery": ["res://scenes/menu/GalleryScene.tscn"],
+	"settings": ["res://scenes/menu/Setting.tscn"],
+}
 const HOME_BUTTON := preload("res://scripts/ui/desktop/DesktopHomeButton.gd")
 const DESKTOP_THEME := preload("res://scripts/ui/desktop/DesktopTheme.gd")
 const CONFIRMATION := preload("res://scripts/ui/desktop/DesktopConfirmation.gd")
@@ -86,6 +88,7 @@ var _new_acc_source_captured := false
 var _startup_recovery_owner: Object
 var _startup_recovery_owner_bound := false
 var _startup_recovery_active := false
+var _pending_destination := ""
 
 func configure_settings_services(services: Dictionary) -> void:
 	_settings_services = services.duplicate()
@@ -118,6 +121,82 @@ func _ready() -> void:
 	_update_title_destination()
 	_new_acc_button.call_deferred("grab_focus")
 	_bind_startup_recovery()
+	_start_title_resource_loading.call_deferred()
+
+func _start_title_resource_loading() -> void:
+	await get_tree().process_frame
+	if not _title_source_alive(): return
+	if DisplayServer.get_name() != "headless":
+		await RenderingServer.frame_post_draw
+	if not _title_source_alive(): return
+	var loader := get_node("/root/StartupLoader")
+	for paths: Array in TITLE_DESTINATIONS.values():
+		loader.queue_resources(paths)
+
+func _destination_resources_ready(destination: String) -> bool:
+	return get_node("/root/StartupLoader").resources_ready(TITLE_DESTINATIONS[destination])
+
+func _title_request_is_current(source_id: int) -> bool:
+	if not _title_source_alive(): return false
+	var scene := get_tree().current_scene
+	return (scene.get_instance_id() if scene != null else 0) == source_id
+
+func _destination_runtime_ready(destination: String) -> bool:
+	if destination == "settings": return true
+	var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
+	if bootstrap == null: return true
+	var state: Dictionary = bootstrap.get_startup_state()
+	return not state.get("title_ready", false) or state.get("ready", false)
+
+func _prepare_title_destination(destination: String) -> bool:
+	if not _title_source_alive() or not _can_leave_login(): return false
+	if _destination_resources_ready(destination) and _destination_runtime_ready(destination): return true
+	if not _begin_title_transition(): return false
+	_pending_destination = destination
+	var scene := get_tree().current_scene
+	var source_id := scene.get_instance_id() if scene != null else 0
+	if not await _close_setting():
+		_pending_destination = ""
+		_end_title_transition()
+		return false
+	if not _title_request_is_current(source_id):
+		_pending_destination = ""
+		_title_transition = false
+		return false
+	_close_backup_app()
+	if not _close_gallery():
+		_pending_destination = ""
+		_end_title_transition()
+		return false
+	_title_welcome.set_busy("loading")
+	var loader := get_node("/root/StartupLoader")
+	var paths: Array = TITLE_DESTINATIONS[destination]
+	if destination != "settings": loader.prioritize_destination(destination)
+	loader.queue_resources(paths, true)
+	while not _destination_resources_ready(destination) or not _destination_runtime_ready(destination):
+		var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
+		var startup: Dictionary = bootstrap.get_startup_state() if bootstrap != null else {}
+		if startup.get("failed_stage") not in [null, &""] or not startup.get("fatal_result", {}).is_empty():
+			_pending_destination = ""
+			_end_title_transition()
+			_check_startup_recovery()
+			return false
+		if loader.resources_failed(paths):
+			_pending_destination = ""
+			_end_title_transition()
+			_new_acc_source = weakref(scene) if is_instance_valid(scene) else null
+			_new_acc_source_captured = true
+			_startup_recovery_active = true
+			_show_startup_unavailable()
+			return false
+		await get_tree().process_frame
+		if not _title_request_is_current(source_id) or _pending_destination != destination:
+			_pending_destination = ""
+			_title_transition = false
+			return false
+	_pending_destination = ""
+	_end_title_transition()
+	return true
 
 func _mount_title_art() -> void:
 	var texture := ART_MANIFEST.get_texture("ui.title")
@@ -249,6 +328,7 @@ func _finish_new_acc_transition() -> bool:
 	return true
 
 func _on_new_acc_pressed() -> void:
+	if not await _prepare_title_destination("new_acc"): return
 	if not _title_source_alive() or not _begin_title_transition(): return
 	var scene := get_tree().current_scene
 	_new_acc_source = weakref(scene) if scene != null else null
@@ -376,12 +456,14 @@ func _focus_new_acc() -> void:
 		_new_acc_button.grab_focus()
 
 func _exit_tree() -> void:
+	_pending_destination = ""
 	if not _new_acc_token.is_empty():
 		var owner := _new_acc_owner
 		if is_instance_valid(owner): owner.cancel_prepared_new_run(_new_acc_token)
 		_new_acc_token = ""
 
 func _on_log_in_pressed() -> void:
+	if not await _prepare_title_destination("login"): return
 	if not _begin_title_transition(): return
 	if not await _close_setting():
 		_end_title_transition()
@@ -400,13 +482,13 @@ func _on_log_in_pressed() -> void:
 		_end_title_transition()
 		_show_login_unavailable()
 		return
-	_title_port = BACKUP_PORT.new()
+	_title_port = (get_node("/root/StartupLoader").loaded_resource(TITLE_DESTINATIONS.login[1]) as Script).new()
 	_login_result = _title_port.configure(get_node_or_null("/root/SaveManager"), "title")
 	if not _login_result.get("ok", false):
 		_end_title_transition()
 		_show_login_unavailable()
 		return
-	_backup_app_instance = BACKUP_APP_SCENE.instantiate()
+	_backup_app_instance = (get_node("/root/StartupLoader").loaded_resource(TITLE_DESTINATIONS.login[0]) as PackedScene).instantiate()
 	_backup_app_instance.configure_title_login()
 	_backup_app_instance.position = Vector2(80, 0)
 	_backup_app_instance.window_hidden.connect(_close_backup_app)
@@ -432,6 +514,7 @@ func configure_gallery_replay(profile: Object, bridge: Object) -> Dictionary:
 	return {"ok":true}
 
 func _on_gallery_pressed() -> void:
+	if not await _prepare_title_destination("gallery"): return
 	if is_instance_valid(_gallery_host) and _gallery_host.visible: return
 	if not _begin_title_transition(): return
 	if not await _close_setting():
@@ -443,7 +526,7 @@ func _on_gallery_pressed() -> void:
 			var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
 			if bootstrap != null and bootstrap.has_method("configure_gallery_replay_services"):
 				bootstrap.configure_gallery_replay_services(self)
-		_gallery_instance = GALLERY_SCENE.instantiate()
+		_gallery_instance = (get_node("/root/StartupLoader").loaded_resource(TITLE_DESTINATIONS.gallery[0]) as PackedScene).instantiate()
 		var configured: Dictionary = _gallery_instance.configure_title_host(_title_home, _menu_localization(), _menu_profile())
 		if not configured.get("ok", false):
 			_gallery_instance.free()
@@ -458,6 +541,7 @@ func _on_gallery_pressed() -> void:
 	_end_title_transition()
 
 func _on_setting_pressed() -> void:
+	if not await _prepare_title_destination("settings"): return
 	if not _can_leave_login():
 		return
 	_close_backup_app()
@@ -467,7 +551,7 @@ func _on_setting_pressed() -> void:
 		_setting_instance.show_window()
 		_update_title_destination()
 		return
-	_setting_instance = SETTING_SCENE.instantiate()
+	_setting_instance = (get_node("/root/StartupLoader").loaded_resource(TITLE_DESTINATIONS.settings[0]) as PackedScene).instantiate()
 	_setting_instance.get_node("SettingsContent").configure_services(_settings_services)
 	_setting_host.add_child(_setting_instance)
 	_setting_instance.window_hidden.connect(_setting_closed)
