@@ -31,13 +31,14 @@ class DeferredSettings extends Control:
 		window_hidden.emit()
 
 class NewAccOwner extends RefCounted:
+	var requires_confirmation := true
 	var prepares := 0
 	var commits := 0
 	var cancels: Array[String] = []
 	var on_commit: Callable
 	func prepare_new_run_action(_context: Dictionary) -> Dictionary:
 		prepares += 1
-		return {"ok": true, "value": {"token": "prepared-lifetime", "requires_confirmation": true,
+		return {"ok": true, "value": {"token": "prepared-lifetime", "requires_confirmation": requires_confirmation,
 			"replaces_autosave": true, "replaces_live": false}}
 	func commit_prepared_new_run(_token: String) -> Dictionary:
 		commits += 1
@@ -174,16 +175,34 @@ func test_synchronous_commit_detaches_source_before_return_without_new_root_look
 	assert_false(save_owner.cancels.is_empty(), "Retained owner receives transient cleanup")
 
 
-func test_busy_preparation_is_visible_before_save_and_duplicate_press_is_ignored() -> void:
+func test_replacement_opens_consent_without_busy_frame_wait() -> void:
 	menu._new_acc_button.pressed.emit()
-	assert_eq(save_owner.prepares, 0, "status gets a render opportunity before save preparation")
-	assert_true(menu._title_welcome.status.visible)
-	assert_eq(menu._title_welcome.status.text, "Preparing your account.")
-	assert_true(menu._title_transition)
+	assert_eq(save_owner.prepares, 1)
+	assert_true(is_instance_valid(menu._confirmation))
+	assert_false(menu._title_welcome.status.visible)
+	assert_eq(save_owner.commits, 0, "Replacement still needs consent")
+
+func test_fresh_start_presents_busy_once_and_ignores_duplicate_press() -> void:
+	save_owner.requires_confirmation = false
+	var drawn := [false]
+	var observe_draw := func():
+		if is_instance_valid(menu) and menu._title_welcome.status.visible:
+			drawn[0] = menu._title_welcome.status.text.begins_with("Starting your desktop")
+	RenderingServer.frame_post_draw.connect(observe_draw)
+	save_owner.on_commit = func():
+		if DisplayServer.get_name() != "headless":
+			assert_true(drawn[0], "Busy feedback was drawn before commit")
+	menu._new_acc_button.pressed.emit()
+	assert_eq(save_owner.prepares, 1)
+	assert_eq(save_owner.commits, 0)
+	assert_eq(menu._title_welcome.status.text, "Starting your desktop.")
+	assert_eq(menu._new_acc_button.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+	assert_eq(menu._new_acc_button.focus_mode, Control.FOCUS_NONE)
 	menu._new_acc_button.pressed.emit()
 	for frame in 3: await get_tree().process_frame
 	assert_eq(save_owner.prepares, 1)
-	assert_false(menu._title_welcome.status.visible, "consent replaces busy feedback")
+	assert_eq(save_owner.commits, 1)
+	RenderingServer.frame_post_draw.disconnect(observe_draw)
 
 
 func test_scene_change_during_busy_commit_cancels_preparation_without_starting() -> void:
