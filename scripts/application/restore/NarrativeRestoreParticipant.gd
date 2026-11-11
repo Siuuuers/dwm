@@ -121,7 +121,7 @@ func prepare_scene_new_run(snapshot: Dictionary, _allocation_candidate: Dictiona
 	if not frames.ok: return frames
 	if not _owner.has_method("validate_reading_checkpoint") or not _owner.has_method("stage_scene_reading_restore"):
 		return _content_unavailable("scene creation owner unavailable")
-	var admitted: Dictionary = _owner.validate_reading_checkpoint(checkpoint, frames.value.entry_contexts)
+	var admitted: Dictionary = _owner.validate_reading_checkpoint(expanded.value, frames.value.entry_contexts)
 	if not admitted.get("ok", false): return admitted
 	_prepared_scene_checkpoint = checkpoint.duplicate(true)
 	_prepared_scene_arrival_cues = []
