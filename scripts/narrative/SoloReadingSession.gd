@@ -77,7 +77,9 @@ func _configure_scene_observed_body() -> Dictionary:
 		var registration := LEDGER.prepare_registration(bundle.entry_manifest, prepared.registry)
 		if not registration.ok: return registration
 		prepared["registration"] = registration.value
-		FROZEN._freeze(prepared)
+		for owned: Dictionary in [prepared.catalogue, prepared.variants, prepared.registry]:
+			FROZEN._freeze(owned)
+		prepared.make_read_only()
 		if cacheable: _prepared_scene_configuration = prepared
 	family = "scene"
 	catalogue_schema_version = 5
