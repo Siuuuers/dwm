@@ -34,6 +34,22 @@ class FakeProfile extends Node:
 		font_style = value
 		preference_changed.emit(&"preferences.accessibility.font_style", value)
 
+class ResourceOwner extends Node:
+	var resources := {}
+	func queue_resources(paths: Array, _priority: bool = false) -> void:
+		for path: String in paths:
+			resources[path] = load(path)
+	func resources_ready(paths: Array) -> bool:
+		return paths.all(func(path: String): return resources.has(path))
+	func loaded_resource(path: String) -> Resource:
+		return resources[path]
+
+class StartupOwner extends Node:
+	signal application_ready()
+	var title_ready := true
+	func get_startup_state() -> Dictionary:
+		return {"title_ready": title_ready, "ready": false}
+
 class SaveCounter extends Node:
 	var calls := 0
 	func start_new_run(_context: Dictionary) -> Dictionary:
@@ -100,10 +116,21 @@ func _run() -> void:
 	var routes := RouteCounter.new()
 	routes.name = "SceneRouter"
 	root.add_child(routes)
+	var loader := ResourceOwner.new()
+	loader.name = "StartupLoader"
+	root.add_child(loader)
+	var startup := StartupOwner.new()
+	startup.name = "ApplicationBootstrap"
+	root.add_child(startup)
 	var menu: Control = load("res://scenes/menu/MenuScene.tscn").instantiate()
 	menu.set_script(SAFE_MENU)
 	root.add_child(menu)
 	await settle()
+	var initial_theme: Theme = menu.theme
+	var initial_focus := root.gui_get_focus_owner()
+	startup.application_ready.emit()
+	check(menu.theme == initial_theme, "Runtime readiness retains the initialized title theme")
+	check(root.gui_get_focus_owner() == initial_focus, "Runtime readiness preserves title focus")
 	var ledger: Array[Button] = []
 	for name in ["NewAccButton", "LogInButton", "GalleryButton", "SettingButton", "ShutDownButton"]:
 		ledger.append(menu.get_node("%" + name))
@@ -219,6 +246,26 @@ func _run() -> void:
 		check(not settings.is_visible_in_tree() and ledger[3].has_focus(), "title Return closes Settings and restores its ledger source")
 		check(saves.calls == 0 and routes.calls == 0, "Settings visit performs no save or route command")
 	menu.queue_free()
+	await settle()
+	startup.title_ready = false
+	locale.locale = "en"
+	profile.scale = 1.0
+	profile.font_style = "pixel"
+	menu = load("res://scenes/menu/MenuScene.tscn").instantiate()
+	menu.set_script(SAFE_MENU)
+	root.add_child(menu)
+	await settle()
+	initial_theme = menu.theme
+	locale.locale = "zh-HK"
+	profile.scale = 1.5
+	profile.font_style = "readable"
+	startup.application_ready.emit()
+	check(menu.theme != initial_theme, "Recovery readiness refreshes the initially unavailable presentation")
+	check(menu._locale == "zh-HK" and menu._percent == 150 and menu._font_style == "readable", "Recovery adopts saved locale, size and font without preference signals")
+	check(menu._clock_label.get_theme_font_size("font_size") == 36, "Recovery applies saved typography to the clock")
+	menu.queue_free()
+	startup.queue_free()
+	loader.queue_free()
 	await settle()
 	settings_locale.queue_free()
 	settings_profile.queue_free()
