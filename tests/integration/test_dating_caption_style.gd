@@ -811,6 +811,7 @@ func test_dating_review_and_hospital_scope_reset_preserve_native_text_and_histor
 	var mounted := await _mount_dating_captions()
 	if mounted.is_empty(): return
 	var caption: Node = mounted.caption
+	var theme_before: Theme = caption.canvas.theme
 	var native: Node = caption.caption_text
 	var before := _native_snapshot(caption)
 	caption.call("_set_review_offset", 1)
@@ -830,6 +831,7 @@ func test_dating_review_and_hospital_scope_reset_preserve_native_text_and_histor
 	bridge.scene_art_changed.emit()
 	await _settle()
 	assert_false(caption.get_caption_projection().get("dating_overlay", true))
+	assert_same(caption.canvas.theme, theme_before, "Layout mode does not rebuild unchanged presentation")
 	for leaf: RichTextLabel in [caption.older, caption.previous, caption.review_current, caption.caption_text]:
 		assert_eq(leaf.horizontal_alignment, HORIZONTAL_ALIGNMENT_CENTER)
 		assert_true(leaf.get_theme_stylebox(&"normal") is StyleBoxEmpty)
@@ -840,6 +842,7 @@ func test_dating_review_and_hospital_scope_reset_preserve_native_text_and_histor
 	bridge.scene_art_changed.emit()
 	await _settle()
 	assert_true(caption.get_caption_projection().get("dating_overlay", false))
+	assert_same(caption.canvas.theme, theme_before)
 	assert_eq(mounted.art.size, Vector2(1280, 656))
 	_assert_dating_leaf(native, 100, true)
 	assert_eq(_native_snapshot(caption), before)
