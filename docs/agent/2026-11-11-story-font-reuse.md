@@ -38,5 +38,28 @@ fallback. No saved data, activation protocol, scene content or UI is removed.
   construction, not a complete player journey. Normal retained-cache reads
   remain shared in both versions.
 - Evidence and probe sources: tools/player_latency/evidence/2026-11-11-story-font-reuse.
-- Windows exported opening/restore verification pending. No whole-game latency
-  claim, full story replay, storage fault injection or unrelated suite matrix.
+- Windows run [42984784764](https://github.com/Siuuuers/dwm/actions/runs/42984784764)
+  passed on source cb1663e7e2063c726b7e78e7a32d76b9429e38e5. Export, pack audit,
+  capability, opening, Computer, Save and fresh-process Load passed; player logs
+  were clean and each process exited normally. Exact caption/checkpoint restored.
+  Opening, Computer and restored screenshots reviewed; caption is legible with
+  the same wrapping and placement. This is not a pixel comparison to the old build.
+- Windows Create title: 7821.160 ms; early New Game to observed caption: 3746.055 ms;
+  Load selected slot to caption: 667.306 ms. UIA upper bounds on Forward+/D3D12,
+  Microsoft Basic Render Driver, Dummy audio, accessibility Always. These are
+  acceptance observations, not a matched speed comparison with the previous run.
+- Artifact 13839825034 SHA256:
+  b0491e5710b6a0687c2a565bf8b812eb83c3c1b2a5e78513bf0ddd6d844b372b.
+  Export ZIP SHA256:
+  414381a574f72bc382ea4fb00f9332009f31e583073d379ad455d8bac3d5f5a6.
+- No whole-game latency claim, full story replay, storage fault injection or
+  unrelated suite matrix. Readable font construction remains unchanged.
+
+## Next bounded investigation
+
+Measure synchronous artwork publication: texture loading, get_image,
+detect_alpha, split_changed and caption layout separately. The audit found
+portrait alpha scans even for layouts that do not consume the result, but no
+saving is established yet. A later two-portrait layout still needs correct
+classification. Deferred reading-session refresh is outside this synchronous
+publication span. Do not delete either behavior based on call count alone.
