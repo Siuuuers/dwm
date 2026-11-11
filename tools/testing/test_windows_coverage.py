@@ -21,6 +21,7 @@ GENERATED = {
     'data/manifests/scene_story_registration.json',
     'data/manifests/dialogue_library_registration.json',
     'data/manifests/story_start.json',
+    'data/manifests/scene_passages.json',
 }
 
 

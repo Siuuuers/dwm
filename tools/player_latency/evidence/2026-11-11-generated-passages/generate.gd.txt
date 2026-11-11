@@ -1,0 +1,14 @@
+extends SceneTree
+func _initialize() -> void:
+	var bundle: Dictionary = str_to_var(FileAccess.get_file_as_string("res://data/manifests/scene_story_registration.json"))
+	var checked := DialogicEntryManifest.validate_scene_registration(bundle)
+	assert(checked.ok, str(checked))
+	var catalogue: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(bundle)
+	assert(catalogue.ok, str(catalogue))
+	var text := CanonicalJsonWriter.stringify(catalogue.value)
+	assert(text.ok)
+	var file := FileAccess.open("res://data/manifests/scene_passages.json", FileAccess.WRITE)
+	file.store_string(text.value + "\n")
+	file.close()
+	print("GENERATED_PASSAGES ", catalogue.value.records.size())
+	quit()

@@ -141,6 +141,7 @@ jobs:
           path: |
             data/manifests/scene_story_registration.json
             data/manifests/dialogue_library_registration.json
+            data/manifests/scene_passages.json
             evidence/phase_2r/runtime/*surface.json
             tests/**/*.gd.uid
             .godot/ci/

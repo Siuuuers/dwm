@@ -293,6 +293,13 @@ func _audit() -> void:
         push_error("Pack authored story validation failed: " + str(authored))
         await _fail_audit()
         return
+    var passages: Dictionary = load("res://scripts/narrative/ScenePassageCatalog.gd").inspect(registration.value.duplicate(true))
+    var generated: Dictionary = parser.parse_object(FileAccess.get_file_as_string("res://data/manifests/scene_passages.json"))
+    var writer: Script = load("res://scripts/validation/CanonicalJsonWriter.gd")
+    if not passages.get("ok", false) or not generated.get("ok", false) or not writer._deep_same(generated.value, passages.value):
+        push_error("Pack passage catalogue differs from authored registration")
+        await _fail_audit()
+        return
     print("WINDOWS_PACK_DATA_VERIFIED count=" + str(expected.size()))
     await root.get_node("ApplicationBootstrap").request_quit()
 

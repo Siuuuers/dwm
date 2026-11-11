@@ -10,7 +10,12 @@ func _initialize() -> void:
 		quit(1)
 		return
 	var registration: Dictionary = prepared.value.registration
-	for item: Array in [["scene_story_registration.json", registration]]:
+	var passages: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(registration)
+	if not passages.ok:
+		push_error(str(passages))
+		quit(1)
+		return
+	for item: Array in [["scene_story_registration.json", registration], ["scene_passages.json", passages.value]]:
 		var encoded: Dictionary = WRITER.stringify(item[1])
 		if not encoded.ok:
 			push_error(str(encoded))

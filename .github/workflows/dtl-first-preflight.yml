@@ -129,7 +129,7 @@ jobs:
           export DWM_TEST_ROOT="$GITHUB_WORKSPACE/.godot/phase2r_tests/dtl-first/export/test-root"
           mkdir -p "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
           timeout 180s "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --log-file "$GITHUB_WORKSPACE/.godot/ci/dtl-first/export.log" -s res://tools/authoring/ExportSevenDayRegistration.gd
-          sha256sum data/manifests/scene_story_registration.json data/manifests/dialogue_library_registration.json data/manifests/story_start.json > .godot/ci/dtl-first/generated.sha256
+          sha256sum data/manifests/scene_story_registration.json data/manifests/dialogue_library_registration.json data/manifests/story_start.json data/manifests/scene_passages.json > .godot/ci/dtl-first/generated.sha256
           timeout 180s "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --log-file "$GITHUB_WORKSPACE/.godot/ci/dtl-first/export-repeat.log" -s res://tools/authoring/ExportSevenDayRegistration.gd
           sha256sum --check .godot/ci/dtl-first/generated.sha256
           timeout 180s "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --log-file "$GITHUB_WORKSPACE/.godot/ci/dtl-first/export-check.log" -s res://tools/authoring/ExportSevenDayRegistration.gd -- --validate-seven-day-export
@@ -138,7 +138,7 @@ jobs:
           grep '^SEVEN_DAY_EXPORT_VALIDATED ' .godot/ci/dtl-first/export-check.log
       - name: Record stale generated output
         run: |
-          git diff --name-only -- data/manifests/scene_story_registration.json data/manifests/dialogue_library_registration.json data/manifests/story_start.json > .godot/ci/dtl-first/stale-generated.txt
+          git diff --name-only -- data/manifests/scene_story_registration.json data/manifests/dialogue_library_registration.json data/manifests/story_start.json data/manifests/scene_passages.json > .godot/ci/dtl-first/stale-generated.txt
           if [ -s .godot/ci/dtl-first/stale-generated.txt ]; then
             echo '::notice::Generated registration changed; retain the artifact before final acceptance.'
             cat .godot/ci/dtl-first/stale-generated.txt
@@ -224,7 +224,7 @@ jobs:
       - name: Require current committed output for final acceptance
         if: ${{ !cancelled() && steps.import_project.outcome == 'success' && steps.export_story.outcome == 'success' && (github.event_name == 'pull_request' || inputs.check_generated == true) }}
         run: |
-          git diff --exit-code -- data/manifests/scene_story_registration.json data/manifests/dialogue_library_registration.json data/manifests/story_start.json evidence/phase_2r/runtime/game_state_surface.json evidence/phase_2r/runtime/save_manager_surface.json
+          git diff --exit-code -- data/manifests/scene_story_registration.json data/manifests/dialogue_library_registration.json data/manifests/story_start.json data/manifests/scene_passages.json evidence/phase_2r/runtime/game_state_surface.json evidence/phase_2r/runtime/save_manager_surface.json
       - name: Measure current reading with fresh isolated processes
         if: ${{ inputs.reading_baseline == true }}
         timeout-minutes: 8
@@ -284,6 +284,7 @@ jobs:
             data/manifests/scene_story_registration.json
             data/manifests/dialogue_library_registration.json
             data/manifests/story_start.json
+            data/manifests/scene_passages.json
             evidence/phase_2r/runtime/*surface.json
             tests/**/*.gd.uid
             tools/authoring/*.gd.uid

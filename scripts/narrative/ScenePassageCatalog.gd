@@ -10,6 +10,10 @@ static func valid_id(value: Variant) -> bool:
 static var _display_by_programme: Dictionary = {}
 
 static func inspect(bundle: Dictionary, compiled: Dictionary = {}) -> Dictionary:
+	var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
+	var registered: Dictionary = manifest.prepared_scene_contract(bundle)
+	if not registered.is_empty():
+		return {"ok": true, "value": {"records": registered.value.passages.duplicate(true)}}
 	if not bundle.get("scene_programme") is Dictionary or not bundle.scene_programme.get("entries") is Array \
 			or not bundle.get("caption_registry") is Dictionary or not bundle.caption_registry.get("entries") is Array:
 		return _fail(&"scene_passage_registration_invalid")

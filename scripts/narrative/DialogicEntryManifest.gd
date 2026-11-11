@@ -45,7 +45,15 @@ static func _select_startup_fixture() -> Dictionary:
 	if not parsed is Dictionary:
 		_startup_selection_error = _scene_fail("startup registration unavailable: " + path)
 		return _startup_selection_error.duplicate(true)
-	var selected := configure_test_scene_registration(parsed) if fixture else _configure_scene_registration(parsed)
+	var selected: Dictionary
+	if fixture:
+		selected = configure_test_scene_registration(parsed)
+	else:
+		var passages: Variant = str_to_var(FileAccess.get_file_as_string("res://data/manifests/scene_passages.json"))
+		if not passages is Dictionary or not passages.get("records") is Dictionary:
+			selected = _scene_fail("passage catalogue unavailable")
+		else:
+			selected = _configure_scene_registration(parsed, passages)
 	if selected.ok:
 		if fixture: _first_target_id = "target_a"
 		else:
@@ -72,14 +80,17 @@ static func configure_test_scene_registration(bundle: Dictionary) -> Dictionary:
 		return _scene_fail("registration_already_selected")
 	var checked := validate_scene_registration(bundle)
 	if not checked.ok: return checked
-	return _configure_scene_registration(bundle)
+	var passages: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(bundle)
+	if not passages.ok: return passages
+	return _configure_scene_registration(bundle, passages.value)
 
-static func _configure_scene_registration(bundle: Dictionary) -> Dictionary:
+static func _configure_scene_registration(bundle: Dictionary, passages: Dictionary) -> Dictionary:
 	if _registration_used or not _scene_bundle.is_empty():
 		return _scene_fail("registration_already_selected")
 	var structural := SCENE_EVENTS.validate_bundle_structure(bundle)
 	if not structural.ok: return structural
 	_scene_contract_tables = structural.value
+	_scene_contract_tables["passages"] = passages.records.duplicate(true)
 	_scene_freeze(_scene_contract_tables)
 	_scene_bundle = bundle.duplicate(true)
 	_scene_freeze(_scene_bundle)
