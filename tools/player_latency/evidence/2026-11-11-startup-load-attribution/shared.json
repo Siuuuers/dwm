@@ -1,0 +1,110 @@
+[
+  [
+    {
+      "cached": false,
+      "path": "res://scripts/application/run/SaveManagerCheckpointPort.gd",
+      "us": 1416559
+    },
+    {
+      "cached": true,
+      "path": "res://scripts/domain/run/RunSnapshotSchema.gd",
+      "us": 8
+    },
+    {
+      "cached": true,
+      "path": "res://scripts/infrastructure/save/SaveDocumentSchema.gd",
+      "us": 3
+    },
+    {
+      "cached": false,
+      "path": "res://autoload/ApplicationBootstrap.gd",
+      "us": 147658
+    },
+    {
+      "cached": true,
+      "path": "res://autoload/ApplicationBootstrap.gd",
+      "us": 7
+    }
+  ],
+  [
+    {
+      "cached": false,
+      "path": "res://autoload/ApplicationBootstrap.gd",
+      "us": 1571235
+    },
+    {
+      "cached": true,
+      "path": "res://scripts/application/run/SaveManagerCheckpointPort.gd",
+      "us": 44
+    },
+    {
+      "cached": true,
+      "path": "res://scripts/domain/run/RunSnapshotSchema.gd",
+      "us": 3
+    },
+    {
+      "cached": true,
+      "path": "res://scripts/infrastructure/save/SaveDocumentSchema.gd",
+      "us": 4
+    },
+    {
+      "cached": true,
+      "path": "res://autoload/ApplicationBootstrap.gd",
+      "us": 2
+    }
+  ],
+  [
+    {
+      "cached": false,
+      "path": "res://scripts/application/run/SaveManagerCheckpointPort.gd",
+      "us": 1149663
+    },
+    {
+      "cached": true,
+      "path": "res://scripts/domain/run/RunSnapshotSchema.gd",
+      "us": 9
+    },
+    {
+      "cached": true,
+      "path": "res://scripts/infrastructure/save/SaveDocumentSchema.gd",
+      "us": 3
+    },
+    {
+      "cached": false,
+      "path": "res://autoload/ApplicationBootstrap.gd",
+      "us": 150167
+    },
+    {
+      "cached": true,
+      "path": "res://autoload/ApplicationBootstrap.gd",
+      "us": 8
+    }
+  ],
+  [
+    {
+      "cached": false,
+      "path": "res://autoload/ApplicationBootstrap.gd",
+      "us": 1544790
+    },
+    {
+      "cached": true,
+      "path": "res://scripts/application/run/SaveManagerCheckpointPort.gd",
+      "us": 10
+    },
+    {
+      "cached": true,
+      "path": "res://scripts/domain/run/RunSnapshotSchema.gd",
+      "us": 4
+    },
+    {
+      "cached": true,
+      "path": "res://scripts/infrastructure/save/SaveDocumentSchema.gd",
+      "us": 4
+    },
+    {
+      "cached": true,
+      "path": "res://autoload/ApplicationBootstrap.gd",
+      "us": 2
+    }
+  ]
+]

@@ -1,0 +1,77 @@
+[
+  {
+    "cached": false,
+    "path": "res://scripts/domain/run/RunSnapshotSchema.gd",
+    "us": 1247705
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/narrative/SceneValidationTiming.gd",
+    "us": 2084
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/domain/run/RunLifecycle.gd",
+    "us": 611692
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/domain/minesweeper/DesktopBoardState.gd",
+    "us": 114927
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/domain/desktop/DesktopConsequenceState.gd",
+    "us": 50648
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/domain/shop/RunNotePurchaseRules.gd",
+    "us": 5036
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/domain/narrative/SceneEventContract.gd",
+    "us": 452612
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/narrative/DialogicEntryManifest.gd",
+    "us": 487104
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/domain/contact/ContactInvitationState.gd",
+    "us": 558297
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/narrative/SoloReadingSession.gd",
+    "us": 505105
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/profile/DatingAttemptLedger.gd",
+    "us": 196264
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/validation/CanonicalJsonWriter.gd",
+    "us": 16735
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/domain/minesweeper/MinesweeperCapabilityRules.gd",
+    "us": 26029
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/narrative/FrozenRunContext.gd",
+    "us": 964545
+  },
+  {
+    "cached": false,
+    "path": "res://scripts/data/ArtManifest.gd",
+    "us": 16593
+  }
+]

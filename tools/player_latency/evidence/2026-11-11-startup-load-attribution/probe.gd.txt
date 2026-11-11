@@ -1,0 +1,14 @@
+extends SceneTree
+var retained: Array[Resource] = []
+func _initialize() -> void:
+	for path: String in OS.get_environment("DWM_LOAD_PATHS").split(";"):
+		var cached := ResourceLoader.has_cached(path)
+		var start := Time.get_ticks_usec()
+		var resource := load(path)
+		var elapsed := Time.get_ticks_usec() - start
+		if resource == null:
+			quit(1)
+			return
+		retained.append(resource)
+		print("RESOURCE_LOAD ", JSON.stringify({"path":path,"cached":cached,"us":elapsed}))
+	quit()
