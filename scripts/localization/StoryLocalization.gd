@@ -1,15 +1,14 @@
 extends RefCounted
 
 const LOCALES := ["en", "zh_HK", "zh_CN", "ja", "ko"]
-const JSON_READER := preload("res://scripts/validation/StrictJson.gd")
 static var _catalogs: Dictionary = {}
 
 static func catalog(locale: String) -> Dictionary:
 	if locale not in LOCALES: return {}
 	if not _catalogs.has(locale):
 		var path := "res://localization/story/%s.json" % locale
-		var parsed: Dictionary = JSON_READER.parse_object(FileAccess.get_file_as_string(path)) if FileAccess.file_exists(path) else {}
-		_catalogs[locale] = parsed.value if parsed.get("ok", false) else {}
+		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path)) if FileAccess.file_exists(path) else {}
+		_catalogs[locale] = parsed if parsed is Dictionary else {}
 	return _catalogs[locale]
 
 static func has_translation(locale: String, line_id: String, source: String) -> bool:
