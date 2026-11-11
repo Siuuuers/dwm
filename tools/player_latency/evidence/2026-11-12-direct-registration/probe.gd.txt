@@ -1,0 +1,15 @@
+extends SceneTree
+func _initialize() -> void:
+	var text := FileAccess.get_file_as_string("res://data/manifests/scene_story_registration.json")
+	var bundle: Dictionary = str_to_var(text)
+	for sample in 3:
+		var start := Time.get_ticks_usec()
+		var encoded := CanonicalJsonWriter.stringify(bundle)
+		var encoded_us := Time.get_ticks_usec() - start
+		start = Time.get_ticks_usec()
+		var digest := text.trim_suffix("\n").sha256_text()
+		var hash_us := Time.get_ticks_usec() - start
+		assert(encoded.ok and encoded.value == text.trim_suffix("\n"))
+		assert(digest == encoded.value.sha256_text())
+		print("DIRECT_HASH ", JSON.stringify({"encoding_us":encoded_us,"hash_us":hash_us,"sha256":digest}))
+	quit()

@@ -283,9 +283,21 @@ func _audit() -> void:
     # Players reuse prepared tables; this build gate owns the full content check.
     var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
     var parser: Script = load("res://scripts/validation/StrictJson.gd")
-    var registration: Dictionary = parser.parse_object(FileAccess.get_file_as_string("res://data/manifests/scene_story_registration.json"))
+    var registration_text := FileAccess.get_file_as_string("res://data/manifests/scene_story_registration.json")
+    var registration: Dictionary = parser.parse_object(registration_text)
     if not registration.get("ok", false):
         push_error("Pack story registration is unavailable")
+        await _fail_audit()
+        return
+    var structural: Dictionary = load("res://scripts/domain/narrative/SceneEventContract.gd").validate_bundle_structure(registration.value)
+    if not structural.get("ok", false):
+        push_error("Pack story structure validation failed: " + str(structural))
+        await _fail_audit()
+        return
+    var writer: Script = load("res://scripts/validation/CanonicalJsonWriter.gd")
+    var canonical: Dictionary = writer.stringify(registration.value)
+    if not canonical.get("ok", false) or registration_text != str(canonical.value) + "\n" or registration_text.trim_suffix("\n").sha256_text() != structural.value.fingerprint:
+        push_error("Pack registration is not the canonical fingerprint input")
         await _fail_audit()
         return
     var authored: Dictionary = manifest.validate_scene_registration(registration.value)
@@ -295,7 +307,6 @@ func _audit() -> void:
         return
     var passages: Dictionary = load("res://scripts/narrative/ScenePassageCatalog.gd").inspect(registration.value.duplicate(true))
     var generated: Dictionary = parser.parse_object(FileAccess.get_file_as_string("res://data/manifests/scene_passages.json"))
-    var writer: Script = load("res://scripts/validation/CanonicalJsonWriter.gd")
     if not passages.get("ok", false) or not generated.get("ok", false) or not writer._deep_same(generated.value, passages.value):
         push_error("Pack passage catalogue differs from authored registration")
         await _fail_audit()
