@@ -1,0 +1,1186 @@
+{
+  "construction-profile-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 401074,
+      "largest_frame_us": 399806
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 36294,
+      "largest_frame_us": 34712
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13602,
+      "largest_frame_us": 12370
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 15973,
+      "largest_frame_us": 14533
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 55162,
+      "largest_frame_us": 54588
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 35936,
+      "largest_frame_us": 33615
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13730,
+      "largest_frame_us": 12596
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 16863,
+      "largest_frame_us": 15283
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 54890,
+      "largest_frame_us": 53858
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 35231,
+      "largest_frame_us": 33779
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 15381,
+      "largest_frame_us": 14870
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 16106,
+      "largest_frame_us": 14409
+    }
+  ],
+  "construction-profile-1": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 394116,
+      "largest_frame_us": 392936
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 37949,
+      "largest_frame_us": 36390
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13577,
+      "largest_frame_us": 12548
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 16614,
+      "largest_frame_us": 14814
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 53067,
+      "largest_frame_us": 52520
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 36421,
+      "largest_frame_us": 34921
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13634,
+      "largest_frame_us": 12065
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 16299,
+      "largest_frame_us": 14238
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 55698,
+      "largest_frame_us": 54599
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 34425,
+      "largest_frame_us": 32962
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13439,
+      "largest_frame_us": 12636
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 16096,
+      "largest_frame_us": 14443
+    }
+  ],
+  "construction-abba-2-candidate-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 411486,
+      "largest_frame_us": 410250
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 37092,
+      "largest_frame_us": 35258
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13523,
+      "largest_frame_us": 12236
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 16973,
+      "largest_frame_us": 15469
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 61899,
+      "largest_frame_us": 61236
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 38750,
+      "largest_frame_us": 36475
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13632,
+      "largest_frame_us": 12441
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 18238,
+      "largest_frame_us": 16782
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 55589,
+      "largest_frame_us": 54492
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 35646,
+      "largest_frame_us": 34119
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13574,
+      "largest_frame_us": 12132
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 17853,
+      "largest_frame_us": 15496
+    }
+  ],
+  "construction-abba-1-candidate-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 394371,
+      "largest_frame_us": 393085
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 37001,
+      "largest_frame_us": 35419
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 14833,
+      "largest_frame_us": 14281
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 18106,
+      "largest_frame_us": 16708
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 54959,
+      "largest_frame_us": 54417
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 37131,
+      "largest_frame_us": 35019
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13634,
+      "largest_frame_us": 12234
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 16668,
+      "largest_frame_us": 15227
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 53057,
+      "largest_frame_us": 52035
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 38349,
+      "largest_frame_us": 36857
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 14754,
+      "largest_frame_us": 14145
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 17772,
+      "largest_frame_us": 15713
+    }
+  ],
+  "construction-abba-0-base-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 392208,
+      "largest_frame_us": 390816
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 36719,
+      "largest_frame_us": 35200
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13520,
+      "largest_frame_us": 12364
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 17062,
+      "largest_frame_us": 15629
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 60483,
+      "largest_frame_us": 59781
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 40509,
+      "largest_frame_us": 38226
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13564,
+      "largest_frame_us": 12923
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 16045,
+      "largest_frame_us": 14562
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 61714,
+      "largest_frame_us": 59852
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 36712,
+      "largest_frame_us": 35122
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13633,
+      "largest_frame_us": 12844
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 16866,
+      "largest_frame_us": 14973
+    }
+  ],
+  "construction-abba-3-base-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 398990,
+      "largest_frame_us": 397817
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 50716,
+      "largest_frame_us": 48863
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 15004,
+      "largest_frame_us": 14536
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 17893,
+      "largest_frame_us": 16406
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 54778,
+      "largest_frame_us": 54194
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 36791,
+      "largest_frame_us": 34566
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13609,
+      "largest_frame_us": 12264
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 16860,
+      "largest_frame_us": 15310
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 54422,
+      "largest_frame_us": 53924
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 35717,
+      "largest_frame_us": 34195
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13595,
+      "largest_frame_us": 12212
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 16744,
+      "largest_frame_us": 15134
+    }
+  ],
+  "theme-attach-profile-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 425709,
+      "largest_frame_us": 424326
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 46006,
+      "largest_frame_us": 44023
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 14923,
+      "largest_frame_us": 13611
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 18309,
+      "largest_frame_us": 16447
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 57304,
+      "largest_frame_us": 56742
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 39563,
+      "largest_frame_us": 37405
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13716,
+      "largest_frame_us": 13229
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 16486,
+      "largest_frame_us": 15009
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 60440,
+      "largest_frame_us": 59397
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 38766,
+      "largest_frame_us": 36494
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 14276,
+      "largest_frame_us": 13710
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 18628,
+      "largest_frame_us": 17135
+    }
+  ],
+  "theme-attach-profile-1": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 406242,
+      "largest_frame_us": 405042
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 39644,
+      "largest_frame_us": 37552
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13886,
+      "largest_frame_us": 13333
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 17392,
+      "largest_frame_us": 15670
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 54457,
+      "largest_frame_us": 53896
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 34883,
+      "largest_frame_us": 32811
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13624,
+      "largest_frame_us": 12661
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 16317,
+      "largest_frame_us": 14879
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 55922,
+      "largest_frame_us": 55428
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 37078,
+      "largest_frame_us": 35468
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 31410,
+      "largest_frame_us": 30942
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 16702,
+      "largest_frame_us": 15123
+    }
+  ],
+  "early-theme-abba-3-base-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 421284,
+      "largest_frame_us": 419865
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 37840,
+      "largest_frame_us": 36181
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 14379,
+      "largest_frame_us": 13690
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 16908,
+      "largest_frame_us": 15427
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 54961,
+      "largest_frame_us": 54512
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 40290,
+      "largest_frame_us": 37439
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13644,
+      "largest_frame_us": 12552
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 16464,
+      "largest_frame_us": 14851
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 57466,
+      "largest_frame_us": 56033
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 37722,
+      "largest_frame_us": 36175
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13969,
+      "largest_frame_us": 13441
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 16729,
+      "largest_frame_us": 15162
+    }
+  ],
+  "early-theme-abba-1-candidate-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 410105,
+      "largest_frame_us": 408632
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 38449,
+      "largest_frame_us": 36811
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13787,
+      "largest_frame_us": 13199
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 17202,
+      "largest_frame_us": 15603
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 55745,
+      "largest_frame_us": 55056
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 39580,
+      "largest_frame_us": 37208
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 14372,
+      "largest_frame_us": 13624
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 19038,
+      "largest_frame_us": 17500
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 55026,
+      "largest_frame_us": 53997
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 40288,
+      "largest_frame_us": 38637
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13633,
+      "largest_frame_us": 13202
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 17352,
+      "largest_frame_us": 15619
+    }
+  ],
+  "early-theme-abba-2-candidate-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 379391,
+      "largest_frame_us": 378090
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 36730,
+      "largest_frame_us": 35040
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13930,
+      "largest_frame_us": 13367
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 16430,
+      "largest_frame_us": 14628
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 51894,
+      "largest_frame_us": 51271
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 36764,
+      "largest_frame_us": 35171
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13651,
+      "largest_frame_us": 12265
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 16607,
+      "largest_frame_us": 14847
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 53854,
+      "largest_frame_us": 52833
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 35463,
+      "largest_frame_us": 33613
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13548,
+      "largest_frame_us": 12837
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 17158,
+      "largest_frame_us": 15422
+    }
+  ],
+  "early-theme-abba-0-base-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 399686,
+      "largest_frame_us": 398373
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 36845,
+      "largest_frame_us": 35223
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13612,
+      "largest_frame_us": 12417
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 17181,
+      "largest_frame_us": 15458
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 76588,
+      "largest_frame_us": 76046
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 50728,
+      "largest_frame_us": 48458
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13597,
+      "largest_frame_us": 12562
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 17042,
+      "largest_frame_us": 15578
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 54522,
+      "largest_frame_us": 53478
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 34459,
+      "largest_frame_us": 32889
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13636,
+      "largest_frame_us": 13116
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 17408,
+      "largest_frame_us": 15242
+    }
+  ],
+  "early-theme-baab-3-candidate-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 390760,
+      "largest_frame_us": 389516
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 36875,
+      "largest_frame_us": 35315
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13621,
+      "largest_frame_us": 12414
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 16301,
+      "largest_frame_us": 14757
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 55142,
+      "largest_frame_us": 54575
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 36792,
+      "largest_frame_us": 34215
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13581,
+      "largest_frame_us": 12407
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 16254,
+      "largest_frame_us": 14730
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 55065,
+      "largest_frame_us": 53960
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 36559,
+      "largest_frame_us": 34982
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13960,
+      "largest_frame_us": 13420
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 16595,
+      "largest_frame_us": 14180
+    }
+  ],
+  "early-theme-baab-0-candidate-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 389511,
+      "largest_frame_us": 388131
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 38773,
+      "largest_frame_us": 37004
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13729,
+      "largest_frame_us": 12645
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 16481,
+      "largest_frame_us": 14960
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 58616,
+      "largest_frame_us": 58111
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 35408,
+      "largest_frame_us": 33240
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13579,
+      "largest_frame_us": 12606
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 16288,
+      "largest_frame_us": 14570
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 53678,
+      "largest_frame_us": 52601
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 36205,
+      "largest_frame_us": 34680
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 14126,
+      "largest_frame_us": 13652
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 16356,
+      "largest_frame_us": 14725
+    }
+  ],
+  "early-theme-baab-1-base-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 394552,
+      "largest_frame_us": 393061
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 36774,
+      "largest_frame_us": 35156
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13610,
+      "largest_frame_us": 12687
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 16812,
+      "largest_frame_us": 15056
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 51524,
+      "largest_frame_us": 50992
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 39779,
+      "largest_frame_us": 38270
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13649,
+      "largest_frame_us": 12608
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 15997,
+      "largest_frame_us": 14580
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 52398,
+      "largest_frame_us": 51371
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 35397,
+      "largest_frame_us": 33967
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13588,
+      "largest_frame_us": 12232
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 15914,
+      "largest_frame_us": 14412
+    }
+  ],
+  "early-theme-baab-2-base-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 394821,
+      "largest_frame_us": 393527
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 35243,
+      "largest_frame_us": 33672
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13720,
+      "largest_frame_us": 13124
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 16265,
+      "largest_frame_us": 14591
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 52541,
+      "largest_frame_us": 51994
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 36574,
+      "largest_frame_us": 33977
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13632,
+      "largest_frame_us": 12474
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 16450,
+      "largest_frame_us": 14581
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 52664,
+      "largest_frame_us": 51627
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 34652,
+      "largest_frame_us": 33134
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13578,
+      "largest_frame_us": 13025
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 19925,
+      "largest_frame_us": 17597
+    }
+  ]
+}
