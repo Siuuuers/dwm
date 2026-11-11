@@ -298,6 +298,13 @@ func test_prepared_configuration_shares_frozen_data_but_not_reading_progress() -
 	for field: String in ["manifest", "catalogue", "registry", "_scene_bundle", "_caption_variants_by_line"]:
 		assert_true(is_same(first.get(field), second.get(field)), field + " has one immutable owner")
 		assert_true(first.get(field).is_read_only(), field)
+	assert_true(SESSION._prepared_scene_configuration.is_read_only())
+	assert_true(first.catalogue[READING.A].is_read_only())
+	assert_true(first.catalogue[READING.A].lines.is_read_only())
+	assert_true(first.catalogue[READING.A].lines[0].is_read_only())
+	assert_true(first.registry.beats.is_read_only())
+	assert_true(first.registry.beats[0].presentation_signature.is_read_only())
+	assert_true(first._caption_variants_by_line.values()[0].presentation_signature.is_read_only())
 	assert_true(first._scene_nodes.is_empty(), "configuration does not compile unrelated passages")
 	assert_true(second._scene_nodes.is_empty())
 	assert_true(first.begin_scene(READING.TOKEN).ok)
@@ -545,3 +552,21 @@ func test_lazy_runtime_entries_share_parse_until_registration_changes_and_bypass
 		"new selected registration cannot retain the prior native parse")
 	assert_eq(ADAPTER._scene_runtime_programmes.keys(), [first.entry_id])
 	inner.restore()
+
+func test_context_registry_detaches_only_its_owned_schemas_and_ids() -> void:
+	_install_reading_source()
+	var context := preload("res://scripts/narrative/FrozenPresentationContext.gd")
+	var selected := MANIFEST.scene_contract_tables()
+	assert_true(selected.ok)
+	var schema := context.schema_for_entry(READING.A)
+	assert_true(schema.ok)
+	if not schema.ok: return
+	var canonical: Dictionary = selected.bundle.context_registry.schemas.filter(
+		func(row: Dictionary) -> bool: return row.entry_id == READING.A)[0]
+	assert_eq(context._schemas[READING.A], canonical)
+	assert_false(is_same(context._schemas[READING.A], canonical))
+	assert_eq(context._ids, selected.bundle.ids_registry)
+	assert_false(is_same(context._ids, selected.bundle.ids_registry))
+	schema.value.clear()
+	assert_eq(context.schema_for_entry(READING.A).value, canonical)
+	assert_true(canonical.is_read_only())

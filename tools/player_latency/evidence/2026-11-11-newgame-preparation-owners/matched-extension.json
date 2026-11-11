@@ -1,0 +1,890 @@
+[
+  {
+    "ack_us": 9183684,
+    "caption_us": 9187033,
+    "click_us": 8812413,
+    "largest_frame_gap_us": 234924,
+    "runtime_us": 6811917,
+    "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+    "title_us": 4434521,
+    "trace": [
+      {
+        "state": "title||10",
+        "us": 4234914
+      },
+      {
+        "state": "title|res://scenes/menu/MenuScene.tscn|10",
+        "us": 4235774
+      },
+      {
+        "state": "first_draw||10",
+        "us": 4434521
+      },
+      {
+        "state": "drawing|res://scenes/narrative/SceneHost.tscn|10",
+        "us": 4434965
+      },
+      {
+        "state": "runtime|res://scenes/narrative/SceneHost.tscn|10",
+        "us": 4441515
+      },
+      {
+        "state": "runtime|res://scenes/apps/BackupApp.tscn|10",
+        "us": 4469246
+      },
+      {
+        "state": "runtime|res://scripts/application/backup/BackupPresentationPort.gd|10",
+        "us": 4517364
+      },
+      {
+        "state": "runtime|res://scenes/menu/GalleryScene.tscn|10",
+        "us": 4531217
+      },
+      {
+        "state": "runtime|res://scenes/menu/Setting.tscn|10",
+        "us": 4676095
+      },
+      {
+        "state": "runtime|res://autoload/GameState.gd|10",
+        "us": 4834715
+      },
+      {
+        "state": "runtime|res://autoload/EffectResolver.gd|10",
+        "us": 5711168
+      },
+      {
+        "state": "runtime|res://autoload/SceneRouter.gd|10",
+        "us": 5724828
+      },
+      {
+        "state": "runtime|res://scripts/application/contact/ContactCommandPort.gd|10",
+        "us": 5959723
+      },
+      {
+        "state": "runtime|res://scripts/application/run/CausalDayAdvanceIdentityPort.gd|10",
+        "us": 6007896
+      },
+      {
+        "state": "runtime|res://scripts/application/run/DatingPresentationPort.gd|10",
+        "us": 6028500
+      },
+      {
+        "state": "runtime|res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd|10",
+        "us": 6062946
+      },
+      {
+        "state": "runtime|res://scripts/application/ending/DialogicEndingPlaybackPort.gd|10",
+        "us": 6145928
+      },
+      {
+        "state": "runtime|res://scripts/domain/desktop/DesktopAppHostState.gd|10",
+        "us": 6173349
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/RunRestoreParticipant.gd|10",
+        "us": 6194028
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/ProfileRestoreParticipant.gd|10",
+        "us": 6214738
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/LocalizationRestoreParticipant.gd|10",
+        "us": 6228437
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/AudioRestoreParticipant.gd|10",
+        "us": 6235446
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/RouteRestoreParticipant.gd|10",
+        "us": 6242271
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/NarrativeRestoreParticipant.gd|10",
+        "us": 6256137
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd|10",
+        "us": 6352680
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/DesktopBoardRestoreParticipant.gd|10",
+        "us": 6366492
+      },
+      {
+        "state": "runtime|res://scripts/domain/minesweeper/MinesweeperRoundCoordinator.gd|10",
+        "us": 6380508
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/GameStateMinesweeperPort.gd|10",
+        "us": 6400988
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/SaveManagerMinesweeperPort.gd|10",
+        "us": 6435486
+      },
+      {
+        "state": "runtime|res://scripts/infrastructure/save/DesktopPublicationLedger.gd|10",
+        "us": 6442489
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd|10",
+        "us": 6490706
+      },
+      {
+        "state": "runtime|res://scripts/data/DataCatalog.gd|10",
+        "us": 6497921
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd|10",
+        "us": 6566657
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/GameStateDesktopBoardPort.gd|10",
+        "us": 6656314
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/SaveManagerDesktopBoardPort.gd|10",
+        "us": 6677025
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd|10",
+        "us": 6690823
+      },
+      {
+        "state": "runtime|res://scripts/application/narrative/SceneEventCommandPort.gd|10",
+        "us": 6704607
+      },
+      {
+        "state": "runtime||10",
+        "us": 6739148
+      },
+      {
+        "state": "wiring||10",
+        "us": 6767594
+      },
+      {
+        "state": "wiring||11",
+        "us": 6790680
+      },
+      {
+        "state": "wiring||12",
+        "us": 6791229
+      },
+      {
+        "state": "wiring||13",
+        "us": 6797706
+      },
+      {
+        "state": "wiring||14",
+        "us": 6804517
+      },
+      {
+        "state": "idle||15",
+        "us": 6811917
+      },
+      {
+        "state": "idle|res://scenes/desktop/ComputerDesktop.tscn|15",
+        "us": 6818433
+      },
+      {
+        "state": "idle|res://scripts/application/contact/ContactsPresentationPort.gd|15",
+        "us": 6984289
+      },
+      {
+        "state": "idle|res://scripts/application/minesweeper/MinesweeperPanelPort.gd|15",
+        "us": 7087642
+      },
+      {
+        "state": "idle|res://scripts/application/contact/ProvisionalCorrespondenceCatalog.gd|15",
+        "us": 7128917
+      },
+      {
+        "state": "idle|res://scripts/ui/SceneChallengePanel.gd|15",
+        "us": 7156445
+      },
+      {
+        "state": "idle|res://scripts/application/shop/ShopPresentationPort.gd|15",
+        "us": 7239293
+      },
+      {
+        "state": "idle||15",
+        "us": 7273747
+      }
+    ],
+    "label": "candidate",
+    "warning": false,
+    "computer": {
+      "same_caption": true,
+      "us": 24637
+    },
+    "caption_ms": 374.62
+  },
+  {
+    "ack_us": 7961882,
+    "caption_us": 7965168,
+    "click_us": 7594494,
+    "largest_frame_gap_us": 214842,
+    "runtime_us": 5593620,
+    "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+    "title_us": 3681736,
+    "trace": [
+      {
+        "state": "title||10",
+        "us": 3474528
+      },
+      {
+        "state": "title|res://scenes/menu/MenuScene.tscn|10",
+        "us": 3475383
+      },
+      {
+        "state": "first_draw||10",
+        "us": 3681736
+      },
+      {
+        "state": "drawing|res://scenes/narrative/SceneHost.tscn|10",
+        "us": 3682222
+      },
+      {
+        "state": "runtime|res://scenes/narrative/SceneHost.tscn|10",
+        "us": 3688640
+      },
+      {
+        "state": "runtime|res://scenes/apps/BackupApp.tscn|10",
+        "us": 3723261
+      },
+      {
+        "state": "runtime|res://scripts/application/backup/BackupPresentationPort.gd|10",
+        "us": 3785235
+      },
+      {
+        "state": "runtime|res://scenes/menu/GalleryScene.tscn|10",
+        "us": 3799447
+      },
+      {
+        "state": "runtime|res://scenes/menu/Setting.tscn|10",
+        "us": 3916345
+      },
+      {
+        "state": "runtime|res://autoload/GameState.gd|10",
+        "us": 4026712
+      },
+      {
+        "state": "runtime|res://autoload/EffectResolver.gd|10",
+        "us": 4613217
+      },
+      {
+        "state": "runtime|res://autoload/SceneRouter.gd|10",
+        "us": 4620152
+      },
+      {
+        "state": "runtime|res://scripts/application/contact/ContactCommandPort.gd|10",
+        "us": 4792541
+      },
+      {
+        "state": "runtime|res://scripts/application/run/CausalDayAdvanceIdentityPort.gd|10",
+        "us": 4834006
+      },
+      {
+        "state": "runtime|res://scripts/application/run/DatingPresentationPort.gd|10",
+        "us": 4854876
+      },
+      {
+        "state": "runtime|res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd|10",
+        "us": 4889257
+      },
+      {
+        "state": "runtime|res://scripts/application/ending/DialogicEndingPlaybackPort.gd|10",
+        "us": 4958200
+      },
+      {
+        "state": "runtime|res://scripts/domain/desktop/DesktopAppHostState.gd|10",
+        "us": 4978889
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/RunRestoreParticipant.gd|10",
+        "us": 4992645
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/ProfileRestoreParticipant.gd|10",
+        "us": 5006503
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/LocalizationRestoreParticipant.gd|10",
+        "us": 5013313
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/AudioRestoreParticipant.gd|10",
+        "us": 5020189
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/RouteRestoreParticipant.gd|10",
+        "us": 5027225
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/NarrativeRestoreParticipant.gd|10",
+        "us": 5034259
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd|10",
+        "us": 5130734
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/DesktopBoardRestoreParticipant.gd|10",
+        "us": 5144978
+      },
+      {
+        "state": "runtime|res://scripts/domain/minesweeper/MinesweeperRoundCoordinator.gd|10",
+        "us": 5158415
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/GameStateMinesweeperPort.gd|10",
+        "us": 5185832
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/SaveManagerMinesweeperPort.gd|10",
+        "us": 5220287
+      },
+      {
+        "state": "runtime|res://scripts/infrastructure/save/DesktopPublicationLedger.gd|10",
+        "us": 5227384
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd|10",
+        "us": 5261769
+      },
+      {
+        "state": "runtime|res://scripts/data/DataCatalog.gd|10",
+        "us": 5275576
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd|10",
+        "us": 5358552
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/GameStateDesktopBoardPort.gd|10",
+        "us": 5448208
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/SaveManagerDesktopBoardPort.gd|10",
+        "us": 5468838
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd|10",
+        "us": 5482560
+      },
+      {
+        "state": "runtime|res://scripts/application/narrative/SceneEventCommandPort.gd|10",
+        "us": 5496444
+      },
+      {
+        "state": "runtime||10",
+        "us": 5523914
+      },
+      {
+        "state": "wiring||10",
+        "us": 5551569
+      },
+      {
+        "state": "wiring||11",
+        "us": 5572803
+      },
+      {
+        "state": "wiring||12",
+        "us": 5573603
+      },
+      {
+        "state": "wiring||13",
+        "us": 5579750
+      },
+      {
+        "state": "wiring||14",
+        "us": 5586628
+      },
+      {
+        "state": "idle||15",
+        "us": 5593620
+      },
+      {
+        "state": "idle|res://scenes/desktop/ComputerDesktop.tscn|15",
+        "us": 5600531
+      },
+      {
+        "state": "idle|res://scripts/application/contact/ContactsPresentationPort.gd|15",
+        "us": 5773035
+      },
+      {
+        "state": "idle|res://scripts/application/minesweeper/MinesweeperPanelPort.gd|15",
+        "us": 5849174
+      },
+      {
+        "state": "idle|res://scripts/application/contact/ProvisionalCorrespondenceCatalog.gd|15",
+        "us": 5890352
+      },
+      {
+        "state": "idle|res://scripts/ui/SceneChallengePanel.gd|15",
+        "us": 5918089
+      },
+      {
+        "state": "idle|res://scripts/application/shop/ShopPresentationPort.gd|15",
+        "us": 6007773
+      },
+      {
+        "state": "idle||15",
+        "us": 6042103
+      }
+    ],
+    "label": "baseline",
+    "warning": false,
+    "computer": {
+      "same_caption": true,
+      "us": 24540
+    },
+    "caption_ms": 370.674
+  },
+  {
+    "ack_us": 7966467,
+    "caption_us": 7970184,
+    "click_us": 7595020,
+    "largest_frame_gap_us": 221035,
+    "runtime_us": 5594132,
+    "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+    "title_us": 3674945,
+    "trace": [
+      {
+        "state": "title||10",
+        "us": 3514884
+      },
+      {
+        "state": "title|res://scenes/menu/MenuScene.tscn|10",
+        "us": 3515667
+      },
+      {
+        "state": "first_draw||10",
+        "us": 3674945
+      },
+      {
+        "state": "drawing|res://scenes/narrative/SceneHost.tscn|10",
+        "us": 3675347
+      },
+      {
+        "state": "runtime|res://scenes/narrative/SceneHost.tscn|10",
+        "us": 3682036
+      },
+      {
+        "state": "runtime|res://scenes/apps/BackupApp.tscn|10",
+        "us": 3716403
+      },
+      {
+        "state": "runtime|res://scripts/application/backup/BackupPresentationPort.gd|10",
+        "us": 3771642
+      },
+      {
+        "state": "runtime|res://scenes/menu/GalleryScene.tscn|10",
+        "us": 3785449
+      },
+      {
+        "state": "runtime|res://scenes/menu/Setting.tscn|10",
+        "us": 3902711
+      },
+      {
+        "state": "runtime|res://autoload/GameState.gd|10",
+        "us": 4033908
+      },
+      {
+        "state": "runtime|res://autoload/EffectResolver.gd|10",
+        "us": 4647864
+      },
+      {
+        "state": "runtime|res://autoload/SceneRouter.gd|10",
+        "us": 4655647
+      },
+      {
+        "state": "runtime|res://scripts/application/contact/ContactCommandPort.gd|10",
+        "us": 4827387
+      },
+      {
+        "state": "runtime|res://scripts/application/run/CausalDayAdvanceIdentityPort.gd|10",
+        "us": 4861893
+      },
+      {
+        "state": "runtime|res://scripts/application/run/DatingPresentationPort.gd|10",
+        "us": 4882591
+      },
+      {
+        "state": "runtime|res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd|10",
+        "us": 4916956
+      },
+      {
+        "state": "runtime|res://scripts/application/ending/DialogicEndingPlaybackPort.gd|10",
+        "us": 4992880
+      },
+      {
+        "state": "runtime|res://scripts/domain/desktop/DesktopAppHostState.gd|10",
+        "us": 5013629
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/RunRestoreParticipant.gd|10",
+        "us": 5027549
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/ProfileRestoreParticipant.gd|10",
+        "us": 5041156
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/LocalizationRestoreParticipant.gd|10",
+        "us": 5048053
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/AudioRestoreParticipant.gd|10",
+        "us": 5054963
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/RouteRestoreParticipant.gd|10",
+        "us": 5061904
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/NarrativeRestoreParticipant.gd|10",
+        "us": 5068811
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd|10",
+        "us": 5165380
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/DesktopBoardRestoreParticipant.gd|10",
+        "us": 5179172
+      },
+      {
+        "state": "runtime|res://scripts/domain/minesweeper/MinesweeperRoundCoordinator.gd|10",
+        "us": 5192977
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/GameStateMinesweeperPort.gd|10",
+        "us": 5206999
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/SaveManagerMinesweeperPort.gd|10",
+        "us": 5234348
+      },
+      {
+        "state": "runtime|res://scripts/infrastructure/save/DesktopPublicationLedger.gd|10",
+        "us": 5241357
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd|10",
+        "us": 5289508
+      },
+      {
+        "state": "runtime|res://scripts/data/DataCatalog.gd|10",
+        "us": 5296522
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd|10",
+        "us": 5365437
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/GameStateDesktopBoardPort.gd|10",
+        "us": 5448296
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/SaveManagerDesktopBoardPort.gd|10",
+        "us": 5469087
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd|10",
+        "us": 5482808
+      },
+      {
+        "state": "runtime|res://scripts/application/narrative/SceneEventCommandPort.gd|10",
+        "us": 5496746
+      },
+      {
+        "state": "runtime||10",
+        "us": 5524132
+      },
+      {
+        "state": "wiring||10",
+        "us": 5551808
+      },
+      {
+        "state": "wiring||11",
+        "us": 5573301
+      },
+      {
+        "state": "wiring||12",
+        "us": 5573833
+      },
+      {
+        "state": "wiring||13",
+        "us": 5580338
+      },
+      {
+        "state": "wiring||14",
+        "us": 5587162
+      },
+      {
+        "state": "idle||15",
+        "us": 5594132
+      },
+      {
+        "state": "idle|res://scenes/desktop/ComputerDesktop.tscn|15",
+        "us": 5601017
+      },
+      {
+        "state": "idle|res://scripts/application/contact/ContactsPresentationPort.gd|15",
+        "us": 5780459
+      },
+      {
+        "state": "idle|res://scripts/application/minesweeper/MinesweeperPanelPort.gd|15",
+        "us": 5863298
+      },
+      {
+        "state": "idle|res://scripts/application/contact/ProvisionalCorrespondenceCatalog.gd|15",
+        "us": 5897688
+      },
+      {
+        "state": "idle|res://scripts/ui/SceneChallengePanel.gd|15",
+        "us": 5925376
+      },
+      {
+        "state": "idle|res://scripts/application/shop/ShopPresentationPort.gd|15",
+        "us": 6008140
+      },
+      {
+        "state": "idle||15",
+        "us": 6042600
+      }
+    ],
+    "label": "baseline",
+    "warning": false,
+    "computer": {
+      "same_caption": true,
+      "us": 23350
+    },
+    "caption_ms": 375.164
+  },
+  {
+    "ack_us": 8714915,
+    "caption_us": 8718466,
+    "click_us": 8340082,
+    "largest_frame_gap_us": 231590,
+    "runtime_us": 6333470,
+    "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+    "title_us": 4345461,
+    "trace": [
+      {
+        "state": "title||10",
+        "us": 4124314
+      },
+      {
+        "state": "title|res://scenes/menu/MenuScene.tscn|10",
+        "us": 4125232
+      },
+      {
+        "state": "first_draw||10",
+        "us": 4345461
+      },
+      {
+        "state": "drawing|res://scenes/narrative/SceneHost.tscn|10",
+        "us": 4346048
+      },
+      {
+        "state": "runtime|res://scenes/narrative/SceneHost.tscn|10",
+        "us": 4352367
+      },
+      {
+        "state": "runtime|res://scenes/apps/BackupApp.tscn|10",
+        "us": 4393731
+      },
+      {
+        "state": "runtime|res://scripts/application/backup/BackupPresentationPort.gd|10",
+        "us": 4437449
+      },
+      {
+        "state": "runtime|res://scenes/menu/GalleryScene.tscn|10",
+        "us": 4442078
+      },
+      {
+        "state": "runtime|res://scenes/menu/Setting.tscn|10",
+        "us": 4579973
+      },
+      {
+        "state": "runtime|res://autoload/GameState.gd|10",
+        "us": 4711071
+      },
+      {
+        "state": "runtime|res://autoload/EffectResolver.gd|10",
+        "us": 5359830
+      },
+      {
+        "state": "runtime|res://autoload/SceneRouter.gd|10",
+        "us": 5373761
+      },
+      {
+        "state": "runtime|res://scripts/application/contact/ContactCommandPort.gd|10",
+        "us": 5566681
+      },
+      {
+        "state": "runtime|res://scripts/application/run/CausalDayAdvanceIdentityPort.gd|10",
+        "us": 5610367
+      },
+      {
+        "state": "runtime|res://scripts/application/run/DatingPresentationPort.gd|10",
+        "us": 5628970
+      },
+      {
+        "state": "runtime|res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd|10",
+        "us": 5663326
+      },
+      {
+        "state": "runtime|res://scripts/application/ending/DialogicEndingPlaybackPort.gd|10",
+        "us": 5732247
+      },
+      {
+        "state": "runtime|res://scripts/domain/desktop/DesktopAppHostState.gd|10",
+        "us": 5754443
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/RunRestoreParticipant.gd|10",
+        "us": 5766903
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/ProfileRestoreParticipant.gd|10",
+        "us": 5780822
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/LocalizationRestoreParticipant.gd|10",
+        "us": 5787435
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/AudioRestoreParticipant.gd|10",
+        "us": 5794286
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/RouteRestoreParticipant.gd|10",
+        "us": 5802184
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/NarrativeRestoreParticipant.gd|10",
+        "us": 5813509
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd|10",
+        "us": 5904755
+      },
+      {
+        "state": "runtime|res://scripts/application/restore/DesktopBoardRestoreParticipant.gd|10",
+        "us": 5918702
+      },
+      {
+        "state": "runtime|res://scripts/domain/minesweeper/MinesweeperRoundCoordinator.gd|10",
+        "us": 5932585
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/GameStateMinesweeperPort.gd|10",
+        "us": 5953075
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/SaveManagerMinesweeperPort.gd|10",
+        "us": 5980759
+      },
+      {
+        "state": "runtime|res://scripts/infrastructure/save/DesktopPublicationLedger.gd|10",
+        "us": 5987608
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd|10",
+        "us": 6029114
+      },
+      {
+        "state": "runtime|res://scripts/data/DataCatalog.gd|10",
+        "us": 6042889
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd|10",
+        "us": 6104810
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/GameStateDesktopBoardPort.gd|10",
+        "us": 6187697
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/SaveManagerDesktopBoardPort.gd|10",
+        "us": 6208359
+      },
+      {
+        "state": "runtime|res://scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd|10",
+        "us": 6222228
+      },
+      {
+        "state": "runtime|res://scripts/application/narrative/SceneEventCommandPort.gd|10",
+        "us": 6236082
+      },
+      {
+        "state": "runtime||10",
+        "us": 6263498
+      },
+      {
+        "state": "wiring||10",
+        "us": 6291166
+      },
+      {
+        "state": "wiring||11",
+        "us": 6311484
+      },
+      {
+        "state": "wiring||12",
+        "us": 6312210
+      },
+      {
+        "state": "wiring||13",
+        "us": 6318454
+      },
+      {
+        "state": "wiring||14",
+        "us": 6325313
+      },
+      {
+        "state": "idle||15",
+        "us": 6333470
+      },
+      {
+        "state": "idle|res://scenes/desktop/ComputerDesktop.tscn|15",
+        "us": 6342518
+      },
+      {
+        "state": "idle|res://scripts/application/contact/ContactsPresentationPort.gd|15",
+        "us": 6504813
+      },
+      {
+        "state": "idle|res://scripts/application/minesweeper/MinesweeperPanelPort.gd|15",
+        "us": 6562296
+      },
+      {
+        "state": "idle|res://scripts/application/contact/ProvisionalCorrespondenceCatalog.gd|15",
+        "us": 6601361
+      },
+      {
+        "state": "idle|res://scripts/ui/SceneChallengePanel.gd|15",
+        "us": 6629027
+      },
+      {
+        "state": "idle|res://scripts/application/shop/ShopPresentationPort.gd|15",
+        "us": 6711817
+      },
+      {
+        "state": "idle||15",
+        "us": 6746225
+      }
+    ],
+    "label": "candidate",
+    "warning": false,
+    "computer": {
+      "same_caption": true,
+      "us": 24928
+    },
+    "caption_ms": 378.384
+  }
+]
