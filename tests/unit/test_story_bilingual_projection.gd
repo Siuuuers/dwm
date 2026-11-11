@@ -63,3 +63,15 @@ func test_choices_use_the_same_projection_and_actual_content_locale() -> void:
 		"text": "왼쪽 선택.", "content_locale": "ko", "secondary_text": "Choose left.", "secondary_locale": "en"})
 	assert_eq(STORY.resolve("zh_CN", "choice.sample.left", "Choose left."), {
 		"text": "Choose left.", "content_locale": "en"})
+
+func test_shipped_catalogues_preserve_values_and_cached_identity() -> void:
+	STORY._catalogs = {}
+	for locale: String in STORY.LOCALES:
+		var expected := preload("res://scripts/validation/StrictJson.gd").parse_object(
+			FileAccess.get_file_as_string("res://localization/story/%s.json" % locale))
+		assert_true(expected.ok)
+		var actual := STORY.catalog(locale)
+		assert_false(actual.is_empty())
+		assert_eq(actual, expected.value)
+		assert_true(is_same(actual, STORY.catalog(locale)))
+	assert_eq(STORY.catalog("unsupported"), {})
