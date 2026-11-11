@@ -66,15 +66,22 @@ static func story_font(locale: String, percent: int, font_style: String = "pixel
 	if primary == null: return null
 	var key := primary.resource_path
 	if not _story_loaded.has(key):
-		var face := primary.duplicate() as FontFile
-		face.clear_cache()
+		var face: Font
+		if font_style == "pixel":
+			var variation := FontVariation.new()
+			variation.base_font = primary
+			face = variation
+		else:
+			var readable := primary.duplicate() as FontFile
+			readable.clear_cache()
+			readable.allow_system_fallback = false
+			face = readable
 		var fallbacks: Array[Font] = [load("res://assets/ui/contacts/fonts/dejavu-sans-fallback.ttf") as FontFile]
 		if font_style == "pixel":
 			fallbacks.append(font(locale, percent, "readable"))
 		if _locale_key(locale) in ["ja", "ko"]:
 			fallbacks.append(TRADITIONAL)
 		face.fallbacks = fallbacks
-		face.allow_system_fallback = false
 		_story_loaded[key] = face
 	return _story_loaded[key] as Font
 

@@ -1,0 +1,13 @@
+extends SceneTree
+const TYPE := preload("res://scripts/ui/UiTypography.gd")
+func _initialize() -> void:
+	var primary := TYPE.font("en", 125, "pixel")
+	var timings: Array[int] = []
+	for i in 5:
+		TYPE._story_loaded.clear()
+		var tick := Time.get_ticks_usec()
+		var face := TYPE.story_font("en", 125, "pixel")
+		timings.append(Time.get_ticks_usec() - tick)
+		assert(face != null and primary != null)
+	print("FONT_SETUP_US ", JSON.stringify(timings))
+	quit()
