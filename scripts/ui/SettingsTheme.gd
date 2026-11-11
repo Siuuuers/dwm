@@ -2,8 +2,6 @@ class_name SettingsTheme
 extends RefCounted
 
 const ENGLISH := preload("res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2")
-const SIMPLIFIED := preload("res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf")
-const TRADITIONAL := preload("res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf")
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const PALETTES := preload("res://scripts/settings/SettingsPaletteRegistry.gd")
 const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")

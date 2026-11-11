@@ -1,8 +1,6 @@
 extends RefCounted
 
 const ENGLISH := preload("res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2")
-const SIMPLIFIED := preload("res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf")
-const TRADITIONAL := preload("res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf")
 const _READABLE_FONTS := {
 	"en": "res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2",
 	"zh-CN": "res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf",
@@ -80,7 +78,7 @@ static func story_font(locale: String, percent: int, font_style: String = "pixel
 		if font_style == "pixel":
 			fallbacks.append(font(locale, percent, "readable"))
 		if _locale_key(locale) in ["ja", "ko"]:
-			fallbacks.append(TRADITIONAL)
+			fallbacks.append(load(_READABLE_FONTS["zh-HK"]) as FontFile)
 		face.fallbacks = fallbacks
 		_story_loaded[key] = face
 	return _story_loaded[key] as Font

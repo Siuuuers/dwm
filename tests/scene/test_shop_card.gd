@@ -190,7 +190,7 @@ func test_native_keyboard_and_controller_activate_without_owning_selection() -> 
 
 func test_cjk_font_metrics_preserve_complete_public_labels_at_all_sizes() -> void:
 	# Representative literal object-name fixtures, not a production translation catalog.
-	for font: Font in [FONTS.SIMPLIFIED, FONTS.TRADITIONAL]:
+	for font: Font in [FONTS.TYPOGRAPHY.font("zh-CN", 100, "readable"), FONTS.TYPOGRAPHY.font("zh-HK", 100, "readable")]:
 		for font_size in [20, 25, 30]:
 			var row: Dictionary = CATALOG_PROJECTION.project(_valid_rows()).value[ORDER.find("pocket_calculator_keepsake")]
 			row.name = "口袋計算器"
