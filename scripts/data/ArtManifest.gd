@@ -54,10 +54,9 @@ static func get_texture(asset_id: String, expected_size: Vector2i = Vector2i.ZER
 	var path := str(_asset(asset_id).get("path", ""))
 	if not path.begins_with("res://") or not IMAGE_EXTENSIONS.has(path.get_extension().to_lower()):
 		return null
-	if not ResourceLoader.exists(path, "Texture2D"):
-		return null
 	var texture: Texture2D = _gallery_textures.get(asset_id)
 	if texture == null or texture.resource_path != path:
+		if not ResourceLoader.exists(path, "Texture2D"): return null
 		texture = load(path) as Texture2D
 	if texture == null or (expected_size != Vector2i.ZERO and texture.get_size() != Vector2(expected_size)):
 		return null
