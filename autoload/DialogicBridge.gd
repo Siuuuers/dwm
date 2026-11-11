@@ -2988,7 +2988,7 @@ func capture_self_talk_presentation() -> Dictionary:
 	return projected
 
 
-func get_reading_history() -> Dictionary:
+func get_reading_history_source() -> Dictionary:
 	if not can_capture_reading_checkpoint(): return _command_failure(&"reading_frontier_unavailable")
 	var frontier := {}
 	if _reading_session.family == "scene" and _reading_session.boundary == "control":
@@ -2998,6 +2998,13 @@ func get_reading_history() -> Dictionary:
 		var captured: Dictionary = _runtime_adapter.capture_reading_frontier()
 		if not captured.ok: return captured
 		frontier = captured.value
+	return {"ok": true, "value": {"session_id": _reading_session.command_id, "frontier": frontier}}
+
+
+func get_reading_history() -> Dictionary:
+	var source := get_reading_history_source()
+	if not source.ok: return source
+	var frontier: Dictionary = source.value.frontier
 	var history: Dictionary = _scene_day_history(frontier) if _reading_session.family == "scene" else _reading_session.project(frontier)
 	return _STORY_LOCALE.project(history, _current_locale(), _secondary_reading_locale())
 

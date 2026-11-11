@@ -577,6 +577,7 @@ func _history_admitted() -> bool:
 			or _line_waiting_for_text or not _reading_recovery.is_empty() or not _has_caption() \
 			or not transport_rail.is_visible_in_tree() or not accept_input.is_source_admitted(): return false
 	return is_instance_valid(_transport_bridge) and _transport_bridge.has_method("get_reading_history") \
+		and _transport_bridge.has_method("get_reading_history_source") \
 		and is_instance_valid(_backup_load_router) and _backup_load_router.has_method("can_open_witnessed_history") \
 		and _backup_load_router.call("can_open_witnessed_history", self) == true
 
@@ -608,7 +609,7 @@ func _history_overlay_admitted() -> bool:
 	if not _history_open or _history_pending or _history_source.is_empty() \
 			or not is_instance_valid(_backup_load_router) \
 			or _backup_load_router.call("is_witnessed_history_open", self) != true: return false
-	var current: Dictionary = _transport_bridge.call("get_reading_history")
+	var current: Dictionary = _transport_bridge.call("get_reading_history_source")
 	return current.get("ok", false) and current.value.get("session_id") == _history_source.session_id \
 		and current.value.get("frontier") == _history_source.frontier
 
