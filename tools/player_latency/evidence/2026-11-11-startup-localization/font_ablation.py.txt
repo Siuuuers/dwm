@@ -1,0 +1,18 @@
+import subprocess,pathlib,os,time,json,shutil,re
+root=pathlib.Path.cwd();out=root/'.godot/ci/startup-attribution';user=out/'matched-user'
+paths=[root/'scripts/ui/SettingsTheme.gd',root/'scripts/ui/desktop/DesktopTheme.gd',root/'scripts/ui/UiTypography.gd']
+original={p:p.read_bytes() for p in paths}
+candidate={p:re.sub(rb'^const (SIMPLIFIED|TRADITIONAL) := preload\([^\n]+\)\n',b'',b,flags=re.M).replace(b'fallbacks.append(TRADITIONAL)',b'fallbacks.append(load(_READABLE_FONTS["zh-HK"]) as FontFile)') for p,b in original.items()}
+rows=[]
+try:
+ for i,mode in enumerate(['B','C','C','B','C','B','B','C']):
+  for p,b in (original if mode=='B' else candidate).items():p.write_bytes(b)
+  if user.exists():shutil.rmtree(user)
+  env=os.environ.copy();env.pop('DWM_TEST_ROOT',None);env.update(DWM_STARTUP_AUDIT='1',XDG_DATA_HOME=str(user))
+  start=time.perf_counter();r=subprocess.run(['godot','--headless','--path','.', '--script','res://tests/manual/benchmark_player_startup.gd'],env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=120)
+  elapsed=(time.perf_counter()-start)*1000;log=r.stdout.decode();(out/f'font-{i}-{mode}.log').write_bytes(r.stdout)
+  assert r.returncode==0 and 'ERROR:' not in log and 'WARNING:' not in log,log
+  row=next(json.loads(x.split('PLAYER_STARTUP ',1)[1]) for x in log.splitlines() if x.startswith('PLAYER_STARTUP '));row.update(mode=mode,index=i,process_ms=elapsed);rows.append(row);print(row,flush=True)
+ (out/'font-ablation.json').write_text(json.dumps(rows,indent=2)+'\n')
+finally:
+ for p,b in original.items():p.write_bytes(b)

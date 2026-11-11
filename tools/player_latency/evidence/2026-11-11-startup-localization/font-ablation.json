@@ -1,0 +1,66 @@
+[
+  {
+    "display": "headless",
+    "engine_ticks_us": 6916211,
+    "revision": "",
+    "mode": "B",
+    "index": 0,
+    "process_ms": 7106.555097000637
+  },
+  {
+    "display": "headless",
+    "engine_ticks_us": 5958259,
+    "revision": "",
+    "mode": "C",
+    "index": 1,
+    "process_ms": 6134.773004000635
+  },
+  {
+    "display": "headless",
+    "engine_ticks_us": 6107701,
+    "revision": "",
+    "mode": "C",
+    "index": 2,
+    "process_ms": 6230.3054069998325
+  },
+  {
+    "display": "headless",
+    "engine_ticks_us": 5931182,
+    "revision": "",
+    "mode": "B",
+    "index": 3,
+    "process_ms": 6145.086196000193
+  },
+  {
+    "display": "headless",
+    "engine_ticks_us": 5729089,
+    "revision": "",
+    "mode": "C",
+    "index": 4,
+    "process_ms": 5887.312345000282
+  },
+  {
+    "display": "headless",
+    "engine_ticks_us": 6389211,
+    "revision": "",
+    "mode": "B",
+    "index": 5,
+    "process_ms": 6605.041268000605
+  },
+  {
+    "display": "headless",
+    "engine_ticks_us": 5896993,
+    "revision": "",
+    "mode": "B",
+    "index": 6,
+    "process_ms": 6054.373236000174
+  },
+  {
+    "display": "headless",
+    "engine_ticks_us": 5731420,
+    "revision": "",
+    "mode": "C",
+    "index": 7,
+    "process_ms": 5851.875239999572
+  }
+]

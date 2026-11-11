@@ -1,0 +1,15 @@
+extends SceneTree
+const SCHEMA := preload("res://scripts/localization/LocalizationSchema.gd")
+func _initialize() -> void:
+	var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://localization/manifest.json"))
+	var catalogs := {}
+	for record in manifest.locales:
+		catalogs[record.id] = JSON.parse_string(FileAccess.get_file_as_string("res://localization/" + record.ui_file))
+	for index in range(3):
+		var start := Time.get_ticks_usec()
+		var result := SCHEMA.validate_bundle(manifest, catalogs)
+		var elapsed := Time.get_ticks_usec() - start
+		assert(result.ok)
+		assert(result.value.manifest == manifest and result.value.catalogs == catalogs)
+		print("CATALOG_SAMPLE ", JSON.stringify({"index": index, "us": elapsed, "locales": catalogs.size()}))
+	quit()

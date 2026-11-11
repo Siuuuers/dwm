@@ -1,0 +1,102 @@
+[
+  {
+    "display": "headless",
+    "engine_ticks_us": 6914924,
+    "revision": "",
+    "mode": "B",
+    "index": 0,
+    "process_ms": 7121.883322000031,
+    "catalog_samples": [
+      {
+        "index": 0,
+        "locales": 5,
+        "us": 341870
+      },
+      {
+        "index": 1,
+        "locales": 5,
+        "us": 380425
+      },
+      {
+        "index": 2,
+        "locales": 5,
+        "us": 296920
+      }
+    ]
+  },
+  {
+    "display": "headless",
+    "engine_ticks_us": 5857828,
+    "revision": "",
+    "mode": "C",
+    "index": 1,
+    "process_ms": 6042.520328999672,
+    "catalog_samples": [
+      {
+        "index": 0,
+        "locales": 5,
+        "us": 16492
+      },
+      {
+        "index": 1,
+        "locales": 5,
+        "us": 16574
+      },
+      {
+        "index": 2,
+        "locales": 5,
+        "us": 15694
+      }
+    ]
+  },
+  {
+    "display": "headless",
+    "engine_ticks_us": 5817186,
+    "revision": "",
+    "mode": "C",
+    "index": 2,
+    "process_ms": 5946.543177999956,
+    "catalog_samples": [
+      {
+        "index": 0,
+        "locales": 5,
+        "us": 16278
+      },
+      {
+        "index": 1,
+        "locales": 5,
+        "us": 14998
+      },
+      {
+        "index": 2,
+        "locales": 5,
+        "us": 16665
+      }
+    ]
+  },
+  {
+    "display": "headless",
+    "engine_ticks_us": 5855250,
+    "revision": "",
+    "mode": "B",
+    "index": 3,
+    "process_ms": 6034.261138000147,
+    "catalog_samples": [
+      {
+        "index": 0,
+        "locales": 5,
+        "us": 250111
+      },
+      {
+        "index": 1,
+        "locales": 5,
+        "us": 235238
+      },
+      {
+        "index": 2,
+        "locales": 5,
+        "us": 245292
+      }
+    ]
+  }
+]
