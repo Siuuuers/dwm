@@ -1,0 +1,515 @@
+{
+  "scope": "Single instrumented Linux headless loader, identical final seed restored to same absolute user path; first load then three repeats. Not matched speedup or GPU timing.",
+  "first_nonempty_refresh_us": 175702,
+  "first_picture1_resource_load_us": 93657,
+  "first_picture2_resource_load_us": 79876,
+  "first_configure_textures_us": 1746,
+  "first_portrait_get_image_us": 12,
+  "first_portrait_detect_alpha_us": 1111,
+  "assets": [
+    {
+      "asset": "picture1",
+      "source_bytes": 3830332,
+      "width": 1920,
+      "height": 1080,
+      "import_mode": 0,
+      "vram_texture": false,
+      "imported_path": ".godot/imported/picture1.png-2ddb889bec178901e763ed9258db448e.ctex",
+      "imported_bytes": 2499130
+    },
+    {
+      "asset": "picture2",
+      "source_bytes": 3864097,
+      "width": 1920,
+      "height": 1080,
+      "import_mode": 0,
+      "vram_texture": false,
+      "imported_path": ".godot/imported/picture2.png-1b03a7edb78f686454381a0379cdc053.ctex",
+      "imported_bytes": 2488270
+    }
+  ],
+  "traces": [
+    {
+      "kind": "texture",
+      "asset": "ui.title",
+      "elapsed_us": 1665,
+      "path": "",
+      "started_us": 7945608
+    },
+    {
+      "kind": "texture",
+      "asset": "",
+      "elapsed_us": 7,
+      "path": "",
+      "started_us": 8271827
+    },
+    {
+      "kind": "texture",
+      "asset": "",
+      "elapsed_us": 2,
+      "path": "",
+      "started_us": 8271887
+    },
+    {
+      "kind": "configure_textures",
+      "elapsed_us": 569,
+      "started_us": 8271899
+    },
+    {
+      "kind": "refresh_art",
+      "elapsed_us": 822,
+      "started_us": 8271666
+    },
+    {
+      "kind": "load",
+      "asset": "picture1",
+      "elapsed_us": 93657,
+      "path": "res://art/pictures/picture1.png",
+      "started_us": 8382826
+    },
+    {
+      "kind": "texture",
+      "asset": "picture1",
+      "elapsed_us": 93762,
+      "path": "res://art/pictures/picture1.png",
+      "started_us": 8382770
+    },
+    {
+      "kind": "load",
+      "asset": "picture2",
+      "elapsed_us": 79876,
+      "path": "res://art/pictures/picture2.png",
+      "started_us": 8476605
+    },
+    {
+      "kind": "texture",
+      "asset": "picture2",
+      "elapsed_us": 79968,
+      "path": "res://art/pictures/picture2.png",
+      "started_us": 8476557
+    },
+    {
+      "kind": "texture",
+      "asset": "",
+      "elapsed_us": 9,
+      "path": "",
+      "started_us": 8556547
+    },
+    {
+      "kind": "opacity",
+      "detect_alpha_us": 1111,
+      "height": 1080,
+      "opaque": true,
+      "path": "res://art/pictures/picture1.png",
+      "readback_us": 12,
+      "started_us": 8556616,
+      "width": 1920
+    },
+    {
+      "kind": "configure_textures",
+      "elapsed_us": 1746,
+      "started_us": 8556571
+    },
+    {
+      "kind": "refresh_art",
+      "elapsed_us": 175702,
+      "started_us": 8382636
+    },
+    {
+      "kind": "texture",
+      "asset": "",
+      "elapsed_us": 6,
+      "path": "",
+      "started_us": 8801267
+    },
+    {
+      "kind": "texture",
+      "asset": "",
+      "elapsed_us": 1,
+      "path": "",
+      "started_us": 8801318
+    },
+    {
+      "kind": "configure_textures",
+      "elapsed_us": 240,
+      "started_us": 8801329
+    },
+    {
+      "kind": "refresh_art",
+      "elapsed_us": 460,
+      "started_us": 8801124
+    },
+    {
+      "kind": "texture",
+      "asset": "",
+      "elapsed_us": 6,
+      "path": "",
+      "started_us": 8837391
+    },
+    {
+      "kind": "texture",
+      "asset": "",
+      "elapsed_us": 2,
+      "path": "",
+      "started_us": 8837482
+    },
+    {
+      "kind": "configure_textures",
+      "elapsed_us": 201,
+      "started_us": 8837495
+    },
+    {
+      "kind": "refresh_art",
+      "elapsed_us": 455,
+      "started_us": 8837251
+    },
+    {
+      "kind": "texture",
+      "asset": "picture1",
+      "elapsed_us": 18,
+      "path": "res://art/pictures/picture1.png",
+      "started_us": 8908267
+    },
+    {
+      "kind": "texture",
+      "asset": "picture2",
+      "elapsed_us": 6,
+      "path": "res://art/pictures/picture2.png",
+      "started_us": 8908324
+    },
+    {
+      "kind": "texture",
+      "asset": "",
+      "elapsed_us": 3,
+      "path": "",
+      "started_us": 8908338
+    },
+    {
+      "kind": "opacity",
+      "detect_alpha_us": 1326,
+      "height": 1080,
+      "opaque": true,
+      "path": "res://art/pictures/picture1.png",
+      "readback_us": 2,
+      "started_us": 8908381,
+      "width": 1920
+    },
+    {
+      "kind": "configure_textures",
+      "elapsed_us": 1914,
+      "started_us": 8908351
+    },
+    {
+      "kind": "refresh_art",
+      "elapsed_us": 2156,
+      "started_us": 8908134
+    },
+    {
+      "kind": "texture",
+      "asset": "picture1",
+      "elapsed_us": 17,
+      "path": "res://art/pictures/picture1.png",
+      "started_us": 8912314
+    },
+    {
+      "kind": "texture",
+      "asset": "picture2",
+      "elapsed_us": 7,
+      "path": "res://art/pictures/picture2.png",
+      "started_us": 8912372
+    },
+    {
+      "kind": "texture",
+      "asset": "",
+      "elapsed_us": 3,
+      "path": "",
+      "started_us": 8912388
+    },
+    {
+      "kind": "opacity",
+      "detect_alpha_us": 1383,
+      "height": 1080,
+      "opaque": true,
+      "path": "res://art/pictures/picture1.png",
+      "readback_us": 2,
+      "started_us": 8912424,
+      "width": 1920
+    },
+    {
+      "kind": "configure_textures",
+      "elapsed_us": 1915,
+      "started_us": 8912401
+    },
+    {
+      "kind": "refresh_art",
+      "elapsed_us": 2157,
+      "started_us": 8912177
+    },
+    {
+      "kind": "texture",
+      "asset": "",
+      "elapsed_us": 6,
+      "path": "",
+      "started_us": 9130884
+    },
+    {
+      "kind": "texture",
+      "asset": "",
+      "elapsed_us": 1,
+      "path": "",
+      "started_us": 9130935
+    },
+    {
+      "kind": "configure_textures",
+      "elapsed_us": 187,
+      "started_us": 9130946
+    },
+    {
+      "kind": "refresh_art",
+      "elapsed_us": 425,
+      "started_us": 9130731
+    },
+    {
+      "kind": "texture",
+      "asset": "",
+      "elapsed_us": 37,
+      "path": "",
+      "started_us": 9166352
+    },
+    {
+      "kind": "texture",
+      "asset": "",
+      "elapsed_us": 2,
+      "path": "",
+      "started_us": 9166429
+    },
+    {
+      "kind": "configure_textures",
+      "elapsed_us": 201,
+      "started_us": 9166463
+    },
+    {
+      "kind": "refresh_art",
+      "elapsed_us": 535,
+      "started_us": 9166216
+    },
+    {
+      "kind": "texture",
+      "asset": "picture1",
+      "elapsed_us": 16,
+      "path": "res://art/pictures/picture1.png",
+      "started_us": 9236107
+    },
+    {
+      "kind": "texture",
+      "asset": "picture2",
+      "elapsed_us": 7,
+      "path": "res://art/pictures/picture2.png",
+      "started_us": 9236163
+    },
+    {
+      "kind": "texture",
+      "asset": "",
+      "elapsed_us": 3,
+      "path": "",
+      "started_us": 9236178
+    },
+    {
+      "kind": "opacity",
+      "detect_alpha_us": 1408,
+      "height": 1080,
+      "opaque": true,
+      "path": "res://art/pictures/picture1.png",
+      "readback_us": 2,
+      "started_us": 9236220,
+      "width": 1920
+    },
+    {
+      "kind": "configure_textures",
+      "elapsed_us": 1895,
+      "started_us": 9236190
+    },
+    {
+      "kind": "refresh_art",
+      "elapsed_us": 2130,
+      "started_us": 9235974
+    },
+    {
+      "kind": "texture",
+      "asset": "picture1",
+      "elapsed_us": 16,
+      "path": "res://art/pictures/picture1.png",
+      "started_us": 9240095
+    },
+    {
+      "kind": "texture",
+      "asset": "picture2",
+      "elapsed_us": 7,
+      "path": "res://art/pictures/picture2.png",
+      "started_us": 9240150
+    },
+    {
+      "kind": "texture",
+      "asset": "",
+      "elapsed_us": 3,
+      "path": "",
+      "started_us": 9240165
+    },
+    {
+      "kind": "opacity",
+      "detect_alpha_us": 1320,
+      "height": 1080,
+      "opaque": true,
+      "path": "res://art/pictures/picture1.png",
+      "readback_us": 2,
+      "started_us": 9240203,
+      "width": 1920
+    },
+    {
+      "kind": "configure_textures",
+      "elapsed_us": 1834,
+      "started_us": 9240180
+    },
+    {
+      "kind": "refresh_art",
+      "elapsed_us": 2073,
+      "started_us": 9239959
+    },
+    {
+      "kind": "texture",
+      "asset": "",
+      "elapsed_us": 5,
+      "path": "",
+      "started_us": 9455856
+    },
+    {
+      "kind": "texture",
+      "asset": "",
+      "elapsed_us": 1,
+      "path": "",
+      "started_us": 9455905
+    },
+    {
+      "kind": "configure_textures",
+      "elapsed_us": 222,
+      "started_us": 9455916
+    },
+    {
+      "kind": "refresh_art",
+      "elapsed_us": 469,
+      "started_us": 9455714
+    },
+    {
+      "kind": "texture",
+      "asset": "",
+      "elapsed_us": 6,
+      "path": "",
+      "started_us": 9493502
+    },
+    {
+      "kind": "texture",
+      "asset": "",
+      "elapsed_us": 2,
+      "path": "",
+      "started_us": 9493550
+    },
+    {
+      "kind": "configure_textures",
+      "elapsed_us": 199,
+      "started_us": 9493561
+    },
+    {
+      "kind": "refresh_art",
+      "elapsed_us": 446,
+      "started_us": 9493324
+    },
+    {
+      "kind": "texture",
+      "asset": "picture1",
+      "elapsed_us": 17,
+      "path": "res://art/pictures/picture1.png",
+      "started_us": 9562005
+    },
+    {
+      "kind": "texture",
+      "asset": "picture2",
+      "elapsed_us": 6,
+      "path": "res://art/pictures/picture2.png",
+      "started_us": 9562060
+    },
+    {
+      "kind": "texture",
+      "asset": "",
+      "elapsed_us": 3,
+      "path": "",
+      "started_us": 9562074
+    },
+    {
+      "kind": "opacity",
+      "detect_alpha_us": 1359,
+      "height": 1080,
+      "opaque": true,
+      "path": "res://art/pictures/picture1.png",
+      "readback_us": 3,
+      "started_us": 9562115,
+      "width": 1920
+    },
+    {
+      "kind": "configure_textures",
+      "elapsed_us": 1849,
+      "started_us": 9562086
+    },
+    {
+      "kind": "refresh_art",
+      "elapsed_us": 2076,
+      "started_us": 9561876
+    },
+    {
+      "kind": "texture",
+      "asset": "picture1",
+      "elapsed_us": 16,
+      "path": "res://art/pictures/picture1.png",
+      "started_us": 9565904
+    },
+    {
+      "kind": "texture",
+      "asset": "picture2",
+      "elapsed_us": 6,
+      "path": "res://art/pictures/picture2.png",
+      "started_us": 9565956
+    },
+    {
+      "kind": "texture",
+      "asset": "",
+      "elapsed_us": 2,
+      "path": "",
+      "started_us": 9565971
+    },
+    {
+      "kind": "opacity",
+      "detect_alpha_us": 1336,
+      "height": 1080,
+      "opaque": true,
+      "path": "res://art/pictures/picture1.png",
+      "readback_us": 2,
+      "started_us": 9566005,
+      "width": 1920
+    },
+    {
+      "kind": "configure_textures",
+      "elapsed_us": 1893,
+      "started_us": 9565983
+    },
+    {
+      "kind": "refresh_art",
+      "elapsed_us": 2127,
+      "started_us": 9565769
+    }
+  ],
+  "limits": [
+    "Texture load encompasses resource loading/IO/decoding/object creation; nested engine subphases not measured.",
+    "First refresh includes diagnostic prints; do not mix with earlier157.943ms sample or claim regression.",
+    "Known existing gallery texture cache makes repeated lookups tiny; preloading shifts first cost earlier.",
+    "No production changes retained; identical original runtime SHA256 confirmed."
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "mode": "Load",
+  "ok": true,
+  "visual_review_required": true,
+  "source_commit": "41912e0ddf6455ec6f4b5925f7b21f1b71ae4618",
+  "archive_sha256": "b9952eacb3b1d181d24eda65b55fccd5601a27b9472db8bf657aff110ddcf470",
+  "accessibility_request": "Always",
+  "audio_request": "Dummy",
+  "renderer_request": "ProjectDefault",
+  "user_root": "D:\\a\\_temp\\dwm-windows-smoke\\journey",
+  "output_path": "D:\\a\\dwm\\dwm\\.godot\\ci\\windows-smoke\\load",
+  "scope": "Ordinary release UI; current authored opening, displayed artwork, manual Save/Load, Computer Home and clean shutdown",
+  "forced_cleanup": false,
+  "clean_player_exit": true,
+  "observations": [
+    {
+      "stage": "restored-opening",
+      "preceding_action": "load source slot 1",
+      "invoke_call_ms": 0.4071,
+      "invoke_to_caption_observed_ms": 1010.0279
+    },
+    {
+      "stage": "restored-after-witness-save",
+      "preceding_action": "close direct Backup host",
+      "invoke_call_ms": 0.4664,
+      "invoke_to_caption_observed_ms": 517.4791
+    }
+  ],
+  "timing_scope": "External UIA upper bounds, not engine readiness or input-to-photon. Includes provider calls, 100ms polling and 200ms post-invoke wait; excludes settled screenshot waits.",
+  "opening": {
+    "entry_id": "Day1",
+    "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+    "line_id": "line.Day1.one"
+  },
+  "executable_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+  "pck_sha256": "27b10fc70b58aaa5c62b85d850e51694502c861d6f5469975f5cded6921c9ff3",
+  "process": {
+    "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\windows-smoke\\load\\package\\DWM.exe",
+    "pid": 5052,
+    "started_utc": "2026-11-11T03:13:54.1448069Z",
+    "arguments": [
+      "--windowed",
+      "--resolution",
+      "1280x720",
+      "--log-file",
+      "D:\\a\\dwm\\dwm\\.godot\\ci\\windows-smoke\\load\\game.log",
+      "--accessibility",
+      "always",
+      "--audio-driver",
+      "Dummy"
+    ],
+    "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\windows-smoke\\load\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\windows-smoke\\load\\game.log --accessibility always --audio-driver Dummy"
+  },
+  "launch_to_title_observed_ms": 6859.966,
+  "displayed_artwork": [
+    "picture2",
+    "picture1"
+  ],
+  "restored_checkpoint_matches": true,
+  "exit_code": 0,
+  "renderer_log": [
+    "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver",
+    "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver"
+  ],
+  "child_exited_before_cleanup": true,
+  "elapsed_seconds": 37.3036029
+}

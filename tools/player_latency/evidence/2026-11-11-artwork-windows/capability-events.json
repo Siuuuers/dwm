@@ -1,0 +1,636 @@
+[
+  {
+    "utc": "2026-11-11T03:12:40.7526774Z",
+    "kind": "capture",
+    "data": {
+      "file": "title.png",
+      "sha256": "5293c8352d85af62e8fb529054dd0d47a6a5ef71ebf8173377fc185f56a21c6d",
+      "stage": "title"
+    }
+  },
+  {
+    "utc": "2026-11-11T03:12:40.9093284Z",
+    "kind": "invoke",
+    "data": {
+      "target": {
+        "name": "New Acc ",
+        "type": "ControlType.Button",
+        "automation_id": "",
+        "runtime_id": [
+          42,
+          655854,
+          4,
+          1345,
+          52,
+          0,
+          0
+        ],
+        "pid": 6140,
+        "enabled": true,
+        "offscreen": false,
+        "rectangle": [
+          0.0,
+          76.0,
+          256.0,
+          51.0
+        ],
+        "patterns": [
+          "InvokePatternIdentifiers.Pattern",
+          "ScrollItemPatternIdentifiers.Pattern"
+        ]
+      },
+      "purpose": "ordinary New Game"
+    }
+  },
+  {
+    "utc": "2026-11-11T03:12:43.1240313Z",
+    "kind": "capture",
+    "data": {
+      "file": "new-game-first-observed.png",
+      "sha256": "5a423eb322c1af02c72619a34f14d32eec0e3919a47cf37afb10c4477b9fb5a7",
+      "stage": "new-game-first-observed"
+    }
+  },
+  {
+    "utc": "2026-11-11T03:12:45.7187137Z",
+    "kind": "capture",
+    "data": {
+      "file": "new-game.png",
+      "sha256": "5a423eb322c1af02c72619a34f14d32eec0e3919a47cf37afb10c4477b9fb5a7",
+      "stage": "new-game"
+    }
+  },
+  {
+    "utc": "2026-11-11T03:12:45.9075113Z",
+    "kind": "invoke",
+    "data": {
+      "target": {
+        "name": "Check Computer ",
+        "type": "ControlType.Button",
+        "automation_id": "",
+        "runtime_id": [
+          42,
+          655854,
+          4,
+          1643,
+          53,
+          0,
+          0
+        ],
+        "pid": 6140,
+        "enabled": true,
+        "offscreen": false,
+        "rectangle": [
+          200.0,
+          562.0,
+          38.0,
+          38.0
+        ],
+        "patterns": [
+          "InvokePatternIdentifiers.Pattern",
+          "ScrollItemPatternIdentifiers.Pattern"
+        ]
+      },
+      "purpose": "open Computer"
+    }
+  },
+  {
+    "utc": "2026-11-11T03:12:47.8568503Z",
+    "kind": "capture",
+    "data": {
+      "file": "computer-open.png",
+      "sha256": "a1d7201ff8fb6445f310811a48b5de925fee8fffa8da0ac045fbe0917b76a9f6",
+      "stage": "computer-open"
+    }
+  },
+  {
+    "utc": "2026-11-11T03:12:48.1620351Z",
+    "kind": "invoke",
+    "data": {
+      "target": {
+        "name": "Close Computer ",
+        "type": "ControlType.Button",
+        "automation_id": "",
+        "runtime_id": [
+          42,
+          655854,
+          4,
+          1643,
+          53,
+          0,
+          0
+        ],
+        "pid": 6140,
+        "enabled": true,
+        "offscreen": false,
+        "rectangle": [
+          200.0,
+          562.0,
+          38.0,
+          38.0
+        ],
+        "patterns": [
+          "InvokePatternIdentifiers.Pattern",
+          "ScrollItemPatternIdentifiers.Pattern"
+        ]
+      },
+      "purpose": "close Computer"
+    }
+  },
+  {
+    "utc": "2026-11-11T03:12:49.6183839Z",
+    "kind": "capture",
+    "data": {
+      "file": "computer-closed-same-caption-first-observed.png",
+      "sha256": "a877b904a4ab89dc5a32d020363ecb286386f9a096f2a8c8289a848400421da6",
+      "stage": "computer-closed-same-caption-first-observed"
+    }
+  },
+  {
+    "utc": "2026-11-11T03:12:52.2762809Z",
+    "kind": "capture",
+    "data": {
+      "file": "computer-closed-same-caption.png",
+      "sha256": "a877b904a4ab89dc5a32d020363ecb286386f9a096f2a8c8289a848400421da6",
+      "stage": "computer-closed-same-caption"
+    }
+  },
+  {
+    "utc": "2026-11-11T03:12:52.4684585Z",
+    "kind": "invoke",
+    "data": {
+      "target": {
+        "name": "Save ",
+        "type": "ControlType.Button",
+        "automation_id": "",
+        "runtime_id": [
+          42,
+          655854,
+          4,
+          3208,
+          175,
+          0,
+          0
+        ],
+        "pid": 6140,
+        "enabled": true,
+        "offscreen": false,
+        "rectangle": [
+          146.0,
+          600.0,
+          146.0,
+          51.0
+        ],
+        "patterns": [
+          "InvokePatternIdentifiers.Pattern",
+          "ScrollItemPatternIdentifiers.Pattern"
+        ]
+      },
+      "purpose": "discover Backup without saving"
+    }
+  },
+  {
+    "utc": "2026-11-11T03:12:54.1535534Z",
+    "kind": "backup-provider-scope",
+    "data": {
+      "columns": [
+        203.0,
+        360.0,
+        516.0
+      ],
+      "drawer_names": [
+        "Autosave",
+        "Quick",
+        "Slot 1",
+        "Slot 2",
+        "Slot 3",
+        "Slot 4",
+        "Slot 5",
+        "Slot 6",
+        "Slot 7"
+      ],
+      "flattened": true,
+      "rows": [
+        204.0,
+        351.0,
+        498.0
+      ]
+    }
+  },
+  {
+    "utc": "2026-11-11T03:12:54.6495307Z",
+    "kind": "invoke",
+    "data": {
+      "target": {
+        "name": "Slot 1, Empty ",
+        "type": "ControlType.Button",
+        "automation_id": "",
+        "runtime_id": [
+          42,
+          655854,
+          4,
+          5419,
+          315,
+          0,
+          0
+        ],
+        "pid": 6140,
+        "enabled": true,
+        "offscreen": false,
+        "rectangle": [
+          516.0,
+          204.0,
+          150.0,
+          140.0
+        ],
+        "patterns": [
+          "InvokePatternIdentifiers.Pattern",
+          "ScrollItemPatternIdentifiers.Pattern"
+        ]
+      },
+      "purpose": "select slot 1"
+    }
+  },
+  {
+    "utc": "2026-11-11T03:12:55.7574548Z",
+    "kind": "backup-provider-scope",
+    "data": {
+      "columns": [
+        203.0,
+        360.0,
+        516.0
+      ],
+      "drawer_names": [
+        "Autosave",
+        "Quick",
+        "Slot 1",
+        "Slot 2",
+        "Slot 3",
+        "Slot 4",
+        "Slot 5",
+        "Slot 6",
+        "Slot 7"
+      ],
+      "flattened": true,
+      "rows": [
+        204.0,
+        351.0,
+        498.0
+      ]
+    }
+  },
+  {
+    "utc": "2026-11-11T03:12:56.8090695Z",
+    "kind": "backup-action-scope",
+    "data": {
+      "target": {
+        "name": "Save ",
+        "type": "ControlType.Button",
+        "automation_id": "",
+        "runtime_id": [
+          42,
+          655854,
+          4,
+          5458,
+          354,
+          0,
+          0
+        ],
+        "pid": 6140,
+        "enabled": true,
+        "offscreen": false,
+        "rectangle": [
+          680.0,
+          568.0,
+          140.0,
+          51.0
+        ],
+        "patterns": [
+          "InvokePatternIdentifiers.Pattern",
+          "ScrollItemPatternIdentifiers.Pattern"
+        ]
+      },
+      "action": "Save",
+      "surface": {
+        "name": "DWM ",
+        "type": "ControlType.Window",
+        "automation_id": "",
+        "runtime_id": [
+          42,
+          655854
+        ],
+        "pid": 6140,
+        "enabled": true,
+        "offscreen": false,
+        "rectangle": [
+          0.0,
+          76.0,
+          1024.0,
+          576.0
+        ],
+        "patterns": [
+          "WindowPatternIdentifiers.Pattern"
+        ]
+      }
+    }
+  },
+  {
+    "utc": "2026-11-11T03:12:59.4668130Z",
+    "kind": "capture",
+    "data": {
+      "file": "capability-backup-action.png",
+      "sha256": "80a691659dd60a43a3235cdeef519d61c54c73c8bedeaed60cc4d9643fd647b6",
+      "stage": "capability-backup-action"
+    }
+  },
+  {
+    "utc": "2026-11-11T03:12:59.9947925Z",
+    "kind": "invoke",
+    "data": {
+      "target": {
+        "name": "Back ",
+        "type": "ControlType.Button",
+        "automation_id": "",
+        "runtime_id": [
+          42,
+          655854,
+          4,
+          1389,
+          96,
+          0,
+          0
+        ],
+        "pid": 6140,
+        "enabled": true,
+        "offscreen": false,
+        "rectangle": [
+          12.0,
+          85.0,
+          76.0,
+          40.0
+        ],
+        "patterns": [
+          "InvokePatternIdentifiers.Pattern",
+          "ScrollItemPatternIdentifiers.Pattern"
+        ]
+      },
+      "purpose": "close capability Backup host"
+    }
+  },
+  {
+    "utc": "2026-11-11T03:13:00.4228185Z",
+    "kind": "invoke",
+    "data": {
+      "target": {
+        "name": "Check Computer ",
+        "type": "ControlType.Button",
+        "automation_id": "",
+        "runtime_id": [
+          42,
+          655854,
+          4,
+          1643,
+          53,
+          0,
+          0
+        ],
+        "pid": 6140,
+        "enabled": true,
+        "offscreen": false,
+        "rectangle": [
+          200.0,
+          562.0,
+          38.0,
+          38.0
+        ],
+        "patterns": [
+          "InvokePatternIdentifiers.Pattern",
+          "ScrollItemPatternIdentifiers.Pattern"
+        ]
+      },
+      "purpose": "open Computer for Home and logout"
+    }
+  },
+  {
+    "utc": "2026-11-11T03:13:00.9323779Z",
+    "kind": "invoke",
+    "data": {
+      "target": {
+        "name": "Contacts ",
+        "type": "ControlType.Button",
+        "automation_id": "",
+        "runtime_id": [
+          42,
+          655854,
+          4,
+          3992,
+          270,
+          0,
+          0
+        ],
+        "pid": 6140,
+        "enabled": true,
+        "offscreen": false,
+        "rectangle": [
+          445.0,
+          100.0,
+          133.0,
+          133.0
+        ],
+        "patterns": [
+          "InvokePatternIdentifiers.Pattern",
+          "ScrollItemPatternIdentifiers.Pattern"
+        ]
+      },
+      "purpose": "open an app before returning Home"
+    }
+  },
+  {
+    "utc": "2026-11-11T03:13:01.6747419Z",
+    "kind": "invoke",
+    "data": {
+      "target": {
+        "name": "Home ",
+        "type": "ControlType.Button",
+        "automation_id": "",
+        "runtime_id": [
+          42,
+          655854,
+          4,
+          4013,
+          291,
+          0,
+          0
+        ],
+        "pid": 6140,
+        "enabled": true,
+        "offscreen": false,
+        "rectangle": [
+          281.0,
+          596.0,
+          48.0,
+          48.0
+        ],
+        "patterns": [
+          "InvokePatternIdentifiers.Pattern",
+          "ScrollItemPatternIdentifiers.Pattern"
+        ]
+      },
+      "purpose": "return to Computer Home"
+    }
+  },
+  {
+    "utc": "2026-11-11T03:13:03.5947206Z",
+    "kind": "capture",
+    "data": {
+      "file": "computer-home.png",
+      "sha256": "4879ced9a396fc8b5be4cc3101ce0042993d3ef885a7380d58721ce6f97e6dca",
+      "stage": "computer-home"
+    }
+  },
+  {
+    "utc": "2026-11-11T03:13:03.8846603Z",
+    "kind": "invoke",
+    "data": {
+      "target": {
+        "name": "Log out ",
+        "type": "ControlType.Button",
+        "automation_id": "",
+        "runtime_id": [
+          42,
+          655854,
+          4,
+          3996,
+          274,
+          0,
+          0
+        ],
+        "pid": 6140,
+        "enabled": true,
+        "offscreen": false,
+        "rectangle": [
+          445.0,
+          246.0,
+          133.0,
+          133.0
+        ],
+        "patterns": [
+          "InvokePatternIdentifiers.Pattern",
+          "ScrollItemPatternIdentifiers.Pattern"
+        ]
+      },
+      "purpose": "request return to title without saving"
+    }
+  },
+  {
+    "utc": "2026-11-11T03:13:04.5662649Z",
+    "kind": "invoke",
+    "data": {
+      "target": {
+        "name": "Return to Title ",
+        "type": "ControlType.Button",
+        "automation_id": "",
+        "runtime_id": [
+          42,
+          655854,
+          4,
+          1397,
+          104,
+          0,
+          0
+        ],
+        "pid": 6140,
+        "enabled": true,
+        "offscreen": false,
+        "rectangle": [
+          409.0,
+          549.0,
+          332.0,
+          76.0
+        ],
+        "patterns": [
+          "InvokePatternIdentifiers.Pattern",
+          "ScrollItemPatternIdentifiers.Pattern"
+        ]
+      },
+      "purpose": "confirm logout without saving"
+    }
+  },
+  {
+    "utc": "2026-11-11T03:13:05.3762678Z",
+    "kind": "capture",
+    "data": {
+      "file": "return-title.png",
+      "sha256": "47d884c47d01cfff5e13222694c3e77692156de077139254d80fad84851af33b",
+      "stage": "return-title"
+    }
+  },
+  {
+    "utc": "2026-11-11T03:13:05.5139521Z",
+    "kind": "invoke",
+    "data": {
+      "target": {
+        "name": "Shut down ",
+        "type": "ControlType.Button",
+        "automation_id": "",
+        "runtime_id": [
+          42,
+          655854,
+          4,
+          19698,
+          119,
+          0,
+          0
+        ],
+        "pid": 6140,
+        "enabled": true,
+        "offscreen": false,
+        "rectangle": [
+          0.0,
+          293.0,
+          256.0,
+          51.0
+        ],
+        "patterns": [
+          "InvokePatternIdentifiers.Pattern",
+          "ScrollItemPatternIdentifiers.Pattern"
+        ]
+      },
+      "purpose": "request normal shutdown"
+    }
+  },
+  {
+    "utc": "2026-11-11T03:13:05.9003962Z",
+    "kind": "invoke",
+    "data": {
+      "target": {
+        "name": "Shut down ",
+        "type": "ControlType.Button",
+        "automation_id": "",
+        "runtime_id": [
+          42,
+          655854,
+          4,
+          19921,
+          141,
+          0,
+          0
+        ],
+        "pid": 6140,
+        "enabled": true,
+        "offscreen": false,
+        "rectangle": [
+          646.0,
+          485.0,
+          204.0,
+          51.0
+        ],
+        "patterns": [
+          "InvokePatternIdentifiers.Pattern",
+          "ScrollItemPatternIdentifiers.Pattern"
+        ]
+      },
+      "purpose": "confirm normal shutdown"
+    }
+  }
+]

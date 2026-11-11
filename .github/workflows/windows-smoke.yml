@@ -3,7 +3,7 @@ name: Focused Windows release smoke
 on:
   workflow_dispatch:
   push:
-    branches: [codex/windows-smoke]
+    branches: [codex/windows-smoke, codex/windows-load-observation]
 
 permissions:
   contents: read
@@ -120,7 +120,7 @@ jobs:
           $common = @('-NoProfile', '-File', './tools/testing/Invoke-ExportedGameplay.ps1',
             '-ArchivePath', (Join-Path $export $receipt.archive.file),
             '-ExpectedArchiveSha256', $receipt.archive.sha256, '-ExpectedCommit', $env:GITHUB_SHA,
-            '-Renderer', 'gl_compatibility', '-Accessibility', 'Always', '-Audio', 'Dummy')
+            '-Renderer', 'ProjectDefault', '-Accessibility', 'Always', '-Audio', 'Dummy')
           & pwsh @common -Mode Capability -UserRoot "$users/capability" -OutputPath "$evidence/capability"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           & pwsh @common -Mode Create -UserRoot "$users/journey" -OutputPath "$evidence/create" -CapabilityReceipt "$evidence/capability/result.json"

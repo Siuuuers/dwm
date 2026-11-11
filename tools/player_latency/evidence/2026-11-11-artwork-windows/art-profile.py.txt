@@ -1,0 +1,75 @@
+from pathlib import Path
+import subprocess, shutil, os, gzip, hashlib, json, time, re
+import xml.etree.ElementTree as ET
+
+root = Path(__file__).resolve().parents[3]
+out = Path(__file__).resolve().parent
+isolated = root / '.godot/phase2r_tests/checkpoint-load'
+seed = root / '.godot/ci/checkpoint-load/results/seed-root'
+files = ['scripts/data/ArtManifest.gd', 'scripts/ui/art/SceneArtView.gd',
+         'scripts/ui/witnessed/WitnessedArtLayer.gd']
+original = {root / f: (root / f).read_bytes() for f in files}
+sha = lambda b: hashlib.sha256(b).hexdigest()
+
+def replace_once(s, old, new):
+    assert s.count(old) == 1, old
+    return s.replace(old, new, 1)
+
+try:
+    assert not (out / 'diagnostic.log').exists()
+    p = root / files[0]
+    s = original[p].decode()
+    declaration = 'static func get_texture(asset_id: String, expected_size: Vector2i = Vector2i.ZERO) -> Texture2D:'
+    s = replace_once(s, declaration, declaration + '\n\tvar trace_started := Time.get_ticks_usec()\n\tvar texture := _diagnostic_get_texture(asset_id, expected_size)\n\tvar trace_ended := Time.get_ticks_usec()\n\tprint("ART_TRACE texture ", JSON.stringify({"asset": asset_id, "path": texture.resource_path if texture != null else "", "started_us": trace_started, "elapsed_us": trace_ended - trace_started}))\n\treturn texture\n\n' + declaration.replace('get_texture(', '_diagnostic_get_texture('))
+    s = replace_once(s, '\t\ttexture = load(path) as Texture2D', '\t\tvar trace_started := Time.get_ticks_usec()\n\t\ttexture = load(path) as Texture2D\n\t\tvar trace_ended := Time.get_ticks_usec()\n\t\tprint("ART_TRACE load ", JSON.stringify({"asset": asset_id, "path": path, "started_us": trace_started, "elapsed_us": trace_ended - trace_started}))')
+    p.write_text(s)
+    p = root / files[1]
+    s = original[p].decode()
+    declaration = 'func configure_textures(background: Texture2D, portraits: Array[Texture2D], cg: Texture2D = null,\n\t\ttext_percent: int = 100, challenge: bool = false, dating_overlay: bool = false,\n\t\tpreference_scope: StringName = &"", caption_overlay: bool = false) -> void:'
+    s = replace_once(s, declaration, declaration + '\n\tvar trace_started := Time.get_ticks_usec()\n\t_diagnostic_configure_textures(background, portraits, cg, text_percent, challenge, dating_overlay, preference_scope, caption_overlay)\n\tvar trace_ended := Time.get_ticks_usec()\n\tprint("ART_TRACE configure_textures ", JSON.stringify({"started_us": trace_started, "elapsed_us": trace_ended - trace_started}))\n\n' + declaration.replace('configure_textures(', '_diagnostic_configure_textures('))
+    old = '\t\t\t\tvar source: Image = texture.get_image()\n\t\t\t\t_opaque_portraits[index] = source != null and source.detect_alpha() == Image.ALPHA_NONE'
+    new = '\t\t\t\tvar trace_started := Time.get_ticks_usec()\n\t\t\t\tvar source: Image = texture.get_image()\n\t\t\t\tvar trace_readback := Time.get_ticks_usec()\n\t\t\t\t_opaque_portraits[index] = source != null and source.detect_alpha() == Image.ALPHA_NONE\n\t\t\t\tvar trace_ended := Time.get_ticks_usec()\n\t\t\t\tprint("ART_TRACE opacity ", JSON.stringify({"path": texture.resource_path, "started_us": trace_started, "readback_us": trace_readback - trace_started, "detect_alpha_us": trace_ended - trace_readback, "opaque": _opaque_portraits[index], "width": texture.get_width(), "height": texture.get_height()}))'
+    s = replace_once(s, old, new)
+    p.write_text(s)
+    p = root / files[2]
+    s = original[p].decode()
+    declaration = 'func refresh_art() -> void:'
+    s = replace_once(s, declaration, declaration + '\n\tvar trace_started := Time.get_ticks_usec()\n\t_diagnostic_refresh_art()\n\tvar trace_ended := Time.get_ticks_usec()\n\tprint("ART_TRACE refresh_art ", JSON.stringify({"started_us": trace_started, "elapsed_us": trace_ended - trace_started}))\n\nfunc _diagnostic_refresh_art() -> void:')
+    p.write_text(s)
+    (out / 'diagnostic.patch.gz').write_bytes(gzip.compress(subprocess.check_output(['git', 'diff', '--', *files], cwd=root), mtime=0))
+    seed_hashes = {str(p.relative_to(seed)): sha(p.read_bytes()) for p in seed.rglob('*') if p.is_file()}
+    if isolated.exists(): shutil.move(isolated, out / 'prior-isolated-root')
+    shutil.copytree(seed, isolated)
+    restored_hashes = {str(p.relative_to(isolated)): sha(p.read_bytes()) for p in isolated.rglob('*') if p.is_file()}
+    assert seed_hashes == restored_hashes
+    env = dict(os.environ, XDG_DATA_HOME=str(isolated / 'data'), DWM_TEST_ROOT=str(isolated / 'test-root'),
+               DWM_SAVE_LOAD_PROFILE='', DWM_SCENE_VALIDATION_PROFILE='',
+               DWM_BENCHMARK_REVISION=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip())
+    command = ['godot', '--headless', '--path', str(root), '-s', 'res://addons/gut/gut_cmdln.gd',
+               '-gconfig=', '-gtest=res://tests/manual/benchmark_checkpoint_load.gd',
+               '-gunit_test_name=test_checkpoint_load_cost', '-gjunit_xml_file=' + str(out / 'diagnostic.xml'), '-gexit']
+    manifest = {'command': command, 'environment': {k: env[k] for k in ['XDG_DATA_HOME', 'DWM_TEST_ROOT', 'DWM_SAVE_LOAD_PROFILE', 'DWM_SCENE_VALIDATION_PROFILE', 'DWM_BENCHMARK_REVISION']},
+                'runtime_original_hashes': {str(p.relative_to(root)): sha(b) for p,b in original.items()},
+                'probe_sha256': sha((root / 'tests/manual/benchmark_checkpoint_load.gd').read_bytes()),
+                'seed_hashes': seed_hashes, 'exit_code': None}
+    (out / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+    started = time.monotonic()
+    with (out / 'diagnostic.log').open('w') as stream:
+        result = subprocess.run(command, cwd=root, env=env, stdout=stream, stderr=subprocess.STDOUT, timeout=120)
+    manifest['exit_code'] = result.returncode
+    manifest['process_elapsed_ms'] = (time.monotonic() - started) * 1000
+    log = (out / 'diagnostic.log').read_bytes()
+    manifest['log_sha256'] = sha(log)
+    (out / 'diagnostic.log.gz').write_bytes(gzip.compress(log, mtime=0))
+    (out / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+    assert result.returncode == 0, result.returncode
+    cases = ET.parse(out / 'diagnostic.xml').getroot().findall('.//testcase')
+    assert len(cases) == 1 and cases[0].get('name') == 'test_checkpoint_load_cost' and cases[0].get('status') == 'pass', [c.attrib for c in cases]
+    assert int(cases[0].get('assertions')) > 0
+    assert not re.search(r'SCRIPT ERROR:|ERROR:|WARNING:', log.decode())
+    manifest['assertions'] = int(cases[0].get('assertions'))
+    (out / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+    print('Diagnostic passed', manifest['assertions'], 'assertions', flush=True)
+finally:
+    for p,b in original.items(): p.write_bytes(b)
+    print('Original runtime bytes restored', all(p.read_bytes() == b for p,b in original.items()), flush=True)
