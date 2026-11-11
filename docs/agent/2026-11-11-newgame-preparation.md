@@ -51,7 +51,20 @@ and failed fixture selection with registration_already_selected; the immutable
 registration fixtures require separate processes. That failed log is retained.
 Independent caller review found no new branch requiring an added test.
 
-Windows exported opening, Computer, Save and exact fresh-process Load: pending.
+Windows run [42991108312](https://github.com/Siuuuers/dwm/actions/runs/42991108312)
+passed on a81cc02b125c35896f6d6155604cf42ef538eca6: export, pack audit, opening,
+Computer, Save and exact fresh-process Load. Player logs were clean; all three
+processes exited 0 normally without forced cleanup. Opening/restored screenshots
+reviewed; correct caption and artwork, no visible layout regression.
+
+Create title observed at 5576.607 ms; early New Game to observed caption 2739.194 ms;
+selected Load slot to observed caption 625.819 ms. These are UIA upper bounds,
+including polling/provider waits, not matched Windows speedup measurements.
+Renderer: Forward+/D3D12 Microsoft Basic Render Driver; Dummy audio; accessibility
+Always. Artifact 13840904105 SHA256:
+7cf805e8fdcaf022685084958c0cbae333b2483d46e12ad8fcac753689aa9176.
+Export ZIP SHA256:
+51b4841e6e3e3f30316f70b29e739b4fcc5a5520e4ce4f725aa10f3f91939210.
 No unrelated regression matrix or new fault-injection tests.
 
 ## Evidence and next target
@@ -60,7 +73,7 @@ Evidence: tools/player_latency/evidence/2026-11-11-newgame-preparation, includin
 raw compressed logs, JUnit, temporary attribution scripts and comparison runner.
 Reproduction requires an imported source checkout, godot on PATH and fresh
 user directories. Copy observe.gd.txt to .godot/ci/title-art/observe.gd; decompress the
-baseline participant into .godot/ci/newgame-preparation under its recorded name,
+baseline participant into .godot/ci/newgame-preparation as NarrativeRestoreParticipant.baseline.txt,
 then run compare.py from the root on the candidate. Timing scripts temporarily
 edit sources and restore them in finally; do not run with other editors/engines.
 

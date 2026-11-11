@@ -22,5 +22,18 @@
   "test_scene_native_activation.log.gz": "700e93b1b4800da4944770a43542c38ce609c538c24330c7fbfe3f83aa601af8",
   "test_scene_native_activation.xml.gz": "44f96863a8ac19bfc8959592cd5870243d90438c228ef9fdfc43dd656e93d0fd",
   "tests.log.gz": "86d22812d7656a5504d998c9f7f6fbc1641d0b926219378f623fa59e3c448dbe",
-  "tests.xml.gz": "3418d54f9a1453b9113df6f8570f06ad102e41df45bb0f3290b8fb0aa701b5f3"
+  "tests.xml.gz": "3418d54f9a1453b9113df6f8570f06ad102e41df45bb0f3290b8fb0aa701b5f3",
+  "windows/capability-events.json.gz": "307556b92aa6eacf9b2214c8dad5f4fdca09f4f75a8804265f7494d1f71ffe05",
+  "windows/capability-game.log.gz": "639d54a3cc91d87f7ff935037aaf8fb77194c012db6a552a1a78e9586b88fea2",
+  "windows/capability-manifest.json.gz": "8cfc1fcc52ca38b832f41e692adb5e91f2fe46bf6583b4716974879f1f80fec3",
+  "windows/capability-result.json.gz": "b5b617dbd62083fe086ac46a1c9c1da4eb10347c57efcb2abd611298c98457e8",
+  "windows/create-events.json.gz": "6e08218c47a65e53a5a5206bfdcb38220d1c23d356d3e3fb300d801a5c955fe0",
+  "windows/create-game.log.gz": "639d54a3cc91d87f7ff935037aaf8fb77194c012db6a552a1a78e9586b88fea2",
+  "windows/create-manifest.json.gz": "2fa1d7b15f6b4f9ab30f201ebfae1d45f226dfccb4dabc581e6bde44b86e32b0",
+  "windows/create-result.json.gz": "fdb572bb44a3b5a782078e0ac973720dc90f13935a0dedbff6a35b71874c90a8",
+  "windows/load-events.json.gz": "f5b9728e5b7510f01066a0257ed6138134ab6321e2b1c2a11cf456dccd7c00db",
+  "windows/load-game.log.gz": "639d54a3cc91d87f7ff935037aaf8fb77194c012db6a552a1a78e9586b88fea2",
+  "windows/load-manifest.json.gz": "faedcaf51aa04e2b3b29b39a45c1d2bfeb4f276421e229cacdd1afea758e0925",
+  "windows/load-result.json.gz": "fab290706c4013e61df2c5c396191c0d19bf3467cdc4c820f2ee098660dc8dfe",
+  "windows/validation.json": "924acfb6f3ccdf1d1858cb17ef735625a2e007868c2721bc235d59b69d3c84a8"
 }
