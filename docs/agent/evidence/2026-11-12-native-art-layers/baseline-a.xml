@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="1" >
+  <testsuite name="tests/manual/benchmark_checkpoint_load.gd" tests="1" failures="0" skipped="0" time="2.076155" >
+      <testcase name="test_checkpoint_load_cost" assertions="143" status="pass" classname="tests/manual/benchmark_checkpoint_load.gd" time="2.076155" >
+      </testcase>
+  </testsuite>
+</testsuites>
