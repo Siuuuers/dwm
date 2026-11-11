@@ -1,0 +1,21 @@
+extends SceneTree
+
+func _initialize() -> void:
+	var expected := {"zh_hant": "ca8679de60c7edc6430739ae7fddef504b0bcd17c4b383d4dbee27fc21dd4ab4", "zh_hans": "06a810e5398d3877619e50f0ecef9be3d3e32a64b9cd3c80b2c717b6986d1765", "ko": "b0862df5192851805aab05ad8d4c2b41bac58e93a08201df5723ee2a372a785b", "ja": "871f309830de8ac4fd4139e69c71c197d3207d43c214aa7a5e76f0d5382d73aa"}
+	for flavor: String in expected:
+		var path := "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-" + flavor + ".res"
+		assert(ResourceLoader.get_dependencies(path).is_empty())
+		var font: FontFile = load(path)
+		assert(font != null)
+		var hash := HashingContext.new()
+		assert(hash.start(HashingContext.HASH_SHA256) == OK)
+		assert(hash.update(font.data) == OK)
+		assert(hash.finish().hex_encode() == expected[flavor])
+		assert(not font.allow_system_fallback)
+		assert(font.antialiasing == TextServer.FONT_ANTIALIASING_NONE)
+		assert(font.hinting == TextServer.HINTING_NONE)
+		assert(font.subpixel_positioning == TextServer.SUBPIXEL_POSITIONING_DISABLED)
+		assert(font.oversampling == 1.0)
+		assert(font.has_char(0x41))
+		print("PACKED_FONT_OK " + flavor)
+	quit()

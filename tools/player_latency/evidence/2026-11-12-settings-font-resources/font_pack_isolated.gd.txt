@@ -1,0 +1,14 @@
+extends SceneTree
+
+func _initialize() -> void:
+	var pack := PCKPacker.new()
+	assert(pack.pck_start("/tmp/dwm-font-check.pck") == OK)
+	assert(pack.add_file("res://project.godot", "/workspace/scratch/f3b2401d1be2/dwm/.godot/ci/settings-open/minimal-project.godot") == OK)
+	assert(pack.add_file("res://check.gd", "/workspace/scratch/f3b2401d1be2/dwm/.godot/ci/settings-open/packed_font_check.gd") == OK)
+	for flavor: String in ["zh_hans", "zh_hant", "ja", "ko"]:
+		var path := "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-" + flavor + ".res"
+		var source := "/workspace/scratch/f3b2401d1be2/dwm" + path.trim_prefix("res:/")
+		assert(ResourceLoader.get_dependencies(source).is_empty())
+		assert(pack.add_file(path, source) == OK)
+	assert(pack.flush() == OK)
+	quit()

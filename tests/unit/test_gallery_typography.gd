@@ -23,12 +23,12 @@ const FONT_PATHS := {
 	},
 	"zh_CN": {
 		100: "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-zh_hans.otf.woff2",
-		125: "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hans.otf.woff2",
+		125: "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hans.res",
 		150: "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
 	},
 	"zh_HK": {
 		100: "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-zh_hant.otf.woff2",
-		125: "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hant.otf.woff2",
+		125: "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hant.res",
 		150: "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
 	},
 }

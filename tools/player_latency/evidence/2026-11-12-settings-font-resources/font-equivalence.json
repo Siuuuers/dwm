@@ -1,0 +1,26 @@
+[
+  {
+    "flavor": "zh_hant",
+    "glyphs": 24804,
+    "identical_tables_except_head_checksum": true,
+    "decoded_sha256": "ca8679de60c7edc6430739ae7fddef504b0bcd17c4b383d4dbee27fc21dd4ab4"
+  },
+  {
+    "flavor": "zh_hans",
+    "glyphs": 24803,
+    "identical_tables_except_head_checksum": true,
+    "decoded_sha256": "06a810e5398d3877619e50f0ecef9be3d3e32a64b9cd3c80b2c717b6986d1765"
+  },
+  {
+    "flavor": "ko",
+    "glyphs": 24932,
+    "identical_tables_except_head_checksum": true,
+    "decoded_sha256": "b0862df5192851805aab05ad8d4c2b41bac58e93a08201df5723ee2a372a785b"
+  },
+  {
+    "flavor": "ja",
+    "glyphs": 24805,
+    "identical_tables_except_head_checksum": true,
+    "decoded_sha256": "871f309830de8ac4fd4139e69c71c197d3207d43c214aa7a5e76f0d5382d73aa"
+  }
+]

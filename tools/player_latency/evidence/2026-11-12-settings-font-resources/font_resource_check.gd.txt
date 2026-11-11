@@ -1,0 +1,23 @@
+extends SceneTree
+
+func _initialize() -> void:
+	for flavor: String in ["zh_hans", "zh_hant", "ja", "ko"]:
+		var path := "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-" + flavor + ".res"
+		var font: FontFile = load(path)
+		assert(font != null)
+		font.data = FileAccess.get_file_as_bytes("res://.godot/ci/settings-open/" + flavor + "-exact.otf")
+		font.allow_system_fallback = false
+		font.antialiasing = TextServer.FONT_ANTIALIASING_NONE
+		font.hinting = TextServer.HINTING_NONE
+		font.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_DISABLED
+		font.oversampling = 1.0
+		assert(ResourceSaver.save(font, path, ResourceSaver.FLAG_COMPRESS) == OK)
+		assert(not font.allow_system_fallback)
+		assert(font.antialiasing == TextServer.FONT_ANTIALIASING_NONE)
+		assert(font.hinting == TextServer.HINTING_NONE)
+		assert(font.subpixel_positioning == TextServer.SUBPIXEL_POSITIONING_DISABLED)
+		assert(font.oversampling == 1.0)
+		var file := FileAccess.open("res://.godot/ci/settings-open/" + flavor + "-resource.otf", FileAccess.WRITE)
+		file.store_buffer(font.data)
+		print("FONT_RESOURCE " + flavor + " " + str(font.data.size()))
+	quit()
