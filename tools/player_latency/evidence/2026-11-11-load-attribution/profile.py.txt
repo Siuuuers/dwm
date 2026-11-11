@@ -1,0 +1,36 @@
+from pathlib import Path
+import subprocess, shutil, os, gzip
+root=Path(__file__).resolve().parents[3]
+changes={
+'scripts/ui/SceneHost.gd': [('_ready() -> void', '_ready()', False),('_refresh_presentation(_locale_id: String = "") -> void','_refresh_presentation(_locale_id)',False)],
+'scripts/ui/witnessed/WitnessedCaptionLayer.gd': [('_ready() -> void','_ready()',False),('configure_presentation(locale: String = "en", text_percent: int = 100, palette: String = "AfterHours", high_contrast: bool = false, colour_preset: String = "standard", large_targets: bool = false, day: int = 1, font_style: String = "pixel") -> bool','configure_presentation(locale, text_percent, palette, high_contrast, colour_preset, large_targets, day, font_style)',True)],
+'autoload/DialogicBridge.gd':[('_prepare_witnessed_style() -> Dictionary','_prepare_witnessed_style()',True)],
+'scripts/narrative/DialogicRuntimeAdapter.gd':[('_install_scene_frontier(session: RefCounted, checkpoint: Dictionary, source_token: RefCounted = null) -> Dictionary','_install_scene_frontier(session, checkpoint, source_token)',True)],
+}
+changes['scripts/ui/witnessed/WitnessedArtLayer.gd'] = [('refresh_art() -> void','refresh_art()',False)]
+changes['scripts/ui/UiTypography.gd'] = []
+original={}
+try:
+ for file,functions in changes.items():
+  p=root/file; original[p]=p.read_text(); s=original[p]
+  for declaration, call, returns in functions:
+   name=declaration.split('(')[0]; label=p.stem+'.'+name
+   wrapper='func '+declaration+':\n\tprint("LOAD_TRACE '+label+' begin ", Time.get_ticks_usec())\n\t'
+   wrapper+=('var measured = ' if returns else '')+call.replace(name,'_diagnostic'+name,1)+'\n'
+   wrapper+='\tprint("LOAD_TRACE '+label+' end ", Time.get_ticks_usec())\n'
+   if returns: wrapper+='\treturn measured\n'
+   wrapper+='\nfunc '+declaration.replace(name,'_diagnostic'+name,1)+':'
+   s=s.replace('func '+declaration+':',wrapper,1)
+  if file == 'scripts/ui/UiTypography.gd':
+   s=s.replace('static func story_font(locale: String, percent: int, font_style: String = "pixel") -> Font:', 'static func story_font(locale: String, percent: int, font_style: String = "pixel") -> Font:\n\tprint("LOAD_TRACE story_font begin ", Time.get_ticks_usec())\n\tvar result := _diagnostic_story_font(locale, percent, font_style)\n\tprint("LOAD_TRACE story_font end ", Time.get_ticks_usec())\n\treturn result\n\nstatic func _diagnostic_story_font(locale: String, percent: int, font_style: String = "pixel") -> Font:')
+  p.write_text(s)
+ out=root/'.godot/ci/load-attribution'
+ (out/'diagnostic2.patch.gz').write_bytes(gzip.compress(subprocess.check_output(['git','diff','--',*changes],cwd=root),mtime=0))
+ isolated=root/'.godot/phase2r_tests/load-attribution'
+ shutil.rmtree(isolated);shutil.copytree(out/'results/seed-root',isolated)
+ env=dict(os.environ,XDG_DATA_HOME=str(isolated/'data'),DWM_TEST_ROOT=str(isolated/'test-root'),DWM_SAVE_LOAD_PROFILE='1')
+ with (out/'diagnostic2.log').open('w') as f:
+  result=subprocess.run(['godot','--headless','--path',str(root),'-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/manual/benchmark_checkpoint_load.gd','-gunit_test_name=test_checkpoint_load_cost','-gexit'],cwd=root,env=env,stdout=f,stderr=subprocess.STDOUT,timeout=120)
+ print('diagnostic exit',result.returncode)
+finally:
+ for p,s in original.items():p.write_text(s)
