@@ -3,7 +3,7 @@ name: Focused Windows release smoke
 on:
   workflow_dispatch:
   push:
-    branches: [codex/windows-smoke, codex/windows-load-observation, codex/art-import-comparison]
+    branches: [codex/windows-smoke, codex/windows-load-observation, codex/art-import-comparison, codex/startup-attribution]
 
 permissions:
   contents: read
@@ -127,6 +127,34 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           & pwsh @common -Mode Load -UserRoot "$users/journey" -OutputPath "$evidence/load" -CreatorReceipt "$evidence/create/result.json"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Diagnose editor-hosted release pack startup
+        if: github.ref == 'refs/heads/codex/startup-attribution'
+        timeout-minutes: 3
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $export = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export'
+          $receipt = Get-Content (Join-Path $export 'validation.json') -Raw | ConvertFrom-Json
+          $out = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-startup'
+          New-Item -ItemType Directory -Path $out | Out-Null
+          $zip = Join-Path $export $receipt.archive.file
+          if ((Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $receipt.archive.sha256) { throw 'Archive hash mismatch' }
+          Expand-Archive $zip -DestinationPath "$out/package"
+          $pack = Get-ChildItem "$out/package" -Filter DWM.pck -Recurse | Select-Object -First 1
+          $expectedPack = $receipt.files | Where-Object path -eq 'DWM.pck'
+          if ((Get-FileHash $pack.FullName -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expectedPack.sha256) { throw 'PCK hash mismatch' }
+          Get-ChildItem Env: | Where-Object Name -Like 'DWM_*' | ForEach-Object { Remove-Item "Env:$($_.Name)" }
+          $env:APPDATA = "$out/user/appdata"
+          $env:LOCALAPPDATA = "$out/user/localappdata"
+          New-Item -ItemType Directory -Force -Path $env:APPDATA,$env:LOCALAPPDATA | Out-Null
+          Set-Location $out
+          & $env:GODOT_CONSOLE_PATH --main-pack $pack.FullName --windowed --resolution 1280x720 --accessibility always --audio-driver Dummy --benchmark-file "$out/engine.json" --max-fps 60 --quit-after 240 --log-file "$out/game.log" *> "$out/console.log"
+          $code = $LASTEXITCODE
+          $stages = Get-Content "$out/engine.json" -Raw | ConvertFrom-Json
+          foreach ($key in @('[Startup] Main::Setup','[Startup] Main::Setup2','[Startup] Main::Start','[Startup] Load Autoloads','[Startup] Load Game')) {
+            if ($stages.$key -le 0) { throw "Missing positive stage: $key" }
+          }
+          @{ source_commit=$env:GITHUB_SHA; pck_sha256=$expectedPack.sha256; archive_sha256=$receipt.archive.sha256; exit_code=$code; scope='Editor-hosted release pack; diagnostic only, not release title readiness'; engine_host_sha256=(Get-FileHash $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant() } | ConvertTo-Json | Set-Content "$out/receipt.json" -Encoding utf8
+          if ($code -ne 0) { exit $code }
       - name: Upload Windows validation build and evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -136,6 +164,9 @@ jobs:
             .godot/ci/import.log
             .godot/ci/windows-export/
             .godot/ci/windows-smoke/
+            .godot/ci/windows-startup/
+            !.godot/ci/windows-startup/package/**
+            !.godot/ci/windows-startup/user/**
             !.godot/ci/windows-smoke/*/package/**
           include-hidden-files: true
           if-no-files-found: warn
