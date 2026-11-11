@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="1" >
+  <testsuite name=".godot/ci/activation-pause/entry.gd" tests="1" failures="0" skipped="0" time="28.089164" >
+      <testcase name="test_entry_probe" assertions="1180" status="pass" classname=".godot/ci/activation-pause/entry.gd" time="28.089164" >
+      </testcase>
+  </testsuite>
+</testsuites>

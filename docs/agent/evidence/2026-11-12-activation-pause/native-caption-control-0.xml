@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="2" >
+  <testsuite name="tests/integration/test_scene_native_activation_runtime.gd" tests="2" failures="0" skipped="0" time="0.222337" >
+      <testcase name="test_real_native_restores_saved_second_caption_without_executing_end_or_republishing" assertions="27" status="pass" classname="tests/integration/test_scene_native_activation_runtime.gd" time="0.135759" >
+      </testcase>
+      <testcase name="test_real_native_restores_control_as_held_predecessor_and_consumes_source_once" assertions="49" status="pass" classname="tests/integration/test_scene_native_activation_runtime.gd" time="0.086578" >
+      </testcase>
+  </testsuite>
+</testsuites>

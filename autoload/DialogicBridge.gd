@@ -3307,7 +3307,7 @@ func _confirm_scene_activation() -> void:
 	if _scene_restore.is_empty() or _scene_restore.has("failure") or _scene_restore.in_call \
 			or not _scene_restore.proof or _scene_restore.confirmed: return
 	var captured := _capture_scene_restore_position()
-	if not _scene_restore_current() or not captured.get("ok", false) \
+	if not captured.get("ok", false) \
 			or not _READING_TRAVERSAL._same(captured.value, _expected_scene_restore_position()):
 		_fail_scene_activation(_command_failure(&"scene_activation_frontier_changed"))
 		return
