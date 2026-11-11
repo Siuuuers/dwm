@@ -1,0 +1,515 @@
+{
+  "base": "9d1af70f2676bab1406426949d64e2b1527f7e53",
+  "order": [
+    "b1",
+    "c1",
+    "c2",
+    "b2"
+  ],
+  "seed_hashes": {
+    "data/godot/app_userdata/DWM/desktop-publications.json": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+    "data/godot/app_userdata/DWM/authored-week-compact-history.json": "91ebafe2c076439768fb6cc0911163efca75533ada07b4b14cb72001d079faf9",
+    "data/godot/app_userdata/DWM/profile.json.bak": "60583fb9eae962caa9229f7ea53563d5602fe596fe137baaf128444f4b9364ad",
+    "data/godot/app_userdata/DWM/desktop-issuer-root.json.bak": "4b5fa5f93d6ab8b211c0cdcf2e6bf4974d123a0070bf4f7eb2a8c5e3bab8faab",
+    "data/godot/app_userdata/DWM/profile.json": "dcf31821b8d0445450f0aaf8a8ae1df2f5b532948bc8798682506782157410f5",
+    "data/godot/app_userdata/DWM/compact-history-proof.json": "5d981a01520270e3796c627600791dd6833eecb47a09494ce42deee24b9e73ac",
+    "data/godot/app_userdata/DWM/desktop-issuer-root.json": "d7a080d7a551ee0a3213959927deb02414f6f65da5db50a7887c6557d169b7f0",
+    "data/godot/app_userdata/DWM/saves/slot_1.json": "e8ce7032d5ea9ab56f5386fcee5a2c4fe826c49b29a7ae5594b0ad5cbe7149df",
+    "data/godot/app_userdata/DWM/logs/godot.log": "343df2228a87de444e5d075302b0bd48b0b14e7775915883d812a4607021db1f",
+    "data/godot/app_userdata/DWM/dialogic/saves/global_info.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "samples": [
+    {
+      "label": "b1",
+      "mode": 0,
+      "pixels": [
+        {
+          "canonical_format": 5,
+          "format": 5,
+          "height": 1080,
+          "load_us": 95496,
+          "mipmaps": false,
+          "path": "res://art/pictures/picture1.png",
+          "pixel_sha256": "50e1d0c6271a592e67d49362cabf9257155d446533004cce5ffac720dcac2008",
+          "width": 1920,
+          "imported_bytes": 2499130
+        },
+        {
+          "canonical_format": 5,
+          "format": 5,
+          "height": 1080,
+          "load_us": 76757,
+          "mipmaps": false,
+          "path": "res://art/pictures/picture2.png",
+          "pixel_sha256": "be03681b34e9fa6b630850c808fe61d53f5df0b8594d9047225d440df5f34cce",
+          "width": 1920,
+          "imported_bytes": 2488270
+        },
+        {
+          "canonical_format": 5,
+          "format": 5,
+          "height": 1080,
+          "load_us": 72314,
+          "mipmaps": false,
+          "path": "res://art/pictures/picture3.png",
+          "pixel_sha256": "411447f4f0915051a2272acc6b4ba25d2341d54c989a1b8ddc9deaccd66c641c",
+          "width": 1920,
+          "imported_bytes": 2845044
+        },
+        {
+          "canonical_format": 5,
+          "format": 5,
+          "height": 1080,
+          "load_us": 53412,
+          "mipmaps": false,
+          "path": "res://art/pictures/picture4.png",
+          "pixel_sha256": "165ea7c75f981bbfed10cb858657a5c8d801d5437e64da5b601273d7d3dbdf53",
+          "width": 1920,
+          "imported_bytes": 2921516
+        },
+        {
+          "canonical_format": 5,
+          "format": 5,
+          "height": 1080,
+          "load_us": 52673,
+          "mipmaps": false,
+          "path": "res://art/pictures/picture5.png",
+          "pixel_sha256": "59cdcf6eb21ef7f837e62ef6439e9d4ea6e797989c68428bb3dd3fcedd6bfe74",
+          "width": 1920,
+          "imported_bytes": 2321240
+        }
+      ],
+      "loads": [
+        {
+          "action_dispatch_us": 56951,
+          "action_to_usable_us": 381774,
+          "commit_dispatch_us": 56951,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 345891,
+          "commit_to_usable_us": 381774,
+          "confirmation_required": false,
+          "first_process_load": true,
+          "index": 0
+        },
+        {
+          "action_dispatch_us": 8641,
+          "action_to_usable_us": 195920,
+          "commit_dispatch_us": 40765,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 165065,
+          "commit_to_usable_us": 186072,
+          "confirmation_required": true,
+          "first_process_load": false,
+          "index": 1
+        },
+        {
+          "action_dispatch_us": 9092,
+          "action_to_usable_us": 199440,
+          "commit_dispatch_us": 43040,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 168117,
+          "commit_to_usable_us": 189370,
+          "confirmation_required": true,
+          "first_process_load": false,
+          "index": 2
+        },
+        {
+          "action_dispatch_us": 7439,
+          "action_to_usable_us": 195294,
+          "commit_dispatch_us": 38529,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 162529,
+          "commit_to_usable_us": 186953,
+          "confirmation_required": true,
+          "first_process_load": false,
+          "index": 3
+        }
+      ],
+      "assertions": 143,
+      "exit_code": 0,
+      "command": [
+        "godot",
+        "--headless",
+        "--path",
+        "/workspace/scratch/e593b0792a01/dwm",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gtest=res://tests/manual/benchmark_checkpoint_load.gd",
+        "-gunit_test_name=test_checkpoint_load_cost",
+        "-gjunit_xml_file=/workspace/scratch/e593b0792a01/dwm/.godot/ci/art-import/b1.xml",
+        "-gexit"
+      ],
+      "log_sha256": "4861936c6e50fa932c698682f24b7b0ff7b81f6f8329fe64553f0cbc2398c9bf"
+    },
+    {
+      "label": "c1",
+      "mode": 3,
+      "pixels": [
+        {
+          "canonical_format": 5,
+          "format": 5,
+          "height": 1080,
+          "load_us": 33129,
+          "mipmaps": false,
+          "path": "res://art/pictures/picture1.png",
+          "pixel_sha256": "50e1d0c6271a592e67d49362cabf9257155d446533004cce5ffac720dcac2008",
+          "width": 1920,
+          "imported_bytes": 8294452
+        },
+        {
+          "canonical_format": 5,
+          "format": 5,
+          "height": 1080,
+          "load_us": 20933,
+          "mipmaps": false,
+          "path": "res://art/pictures/picture2.png",
+          "pixel_sha256": "be03681b34e9fa6b630850c808fe61d53f5df0b8594d9047225d440df5f34cce",
+          "width": 1920,
+          "imported_bytes": 8294452
+        },
+        {
+          "canonical_format": 5,
+          "format": 5,
+          "height": 1080,
+          "load_us": 5249,
+          "mipmaps": false,
+          "path": "res://art/pictures/picture3.png",
+          "pixel_sha256": "411447f4f0915051a2272acc6b4ba25d2341d54c989a1b8ddc9deaccd66c641c",
+          "width": 1920,
+          "imported_bytes": 8294452
+        },
+        {
+          "canonical_format": 5,
+          "format": 5,
+          "height": 1080,
+          "load_us": 8905,
+          "mipmaps": false,
+          "path": "res://art/pictures/picture4.png",
+          "pixel_sha256": "165ea7c75f981bbfed10cb858657a5c8d801d5437e64da5b601273d7d3dbdf53",
+          "width": 1920,
+          "imported_bytes": 8294452
+        },
+        {
+          "canonical_format": 5,
+          "format": 5,
+          "height": 1080,
+          "load_us": 5627,
+          "mipmaps": false,
+          "path": "res://art/pictures/picture5.png",
+          "pixel_sha256": "59cdcf6eb21ef7f837e62ef6439e9d4ea6e797989c68428bb3dd3fcedd6bfe74",
+          "width": 1920,
+          "imported_bytes": 8294452
+        }
+      ],
+      "loads": [
+        {
+          "action_dispatch_us": 54685,
+          "action_to_usable_us": 328926,
+          "commit_dispatch_us": 54685,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 291294,
+          "commit_to_usable_us": 328926,
+          "confirmation_required": false,
+          "first_process_load": true,
+          "index": 0
+        },
+        {
+          "action_dispatch_us": 10097,
+          "action_to_usable_us": 199018,
+          "commit_dispatch_us": 41241,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 167573,
+          "commit_to_usable_us": 187869,
+          "confirmation_required": true,
+          "first_process_load": false,
+          "index": 1
+        },
+        {
+          "action_dispatch_us": 7791,
+          "action_to_usable_us": 196319,
+          "commit_dispatch_us": 41372,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 163348,
+          "commit_to_usable_us": 187432,
+          "confirmation_required": true,
+          "first_process_load": false,
+          "index": 2
+        },
+        {
+          "action_dispatch_us": 8652,
+          "action_to_usable_us": 203996,
+          "commit_dispatch_us": 39750,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 170975,
+          "commit_to_usable_us": 194408,
+          "confirmation_required": true,
+          "first_process_load": false,
+          "index": 3
+        }
+      ],
+      "assertions": 143,
+      "exit_code": 0,
+      "command": [
+        "godot",
+        "--headless",
+        "--path",
+        "/workspace/scratch/e593b0792a01/dwm",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gtest=res://tests/manual/benchmark_checkpoint_load.gd",
+        "-gunit_test_name=test_checkpoint_load_cost",
+        "-gjunit_xml_file=/workspace/scratch/e593b0792a01/dwm/.godot/ci/art-import/c1.xml",
+        "-gexit"
+      ],
+      "log_sha256": "070fcc6c62056febf2943fc3a0bf5a884ab46f2b88ff365ee8dc45e9adb0cb85"
+    },
+    {
+      "label": "c2",
+      "mode": 3,
+      "pixels": [
+        {
+          "canonical_format": 5,
+          "format": 5,
+          "height": 1080,
+          "load_us": 8608,
+          "mipmaps": false,
+          "path": "res://art/pictures/picture1.png",
+          "pixel_sha256": "50e1d0c6271a592e67d49362cabf9257155d446533004cce5ffac720dcac2008",
+          "width": 1920,
+          "imported_bytes": 8294452
+        },
+        {
+          "canonical_format": 5,
+          "format": 5,
+          "height": 1080,
+          "load_us": 14482,
+          "mipmaps": false,
+          "path": "res://art/pictures/picture2.png",
+          "pixel_sha256": "be03681b34e9fa6b630850c808fe61d53f5df0b8594d9047225d440df5f34cce",
+          "width": 1920,
+          "imported_bytes": 8294452
+        },
+        {
+          "canonical_format": 5,
+          "format": 5,
+          "height": 1080,
+          "load_us": 3766,
+          "mipmaps": false,
+          "path": "res://art/pictures/picture3.png",
+          "pixel_sha256": "411447f4f0915051a2272acc6b4ba25d2341d54c989a1b8ddc9deaccd66c641c",
+          "width": 1920,
+          "imported_bytes": 8294452
+        },
+        {
+          "canonical_format": 5,
+          "format": 5,
+          "height": 1080,
+          "load_us": 4015,
+          "mipmaps": false,
+          "path": "res://art/pictures/picture4.png",
+          "pixel_sha256": "165ea7c75f981bbfed10cb858657a5c8d801d5437e64da5b601273d7d3dbdf53",
+          "width": 1920,
+          "imported_bytes": 8294452
+        },
+        {
+          "canonical_format": 5,
+          "format": 5,
+          "height": 1080,
+          "load_us": 1827,
+          "mipmaps": false,
+          "path": "res://art/pictures/picture5.png",
+          "pixel_sha256": "59cdcf6eb21ef7f837e62ef6439e9d4ea6e797989c68428bb3dd3fcedd6bfe74",
+          "width": 1920,
+          "imported_bytes": 8294452
+        }
+      ],
+      "loads": [
+        {
+          "action_dispatch_us": 59949,
+          "action_to_usable_us": 333896,
+          "commit_dispatch_us": 59949,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 298393,
+          "commit_to_usable_us": 333896,
+          "confirmation_required": false,
+          "first_process_load": true,
+          "index": 0
+        },
+        {
+          "action_dispatch_us": 7547,
+          "action_to_usable_us": 198648,
+          "commit_dispatch_us": 43574,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 169424,
+          "commit_to_usable_us": 190070,
+          "confirmation_required": true,
+          "first_process_load": false,
+          "index": 1
+        },
+        {
+          "action_dispatch_us": 8142,
+          "action_to_usable_us": 195935,
+          "commit_dispatch_us": 40364,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 165041,
+          "commit_to_usable_us": 186862,
+          "confirmation_required": true,
+          "first_process_load": false,
+          "index": 2
+        },
+        {
+          "action_dispatch_us": 8026,
+          "action_to_usable_us": 195142,
+          "commit_dispatch_us": 38842,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 163624,
+          "commit_to_usable_us": 186181,
+          "confirmation_required": true,
+          "first_process_load": false,
+          "index": 3
+        }
+      ],
+      "assertions": 143,
+      "exit_code": 0,
+      "command": [
+        "godot",
+        "--headless",
+        "--path",
+        "/workspace/scratch/e593b0792a01/dwm",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gtest=res://tests/manual/benchmark_checkpoint_load.gd",
+        "-gunit_test_name=test_checkpoint_load_cost",
+        "-gjunit_xml_file=/workspace/scratch/e593b0792a01/dwm/.godot/ci/art-import/c2.xml",
+        "-gexit"
+      ],
+      "log_sha256": "bb530880ab836c35488c1284f32a5a764eba3312ff868d2162e08f7445d9e974"
+    },
+    {
+      "label": "b2",
+      "mode": 0,
+      "pixels": [
+        {
+          "canonical_format": 5,
+          "format": 5,
+          "height": 1080,
+          "load_us": 64015,
+          "mipmaps": false,
+          "path": "res://art/pictures/picture1.png",
+          "pixel_sha256": "50e1d0c6271a592e67d49362cabf9257155d446533004cce5ffac720dcac2008",
+          "width": 1920,
+          "imported_bytes": 2499130
+        },
+        {
+          "canonical_format": 5,
+          "format": 5,
+          "height": 1080,
+          "load_us": 64214,
+          "mipmaps": false,
+          "path": "res://art/pictures/picture2.png",
+          "pixel_sha256": "be03681b34e9fa6b630850c808fe61d53f5df0b8594d9047225d440df5f34cce",
+          "width": 1920,
+          "imported_bytes": 2488270
+        },
+        {
+          "canonical_format": 5,
+          "format": 5,
+          "height": 1080,
+          "load_us": 57077,
+          "mipmaps": false,
+          "path": "res://art/pictures/picture3.png",
+          "pixel_sha256": "411447f4f0915051a2272acc6b4ba25d2341d54c989a1b8ddc9deaccd66c641c",
+          "width": 1920,
+          "imported_bytes": 2845044
+        },
+        {
+          "canonical_format": 5,
+          "format": 5,
+          "height": 1080,
+          "load_us": 60845,
+          "mipmaps": false,
+          "path": "res://art/pictures/picture4.png",
+          "pixel_sha256": "165ea7c75f981bbfed10cb858657a5c8d801d5437e64da5b601273d7d3dbdf53",
+          "width": 1920,
+          "imported_bytes": 2921516
+        },
+        {
+          "canonical_format": 5,
+          "format": 5,
+          "height": 1080,
+          "load_us": 56421,
+          "mipmaps": false,
+          "path": "res://art/pictures/picture5.png",
+          "pixel_sha256": "59cdcf6eb21ef7f837e62ef6439e9d4ea6e797989c68428bb3dd3fcedd6bfe74",
+          "width": 1920,
+          "imported_bytes": 2321240
+        }
+      ],
+      "loads": [
+        {
+          "action_dispatch_us": 56150,
+          "action_to_usable_us": 440307,
+          "commit_dispatch_us": 56150,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 405345,
+          "commit_to_usable_us": 440307,
+          "confirmation_required": false,
+          "first_process_load": true,
+          "index": 0
+        },
+        {
+          "action_dispatch_us": 8153,
+          "action_to_usable_us": 201061,
+          "commit_dispatch_us": 41816,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 167511,
+          "commit_to_usable_us": 191893,
+          "confirmation_required": true,
+          "first_process_load": false,
+          "index": 1
+        },
+        {
+          "action_dispatch_us": 7659,
+          "action_to_usable_us": 201870,
+          "commit_dispatch_us": 40625,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 173772,
+          "commit_to_usable_us": 193273,
+          "confirmation_required": true,
+          "first_process_load": false,
+          "index": 2
+        },
+        {
+          "action_dispatch_us": 7997,
+          "action_to_usable_us": 197314,
+          "commit_dispatch_us": 43619,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 167116,
+          "commit_to_usable_us": 188412,
+          "confirmation_required": true,
+          "first_process_load": false,
+          "index": 3
+        }
+      ],
+      "assertions": 143,
+      "exit_code": 0,
+      "command": [
+        "godot",
+        "--headless",
+        "--path",
+        "/workspace/scratch/e593b0792a01/dwm",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gtest=res://tests/manual/benchmark_checkpoint_load.gd",
+        "-gunit_test_name=test_checkpoint_load_cost",
+        "-gjunit_xml_file=/workspace/scratch/e593b0792a01/dwm/.godot/ci/art-import/b2.xml",
+        "-gexit"
+      ],
+      "log_sha256": "9fe39a3abc7b67ceefee15e7d98bc338d5b9c2f6024130ea3f7512fccc8a7aa5"
+    }
+  ]
+}

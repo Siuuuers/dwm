@@ -1,0 +1,51 @@
+from pathlib import Path
+import os, subprocess, json, hashlib, gzip, shutil, re, xml.etree.ElementTree as ET
+root=Path(__file__).resolve().parents[3]; out=Path(__file__).resolve().parent
+imports=[root/f'art/pictures/picture{i}.png.import' for i in range(1,6)]
+original={p:p.read_bytes() for p in imports}
+project=(root/'project.godot').read_bytes()
+seed=root/'.godot/ci/checkpoint-load/results/seed-root'
+isolated=root/'.godot/phase2r_tests/checkpoint-load'
+assert seed.is_dir()
+assert not (out/'result.json').exists()
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+hashes=lambda d:{str(p.relative_to(d)):sha(p) for p in d.rglob('*') if p.is_file()}
+env=dict(os.environ,XDG_DATA_HOME=str(isolated/'data'),DWM_TEST_ROOT=str(isolated/'test-root'),DWM_SAVE_LOAD_PROFILE='',DWM_SCENE_VALIDATION_PROFILE='')
+report={'base':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),'order':['b1','c1','c2','b2'],'seed_hashes':hashes(seed),'samples':[]}
+def run(label,args,environment):
+ with (out/(label+'.log')).open('w') as f:
+  r=subprocess.run(args,cwd=root,env=environment,stdout=f,stderr=subprocess.STDOUT,timeout=240)
+ s=(out/(label+'.log')).read_text()
+ (out/(label+'.log.gz')).write_bytes(gzip.compress(s.encode(),mtime=0))
+ assert r.returncode==0,(label,r.returncode,s[-3000:])
+ assert not re.search(r'SCRIPT ERROR:|ERROR:',s),(label,s[-3000:])
+ return s
+try:
+ for label in report['order']:
+  mode=0 if label.startswith('b') else 3
+  for p,b in original.items():p.write_bytes(re.sub(rb'(?m)^compress/mode=[03]$', f'compress/mode={mode}'.encode(), b))
+  import_env=dict(os.environ,XDG_DATA_HOME=str(out/'import-data'),DWM_TEST_ROOT=str(out/'import-root'))
+  (root/'project.godot').write_bytes(project.replace(b', "res://addons/gut/plugin.cfg"',b''))
+  run(label+'-import',['godot','--headless','--editor','--path',str(root),'--import'],import_env)
+  (root/'project.godot').write_bytes(project)
+  pixels=run(label+'-pixels',['godot','--headless','--path',str(root),'-s','res://.godot/ci/art-import/pixels.gd'],import_env)
+  rows=json.loads(next(x.split('ART_PIXELS ',1)[1] for x in pixels.splitlines() if x.startswith('ART_PIXELS ')))
+  for i,p in enumerate(imports):
+   imported=re.search(r'path="res://([^"\n]+)"',p.read_text()).group(1)
+   rows[i]['imported_bytes']=(root/imported).stat().st_size
+  if isolated.exists():shutil.rmtree(isolated)
+  shutil.copytree(seed,isolated);assert hashes(isolated)==report['seed_hashes']
+  xml=out/(label+'.xml')
+  args=['godot','--headless','--path',str(root),'-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/manual/benchmark_checkpoint_load.gd','-gunit_test_name=test_checkpoint_load_cost','-gjunit_xml_file='+str(xml),'-gexit']
+  contents=run(label,args,env)
+  cases=ET.parse(xml).getroot().findall('.//testcase')
+  assert len(cases)==1 and cases[0].get('status')=='pass' and int(cases[0].get('assertions'))>0
+  loads=[json.loads(x.split('CHECKPOINT_LOAD_SAMPLE ',1)[1]) for x in contents.splitlines() if x.startswith('CHECKPOINT_LOAD_SAMPLE ')]
+  assert len(loads)==4
+  row={'label':label,'mode':mode,'pixels':rows,'loads':loads,'assertions':int(cases[0].get('assertions')),'exit_code':0,'command':args,'log_sha256':sha(out/(label+'.log'))}
+  report['samples'].append(row)
+  (out/'result.json').write_text(json.dumps(report,indent=2)+'\n')
+  print(label,'first load',loads[0],'texture loads',[x['load_us'] for x in rows],flush=True)
+finally:
+ for p,b in original.items():p.write_bytes(b)
+ (root/'project.godot').write_bytes(project)

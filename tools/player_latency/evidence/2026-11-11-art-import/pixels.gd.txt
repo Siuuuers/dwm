@@ -1,0 +1,22 @@
+extends SceneTree
+
+func _initialize() -> void:
+	var rows: Array[Dictionary] = []
+	for number: int in range(1, 6):
+		var path := "res://art/pictures/picture%d.png" % number
+		var started := Time.get_ticks_usec()
+		var texture := load(path) as Texture2D
+		var elapsed := Time.get_ticks_usec() - started
+		assert(texture != null)
+		var pixels := texture.get_image()
+		assert(pixels != null and not pixels.is_empty())
+		var native_format := pixels.get_format()
+		pixels.convert(Image.FORMAT_RGBA8)
+		var digest := HashingContext.new()
+		digest.start(HashingContext.HASH_SHA256)
+		digest.update(pixels.get_data())
+		rows.append({"path": path, "load_us": elapsed, "width": pixels.get_width(),
+			"height": pixels.get_height(), "format": native_format, "canonical_format": pixels.get_format(),
+			"mipmaps": pixels.has_mipmaps(), "pixel_sha256": digest.finish().hex_encode()})
+	print("ART_PIXELS " + JSON.stringify(rows))
+	quit(0)
