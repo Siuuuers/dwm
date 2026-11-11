@@ -19,10 +19,10 @@ const _PIXEL_FONTS := {
 	},
 	125: {
 		"en": "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-latin.otf.woff2",
-		"zh-CN": "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hans.otf.woff2",
-		"zh-HK": "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hant.otf.woff2",
-		"ja": "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-ja.otf.woff2",
-		"ko": "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-ko.otf.woff2",
+		"zh-CN": "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hans.res",
+		"zh-HK": "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hant.res",
+		"ja": "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-ja.res",
+		"ko": "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-ko.res",
 	},
 	150: {
 		"en": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-latin.otf.woff2",

@@ -111,22 +111,34 @@
       "postscript_name": "Fusion-Pixel-10px-Prop-latin-Regular"
     },
     {
-      "file": "fusion-pixel-10px-proportional-zh_hans.otf.woff2",
-      "bytes": 399668,
-      "sha256": "ce4c411b042a0e9e4cf7dd6819d2c14cb581e4bfe933b0ae5286cb5f0ad60364",
+      "file": "fusion-pixel-10px-proportional-zh_hans.res",
+      "bytes": 803343,
+      "sha256": "407c38fb38cdb797c82868e602b4bae4a5740f6b51a43f36a15665ac3c139f51",
       "family": "Fusion Pixel 10px Prop zh_hans",
       "style": "Regular",
       "version": "2026.08.11",
-      "postscript_name": "Fusion-Pixel-10px-Prop-zh_hans-Regular"
+      "postscript_name": "Fusion-Pixel-10px-Prop-zh_hans-Regular",
+      "source_woff2": {
+        "file": "fusion-pixel-10px-proportional-zh_hans.otf.woff2",
+        "bytes": 399668,
+        "sha256": "ce4c411b042a0e9e4cf7dd6819d2c14cb581e4bfe933b0ae5286cb5f0ad60364"
+      },
+      "conversion": "fontTools TTFont(recalcBBoxes=False, recalcTimestamp=False), flavor=None; Godot 4.6.3 FontFile with existing pixel rendering settings; ResourceSaver.FLAG_COMPRESS. Embedded tables identical except head.checkSumAdjustment."
     },
     {
-      "file": "fusion-pixel-10px-proportional-zh_hant.otf.woff2",
-      "bytes": 398672,
-      "sha256": "c23e4a08deba7a1ee970d0d550a0bec8f10d15fe905bffbdadf90fe80df3288a",
+      "file": "fusion-pixel-10px-proportional-zh_hant.res",
+      "bytes": 804128,
+      "sha256": "c2666f4267f3df7038ba76f3fbccbd6cc5ccd6c7245c2a7b6e0836ba389ef401",
       "family": "Fusion Pixel 10px Prop zh_hant",
       "style": "Regular",
       "version": "2026.08.11",
-      "postscript_name": "Fusion-Pixel-10px-Prop-zh_hant-Regular"
+      "postscript_name": "Fusion-Pixel-10px-Prop-zh_hant-Regular",
+      "source_woff2": {
+        "file": "fusion-pixel-10px-proportional-zh_hant.otf.woff2",
+        "bytes": 398672,
+        "sha256": "c23e4a08deba7a1ee970d0d550a0bec8f10d15fe905bffbdadf90fe80df3288a"
+      },
+      "conversion": "fontTools TTFont(recalcBBoxes=False, recalcTimestamp=False), flavor=None; Godot 4.6.3 FontFile with existing pixel rendering settings; ResourceSaver.FLAG_COMPRESS. Embedded tables identical except head.checkSumAdjustment."
     },
     {
       "file": "fusion-pixel-12px-proportional-latin.otf.woff2",
@@ -174,22 +186,34 @@
       "postscript_name": "Fusion-Pixel-8px-Prop-ko-Regular"
     },
     {
-      "file": "fusion-pixel-10px-proportional-ja.otf.woff2",
-      "bytes": 399436,
-      "sha256": "eb9ef0199bf79d587c5072aba4c3cba0ca445902c19268eff972e3230d7d4f66",
+      "file": "fusion-pixel-10px-proportional-ja.res",
+      "bytes": 803527,
+      "sha256": "15f00f1871382b9eafc8992c61ae9b31fca9ba97da2adeb0a7323ae4bc3bf341",
       "family": "Fusion Pixel 10px Prop ja",
       "style": "Regular",
       "version": "2026.08.11",
-      "postscript_name": "Fusion-Pixel-10px-Prop-ja-Regular"
+      "postscript_name": "Fusion-Pixel-10px-Prop-ja-Regular",
+      "source_woff2": {
+        "file": "fusion-pixel-10px-proportional-ja.otf.woff2",
+        "bytes": 399436,
+        "sha256": "eb9ef0199bf79d587c5072aba4c3cba0ca445902c19268eff972e3230d7d4f66"
+      },
+      "conversion": "fontTools TTFont(recalcBBoxes=False, recalcTimestamp=False), flavor=None; Godot 4.6.3 FontFile with existing pixel rendering settings; ResourceSaver.FLAG_COMPRESS. Embedded tables identical except head.checkSumAdjustment."
     },
     {
-      "file": "fusion-pixel-10px-proportional-ko.otf.woff2",
-      "bytes": 414372,
-      "sha256": "722dd039c80a192f9648bb38cb153e12cf08ef76c5cadedc7481f1ea48e2b420",
+      "file": "fusion-pixel-10px-proportional-ko.res",
+      "bytes": 809481,
+      "sha256": "02881a0ea99be6b03850ac02c79c9f65d37d56b77a41d66738155d9e5295752e",
       "family": "Fusion Pixel 10px Prop ko",
       "style": "Regular",
       "version": "2026.08.11",
-      "postscript_name": "Fusion-Pixel-10px-Prop-ko-Regular"
+      "postscript_name": "Fusion-Pixel-10px-Prop-ko-Regular",
+      "source_woff2": {
+        "file": "fusion-pixel-10px-proportional-ko.otf.woff2",
+        "bytes": 414372,
+        "sha256": "722dd039c80a192f9648bb38cb153e12cf08ef76c5cadedc7481f1ea48e2b420"
+      },
+      "conversion": "fontTools TTFont(recalcBBoxes=False, recalcTimestamp=False), flavor=None; Godot 4.6.3 FontFile with existing pixel rendering settings; ResourceSaver.FLAG_COMPRESS. Embedded tables identical except head.checkSumAdjustment."
     },
     {
       "file": "fusion-pixel-12px-proportional-ja.otf.woff2",

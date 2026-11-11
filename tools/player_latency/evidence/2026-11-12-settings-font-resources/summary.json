@@ -1,0 +1,1338 @@
+{
+  "theme-profile-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 487292,
+      "largest_frame_us": 485949
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 35699,
+      "largest_frame_us": 34060
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13979,
+      "largest_frame_us": 13467
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 18068,
+      "largest_frame_us": 15880
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 57680,
+      "largest_frame_us": 57122
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 37290,
+      "largest_frame_us": 35200
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13617,
+      "largest_frame_us": 12576
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 15951,
+      "largest_frame_us": 14375
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 56961,
+      "largest_frame_us": 56437
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 37834,
+      "largest_frame_us": 36366
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13649,
+      "largest_frame_us": 12172
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 15470,
+      "largest_frame_us": 14068
+    }
+  ],
+  "theme-profile-1": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 545592,
+      "largest_frame_us": 544378
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 40196,
+      "largest_frame_us": 38240
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 14154,
+      "largest_frame_us": 13600
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 16991,
+      "largest_frame_us": 15313
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 56506,
+      "largest_frame_us": 55832
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 36780,
+      "largest_frame_us": 34314
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13681,
+      "largest_frame_us": 13145
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 18876,
+      "largest_frame_us": 17017
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 55427,
+      "largest_frame_us": 54356
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 38156,
+      "largest_frame_us": 36630
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13616,
+      "largest_frame_us": 12914
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 17735,
+      "largest_frame_us": 15461
+    }
+  ],
+  "theme-woff-profile-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 479019,
+      "largest_frame_us": 477722
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 36832,
+      "largest_frame_us": 35149
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13635,
+      "largest_frame_us": 12379
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 17124,
+      "largest_frame_us": 15724
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 51999,
+      "largest_frame_us": 51462
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 35839,
+      "largest_frame_us": 33211
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13719,
+      "largest_frame_us": 12296
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 16277,
+      "largest_frame_us": 14824
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 55582,
+      "largest_frame_us": 54568
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 34334,
+      "largest_frame_us": 32684
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13541,
+      "largest_frame_us": 12046
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 18814,
+      "largest_frame_us": 17251
+    }
+  ],
+  "theme-woff-profile-1": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 465463,
+      "largest_frame_us": 464171
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 36799,
+      "largest_frame_us": 35142
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13551,
+      "largest_frame_us": 12612
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 16998,
+      "largest_frame_us": 14473
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 52102,
+      "largest_frame_us": 51649
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 35398,
+      "largest_frame_us": 33151
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13588,
+      "largest_frame_us": 12495
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 16495,
+      "largest_frame_us": 14745
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 52874,
+      "largest_frame_us": 51814
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 35508,
+      "largest_frame_us": 33989
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13550,
+      "largest_frame_us": 13088
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 17079,
+      "largest_frame_us": 15289
+    }
+  ],
+  "font-otf-candidate-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 393265,
+      "largest_frame_us": 391981
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 35899,
+      "largest_frame_us": 34321
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13557,
+      "largest_frame_us": 13080
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 15470,
+      "largest_frame_us": 14064
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 52310,
+      "largest_frame_us": 51797
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 35763,
+      "largest_frame_us": 33444
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 14459,
+      "largest_frame_us": 13936
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 17259,
+      "largest_frame_us": 15676
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 53355,
+      "largest_frame_us": 52337
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 35409,
+      "largest_frame_us": 33890
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13760,
+      "largest_frame_us": 13271
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 16618,
+      "largest_frame_us": 14201
+    }
+  ],
+  "font-otf-candidate-1": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 419437,
+      "largest_frame_us": 417782
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 38547,
+      "largest_frame_us": 36739
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13581,
+      "largest_frame_us": 13095
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 16779,
+      "largest_frame_us": 15234
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 56126,
+      "largest_frame_us": 55630
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 44685,
+      "largest_frame_us": 41432
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13450,
+      "largest_frame_us": 12649
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 16821,
+      "largest_frame_us": 15242
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 58124,
+      "largest_frame_us": 57481
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 36763,
+      "largest_frame_us": 35287
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 16168,
+      "largest_frame_us": 15659
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 17346,
+      "largest_frame_us": 15755
+    }
+  ],
+  "font-woff-candidate-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 464085,
+      "largest_frame_us": 462874
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 36206,
+      "largest_frame_us": 34570
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13571,
+      "largest_frame_us": 13088
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 15881,
+      "largest_frame_us": 14394
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 53968,
+      "largest_frame_us": 53388
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 35586,
+      "largest_frame_us": 34024
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13506,
+      "largest_frame_us": 12768
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 15892,
+      "largest_frame_us": 14425
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 55220,
+      "largest_frame_us": 53859
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 34418,
+      "largest_frame_us": 32998
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13598,
+      "largest_frame_us": 12864
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 18486,
+      "largest_frame_us": 16707
+    }
+  ],
+  "font-woff-candidate-1": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 541901,
+      "largest_frame_us": 540686
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 38241,
+      "largest_frame_us": 36540
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 14495,
+      "largest_frame_us": 13913
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 18391,
+      "largest_frame_us": 15827
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 53069,
+      "largest_frame_us": 52511
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 37534,
+      "largest_frame_us": 35215
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 15203,
+      "largest_frame_us": 14773
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 15825,
+      "largest_frame_us": 14339
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 57452,
+      "largest_frame_us": 56963
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 34211,
+      "largest_frame_us": 32711
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13645,
+      "largest_frame_us": 12031
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 18313,
+      "largest_frame_us": 16606
+    }
+  ],
+  "font-resource-candidate-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 384016,
+      "largest_frame_us": 382818
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 36062,
+      "largest_frame_us": 34386
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13575,
+      "largest_frame_us": 13128
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 18493,
+      "largest_frame_us": 16968
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 55527,
+      "largest_frame_us": 55020
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 35914,
+      "largest_frame_us": 33777
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13609,
+      "largest_frame_us": 12721
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 15719,
+      "largest_frame_us": 14198
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 55094,
+      "largest_frame_us": 54079
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 34691,
+      "largest_frame_us": 33149
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13601,
+      "largest_frame_us": 12010
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 16780,
+      "largest_frame_us": 14883
+    }
+  ],
+  "font-resource-candidate-1": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 388950,
+      "largest_frame_us": 387728
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 35574,
+      "largest_frame_us": 33909
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13677,
+      "largest_frame_us": 13149
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 17110,
+      "largest_frame_us": 14854
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 51849,
+      "largest_frame_us": 51306
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 35077,
+      "largest_frame_us": 32774
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13832,
+      "largest_frame_us": 13002
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 15773,
+      "largest_frame_us": 14122
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 54674,
+      "largest_frame_us": 52995
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 39896,
+      "largest_frame_us": 38282
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13625,
+      "largest_frame_us": 12111
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 16089,
+      "largest_frame_us": 14556
+    }
+  ],
+  "font-abba-0-base-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 495279,
+      "largest_frame_us": 494011
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 37733,
+      "largest_frame_us": 36086
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13671,
+      "largest_frame_us": 12575
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 16002,
+      "largest_frame_us": 14508
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 54528,
+      "largest_frame_us": 54012
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 35418,
+      "largest_frame_us": 33010
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13548,
+      "largest_frame_us": 12606
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 16069,
+      "largest_frame_us": 14229
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 52644,
+      "largest_frame_us": 51497
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 34714,
+      "largest_frame_us": 33201
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13674,
+      "largest_frame_us": 12461
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 16497,
+      "largest_frame_us": 14981
+    }
+  ],
+  "font-abba-2-candidate-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 384045,
+      "largest_frame_us": 382967
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 35784,
+      "largest_frame_us": 34311
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13885,
+      "largest_frame_us": 13323
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 17835,
+      "largest_frame_us": 16408
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 56336,
+      "largest_frame_us": 55850
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 41669,
+      "largest_frame_us": 38646
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13646,
+      "largest_frame_us": 12045
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 15647,
+      "largest_frame_us": 14032
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 54457,
+      "largest_frame_us": 53458
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 34016,
+      "largest_frame_us": 32128
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13451,
+      "largest_frame_us": 12696
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 16549,
+      "largest_frame_us": 14898
+    }
+  ],
+  "font-abba-1-candidate-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 372010,
+      "largest_frame_us": 370864
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 35022,
+      "largest_frame_us": 33490
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13512,
+      "largest_frame_us": 12592
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 15755,
+      "largest_frame_us": 14237
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 51765,
+      "largest_frame_us": 51245
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 35899,
+      "largest_frame_us": 33934
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13607,
+      "largest_frame_us": 12631
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 15848,
+      "largest_frame_us": 14390
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 52273,
+      "largest_frame_us": 51259
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 35241,
+      "largest_frame_us": 33607
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13593,
+      "largest_frame_us": 12159
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 17374,
+      "largest_frame_us": 14825
+    }
+  ],
+  "font-abba-3-base-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 471959,
+      "largest_frame_us": 470822
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 37778,
+      "largest_frame_us": 36124
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13631,
+      "largest_frame_us": 12713
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 16378,
+      "largest_frame_us": 14891
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 52747,
+      "largest_frame_us": 52269
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 35184,
+      "largest_frame_us": 33712
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 17477,
+      "largest_frame_us": 16935
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 16105,
+      "largest_frame_us": 14572
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 55509,
+      "largest_frame_us": 54969
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 35954,
+      "largest_frame_us": 34358
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13644,
+      "largest_frame_us": 12617
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 17288,
+      "largest_frame_us": 15444
+    }
+  ],
+  "font-final-abba-3-base-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 540420,
+      "largest_frame_us": 539075
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 37385,
+      "largest_frame_us": 35858
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 16950,
+      "largest_frame_us": 16204
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 18097,
+      "largest_frame_us": 16367
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 58136,
+      "largest_frame_us": 57509
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 38494,
+      "largest_frame_us": 36405
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13668,
+      "largest_frame_us": 12768
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 18793,
+      "largest_frame_us": 16870
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 59414,
+      "largest_frame_us": 58344
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 44225,
+      "largest_frame_us": 42398
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13570,
+      "largest_frame_us": 12932
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 16596,
+      "largest_frame_us": 15178
+    }
+  ],
+  "font-final-abba-2-candidate-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 390663,
+      "largest_frame_us": 389299
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 37582,
+      "largest_frame_us": 35854
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13754,
+      "largest_frame_us": 13199
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 15971,
+      "largest_frame_us": 14421
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 52249,
+      "largest_frame_us": 51706
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 35981,
+      "largest_frame_us": 33613
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13621,
+      "largest_frame_us": 12800
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 16314,
+      "largest_frame_us": 14822
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 54257,
+      "largest_frame_us": 53183
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 34328,
+      "largest_frame_us": 32780
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13527,
+      "largest_frame_us": 13078
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 17251,
+      "largest_frame_us": 14997
+    }
+  ],
+  "font-final-abba-1-candidate-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 394443,
+      "largest_frame_us": 393204
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 37212,
+      "largest_frame_us": 35389
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13650,
+      "largest_frame_us": 12908
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 16315,
+      "largest_frame_us": 14846
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 53742,
+      "largest_frame_us": 53165
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 34402,
+      "largest_frame_us": 32935
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13599,
+      "largest_frame_us": 12840
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 15701,
+      "largest_frame_us": 14264
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 53618,
+      "largest_frame_us": 52560
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 36616,
+      "largest_frame_us": 34915
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13897,
+      "largest_frame_us": 13339
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 16669,
+      "largest_frame_us": 15061
+    }
+  ],
+  "font-final-abba-0-base-0": [
+    {
+      "action": "settings",
+      "detail": "0",
+      "elapsed_us": 493209,
+      "largest_frame_us": 491851
+    },
+    {
+      "action": "settings_close",
+      "detail": "0",
+      "elapsed_us": 38186,
+      "largest_frame_us": 36551
+    },
+    {
+      "action": "computer",
+      "detail": "0",
+      "elapsed_us": 13585,
+      "largest_frame_us": 12782
+    },
+    {
+      "action": "computer_close",
+      "detail": "0",
+      "elapsed_us": 16122,
+      "largest_frame_us": 14629
+    },
+    {
+      "action": "settings",
+      "detail": "1",
+      "elapsed_us": 55559,
+      "largest_frame_us": 54835
+    },
+    {
+      "action": "settings_close",
+      "detail": "1",
+      "elapsed_us": 35851,
+      "largest_frame_us": 33032
+    },
+    {
+      "action": "computer",
+      "detail": "1",
+      "elapsed_us": 13650,
+      "largest_frame_us": 12736
+    },
+    {
+      "action": "computer_close",
+      "detail": "1",
+      "elapsed_us": 16062,
+      "largest_frame_us": 14644
+    },
+    {
+      "action": "settings",
+      "detail": "2",
+      "elapsed_us": 63340,
+      "largest_frame_us": 62344
+    },
+    {
+      "action": "settings_close",
+      "detail": "2",
+      "elapsed_us": 36615,
+      "largest_frame_us": 35125
+    },
+    {
+      "action": "computer",
+      "detail": "2",
+      "elapsed_us": 13593,
+      "largest_frame_us": 12623
+    },
+    {
+      "action": "computer_close",
+      "detail": "2",
+      "elapsed_us": 16040,
+      "largest_frame_us": 14555
+    }
+  ],
+  "font-check-0": [],
+  "font-check-1": [],
+  "pack-final-0": [],
+  "pack-final-1": []
+}
