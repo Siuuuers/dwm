@@ -39,11 +39,66 @@ runtime readiness. An active threaded load is not interrupted.
 
 ## Validation
 
-Acceptance results and exact tested revision will be recorded after the candidate
-passes focused startup, title lifecycle and exported Windows checks. Linux timing
-uses matched profile bytes at the same absolute user path, serial baseline /
-candidate / candidate / baseline. Title readiness and full runtime readiness are
-separate endpoints. Headless frame gaps are not rendered frame timings.
+Runtime candidate: `3fe3baef830a7dffc0fcc0e58a117789e7fca48d`.
+Windows source: `33990c3a8f5e0b8d101cb7f7593ab34099968c85`; the later commit
+changes the pack-audit helper only. Final follow-up changes evidence, canonical
+caller inventories and the manual startup probe, not production runtime bytes.
+
+- Focused Bootstrap, Menu lifetime, recovery and route-publication suites:
+  **49 tests, 663 positive assertions**, no failures or skips.
+- Both canonical public-surface checks pass. Four existing caller references
+  were missing from the inventories; regeneration changes no public signatures.
+- Editor import preserves the sole StartupLoader registration.
+- Actual Linux startup retains Traditional Chinese, readable font and 150% text.
+  Early Settings, Gallery, Load and New Game clicks show Loading and complete;
+  duplicate clicks do not dispatch twice. Early Quit exits cleanly. All final
+  action logs have no engine errors or warnings.
+- Windows [run 42971667173](https://github.com/Siuuuers/dwm/actions/runs/42971667173)
+  passes pack audit, isolated release startup, opening, Computer, Save, and
+  fresh-process Load with exact restored state and clean exits.
+  Title and restored-opening screenshots were reviewed: labels, both artwork
+  panels, caption and controls are visible.
+
+### Timing and limits
+
+Godot 4.6.3 Linux headless, serial baseline / candidate / candidate / baseline.
+Restore the same saved profile bytes at the same absolute user path before each
+process. The seed is created through the real preference owners. Disk caches are
+not flushed. Retained [probe, runner and raw evidence](../../tools/player_latency/evidence/2026-11-11-title-background/)
+allow reproduction in an imported baseline/candidate pair.
+
+| Endpoint | Baseline samples / median | Candidate samples / median |
+| --- | --- | --- |
+| Title ready, ms | 7232.864 / 9165.975; **8199.420** | 5002.833 / 5181.440; **5092.137** |
+| Full runtime ready, ms | 7160.688 / 9090.257; **8125.473** | 8663.536 / 8501.913; **8582.725** |
+
+The title median is 3107 ms earlier in this small sample. Full gameplay readiness
+is about 457 ms later: deferred loading moves work, rather than removing all of
+it. Largest headless frame gaps during the two idle title runs were 65.7 and
+27.0 ms; these are not rendered frame timings or a smooth-frame guarantee.
+First Settings construction and New Game still contain synchronous work.
+One extra baseline New Game run had a noisy 20-second pre-title delay; it is
+retained but is not used to claim a complete-journey speedup. The Linux New Game
+endpoint is SceneHost ready, not the first fully rendered caption.
+
+Windows uses unchanged Forward+ / D3D12 on Microsoft Basic Render Driver,
+accessibility Always and Dummy audio. External title observations were 6091 ms
+(capability), 5795 ms (fresh Create), and 4431 ms (returning Load). Create clicked
+at 5957 ms and observed Loading; its first caption followed the click by 3671 ms.
+Load also observed Loading and restored the saved opening. UIA includes provider
+and polling overhead; these are not input-to-photon measurements or a matched
+Windows baseline comparison. The existing renderer is unchanged.
+
+The first Windows attempt failed only after the pack audit had verified all 137
+resources: the audit called quit before deferred startup finished. Its helper now
+runs after owner installation and uses clean shutdown. Runtime Quit separately
+drains the active resource request, preventing teardown-time preload errors.
+No missing shipped font or pack exclusion was worked around. The editor/export
+process retains its known ObjectDB exit warning; packaged player and pack-audit
+logs are clean.
+
+Release archive SHA256:
+`f9c0fb6b0f1d7a99307ea9862503f43e55415d8e79f97d34f80c594d86de88b9`.
 
 Skipped: renderer changes, unrelated gameplay refactors, broad language/layout
 matrices, external-input injection campaigns, audio-output and physical-GPU

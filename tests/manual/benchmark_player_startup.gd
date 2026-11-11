@@ -23,7 +23,7 @@ func observe() -> void:
 					await process_frame
 					continue
 				print("PLAYER_STARTUP " + JSON.stringify({"engine_ticks_us": Time.get_ticks_usec(), "title_ticks_us": title_tick, "display": DisplayServer.get_name(), "revision": OS.get_environment("DWM_BENCHMARK_REVISION")}))
-				quit(0)
+				bootstrap.request_quit()
 				return
 		await process_frame
 	quit(1)

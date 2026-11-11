@@ -1,0 +1,54 @@
+import json, os, pathlib, shutil, subprocess
+
+# Run from the imported candidate checkout; keep the immutable baseline beside it.
+root = pathlib.Path.cwd()
+out = root / '.godot/ci/title-background-final'
+out.mkdir(parents=True, exist_ok=True)
+probe = out / 'observe.gd'
+shutil.copyfile(root / 'tools/player_latency/evidence/2026-11-11-title-background/observe.gd.txt', probe)
+seed = out / 'seed-xdg'
+profile = out / 'matched-xdg'
+baseline = root.parent / 'dwm-title-baseline'
+rows = []
+
+def run(label, mode, index, user):
+    env = os.environ.copy()
+    env.pop('DWM_TEST_ROOT', None)
+    env.update(DWM_STARTUP_AUDIT='1', DWM_TITLE_PROBE=mode, XDG_DATA_HOME=str(user))
+    repo = baseline if label == 'baseline' else root
+    log = out / f'{index}-{label}-{mode}.log'
+    with log.open('w') as stream:
+        result = subprocess.run(['godot', '--headless', '--path', str(repo), '--script', str(probe)],
+            env=env, stdout=stream, stderr=subprocess.STDOUT, timeout=110)
+    text = log.read_text()
+    assert result.returncode == 0 and 'ERROR:' not in text and 'WARNING:' not in text, text
+    if mode == 'seed':
+        assert 'TITLE_SEED_OK' in text
+        return
+    marker = 'TITLE_EARLY_QUIT' if mode == 'quit' else 'TITLE_RESULT '
+    assert marker in text, text
+    row = {'label': label, 'mode': mode, 'log': log.name, 'exit_code': result.returncode}
+    if mode != 'quit':
+        row.update(json.loads(next(line.split(marker, 1)[1] for line in text.splitlines() if line.startswith(marker))))
+        if mode != 'newgame':
+            assert (row['locale'], row['percent'], row['font_style']) == ('zh-HK', 150, 'readable')
+        if label == 'candidate' and mode in ['settings', 'gallery', 'login', 'newgame']:
+            assert row['loading_seen']
+    rows.append(row)
+    (out / 'results.json').write_text(json.dumps(rows, indent=2))
+    print(row, flush=True)
+
+assert not seed.exists(), 'Use a fresh output directory.'
+run('baseline', 'seed', 'seed', seed)
+for i, label in enumerate(['baseline', 'candidate', 'candidate', 'baseline']):
+    if profile.exists(): shutil.rmtree(profile)
+    shutil.copytree(seed, profile)
+    run(label, 'idle', i, profile)
+for mode in ['settings', 'gallery', 'login', 'newgame', 'quit']:
+    if profile.exists(): shutil.rmtree(profile)
+    shutil.copytree(seed, profile)
+    run('candidate', mode, 'action', profile)
+
+if profile.exists(): shutil.rmtree(profile)
+shutil.copytree(seed, profile)
+run('baseline', 'newgame', 'action', profile)
