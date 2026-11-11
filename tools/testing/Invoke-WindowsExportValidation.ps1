@@ -237,15 +237,18 @@ try {
 extends SceneTree
 
 func _initialize() -> void:
+    _audit.call_deferred()
+
+func _audit() -> void:
     var expected: Variant = JSON.parse_string(FileAccess.get_file_as_string(OS.get_cmdline_user_args()[0]))
     if not expected is Dictionary or expected.is_empty():
         push_error("Pack audit received no expected resources")
-        quit(1)
+        await _fail_audit()
         return
     for path: String in expected:
         if FileAccess.get_sha256(path) != expected[path]:
             push_error("Pack data missing or changed: " + path)
-            quit(1)
+            await _fail_audit()
             return
     # The expected map independently permits only seven DTL templates and their ordering JSON.
     # Reject every other file recursively, including compiled test scripts.
@@ -256,21 +259,21 @@ func _initialize() -> void:
             var resource := directory.path_join(file)
             if not expected.has(resource):
                 push_error("Unapproved test resource included in pack: " + resource)
-                quit(1)
+                await _fail_audit()
                 return
         for child: String in DirAccess.get_directories_at(directory):
             pending.append(directory.path_join(child))
     for forbidden: String in ["tools", "docs", "evidence", "prompt_docs", "art_source", "temp-artifacts", "addons/gut", "addons/story_export"]:
         if DirAccess.dir_exists_absolute("res://" + forbidden):
             push_error("Development directory included in pack: " + forbidden)
-            quit(1)
+            await _fail_audit()
             return
     var license_directory: String = OS.get_cmdline_user_args()[1]
     var license_file := FileAccess.open(license_directory.path_join("LICENSE.txt"), FileAccess.WRITE)
     var notices_file := FileAccess.open(license_directory.path_join("THIRD-PARTY-NOTICES.json"), FileAccess.WRITE)
     if license_file == null or notices_file == null:
         push_error("Cannot preserve Godot's built-in copyright notices")
-        quit(1)
+        await _fail_audit()
         return
     license_file.store_string(Engine.get_license_text())
     notices_file.store_string(JSON.stringify({"copyright": Engine.get_copyright_info(), "licenses": Engine.get_license_info()}, "\t"))
@@ -283,15 +286,19 @@ func _initialize() -> void:
     var registration: Dictionary = parser.parse_object(FileAccess.get_file_as_string("res://data/manifests/scene_story_registration.json"))
     if not registration.get("ok", false):
         push_error("Pack story registration is unavailable")
-        quit(1)
+        await _fail_audit()
         return
     var authored: Dictionary = manifest.validate_scene_registration(registration.value)
     if not authored.get("ok", false):
         push_error("Pack authored story validation failed: " + str(authored))
-        quit(1)
+        await _fail_audit()
         return
     print("WINDOWS_PACK_DATA_VERIFIED count=" + str(expected.size()))
-    quit(0)
+    await root.get_node("ApplicationBootstrap").request_quit()
+
+func _fail_audit() -> void:
+    await root.get_node("StartupLoader").shutdown()
+    quit(1)
 '@
     $probePath = Join-Path $work 'verify_pack.gd'
     Set-Content -LiteralPath $probePath -Value $probe -Encoding utf8NoBOM
