@@ -64,8 +64,9 @@ static func validate_bundle(manifest: Dictionary, catalogs: Dictionary) -> Dicti
 		if not catalogs.has(id): return _fail("missing_locale_catalog")
 		var valid := validate_locale_file(catalogs[id], id)
 		if not valid.get("ok", false): return valid
-		for message_id in _message_map(catalogs[id]):
-			if not source_messages.has(message_id) or extract_named_placeholders(_message_map(catalogs[id])[message_id]) != extract_named_placeholders(source_messages[message_id]): return _fail("placeholder_mismatch")
+		var messages := _message_map(catalogs[id])
+		for message_id in messages:
+			if not source_messages.has(message_id) or extract_named_placeholders(messages[message_id]) != extract_named_placeholders(source_messages[message_id]): return _fail("placeholder_mismatch")
 	return {"ok": true, "value": {"manifest": manifest.duplicate(true), "catalogs": catalogs.duplicate(true)}}
 
 static func build_legacy_subset_records(tables: Dictionary) -> Dictionary:

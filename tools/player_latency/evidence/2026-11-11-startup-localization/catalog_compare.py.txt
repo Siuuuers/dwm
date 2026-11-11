@@ -1,0 +1,20 @@
+import subprocess,pathlib,os,time,json,shutil
+root=pathlib.Path.cwd();out=root/'.godot/ci/startup-attribution';user=out/'catalog-startup-user';p=root/'scripts/localization/LocalizationSchema.gd';original=p.read_bytes();b=subprocess.check_output(['git','show','66788afe20e55c759234d5ba67db0fdc0b063315:scripts/localization/LocalizationSchema.gd'])
+a=b.replace(b'\t\tfor message_id in _message_map(catalogs[id]):',b'\t\tvar messages := _message_map(catalogs[id])\n\t\tfor message_id in messages:').replace(b'extract_named_placeholders(_message_map(catalogs[id])[message_id])',b'extract_named_placeholders(messages[message_id])');assert a!=b
+rows=[]
+try:
+ for i,mode in enumerate(['B','C','C','B']):
+  p.write_bytes(b if mode=='B' else a)
+  if user.exists():shutil.rmtree(user)
+  env=os.environ.copy();env.pop('DWM_TEST_ROOT',None);env.update(DWM_STARTUP_AUDIT='1',XDG_DATA_HOME=str(user))
+  t=time.perf_counter();r=subprocess.run(['godot','--headless','--path','.', '--script','res://tests/manual/benchmark_player_startup.gd'],env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=120)
+  elapsed=(time.perf_counter()-t)*1000;log=r.stdout.decode();(out/f'catalog-startup-{i}-{mode}.log').write_bytes(r.stdout)
+  assert r.returncode==0 and 'ERROR:' not in log and 'WARNING:' not in log,log
+  row=next(json.loads(x.split('PLAYER_STARTUP ',1)[1]) for x in log.splitlines() if x.startswith('PLAYER_STARTUP '));row.update(mode=mode,index=i,process_ms=elapsed);rows.append(row);print(row,flush=True)
+  env['DWM_TEST_ROOT']=str(out/'catalog-probe-user');pathlib.Path(env['DWM_TEST_ROOT']).mkdir(exist_ok=True)
+  r=subprocess.run(['godot','--headless','--path','.', '--script',str(out/'catalog_probe.gd')],env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=120)
+  log=r.stdout.decode();(out/f'catalog-probe-{i}-{mode}.log').write_bytes(r.stdout)
+  assert r.returncode==0 and 'ERROR:' not in log and 'WARNING:' not in log,log
+  row['catalog_samples']=[json.loads(x.split('CATALOG_SAMPLE ',1)[1]) for x in log.splitlines() if x.startswith('CATALOG_SAMPLE ')];assert len(row['catalog_samples'])==3;print(row['catalog_samples'],flush=True)
+ (out/'catalog-comparison.json').write_text(json.dumps(rows,indent=2)+'\n')
+finally:p.write_bytes(original)
