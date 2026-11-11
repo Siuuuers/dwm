@@ -1117,7 +1117,7 @@ func configure_dating_overlay(enabled: bool) -> void:
 	if _dating_overlay == enabled: return
 	_dating_overlay = enabled
 	if not is_instance_valid(canvas): return
-	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets, _day, _font_style)
+	_layout_self_talk()
 	_layout_stack()
 
 func _bind_dating_split_surface() -> void:
