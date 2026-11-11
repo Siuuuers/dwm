@@ -1,0 +1,202 @@
+{
+  "revision": "a621da729fe6cc5d8e47cf3db6e149f3a2850209",
+  "tracked_patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "tracked_working_tree_dirty": false,
+  "probe_source": "tests/manual/benchmark_checkpoint_load.gd",
+  "probe_sha256": "dff4a0232d7ea9e620740e754bb06dd9f90d6b9d1358069843aebf682489ad11",
+  "runner_sha256": "d54e66e492dedfbe44677cf6a5daf71aaca55be2739235200fcafe2c79a159b0",
+  "engine": "4.6.3.stable.official.7d41c59c4",
+  "environment": {
+    "XDG_DATA_HOME": "/workspace/scratch/f3b2401d1be2/dwm/.godot/phase2r_tests/checkpoint-load/data",
+    "DWM_TEST_ROOT": "/workspace/scratch/f3b2401d1be2/dwm/.godot/phase2r_tests/checkpoint-load/test-root",
+    "DWM_BENCHMARK_REVISION": "a621da729fe6cc5d8e47cf3db6e149f3a2850209",
+    "DWM_SAVE_LOAD_PROFILE": "",
+    "DWM_SCENE_VALIDATION_PROFILE": ""
+  },
+  "runs": [
+    {
+      "label": "creator",
+      "command": [
+        "godot",
+        "--headless",
+        "--path",
+        "/workspace/scratch/f3b2401d1be2/dwm",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gtest=res://tests/integration/test_compact_history_create.gd",
+        "-gunit_test_name=test_save_then_add_later_library_discovery",
+        "-gjunit_xml_file=/workspace/scratch/f3b2401d1be2/dwm/.godot/ci/checkpoint-load/results/creator.xml",
+        "-gexit"
+      ],
+      "log": ".godot/ci/checkpoint-load/results/creator.log",
+      "report": ".godot/ci/checkpoint-load/results/creator.xml",
+      "exit_code": 0,
+      "process_elapsed_ms": 34332.680871000775,
+      "log_sha256": "5a20cad5a5a4e65444b8b2f79b8676518164a8028e40aadd4466e5374160d8f7",
+      "assertions": 3748,
+      "loads": []
+    },
+    {
+      "label": "load-1",
+      "command": [
+        "godot",
+        "--headless",
+        "--path",
+        "/workspace/scratch/f3b2401d1be2/dwm",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gtest=res://tests/manual/benchmark_checkpoint_load.gd",
+        "-gunit_test_name=test_checkpoint_load_cost",
+        "-gjunit_xml_file=/workspace/scratch/f3b2401d1be2/dwm/.godot/ci/checkpoint-load/results/load-1.xml",
+        "-gexit"
+      ],
+      "log": ".godot/ci/checkpoint-load/results/load-1.log",
+      "report": ".godot/ci/checkpoint-load/results/load-1.xml",
+      "exit_code": 0,
+      "process_elapsed_ms": 8039.716040999338,
+      "log_sha256": "1a33d23f8d82b0414c19d6085d17547ac0563e0418e5b718089854145d306e3d",
+      "assertions": 143,
+      "loads": [
+        {
+          "action_dispatch_us": 22347,
+          "action_to_usable_us": 182372,
+          "commit_dispatch_us": 22347,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 147365,
+          "commit_to_usable_us": 182372,
+          "confirmation_required": false,
+          "first_process_load": true,
+          "index": 0
+        },
+        {
+          "action_dispatch_us": 7925,
+          "action_to_usable_us": 138047,
+          "commit_dispatch_us": 6887,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 100161,
+          "commit_to_usable_us": 128984,
+          "confirmation_required": true,
+          "first_process_load": false,
+          "index": 1
+        },
+        {
+          "action_dispatch_us": 7643,
+          "action_to_usable_us": 132489,
+          "commit_dispatch_us": 6513,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 96346,
+          "commit_to_usable_us": 123935,
+          "confirmation_required": true,
+          "first_process_load": false,
+          "index": 2
+        },
+        {
+          "action_dispatch_us": 7206,
+          "action_to_usable_us": 136540,
+          "commit_dispatch_us": 6165,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 99981,
+          "commit_to_usable_us": 128438,
+          "confirmation_required": true,
+          "first_process_load": false,
+          "index": 3
+        }
+      ]
+    },
+    {
+      "label": "load-2",
+      "command": [
+        "godot",
+        "--headless",
+        "--path",
+        "/workspace/scratch/f3b2401d1be2/dwm",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gtest=res://tests/manual/benchmark_checkpoint_load.gd",
+        "-gunit_test_name=test_checkpoint_load_cost",
+        "-gjunit_xml_file=/workspace/scratch/f3b2401d1be2/dwm/.godot/ci/checkpoint-load/results/load-2.xml",
+        "-gexit"
+      ],
+      "log": ".godot/ci/checkpoint-load/results/load-2.log",
+      "report": ".godot/ci/checkpoint-load/results/load-2.xml",
+      "exit_code": 0,
+      "process_elapsed_ms": 8484.965454001212,
+      "log_sha256": "0f2125f9549178a4028941113cf2476ba34880abbde02e588ea2b21dcc0c3fe1",
+      "assertions": 143,
+      "loads": [
+        {
+          "action_dispatch_us": 30980,
+          "action_to_usable_us": 231843,
+          "commit_dispatch_us": 30980,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 188714,
+          "commit_to_usable_us": 231843,
+          "confirmation_required": false,
+          "first_process_load": true,
+          "index": 0
+        },
+        {
+          "action_dispatch_us": 8370,
+          "action_to_usable_us": 137680,
+          "commit_dispatch_us": 7025,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 105136,
+          "commit_to_usable_us": 128241,
+          "confirmation_required": true,
+          "first_process_load": false,
+          "index": 1
+        },
+        {
+          "action_dispatch_us": 7491,
+          "action_to_usable_us": 142981,
+          "commit_dispatch_us": 7829,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 108010,
+          "commit_to_usable_us": 134374,
+          "confirmation_required": true,
+          "first_process_load": false,
+          "index": 2
+        },
+        {
+          "action_dispatch_us": 9179,
+          "action_to_usable_us": 142002,
+          "commit_dispatch_us": 6995,
+          "commit_to_post_draw_us": null,
+          "commit_to_ready_us": 108315,
+          "commit_to_usable_us": 131544,
+          "confirmation_required": true,
+          "first_process_load": false,
+          "index": 3
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Linux headless source project; no physical display or audio qualification.",
+    "First Load is a fresh process after service and expected-content setup; OS cache is not cleared.",
+    "Each loader performs Title first Load then three correlated in-game repeated Loads.",
+    "Commit-dispatch timers exclude helper waits; action-to-usable includes a confirmation layout frame. Assertions follow timing.",
+    "Expected checkpoint expansion is outside the timer; no numeric PID-inequality assertion.",
+    "Whole-process duration includes startup/setup/assertions/teardown and is not Load latency.",
+    "Same absolute user-data path and identical whole isolated seed bytes restored before each loader."
+  ],
+  "seed_user_dir": "/workspace/scratch/f3b2401d1be2/dwm/.godot/phase2r_tests/checkpoint-load/data/godot/app_userdata/DWM/",
+  "seed_proof_relative_path": "data/godot/app_userdata/DWM/compact-history-proof.json",
+  "seed_slot_relative_path": "data/godot/app_userdata/DWM/saves/slot_1.json",
+  "seed_slot_sha256": "35e496b13af2a097e9e06c2b4a3f2c5b8435cf56de08634b928718dd7f740555",
+  "seed_hashes": {
+    "data/godot/app_userdata/DWM/authored-week-compact-history.json": "838cbffa49610bb00075c0e3c2375bd907099c8a9f1de14b8b1cf0afa301dd4a",
+    "data/godot/app_userdata/DWM/compact-history-proof.json": "731f3285791dde49709dab3da92cc392c6686f1318c413203d3a98a1d44758c3",
+    "data/godot/app_userdata/DWM/desktop-issuer-root.json": "492ba88f831b6d6950bfadb3a18508b77d15d39ce900c040b03cf28772beb75b",
+    "data/godot/app_userdata/DWM/desktop-issuer-root.json.bak": "63e0ae75ee53c050e6005d99146896b7c50f5bc2684fb21c500a188e5800e9e9",
+    "data/godot/app_userdata/DWM/desktop-publications.json": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+    "data/godot/app_userdata/DWM/dialogic/saves/global_info.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "data/godot/app_userdata/DWM/logs/godot.log": "24ec495e26a53873945940618078c923cbe910db722e27c030338ae10aa30a90",
+    "data/godot/app_userdata/DWM/profile.json": "dcf31821b8d0445450f0aaf8a8ae1df2f5b532948bc8798682506782157410f5",
+    "data/godot/app_userdata/DWM/profile.json.bak": "60583fb9eae962caa9229f7ea53563d5602fe596fe137baaf128444f4b9364ad",
+    "data/godot/app_userdata/DWM/saves/slot_1.json": "35e496b13af2a097e9e06c2b4a3f2c5b8435cf56de08634b928718dd7f740555"
+  }
+}
