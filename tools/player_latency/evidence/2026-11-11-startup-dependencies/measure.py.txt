@@ -1,0 +1,35 @@
+import pathlib,subprocess,os,gzip
+p=pathlib.Path('addons/dialogic/Core/DialogicGameHandler.gd');original=p.read_bytes();out=pathlib.Path('.godot/ci/startup-dependencies').resolve()
+s=original.decode();old='''func _ready() -> void:
+	_collect_subsystems()
+
+	clear()
+
+	DialogicResourceUtil.update_event_cache()
+
+	dialog_ending_timeline = DialogicTimeline.new()
+	dialog_ending_timeline.from_text("[clear]")'''
+new='''func _ready() -> void:
+	var measured := Time.get_ticks_usec()
+	print("DEPENDENCY_DIAGNOSTIC dialogic_begin ", measured)
+	_collect_subsystems()
+	print("DEPENDENCY_DIAGNOSTIC collect_us ", Time.get_ticks_usec() - measured)
+	measured = Time.get_ticks_usec()
+	clear()
+	print("DEPENDENCY_DIAGNOSTIC clear_us ", Time.get_ticks_usec() - measured)
+	measured = Time.get_ticks_usec()
+	DialogicResourceUtil.update_event_cache()
+	print("DEPENDENCY_DIAGNOSTIC event_cache_us ", Time.get_ticks_usec() - measured)
+	measured = Time.get_ticks_usec()
+	dialog_ending_timeline = DialogicTimeline.new()
+	dialog_ending_timeline.from_text("[clear]")
+	print("DEPENDENCY_DIAGNOSTIC ending_timeline_us ", Time.get_ticks_usec() - measured)'''
+assert s.count(old)==1;s=s.replace(old,new)
+s=s.replace('\t\t\tvar subsystem_node := add_subsystem(str(subsystem.name), str(subsystem.script))','\t\t\tvar measured := Time.get_ticks_usec()\n\t\t\tvar subsystem_node := add_subsystem(str(subsystem.name), str(subsystem.script))\n\t\t\tprint("DEPENDENCY_DIAGNOSTIC subsystem ", subsystem.name, " ", Time.get_ticks_usec() - measured)')
+try:
+ p.write_text(s)
+ (out/'diagnostic.patch.gz').write_bytes(gzip.compress(subprocess.check_output(['git','diff','--',str(p)]),mtime=0))
+ env=os.environ.copy();env.pop('DWM_TEST_ROOT',None);env.update(DWM_STARTUP_AUDIT='1',XDG_DATA_HOME=str(out/'diagnostic-user'))
+ r=subprocess.run(['godot','--headless','--path','.', '--script','res://tests/manual/benchmark_player_startup.gd'],env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=120)
+ (out/'diagnostic.log').write_bytes(r.stdout);print(r.returncode,r.stdout.decode());assert r.returncode==0
+finally:p.write_bytes(original)

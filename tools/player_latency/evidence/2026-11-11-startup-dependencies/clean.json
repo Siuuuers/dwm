@@ -1,0 +1,9 @@
+{
+  "display": "headless",
+  "engine_ticks_us": 7057019,
+  "revision": "3a5a02d341eff74f7a23555d6aad53eaeb82a0b2",
+  "process_launch_to_exit_ms": 7199.681169000542,
+  "process_user_cpu_ms": 5925.049,
+  "process_system_cpu_ms": 1039.48,
+  "exit_code": 0
+}
