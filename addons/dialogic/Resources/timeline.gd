@@ -201,6 +201,9 @@ func clean() -> void:
 
 
 static func event_from_string(event_content:String, event_cache:Array) -> DialogicEvent:
+	# Text serialization uses this escape to keep command-looking prose literal.
+	if event_content.begins_with("\\"):
+		return event_cache.back().duplicate()
 	for i in event_cache:
 		if i._test_event_string(event_content):
 			return i.duplicate()
