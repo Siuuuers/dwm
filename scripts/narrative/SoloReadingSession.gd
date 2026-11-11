@@ -31,6 +31,7 @@ var _scene_text: Dictionary = {}
 var _scene_display: Dictionary = {}
 var _scene_thought_ids: Dictionary = {}
 var _scene_bundle: Dictionary = {}
+var _scene_registration: NarrativeCaptionLedger
 var player_progress: Dictionary = {}
 var _progress_publication := 0
 var _pending_checkpoint := false
@@ -73,6 +74,9 @@ func _configure_scene_observed_body() -> Dictionary:
 		prepared = {"bundle": bundle, "manifest": bundle.entry_manifest,
 			"catalogue": compiled_catalogue, "variants": variants,
 			"registry": {"kind": "narrative_caption_registry", "schema_version": 1, "beats": beats}}
+		var registration := LEDGER.prepare_registration(bundle.entry_manifest, prepared.registry)
+		if not registration.ok: return registration
+		prepared["registration"] = registration.value
 		FROZEN._freeze(prepared)
 		if cacheable: _prepared_scene_configuration = prepared
 	family = "scene"
@@ -81,6 +85,7 @@ func _configure_scene_observed_body() -> Dictionary:
 	manifest = prepared.manifest
 	catalogue = prepared.catalogue
 	registry = prepared.registry
+	_scene_registration = prepared.registration
 	_scene_bundle = bundle
 	_caption_variants_by_line = prepared.variants
 	return {"ok": true}
@@ -120,6 +125,7 @@ func _fork_scene_configuration() -> RefCounted:
 	sibling._scene_text = _scene_text.duplicate()
 	sibling._scene_display = _scene_display.duplicate()
 	sibling._scene_thought_ids = _scene_thought_ids.duplicate()
+	sibling._scene_registration = _scene_registration
 	sibling._scene_bundle = _scene_bundle
 	sibling._caption_variants_by_line = _caption_variants_by_line
 	return sibling
@@ -175,7 +181,7 @@ func begin_scene(session_token: String) -> Dictionary:
 	if family != "scene" or ledger != null or session_token.strip_edges().is_empty(): return _fail(&"reading_session_invalid")
 	var candidate := LEDGER.new()
 	var initialized := candidate.initialize(session_token, {"family": "scene", "session_token": session_token,
-		"registration_sha256": fingerprint}, manifest, registry, true, true)
+		"registration_sha256": fingerprint}, manifest, registry, true, true, _scene_registration)
 	if not initialized.ok: return initialized
 	ledger = candidate
 	command_id = session_token
@@ -980,7 +986,7 @@ func restore(saved: Dictionary, entry_id: String) -> Dictionary:
 		var retained: Dictionary = saved.ledger
 		var candidate := LEDGER.new()
 		var restored := candidate.restore_snapshot(retained.session_token, retained.frozen_context, manifest,
-			registry, retained, retained.entry_contexts, true, true)
+			registry, retained, retained.entry_contexts, true, true, _scene_registration)
 		if not restored.ok: return restored
 		ledger = candidate
 		command_id = saved.ledger.session_token
