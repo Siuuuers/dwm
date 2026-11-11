@@ -3,7 +3,7 @@ name: Focused Windows release smoke
 on:
   workflow_dispatch:
   push:
-    branches: [codex/windows-smoke, codex/windows-load-observation]
+    branches: [codex/windows-smoke, codex/windows-load-observation, codex/art-import-comparison]
 
 permissions:
   contents: read
