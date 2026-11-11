@@ -408,11 +408,6 @@ static func _validate_bundle_structure_observed_body(bundle: Variant) -> Diction
 		parts.append('"' + key + '":' + value)
 	var canonical := "{" + ",".join(parts) + "}"
 
-	for registered: Dictionary in markers.values():
-		if registered.marker.kind not in ["passage.start", "passage.finish"]: continue
-		var passages: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(bundle)
-		if not passages.ok: return passages
-		break
 	tables["markers"] = markers
 	tables["fingerprint"] = canonical.sha256_text()
 	return {"ok": true, "value": tables.duplicate(true)}

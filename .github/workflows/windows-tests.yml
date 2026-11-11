@@ -277,6 +277,7 @@ jobs:
                       'data/manifests/dialogue_library_registration.json',
                       'data/manifests/scene_story_registration.json',
                       'data/manifests/story_start.json',
+                      'data/manifests/scene_passages.json',
                       'dialogic/timelines/authored_week/Day1.dtl',
                       'dialogic/timelines/authored_week/Day2.dtl',
                       'dialogic/timelines/authored_week/Day3.dtl',
@@ -333,6 +334,7 @@ jobs:
                       "data/manifests/scene_story_registration.json",
                       "data/manifests/dialogue_library_registration.json",
                       "data/manifests/story_start.json",
+                      "data/manifests/scene_passages.json",
                       "docs/agent/dtl-story-authoring.md",
                   }
                   dtl_content = bool(dtl_content_sources) and paths <= dtl_content_sources | dtl_content_companions

@@ -1,0 +1,22 @@
+[
+  {
+    "label": "baseline",
+    "select_us": 249629,
+    "warning": false
+  },
+  {
+    "label": "candidate",
+    "select_us": 152093,
+    "warning": false
+  },
+  {
+    "label": "candidate",
+    "select_us": 148812,
+    "warning": false
+  },
+  {
+    "label": "baseline",
+    "select_us": 225562,
+    "warning": true
+  }
+]

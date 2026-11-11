@@ -5,7 +5,7 @@ $relative = '.godot/ci/current-terminal-fixture'
 $output = Join-Path $repositoryRoot $relative
 if (Test-Path -LiteralPath $output) { throw 'Terminal fixture output exists; refusing stale evidence.' }
 New-Item -ItemType Directory -Path $output | Out-Null
-$manifests = @('data/manifests/scene_story_registration.json')
+$manifests = @('data/manifests/scene_story_registration.json', 'data/manifests/scene_passages.json')
 $original = @{}
 $originalHashes = @{}
 foreach ($path in $manifests) {

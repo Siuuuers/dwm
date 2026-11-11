@@ -638,3 +638,41 @@ func test_bundle_validation_detaches_entries_targets_and_markers() -> void:
 	var again := _assert_whole_bundle_fingerprint(bundle)
 	if again.ok:
 		assert_eq(again.value.markers["TEST.transition"].marker.label, "TEST.exit")
+
+func test_shipped_structure_keeps_passage_compilation_in_authoring() -> void:
+	var adapter := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
+	var passages := preload("res://scripts/narrative/ScenePassageCatalog.gd")
+	var manifest := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+	var prior_compiled: Dictionary = adapter._scene_compile_cache
+	var prior_display: Dictionary = passages._display_by_programme
+	adapter._scene_compile_cache = {}
+	passages._display_by_programme = {}
+	var bundle: Dictionary = str_to_var(FileAccess.get_file_as_string(manifest.SCENE_STORY_BUNDLE_PATH))
+	var structured := CONTRACT.validate_bundle_structure(bundle)
+	assert_true(structured.ok, str(structured))
+	assert_true(adapter._scene_compile_cache.is_empty(), "Runtime structure does not compile later passages")
+	assert_true(passages._display_by_programme.is_empty(), "Runtime structure does not prepare Gallery captions")
+	if structured.ok:
+		assert_eq(structured.value.fingerprint, WRITER.stringify(bundle).value.sha256_text())
+	assert_true(manifest.validate_scene_registration(bundle).ok, "Authoring validates the shipped native passage range")
+	assert_false(passages._display_by_programme.is_empty(), "Authoring still inspects passage display")
+	var derived: Dictionary = passages.inspect(bundle)
+	var generated: Dictionary = str_to_var(FileAccess.get_file_as_string("res://data/manifests/scene_passages.json"))
+	assert_eq(generated, derived.value, "Generated passage data matches authored compilation")
+	var scope := preload("res://tests/support/SceneValidationScope.gd").new()
+	scope.install(true)
+	manifest._startup_selection_checked = false
+	adapter._scene_compile_cache = {}
+	passages._display_by_programme = {}
+	var selected := manifest.scene_contract_tables()
+	assert_true(selected.ok, str(selected))
+	if selected.ok:
+		assert_true(adapter._scene_compile_cache.is_empty(), "Shipped startup consumes generated passage data")
+		var first: Dictionary = passages.inspect(selected.bundle)
+		assert_eq(first.value, generated)
+		first.value.records["passage.umbrella"].captions[0].text = "changed caller copy"
+		assert_eq(passages.inspect(selected.bundle).value, generated, "Gallery cannot mutate shared passage data")
+		assert_true(adapter._scene_compile_cache.is_empty(), "Gallery lookup does not compile later passages")
+	scope.restore()
+	adapter._scene_compile_cache = prior_compiled
+	passages._display_by_programme = prior_display

@@ -99,10 +99,12 @@ static func prepare(source_path: String = SOURCE_PATH) -> Dictionary:
 	bundle.audio_catalogue.bindings.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.entry_id < b.entry_id)
 	var checked: Dictionary = MANIFEST.validate_scene_registration(bundle)
 	if not checked.ok: return checked
+	var passages: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(bundle, compiled_entries)
+	if not passages.ok: return passages
 	var library := prepare_dtl_library(source, bundle, compiled_entries)
 	if not library.ok: return library
 	return {"ok": true, "value": {"registration": bundle, "dialogue_library": library.value,
-		"first_target_id": "target." + source.first_entry_id}}
+		"passage_catalogue": passages.value, "first_target_id": "target." + source.first_entry_id}}
 
 
 ## Export boundary: authors supply stable IDs and files; hashes, durations and
