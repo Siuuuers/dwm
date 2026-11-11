@@ -41,7 +41,8 @@ static func _select_startup_fixture() -> Dictionary:
 		return _startup_selection_error.duplicate(true)
 	var path: String = SCENE_TEST_BUNDLE_PATH if fixture else SCENE_STORY_BUNDLE_PATH
 	# shortcut: generated Variant-compatible JSON only, revisit decoding if registration parity fails.
-	var parsed: Variant = str_to_var(FileAccess.get_file_as_string(path))
+	var text := FileAccess.get_file_as_string(path)
+	var parsed: Variant = str_to_var(text)
 	if not parsed is Dictionary:
 		_startup_selection_error = _scene_fail("startup registration unavailable: " + path)
 		return _startup_selection_error.duplicate(true)
@@ -53,7 +54,7 @@ static func _select_startup_fixture() -> Dictionary:
 		if not passages is Dictionary or not passages.get("records") is Dictionary:
 			selected = _scene_fail("passage catalogue unavailable")
 		else:
-			selected = _configure_scene_registration(parsed, passages)
+			selected = _configure_scene_registration(parsed, passages, text.trim_suffix("\n").sha256_text())
 	if selected.ok:
 		if fixture: _first_target_id = "target_a"
 		else:
@@ -82,19 +83,28 @@ static func configure_test_scene_registration(bundle: Dictionary) -> Dictionary:
 	if not checked.ok: return checked
 	var passages: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(bundle)
 	if not passages.ok: return passages
-	return _configure_scene_registration(bundle, passages.value)
-
-static func _configure_scene_registration(bundle: Dictionary, passages: Dictionary) -> Dictionary:
-	if _registration_used or not _scene_bundle.is_empty():
-		return _scene_fail("registration_already_selected")
 	var structural := SCENE_EVENTS.validate_bundle_structure(bundle)
 	if not structural.ok: return structural
-	_scene_contract_tables = structural.value
-	_scene_contract_tables["passages"] = passages.records.duplicate(true)
-	_scene_freeze(_scene_contract_tables)
+	return _configure_scene_registration(bundle, passages.value, structural.value.fingerprint)
+
+static func _configure_scene_registration(bundle: Dictionary, passages: Dictionary, fingerprint: String) -> Dictionary:
+	if _registration_used or not _scene_bundle.is_empty():
+		return _scene_fail("registration_already_selected")
+	# Build checks own shipped structure and canonical bytes; fixtures validate before adoption.
 	_scene_bundle = bundle.duplicate(true)
+	_scene_contract_tables = {"fingerprint": fingerprint, "markers": {}, "passages": passages.records.duplicate(true)}
+	for pair: Array in [["entries", "entry_id"], ["targets", "target_id"], ["board_profiles", "board_profile_id"],
+			["challenges", "challenge_id"], ["contacts", "contact_event_id"]]:
+		var rows: Array = _scene_bundle.scene_programme.entries if pair[0] == "entries" else _scene_bundle[pair[0]]
+		var indexed := {}
+		for row: Dictionary in rows: indexed[row[pair[1]]] = row
+		_scene_contract_tables[pair[0]] = indexed
+	for entry: Dictionary in _scene_contract_tables.entries.values():
+		for marker: Dictionary in entry.markers:
+			_scene_contract_tables.markers[marker.marker_id] = {"entry_id": entry.entry_id, "marker": marker}
+	_scene_freeze(_scene_contract_tables)
 	_scene_freeze(_scene_bundle)
-	_scene_bundle_fingerprint = structural.value.fingerprint
+	_scene_bundle_fingerprint = fingerprint
 	return {"ok": true, "value": _scene_bundle_fingerprint}
 
 static func scene_registration() -> Dictionary:

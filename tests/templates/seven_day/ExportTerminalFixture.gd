@@ -21,6 +21,12 @@ func _initialize() -> void:
 			push_error(str(encoded))
 			quit(1)
 			return
+		if item[0] == "scene_story_registration.json":
+			var structural: Dictionary = preload("res://scripts/domain/narrative/SceneEventContract.gd").validate_bundle_structure(str_to_var(encoded.value))
+			if not structural.ok:
+				push_error(str(structural))
+				quit(1)
+				return
 		var file := FileAccess.open("res://data/manifests/" + item[0], FileAccess.WRITE)
 		if file == null:
 			quit(1)

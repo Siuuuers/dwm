@@ -1,0 +1,25 @@
+extends SceneTree
+func find_non_json(value: Variant, path: String) -> String:
+	if value is Dictionary:
+		for key: Variant in value:
+			if typeof(key) != TYPE_STRING: return path + " key type=" + type_string(typeof(key))
+			var found := find_non_json(value[key], path + "." + key)
+			if not found.is_empty(): return found
+	elif value is Array:
+		for index in value.size():
+			var found := find_non_json(value[index], path + "[%d]" % index)
+			if not found.is_empty(): return found
+	elif typeof(value) not in [TYPE_NIL,TYPE_BOOL,TYPE_INT,TYPE_FLOAT,TYPE_STRING]:
+		return path + " type=" + type_string(typeof(value))
+	return ""
+func _initialize() -> void:
+	var prepared: Dictionary = preload("res://tools/authoring/AuthoredWeekRegistration.gd").prepare()
+	assert(prepared.ok)
+	print("GENERATOR_DOMAIN ", find_non_json(prepared.value.registration, "$"))
+	var encoded := CanonicalJsonWriter.stringify(prepared.value.registration)
+	assert(encoded.ok)
+	var decoded: Variant = str_to_var(encoded.value)
+	var structural := SceneEventContract.validate_bundle_structure(decoded)
+	print("EXPORTED_STRUCTURE ", structural.ok, " ", structural.get("code", ""))
+	assert(structural.ok)
+	quit()

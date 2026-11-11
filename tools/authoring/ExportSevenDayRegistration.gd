@@ -41,6 +41,17 @@ func _validate_export() -> void:
 		push_error(str(installed))
 		quit(1)
 		return
+	var structural: Dictionary = preload("res://scripts/domain/narrative/SceneEventContract.gd").validate_bundle_structure(installed.value)
+	if not structural.ok:
+		push_error(str(structural))
+		quit(1)
+		return
+	var text := FileAccess.get_file_as_string(REGISTRATION_PATH)
+	var canonical: Dictionary = WRITER.stringify(installed.value)
+	if not canonical.ok or text != str(canonical.value) + "\n" or text.trim_suffix("\n").sha256_text() != structural.value.fingerprint:
+		push_error("Generated registration is not the canonical fingerprint input")
+		quit(1)
+		return
 	var authored: Dictionary = manifest.validate_scene_registration(installed.value)
 	if not authored.ok:
 		push_error(str(authored))
@@ -65,6 +76,11 @@ func _write(path: String, value: Dictionary) -> bool:
 	if not encoded.ok:
 		push_error(str(encoded))
 		return false
+	if path == REGISTRATION_PATH:
+		var structural: Dictionary = preload("res://scripts/domain/narrative/SceneEventContract.gd").validate_bundle_structure(str_to_var(encoded.value))
+		if not structural.ok:
+			push_error(str(structural))
+			return false
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		push_error("Cannot write " + path)
