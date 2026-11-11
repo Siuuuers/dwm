@@ -1,0 +1,49 @@
+{
+  "command": [
+    "godot",
+    "--headless",
+    "--path",
+    "/workspace/scratch/e593b0792a01/dwm",
+    "-s",
+    "res://addons/gut/gut_cmdln.gd",
+    "-gconfig=",
+    "-gtest=res://tests/manual/benchmark_checkpoint_load.gd",
+    "-gunit_test_name=test_checkpoint_load_cost",
+    "-gjunit_xml_file=/workspace/scratch/e593b0792a01/dwm/.godot/ci/art-attribution/diagnostic.xml",
+    "-gexit"
+  ],
+  "environment": {
+    "XDG_DATA_HOME": "/workspace/scratch/e593b0792a01/dwm/.godot/phase2r_tests/checkpoint-load/data",
+    "DWM_TEST_ROOT": "/workspace/scratch/e593b0792a01/dwm/.godot/phase2r_tests/checkpoint-load/test-root",
+    "DWM_SAVE_LOAD_PROFILE": "",
+    "DWM_SCENE_VALIDATION_PROFILE": "",
+    "DWM_BENCHMARK_REVISION": "a98fc09be48fa49e20d01ac296423cfdb11635e7"
+  },
+  "runtime_original_hashes": {
+    "scripts/data/ArtManifest.gd": "7b3acd41f4fe4cd28972a7c8b01a4d0116c696dddc98063b86c18b208278e29e",
+    "scripts/ui/art/SceneArtView.gd": "b2f2031354b6429b9da48ac9d9b112838983e7222cb5c75a88c172eb6b568659",
+    "scripts/ui/witnessed/WitnessedArtLayer.gd": "00f5f1d15977fc7362cfc2b555d64645862b463a7fd698230ea0eb1da2d6e763"
+  },
+  "probe_sha256": "dff4a0232d7ea9e620740e754bb06dd9f90d6b9d1358069843aebf682489ad11",
+  "seed_hashes": {
+    "data/godot/app_userdata/DWM/desktop-publications.json": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+    "data/godot/app_userdata/DWM/authored-week-compact-history.json": "91ebafe2c076439768fb6cc0911163efca75533ada07b4b14cb72001d079faf9",
+    "data/godot/app_userdata/DWM/profile.json.bak": "60583fb9eae962caa9229f7ea53563d5602fe596fe137baaf128444f4b9364ad",
+    "data/godot/app_userdata/DWM/desktop-issuer-root.json.bak": "4b5fa5f93d6ab8b211c0cdcf2e6bf4974d123a0070bf4f7eb2a8c5e3bab8faab",
+    "data/godot/app_userdata/DWM/profile.json": "dcf31821b8d0445450f0aaf8a8ae1df2f5b532948bc8798682506782157410f5",
+    "data/godot/app_userdata/DWM/compact-history-proof.json": "5d981a01520270e3796c627600791dd6833eecb47a09494ce42deee24b9e73ac",
+    "data/godot/app_userdata/DWM/desktop-issuer-root.json": "d7a080d7a551ee0a3213959927deb02414f6f65da5db50a7887c6557d169b7f0",
+    "data/godot/app_userdata/DWM/saves/slot_1.json": "e8ce7032d5ea9ab56f5386fcee5a2c4fe826c49b29a7ae5594b0ad5cbe7149df",
+    "data/godot/app_userdata/DWM/logs/godot.log": "343df2228a87de444e5d075302b0bd48b0b14e7775915883d812a4607021db1f",
+    "data/godot/app_userdata/DWM/dialogic/saves/global_info.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "exit_code": 0,
+  "process_elapsed_ms": 10492.580246000216,
+  "log_sha256": "b9721d34d02fcff21314baac6bb3f439a2ac455aecaec71cde67350bf14c9c35",
+  "assertions": 143,
+  "runtime_restored_hashes": {
+    "scripts/data/ArtManifest.gd": "7b3acd41f4fe4cd28972a7c8b01a4d0116c696dddc98063b86c18b208278e29e",
+    "scripts/ui/art/SceneArtView.gd": "b2f2031354b6429b9da48ac9d9b112838983e7222cb5c75a88c172eb6b568659",
+    "scripts/ui/witnessed/WitnessedArtLayer.gd": "00f5f1d15977fc7362cfc2b555d64645862b463a7fd698230ea0eb1da2d6e763"
+  }
+}
