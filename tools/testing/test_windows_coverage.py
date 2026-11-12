@@ -238,6 +238,8 @@ class WindowsCoverageTests(unittest.TestCase):
         for names, paths in (
             (['inventory-tooling'], {workflow}),
             (['rendered-desktop'], {workflow}),
+            (['public-surfaces'], {workflow}),
+            (['public-surfaces', 'test-scope'], {workflow, coverage, 'docs/agent/2026-11-12-public-surface-checkout.md'}),
             (['inventory-tooling', 'rendered-desktop'], {workflow, test}),
             (['inventory-tooling'], {test}),
             (['test-scope'], {coverage}),
@@ -251,7 +253,8 @@ class WindowsCoverageTests(unittest.TestCase):
                 if name == 'test-scope':
                     continue
                 label = {'inventory-tooling': 'Linux / inventory tooling',
-                         'rendered-desktop': 'Rendered desktop and dialogue / Linux software OpenGL'}[name]
+                         'rendered-desktop': 'Rendered desktop and dialogue / Linux software OpenGL',
+                         'public-surfaces': 'Windows / public API surface contracts'}[name]
                 before = before.replace('    name: ' + label, '    name: Previous ' + label, 1)
             for event, data in (
                 ('pull_request', {'pull_request': {'base': {'sha': 'a' * 40}}}),
@@ -263,6 +266,8 @@ class WindowsCoverageTests(unittest.TestCase):
                 result = select(paths, event_name=event, event_data=data, commands=commands,
                                 sources={'a' * 40 + ':' + workflow: before, 'HEAD:' + workflow: WORKFLOW})
                 self.assertEqual(json.loads(result['ci_jobs']), names)
+                if any(path.startswith('docs/agent/') for path in paths):
+                    self.assertTrue(any(args[:3] == ['git', 'diff', '--check'] for args in commands))
                 self.assertEqual(result['inventory_tooling'], str('inventory-tooling' in names).lower())
                 for key in ('comparison', 'progression', 'self_talk_panel'):
                     self.assertEqual(result[key], 'false', key)
@@ -286,7 +291,8 @@ class WindowsCoverageTests(unittest.TestCase):
                 self.assertEqual(result['ci_jobs'], '[]')
         for path in ('tools/testing/run_inventory_checks.py', 'tools/testing/self_talk_panel_scope.py',
                      'tools/testing/progression_scope.py',
-                     'autoload/GameState.gd', '.github/workflows/source-lint.yml'):
+                     'autoload/GameState.gd', '.github/workflows/source-lint.yml',
+                     'docs/agent/execution-map.md', 'docs/agent/nested/note.md'):
             for paths in ({workflow, path}, {'tools/testing/test_windows_coverage.py', path}):
                 result = select(paths, sources={'a' * 40 + ':' + workflow: WORKFLOW,
                                                'HEAD:' + workflow: WORKFLOW})
@@ -300,9 +306,15 @@ class WindowsCoverageTests(unittest.TestCase):
         for name in ('focused-tests', 'windows-export', 'public-surfaces', 'rendered-journeys'):
             header = WORKFLOW.split('  ' + name + ':', 1)[1].split('    steps:', 1)[0]
             self.assertIn("needs.test-scope.outputs.ci_jobs == '[]'", header)
+        public_header = WORKFLOW.split('  public-surfaces:', 1)[1].split('    steps:', 1)[0]
+        self.assertIn("contains(needs.test-scope.outputs.ci_jobs, '\"public-surfaces\"')", public_header)
         header = WORKFLOW.split('  rendered-desktop:', 1)[1].split('    steps:', 1)[0]
         self.assertIn("contains(needs.test-scope.outputs.ci_jobs, '\"rendered-desktop\"')", header)
         self.assertIn("needs.test-scope.outputs.ci_jobs == '[]'", header)
+
+    def test_ci_prose_companion_keeps_whitespace_check(self):
+        with self.assertRaises(subprocess.CalledProcessError):
+            select({'tools/testing/test_windows_coverage.py', 'docs/agent/prose.md'}, check_code=2)
 
     def test_reviewed_prose_selects_docs_checks_for_pr_and_push(self):
         paths = {'docs/agent/new-technical-handoff.md', 'docs/agent/2026-11-04-f5-baseline.md'}

@@ -220,32 +220,33 @@ jobs:
                       'tools/audio_prototype/game_smoke.gd',
                   }) and all(p in native_audio_paths or (p.endswith('.gd.uid') and p[:-4] in native_audio_paths)
                              for p in paths)
+                  prose = {path for path in paths if
+                      re.fullmatch(r'docs/agent/[^/]+\.md', path) and path not in {
+                          'docs/agent/2026-09-23-next-session-handoff.md',
+                          'docs/agent/execution-map.md',
+                      }}
+                  docs_only = bool(paths) and paths == prose
                   workflow = '.github/workflows/windows-tests.yml'
                   inventory_test = 'tools/testing/test_inventory_runner.py'
                   coverage_test = 'tools/testing/test_windows_coverage.py'
-                  if paths and paths <= {workflow, inventory_test, coverage_test}:
+                  if paths - prose and paths - prose <= {workflow, inventory_test, coverage_test}:
                       ci_jobs = [name for path, name in ((inventory_test, 'inventory-tooling'), (coverage_test, 'test-scope'))
                                  if path in paths]
                       if workflow in paths:
                           sources = [subprocess.run(['git', 'show', ref + ':' + workflow], capture_output=True)
                                      for ref in (base, 'HEAD')]
-                          pattern = rb'(?ms)^  (inventory-tooling|rendered-desktop):\n.*?(?=^\S|^  \S|\Z)'
+                          pattern = rb'(?ms)^  (inventory-tooling|rendered-desktop|public-surfaces):\n.*?(?=^\S|^  \S|\Z)'
                           jobs = [dict((match[1].decode(), match[0]) for match in re.finditer(pattern, source.stdout))
                                   for source in sources]
                           if (all(source.returncode == 0 for source in sources)
-                                  and all(set(job) == {'inventory-tooling', 'rendered-desktop'} for job in jobs)
-                                  and all(len(re.findall(pattern, source.stdout)) == 2 for source in sources)
+                                  and all(set(job) == {'inventory-tooling', 'rendered-desktop', 'public-surfaces'} for job in jobs)
+                                  and all(len(re.findall(pattern, source.stdout)) == 3 for source in sources)
                                   and re.sub(pattern, b'', sources[0].stdout) == re.sub(pattern, b'', sources[1].stdout)):
                               ci_jobs = sorted(set(ci_jobs) | {name for name in jobs[0] if jobs[0][name] != jobs[1][name]})
                           else:
                               ci_jobs = []
-                  docs_only = bool(paths) and all(
-                      re.fullmatch(r'docs/agent/[^/]+\.md', path) and path not in {
-                          'docs/agent/2026-09-23-next-session-handoff.md',
-                          'docs/agent/execution-map.md',
-                      } for path in paths)
-                  if docs_only:
-                      subprocess.run(['git', 'diff', '--check', base, 'HEAD', '--', *sorted(paths)], check=True)
+                  if docs_only or ci_jobs and prose:
+                      subprocess.run(['git', 'diff', '--check', base, 'HEAD', '--', *sorted(prose)], check=True)
                   inventory_sources = {
                       'tools/runtime/PublicSurfaceInventory.gd',
                       'tools/runtime/generate_public_surface_inventory.gd',
@@ -1230,7 +1231,7 @@ jobs:
 
   public-surfaces:
     needs: test-scope
-    if: needs.test-scope.outputs.native_audio != 'true' && needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.challenge_transition != 'true' && needs.test-scope.outputs.focused != 'true'
+    if: contains(needs.test-scope.outputs.ci_jobs, '"public-surfaces"') || needs.test-scope.outputs.native_audio != 'true' && needs.test-scope.outputs.audio_prototype != 'true' && needs.test-scope.outputs.ci_jobs == '[]' && needs.test-scope.outputs.docs_only != 'true' && needs.test-scope.outputs.inventory_only != 'true' && needs.test-scope.outputs.self_talk_panel != 'true' && needs.test-scope.outputs.progression != 'true' && needs.test-scope.outputs.challenge_transition != 'true' && needs.test-scope.outputs.focused != 'true'
     name: Windows / public API surface contracts
     runs-on: windows-2022
     timeout-minutes: 20
