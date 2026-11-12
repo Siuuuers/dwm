@@ -1,0 +1,30 @@
+[
+  {
+    "run": "base-a",
+    "title_ms": 3405.614,
+    "click_to_caption_ms": 2229.117,
+    "largest_gap_ms": 143.107,
+    "computer_ms": 98.493
+  },
+  {
+    "run": "candidate-a",
+    "title_ms": 3548.019,
+    "click_to_caption_ms": 2335.47,
+    "largest_gap_ms": 160.349,
+    "computer_ms": 116.841
+  },
+  {
+    "run": "candidate-b",
+    "title_ms": 2797.581,
+    "click_to_caption_ms": 1990.527,
+    "largest_gap_ms": 125.213,
+    "computer_ms": 102.485
+  },
+  {
+    "run": "base-b",
+    "title_ms": 3524.335,
+    "click_to_caption_ms": 2269.927,
+    "largest_gap_ms": 156.074,
+    "computer_ms": 101.852
+  }
+]
