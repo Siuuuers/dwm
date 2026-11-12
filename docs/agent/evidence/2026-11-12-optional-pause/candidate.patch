@@ -1,0 +1,22 @@
+diff --git a/scripts/application/lifecycle/ProductionPauseController.gd b/scripts/application/lifecycle/ProductionPauseController.gd
+index daede2c..4cbd796 100644
+--- a/scripts/application/lifecycle/ProductionPauseController.gd
++++ b/scripts/application/lifecycle/ProductionPauseController.gd
+@@ -4,7 +4,7 @@ const SURFACE := preload("res://scenes/overlay/PauseSurface.tscn")
+ const EXIT := preload("res://scripts/application/desktop/SessionExitCoordinator.gd")
+ const BACKUP := preload("res://scenes/apps/BackupApp.tscn")
+ const BACKUP_PORT := preload("res://scripts/application/lifecycle/PauseBackupPresentationPort.gd")
+-const SETTINGS := preload("res://scenes/apps/SettingsApp.tscn")
++const SETTINGS := "res://scenes/apps/SettingsApp.tscn"
+ const CAPTION := preload("res://scripts/ui/witnessed/WitnessedCaptionLayer.gd")
+ const PRELUDE := preload("res://scripts/ui/Day7PreludeSurface.gd")
+ const QUICK := preload("res://scripts/ui/pause/PauseQuickCommands.gd")
+@@ -528,7 +528,7 @@ func _ensure_hosts(include_settings: bool = true) -> void:
+ 
+ func _ensure_settings_host() -> void:
+ 	if surface._hosts.has(&"settings"): return
+-	var settings: Control = SETTINGS.instantiate()
++	var settings: Control = (load(SETTINGS) as PackedScene).instantiate()
+ 	var settings_services: Dictionary = _services.get("settings_services", {}).duplicate()
+ 	settings_services.merge({"profile": _services.profile, "localization": _services.localization,
+ 		"input": _services.input, "audio": _services.audio, "volume": _services.audio}, true)
