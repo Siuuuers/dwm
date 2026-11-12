@@ -1243,6 +1243,14 @@ jobs:
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/evidence/*
+            /evidence/.gdignore
+            /evidence/phase_2r/
+            !/evidence/phase_2r/*
+            /evidence/phase_2r/runtime/
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'

@@ -877,6 +877,32 @@ class ReadabilityCoverageTests(unittest.TestCase):
                            input=patterns, text=True, check=True)
             self.assertEqual({name for name in keep | omit if (root / name).exists()}, keep)
 
+    def test_public_surface_checkout_retains_contracts_and_complete_scan_roots(self):
+        job = re.split(r'\n  [a-z][\w-]*:', WORKFLOW.split('\n  public-surfaces:', 1)[1])[0]
+        checkout = job.split('      - uses: actions/checkout@v7', 1)[1].split('      - name:', 1)[0]
+        patterns = textwrap.dedent(checkout.split('          sparse-checkout: |\n', 1)[1])
+        keep = {'project.godot', 'evidence/.gdignore', 'assets/nested/image.png',
+                'evidence/phase_2r/runtime/game_state_required_surface.json',
+                'evidence/phase_2r/runtime/game_state_surface.json',
+                'evidence/phase_2r/runtime/save_manager_required_surface.json',
+                'evidence/phase_2r/runtime/save_manager_surface.json'}
+        keep.update(root + '/nested/input.gd' for root in
+                    ('autoload', 'scripts', 'scenes', 'tests', 'tools', 'addons', '.github/workflows'))
+        omit = {'evidence/archive.zip', 'evidence/phase_2r/old/nested/screenshot.png'}
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            subprocess.run(['git', 'init', '-q', str(root)], check=True)
+            for name in keep | omit:
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(name)
+            subprocess.run(['git', '-C', str(root), 'add', '.'], check=True)
+            subprocess.run(['git', '-C', str(root), '-c', 'user.name=Test', '-c', 'user.email=test@example.invalid',
+                            'commit', '-qm', 'fixture'], check=True)
+            subprocess.run(['git', '-C', str(root), 'sparse-checkout', 'set', '--no-cone', '--stdin'],
+                           input=patterns, text=True, check=True)
+            self.assertEqual({name for name in keep | omit if (root / name).exists()}, keep)
+
     def test_initial_frame_batch_preserves_creation_in_narrow_routes(self):
         matrix = next(line for line in WORKFLOW.splitlines() if '        suite: ${{ fromJSON(' in line)
         arrays = [json.loads(value) for value in re.findall(r"'(\[[^']*\])'", matrix)]
