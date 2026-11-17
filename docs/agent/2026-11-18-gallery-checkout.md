@@ -1,87 +1,80 @@
-# Gallery CI checkout and focused selection
+# Gallery replay isolation and CI checkout
 
 Base: `65fa4d3e8647f8e15dfc74b67d2fa84a83778dd1` (PR #300).
-Goal: run the existing Linux Gallery render checks without checking out historical
-evidence or launching unrelated jobs. Owners: rendered-journeys and test-scope.
+Verified runtime candidate: `4e5ec694708f7a108c95b469239b8ee828d0a591`.
+The final documentation-only commit does not change tested runtime or checks.
 
-## Investigation and implementation
+## Result
 
-The public-surface checkout and selector work already merged. Current Gallery CI
-still used a full checkout. Its two render scripts consume current scenes/assets,
-the GalleryCollectionFixture catalogue and DTL under tests/fixtures/dialogic,
-and data/manifests/art_placements.json. user://evidence paths are generated outputs.
-Independent dependency audit found no repository evidence input for this job.
+Gallery replay no longer records artwork discoveries into Profile. SceneArtView
+uses the existing Bridge.is_rehearsal_playback query at its post-draw observation
+boundary. Normal canonical artwork discovery remains active. The existing full
+Profile/revision/persisted-bytes/Run equality assertion is unchanged.
 
-Retain all files outside evidence plus evidence/.gdignore. No tracked archive,
-fixture, game asset or runtime code is removed. This avoids the same historical
-evidence directory measured at about 1.22 GB in PR #299; no new network/time
-measurement is claimed. The actual Git pattern regression checks retained fixture,
-manifest, source, tool and asset paths and omitted historical archive/image paths.
+The Gallery CI checkout now omits historical evidence while retaining every
+non-evidence path and evidence/.gdignore. No repository archive or asset is deleted.
+The existing owner selector recognizes rendered-journeys for future job-only edits.
+No new manager, cache, dependency, profile format or gameplay timing change.
 
-Add rendered-journeys to the existing explicit owner selection and job condition.
-The first commit introduces the selection rule with focused local checks; the
-second changes the checkout. A branch-parent replay selects Gallery + test-scope,
-but this is not GitHub's checkout semantics: Actions checks out a synthetic merge
-commit, whose HEAD^ is the PR base. Hosted run 44174052878 confirmed broad fallback
-for this PR's shared-selector change. Future job-only changes can select Gallery.
-Do not split commits expecting to narrow an initial multi-commit PR's coverage.
+## Investigation and root cause
 
-## Verification
+The original full-checkout Gallery job in PR #299 (130986894897) and initial sparse
+job 134360666524 both passed the version register, then failed before startup was
+ready. The probe allowed only 180 frames. Its 30-second elapsed deadline now waits
+for staged startup without changing the readiness assertion or production startup.
 
-- `python tools/testing/test_windows_coverage.py`: 50 tests pass.
-- actionlint 1.7.12, same pinned checksum as source-lint: pass.
-- git diff --check: pass.
-- Source audit: both existing rendered probes retain all identified inputs.
+That exposed the real read-only failure. Diagnostic job 134367959180 compared the
+state before replay and after its first visible caption:
 
-Hosted rendering result is recorded in the PR once available. No game performance
-or Windows player-experience improvement is claimed. The affected Linux
-Gallery job and source lint are the acceptance checks for this checkout change.
-The workflow also started broader jobs through its existing fallback; a full
-matrix pass is not claimed.
+- Profile.displayed_artwork_ids: [] -> [picture5, picture4].
+- Profile revision: 18 -> 19; persisted Profile bytes also changed.
+- Canonical Run state: unchanged.
 
-## Existing probe timeout found during hosted acceptance
+SceneArtView recorded visible textures without excluding replay. Its source matched
+master before this fix. The sparse checkout and startup-wait edit did not modify
+that owner. The diagnostic was rendered on the candidate with otherwise unchanged
+runtime; no separate master-plus-wait rendered run is claimed. Temporary logging
+was removed after identification. A headless diagnostic stalled before the state
+comparison and was stopped; it supplies no acceptance evidence.
 
-Both baseline job 130986894897 (PR #299, full checkout) and candidate job
-134360666524 pass version-register rendering (18 tuples), then fail caption
-collection before any capture with `production startup not ready`. The probe waits
-only 180 frames despite staged startup. Replace this with a 30-second elapsed
-budget, preserving readiness and all subsequent assertions. Production timing is
-unchanged. This is an observed harness failure, not speculative runtime hardening.
-The follow-up hosted run must establish whether the collection itself passes.
+The one-line guard uses the existing authoritative replay status after drawing.
+Independent review traced normal exit/cancel: entry retirement clears art textures
+before replay state ends, so a queued observation does not discover retired replay
+art after exit. Existing retained-failure behavior remains intact.
 
-## Follow-up result and unresolved acceptance
+## Input audit and CI selection
 
-Candidate `224980381d6773a044db235c71926c438a19b254`, run 44174546622,
-Gallery job 134362624474: import and version-register rendering pass; startup now
-reaches ready. Caption collection then fails its existing read-only assertion:
-`Profile or canonical run changed at first visible acknowledgement`, captures=0.
-This failure was previously hidden behind the startup allowance. Its changed field
-and cause are not yet established. Preserve the assertion and leave PR #301 open,
-unmerged; do not claim complete Gallery acceptance or attribute this to sparse
-checkout without evidence. Import also reported an unrelated GUT online-version
-API rate-limit error, not a script/load failure.
+Gallery probes use tests/fixtures/dialogic/gallery_collection_catalogue.json,
+gallery_collection.dtl and data/manifests/art_placements.json plus current UI/assets.
+user://evidence paths are generated output, not repository input. Independent audit
+found no historical evidence dependency. Git sparse-pattern regression preserves
+these inputs and excludes historical archives/images. The omitted directory was
+previously measured at about 1.22 GB in PR #299; no new network/time gain is claimed.
 
-Next bounded task: capture the differing keys between `_baseline` and `_state()`
-in the rendered probe, distinguish Profile/revision/persisted bytes/run state,
-and compare against the same probe on master with only the startup-wait fix.
-Then fix the confirmed owner or fixture while retaining the read-only contract.
-No runtime changes or merge were performed in this session.
+The first branch-parent replay selected Gallery + test-scope, but that was not
+GitHub's PR checkout semantics. Actions checks out a synthetic merge commit whose
+HEAD^ is the PR base. Shared selector/runtime edits correctly caused broad fallback
+for this PR. Splitting commits does not narrow an initial multi-commit PR. Future
+changes confined to the recognized Gallery job can select its focused route.
 
-## Root cause identified in follow-up
+## Acceptance
 
-Diagnostic job 134367959180 reproduced the same first-caption failure and isolated
-the changes: Profile.displayed_artwork_ids [] -> [picture5, picture4], Profile
-revision 18 -> 19, and persisted Profile bytes. Canonical Run state was identical.
-SceneArtView recorded visible art during read-only Gallery replay. Its runtime
-source was identical to master before this fix; neither sparse checkout nor the
-startup-wait edit changed the artwork owner.
+Hosted run 44176856724, job 134370673528 passes on the verified candidate:
 
-The candidate now uses the existing Bridge.is_rehearsal_playback query to suppress
-artwork discovery writes during replay, beside its existing transition guard.
-Normal canonical artwork discovery is unchanged. The complete read-only assertion
-is preserved; temporary state logging is removed. Hosted acceptance also runs the
-existing single rendered canonical-artwork test, ensuring visible gameplay art
-still persists and hidden/transition-covered art stays undiscovered. No new
-manager, profile format, cache, dependency or speculative protection is added.
-The final hosted result is recorded in the PR; the earlier blocker remains
-historical evidence, not a reason to weaken the assertion.
+- Sparse checkout, import and native Linux speech setup.
+- Existing canonical artwork discovery test: 1 test, 28 assertions. Visible artwork
+  persists; hidden/transition-covered artwork does not; Gallery reset stays correct.
+- Version-register rendering: all 18 tuples.
+- Caption-collection rendering: verified, 95 captures, including the unchanged full
+  read-only assertion and existing exit/history/locale checks.
+
+https://github.com/Siuuuers/dwm/actions/runs/44176856724/job/134370673528
+
+All 50 selector tests pass locally. actionlint 1.7.12 and git diff --check pass.
+Hosted source lint run 44176856523 passes. Independent review covered dependency
+retention, selector gates, artwork-write ownership and replay-exit ordering.
+
+No full-matrix, Windows player-experience, hardware input-to-photon or game speedup
+claim. Broader jobs were automatically selected, but acceptance here relies on the
+focused affected checks above. Existing failure cases were reused; no new injection
+campaign was added. The earlier PR blocker is resolved by the passing rendered run.
