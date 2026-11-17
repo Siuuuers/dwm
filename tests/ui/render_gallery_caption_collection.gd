@@ -54,7 +54,8 @@ func _run() -> void:
 			or not _check(DirAccess.make_dir_recursive_absolute(_folder) == OK, "evidence folder unavailable"):
 		_finish()
 		return
-	for frame: int in 180:
+	var startup_deadline := Time.get_ticks_msec() + 30000
+	while Time.get_ticks_msec() < startup_deadline:
 		if root.get_node("ApplicationBootstrap").get_startup_state().get("ready", false): break
 		await process_frame
 	var startup: Dictionary = root.get_node("ApplicationBootstrap").get_startup_state()

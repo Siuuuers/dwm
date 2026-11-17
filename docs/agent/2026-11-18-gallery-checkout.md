@@ -20,10 +20,11 @@ manifest, source, tool and asset paths and omitted historical archive/image path
 
 Add rendered-journeys to the existing explicit owner selection and job condition.
 The first commit introduces the selection rule with focused local checks; the
-second changes the checkout. The existing PR selector compares HEAD^ to HEAD,
-so hosted acceptance selects the Gallery job on the final candidate. The complete
-PR includes shared selection logic; whole-PR classification must remain broad.
-This commit structure does not claim broad shared-selector runtime acceptance.
+second changes the checkout. A branch-parent replay selects Gallery + test-scope,
+but this is not GitHub's checkout semantics: Actions checks out a synthetic merge
+commit, whose HEAD^ is the PR base. Hosted run 44174052878 confirmed broad fallback
+for this PR's shared-selector change. Future job-only changes can select Gallery.
+Do not split commits expecting to narrow an initial multi-commit PR's coverage.
 
 ## Verification
 
@@ -33,6 +34,17 @@ This commit structure does not claim broad shared-selector runtime acceptance.
 - Source audit: both existing rendered probes retain all identified inputs.
 
 Hosted rendering result is recorded in the PR once available. No game performance
-or Windows player-experience improvement is claimed. Only the affected Linux
-Gallery job and source lint are requested for hosted acceptance; unrelated game,
-Windows export, desktop rendering and inventory jobs should remain skipped.
+or Windows player-experience improvement is claimed. The affected Linux
+Gallery job and source lint are the acceptance checks for this checkout change.
+The workflow also started broader jobs through its existing fallback; a full
+matrix pass is not claimed.
+
+## Existing probe timeout found during hosted acceptance
+
+Both baseline job 130986894897 (PR #299, full checkout) and candidate job
+134360666524 pass version-register rendering (18 tuples), then fail caption
+collection before any capture with `production startup not ready`. The probe waits
+only 180 frames despite staged startup. Replace this with a 30-second elapsed
+budget, preserving readiness and all subsequent assertions. Production timing is
+unchanged. This is an observed harness failure, not speculative runtime hardening.
+The follow-up hosted run must establish whether the collection itself passes.
