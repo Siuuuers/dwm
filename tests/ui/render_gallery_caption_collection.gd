@@ -397,11 +397,7 @@ func _state() -> Dictionary:
 		"game": root.get_node("GameState").capture_run_snapshot_input()}
 
 func _unchanged(stage: String) -> bool:
-	var actual := _state()
-	for key: String in actual:
-		if actual[key] != _baseline[key]:
-			print("GALLERY_STATE_DIFFERENCE ", JSON.stringify({"stage": stage, "key": key, "before": _baseline[key], "after": actual[key]}))
-	return _check(actual == _baseline, "Profile or canonical run changed at " + stage)
+	return _check(_state() == _baseline, "Profile or canonical run changed at " + stage)
 
 func _accept() -> void:
 	var layer: Node = _layer()

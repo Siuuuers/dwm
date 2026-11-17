@@ -66,3 +66,22 @@ in the rendered probe, distinguish Profile/revision/persisted bytes/run state,
 and compare against the same probe on master with only the startup-wait fix.
 Then fix the confirmed owner or fixture while retaining the read-only contract.
 No runtime changes or merge were performed in this session.
+
+## Root cause identified in follow-up
+
+Diagnostic job 134367959180 reproduced the same first-caption failure and isolated
+the changes: Profile.displayed_artwork_ids [] -> [picture5, picture4], Profile
+revision 18 -> 19, and persisted Profile bytes. Canonical Run state was identical.
+SceneArtView recorded visible art during read-only Gallery replay. Its runtime
+source was identical to master before this fix; neither sparse checkout nor the
+startup-wait edit changed the artwork owner.
+
+The candidate now uses the existing Bridge.is_rehearsal_playback query to suppress
+artwork discovery writes during replay, beside its existing transition guard.
+Normal canonical artwork discovery is unchanged. The complete read-only assertion
+is preserved; temporary state logging is removed. Hosted acceptance also runs the
+existing single rendered canonical-artwork test, ensuring visible gameplay art
+still persists and hidden/transition-covered art stays undiscovered. No new
+manager, profile format, cache, dependency or speculative protection is added.
+The final hosted result is recorded in the PR; the earlier blocker remains
+historical evidence, not a reason to weaken the assertion.

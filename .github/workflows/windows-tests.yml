@@ -1450,6 +1450,14 @@ jobs:
           fi
           # Dialogic's editor scan rewrites its timeline lookup during import.
           git restore -- project.godot
+      - name: Verify canonical artwork discovery
+        timeout-minutes: 3
+        env:
+          XDG_DATA_HOME: ${{ github.workspace }}/.godot/phase2r_tests/gallery-art/data
+          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/phase2r_tests/gallery-art/test-root
+        run: |
+          mkdir -p "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
+          timeout 150s xvfb-run -a "$GODOT_CONSOLE_PATH" --path "$GITHUB_WORKSPACE" --rendering-method gl_compatibility --audio-driver Dummy -s res://addons/gut/gut_cmdln.gd -gconfig= -gtest=res://tests/integration/test_artwork_gallery.gd -gunit_test_name=test_only_displayed_artwork_persists_and_gallery_owns_its_reset -gexit -glog=1
       - name: Render witnessed-version register fixtures
         timeout-minutes: 5
         env:
