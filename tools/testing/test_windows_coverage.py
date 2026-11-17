@@ -239,6 +239,8 @@ class WindowsCoverageTests(unittest.TestCase):
             (['inventory-tooling'], {workflow}),
             (['rendered-desktop'], {workflow}),
             (['public-surfaces'], {workflow}),
+            (['rendered-journeys'], {workflow}),
+            (['rendered-journeys', 'test-scope'], {workflow, coverage, 'docs/agent/gallery-checkout.md'}),
             (['public-surfaces', 'test-scope'], {workflow, coverage, 'docs/agent/2026-11-12-public-surface-checkout.md'}),
             (['inventory-tooling', 'rendered-desktop'], {workflow, test}),
             (['inventory-tooling'], {test}),
@@ -254,7 +256,8 @@ class WindowsCoverageTests(unittest.TestCase):
                     continue
                 label = {'inventory-tooling': 'Linux / inventory tooling',
                          'rendered-desktop': 'Rendered desktop and dialogue / Linux software OpenGL',
-                         'public-surfaces': 'Windows / public API surface contracts'}[name]
+                         'public-surfaces': 'Windows / public API surface contracts',
+                         'rendered-journeys': 'Rendered current Gallery components'}[name]
                 before = before.replace('    name: ' + label, '    name: Previous ' + label, 1)
             for event, data in (
                 ('pull_request', {'pull_request': {'base': {'sha': 'a' * 40}}}),
@@ -306,6 +309,8 @@ class WindowsCoverageTests(unittest.TestCase):
         for name in ('focused-tests', 'windows-export', 'public-surfaces', 'rendered-journeys'):
             header = WORKFLOW.split('  ' + name + ':', 1)[1].split('    steps:', 1)[0]
             self.assertIn("needs.test-scope.outputs.ci_jobs == '[]'", header)
+        gallery_header = WORKFLOW.split('  rendered-journeys:', 1)[1].split('    steps:', 1)[0]
+        self.assertIn("contains(needs.test-scope.outputs.ci_jobs, '\"rendered-journeys\"')", gallery_header)
         public_header = WORKFLOW.split('  public-surfaces:', 1)[1].split('    steps:', 1)[0]
         self.assertIn("contains(needs.test-scope.outputs.ci_jobs, '\"public-surfaces\"')", public_header)
         header = WORKFLOW.split('  rendered-desktop:', 1)[1].split('    steps:', 1)[0]
