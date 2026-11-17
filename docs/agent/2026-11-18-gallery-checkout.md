@@ -48,3 +48,21 @@ only 180 frames despite staged startup. Replace this with a 30-second elapsed
 budget, preserving readiness and all subsequent assertions. Production timing is
 unchanged. This is an observed harness failure, not speculative runtime hardening.
 The follow-up hosted run must establish whether the collection itself passes.
+
+## Follow-up result and unresolved acceptance
+
+Candidate `224980381d6773a044db235c71926c438a19b254`, run 44174546622,
+Gallery job 134362624474: import and version-register rendering pass; startup now
+reaches ready. Caption collection then fails its existing read-only assertion:
+`Profile or canonical run changed at first visible acknowledgement`, captures=0.
+This failure was previously hidden behind the startup allowance. Its changed field
+and cause are not yet established. Preserve the assertion and leave PR #301 open,
+unmerged; do not claim complete Gallery acceptance or attribute this to sparse
+checkout without evidence. Import also reported an unrelated GUT online-version
+API rate-limit error, not a script/load failure.
+
+Next bounded task: capture the differing keys between `_baseline` and `_state()`
+in the rendered probe, distinguish Profile/revision/persisted bytes/run state,
+and compare against the same probe on master with only the startup-wait fix.
+Then fix the confirmed owner or fixture while retaining the read-only contract.
+No runtime changes or merge were performed in this session.
