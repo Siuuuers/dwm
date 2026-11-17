@@ -168,7 +168,7 @@ func _queue_artwork_observation() -> void:
 	await RenderingServer.frame_post_draw
 	_artwork_observation_pending = false
 	var bridge := get_node_or_null("/root/DialogicBridge")
-	if bridge != null and bridge.is_scene_transition_active(): return
+	if bridge != null and (bridge.is_scene_transition_active() or bridge.is_rehearsal_playback()): return
 	if not is_visible_in_tree() or not is_instance_valid(_view_profile) \
 			or not _view_profile.has_method("record_displayed_artwork") or not is_instance_valid(_background): return
 	var displayed: Array[String] = []

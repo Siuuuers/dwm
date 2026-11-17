@@ -239,6 +239,8 @@ class WindowsCoverageTests(unittest.TestCase):
             (['inventory-tooling'], {workflow}),
             (['rendered-desktop'], {workflow}),
             (['public-surfaces'], {workflow}),
+            (['rendered-journeys'], {workflow}),
+            (['rendered-journeys', 'test-scope'], {workflow, coverage, 'docs/agent/gallery-checkout.md'}),
             (['public-surfaces', 'test-scope'], {workflow, coverage, 'docs/agent/2026-11-12-public-surface-checkout.md'}),
             (['inventory-tooling', 'rendered-desktop'], {workflow, test}),
             (['inventory-tooling'], {test}),
@@ -254,7 +256,8 @@ class WindowsCoverageTests(unittest.TestCase):
                     continue
                 label = {'inventory-tooling': 'Linux / inventory tooling',
                          'rendered-desktop': 'Rendered desktop and dialogue / Linux software OpenGL',
-                         'public-surfaces': 'Windows / public API surface contracts'}[name]
+                         'public-surfaces': 'Windows / public API surface contracts',
+                         'rendered-journeys': 'Rendered current Gallery components'}[name]
                 before = before.replace('    name: ' + label, '    name: Previous ' + label, 1)
             for event, data in (
                 ('pull_request', {'pull_request': {'base': {'sha': 'a' * 40}}}),
@@ -306,6 +309,8 @@ class WindowsCoverageTests(unittest.TestCase):
         for name in ('focused-tests', 'windows-export', 'public-surfaces', 'rendered-journeys'):
             header = WORKFLOW.split('  ' + name + ':', 1)[1].split('    steps:', 1)[0]
             self.assertIn("needs.test-scope.outputs.ci_jobs == '[]'", header)
+        gallery_header = WORKFLOW.split('  rendered-journeys:', 1)[1].split('    steps:', 1)[0]
+        self.assertIn("contains(needs.test-scope.outputs.ci_jobs, '\"rendered-journeys\"')", gallery_header)
         public_header = WORKFLOW.split('  public-surfaces:', 1)[1].split('    steps:', 1)[0]
         self.assertIn("contains(needs.test-scope.outputs.ci_jobs, '\"public-surfaces\"')", public_header)
         header = WORKFLOW.split('  rendered-desktop:', 1)[1].split('    steps:', 1)[0]
@@ -898,6 +903,33 @@ class ReadabilityCoverageTests(unittest.TestCase):
                 'evidence/phase_2r/runtime/game_state_surface.json',
                 'evidence/phase_2r/runtime/save_manager_required_surface.json',
                 'evidence/phase_2r/runtime/save_manager_surface.json'}
+        keep.update(root + '/nested/input.gd' for root in
+                    ('autoload', 'scripts', 'scenes', 'tests', 'tools', 'addons', '.github/workflows'))
+        omit = {'evidence/archive.zip', 'evidence/phase_2r/old/nested/screenshot.png'}
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            subprocess.run(['git', 'init', '-q', str(root)], check=True)
+            for name in keep | omit:
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(name)
+            subprocess.run(['git', '-C', str(root), 'add', '.'], check=True)
+            subprocess.run(['git', '-C', str(root), '-c', 'user.name=Test', '-c', 'user.email=test@example.invalid',
+                            'commit', '-qm', 'fixture'], check=True)
+            subprocess.run(['git', '-C', str(root), 'sparse-checkout', 'set', '--no-cone', '--stdin'],
+                           input=patterns, text=True, check=True)
+            self.assertEqual({name for name in keep | omit if (root / name).exists()}, keep)
+
+    def test_gallery_checkout_retains_fixtures_without_historical_evidence(self):
+        job = re.split(r'\n  [a-z][\w-]*:', WORKFLOW.split('\n  rendered-journeys:', 1)[1])[0]
+        checkout = job.split('      - uses: actions/checkout@v7', 1)[1].split('      - name:', 1)[0]
+        patterns = textwrap.dedent(checkout.split('          sparse-checkout: |\n', 1)[1])
+        keep = {'project.godot', 'evidence/.gdignore', 'assets/nested/image.png',
+                'tests/fixtures/dialogic/gallery_collection_catalogue.json',
+                'tests/fixtures/dialogic/gallery_collection.dtl',
+                'data/manifests/art_placements.json',
+                'tests/ui/render_gallery_version_register.gd',
+                'tests/ui/render_gallery_caption_collection.gd'}
         keep.update(root + '/nested/input.gd' for root in
                     ('autoload', 'scripts', 'scenes', 'tests', 'tools', 'addons', '.github/workflows'))
         omit = {'evidence/archive.zip', 'evidence/phase_2r/old/nested/screenshot.png'}
