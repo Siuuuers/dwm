@@ -23,7 +23,6 @@ const AFFECTION_MIN := -4
 const AFFECTION_MAX := 10
 
 const _SEVEN_DAY_CALENDAR := preload("res://scripts/domain/contact/SevenDayCalendar.gd")
-const _GROUP_INVITATION_PAIRS := [["priscilla", "lavinia"]]
 const _MINESWEEPER_TASK_IDS := [
 	"complete_beginner", "complete_intermediate", "complete_expert",
 	"no_flag_finish", "foresight_finish", "perfect_beginner",
@@ -2104,13 +2103,6 @@ func _sorted_pair_key(a: String, b: String) -> String:
 	var arr: Array = [a, b]
 	arr.sort()
 	return "%s_%s" % [arr[0], arr[1]]
-
-
-func _group_pair_contains(friend_id: String) -> bool:
-	for pair in _GROUP_INVITATION_PAIRS:
-		if friend_id in pair:
-			return true
-	return false
 
 
 func _group_scheduled() -> bool:
