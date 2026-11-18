@@ -182,8 +182,11 @@ func replay_completed_passage_scene() -> void:
 	assert_true(PASSAGE_ID in profile.get_profile_snapshot().gallery_unlocks)
 	var menu: Node = get_tree().current_scene
 	await _click(menu._gallery_button)
+	var gallery_deadline := Time.get_ticks_msec() + 30000
+	while menu._gallery_instance == null and Time.get_ticks_msec() < gallery_deadline:
+		await get_tree().process_frame
 	var gallery: Node = menu._gallery_instance
-	assert_not_null(gallery)
+	assert_not_null(gallery, "Gallery opens after clicking its title button")
 	if gallery == null: return
 	assert_true(gallery.is_visible_in_tree())
 	var tile: Button = null
