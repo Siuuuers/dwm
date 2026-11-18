@@ -69,3 +69,13 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Run connected passage create, load and replay
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite scene_passage_connected
+      - name: Retain connected passage evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: passage-proof
+          include-hidden-files: true
+          path: |
+            .godot/ci/passage-connected-*-proof.json
+            .godot/ci/*.xml
+            .godot/phase2r_logs/cloud-*.log
