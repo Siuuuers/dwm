@@ -180,8 +180,6 @@ var story_flags: Dictionary
 var route_context: Dictionary
 var scene_choices: Dictionary = {}
 var scene_challenge_outcomes: Dictionary = {}
-func _ready() -> void:
-	pass
 
 
 func reset_game() -> void:
@@ -2004,8 +2002,6 @@ func advance_date_queue_or_day() -> bool:
 		return true
 	if pending_date_advance_day_after_finish:
 		advance_day_or_end()
-	else:
-		pass
 	return false
 
 
