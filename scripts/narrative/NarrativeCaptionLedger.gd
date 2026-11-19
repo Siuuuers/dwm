@@ -245,9 +245,7 @@ func is_current_occurrence(session_token: String, entry_id: String, frontier: Di
 	if _session_token.is_empty() or session_token != _session_token or _sequence.is_empty() \
 			or not _has_exact_fields(frontier, ["line_id", "publication_id"]) \
 			or not frontier.line_id is String or frontier.line_id.is_empty() \
-			or not frontier.publication_id is String or frontier.publication_id.is_empty() \
-			or (_entry_contexts_required and not _entry_contexts.has(
-				scene_frame_key(occurrence_id, entry_id) if _scene else entry_id)):
+			or not frontier.publication_id is String or frontier.publication_id.is_empty():
 		return false
 	if not _scene and not occurrence_id.is_empty(): return false
 	var last: Dictionary = _sequence.back()
