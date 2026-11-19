@@ -41,10 +41,6 @@ func can_return_home() -> bool:
 	return not _closing and not settings_content.is_departure_blocked()
 
 
-func _close_settings() -> void:
-	await hide_window()
-
-
 func _on_visibility_changed() -> void:
 	_generation += 1
 	if not is_visible_in_tree():
