@@ -449,14 +449,11 @@ func is_next_transport_active() -> bool:
 		and bool(_transport_bridge.call("is_next_traversal_active")))
 
 func _next_admitted() -> bool:
-	return _next_input_bound and _auto_configured and not _is_reviewing() and not _pause_covered \
-		and not _line_waiting_for_text and _reading_source_admitted() and _has_caption() \
-		and _presented_line.get("ok", false) and transport_rail.is_visible_in_tree() \
-		and accept_input.is_source_admitted() and is_instance_valid(_transport_bridge) \
-		and _transport_bridge.has_method("can_next_current_line") \
-		and _transport_bridge.has_method("request_next") \
-		and _transport_bridge.has_signal("next_request_finished") \
-		and _presented_line == _transport_bridge.call("capture_current_line_presentation_frontier") \
+	return _next_input_bound and _presented_line_admitted() and _can_request_next_on_current_line()
+
+func _can_request_next_on_current_line() -> bool:
+	return _reading_source_admitted() and _has_caption() and _transport_bridge.has_method("can_next_current_line") \
+		and _transport_bridge.has_method("request_next") and _transport_bridge.has_signal("next_request_finished") \
 		and _transport_bridge.call("can_next_current_line") == true
 
 func _on_next_requested() -> void:
@@ -681,7 +678,10 @@ func _auto_controller_admitted() -> bool:
 		and _reading_recovery.get("kind") in [&"auto", &"next"] and _recovery_action_admitted())
 
 func _auto_button_admitted() -> bool:
-	return not _is_reviewing() and _auto_configured and _auto_input_bound and not _pause_covered \
+	return _auto_input_bound and _presented_line_admitted()
+
+func _presented_line_admitted() -> bool:
+	return not _is_reviewing() and _auto_configured and not _pause_covered \
 		and not _line_waiting_for_text and _presented_line.get("ok", false) \
 		and transport_rail.is_visible_in_tree() and accept_input.is_source_admitted() \
 		and is_instance_valid(_transport_bridge) \
@@ -734,8 +734,10 @@ func _sync_transport() -> void:
 	if _ending_caption_handoff or not _timed_hold_frontier.is_empty() or _computer_caption_held():
 		transport_rail.project(false, skip_controller.is_skip_active(), skip_controller.is_auto_enabled(), false, false, false, false, false, false)
 	else:
+		var current := (_auto_input_bound or _next_input_bound) and _presented_line_admitted()
 		transport_rail.project(_transport_admitted(), skip_controller.is_skip_active(),
-			skip_controller.is_auto_enabled(), _auto_button_admitted(), _load_admitted(), _history_admitted(), _save_admitted(), _next_admitted(), _settings_admitted())
+			skip_controller.is_auto_enabled(), current and _auto_input_bound, _load_admitted(), _history_admitted(),
+			_save_admitted(), current and _next_input_bound and _can_request_next_on_current_line(), _settings_admitted())
 	var ring: Array[Control] = []
 	if not _ending_caption_handoff and _timed_hold_frontier.is_empty(): ring.append(review_current if _review_offset > 0 else caption_text)
 	var names: PackedStringArray = []
