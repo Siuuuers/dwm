@@ -93,9 +93,9 @@ func test_settings_close_restores_invoker_after_hiding_desktop_focus() -> void:
 	_host.reparent(self)
 
 func test_computer_apps_remain_and_duplicate_scene_commands_are_removed() -> void:
-	for name: String in ["Settings", "Backup", "Save", "Load", "Apps", "Contacts"]:
+	for name: String in ["Settings", "Backup", "Save", "Load", "Apps", "Contacts", "ComputerHome"]:
 		assert_false(_host.has_node("SceneControlsLayer/Surface/Controls/" + name))
-	_host.get_node("SceneControlsLayer/Surface/Controls/ComputerHome").pressed.emit()
+	await _host._invoke("apps")
 	assert_eq(_actions.calls, ["apps"])
 	assert_null(_host.find_child("Pause", true, false))
 	assert_null(_host.find_child("Start", true, false))

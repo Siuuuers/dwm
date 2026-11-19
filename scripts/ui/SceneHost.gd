@@ -43,7 +43,6 @@ func _ready() -> void:
 	for event: Signal in [computer.focus_entered, computer.focus_exited, computer.mouse_entered,
 		computer.mouse_exited, computer.button_down, computer.button_up]:
 		event.connect(computer.queue_redraw)
-	$SceneControlsLayer/Surface/Controls/ComputerHome.pressed.connect(_invoke.bind("apps"))
 	if _actions.is_empty():
 		var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
 		if bootstrap != null and bootstrap.has_method("configure_scene_host_view"):
@@ -71,7 +70,6 @@ func set_computer_content_visible(shown: bool) -> void:
 func _update_computer_visibility() -> void:
 	$SceneControlsLayer/Surface/ComputerMount.visible = _computer_open and _computer_content_visible
 	$SceneControlsLayer/Surface/ChallengeMount.visible = _computer_open and not _computer_content_visible
-	$SceneControlsLayer/Surface/Controls/ComputerHome.visible = false
 
 func is_computer_open() -> bool:
 	return _computer_open
@@ -139,10 +137,6 @@ func _refresh_presentation(_locale_id: String = "") -> void:
 	$SceneControlsLayer/Surface/ThoughtOptions.theme = story_presentation
 	$SceneControlsLayer/Surface/ThoughtYes.text = _localization.t("scene.thought.yes")
 	$SceneControlsLayer/Surface/ThoughtYes.accessibility_name = $SceneControlsLayer/Surface/ThoughtYes.text
-	var home: Button = controls.get_node("ComputerHome")
-	home.theme = preload("res://scripts/ui/desktop/DesktopTheme.gd").build(locale, percent, &"midnight", 0.0, false, "standard", font_style)
-	home.accessibility_name = _localization.t("scene.controls.apps")
-	home.tooltip_text = home.accessibility_name
 	var computer: Button = controls.get_node("CheckComputer")
 	computer.text = ""
 	computer.queue_redraw()
@@ -204,8 +198,6 @@ func _update_controls() -> void:
 	if not is_inside_tree(): return
 	var computer: Callable = _actions.get("computer_close" if _computer_open else "computer_open", Callable())
 	$SceneControlsLayer/Surface/Controls/CheckComputer.disabled = _busy or not computer.is_valid()
-	var apps: Callable = _actions.get("apps", Callable())
-	$SceneControlsLayer/Surface/Controls/ComputerHome.disabled = _busy or not apps.is_valid()
 	scene_controls_changed.emit()
 
 func configure_thought_panel(panel: Control) -> void:

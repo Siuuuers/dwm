@@ -1,7 +1,6 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/SceneHost.gd" id="1_host"]
-[ext_resource type="Script" path="res://scripts/ui/desktop/DesktopHomeButton.gd" id="2_home"]
 
 [node name="SceneHost" type="Control"]
 layout_mode = 3
@@ -72,17 +71,6 @@ offset_top = 608.0
 offset_right = 298.2857
 offset_bottom = 656.0
 custom_minimum_size = Vector2(48, 48)
-
-[node name="ComputerHome" type="Button" parent="SceneControlsLayer/Surface/Controls"]
-visible = false
-layout_mode = 0
-offset_left = 288.0
-offset_top = 8.0
-offset_right = 352.0
-offset_bottom = 72.0
-custom_minimum_size = Vector2(64, 64)
-script = ExtResource("2_home")
-current_on_launcher = false
 
 [node name="ThoughtYes" type="Button" parent="SceneControlsLayer/Surface"]
 visible = false

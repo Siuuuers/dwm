@@ -205,13 +205,12 @@ func _inspect(host: Control, locale: Node, language: String, style: String, perc
 	var screen := Rect2(Vector2.ZERO, Vector2(1280, 720))
 	var previous := Rect2()
 	var rectangles := {}
-	var keys := {"CheckComputer": "scene.controls.close_computer" if host.is_computer_open() else "scene.controls.check_computer",
-		"ComputerHome": "scene.controls.apps"}
+	var caret_key := "scene.controls.close_computer" if host.is_computer_open() else "scene.controls.check_computer"
 	for child: Node in controls.get_children():
 		if not child is Button or not child.visible: continue
 		var button := child as Button
 		_check(not button.accessibility_name.is_empty() and not button.accessibility_name.begins_with("[missing:"), id + ": populated accessible copy " + button.name)
-		_check(button.accessibility_name == locale.t(keys[str(button.name)]), id + ": localized accessible label " + button.name)
+		_check(button.accessibility_name == locale.t(caret_key), id + ": localized accessible label " + button.name)
 		_check(button.text.is_empty(), id + ": visible label " + button.name)
 		_check(not button.disabled, id + ": enabled control " + button.name)
 		var bounds := button.get_global_rect()
