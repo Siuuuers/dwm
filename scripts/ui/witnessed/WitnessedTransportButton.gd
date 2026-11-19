@@ -76,7 +76,7 @@ func _notification(what: int) -> void:
 
 func _process(_delta: float) -> void:
 	if not is_instance_valid(_input_owner): return
-	_prune_blocked_contacts()
+	if not _blocked_contacts.is_empty(): _prune_blocked_contacts(_input_owner.get_physical_contacts())
 	if not _candidate.is_empty() and not _admitted(): _candidate = {}
 
 
@@ -84,9 +84,9 @@ func _input(event: InputEvent) -> void:
 	if not is_instance_valid(_input_owner) or event.device == InputEvent.DEVICE_ID_EMULATION: return
 	if event is InputEventAction: return
 	_input_owner.observe_physical_contact(event)
-	_prune_blocked_contacts()
 	var id: String = _input_owner.get_physical_contact_id(event)
 	var current: Dictionary = _input_owner.get_physical_contacts()
+	if not _blocked_contacts.is_empty(): _prune_blocked_contacts(current)
 	_fresh_contact = ""
 	if not id.is_empty() and event.is_pressed() and current.get(id) != _contacts.get(id):
 		_fresh_contact = id
@@ -177,8 +177,7 @@ func _one_contact(id: String) -> bool:
 	return current.size() == 1 and current.has(id)
 
 
-func _prune_blocked_contacts() -> void:
-	var current: Dictionary = _input_owner.get_physical_contacts()
+func _prune_blocked_contacts(current: Dictionary) -> void:
 	for id: String in _blocked_contacts.keys():
 		if current.get(id) != _blocked_contacts[id]: _blocked_contacts.erase(id)
 

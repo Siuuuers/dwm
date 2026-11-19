@@ -1,9 +1,14 @@
 extends GutTest
 
 const BUTTON := preload("res://scripts/ui/witnessed/WitnessedTransportButton.gd")
-const MANAGER := preload("res://autoload/InputManager.gd")
 const HANDLE := {"generation": 1, "handle_id": "transport-fixture-1",
 	"holder": &"transport_fixture", "reason": &"universal_pause"}
+
+class CountingInputManager extends "res://autoload/InputManager.gd":
+	var snapshots := 0
+	func get_physical_contacts() -> Dictionary:
+		snapshots += 1
+		return super.get_physical_contacts()
 
 class Admission extends RefCounted:
 	var admitted := true
@@ -33,7 +38,7 @@ func before_each() -> void:
 	_viewport.size = Vector2i(640, 360)
 	_viewport.handle_input_locally = true
 	add_child(_viewport)
-	_manager = MANAGER.new()
+	_manager = CountingInputManager.new()
 	_viewport.add_child(_manager)
 	_release_probe = ReleaseProbe.new()
 	_viewport.add_child(_release_probe)
@@ -105,6 +110,14 @@ func _action(pressed: bool) -> InputEventAction:
 
 func _push(event: InputEvent) -> void:
 	_viewport.push_input(event, true)
+
+
+func test_idle_button_skips_contact_snapshot_and_motion_reads_it_once() -> void:
+	var before: int = _manager.snapshots
+	_button._process(0.016)
+	assert_eq(_manager.snapshots, before)
+	_button._input(InputEventMouseMotion.new())
+	assert_eq(_manager.snapshots, before + 1)
 
 
 func test_programmatic_pressed_is_inert_and_native_action_is_generation_bound() -> void:
