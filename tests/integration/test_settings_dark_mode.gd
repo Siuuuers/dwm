@@ -62,12 +62,13 @@ func test_public_dark_toggle_persists_next_run_only_and_full_reset_hides_it_agai
 	_unlock_mode()
 	assert_true(content.rows[PATH].is_visible_in_tree())
 	assert_false(content.controls[PATH].disabled)
-	var current_run: Dictionary = GameState.to_save_dict().duplicate(true)
+	var game := get_node("/root/GameState")
+	var current_run: Dictionary = game.to_save_dict().duplicate(true)
 	content.controls[PATH].button_pressed = true
 	await get_tree().process_frame
 	assert_true(profile.get_preference(PATH, false))
 	assert_true(content.controls[PATH].button_pressed)
-	assert_eq(GameState.to_save_dict(), current_run, "changing the next account preference does not recapture an active run")
+	assert_eq(game.to_save_dict(), current_run, "changing the next account preference does not recapture an active run")
 	var reopened: Node = add_child_autofree(PROFILE.new())
 	assert_true(reopened.initialize(storage).ok)
 	assert_true(reopened.get_preference(PATH, false), "new Profile owner reads the durable preference")
