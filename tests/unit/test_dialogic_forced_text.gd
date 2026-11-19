@@ -35,3 +35,29 @@ func test_forced_text_events_keep_independent_caption_state() -> void:
 	assert_eq(second.text, "Second")
 	assert_eq(first._translation_id, "line.first")
 	assert_eq(second._translation_id, "line.second")
+
+class CountingDialogText extends RichTextLabel:
+	static var created := 0
+
+	func _init() -> void:
+		created += 1
+
+func test_plain_caption_retires_effects_without_copying_the_dialogue_label() -> void:
+	var label := CountingDialogText.new()
+	label.bbcode_enabled = true
+	add_child_autofree(label)
+	label.add_to_group("dialogic_dialog_text")
+	assert_eq(get_tree().get_first_node_in_group("dialogic_dialog_text"), label)
+
+	var text := get_node("/root/Dialogic").get_subsystem("Text") as Node
+	assert_eq(text.parse_text_effects("[b]Hi[/b][pause=0.1]!"), "[b]Hi[/b]!")
+	assert_eq(text.parsed_text_effect_info.size(), 1)
+	assert_eq(text.parsed_text_effect_info[0].index, 2)
+
+	var count := CountingDialogText.created
+	assert_eq(text.parse_text_effects("Time for tea."), "Time for tea.")
+	assert_true(text.parsed_text_effect_info.is_empty())
+	assert_eq(CountingDialogText.created, count, "Plain dialogue needs no label copy.")
+	assert_eq(text.parse_text_effects("\\[pause=1]"), "[pause=1]")
+	assert_true(text.parsed_text_effect_info.is_empty())
+	await get_tree().process_frame
