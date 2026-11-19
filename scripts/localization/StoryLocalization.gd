@@ -1,6 +1,7 @@
 extends RefCounted
 
 const LOCALES := ["en", "zh_HK", "zh_CN", "ja", "ko"]
+const _STRIKE_MARK := "\u0336"
 static var _catalogs: Dictionary = {}
 
 static func catalog(locale: String) -> Dictionary:
@@ -41,11 +42,13 @@ static func project(result: Dictionary, locale: String, secondary: String = "") 
 	return copy
 
 static func display_markup(source: String) -> String:
+	if not source.contains(_STRIKE_MARK):
+		return source.replace("[", "[lb]")
 	var rendered := ""
 	var striking := false
 	for index in source.length():
 		var character := source[index]
-		var marked := character == "̶" or (index + 1 < source.length() and source[index + 1] == "̶")
+		var marked := character == _STRIKE_MARK or (index + 1 < source.length() and source[index + 1] == _STRIKE_MARK)
 		if marked != striking:
 			rendered += "[s]" if marked else "[/s]"
 			striking = marked
