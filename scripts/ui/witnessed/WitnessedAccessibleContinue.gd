@@ -23,7 +23,7 @@ func _refresh_projection() -> void:
 	var source_visible: bool = not label.is_empty() and is_visible_in_tree() \
 		and mouse_filter == Control.MOUSE_FILTER_STOP and is_instance_valid(_accept_input) \
 		and _accept_input.is_source_admitted()
-	var available: bool = source_visible and _accept_input.is_accessibility_continue_admitted()
+	var available: bool = source_visible and _accept_input.is_accessibility_input_neutral()
 	if label == _label and available == _available and source_visible == _source_visible: return
 	_label = label
 	_source_visible = source_visible
@@ -39,11 +39,9 @@ func _notification(what: int) -> void:
 	if not element.is_valid(): return
 	DisplayServer.accessibility_update_set_role(element, DisplayServer.ROLE_BUTTON)
 	DisplayServer.accessibility_update_set_name(element, _label)
-	var available: bool = _available and is_instance_valid(_accept_input) \
-		and _accept_input.is_accessibility_continue_admitted()
-	DisplayServer.accessibility_update_set_flag(element, DisplayServer.FLAG_HIDDEN,
-		not _source_visible or not is_visible_in_tree() or not is_instance_valid(_accept_input) \
-		or not _accept_input.is_source_admitted())
+	var admitted: bool = _source_visible and is_instance_valid(_accept_input) and _accept_input.is_source_admitted()
+	var available: bool = admitted and _available and _accept_input.is_accessibility_input_neutral()
+	DisplayServer.accessibility_update_set_flag(element, DisplayServer.FLAG_HIDDEN, not admitted or not is_visible_in_tree())
 	DisplayServer.accessibility_update_set_flag(element, DisplayServer.FLAG_DISABLED, not available)
 	if available:
 		DisplayServer.accessibility_update_add_action(element, DisplayServer.ACTION_CLICK,
