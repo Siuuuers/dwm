@@ -197,7 +197,7 @@ static func validate_scene_catalogue(catalogue: Variant, entry_ids: Array) -> Di
 			return _scene_failure()
 		if typeof(asset.duration_ms) != TYPE_INT or not _scene_path(asset.path, catalogue.schema_version):
 			return _scene_failure()
-		var unbounded_nsf: bool = catalogue.schema_version == 3 and asset.path.ends_with(".nsf")
+		var unbounded_nsf: bool = asset.path.ends_with(".nsf")
 		if (unbounded_nsf and asset.duration_ms != 0) or (not unbounded_nsf and asset.duration_ms <= 0):
 			return _scene_failure()
 		previous = asset.asset_id
@@ -222,7 +222,7 @@ static func validate_scene_catalogue(catalogue: Variant, entry_ids: Array) -> Di
 		var duration_ms: int = assets[asset_id].duration_ms
 		if assets[asset_id].path.ends_with(".nsfe"):
 			return _scene_failure()
-		if duration_ms == 0 and plan.music == null:
+		if catalogue.schema_version == 3 and duration_ms == 0 and plan.music == null:
 			return _scene_failure()
 		for field: String in ["entrance_ms", "load_anchor_ms"]:
 			if typeof(plan[field]) != TYPE_INT or plan[field] < 0 or (duration_ms > 0 and plan[field] >= duration_ms):
@@ -378,7 +378,7 @@ static func _scene_path(value: Variant, catalogue_version: int = 1) -> bool:
 	if typeof(value) != TYPE_STRING:
 		return false
 	var prefix := "res://tests/fixtures/audio/"
-	if catalogue_version == 3 and value.begins_with(BGM_DIR) and value.ends_with(".nsf"):
+	if value.begins_with(BGM_DIR) and value.ends_with(".nsf"):
 		prefix = BGM_DIR
 	elif catalogue_version == 3 and value.begins_with(SFX_DIR) and value.ends_with(".nsfe"):
 		prefix = SFX_DIR

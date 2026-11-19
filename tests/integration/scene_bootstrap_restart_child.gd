@@ -13,6 +13,10 @@ var game: Node
 var profile: Node
 var ready_count := 0
 
+func after_all() -> void:
+	if is_instance_valid(bootstrap):
+		_ok(await get_node("/root/AudioManager").shutdown())
+
 func _autosave_sha256() -> String:
 	return FileAccess.get_sha256("user://saves/autosave.json") if FileAccess.file_exists("user://saves/autosave.json") else ""
 

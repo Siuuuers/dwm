@@ -61,14 +61,17 @@ func _inline_bundle() -> Dictionary:
 	for entry: Dictionary in bundle.entry_manifest.entries: bindings.append({"entry_id": entry.entry_id, "plan_id": null})
 	bindings.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.entry_id < b.entry_id)
 	var plans: Array = []
-	for id: String in ["TEST.inline.a", "TEST.inline.b"]:
-		plans.append({"plan_id": id, "revision": 1, "variant_id": "base", "ambience_asset_id": null,
-			"music": "TEST.inline.bed", "entrance_ms": 0, "load_anchor_id": "inline.start", "load_anchor_ms": 1000,
+	for id: String in ["a", "b"]:
+		plans.append({"plan_id": "TEST.inline." + id, "revision": 1, "variant_id": "base", "ambience_asset_id": null,
+			"music": "TEST.inline.bed." + id, "entrance_ms": 0, "load_anchor_id": "inline.start", "load_anchor_ms": 1000,
 			"authorial": true, "essential": false, "missing_media": "silence", "cues": []})
-	var assets: Array = []
-	for id: String in ["TEST.inline.bed", "TEST.inline.hit"]:
-		assets.append({"asset_id": id, "path": "res://tests/fixtures/audio/scene_test_bed.tres",
-			"sha256": "f85a90530be2a8f0dad87f80844e6b79d5bdf171975f4c9044a770dc4c2d32aa", "duration_ms": 4000})
+	var assets: Array = [
+		{"asset_id": "TEST.inline.bed.a", "path": "res://audio/bgm/story_theme.nsf",
+			"sha256": "cd59503c221ec4e5b7949008642aabd6f4a3f5df748452e2564e80909903eac8", "duration_ms": 0},
+		{"asset_id": "TEST.inline.bed.b", "path": "res://audio/bgm/menu_theme.nsf",
+			"sha256": "994de187f9d7958fca347c7993596696159fad8d8a9d57c6cf7914cb553266f0", "duration_ms": 0},
+		{"asset_id": "TEST.inline.hit", "path": "res://tests/fixtures/audio/confirm.nsfe",
+			"sha256": "84e71d644c17f4a26c8ae389e992c214efc50bc28b35022f69b830e90a44710e", "duration_ms": 399}]
 	bundle["audio_catalogue"] = {"kind": "scene_audio_catalogue", "schema_version": 3,
 		"assets": assets, "plans": plans, "bindings": bindings}
 	return {"ok": true, "value": bundle}
