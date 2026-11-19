@@ -75,3 +75,7 @@ func test_shipped_catalogues_preserve_values_and_cached_identity() -> void:
 		assert_eq(actual, expected.value)
 		assert_true(is_same(actual, STORY.catalog(locale)))
 	assert_eq(STORY.catalog("unsupported"), {})
+
+func test_display_markup_keeps_brackets_literal_with_and_without_strikethrough() -> void:
+	assert_eq(STORY.display_markup("Read [b]aloud[/b]."), "Read [lb]b]aloud[lb]/b].")
+	assert_eq(STORY.display_markup("A\u0336[\u0336B"), "[s]A\u0336[lb]\u0336[/s]B")
