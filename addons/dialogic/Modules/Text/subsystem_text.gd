@@ -420,6 +420,9 @@ func collect_text_effects() -> void:
 ## Use get_parsed_text_effects() after calling this to get all effect information
 func parse_text_effects(text:String) -> String:
 	_retire_effect_batch()
+	var matches := text_effects_regex.search_all(text)
+	if matches.is_empty():
+		return text.replace('\\[', '[')
 	var rtl: RichTextLabel = null
 	if get_tree().get_first_node_in_group("dialogic_dialog_text"):
 		rtl = get_tree().get_first_node_in_group("dialogic_dialog_text").duplicate()
@@ -428,7 +431,7 @@ func parse_text_effects(text:String) -> String:
 		rtl.bbcode_enabled = true
 	var position_correction := 0
 	var bbcode_correction := 0
-	for effect_match in text_effects_regex.search_all(text):
+	for effect_match in matches:
 		rtl.text = text.substr(0, effect_match.get_start()-position_correction)
 		bbcode_correction = effect_match.get_start()-position_correction-len(rtl.get_parsed_text())
 		# append [index] = [command, value] to effects dict
