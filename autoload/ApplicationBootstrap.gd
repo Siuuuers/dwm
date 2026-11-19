@@ -297,20 +297,21 @@ func prepare_runtime() -> Dictionary:
 
 
 func advance_runtime() -> Dictionary:
-	var stage_id: StringName = STAGE_ORDER[_runtime_stage_index]
-	var result := _run_stage(stage_id, MODE_FINAL)
-	if not result.get("ok", false): return _record_startup_stage_failure(stage_id, result)
-	_state["completed_stages"].append(stage_id)
-	_runtime_stage_index += 1
-	if _runtime_stage_index == STAGE_ORDER.size():
-		var published := _publish_startup_route_hold()
-		if not published.get("ok", false):
-			_state["completed_stages"].erase(&"publish_application_ready")
-			return _record_startup_stage_failure(&"publish_application_ready", published)
-		_started = true
-		_state["title_ready"] = true
-		_state["ready"] = true
-		application_ready.emit()
+	while _runtime_stage_index < STAGE_ORDER.size():
+		var stage_id: StringName = STAGE_ORDER[_runtime_stage_index]
+		var result := _run_stage(stage_id, MODE_FINAL)
+		if not result.get("ok", false): return _record_startup_stage_failure(stage_id, result)
+		_state["completed_stages"].append(stage_id)
+		_runtime_stage_index += 1
+		if stage_id == &"initialize_dialogic_bridge": return {"ok": true}
+	var published := _publish_startup_route_hold()
+	if not published.get("ok", false):
+		_state["completed_stages"].erase(&"publish_application_ready")
+		return _record_startup_stage_failure(&"publish_application_ready", published)
+	_started = true
+	_state["title_ready"] = true
+	_state["ready"] = true
+	application_ready.emit()
 	return {"ok": true}
 
 
