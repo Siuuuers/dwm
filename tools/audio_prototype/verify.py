@@ -20,10 +20,15 @@ def archive(name, digest):
     return path
 
 
-def run(name, command, marker=None, cwd=ROOT):
+def run(name, command, marker=None, cwd=ROOT, engine_log=None):
+    if engine_log:
+        engine_log.unlink(missing_ok=True)
+        command = [*command, "--log-file", engine_log]
     result = subprocess.run([str(arg) for arg in command], cwd=cwd, capture_output=True,
                             text=True, encoding="utf-8", errors="replace", timeout=180)
     output = result.stdout + result.stderr
+    if engine_log and engine_log.exists():
+        output += "\n" + engine_log.read_text(encoding="utf-8")
     (REPORTS / (name + ".log")).write_text(output, encoding="utf-8")
     print(output)
     assert result.returncode == 0, name + " exit " + str(result.returncode)

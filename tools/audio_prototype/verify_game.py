@@ -85,7 +85,8 @@ def windows_export(base, reports, preset):
     template = (verify.BUILD / "templates/windows_release_x86_64.exe").as_posix()
     preset.write_text(original.replace('custom_template/release=""', 'custom_template/release="' + template + '"'))
     exported = reports / "export"
-    exported.mkdir(exist_ok=True)
+    shutil.rmtree(exported, ignore_errors=True)
+    exported.mkdir()
     verify.run("game-export", [*base, "--export-release", "Windows Desktop", exported / "game.exe"], cwd=ROOT)
     for attempt in range(3):
         os.environ["APPDATA"] = str(reports / "user" / ("export-" + str(attempt)))
@@ -93,7 +94,7 @@ def windows_export(base, reports, preset):
         Path(os.environ["APPDATA"]).mkdir(parents=True)
         verify.run("exported-game-" + str(attempt + 1),
             [exported / "game.exe", "--headless", "--audio-driver", "Dummy"],
-            "NATIVE_GAME_EXPORT_PASS", cwd=exported)
+            "NATIVE_GAME_EXPORT_PASS", cwd=exported, engine_log=reports / f"launch-{attempt + 1}.log")
 
 
 if __name__ == "__main__":

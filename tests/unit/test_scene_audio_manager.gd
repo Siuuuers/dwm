@@ -53,7 +53,7 @@ func after_each() -> void:
 
 func test_native_scene_music_pause_sfx_and_shutdown_use_live_manager() -> void:
 	if not ClassDB.class_exists("VGMStream"):
-		pending("Run with the staged gd_libvgm extension to verify native manager playback")
+		pending("Native playback requires the shipped Linux or Windows x86_64 player")
 		return
 	for pair: Array in [
 		["res://tools/audio_prototype/fixtures/loop_a.nsf", NATIVE_BED],
@@ -112,9 +112,18 @@ func test_native_scene_music_pause_sfx_and_shutdown_use_live_manager() -> void:
 	await get_tree().create_timer(0.8).timeout
 	assert_false(cue.playing, "the native one-shot reaches its finite endpoint")
 	assert_true(music.playing, "the native music continues looping")
+	var title: Dictionary = manager.play_title_music()
+	assert_true(title.ok, str(title))
+	var menu_player: AudioStreamPlayer = port._players[manager._active_players[&"music"]]
+	assert_true(menu_player.playing)
+	assert_eq(menu_player.stream, load("res://audio/bgm/menu_theme.nsf"))
+	var menu_playback: WeakRef = weakref(menu_player.get_stream_playback())
+	assert_true(manager.play_title_music().ok)
+	assert_eq(menu_player.get_stream_playback(), menu_playback.get_ref(), "the active title track keeps its playhead")
 	var stopped: Dictionary = await manager.shutdown()
 	assert_true(stopped.ok, str(stopped))
-	assert_null(playback.get_ref(), "shutdown observes native playback release")
+	assert_null(playback.get_ref())
+	assert_null(menu_playback.get_ref(), "shutdown observes native playback release")
 
 
 func _registration() -> Dictionary:
