@@ -14,6 +14,7 @@ var _blocked_contacts: Dictionary = {}
 var _candidate: Dictionary = {}:
 	set(value):
 		_candidate = value
+		if not value.is_empty(): set_process(true)
 		queue_redraw()
 var _fresh_contact := ""
 var _generation := 0
@@ -54,6 +55,7 @@ func retire_input() -> void:
 	if is_instance_valid(_input_owner):
 		_contacts = _input_owner.get_physical_contacts()
 		_blocked_contacts = _contacts.duplicate()
+		set_process(not _blocked_contacts.is_empty())
 	if is_inside_tree(): queue_accessibility_update()
 
 
@@ -75,6 +77,9 @@ func _notification(what: int) -> void:
 
 
 func _process(_delta: float) -> void:
+	if _candidate.is_empty() and _blocked_contacts.is_empty():
+		set_process(false)
+		return
 	if not is_instance_valid(_input_owner): return
 	if not _blocked_contacts.is_empty(): _prune_blocked_contacts(_input_owner.get_physical_contacts())
 	if not _candidate.is_empty() and not _admitted(): _candidate = {}
