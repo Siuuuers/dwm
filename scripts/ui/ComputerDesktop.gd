@@ -13,6 +13,7 @@ const CONFIRMATION := preload("res://scripts/ui/desktop/DesktopConfirmation.gd")
 const CONFIRMATION_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 const TOUCH_NAVIGATION := preload("res://scripts/ui/desktop/DesktopTouchNavigation.gd")
 const MINESWEEPER_GRID := preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd")
+const DELIVERY_DOT_SECONDS := 0.4
 const QUICK_STATUS_APPS := [&"minesweeper", &"contacts", &"shop", &"settings"]
 const LABELS := {
 	"en": {&"minesweeper": "Minesweeper", &"contacts": "Contacts", &"shop": "Shop", &"backup": "Backup", &"settings": "Settings", &"logout": "Log out"},
@@ -994,10 +995,12 @@ func _show_delivery_notice(stage: StringName) -> void:
 
 
 func _process(delta: float) -> void:
+	var previous_elapsed := _delivery_elapsed
 	_delivery_elapsed += delta
 	if _delivery_stage == &"delivering":
-		_refresh_delivery_caption()
-	elif _delivery_stage == &"delivered":
+		if int(previous_elapsed / DELIVERY_DOT_SECONDS) != int(_delivery_elapsed / DELIVERY_DOT_SECONDS):
+			_refresh_delivery_caption()
+	elif _delivery_stage == &"delivered" and _delivery_elapsed > 2.0:
 		delivery_notice.modulate.a = clampf(1.0 - (_delivery_elapsed - 2.0) / 0.5, 0.0, 1.0)
 		if _delivery_elapsed >= 2.5:
 			_hide_delivery_notice()
@@ -1007,7 +1010,7 @@ func _refresh_delivery_caption() -> void:
 	if _delivery_stage == &"delivered":
 		delivery_caption.text = {"zh-CN": "已送达 :)", "zh-HK": "已送達 :)", "ja": "届きました :)", "ko": "전달했어요 :)"}.get(_locale, "delivered :)")
 	elif _delivery_stage == &"delivering":
-		delivery_caption.text = {"zh-CN": "发送中", "zh-HK": "傳送中", "ja": "お届け中", "ko": "전달 중"}.get(_locale, "delivering") + ".".repeat(1 + int(_delivery_elapsed / 0.4) % 3)
+		delivery_caption.text = {"zh-CN": "发送中", "zh-HK": "傳送中", "ja": "お届け中", "ko": "전달 중"}.get(_locale, "delivering") + ".".repeat(1 + int(_delivery_elapsed / DELIVERY_DOT_SECONDS) % 3)
 
 func _on_delivery_failed(_code: StringName) -> void:
 	if _delivery_pending and _delivery_stage != &"delivered": _hide_delivery_notice()
