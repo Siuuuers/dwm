@@ -63,6 +63,8 @@ func queue_resources(paths: Array, priority: bool = false) -> void:
 			if not priority: continue
 			_pending.erase(path)
 		added.append(path)
+	if added.is_empty(): return
+	set_process(true)
 	if priority: _pending = added + _pending
 	else: _pending.append_array(added)
 
@@ -101,6 +103,8 @@ func _process(_delta: float) -> void:
 			_failed.append(_active)
 			_active = ""
 	match _phase:
+		&"idle":
+			if _active.is_empty(): set_process(false)
 		&"title":
 			if resources_failed([TITLE]):
 				_phase = &"idle"

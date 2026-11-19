@@ -192,6 +192,23 @@ func test_optional_resources_are_queued_only_after_runtime_ready() -> void:
 		assert_false(path in BOOTSTRAP.RUNTIME_RESOURCES, "Optional views cannot hold runtime readiness")
 
 
+func test_idle_loader_wakes_for_new_resources() -> void:
+	var loader: Node = add_child_autofree(BackgroundLoader.new())
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_false(loader.is_processing())
+	var paths := ["res://scripts/domain/contact/SevenDayCalendar.gd"]
+	loader.queue_resources(paths)
+	assert_true(loader.is_processing())
+	var deadline := Time.get_ticks_msec() + 5000
+	while not loader.resources_ready(paths) and Time.get_ticks_msec() < deadline:
+		await get_tree().process_frame
+	assert_true(loader.resources_ready(paths))
+	assert_false(loader.is_processing())
+	loader.queue_resources(paths, true)
+	assert_false(loader.is_processing())
+
+
 func test_startup_loader_owns_autoload_installation() -> void:
 	var text := FileAccess.get_file_as_string("res://project.godot")
 	var section := text.get_slice("[autoload]", 1).get_slice("[", 0)

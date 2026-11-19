@@ -248,7 +248,7 @@ func _process(delta: float) -> void:
 		and _thought_panel.get_parent().is_visible_in_tree()
 	if is_instance_valid(_thought_panel):
 		_thought_panel.set_choice_row_visible(shown)
-		_layout_thought_controls()
+		if shown: _layout_thought_controls()
 	button.visible = shown and marker.value.kind == "thought.pass"
 	button.disabled = not button.visible
 	_refresh_thought_options(marker.value.payload if shown and marker.value.kind == "thought.options" else {})
