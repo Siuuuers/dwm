@@ -166,6 +166,8 @@ func test_unpaid_flags_are_saved_without_capacity_then_preserved_by_first_reveal
 	assert_true(_flag(12, false).ok)
 	var shell: Dictionary = coordinator.get_state().value
 	assert_eq(shell.phase, "UNPAID_UNSTARTED")
+	assert_eq(coordinator.get_preparation_context().value, {"action": "none", "difficulty_id": "beginner",
+		"identity": null, "revision": shell.revision})
 	assert_null(shell.identity)
 	assert_eq(shell.candidate.actions.size(), 3)
 	assert_eq(generator.calls, [])
@@ -203,6 +205,11 @@ func test_paid_replacement_retains_original_payment_and_fresh_spec_on_each_touch
 	assert_true(coordinator.select_difficulty(_request("intermediate")).ok)
 	var replacement: Dictionary = coordinator.get_state().value
 	assert_eq(replacement.phase, "PAID_UNSTARTED")
+	var context: Dictionary = coordinator.get_preparation_context().value
+	assert_eq(context, {"action": "none", "difficulty_id": "intermediate",
+		"identity": original.identity, "revision": replacement.revision})
+	context.identity.clear()
+	assert_eq(coordinator.get_preparation_context().value.identity, original.identity)
 	assert_eq(replacement.identity, original.identity)
 	assert_eq(replacement.candidate.paid_start_receipt, original.board.paid_start_receipt)
 	assert_eq(replacement.candidate.spec.difficulty_id, "intermediate")
@@ -411,6 +418,7 @@ func test_paid_frozen_debug_refuses_materialization_even_if_live_debug_was_remov
 	port.generation_capabilities = ["first_cell_safe", "forced_no_guess"]
 	assert_true(coordinator.select_difficulty(_request("intermediate")).ok)
 	port.generation_capabilities = ["first_cell_safe"]
+	assert_eq(coordinator.get_preparation_context().value.action, "begin")
 	var before: Dictionary = coordinator.get_state().value
 	var calls := generator.calls.size()
 	var result := _reveal(40, "intermediate")

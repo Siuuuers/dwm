@@ -109,7 +109,15 @@ func reset() -> void:
 
 
 func preparation_header() -> Dictionary:
-	return {"phase": _phase, "revision": _revision}
+	var header := {"phase": _phase, "revision": _revision}
+	if _phase == _PHASE_UNPAID:
+		header["difficulty_id"] = _candidate.difficulty_id
+	elif _phase == _PHASE_PAID or _phase == _PHASE_PREPARING:
+		header["difficulty_id"] = _candidate.spec.difficulty_id
+		header["identity"] = _dup_or_null(_identity)
+		if _phase == _PHASE_PAID:
+			header["forced_no_guess"] = _candidate.spec.capability_ids.has("forced_no_guess")
+	return header
 
 
 func capture() -> Dictionary:
