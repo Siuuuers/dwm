@@ -54,7 +54,7 @@ static func _select_startup_fixture() -> Dictionary:
 		if not passages is Dictionary or not passages.get("records") is Dictionary:
 			selected = _scene_fail("passage catalogue unavailable")
 		else:
-			selected = _configure_scene_registration(parsed, passages, text.trim_suffix("\n").sha256_text())
+			selected = _configure_scene_registration(parsed, passages, text.trim_suffix("\n").sha256_text(), true)
 	if selected.ok:
 		if fixture: _first_target_id = "target_a"
 		else:
@@ -87,12 +87,12 @@ static func configure_test_scene_registration(bundle: Dictionary) -> Dictionary:
 	if not structural.ok: return structural
 	return _configure_scene_registration(bundle, passages.value, structural.value.fingerprint)
 
-static func _configure_scene_registration(bundle: Dictionary, passages: Dictionary, fingerprint: String) -> Dictionary:
+static func _configure_scene_registration(bundle: Dictionary, passages: Dictionary, fingerprint: String, owns_inputs: bool = false) -> Dictionary:
 	if _registration_used or not _scene_bundle.is_empty():
 		return _scene_fail("registration_already_selected")
 	# Build checks own shipped structure and canonical bytes; fixtures validate before adoption.
-	_scene_bundle = bundle.duplicate(true)
-	_scene_contract_tables = {"fingerprint": fingerprint, "markers": {}, "passages": passages.records.duplicate(true)}
+	_scene_bundle = bundle if owns_inputs else bundle.duplicate(true)
+	_scene_contract_tables = {"fingerprint": fingerprint, "markers": {}, "passages": passages.records if owns_inputs else passages.records.duplicate(true)}
 	for pair: Array in [["entries", "entry_id"], ["targets", "target_id"], ["board_profiles", "board_profile_id"],
 			["challenges", "challenge_id"], ["contacts", "contact_event_id"]]:
 		var rows: Array = _scene_bundle.scene_programme.entries if pair[0] == "entries" else _scene_bundle[pair[0]]
