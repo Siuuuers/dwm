@@ -54,17 +54,14 @@ class Coordinator extends Node:
 	func request_lifecycle_command(_command: StringName) -> Dictionary: return {"ok": admitted}
 	func get_state() -> Dictionary: return {"ok": true, "value": {"state": &"Suspended"}}
 
-class Bridge extends RefCounted:
+class Bridge extends Node:
 	var qualified := true
 	var retained := true
 	var captures: Array[bool] = []
-	var hospital_command: Dictionary = {}
 	var checkpoint := {"timeline_id": "qualified.pre", "line_id": "qualified.first",
 		"reading_session": {"version": 1, "session_id": "reading-session", "history": ["first"]}}
 	func can_capture_reading_checkpoint() -> bool: return qualified
 	func has_reading_session() -> bool: return retained
-	func can_capture_hospital_reading_checkpoint(command: Dictionary) -> bool:
-		return qualified and retained and not hospital_command.is_empty() and command == hospital_command
 	func capture_reading_checkpoint(complete_reveal: bool = false) -> Dictionary:
 		captures.append(complete_reveal)
 		return {"ok": true, "value": checkpoint.duplicate(true)} if qualified else {"ok": false}
@@ -109,26 +106,16 @@ class HospitalRouter extends Node:
 	var route := "hospital"
 	func get_current_route_id() -> String: return route
 
-class HospitalSceneProbe extends Control:
-	var command: Dictionary = {}
-	func get_presentation_projection() -> Dictionary: return command.duplicate(true)
-
-class RetirementBridge extends Node:
-	var retired: Array[Dictionary] = []
-	func retire_completed_hospital_reading(command: Dictionary) -> Dictionary:
-		retired.append(command.duplicate(true))
-		return {"ok": true}
-
-class RetirementGame extends Node:
-	var session := {"active": true, "run_id": "hospital-run", "generation": 1}
-	func capture_live_session() -> Dictionary: return {"ok": true, "value": session.duplicate(true)}
-
-class EndingRetirementLifecycle extends RefCounted:
+class SceneLifecycle extends RefCounted:
 	var state := "ENDING"
 	func to_dict() -> Dictionary: return {"state": state, "run_id": "ending-run"}
+	func is_scene_run() -> bool: return true
 
-class EndingRetirementGame extends RetirementGame:
-	var _run_lifecycle := EndingRetirementLifecycle.new()
+class SceneGame extends Node:
+	var session := {"active": false, "run_id": "ending-run", "generation": 2}
+	var _run_lifecycle := SceneLifecycle.new()
+	func capture_live_session() -> Dictionary: return {"ok": true, "value": session.duplicate(true)}
+	func capture_run_snapshot_input() -> Dictionary: return {"lifecycle": _run_lifecycle.to_dict()}
 
 class EndingRetirementRouter extends HospitalRouter:
 	var held := false
@@ -146,7 +133,7 @@ class EndingRetirementBridge extends Node:
 		retirements += 1
 		retained = false
 
-class RetirementBootstrap extends "res://autoload/ApplicationBootstrap.gd":
+class BootstrapProbe extends "res://autoload/ApplicationBootstrap.gd":
 	var targets: Dictionary = {}
 	func _ready() -> void: pass
 	func _target(key: StringName) -> Node: return targets.get(key)
@@ -174,7 +161,7 @@ func before_each() -> void:
 	_coordinator = Coordinator.new()
 	_controller.add_child(_coordinator)
 	_controller.coordinator = _coordinator
-	_bridge = Bridge.new()
+	_bridge = autofree(Bridge.new())
 	_dating = DatingOwner.new()
 	_caption = CAPTION.new()
 	_native = DialogicNode_DialogText.new()
@@ -216,7 +203,6 @@ func _use_hospital() -> HospitalOwner:
 	var command := request.duplicate(true)
 	command["command_sha256"] = CANON.canonical_sha256(request).value.sha256
 	command["physical_token"] = HOSPITAL_OWNER.derive_token(command.completion_transaction_id, command.command_sha256)
-	_bridge.hospital_command = command.duplicate(true)
 	_bridge.checkpoint = snapshot.narrative_checkpoint.duplicate(true)
 	_controller._captured_source = {"route_id": "hospital", "command": command,
 		"session": owner.session.duplicate(true), "frontier": {"event_index": 1, "generation": 1, "request_id": "hospital-native"}}
@@ -334,75 +320,24 @@ func test_hospital_save_manager_capture_accepts_only_qualified_line_without_muta
 		assert_eq(manager._backup_action_sequence, 0, field)
 		assert_false(manager._pending_deferred_save, field)
 
-func test_bootstrap_hospital_provider_requires_paused_exact_registered_scene() -> void:
-	_use_hospital()
-	var bootstrap: Node = RetirementBootstrap.new()
+func test_bootstrap_paused_checkpoint_provider_refuses_hospital_route() -> void:
+	var bootstrap: Node = BootstrapProbe.new()
 	add_child_autofree(bootstrap)
-	var prior := get_tree().current_scene
-	var was_paused := get_tree().paused
-	var scene := HospitalSceneProbe.new()
-	get_tree().root.add_child(autofree(scene))
-	scene.scene_file_path = "res://scenes/hospital/HospitalScene.tscn"
-	scene.command = _bridge.hospital_command.duplicate(true)
-	get_tree().current_scene = scene
-	get_tree().paused = false
-	assert_false(bootstrap._capture_dating_reading_checkpoint(_bridge, "hospital").get("ok", true))
-	assert_eq(_bridge.captures, [])
+	var router: Node = autofree(HospitalRouter.new())
+	var game: SceneGame = autofree(SceneGame.new())
+	game.session.active = true
+	game._run_lifecycle.state = "PLAYING"
+	bootstrap.targets = {&"GameState": game, &"DialogicBridge": _bridge, &"SceneRouter": router,
+		&"AudioManager": get_node("/root/AudioManager")}
 	get_tree().paused = true
-	var captured: Dictionary = bootstrap._capture_dating_reading_checkpoint(_bridge, "hospital")
-	assert_true(captured.get("ok", false), str(captured))
-	assert_eq(captured.get("value"), _bridge.checkpoint)
+	var result: Dictionary = bootstrap._capture_paused_checkpoint_inputs()
+	assert_eq(result.get("code"), &"backup_capture_unavailable")
+	assert_eq(_bridge.captures, [])
+	router.route = "scene"
+	result = bootstrap._capture_paused_checkpoint_inputs()
+	assert_true(result.ok)
+	assert_eq(result.get("value", {}).get("dialogic_checkpoint"), _bridge.checkpoint)
 	assert_eq(_bridge.captures, [false])
-	scene.command.physical_token = "foreign-source"
-	assert_false(bootstrap._capture_dating_reading_checkpoint(_bridge, "hospital").get("ok", true))
-	assert_eq(_bridge.captures, [false])
-	get_tree().paused = was_paused
-	get_tree().current_scene = prior
-
-func test_hospital_completed_anchor_retires_only_after_actual_main_publication() -> void:
-	var bootstrap: Node = RetirementBootstrap.new()
-	add_child_autofree(bootstrap)
-	var game: Node = autofree(RetirementGame.new())
-	var bridge: Node = autofree(RetirementBridge.new())
-	var router: Node = autofree(HospitalRouter.new())
-	router.route = "main"
-	bootstrap.targets = {&"GameState": game, &"DialogicBridge": bridge, &"SceneRouter": router}
-	var prior := get_tree().current_scene
-	var hospital := Control.new()
-	get_tree().root.add_child(autofree(hospital))
-	hospital.scene_file_path = "res://scenes/hospital/HospitalScene.tscn"
-	get_tree().current_scene = hospital
-	var command := {"completion_transaction_id": "completed-hospital"}
-	bootstrap._retire_completed_hospital_after_main(command, game.session.duplicate(true))
-	assert_eq(bridge.retired, [], "a route flag does not prove destination publication")
-	var destination := Control.new()
-	get_tree().root.add_child(autofree(destination))
-	destination.scene_file_path = "res://scenes/main/MainGameScene.tscn"
-	get_tree().current_scene = destination
-	get_tree().scene_changed.emit()
-	assert_eq(bridge.retired, [command])
-	await bootstrap._retire_completed_hospital_after_main({}, game.session.duplicate(true))
-	assert_eq(bridge.retired, [command, {}], "completed-stage restore can carry its validated anchor without reconstructing a physical command")
-	get_tree().current_scene = prior
-
-func test_hospital_anchor_retirement_refuses_replaced_live_session_after_publication() -> void:
-	var bootstrap: Node = RetirementBootstrap.new()
-	add_child_autofree(bootstrap)
-	var game: Node = autofree(RetirementGame.new())
-	var bridge: Node = autofree(RetirementBridge.new())
-	var router: Node = autofree(HospitalRouter.new())
-	router.route = "main"
-	bootstrap.targets = {&"GameState": game, &"DialogicBridge": bridge, &"SceneRouter": router}
-	var prior := get_tree().current_scene
-	var destination := Control.new()
-	get_tree().root.add_child(autofree(destination))
-	destination.scene_file_path = "res://scenes/main/MainGameScene.tscn"
-	get_tree().current_scene = destination
-	var session: Dictionary = game.session.duplicate(true)
-	game.session.generation += 1
-	await bootstrap._retire_completed_hospital_after_main({"completion_transaction_id": "old-hospital"}, session)
-	assert_eq(bridge.retired, [])
-	get_tree().current_scene = prior
 
 func test_qualified_full_line_save_captures_same_semantics_without_revealing_or_releasing() -> void:
 	var held: Dictionary = _controller._handle.duplicate(true)
@@ -598,13 +533,12 @@ func test_refused_paused_save_preparation_cancels_exact_token_before_commit_and_
 	assert_eq(owner.calls, ["release-load", "commit:load", "finish-load"], "Load never prepares reveal")
 
 func test_ending_terminal_anchor_retires_only_for_completed_current_run_after_menu_publication() -> void:
-	var bootstrap: Node = RetirementBootstrap.new()
+	var bootstrap: Node = BootstrapProbe.new()
 	add_child_autofree(bootstrap)
-	var game: Node = autofree(EndingRetirementGame.new())
+	var game: Node = autofree(SceneGame.new())
 	var bridge: Node = autofree(EndingRetirementBridge.new())
 	var router: Node = autofree(EndingRetirementRouter.new())
 	router.route = "menu"
-	game.session = {"active": false, "run_id": "ending-run", "generation": 2}
 	bootstrap.targets = {&"GameState": game, &"DialogicBridge": bridge, &"SceneRouter": router}
 	var scene := Control.new()
 	get_tree().root.add_child(autofree(scene))
