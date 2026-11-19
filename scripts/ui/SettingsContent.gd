@@ -132,6 +132,7 @@ func is_departure_blocked() -> bool:
 
 
 func _ready() -> void:
+	set_process(false)
 	set_interaction_enabled(interaction_enabled)
 	for entry: Array in [["profile", "ProfileManager"], ["localization", "LocalizationManager"], ["audio", "AudioManager"], ["tts", "SystemTtsCoordinator"], ["input", "InputManager"], ["window", "WindowModeManager"]]:
 		if not _services.has(entry[0]):
@@ -160,11 +161,6 @@ func _exit_tree() -> void:
 		profile.profile_write_failed.disconnect(_on_profile_write_failed)
 	if _controller != null:
 		_controller.unbind()
-
-
-func _process(_delta: float) -> void:
-	if host_context == "title" and _selected == "records" and is_visible_in_tree():
-		_refresh_entire_profile_admission()
 
 
 func _notification(what: int) -> void:
@@ -332,6 +328,8 @@ func _add_resets(sheet: VBoxContainer, ids: Array[String]) -> void:
 		PRESENTATION.attach_state(button)
 		sheet.add_child(button)
 		_reset_buttons[id] = button
+		if id == "entire_profile":
+			button.visibility_changed.connect(func() -> void: set_process(button.is_visible_in_tree()))
 		var dialog := RESET_CONFIRMATION.new()
 		dialog.name = id.to_pascal_case() + "ResetConfirmation"
 		dialog.configure(id)
@@ -407,10 +405,8 @@ func refresh_reset_admission(busy: bool) -> void:
 		_reset_buttons[id].queue_redraw()
 
 
-func _refresh_entire_profile_admission() -> void:
-	var button: Button = _reset_buttons.get("entire_profile")
-	if button == null:
-		return
+func _process(_delta: float) -> void:
+	var button: Button = _reset_buttons["entire_profile"]
 	var disabled := _reset_busy or not can_reset_entire_profile()
 	if button.disabled != disabled:
 		button.disabled = disabled
