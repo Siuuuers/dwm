@@ -89,7 +89,7 @@ static func get_resource_path_from_identifier(identifier:String, extension:Strin
 ## Returns the resource associated with the given unique identifier.
 ## The expected extension is needed to use the right directory.
 static func get_resource_from_identifier(identifier:String, extension:String) -> Resource:
-	var value: Variant = get_directory(extension).get(identifier, '')
+	var value: Variant = get_directory(extension).get(identifier)
 	if typeof(value) == TYPE_STRING and ResourceLoader.exists(value):
 		return load(value)
 	elif value is Resource:
@@ -100,7 +100,7 @@ static func get_resource_from_identifier(identifier:String, extension:String) ->
 ## Returns a boolean that expresses whether the resource exists.
 ## The expected extension is needed to use the right directory.
 static func resource_exists_from_identifier(identifier:String, extension:String) -> bool:
-	var value: Variant = get_directory(extension).get(identifier, '')
+	var value: Variant = get_directory(extension).get(identifier)
 	if typeof(value) == TYPE_STRING:
 		return ResourceLoader.exists(value)
 	return value is Resource
