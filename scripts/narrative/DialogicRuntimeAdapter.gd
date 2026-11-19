@@ -114,18 +114,16 @@ func _scene_source_boundary(session: RefCounted, allow_suspended_read: bool = fa
 	if not saved.ok: return saved
 	var owner := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 	var selected := owner.scene_contract_tables()
-	if not selected.ok or session.fingerprint != owner.scene_registration_fingerprint():
+	if not selected.ok or session.fingerprint != selected.value.fingerprint:
 		return _fail(&"scene_source_registration_changed", "")
-	var labels: Array = []
 	var path := ""
-	var programme := {}
+	var programme: Dictionary = selected.value.entries.get(_caption_entry, {})
 	for entry: Dictionary in selected.bundle.entry_manifest.entries:
-		labels.append(entry.entry_id)
-		if entry.entry_id == _caption_entry: path = entry.locators.en.path
-	for row: Dictionary in selected.bundle.scene_programme.entries:
-		if row.entry_id == _caption_entry: programme = row
+		if entry.entry_id == _caption_entry:
+			path = entry.locators.en.path
+			break
 	if programme.is_empty() or path != _requested_path: return _fail(&"scene_source_unavailable", "")
-	var compiled := compile_runtime_scene_programme(path, _caption_entry, labels, programme.markers)
+	var compiled := compile_runtime_scene_programme(path, _caption_entry, selected.value.entries.keys(), programme.markers)
 	if not compiled.ok: return compiled
 	var index: int = session.scene_index
 	if session.boundary == "control":
@@ -141,7 +139,9 @@ func _scene_source_boundary(session: RefCounted, allow_suspended_read: bool = fa
 		return _fail(&"scene_source_boundary_invalid", "")
 	var authored_text := ""
 	for event: Dictionary in compiled.value.events:
-		if event.kind == "text" and event.line_id == node.line_id: authored_text = event.text
+		if event.kind == "text" and event.line_id == node.line_id:
+			authored_text = event.text
+			break
 	if _caption_event.get_property_translated("text") != authored_text \
 			or _caption_event.character != null or not _caption_event.character_identifier.is_empty():
 		return _fail(&"scene_source_boundary_invalid", "live source differs from the authenticated programme")
