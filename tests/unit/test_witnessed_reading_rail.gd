@@ -107,6 +107,8 @@ func test_history_is_plain_opaque_caption_projection_with_two_focus_anchors() ->
 	var source := ["First public caption.", "[b]Literal brackets are not new markup.[/b]", "Final public caption."]
 	assert_true(history.present(source))
 	await get_tree().process_frame
+	assert_eq(history.reading_scroll.get_v_scroll_bar().get_theme_stylebox("scroll").bg_color, history._roles[&"field"])
+	assert_eq(presentation.get_stylebox(&"scroll", &"VScrollBar").bg_color, history._roles[&"deep"])
 	assert_eq(history.get_captions(), source)
 	source[0] = "This must not change the mounted projection."
 	assert_eq(history.get_captions()[0], "First public caption.")
