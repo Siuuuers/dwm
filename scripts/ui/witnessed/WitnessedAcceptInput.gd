@@ -57,8 +57,8 @@ func bind_accessible_continue(control: Control) -> void:
 	_accessible_continue = control
 	_retire_accessibility_accept()
 
-func is_accessibility_continue_admitted() -> bool:
-	return _admissible() and _contacts.is_empty() and _page_contacts.is_empty() \
+func is_accessibility_input_neutral() -> bool:
+	return _contacts.is_empty() and _page_contacts.is_empty() \
 		and not _await_initial_neutral and not Input.is_action_pressed(_action()) and not _page_is_held() \
 		and (not is_instance_valid(_input_custody) or not _input_custody.has_method("get_physical_contacts") \
 		or _input_custody.call("get_physical_contacts").is_empty())
@@ -138,10 +138,7 @@ func capture_accessibility_accept(target: Control) -> Callable:
 func _accessibility_accept(_request: Variant, target: Control, generation: int, reveal_generation: int) -> void:
 	if generation != _accessibility_generation or not _admissible() \
 			or target != _focus_caption() or reveal_generation != _caption.get_reveal_generation() \
-			or not _contacts.is_empty() or not _page_contacts.is_empty() or _await_initial_neutral \
-			or Input.is_action_pressed(_action()) or _page_is_held(): return
-	if is_instance_valid(_input_custody) and _input_custody.has_method("get_physical_contacts") \
-			and not _input_custody.call("get_physical_contacts").is_empty(): return
+			or not is_accessibility_input_neutral(): return
 	target.grab_focus()
 	if generation != _accessibility_generation or target != _focus_caption(): return
 	_retire_accessibility_accept()
