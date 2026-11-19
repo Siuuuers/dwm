@@ -881,7 +881,7 @@ func test_paused_settings_quick_load_cancel_retains_exact_focus_after_deferred_v
 	var origin: Control = content.control_for(&"preferences.reading.reveal_speed")
 	origin.grab_focus()
 	var scroll_before := Vector2i(content.rail_scroll.scroll_vertical, content.sheet_scroll.scroll_vertical)
-	var source_before: Dictionary = controller._quick_source_snapshot()
+	var source_before: Dictionary = controller._quick_source().duplicate(true)
 	var profile_before: Dictionary = profile.get_profile_snapshot()
 	_quick_native_tap(KEY_F9)
 	var sheet: Control = controller.surface._host_confirmation
@@ -901,7 +901,7 @@ func test_paused_settings_quick_load_cancel_retains_exact_focus_after_deferred_v
 	assert_same(get_viewport().gui_get_focus_owner(), origin, "Settings deferred visibility must not steal restored focus")
 	assert_eq(content.get("_selected"), "reading")
 	assert_eq(Vector2i(content.rail_scroll.scroll_vertical, content.sheet_scroll.scroll_vertical), scroll_before)
-	assert_eq(controller._quick_source_snapshot(), source_before)
+	assert_eq(controller._quick_source(), source_before)
 	assert_eq(profile.get_profile_snapshot(), profile_before)
 	assert_eq(saves.loaded, 0)
 	assert_eq(saves.writes, 0)
@@ -1296,6 +1296,19 @@ func test_paused_settings_load_success_uses_destination_palette_without_changing
 	controller.surface._activate(&"settings")
 	assert_eq(settings.get_content_host().get_palette_id(), &"after_hours")
 	assert_eq(profile.get_profile_snapshot(), profile_before)
+
+func test_paused_quick_load_rejects_changes_inside_the_captured_source() -> void:
+	saves.populated = true
+	if not await _open_pause(): return
+	_quick_native_tap(KEY_F9)
+	var sheet: Control = controller.surface._host_confirmation
+	assert_not_null(sheet)
+	if sheet == null: return
+	controller._captured_source.session.run_id = "replacement"
+	controller._quick_commands._process(0.0)
+	assert_null(controller.surface._host_confirmation)
+	assert_true(saves.pending.is_empty())
+	assert_eq(saves.loaded, 0)
 
 func test_paused_settings_load_stale_record_or_source_never_reaches_restore() -> void:
 	saves.populated = true
