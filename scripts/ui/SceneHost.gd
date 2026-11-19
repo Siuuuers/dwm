@@ -251,12 +251,13 @@ func _process(delta: float) -> void:
 		_layout_thought_controls()
 	button.visible = shown and marker.value.kind == "thought.pass"
 	button.disabled = not button.visible
-	_refresh_thought_options(marker.value.payload.options if shown and marker.value.kind == "thought.options" else [])
+	_refresh_thought_options(marker.value.payload if shown and marker.value.kind == "thought.options" else {})
 
-func _refresh_thought_options(options: Array) -> void:
+func _refresh_thought_options(payload: Dictionary) -> void:
 	var panel: ScrollContainer = $SceneControlsLayer/Surface/ThoughtOptions
+	if payload.is_empty() and not panel.visible: return
+	panel.visible = not payload.is_empty()
 	var column: HBoxContainer = panel.get_node("Options")
-	panel.visible = not options.is_empty()
 	var locale: String = _localization.get_locale() if _localization != null else "en"
 	var secondary := ""
 	var percent := 100
@@ -266,22 +267,19 @@ func _refresh_thought_options(options: Array) -> void:
 			secondary = str(_profile.get_preference(&"preferences.language.secondary_locale_id", ""))
 		percent = int(_profile.get_preference(&"preferences.accessibility.text_size", 100))
 		font_style = str(_profile.get_preference(&"preferences.accessibility.font_style", "pixel"))
-	var offer := {"options": options, "frontier": _thought_frontier, "locale": locale,
+	var offer := {"payload": payload, "frontier": _thought_frontier, "locale": locale,
 		"secondary": secondary, "percent": percent, "font_style": font_style} if panel.visible else {}
-	if offer == _thought_options_offer: return
-	_thought_options_offer = offer.duplicate(true)
-	var focused := -1
-	var child_index := 0
-	for child: Node in column.get_children():
-		if child is Control and child.has_focus(): focused = child_index
-		child_index += 1
+	if panel.visible and offer == _thought_options_offer: return
+	_thought_options_offer = offer
+	var children := column.get_children()
+	var focused := children.find(get_viewport().gui_get_focus_owner())
+	for child: Node in children:
 		column.remove_child(child)
 		child.queue_free()
-	var marker: Dictionary = get_node("/root/DialogicBridge").capture_scene_pending_marker() if panel.visible else {}
 	var paired_height := 0.0
-	for option: Dictionary in options:
+	for option: Dictionary in payload.get("options", []):
 		var button := Button.new()
-		var key := "choice.%s.%s" % [marker.get("value", {}).get("payload", {}).get("opportunity_id", ""), option.choice_id]
+		var key := "choice.%s.%s" % [payload.opportunity_id, option.choice_id]
 		var pair := STORY_TEXT.pair(locale, secondary, key, option.text)
 		button.text = pair.text
 		button.language = str(pair.content_locale).replace("_", "-")

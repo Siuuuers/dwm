@@ -44,5 +44,6 @@ func test_choice_row_occupies_self_talk_panel_before_any_paired_thought() -> voi
 	if not await _wait_line("line.scene.test.partner.lavinia.after"): return
 	assert_eq(game.scene_choices, {"TEST.partner": "second"}, "existing owner commits exactly the selected answer")
 	for frame: int in 12: await get_tree().process_frame
-	assert_false(choices.visible, "resolved choices leave no stale buttons")
+	assert_false(choices.visible)
+	assert_eq(row.get_child_count(), 0, "resolving the choice removes its buttons")
 	print("SELF_TALK_CHOICES_COMPLETED")
