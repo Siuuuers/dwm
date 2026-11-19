@@ -9,7 +9,6 @@ func _edge() -> Label:
 	var edge: Label = EDGE.new()
 	edge.size.x = 240
 	viewport.add_child(edge)
-	edge.set_process(false)
 	watch_signals(edge)
 	return edge
 
@@ -30,18 +29,24 @@ func test_saved_and_refusal_expire_on_exact_eligible_lifetime() -> void:
 
 func test_suppression_preserves_time_and_does_not_repeat_announcement() -> void:
 	var edge := _edge()
+	assert_false(edge.is_processing())
 	edge.set_eligible(true)
+	assert_false(edge.is_processing())
 	edge.publish_status(&"saved",{"run":"one"},func(): return true)
+	assert_true(edge.is_processing())
 	edge.advance_eligible_time(0.5)
 	edge.set_eligible(false)
+	assert_false(edge.is_processing())
 	edge.advance_eligible_time(50)
 	assert_false(edge.visible)
 	assert_eq(edge.remaining_seconds,1.5)
 	edge.set_eligible(true)
+	assert_true(edge.is_processing())
 	assert_true(edge.visible)
 	assert_eq(edge.accessibility_live,DisplayServer.LIVE_OFF)
 	assert_signal_emit_count(edge,"status_announced",1)
 	edge.advance_eligible_time(1.5)
+	assert_false(edge.is_processing())
 	assert_false(edge.visible)
 
 func test_delayed_publication_revalidates_and_stale_fact_never_announces() -> void:

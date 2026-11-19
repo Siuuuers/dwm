@@ -34,6 +34,7 @@ func _init() -> void:
 	set_presentation("en",100)
 
 func _ready() -> void:
+	set_process(false)
 	if _eligible: _show_current()
 
 func publish_status(next_key: StringName, binding: Dictionary, validator: Callable) -> void:
@@ -52,6 +53,7 @@ func publish_status(next_key: StringName, binding: Dictionary, validator: Callab
 	if _eligible: _show_current()
 
 func clear_status() -> void:
+	set_process(false)
 	_generation += 1
 	key = &""
 	_binding.clear()
@@ -69,6 +71,7 @@ func set_eligible(eligible: bool) -> void:
 	_eligible = eligible
 	_validation_elapsed = 0.0
 	if not eligible:
+		set_process(false)
 		accessibility_live = DisplayServer.LIVE_OFF
 		hide()
 	else: _show_current()
@@ -113,6 +116,7 @@ func _validate_current() -> bool:
 
 func _show_current() -> void:
 	if key.is_empty() or not _eligible or not is_inside_tree(): return
+	set_process(true)
 	var parent_item := get_parent() as CanvasItem
 	if parent_item != null and not parent_item.is_visible_in_tree(): return
 	if not _validate_current() or not _eligible: return
