@@ -46,7 +46,16 @@ func test_native_music_preserves_unbounded_duration_and_authored_entrance() -> v
 	assert_false(_valid(catalogue), "raw NSF has no finite duration to invent")
 	catalogue.assets[0].duration_ms = 0
 	catalogue.schema_version = 2
-	assert_false(_valid(catalogue), "native media requires the inline audio catalogue")
+	catalogue.plans[0].load_anchor_ms = 1000
+	assert_true(_valid(catalogue))
+	context = MANIFEST.make_scene_context(registration, "scene.test.b", "admission.test")
+	assert_true(context.ok, str(context))
+	if not context.ok: return
+	resolved = MANIFEST.resolve_scene_context(context.value, registration)
+	assert_true(resolved.ok, str(resolved))
+	if not resolved.ok: return
+	assert_eq(resolved.value.entrance_seconds, 1.25)
+	assert_eq(resolved.value.load_seconds, 1.0, "named music restores its own load anchor")
 
 func test_finite_native_sfx_requires_duration_and_cannot_be_looping_music() -> void:
 	var catalogue := _catalogue()
