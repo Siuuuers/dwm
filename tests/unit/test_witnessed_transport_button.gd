@@ -120,6 +120,24 @@ func test_idle_button_skips_contact_snapshot_and_motion_reads_it_once() -> void:
 	assert_eq(_manager.snapshots, before + 1)
 
 
+func test_frame_checks_run_while_a_candidate_or_retired_contact_needs_them() -> void:
+	_button.grab_focus()
+	assert_false(_button.is_processing())
+	_push(_key(true))
+	assert_true(_button.is_processing())
+	_admission.admitted = false
+	for frame in 3: await get_tree().process_frame
+	assert_true(_button._candidate.is_empty())
+	assert_false(_button.is_processing())
+	_button.retire_input()
+	assert_true(_button.is_processing())
+	_manager.observe_physical_contact(_key(false))
+	for frame in 3: await get_tree().process_frame
+	assert_true(_button._blocked_contacts.is_empty())
+	assert_false(_button.is_processing())
+	assert_eq(_activated, 0)
+
+
 func test_programmatic_pressed_is_inert_and_native_action_is_generation_bound() -> void:
 	_button.pressed.emit()
 	assert_eq(_activated, 0, "Button.pressed is never command admission")
