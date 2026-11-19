@@ -1,5 +1,5 @@
 # Run on a disposable Windows cloud runner using the standard Godot editor.
-# This verifies packaging and headless startup; it does not certify UIA or release readiness.
+# This verifies packaging and windowed startup; it does not certify UIA or release readiness.
 # Requires a previously imported checkout, GODOT_CONSOLE_PATH, and the cached official TPZ.
 #requires -Version 7.0
 param(
@@ -24,8 +24,8 @@ $result = [ordered]@{
     commit = (& git -C $repositoryRoot rev-parse HEAD).Trim()
     ci_event_commit = $env:GITHUB_SHA
     engine = '4.6.3.stable'; architecture = 'x86_64'; signed = $false
-    scope = 'Unsigned Windows release export, packaged data audit, isolated headless startup'
-    limitations = @('No graphical rendering, UI Automation, screen-reader, or full release acceptance claim')
+    scope = 'Unsigned Windows release export, packaged data audit, isolated windowed startup'
+    limitations = @('No visual inspection, UI Automation, screen-reader, or full release acceptance claim')
     templates_sha256 = $expectedTemplateHash
 }
 
@@ -53,6 +53,20 @@ function Invoke-CheckedProcess {
         if (-not $process.Start()) { throw "$Name failed to start." }
         $stdout = $process.StandardOutput.ReadToEndAsync()
         $stderr = $process.StandardError.ReadToEndAsync()
+        if ($Name -eq 'smoke') {
+            # Close through the same window notification that drains native audio on player exit.
+            $profile = Join-Path $UserRoot 'appdata/Godot/app_userdata/DWM/profile.json'
+            $deadline = [datetime]::UtcNow.AddSeconds(45)
+            while (-not $process.HasExited -and [datetime]::UtcNow -lt $deadline) {
+                $process.Refresh()
+                if ($process.MainWindowHandle -ne 0 -and (Test-Path -LiteralPath $profile)) {
+                    Start-Sleep -Seconds 4
+                    if (-not $process.CloseMainWindow()) { throw 'Could not close the exported game window.' }
+                    break
+                }
+                Start-Sleep -Milliseconds 200
+            }
+        }
         if (-not $process.WaitForExit($TimeoutSeconds * 1000)) {
             $timedOut = $true
             $process.Kill($true)
@@ -191,12 +205,12 @@ try {
         # project, script override, test bootstrap, or pre-existing user state.
         # The official release template rejects --path; WorkingDirectory is the
         # package directory and native discovery must open the adjacent DWM.pck.
-        $null = Invoke-CheckedProcess $executable @('--headless', '--verbose', '--max-fps', '60',
-            '--quit-after', '240', '--log-file', (Join-Path $output 'smoke.log')) 'smoke' $smokeUser 90
+        $null = Invoke-CheckedProcess $executable @('--windowed', '--verbose', '--max-fps', '60',
+            '--log-file', (Join-Path $output 'smoke.log')) 'smoke' $smokeUser 90
         $profilePath = Join-Path $smokeUser 'appdata/Godot/app_userdata/DWM/profile.json'
         if (-not (Test-Path -LiteralPath $profilePath -PathType Leaf)) { throw 'Exported startup did not create its isolated profile.' }
         $null = Get-Content -LiteralPath $profilePath -Raw | ConvertFrom-Json
-        $result.smoke = @{ executable = 'DWM.exe'; headless = $true; iterations = 240; isolated_profile_created = $true; ok = $true }
+        $result.smoke = @{ executable = 'DWM.exe'; windowed = $true; isolated_profile_created = $true; ok = $true }
     } catch {
         $result.smoke = @{ ok = $false; failure = $_.Exception.Message }
         $validationFailures.Add('Native startup: ' + $_.Exception.Message)
