@@ -597,25 +597,22 @@ func get_preparation_context() -> Dictionary:
 	if header.phase not in ["NONE", "UNPAID_UNSTARTED", "PAID_UNSTARTED", "PREPARING"]:
 		return {"ok": true, "value": {"action": "none", "difficulty_id": _selected_difficulty(),
 			"identity": null, "revision": int(header.revision)}}
-	var state := _board_state.capture()
-	var difficulty := _selected_difficulty()
-	if state.candidate is Dictionary:
-		difficulty = str(state.candidate.spec.difficulty_id) if state.candidate.has("spec") else str(state.candidate.difficulty_id)
-	var context := {"action": "none", "difficulty_id": difficulty, "identity": state.identity, "revision": int(state.revision)}
+	var difficulty: String = header.difficulty_id if header.has("difficulty_id") else _selected_difficulty()
+	var context := {"action": "none", "difficulty_id": difficulty, "identity": header.get("identity"), "revision": int(header.revision)}
 	if not _guard(&"prepare_board").is_empty(): return {"ok": true, "value": context}
 	if _consequence_gate != null and not _consequence_gate.guard_external(&"prepare_board").get("ok", false):
 		return {"ok": true, "value": context}
 	if not _debug_pending.is_empty() and _debug_pending.source == _debug_source():
-		if state != _debug_pending.before: return _fail(&"debug_retry_source_changed", "", {})
+		if _board_state.capture() != _debug_pending.before: return _fail(&"debug_retry_source_changed", "", {})
 		context.action = _debug_pending.action
 		context.identity = _debug_pending.request.expected_identity
 		context.difficulty_id = _debug_pending.get("difficulty_id", difficulty)
 		return {"ok": true, "value": context}
-	if state.phase == "PREPARING":
+	if header.phase == "PREPARING":
 		context.action = "slice"
-	elif state.phase == "PAID_UNSTARTED":
-		if state.candidate.spec.capability_ids.has("forced_no_guess"): context.action = "begin"
-	elif state.phase in ["NONE", "UNPAID_UNSTARTED"] and _state_port.has_method("get_generation_capabilities"):
+	elif header.phase == "PAID_UNSTARTED":
+		if header.forced_no_guess: context.action = "begin"
+	elif header.phase in ["NONE", "UNPAID_UNSTARTED"] and _state_port.has_method("get_generation_capabilities"):
 		var capabilities: Dictionary = _state_port.call(&"get_generation_capabilities")
 		if not capabilities.get("ok", false): return capabilities
 		if capabilities.value.capability_ids.has("forced_no_guess"):
