@@ -128,7 +128,7 @@ func configure(presentation: Theme, localization: Object, input_owner: Node, adm
 	_roles = roles
 	_input_owner = input_owner
 	_admission = admission
-	theme = presentation.duplicate()
+	theme = presentation
 	if localization.has_method("get_presentation_profile"):
 		var preferences: Dictionary = localization.get_presentation_profile()
 		_text_percent = int(preferences.get("text_size", 100))
@@ -157,7 +157,7 @@ func configure(presentation: Theme, localization: Object, input_owner: Node, adm
 	var track := theme.get_stylebox(&"scroll", &"VScrollBar").duplicate() as StyleBoxFlat
 	track.bg_color = _roles[&"field"]
 	track.border_color = _roles[&"rule"]
-	theme.set_stylebox(&"scroll", &"VScrollBar", track)
+	reading_scroll.get_v_scroll_bar().add_theme_stylebox_override(&"scroll", track)
 	queue_redraw()
 	return true
 
