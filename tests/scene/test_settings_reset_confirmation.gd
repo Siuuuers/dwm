@@ -72,6 +72,25 @@ func _fixture(locale: String, percent: int, audio_override: RefCounted = null) -
 	return {"content": content, "profile": profile, "audio": audio, "tts": tts, "volume": volume}
 
 
+func test_profile_reset_poll_follows_visible_records_button() -> void:
+	var content: Control = _fixture("en", 100).content
+	var admission := [false]
+	content._services.profile_reset_admission = func() -> bool: return admission[0]
+	var button: Button = content._reset_buttons.entire_profile
+	assert_true(content.is_processing())
+	await wait_process_frames(2)
+	assert_true(button.disabled)
+	admission[0] = true
+	await wait_process_frames(2)
+	assert_false(button.disabled)
+	content.hide()
+	assert_false(content.is_processing())
+	content.show()
+	assert_true(content.is_processing())
+	content.select_category("language")
+	assert_false(content.is_processing())
+
+
 func _settle() -> void:
 	for frame: int in range(4):
 		await get_tree().process_frame
