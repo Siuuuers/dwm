@@ -1,50 +1,56 @@
 extends Node
 
-const PlaybackPort = preload("res://scripts/audio/AudioPlaybackPort.gd")
-
-
 func _ready() -> void:
 	_run.call_deferred()
 
 
 func _run() -> void:
-	var bootstrap := get_node("/root/ApplicationBootstrap")
-	if not OS.is_debug_build() and not bootstrap.get_startup_state().ready:
-		push_error("Native export did not complete application startup")
-		get_tree().quit(1)
+	var tree := get_tree()
+	var deadline := Time.get_ticks_msec() + 60000
+	var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
+	while bootstrap == null or not bootstrap.get_startup_state().ready:
+		if Time.get_ticks_msec() >= deadline:
+			push_error("Native smoke timed out waiting for application startup")
+			tree.quit(1)
+			return
+		await tree.process_frame
+		bootstrap = get_node_or_null("/root/ApplicationBootstrap")
+	var menu := tree.current_scene
+	if menu == null or menu.scene_file_path != "res://scenes/menu/MenuScene.tscn":
+		push_error("Native smoke expected the title screen")
+		tree.quit(1)
 		return
-	var port := PlaybackPort.new()
-	var music: Dictionary = port.load_stream("res://audio/bgm/_native_verify.nsf")
-	var effect: Dictionary = port.load_stream("res://audio/sfx/_native_verify.nsfe")
-	if not music.ok or not effect.ok:
-		push_error("Native smoke resource load failed: %s / %s" % [music, effect])
-		get_tree().quit(1)
+	var manager := get_node("/root/AudioManager")
+	if not _check_playing(manager, "res://audio/bgm/menu_theme.nsf"):
+		tree.quit(1)
 		return
-	if not music.value.is_class("VGMStream") or not effect.value.is_class("VGMStream"):
-		push_error("Native smoke loaded an unexpected stream class")
-		get_tree().quit(1)
-		return
-	port.ensure_player(&"NativeMusic", &"Master")
-	port.ensure_player(&"NativeEffect", &"Master")
-	port.assign_stream(&"NativeMusic", music.value)
-	port.assign_stream(&"NativeEffect", effect.value)
-	if not port.play(&"NativeMusic").ok or not port.play(&"NativeEffect").ok:
-		push_error("Native smoke could not start playback")
-		get_tree().quit(1)
-		return
-	var deadline := Time.get_ticks_msec() + 3000
-	while port._players[&"NativeEffect"].playing and Time.get_ticks_msec() < deadline:
-		await get_tree().create_timer(0.01).timeout
-	if not port._players[&"NativeMusic"].playing or port._players[&"NativeEffect"].playing:
-		push_error("Native smoke completion mismatch: music=%s effect=%s effect_position=%s paused=%s" % [
-			port._players[&"NativeMusic"].playing, port._players[&"NativeEffect"].playing,
-			port._players[&"NativeEffect"].get_playback_position(), get_tree().paused])
-		get_tree().quit(1)
-		return
-	var stopped: Dictionary = await port.shutdown()
-	if not stopped.ok:
-		push_error("Native smoke shutdown failed: %s" % stopped)
-		get_tree().quit(1)
+	menu.get_node("%NewAccButton").pressed.emit()
+	var bridge := get_node("/root/DialogicBridge")
+	deadline = Time.get_ticks_msec() + 30000
+	while not bridge.is_current_line_presentation_acknowledged():
+		if Time.get_ticks_msec() >= deadline:
+			push_error("Native smoke timed out waiting for the opening caption")
+			tree.quit(1)
+			return
+		await tree.process_frame
+	if not _check_playing(manager, "res://audio/bgm/story_theme.nsf"):
+		tree.quit(1)
 		return
 	print("NATIVE_GAME_EXPORT_PASS")
 	bootstrap.request_quit()
+
+
+func _check_playing(manager: Node, path: String) -> bool:
+	var player: AudioStreamPlayer = manager._playback_port._players[manager._active_players[&"music"]]
+	if not player.playing or player.stream == null or not player.stream.is_class("VGMStream") or player.stream != load(path):
+		push_error("Expected active VRC6 music: " + path)
+		return false
+	var playback := player.stream.instantiate_playback()
+	playback.start()
+	var frames := playback.mix_audio(1.0, 44100)
+	playback.stop()
+	for frame: Vector2 in frames:
+		if maxf(absf(frame.x), absf(frame.y)) > 0.001:
+			return true
+	push_error("First second of music was silent: " + path)
+	return false

@@ -1,18 +1,16 @@
 # Native game audio
 
-The game uses unmodified gd_libvgm v0.3, pinned with its dependencies in
-`tools/audio_prototype/build_gd_libvgm.py`. Build and install it before opening
-native audio content or exporting the game:
+The repository ships the Linux and Windows x86_64 libraries from gd_libvgm v0.3.
+A normal Godot checkout and the Windows export use these libraries directly. The
+editor and exported player use the same library for their platform, following
+the upstream release descriptor.
 
-```sh
-python -m pip install scons==4.11.1
-python tools/audio_prototype/build_gd_libvgm.py --install
-```
+The libraries come from the tagged release archive `gd_libvgm.zip`, SHA-256
+`53b1215e8abef221908c223ed108894a8e456025fc8e943d219bb82b736fab20`.
+The extension's license, third-party notices and godot-cpp license are under
+`addons/gd_libvgm/`. Windows packaging copies the notices beside the game.
 
-Use Python 3.12 and GCC on Linux or Visual Studio 2022 C++ on Windows. The ignored
-`addons/gd_libvgm/` directory contains the extension, platform binaries and licence
-notices. Windows builds both debug and release libraries; exports select release.
-The export preset includes raw NSF/NSFe assets and the dependency notices.
+[Upstream release](https://github.com/PurpBatBoi/gd_libvgm/releases/tag/v0.3)
 
 The extension registers Godot's resource loader. The existing AudioPlaybackPort
 loads its AudioStream resources; no separate music manager or custom loader is
@@ -24,7 +22,7 @@ Version 3 audio catalogues accept `.nsf` music under `audio/bgm/` with
 positions must be nonnegative. Sound effects use `.nsfe` under `audio/sfx/` with
 authored timing and a positive duration matching the resource. Timed NSFe files
 are finite and cannot serve as looping bed plans. The authoring compiler validates
-these rules; existing recorded formats retain their existing validation.
+these rules. Title and story select `menu_theme.nsf` and `story_theme.nsf`.
 
 When a music change fails, the prior selection restarts at its authored entrance
 and gain. Pause/resume preserves the existing playback. Save/restore transaction
@@ -32,7 +30,7 @@ compensation retains its exact restoration behavior. Normal Quit stops players,
 clears streams and waits for native playback references to be released before
 exiting. A playback that cannot start returns through the existing failure path.
 
-Run the focused checks after installation:
+Run the focused checks with Python 3.12:
 
 ```sh
 python tools/audio_prototype/verify_game.py
@@ -41,9 +39,7 @@ python tools/audio_prototype/verify_game.py
 The verifier checks native authoring and the real manager's music, pause/resume,
 finite SFX and shutdown. It stages original test fixtures temporarily and runs the
 actual game export on Windows. Reports are in `.godot/ci/native-audio/`. Run it in
-a disposable checkout: failed checks retain staged fixtures for diagnosis. These
-fixtures are not production soundtrack choices, and the existing recorded assets
-remain in use until a separate content cutover.
+a disposable checkout: failed checks retain staged fixtures for diagnosis.
 
 The Godot 4.6.3 cold-import crash remains unresolved. Verification uses the observed
 `--frame-delay 800` import workaround; that is not an engine fix. Dummy-audio checks

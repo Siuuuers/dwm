@@ -428,7 +428,7 @@ func test_inline_crossfade_stop_and_superseding_play_keep_only_latest_track() ->
 	_assert_long_lived_silence()
 
 
-func test_inline_sfx_is_nonlooping_and_does_not_change_music_or_user_output() -> void:
+func test_inline_sfx_allocates_transient_players_and_preserves_music_and_output() -> void:
 	_inline_registration()
 	assert_true(_inline_admit("TEST.audio.01").ok)
 	var semantic: Dictionary = _manager.get_semantic_audio_context()
@@ -436,8 +436,7 @@ func test_inline_sfx_is_nonlooping_and_does_not_change_music_or_user_output() ->
 	assert_true(_manager.play_scene_sfx("TEST.audio.asset.01").ok)
 	assert_true(_port.players[&"SFX0"].playing)
 	assert_eq(_port.players[&"SFX0"].db, -6.0)
-	assert_eq(_port.players[&"SFX0"].stream.loop_mode, AudioStreamWAV.LOOP_DISABLED)
-	assert_eq(_port.players[&"MusicB"].stream.loop_mode, AudioStreamWAV.LOOP_FORWARD)
+	assert_true(_port.players[&"MusicB"].playing)
 	assert_eq(_manager.get_semantic_audio_context(), semantic)
 	assert_eq(_port.bus_states, output)
 	assert_true(_manager.play_scene_sfx("TEST.audio.asset.01").ok)

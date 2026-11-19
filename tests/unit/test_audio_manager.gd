@@ -389,4 +389,6 @@ func test_restore_rejects_non_json_context_and_malformed_audio_preferences() -> 
 
 
 func test_runtime_audio_context_is_not_run_save_state() -> void:
-	assert_false(GameState.to_save_dict().has("audio_state"))
+	var game: Node = autofree(preload("res://autoload/GameState.gd").new())
+	game.reset_game()
+	assert_false(game.to_save_dict().has("audio_state"))

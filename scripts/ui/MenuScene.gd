@@ -121,7 +121,12 @@ func _ready() -> void:
 	_update_title_destination()
 	_new_acc_button.call_deferred("grab_focus")
 	_bind_startup_recovery()
+	_start_title_music.call_deferred()
 	_start_title_resource_loading.call_deferred()
+
+func _start_title_music() -> void:
+	if _title_source_alive() and get_tree().current_scene == self:
+		get_node("/root/AudioManager").play_title_music()
 
 func _start_title_resource_loading() -> void:
 	await get_tree().process_frame

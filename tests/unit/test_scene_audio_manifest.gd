@@ -48,7 +48,7 @@ func test_native_music_preserves_unbounded_duration_and_authored_entrance() -> v
 	catalogue.schema_version = 2
 	assert_false(_valid(catalogue), "native media requires the inline audio catalogue")
 
-func test_finite_native_sfx_and_recordings_keep_positive_durations() -> void:
+func test_finite_native_sfx_requires_duration_and_cannot_be_looping_music() -> void:
 	var catalogue := _catalogue()
 	catalogue.schema_version = 3
 	catalogue.assets.append({"asset_id": "confirm", "path": "res://audio/sfx/confirm.nsfe",
@@ -56,10 +56,7 @@ func test_finite_native_sfx_and_recordings_keep_positive_durations() -> void:
 	assert_true(_valid(catalogue))
 	catalogue.assets[1].duration_ms = 0
 	assert_false(_valid(catalogue), "NSFe cues need a finite endpoint")
-	catalogue.assets[1].path = "res://audio/sfx/confirm.ogg"
-	assert_false(_valid(catalogue), "recorded cues retain their duration requirement")
 	catalogue.assets[1].duration_ms = 175
-	assert_true(_valid(catalogue))
 	catalogue.assets[0].path = "res://audio/sfx/confirm.nsfe"
 	catalogue.plans[0].music = catalogue.assets[0].asset_id
 	catalogue.plans[0].ambience_asset_id = null
@@ -224,9 +221,9 @@ func test_music_bed_requires_version_two_and_one_unambiguous_channel() -> void:
 		catalogue.plans[0].music = invalid
 		assert_false(_valid(catalogue), str(invalid))
 	catalogue.plans[0].music = "TEST.audio.asset.01"
-	catalogue.assets[0].path = "res://audio/bgm/menu_theme.ogg"
-	assert_true(_valid(catalogue), "version 2 admits original shipped music bytes")
-	for path: String in ["res://audio/bgm/../menu_theme.ogg", "res://audio/bgm//menu_theme.ogg", "res://audio/bgm/menu_theme.gd", "res://audio/bgm/x\\menu_theme.ogg", "res://audio/other/menu_theme.ogg"]:
+	catalogue.schema_version = 3
+	catalogue.assets[0].duration_ms = 0
+	for path: String in ["res://audio/bgm/../menu_theme.nsf", "res://audio/bgm//menu_theme.nsf", "res://audio/bgm/menu_theme.ogg", "res://audio/bgm/menu_theme.gd", "res://audio/bgm/x\\menu_theme.nsf", "res://audio/other/menu_theme.nsf"]:
 		catalogue.assets[0].path = path
 		assert_false(_valid(catalogue), path)
 
@@ -307,7 +304,8 @@ func test_inline_catalogue_supports_story_assets_gain_and_music_start_on_load() 
 	var registration := _registration()
 	var catalogue: Dictionary = registration.audio_catalogue
 	catalogue.schema_version = 3
-	catalogue.assets[0].path = "res://audio/sfx/door_knock.ogg"
+	catalogue.assets[0].path = "res://audio/bgm/quiet_room.nsf"
+	catalogue.assets[0].duration_ms = 0
 	catalogue.assets[0]["gain_db"] = -4.0
 	catalogue.plans[0].music = catalogue.plans[0].ambience_asset_id
 	catalogue.plans[0].ambience_asset_id = null

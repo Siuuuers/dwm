@@ -5,7 +5,6 @@ const BGM_DIR := "res://audio/bgm/"
 const AMBIENCE_DIR := "res://audio/ambience/"
 const SFX_DIR := "res://audio/sfx/"
 const UI_DIR := "res://audio/ui/"
-const EXT := ".ogg"
 
 const BGM_IDS := [
 	"menu_theme",
@@ -91,7 +90,7 @@ func resolve_ambience_context(context_id: String, context: Dictionary = {}) -> D
 	var track_id := str(AMBIENCE_CONTEXTS.get(context_id, ""))
 	if track_id.is_empty():
 		return _failure(&"unknown_audio_context")
-	return {"ok": true, "value": _record(track_id, "%s%s%s" % [AMBIENCE_DIR, track_id, EXT], &"Ambience", true, 0.2, 0.2)}
+	return {"ok": true, "value": _record(track_id, AMBIENCE_DIR + track_id + ".nsf", &"Ambience", true, 0.2, 0.2)}
 
 
 func get_cue(cue_id: String) -> Dictionary:
@@ -99,7 +98,7 @@ func get_cue(cue_id: String) -> Dictionary:
 		return _failure(&"unknown_audio_cue")
 	var category: String = CUE_IDS[cue_id]
 	var bus := &"UI" if category == "ui" else &"SFX"
-	return {"ok": true, "value": _record(cue_id, "%s%s%s" % [UI_DIR, cue_id, EXT], bus, false, 0.0, 0.0)}
+	return {"ok": true, "value": _record(cue_id, UI_DIR + cue_id + ".nsfe", bus, false, 0.0, 0.0)}
 
 
 func get_expected_audio_paths() -> Dictionary:
@@ -108,10 +107,10 @@ func get_expected_audio_paths() -> Dictionary:
 		bgm[id] = _bgm_path(id)
 	var ambience := {}
 	for id in AMBIENCE_IDS:
-		ambience[id] = "%s%s%s" % [AMBIENCE_DIR, id, EXT]
+		ambience[id] = AMBIENCE_DIR + id + ".nsf"
 	var ui := {}
 	for id in CUE_IDS:
-		ui[id] = "%s%s%s" % [UI_DIR, id, EXT]
+		ui[id] = UI_DIR + id + ".nsfe"
 	return {"bgm": bgm, "ambience": ambience, "ui": ui}
 
 
@@ -145,7 +144,7 @@ func _record(id: String, path: String, bus: StringName, looped: bool, fade_in: f
 
 
 func _bgm_path(id: String) -> String:
-	return "%s%s%s" % [BGM_DIR, id, EXT]
+	return BGM_DIR + id + ".nsf"
 
 
 func _only_fields(value: Dictionary, allowed: Array) -> bool:
@@ -379,9 +378,9 @@ static func _scene_path(value: Variant, catalogue_version: int = 1) -> bool:
 	if typeof(value) != TYPE_STRING:
 		return false
 	var prefix := "res://tests/fixtures/audio/"
-	if catalogue_version >= 2 and value.begins_with(BGM_DIR) and (value.ends_with(".ogg") or (catalogue_version >= 3 and value.ends_with(".nsf"))):
+	if catalogue_version == 3 and value.begins_with(BGM_DIR) and value.ends_with(".nsf"):
 		prefix = BGM_DIR
-	if catalogue_version >= 3 and value.begins_with(SFX_DIR) and (value.ends_with(".ogg") or value.ends_with(".nsfe")):
+	elif catalogue_version == 3 and value.begins_with(SFX_DIR) and value.ends_with(".nsfe"):
 		prefix = SFX_DIR
 	if not value.begins_with(prefix): return false
 	var relative: String = value.trim_prefix(prefix)

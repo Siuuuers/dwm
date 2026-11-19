@@ -1,0 +1,13 @@
+[configuration]
+entry_symbol = "gd_libvgm_init"
+compatibility_minimum = "4.5"
+reloadable = true
+
+[libraries]
+windows.debug.x86_64 = "./bin/windows/gd_libvgm.windows.template_release.x86_64.single.dll"
+windows.release.x86_64 = "./bin/windows/gd_libvgm.windows.template_release.x86_64.single.dll"
+linux.debug.x86_64 = "./bin/linux/libgd_libvgm.linux.template_release.x86_64.single.so"
+linux.release.x86_64 = "./bin/linux/libgd_libvgm.linux.template_release.x86_64.single.so"
+
+[icons]
+VGMStream = "./icons/VGMStream.svg"

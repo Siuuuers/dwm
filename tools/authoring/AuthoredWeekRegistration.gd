@@ -136,23 +136,17 @@ static func prepare_audio_catalogue(authored: Variant, fallback: Dictionary,
 						return {"ok": false, "code": &"audio_authoring_invalid", "reference": key}
 				if not FileAccess.file_exists(row.path):
 					return {"ok": false, "code": &"audio_authoring_media_missing", "reference": row.path}
-				var stream: AudioStream = ResourceLoader.load(row.path) as AudioStream
-				var native_music: bool = kind == "music" and row.path.ends_with(".nsf")
-				var native_sfx: bool = kind == "sfx" and row.path.ends_with(".nsfe")
-				if stream == null or not is_finite(stream.get_length()):
+				var music := kind == "music"
+				if not row.path.ends_with(".nsf" if music else ".nsfe"):
 					return {"ok": false, "code": &"audio_authoring_media_invalid", "reference": row.path}
-				if row.path.ends_with(".nsf") or row.path.ends_with(".nsfe"):
-					if not stream.is_class("VGMStream") or not (native_music or native_sfx):
-						return {"ok": false, "code": &"audio_authoring_media_invalid", "reference": row.path}
-				if (native_music and stream.get_length() != 0.0) or (not native_music and stream.get_length() <= 0.0):
+				var stream := ResourceLoader.load(row.path) as AudioStream
+				if stream == null or not stream.is_class("VGMStream"):
 					return {"ok": false, "code": &"audio_authoring_media_invalid", "reference": row.path}
-				if kind == "music":
-					var looping: bool = native_music or (stream is AudioStreamOggVorbis and stream.loop) \
-							or (stream is AudioStreamWAV and stream.loop_mode != AudioStreamWAV.LOOP_DISABLED) \
-							or (stream is AudioStreamMP3 and stream.loop)
-					if not looping: return {"ok": false, "code": &"audio_authoring_music_not_looping", "reference": row.path}
+				var length := stream.get_length()
+				if not is_finite(length) or (music and length != 0.0) or (not music and length <= 0.0):
+					return {"ok": false, "code": &"audio_authoring_media_invalid", "reference": row.path}
 				var asset := {"asset_id": row.id, "path": row.path, "sha256": FileAccess.get_sha256(row.path),
-					"duration_ms": roundi(stream.get_length() * 1000.0)}
+					"duration_ms": roundi(length * 1000.0)}
 				if row.has("gain_db"): asset["gain_db"] = row.gain_db
 				catalogue.assets.append(asset)
 				if kind == "music":

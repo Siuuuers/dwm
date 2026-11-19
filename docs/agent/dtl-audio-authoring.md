@@ -13,19 +13,19 @@ uses illustrative filenames; provide the files before exporting:
 "audio": {
   "initial_music": "quiet_room",
   "music": [
-    {"id": "quiet_room", "path": "res://audio/bgm/quiet_room.ogg", "gain_db": -3},
-    {"id": "uneasy_room", "path": "res://audio/bgm/uneasy_room.ogg"}
+    {"id": "quiet_room", "path": "res://audio/bgm/quiet_room.nsf", "gain_db": -3},
+    {"id": "uneasy_room", "path": "res://audio/bgm/uneasy_room.nsf"}
   ],
   "sfx": [
-    {"id": "door_knock", "path": "res://audio/sfx/door_knock.ogg", "gain_db": -6}
+    {"id": "door_knock", "path": "res://audio/sfx/door_knock.nsfe", "gain_db": -6}
   ]
 }
 ```
 
 Use stable, unique IDs across both lists. `stop` is reserved. Music IDs become
 music plan IDs; SFX IDs identify individual assets. They are not DTL labels.
-Enable looping on imported music. SFX playback makes a non-looping copy of its
-stream, so each encounter plays it once. Authored gain defaults to 0 dB and is
+Author a single looping VRC6 song per NSF file. For a one-shot effect, export
+a timed NSFe file with a positive duration. Authored gain defaults to 0 dB and is
 applied underneath the player's volume and mute preferences.
 
 `initial_music` selects the new game's default; `""` starts in silence. It does

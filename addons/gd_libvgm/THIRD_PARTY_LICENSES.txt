@@ -1,0 +1,173 @@
+This game plays music with gd_libvgm, which contains code by the people and
+projects below. The license texts follow the credits.
+
+------------------------------------------------------------------------------
+CREDITS
+------------------------------------------------------------------------------
+
+BSD-3-Clause license:
+
+  SN76489 / SN76496 ......... Nicola Salmoria
+  AY-3-8910 / YM2149 ........ Couriersud
+  ymfm FM cores (YM2612, YM2151, OPL, OPN, OPL4, YM2414)
+                              Aaron Giles
+  YM2608 rhythm sounds ...... Tetorica contributors; Aaron Giles
+  HuC6280 ................... Charles MacDonald
+  Game Boy .................. Wilbert Pol, Anthony Kruize
+  RF5C68 / RF5C164 .......... Olivier Galibert, Aaron Giles
+  QSound .................... Paul Leaman, Miguel Angel Horna
+  SAA1099 ................... Juergen Buchmueller, Manuel Abadia
+  Sega PCM .................. Hiromitsu Shioya, Olivier Galibert
+  SCSP ...................... ElSemi, R. Belmont
+  MultiPCM .................. Miguel Angel Horna
+  YMZ280B ................... Aaron Giles
+  YMF271 .................... superctr
+  C140 ...................... R. Belmont
+  C219 ...................... R. Belmont, superctr, Valley Bell
+  C352 ...................... R. Belmont, superctr
+  K051649 (SCC), K005289 .... Bryan McPhail
+  K007232 ................... Nicola Salmoria, Hiromitsu Shioya, Mao, cam900
+  K053260 ................... Ernesto Corvi, Alex W. Jackson
+  K054539 ................... Olivier Galibert
+  POKEY ..................... Brad Oliver, Eric Smith, Juergen Buchmueller
+  uPD7759 ................... Juergen Buchmueller, Mike Balfour, Howie Cohen,
+                              Olivier Galibert, Aaron Giles
+  MSM6258 ................... Barry Rodewald
+  MSM6295 ................... Mirko Buffoni, Aaron Giles
+  OKI ADPCM decoder ......... Andrew Gardner, Aaron Giles
+  MSM5205 ................... Aaron Giles, eito, cam900, Valley Bell, Mao
+  X1-010 .................... Luca Elia
+  Irem GA20 ................. Acho A. Tang, R. Belmont, Valley Bell
+  ES5503 .................... R. Belmont
+  ICS2115 ................... Alex Marshall, nimitz, austere
+  BSMT2000 .................. Aaron Giles, Paul Leaman, Miguel Angel Horna,
+                              Mao, cam900
+
+MIT license:
+
+  YM2413 / VRC7 (emu2413) ... Mitsutaka Okazaki
+  NES APU (from BeesNES) .... Shawn (L. Spiro) Wilcoxen; port by Purpbatboi
+  NES VRC6, Namco 163, Sunsoft 5B (from BeesNES)
+                              Shawn (L. Spiro) Wilcoxen; port by Purpbatboi
+  NES filters, FDS .......... Purpbatboi
+  Resampler (blep_filter) ... Purpbatboi
+  Atari Lynx Mikey .......... laoo
+  SNES APU (from Snaggletooth)
+                              Eric Tomasso; port by Purpbatboi
+  libvgm player and utils ... Valley Bell
+  godot-cpp ................. Godot Engine contributors
+  gd_libvgm ................. PurpBatBoi
+
+ISC license:
+
+  Sega 32X PWM, WonderSwan .. ares team, Near et al
+  NES MMC5, NSF 6502 CPU .... ares team, Near et al
+  NES Sunsoft 5B envelope ... ares team, Near et al
+
+zlib license:
+
+  zlib ...................... Jean-loup Gailly and Mark Adler
+
+------------------------------------------------------------------------------
+BSD-3-CLAUSE LICENSE
+------------------------------------------------------------------------------
+
+Copyright (c) 2021, Aaron Giles
+Copyright (c) 2026, Tetorica contributors
+Copyright (c) the other BSD-3-Clause authors listed in the credits above
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+------------------------------------------------------------------------------
+MIT LICENSE
+------------------------------------------------------------------------------
+
+Copyright (c) 2001-2019 Mitsutaka Okazaki
+Copyright (c) 2020 Shawn (L. Spiro) Wilcoxen
+Copyright (c) 2026 Eric Tomasso
+Copyright (c) 2026 Purpbatboi / PurpBatBoi
+Copyright (c) laoo
+Copyright (c) Valley Bell
+Copyright (c) 2017-present Godot Engine contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+------------------------------------------------------------------------------
+ISC LICENSE
+------------------------------------------------------------------------------
+
+Copyright (c) 2004-2025 ares team, Near et al
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+------------------------------------------------------------------------------
+ZLIB LICENSE
+------------------------------------------------------------------------------
+
+(C) 1995-2022 Jean-loup Gailly and Mark Adler
+
+This software is provided 'as-is', without any express or implied
+warranty.  In no event will the authors be held liable for any damages
+arising from the use of this software.
+
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not
+   claim that you wrote the original software. If you use this software
+   in a product, an acknowledgment in the product documentation would be
+   appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be
+   misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.

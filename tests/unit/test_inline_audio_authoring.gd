@@ -6,7 +6,6 @@ const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const SOURCE := "res://tests/fixtures/dialogic/Day1.dtl"
 const PROBE := "res://tests/fixtures/dialogic/_inline_audio_authoring.dtl"
-const BED := "res://tests/fixtures/audio/scene_test_bed.tres"
 const NATIVE_BED := "res://tests/fixtures/audio/_inline_native_bed.nsf"
 const NATIVE_CUE := "res://tests/fixtures/audio/_inline_native_cue.nsfe"
 
@@ -28,15 +27,28 @@ func test_native_export_uses_unbounded_music_and_finite_cue_metadata() -> void:
 		if copied != OK: return
 	var fallback := {"kind": "scene_audio_catalogue", "schema_version": 3,
 		"assets": [], "plans": [], "bindings": []}
-	var authored := {"music": [{"id": "quiet_room", "path": NATIVE_BED, "entrance_ms": 1250}],
+	var authored := {"music": [{"id": "quiet_room", "path": NATIVE_BED, "entrance_ms": 1250, "gain_db": -6.0}],
 		"sfx": [{"id": "confirm", "path": NATIVE_CUE}], "initial_music": "quiet_room"}
-	var result := WEEK.prepare_audio_catalogue(authored, fallback, ["first"], "first")
+	var result := WEEK.prepare_audio_catalogue(authored, fallback, ["later", "first"], "first")
 	assert_true(result.ok, str(result))
 	if not result.ok: return
 	assert_gt(result.value.assets[0].duration_ms, 0, "NSFe metadata bounds the one-shot")
 	assert_eq(result.value.assets[1].duration_ms, 0, "raw NSF reports no finite endpoint")
 	assert_eq(result.value.assets[1].sha256, FileAccess.get_sha256(NATIVE_BED))
 	assert_eq(result.value.plans[0].load_anchor_ms, 1250)
+	assert_eq(result.value.assets[1].gain_db, -6.0)
+	assert_eq(result.value.assets[0].asset_id, "confirm")
+	assert_eq(result.value.schema_version, 3)
+	assert_eq(result.value.bindings, [{"entry_id": "first", "plan_id": "quiet_room"},
+		{"entry_id": "later", "plan_id": null}])
+	assert_eq(WEEK.prepare_audio_catalogue(authored, fallback, ["later", "first"], "first"), result)
+	assert_true(fallback.assets.is_empty())
+	authored.music[0].gain_db = "quiet"
+	assert_false(WEEK.prepare_audio_catalogue(authored, fallback, ["first"], "first").ok)
+	authored.music[0].gain_db = -6.0
+	authored.sfx.append(authored.sfx[0].duplicate())
+	assert_false(WEEK.prepare_audio_catalogue(authored, fallback, ["first"], "first").ok)
+	authored.sfx.pop_back()
 	authored.sfx[0].path = NATIVE_BED
 	assert_false(WEEK.prepare_audio_catalogue(authored, fallback, ["first"], "first").ok,
 		"unbounded NSF cannot be authored as a finite SFX")
@@ -44,26 +56,6 @@ func test_native_export_uses_unbounded_music_and_finite_cue_metadata() -> void:
 	authored.music[0].path = NATIVE_CUE
 	assert_false(WEEK.prepare_audio_catalogue(authored, fallback, ["first"], "first").ok,
 		"timed NSFe cannot stand in for continuously looping music")
-
-func test_export_derives_media_metadata_and_initial_binding() -> void:
-	var fallback := {"kind": "scene_audio_catalogue", "schema_version": 2,
-		"assets": [], "plans": [], "bindings": []}
-	var authored := {"music": [{"id": "quiet_room", "path": BED, "gain_db": -6.0, "entrance_ms": 250}],
-		"sfx": [{"id": "door_knock", "path": BED}], "initial_music": "quiet_room"}
-	var result := WEEK.prepare_audio_catalogue(authored, fallback, ["later", "first"], "first")
-	assert_true(result.ok, str(result))
-	if not result.ok: return
-	assert_eq(result.value.schema_version, 3)
-	assert_eq(result.value.assets[0].asset_id, "door_knock", "export sorts stable IDs")
-	assert_eq(result.value.assets[1].sha256, FileAccess.get_sha256(BED))
-	assert_eq(result.value.assets[1].duration_ms, 4000)
-	assert_eq(result.value.assets[1].gain_db, -6.0)
-	assert_eq(result.value.plans[0].entrance_ms, 250)
-	assert_eq(result.value.plans[0].load_anchor_ms, 250, "Load starts at the authored entrance")
-	assert_eq(result.value.bindings, [{"entry_id": "first", "plan_id": "quiet_room"},
-		{"entry_id": "later", "plan_id": null}], "ordinary entries do not reset music")
-	assert_eq(WEEK.prepare_audio_catalogue(authored, fallback, ["later", "first"], "first"), result)
-	assert_true(fallback.assets.is_empty(), "generation leaves the supplied fallback untouched")
 
 func test_explicit_silent_start_does_not_need_a_music_asset() -> void:
 	var fallback := {"kind": "scene_audio_catalogue", "schema_version": 2,
@@ -77,9 +69,8 @@ func test_authoring_mistakes_are_rejected_before_export() -> void:
 		"assets": [], "plans": [], "bindings": []}
 	for authored: Dictionary in [
 		{"initial_music": "unknown"},
-		{"music": [{"id": "quiet_room", "path": BED, "entrance_ms": 5000}]},
-		{"sfx": [{"id": "door_knock", "path": BED}, {"id": "door_knock", "path": BED}]},
-		{"music": [{"id": "quiet_room", "path": BED, "gain_db": "quiet"}]}]:
+		{"music": [{"id": "quiet_room", "path": BASE.MUSIC_PATH, "unknown_field": true}]},
+		{"sfx": [{"id": "door_knock", "path": BASE.MUSIC_PATH}]}]:
 		assert_false(WEEK.prepare_audio_catalogue(authored, fallback, ["first"], "first").ok, str(authored))
 
 func test_registration_checks_compiled_cue_references_without_per_cue_lists() -> void:
@@ -89,12 +80,12 @@ func test_registration_checks_compiled_cue_references_without_per_cue_lists() ->
 	var original: Dictionary = prepared.value.registration
 	var labels: Array = []
 	for entry: Dictionary in original.entry_manifest.entries: labels.append(entry.entry_id)
-	for cue: String in ["music " + BASE.MUSIC_PLAN_ID, "music stop", "sfx " + BASE.MUSIC_ASSET_ID,
-		"music missing_plan", "sfx missing_asset", "sfx native_unbounded"]:
+	for cue: String in ["music " + BASE.MUSIC_PLAN_ID, "music stop", "sfx native_chime",
+		"music missing_plan", "sfx missing_asset", "sfx " + BASE.MUSIC_ASSET_ID]:
 		var bundle: Dictionary = original.duplicate(true)
 		bundle.audio_catalogue.schema_version = 3
-		bundle.audio_catalogue.assets.append({"asset_id": "native_unbounded",
-			"path": "res://audio/bgm/quiet_room.nsf", "sha256": "a".repeat(64), "duration_ms": 0})
+		bundle.audio_catalogue.assets.append({"asset_id": "native_chime",
+			"path": "res://audio/sfx/chime.nsfe", "sha256": "a".repeat(64), "duration_ms": 120})
 		bundle.audio_catalogue.assets.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.asset_id < b.asset_id)
 		var source := FileAccess.get_file_as_string(SOURCE).replace("label Day1\n", "label Day1\n# audio " + cue + "\n")
 		var file := FileAccess.open(PROBE, FileAccess.WRITE)
@@ -114,5 +105,5 @@ func test_registration_checks_compiled_cue_references_without_per_cue_lists() ->
 			for target: Dictionary in bundle.targets:
 				if target.target.get("entry_id") == "Day1": target.target.program_sha256 = compiled.value.program_sha256
 		var checked := MANIFEST.validate_scene_registration(bundle)
-		assert_eq(checked.ok, not "missing_" in cue and cue != "sfx native_unbounded",
+		assert_eq(checked.ok, not "missing_" in cue and cue != "sfx " + BASE.MUSIC_ASSET_ID,
 			cue + ": " + str(checked.get("code", "")))

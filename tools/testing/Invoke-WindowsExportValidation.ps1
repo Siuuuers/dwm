@@ -168,7 +168,7 @@ try {
     # Keep upstream notices as ordinary files alongside the executable, even
     # when their Markdown/text extensions are intentionally absent from the PCK.
     $licenses = Join-Path $package 'licenses'
-    foreach ($directory in @('assets', 'art', 'audio', 'addons/dialogic', 'addons/godot_state_charts')) {
+    foreach ($directory in @('assets', 'art', 'audio', 'addons/dialogic', 'addons/godot_state_charts', 'addons/gd_libvgm')) {
         $sourceDirectory = Join-Path $repositoryRoot $directory
         if (-not (Test-Path -LiteralPath $sourceDirectory -PathType Container)) { continue }
         Get-ChildItem -LiteralPath $sourceDirectory -Recurse -File |
@@ -230,8 +230,9 @@ try {
         $expected[$resource] = (Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash.ToLowerInvariant()
     }
     $result.story_compatibility_resources = $storyCompatibilityResources
-    $musicResource = "res://audio/bgm/story_theme.ogg"
-    $expected[$musicResource] = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot $musicResource.Substring(6)) -Algorithm SHA256).Hash.ToLowerInvariant()
+    foreach ($music in @('audio/bgm/menu_theme.nsf', 'audio/bgm/story_theme.nsf')) {
+        $expected["res://$music"] = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot $music) -Algorithm SHA256).Hash.ToLowerInvariant()
+    }
     $expected | ConvertTo-Json -Depth 3 | Set-Content -LiteralPath (Join-Path $work 'expected.json') -Encoding utf8NoBOM
     $probe = @'
 extends SceneTree
@@ -266,6 +267,12 @@ func _audit() -> void:
     for forbidden: String in ["tools", "docs", "evidence", "prompt_docs", "art_source", "temp-artifacts", "addons/gut", "addons/story_export"]:
         if DirAccess.dir_exists_absolute("res://" + forbidden):
             push_error("Development directory included in pack: " + forbidden)
+            await _fail_audit()
+            return
+    for path in ["res://audio/bgm/menu_theme.nsf", "res://audio/bgm/story_theme.nsf"]:
+        var music := ResourceLoader.load(path) as AudioStream
+        if music == null or not music.is_class("VGMStream") or music.get_length() != 0:
+            push_error("Cannot load looping VRC6 score: " + path)
             await _fail_audit()
             return
     var license_directory: String = OS.get_cmdline_user_args()[1]
@@ -321,7 +328,14 @@ func _fail_audit() -> void:
     $probePath = Join-Path $work 'verify_pack.gd'
     Set-Content -LiteralPath $probePath -Value $probe -Encoding utf8NoBOM
     try {
-        $auditLog = Invoke-CheckedProcess $env:GODOT_CONSOLE_PATH @('--headless', '--verbose', '--path', $package,
+        # The external editor resolves a packed GDExtension relative to its project path.
+        # The exported player resolves this same DLL beside its executable.
+        $audioDll = 'gd_libvgm.windows.template_release.x86_64.single.dll'
+        $auditRoot = Join-Path $work 'editor-audit'
+        $audioDirectory = Join-Path $auditRoot 'addons/gd_libvgm/bin/windows'
+        New-Item -ItemType Directory -Force -Path $audioDirectory | Out-Null
+        Copy-Item -LiteralPath (Join-Path $package $audioDll) -Destination $audioDirectory
+        $auditLog = Invoke-CheckedProcess $env:GODOT_CONSOLE_PATH @('--headless', '--verbose', '--path', $auditRoot,
             '--main-pack', (Join-Path $package 'DWM.pck'), '--script', $probePath,
             '--log-file', (Join-Path $output 'pack-audit.log'), '--', (Join-Path $work 'expected.json'), $engineLicenses) 'pack-audit' $exportUser
         if ($auditLog -notmatch "WINDOWS_PACK_DATA_VERIFIED count=$($expected.Count)\b") { throw 'Pack audit did not report success.' }

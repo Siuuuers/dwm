@@ -39,7 +39,7 @@ func load_stream(registered_path: String) -> Dictionary:
 	if not ResourceLoader.exists(registered_path):
 		return _failure(&"missing_audio")
 	var stream := ResourceLoader.load(registered_path)
-	if not stream is AudioStream:
+	if stream == null or not stream.is_class("VGMStream"):
 		return _failure(&"missing_audio")
 	return _ok(stream)
 

@@ -27,7 +27,10 @@ Packaging did not alter runtime bytes, so no duplicate engine run was needed.
 
 ## Replace art, music and templates
 
-The editable project remains on GitHub branch `codex/art-media-20261023`.
+The table below documents the archived `codex/art-media-20261023` build.
+For current builds from `master`, edit `audio/bgm/menu_theme.nsf` and
+`audio/bgm/story_theme.nsf` and ship the exported gd_libvgm DLL beside the
+executable. See [Native game audio](../audio/native-audio.md).
 The exported PCK is a compiled/imported snapshot. Adding a loose JPG or DTL
 next to `DWM.exe` does not override it.
 

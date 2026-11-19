@@ -868,7 +868,8 @@ static func derive_scene_audio_context(snapshot: Dictionary, bundle: Dictionary 
 		return _fail(&"scene_audio_owner_unavailable", "canonical audio owner required")
 	if snapshot.scene.has("music_plan_id"):
 		return owner.call("make_named_presentation_context", bundle, snapshot.scene.music_plan_id, snapshot.scene.active_occurrence_id)
-	if not current.value.is_empty():
+	var inline_art: bool = bundle.get("audio_catalogue", {}).get("schema_version") == 3 and snapshot.scene.get("presentation", {}).has("background")
+	if not current.value.is_empty() and not inline_art:
 		return owner.call("make_named_presentation_context", bundle,
 			current.value.audio_plan_id, snapshot.scene.active_occurrence_id)
 	return owner.call("make_scene_context", bundle, snapshot.scene.entry_id, snapshot.scene.active_occurrence_id)
