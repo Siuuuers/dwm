@@ -98,9 +98,7 @@ func _process(_delta: float) -> void:
 	var settling: bool = _port.has_method("has_pending_settlement") and _port.has_pending_settlement()
 	if not settling:
 		if not _preparation_foreground or not is_visible_in_tree() or get_tree().paused \
-				or panel.worksheet.information_sheet != null or panel.worksheet.grid.has_held_touch(): return
-		var grid: Control = panel.worksheet.grid
-		if int(grid.get("_held_index")) >= 0 or bool(grid.get("_mouse_dragging")) or bool(grid.get("_confirm_held")): return
+				or panel.worksheet.information_sheet != null or panel.worksheet.grid.has_held_action(): return
 	_busy = true
 	var result: Dictionary = _port.call("advance_preparation",int(panel.public_view.board.revision))
 	_busy = false
