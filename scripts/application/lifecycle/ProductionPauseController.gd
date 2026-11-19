@@ -184,10 +184,9 @@ func _quick_input_admitted() -> bool:
 	return not _handle.is_empty() and not _busy and not _loading and _history_caption == null \
 		and coordinator.get_state().value.state == &"Suspended"
 
-func _quick_source_snapshot() -> Dictionary:
+func _quick_source() -> Dictionary:
 	if _handle.is_empty() or not is_instance_valid(_scene) or _scene != get_tree().current_scene: return {}
-	return {"handle": _handle.duplicate(true), "scene_id": _scene.get_instance_id(),
-		"source": _captured_source.duplicate(true)}
+	return {"handle": _handle, "scene_id": _scene.get_instance_id(), "source": _captured_source}
 
 func can_open_witnessed_backup_load(caption: Node) -> bool:
 	return _can_open_witnessed_surface(caption) and _router.get_current_route_id() != "hospital"
@@ -518,7 +517,7 @@ func _ensure_hosts(include_settings: bool = true) -> void:
 	surface.set_host(&"backup", backup)
 	backup.configure_backup(_backup_port, _services.localization, _services.profile, &"after_hours", 1, false)
 	_quick_commands = QUICK.new()
-	if _quick_commands.configure(surface, _backup_port, _services.input, _quick_input_admitted, _quick_source_snapshot):
+	if _quick_commands.configure(surface, _backup_port, _services.input, _quick_input_admitted, _quick_source):
 		add_child(_quick_commands)
 		_quick_commands.load_cancelled.connect(_direct_quick_cancelled)
 		_quick_commands.load_finished.connect(_direct_quick_finished)

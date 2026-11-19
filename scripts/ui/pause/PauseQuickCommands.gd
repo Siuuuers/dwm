@@ -104,13 +104,13 @@ func _base_admitted() -> bool:
 func _source_owned() -> bool:
 	return is_instance_valid(_surface) and _surface.is_visible_in_tree() \
 		and _surface.can_process() and _admission.is_valid() and bool(_admission.call()) \
-		and not _source_snapshot().is_empty()
+		and not _current_source().is_empty()
 
 func _admitted(action: String) -> bool:
 	return _base_admitted() and not _in_operation and _pending_token.is_empty() \
 		and _surface.quick_input_admitted(action)
 
-func _source_snapshot() -> Dictionary:
+func _current_source() -> Dictionary:
 	return _source_reader.call() if _source_reader.is_valid() else {}
 
 func observe_input(event: InputEvent) -> void:
@@ -144,7 +144,7 @@ func request_load() -> Dictionary:
 		else {"ok": false, "code": &"pause_load_unavailable"}
 
 func _request(action: String) -> void:
-	_source = _source_snapshot()
+	_source = _current_source().duplicate(true)
 	var focus := _surface.get_viewport().gui_get_focus_owner()
 	_return_focus = weakref(focus) if focus != null else null
 	_return_host = _surface.entered_action
@@ -160,7 +160,7 @@ func _request(action: String) -> void:
 	var prepared: Dictionary = _port.prepare_quick_action(action)
 	_in_operation = false
 	last_result = prepared.duplicate(true)
-	if not _admitted(action) or _source_snapshot() != _source:
+	if not _admitted(action) or _current_source() != _source:
 		if prepared.get("ok", false): _port.cancel_action(str(prepared.value.token))
 		return
 	if not prepared.get("ok", false):
@@ -178,7 +178,7 @@ func _request(action: String) -> void:
 
 func _confirm_load() -> void:
 	_confirmation = null
-	if not _base_admitted() or _source_snapshot() != _source or not _port.is_quick_condition_current(_condition):
+	if not _base_admitted() or _current_source() != _source or not _port.is_quick_condition_current(_condition):
 		_cancel_load()
 		return
 	_commit("load")
@@ -194,17 +194,17 @@ func _commit(action: String) -> void:
 	if action == "load": load_finished.emit(result.duplicate(true))
 	if action == "load" and result.get("ok", false): return
 	if not is_inside_tree() or not _source_owned(): return
-	if action == "save" and _source_snapshot() != _source: return
+	if action == "save" and _current_source() != _source: return
 	if action == "load":
-		var restored := _source_snapshot()
+		var restored := _current_source()
 		if restored.get("scene_id") != _source.get("scene_id") or restored.get("source") != _source.get("source"): return
-		_source = restored
+		_source = restored.duplicate(true)
 	if action == "save" and result.get("ok", false):
 		edge.clear_status()
 		_publish("saved", {}, _source)
 		return
 	var now: Dictionary = _port.get_quick_capability(action)
-	_publish("unavailable", now.get("value", {}).get("condition", {}), _source_snapshot())
+	_publish("unavailable", now.get("value", {}).get("condition", {}), _current_source())
 	if action == "load": _restore_focus()
 
 func _cancel_pending() -> void:
@@ -220,9 +220,9 @@ func _cancel_load() -> void:
 func _restore_focus() -> void:
 	_focus_restore_pending = false
 	if not _foreground:
-		_focus_restore_pending = is_instance_valid(_surface) and _surface.is_visible_in_tree() and _source_snapshot() == _source
+		_focus_restore_pending = is_instance_valid(_surface) and _surface.is_visible_in_tree() and _current_source() == _source
 		return
-	if not _base_admitted() or _source_snapshot() != _source: return
+	if not _base_admitted() or _current_source() != _source: return
 	var focus: Control = _return_focus.get_ref() as Control if _return_focus != null else null
 	if is_instance_valid(focus) and not focus.is_queued_for_deletion() and focus.is_visible_in_tree() and focus.can_process() \
 			and focus.get_focus_mode_with_override() != Control.FOCUS_NONE \
@@ -253,15 +253,15 @@ func _publish(key: String, condition: Dictionary, source: Dictionary) -> void:
 	var captured := condition.duplicate(true)
 	var context := source.duplicate(true)
 	edge.publish_status(StringName(key), {"condition": captured, "source": context}, func() -> bool:
-		return is_instance_valid(_port) and _base_admitted() and _source_snapshot() == context \
+		return is_instance_valid(_port) and _base_admitted() and _current_source() == context \
 			and (captured.is_empty() or _port.is_quick_condition_current(captured)))
 
 func _process(delta: float) -> void:
 	if not is_instance_valid(edge): return
 	if _focus_restore_pending and _foreground: _restore_focus()
-	var source := _source_snapshot()
+	var source := _current_source()
 	if source != _observed_source:
-		_observed_source = source
+		_observed_source = source.duplicate(true)
 		retain_contacts()
 		if edge.current_binding.get("source", {}) != source: edge.clear_status()
 	var admitted := _admitted("save")
