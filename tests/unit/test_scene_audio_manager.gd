@@ -4,10 +4,9 @@ extends "res://addons/gut/test.gd"
 
 const MANIFEST = preload("res://scripts/data/AudioManifest.gd")
 const GATE = preload("res://tests/support/FakeApplicationMutationGate.gd")
-const ASSET_PATH: String = "res://tests/fixtures/audio/scene_test_bed.tres"
-const ASSET_HASH: String = "f85a90530be2a8f0dad87f80844e6b79d5bdf171975f4c9044a770dc4c2d32aa"
-const NATIVE_BED := "res://tests/fixtures/audio/_manager_native_loop.nsf"
-const NATIVE_CUE := "res://tests/fixtures/audio/_manager_native_confirm.nsfe"
+const ASSET_PATH: String = "res://audio/bgm/story_theme.nsf"
+const ASSET_HASH: String = "cd59503c221ec4e5b7949008642aabd6f4a3f5df748452e2564e80909903eac8"
+const NATIVE_CUE := "res://tests/fixtures/audio/confirm.nsfe"
 
 class TestProfile extends Node:
 	func get_preference(_path: StringName, default_value: Variant = null) -> Variant:
@@ -20,24 +19,19 @@ class RegisteredManager extends "res://autoload/AudioManager.gd":
 	func _installed_scene_registration() -> Dictionary:
 		return {"ok": true, "value": registration.duplicate(true)}
 
-class ResourcePort extends "res://tests/support/FakeAudioPlaybackPort.gd":
+class RestoreProbe extends "res://tests/support/FakeAudioPlaybackPort.gd":
 	var refuse_restore: bool = false
-	func load_stream(path: String) -> Dictionary:
-		if path.begins_with("res://tests/fixtures/audio/"):
-			var stream: Resource = ResourceLoader.load(path)
-			return _record(&"load_stream", {"registered_path": path}, stream)
-		return super.load_stream(path)
 	func restore_runtime(backup: Dictionary) -> Dictionary:
 		if refuse_restore:
 			return {"ok": false, "code": &"injected_audio_failure"}
 		return super.restore_runtime(backup)
 
 var _manager: RegisteredManager
-var _port: ResourcePort
+var _port: RestoreProbe
 
 
 func before_each() -> void:
-	_port = ResourcePort.new()
+	_port = RestoreProbe.new()
 	_manager = RegisteredManager.new(_port)
 	_manager.registration = _registration()
 	add_child_autofree(_manager)
@@ -46,21 +40,10 @@ func before_each() -> void:
 	assert_true(_manager.initialize(profile).get("ok", false))
 
 
-func after_each() -> void:
-	DirAccess.remove_absolute(NATIVE_BED)
-	DirAccess.remove_absolute(NATIVE_CUE)
-
-
 func test_native_scene_music_pause_sfx_and_shutdown_use_live_manager() -> void:
 	if not ClassDB.class_exists("VGMStream"):
-		pending("Run with the staged gd_libvgm extension to verify native manager playback")
+		pending("Native playback requires the shipped Linux or Windows x86_64 player")
 		return
-	for pair: Array in [
-		["res://tools/audio_prototype/fixtures/loop_a.nsf", NATIVE_BED],
-		["res://tools/audio_prototype/fixtures/confirm.nsfe", NATIVE_CUE]]:
-		var copied := DirAccess.copy_absolute(pair[0], pair[1])
-		assert_eq(copied, OK)
-		if copied != OK: return
 	var port := AudioPlaybackPort.new()
 	var manager := RegisteredManager.new(port)
 	add_child_autofree(manager)
@@ -69,11 +52,8 @@ func test_native_scene_music_pause_sfx_and_shutdown_use_live_manager() -> void:
 	manager.registration = _registration()
 	var catalogue: Dictionary = manager.registration.audio_catalogue
 	catalogue.schema_version = 3
-	catalogue.assets = [
-		{"asset_id": "TEST.audio.asset.01", "path": NATIVE_BED,
-			"sha256": FileAccess.get_sha256(NATIVE_BED), "duration_ms": 0},
-		{"asset_id": "TEST.audio.asset.02", "path": NATIVE_CUE,
-			"sha256": FileAccess.get_sha256(NATIVE_CUE), "duration_ms": 399}]
+	catalogue.assets.append({"asset_id": "TEST.audio.asset.02", "path": NATIVE_CUE,
+		"sha256": FileAccess.get_sha256(NATIVE_CUE), "duration_ms": 399})
 	catalogue.plans[0].music = "TEST.audio.asset.01"
 	catalogue.plans[0].ambience_asset_id = null
 	catalogue.plans[0].load_anchor_ms = 0
@@ -112,9 +92,18 @@ func test_native_scene_music_pause_sfx_and_shutdown_use_live_manager() -> void:
 	await get_tree().create_timer(0.8).timeout
 	assert_false(cue.playing, "the native one-shot reaches its finite endpoint")
 	assert_true(music.playing, "the native music continues looping")
+	var title: Dictionary = manager.play_title_music()
+	assert_true(title.ok, str(title))
+	var menu_player: AudioStreamPlayer = port._players[manager._active_players[&"music"]]
+	assert_true(menu_player.playing)
+	assert_eq(menu_player.stream, load("res://audio/bgm/menu_theme.nsf"))
+	var menu_playback: WeakRef = weakref(menu_player.get_stream_playback())
+	assert_true(manager.play_title_music().ok)
+	assert_eq(menu_player.get_stream_playback(), menu_playback.get_ref(), "the active title track keeps its playhead")
 	var stopped: Dictionary = await manager.shutdown()
 	assert_true(stopped.ok, str(stopped))
-	assert_null(playback.get_ref(), "shutdown observes native playback release")
+	assert_null(playback.get_ref())
+	assert_null(menu_playback.get_ref(), "shutdown observes native playback release")
 
 
 func _registration() -> Dictionary:
@@ -124,7 +113,7 @@ func _registration() -> Dictionary:
 		"audio_catalogue": {
 			"kind": "scene_audio_catalogue", "schema_version": 1,
 			"assets": [{"asset_id": "TEST.audio.asset.01", "path": ASSET_PATH,
-				"sha256": ASSET_HASH, "duration_ms": 4000}],
+				"sha256": ASSET_HASH, "duration_ms": 0}],
 			"plans": [{"plan_id": "TEST.audio.01", "revision": 1, "variant_id": "base",
 				"ambience_asset_id": "TEST.audio.asset.01", "entrance_ms": 0,
 				"load_anchor_id": "load.01", "load_anchor_ms": 1000,
@@ -164,7 +153,7 @@ func _assert_long_lived_silence() -> void:
 		assert_null(_port.players[id].stream)
 
 
-func test_prepare_loads_real_fixture_without_changing_playback_or_semantics() -> void:
+func test_prepare_loads_registered_asset_without_changing_playback_or_semantics() -> void:
 	var before: Dictionary = _manager.capture_restore_state().value
 	var start: int = _port.operations.size()
 	var context: Dictionary = _context()
@@ -251,7 +240,7 @@ func test_explicit_silent_binding_clears_previous_audio_without_warning() -> voi
 
 func test_missing_registered_media_adopts_semantics_with_silence_and_warning() -> void:
 	assert_true(_admit(_context()).get("ok", false))
-	_manager.registration.audio_catalogue.assets[0].path = "res://tests/fixtures/audio/absent_scene_bed.tres"
+	_manager.registration.audio_catalogue.assets[0].path = "res://audio/bgm/absent_scene_bed.nsf"
 	var missing: Dictionary = _context("scene.test.b", "admission.test.2")
 	watch_signals(_manager)
 	assert_true(_admit(missing).get("ok", false))
@@ -428,7 +417,7 @@ func test_inline_crossfade_stop_and_superseding_play_keep_only_latest_track() ->
 	_assert_long_lived_silence()
 
 
-func test_inline_sfx_is_nonlooping_and_does_not_change_music_or_user_output() -> void:
+func test_inline_sfx_allocates_transient_players_and_preserves_music_and_output() -> void:
 	_inline_registration()
 	assert_true(_inline_admit("TEST.audio.01").ok)
 	var semantic: Dictionary = _manager.get_semantic_audio_context()
@@ -436,8 +425,7 @@ func test_inline_sfx_is_nonlooping_and_does_not_change_music_or_user_output() ->
 	assert_true(_manager.play_scene_sfx("TEST.audio.asset.01").ok)
 	assert_true(_port.players[&"SFX0"].playing)
 	assert_eq(_port.players[&"SFX0"].db, -6.0)
-	assert_eq(_port.players[&"SFX0"].stream.loop_mode, AudioStreamWAV.LOOP_DISABLED)
-	assert_eq(_port.players[&"MusicB"].stream.loop_mode, AudioStreamWAV.LOOP_FORWARD)
+	assert_true(_port.players[&"MusicB"].playing)
 	assert_eq(_manager.get_semantic_audio_context(), semantic)
 	assert_eq(_port.bus_states, output)
 	assert_true(_manager.play_scene_sfx("TEST.audio.asset.01").ok)

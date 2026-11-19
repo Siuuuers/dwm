@@ -3,16 +3,13 @@
 The game uses the pinned gd_libvgm add-on through its existing audio owner.
 Build, integration verification and packaging instructions live in
 [Native game audio](../../docs/audio/native-audio.md).
-The original test tunes here are authoring fixtures, not production soundtrack
-selections. Follow [FIXTURES.md](FIXTURES.md) to rebuild them from text scores.
+The fixture directory holds the source scores for the production music and a finite test cue. Follow [FIXTURES.md](FIXTURES.md) to rebuild them from text scores.
 
 ## Game verification
 
-With Python 3.12 and the platform C++ build tools installed:
+With Python 3.12 and the shipped native libraries:
 
 ```sh
-python -m pip install scons==4.11.1
-python tools/audio_prototype/build_gd_libvgm.py --install
 python tools/audio_prototype/verify_game.py
 ```
 

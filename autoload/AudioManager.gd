@@ -158,6 +158,15 @@ func initialize(profile: Node) -> Dictionary:
 	return applied
 
 
+func play_title_music() -> Dictionary:
+	if _semantic.get("kind") != "scene_audio" and _semantic.ambience_context_id.is_empty():
+		return set_music_context("menu")
+	var result := apply_restore_silent({"snapshot": {"music_context_id": "menu", "music_context": {},
+		"ambience_context_id": "", "ambience_context": {}}})
+	if result.ok: finalize_restore()
+	return result
+
+
 func set_music_context(context_id: String, context: Dictionary = {}) -> Dictionary:
 	return _set_context(&"music", context_id, context, -1.0, false)
 
@@ -412,12 +421,8 @@ func play_scene_sfx(asset_id: String) -> Dictionary:
 		var prepared := _prepare_scene_asset(asset)
 		if not prepared.ok: return prepared
 		if prepared.value.missing_media: return _warn_missing(asset_id)
-		var stream: AudioStream = prepared.value.stream.duplicate()
-		if stream is AudioStreamWAV: stream.loop_mode = AudioStreamWAV.LOOP_DISABLED
-		elif stream is AudioStreamOggVorbis: stream.loop = false
-		elif stream is AudioStreamMP3: stream.loop = false
 		return _play_cue(asset_id, {"path": asset.path, "bus": &"SFX",
-			"gain_db": asset.get("gain_db", 0.0)}, stream)
+			"gain_db": asset.get("gain_db", 0.0)}, prepared.value.stream)
 	return _failure(&"unknown_audio_cue")
 
 

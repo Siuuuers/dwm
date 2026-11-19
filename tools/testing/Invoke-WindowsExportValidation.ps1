@@ -1,5 +1,5 @@
 # Run on a disposable Windows cloud runner using the standard Godot editor.
-# This verifies packaging and headless startup; it does not certify UIA or release readiness.
+# This verifies packaging and windowed startup; it does not certify UIA or release readiness.
 # Requires a previously imported checkout, GODOT_CONSOLE_PATH, and the cached official TPZ.
 #requires -Version 7.0
 param(
@@ -24,8 +24,8 @@ $result = [ordered]@{
     commit = (& git -C $repositoryRoot rev-parse HEAD).Trim()
     ci_event_commit = $env:GITHUB_SHA
     engine = '4.6.3.stable'; architecture = 'x86_64'; signed = $false
-    scope = 'Unsigned Windows release export, packaged data audit, isolated headless startup'
-    limitations = @('No graphical rendering, UI Automation, screen-reader, or full release acceptance claim')
+    scope = 'Unsigned Windows release export, packaged data audit, isolated windowed startup'
+    limitations = @('No visual inspection, UI Automation, screen-reader, or full release acceptance claim')
     templates_sha256 = $expectedTemplateHash
 }
 
@@ -53,6 +53,20 @@ function Invoke-CheckedProcess {
         if (-not $process.Start()) { throw "$Name failed to start." }
         $stdout = $process.StandardOutput.ReadToEndAsync()
         $stderr = $process.StandardError.ReadToEndAsync()
+        if ($Name -eq 'smoke') {
+            # Close through the same window notification that drains native audio on player exit.
+            $profile = Join-Path $UserRoot 'appdata/Godot/app_userdata/DWM/profile.json'
+            $deadline = [datetime]::UtcNow.AddSeconds(45)
+            while (-not $process.HasExited -and [datetime]::UtcNow -lt $deadline) {
+                $process.Refresh()
+                if ($process.MainWindowHandle -ne 0 -and (Test-Path -LiteralPath $profile)) {
+                    Start-Sleep -Seconds 4
+                    if (-not $process.CloseMainWindow()) { throw 'Could not close the exported game window.' }
+                    break
+                }
+                Start-Sleep -Milliseconds 200
+            }
+        }
         if (-not $process.WaitForExit($TimeoutSeconds * 1000)) {
             $timedOut = $true
             $process.Kill($true)
@@ -168,7 +182,7 @@ try {
     # Keep upstream notices as ordinary files alongside the executable, even
     # when their Markdown/text extensions are intentionally absent from the PCK.
     $licenses = Join-Path $package 'licenses'
-    foreach ($directory in @('assets', 'art', 'audio', 'addons/dialogic', 'addons/godot_state_charts')) {
+    foreach ($directory in @('assets', 'art', 'audio', 'addons/dialogic', 'addons/godot_state_charts', 'addons/gd_libvgm')) {
         $sourceDirectory = Join-Path $repositoryRoot $directory
         if (-not (Test-Path -LiteralPath $sourceDirectory -PathType Container)) { continue }
         Get-ChildItem -LiteralPath $sourceDirectory -Recurse -File |
@@ -191,12 +205,12 @@ try {
         # project, script override, test bootstrap, or pre-existing user state.
         # The official release template rejects --path; WorkingDirectory is the
         # package directory and native discovery must open the adjacent DWM.pck.
-        $null = Invoke-CheckedProcess $executable @('--headless', '--verbose', '--max-fps', '60',
-            '--quit-after', '240', '--log-file', (Join-Path $output 'smoke.log')) 'smoke' $smokeUser 90
+        $null = Invoke-CheckedProcess $executable @('--windowed', '--audio-driver', 'Dummy', '--verbose', '--max-fps', '60',
+            '--log-file', (Join-Path $output 'smoke.log')) 'smoke' $smokeUser 90
         $profilePath = Join-Path $smokeUser 'appdata/Godot/app_userdata/DWM/profile.json'
         if (-not (Test-Path -LiteralPath $profilePath -PathType Leaf)) { throw 'Exported startup did not create its isolated profile.' }
         $null = Get-Content -LiteralPath $profilePath -Raw | ConvertFrom-Json
-        $result.smoke = @{ executable = 'DWM.exe'; headless = $true; iterations = 240; isolated_profile_created = $true; ok = $true }
+        $result.smoke = @{ executable = 'DWM.exe'; windowed = $true; isolated_profile_created = $true; ok = $true }
     } catch {
         $result.smoke = @{ ok = $false; failure = $_.Exception.Message }
         $validationFailures.Add('Native startup: ' + $_.Exception.Message)
@@ -230,8 +244,9 @@ try {
         $expected[$resource] = (Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash.ToLowerInvariant()
     }
     $result.story_compatibility_resources = $storyCompatibilityResources
-    $musicResource = "res://audio/bgm/story_theme.ogg"
-    $expected[$musicResource] = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot $musicResource.Substring(6)) -Algorithm SHA256).Hash.ToLowerInvariant()
+    foreach ($music in @('audio/bgm/menu_theme.nsf', 'audio/bgm/story_theme.nsf')) {
+        $expected["res://$music"] = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot $music) -Algorithm SHA256).Hash.ToLowerInvariant()
+    }
     $expected | ConvertTo-Json -Depth 3 | Set-Content -LiteralPath (Join-Path $work 'expected.json') -Encoding utf8NoBOM
     $probe = @'
 extends SceneTree
@@ -266,6 +281,12 @@ func _audit() -> void:
     for forbidden: String in ["tools", "docs", "evidence", "prompt_docs", "art_source", "temp-artifacts", "addons/gut", "addons/story_export"]:
         if DirAccess.dir_exists_absolute("res://" + forbidden):
             push_error("Development directory included in pack: " + forbidden)
+            await _fail_audit()
+            return
+    for path in ["res://audio/bgm/menu_theme.nsf", "res://audio/bgm/story_theme.nsf"]:
+        var music := ResourceLoader.load(path) as AudioStream
+        if music == null or not music.is_class("VGMStream") or music.get_length() != 0:
+            push_error("Cannot load looping VRC6 score: " + path)
             await _fail_audit()
             return
     var license_directory: String = OS.get_cmdline_user_args()[1]
@@ -321,7 +342,14 @@ func _fail_audit() -> void:
     $probePath = Join-Path $work 'verify_pack.gd'
     Set-Content -LiteralPath $probePath -Value $probe -Encoding utf8NoBOM
     try {
-        $auditLog = Invoke-CheckedProcess $env:GODOT_CONSOLE_PATH @('--headless', '--verbose', '--path', $package,
+        # The external editor resolves a packed GDExtension relative to its project path.
+        # The exported player resolves this same DLL beside its executable.
+        $audioDll = 'gd_libvgm.windows.template_release.x86_64.single.dll'
+        $auditRoot = Join-Path $work 'editor-audit'
+        $audioDirectory = Join-Path $auditRoot 'addons/gd_libvgm/bin/windows'
+        New-Item -ItemType Directory -Force -Path $audioDirectory | Out-Null
+        Copy-Item -LiteralPath (Join-Path $package $audioDll) -Destination $audioDirectory
+        $auditLog = Invoke-CheckedProcess $env:GODOT_CONSOLE_PATH @('--headless', '--verbose', '--path', $auditRoot,
             '--main-pack', (Join-Path $package 'DWM.pck'), '--script', $probePath,
             '--log-file', (Join-Path $output 'pack-audit.log'), '--', (Join-Path $work 'expected.json'), $engineLicenses) 'pack-audit' $exportUser
         if ($auditLog -notmatch "WINDOWS_PACK_DATA_VERIFIED count=$($expected.Count)\b") { throw 'Pack audit did not report success.' }

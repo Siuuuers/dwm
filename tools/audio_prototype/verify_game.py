@@ -15,6 +15,7 @@ def main():
     reports = ROOT / ".godot/ci/native-audio"
     reports.mkdir(parents=True, exist_ok=True)
     verify.REPORTS = reports
+    verify.BUILD.mkdir(parents=True, exist_ok=True)
     platform = "win64.exe" if verify.WINDOWS else "linux.x86_64"
     digest = ("e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90" if verify.WINDOWS else
               "d0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3")
@@ -29,22 +30,18 @@ def main():
         os.environ["APPDATA"] = str(reports / "user")
     Path(os.environ["DWM_TEST_ROOT"]).mkdir(parents=True, exist_ok=True)
     Path(os.environ["XDG_DATA_HOME"]).mkdir(exist_ok=True)
-    staged = ROOT / "native_audio_verify"
-    staged.mkdir(exist_ok=True)
-    shutil.copy2(SOURCE / "game_smoke.gd", staged / "smoke.gd")
-    (staged / "smoke.tscn").write_text('[gd_scene load_steps=2 format=3]\n\n'
-        '[ext_resource type="Script" path="res://native_audio_verify/smoke.gd" id="1"]\n\n'
-        '[node name="NativeAudioSmoke" type="Node"]\nscript = ExtResource("1")\n')
-    for source, target in (("loop_a.nsf", "audio/bgm/_native_verify.nsf"),
-                           ("confirm.nsfe", "audio/sfx/_native_verify.nsfe")):
-        destination = ROOT / target
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(SOURCE / "fixtures" / source, destination)
     base = [godot, "--headless", "--audio-driver", "Dummy", "--path", ROOT]
-    verify.run("import-workaround", [*base, "--editor", "--import", "--frame-delay", "800"], cwd=ROOT)
+    project = ROOT / "project.godot"
+    original_project = project.read_bytes()
+    try:
+        verify.run("import-workaround", [*base, "--editor", "--import", "--frame-delay", "800"], cwd=ROOT)
+    finally:
+        # The editor's Dialogic scan registers test timelines in the project settings.
+        project.write_bytes(original_project)
     suites = [
         "test_audio_manager", "test_audio_settings_transactions", "test_scene_audio_manifest",
         "test_scene_audio_manager", "test_scene_audio_playback_port", "test_inline_audio_authoring",
+        "test_template_music_assets",
     ]
     report = reports / "audio.xml"
     report.unlink(missing_ok=True)
@@ -54,36 +51,50 @@ def main():
     result = ET.parse(report).getroot()
     assert result.findall(".//testcase"), "No audio cases executed"
     assert not any(result.findall(".//" + tag) for tag in ("failure", "error", "skipped"))
-    verify.run("game-smoke", [*base, "res://native_audio_verify/smoke.tscn"],
-               "NATIVE_GAME_EXPORT_PASS", cwd=ROOT)
+    del os.environ["DWM_TEST_ROOT"]
+    os.environ["XDG_DATA_HOME"] = str(reports / "source-user")
     if verify.WINDOWS:
-        templates = verify.archive("Godot_v4.6.3-stable_export_templates.tpz",
-            "3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8")
-        with zipfile.ZipFile(templates) as package:
-            package.extract("templates/windows_release_x86_64.exe", verify.BUILD)
-        preset = ROOT / "export_presets.cfg"
-        original = preset.read_text()
-        project = ROOT / "project.godot"
-        original_project = project.read_text()
-        project.write_text(original_project.replace('run/main_scene="res://scenes/menu/MenuScene.tscn"',
-            'run/main_scene="res://native_audio_verify/smoke.tscn"'))
-        template = (verify.BUILD / "templates/windows_release_x86_64.exe").as_posix()
-        preset.write_text(original.replace('custom_template/release=""', 'custom_template/release="' + template + '"'))
-        exported = reports / "export"
-        exported.mkdir(exist_ok=True)
-        verify.run("game-export", [*base, "--export-release", "Windows Desktop", exported / "game.exe"], cwd=ROOT)
-        preset.write_text(original)
-        project.write_text(original_project)
-        for attempt in range(3):
-            os.environ["APPDATA"] = str(reports / "user" / ("export-" + str(attempt)))
-            Path(os.environ["APPDATA"]).mkdir(exist_ok=True)
-            verify.run("exported-game-" + str(attempt + 1),
-                [exported / "game.exe", "--headless", "--audio-driver", "Dummy"],
-                "NATIVE_GAME_EXPORT_PASS", cwd=exported)
+        os.environ["APPDATA"] = os.environ["XDG_DATA_HOME"]
+    shutil.rmtree(reports / "source-user", ignore_errors=True)
+    # The verifier attaches an observer to the real startup scene and follows New Acc.
+    staged = ROOT / "native_audio_verify"
+    staged.mkdir(exist_ok=True)
+    shutil.copy2(SOURCE / "game_smoke.gd", staged / "smoke.gd")
+    preset = ROOT / "export_presets.cfg"
+    original_preset = preset.read_bytes()
+    try:
+        original = original_project.decode()
+        assert original.count("[autoload]") == 1
+        project.write_text(original.replace("[autoload]", '[autoload]\nNativeAudioVerify="*res://native_audio_verify/smoke.gd"'), encoding="utf-8")
+        verify.run("game-smoke", base, "NATIVE_GAME_EXPORT_PASS", cwd=ROOT)
+        if verify.WINDOWS:
+            windows_export(base, reports, preset)
+    finally:
+        project.write_bytes(original_project)
+        preset.write_bytes(original_preset)
+        shutil.rmtree(staged)
     print("PASS: native game integration and focused audio suites")
-    shutil.rmtree(staged)
-    (ROOT / "audio/bgm/_native_verify.nsf").unlink()
-    (ROOT / "audio/sfx/_native_verify.nsfe").unlink()
+
+
+def windows_export(base, reports, preset):
+    templates = verify.archive("Godot_v4.6.3-stable_export_templates.tpz",
+        "3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8")
+    with zipfile.ZipFile(templates) as package:
+        package.extract("templates/windows_release_x86_64.exe", verify.BUILD)
+    original = preset.read_text()
+    template = (verify.BUILD / "templates/windows_release_x86_64.exe").as_posix()
+    preset.write_text(original.replace('custom_template/release=""', 'custom_template/release="' + template + '"'))
+    exported = reports / "export"
+    shutil.rmtree(exported, ignore_errors=True)
+    exported.mkdir()
+    verify.run("game-export", [*base, "--export-release", "Windows Desktop", exported / "game.exe"], cwd=ROOT)
+    for attempt in range(3):
+        os.environ["APPDATA"] = str(reports / "user" / ("export-" + str(attempt)))
+        shutil.rmtree(os.environ["APPDATA"], ignore_errors=True)
+        Path(os.environ["APPDATA"]).mkdir(parents=True)
+        verify.run("exported-game-" + str(attempt + 1),
+            [exported / "game.exe", "--headless", "--audio-driver", "Dummy"],
+            "NATIVE_GAME_EXPORT_PASS", cwd=exported, engine_log=reports / f"launch-{attempt + 1}.log")
 
 
 if __name__ == "__main__":

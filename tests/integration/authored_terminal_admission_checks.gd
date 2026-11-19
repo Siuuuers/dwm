@@ -67,6 +67,7 @@ func _restore_profile_bytes() -> bool:
 
 func after_all() -> void:
 	assert_true(_restore_profile_bytes(), "restore original Profile bytes even after an early test return")
+	await super.after_all()
 
 func _measured_run(source: Dictionary, label: String) -> Dictionary:
 	assert_true(TERMINAL_TIMING.begin_scope(label, "ENDING", "PRIMARY_PENDING", 0))

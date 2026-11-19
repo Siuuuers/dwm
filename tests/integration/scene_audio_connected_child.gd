@@ -78,8 +78,7 @@ func _click(control: Control) -> void:
 	assert_eq(native.starts.size(), starts)
 	assert_eq(native.clears, clears)
 	assert_eq(audio.get_semantic_audio_context(), context)
-	# The authored fixture loops at four seconds; account for a loop boundary.
-	var advance := fposmod(after - before, 4.0)
+	var advance := after - before
 	assert_gt(advance, 0.02, "audio advances while computer owns only captions")
 	assert_lt(advance, 1.0, "bounded observation excludes an unexplained seek")
 	continuity.append({"computer_open": get_tree().current_scene.is_computer_open(),
