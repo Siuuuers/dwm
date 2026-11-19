@@ -134,6 +134,10 @@ static func visible_records(section_id: StringName) -> Array[Dictionary]:
 	return output
 
 
+static func has_path(path: StringName) -> bool:
+	return not _record_for(path).is_empty()
+
+
 static func is_player_writable(path: StringName) -> bool:
 	var record := _record_for(path)
 	return bool(record.get("player_writable", false)) if not record.is_empty() else false

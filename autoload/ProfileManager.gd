@@ -556,7 +556,7 @@ func _check_profile_revision(expected_revision: int) -> Dictionary:
 
 
 func get_preference(path: StringName, default_value: Variant = null) -> Variant:
-	if not _is_registered_preference_path(path):
+	if not PREFERENCE_REGISTRY.has_path(path):
 		return default_value
 	return _get_profile_path(_profile, path, default_value)
 
@@ -1711,13 +1711,6 @@ func _get_profile_path(profile: Dictionary, path: StringName, default_value: Var
 func _set_profile_path(profile: Dictionary, path: StringName, value: Variant) -> void:
 	var segments := String(path).split(".")
 	profile["preferences"][segments[1]][segments[2]] = _duplicate_variant(value)
-
-
-func _is_registered_preference_path(path: StringName) -> bool:
-	for record in PREFERENCE_REGISTRY.records():
-		if record["path"] == path:
-			return true
-	return false
 
 
 func _canonical_locale_id(locale_id: String) -> String:
