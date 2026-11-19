@@ -205,7 +205,7 @@ try {
         # project, script override, test bootstrap, or pre-existing user state.
         # The official release template rejects --path; WorkingDirectory is the
         # package directory and native discovery must open the adjacent DWM.pck.
-        $null = Invoke-CheckedProcess $executable @('--windowed', '--verbose', '--max-fps', '60',
+        $null = Invoke-CheckedProcess $executable @('--windowed', '--audio-driver', 'Dummy', '--verbose', '--max-fps', '60',
             '--log-file', (Join-Path $output 'smoke.log')) 'smoke' $smokeUser 90
         $profilePath = Join-Path $smokeUser 'appdata/Godot/app_userdata/DWM/profile.json'
         if (-not (Test-Path -LiteralPath $profilePath -PathType Leaf)) { throw 'Exported startup did not create its isolated profile.' }
