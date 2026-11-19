@@ -312,14 +312,14 @@ func _commit_width(width: float) -> void:
 
 
 func _retire_drag() -> void:
-	var was_dragging := is_dragging()
+	if not is_dragging(): return
 	_mouse_dragging = false
 	_touch_index = -1
 	if is_instance_valid(_handle):
 		_handle.preview_visible = false
 		_handle.preview_offset = 0.0
 		_handle.queue_redraw()
-	if was_dragging: drag_changed.emit(false)
+	drag_changed.emit(false)
 
 
 func _handle_point_to_split_x(point: Vector2) -> float:

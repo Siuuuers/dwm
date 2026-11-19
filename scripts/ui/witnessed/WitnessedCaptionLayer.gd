@@ -692,7 +692,7 @@ func _auto_timer_admitted() -> bool:
 		and _reading_input_owner.get_physical_contacts().is_empty()
 
 func _try_arm_auto() -> void:
-	if _auto_configured and not caption_text.revealing and _auto_timer_admitted():
+	if _auto_configured and auto_controller.is_auto_enabled() and not caption_text.revealing and _auto_timer_admitted():
 		auto_controller.arm_after_reveal(_presented_line)
 
 func _on_auto_state_changed() -> void:
@@ -1520,7 +1520,7 @@ func _process(_delta: float) -> void:
 		_dismiss_reading_recovery(false)
 	_sync_transport()
 	_restore_load_focus()
-	if not _auto_timer_admitted():
+	if not auto_controller.is_auto_enabled() or not _auto_timer_admitted():
 		_auto_resume_pending = true
 	elif _auto_resume_pending:
 		_auto_resume_pending = false
