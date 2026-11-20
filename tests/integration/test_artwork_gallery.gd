@@ -193,12 +193,14 @@ func test_canonical_locales_refresh_artwork_tabs_preview_and_open_viewer_without
 	var localization := LOCALIZATION.new()
 	add_child_autofree(localization)
 	assert_true(localization.initialize(profile).get("ok", false))
+	assert_true(localization.set_locale("ja").ok)
 	var home := Button.new()
 	add_child_autofree(home)
 	var gallery: Control = GALLERY.instantiate()
 	assert_true(gallery.configure_title_host(home, localization, profile).get("ok", false))
 	add_child_autofree(gallery)
-	gallery.open_in_title_host()
+	assert_eq(gallery._artwork._rows[0].text, localization.t("gallery.artwork.title", {"number": "1"}))
+	assert_not_null(gallery._artwork._preview.texture_normal)
 	gallery._show_gallery_tab("artwork")
 	await get_tree().process_frame
 	var artwork: Control = gallery._artwork

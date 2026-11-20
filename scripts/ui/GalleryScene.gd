@@ -71,7 +71,6 @@ func _ensure_artwork_gallery() -> void:
 	_artwork.size = Vector2(896, 576)
 	_artwork.configure(_profile)
 	_artwork.viewer_visibility_changed.connect(_on_art_viewer_changed)
-	add_child(_artwork)
 	_artwork.hide()
 	_dialogue = DIALOGUE_LIBRARY.new()
 	_dialogue.name = "DialogueLibrary"
@@ -97,6 +96,7 @@ func _ensure_artwork_gallery() -> void:
 		button.pressed.connect(_show_gallery_tab.bind(key.trim_prefix("gallery.tab.")))
 		_gallery_tabs.add_child(button)
 	_refresh_artwork_copy()
+	add_child(_artwork)
 	refresh_return_navigation()
 
 func _refresh_artwork_copy() -> void:
