@@ -58,6 +58,7 @@ var _replay_return_hidden := false
 var _record_catalog: RefCounted = RECORD_CATALOG.new()
 var _artwork: Control
 var _gallery_tabs: HBoxContainer
+var _theme_inputs: Array = []
 var _active_tab := "records"
 var _dialogue: Control
 var _art_return_was_visible := false
@@ -680,7 +681,12 @@ func _preference(path: StringName, fallback: Variant) -> Variant:
 func _refresh_presentation() -> void:
 	var locale := str(_localization.get_locale()) if _localization != null else "en"
 	var midnight: bool = _preference(&"preferences.dark_mode.available", false) and _preference(&"preferences.dark_mode.next_run_enabled", false)
-	theme = PRESENTATION.build(locale, int(_preference(&"preferences.accessibility.text_size", 100)), &"midnight" if midnight else &"after_hours", str(_preference(&"preferences.accessibility.font_style", "pixel")))
+	var percent := int(_preference(&"preferences.accessibility.text_size", 100))
+	var font_style := str(_preference(&"preferences.accessibility.font_style", "pixel"))
+	var inputs := [locale, percent, midnight, font_style]
+	if inputs != _theme_inputs:
+		theme = PRESENTATION.build(locale, percent, &"midnight" if midnight else &"after_hours", font_style)
+		_theme_inputs = inputs
 	var text_controls: Array[Control] = [_replay_status, _replay_button]
 	if is_instance_valid(_version_selector):
 		text_controls.append(_version_selector)

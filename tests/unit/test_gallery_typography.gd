@@ -122,6 +122,16 @@ func test_real_locale_transaction_reprojects_mounted_gallery_face_and_language_c
 	assert_true(gallery.configure_title_host(home, localization, profile).get("ok", false))
 	add_child_autofree(gallery)
 	gallery.open_in_title_host()
+	var first_theme: Theme = gallery.theme
+	assert_true(gallery.close_for_title_host())
+	gallery.open_in_title_host()
+	assert_same(gallery.theme, first_theme)
+	assert_true(gallery.close_for_title_host())
+	assert_true(profile.set_preference(&"preferences.accessibility.text_size", 150).ok)
+	gallery.open_in_title_host()
+	assert_ne(gallery.theme, first_theme)
+	assert_eq(gallery.theme.default_font_size, FONT_SIZES[150])
+	assert_true(profile.set_preference(&"preferences.accessibility.text_size", 125).ok)
 	for locale: String in LOCALES:
 		assert_true(localization.set_locale(locale).get("ok", false))
 		await get_tree().process_frame

@@ -161,6 +161,10 @@ func _click(control: Control) -> void:
 
 func _open_gallery() -> Control:
 	await _click(_menu.get_node("%GalleryButton"))
+	var deadline := Time.get_ticks_msec() + 10000
+	while _menu._pending_destination == "gallery" and Time.get_ticks_msec() < deadline:
+		await get_tree().process_frame
+	await _settle()
 	var gallery: Control = _menu.get("_gallery_instance")
 	assert_not_null(gallery)
 	return gallery
