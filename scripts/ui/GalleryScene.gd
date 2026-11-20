@@ -123,6 +123,7 @@ func _show_gallery_tab(tab: String) -> void:
 	_canvas.visible = tab == "records"
 	_artwork.visible = tab == "artwork"
 	_dialogue.visible = tab == "dialogue"
+	if _dialogue.visible: _dialogue.refresh()
 	_focus_entry()
 	refresh_return_navigation()
 
@@ -377,7 +378,6 @@ func _focus_return() -> void:
 func _focus_entry() -> void:
 	if not is_visible_in_tree(): return
 	if _active_tab == "dialogue" and is_instance_valid(_dialogue):
-		_dialogue.refresh()
 		if not _dialogue.focus_first(): _return_button.grab_focus()
 		return
 	if _active_tab == "artwork" and is_instance_valid(_artwork):
