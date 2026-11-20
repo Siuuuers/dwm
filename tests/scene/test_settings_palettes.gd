@@ -96,7 +96,7 @@ func test_both_standard_palettes_preserve_geometry_and_native_bindings_in_nine_p
 				assert_eq(content.get_palette_id(), palette, context)
 				assert_eq(content.get_rect(), Rect2(0, 0, 800, 656), context)
 				for entry: Array in [
-					["RailScroll", Rect2(16, 16, 208, 624)], ["SheetScroll", Rect2(240, 96, 544, 400)],
+					["RailScroll", Rect2(16, 16, 208, 624)], ["SheetScroll", Rect2(240, 96, 544, 544)],
 					["Heading", Rect2(240, 16, 544, 80)], ["Footer", Rect2(240, 496, 544, 144)],
 				]:
 					assert_eq(content.get_node(entry[0]).get_rect(), entry[1], context + ": " + entry[0])
@@ -108,6 +108,22 @@ func test_both_standard_palettes_preserve_geometry_and_native_bindings_in_nine_p
 				assert_eq(fixture.profile.get_profile_revision(), fixture.revision, context + ": no presentation commit")
 				assert_eq(fixture.ops.snapshot_persisted(), fixture.disk, context + ": no disk rewrite")
 				content.free()
+
+
+func test_switching_categories_reuses_dialog_themes_and_large_targets_resize_them() -> void:
+	var fixture := _fixture()
+	var content: Control = fixture.content
+	var reset: ConfirmationDialog = content.confirmations.controls
+	var capture: ConfirmationDialog = content._controls_sheet.capture_dialog
+	var reset_theme := reset.theme
+	var capture_theme := capture.theme
+	content.select_category("reading")
+	assert_same(reset.theme, reset_theme)
+	assert_same(capture.theme, capture_theme)
+	assert_eq(reset.get_cancel_button().custom_minimum_size.y, 64.0)
+	assert_true(fixture.profile.set_preference(&"preferences.accessibility.large_targets", false).ok)
+	assert_eq(reset.get_cancel_button().custom_minimum_size.y, 48.0)
+	assert_eq(capture.theme.get_constant("buttons_min_height", "AcceptDialog"), 48)
 
 
 func test_simultaneous_palettes_do_not_recolour_other_instances_or_their_native_resources() -> void:
