@@ -14,26 +14,24 @@ var _layout_queued := false
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	focus_mode = Control.FOCUS_NONE
-	_ensure_heading()
 	refresh_layout()
 
-func _ensure_heading() -> void:
-	if is_instance_valid(_heading): return
-	_heading = Label.new()
-	_heading.name = "VersionHeading"
-	_heading.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_heading.add_theme_constant_override("line_spacing", 0)
-	add_child(_heading)
-
 func set_versions(entries: Array[Dictionary], selected_id: String, locale: String, heading_copy: String) -> void:
-	_ensure_heading()
 	var retained: Dictionary = {}
 	for row: Control in _rows: retained[row.get_meta("gallery_signature_id")] = row
 	var next: Array[Control] = []
 	var removed_focus := false
 	var hide_focus := false
 	if entries.size() >= 2:
+		if _heading == null:
+			_heading = Label.new()
+			_heading.name = "VersionHeading"
+			_heading.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			_heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			_heading.add_theme_constant_override("line_spacing", 0)
+			add_child(_heading)
+		_heading.language = locale.replace("_", "-")
+		_heading.text = heading_copy
 		for entry: Dictionary in entries:
 			var id := str(entry.signature_id)
 			var row: Button = retained.get(id)
@@ -50,6 +48,10 @@ func set_versions(entries: Array[Dictionary], selected_id: String, locale: Strin
 			row.text = str(entry.cue)
 			row.language = locale.replace("_", "-")
 			next.append(row)
+	elif _heading != null:
+		remove_child(_heading)
+		_heading.queue_free()
+		_heading = null
 	for row: Control in retained.values():
 		if row.has_focus():
 			removed_focus = true
@@ -58,9 +60,6 @@ func set_versions(entries: Array[Dictionary], selected_id: String, locale: Strin
 		row.queue_free()
 	_rows = next
 	for index: int in range(_rows.size()): move_child(_rows[index], index + 1)
-	var language_code := locale.replace("_", "-")
-	_heading.language = language_code
-	_heading.text = heading_copy
 	set_selected(selected_id)
 	set_interactive(_interactive)
 	refresh_layout()
@@ -93,13 +92,8 @@ func focused_signature_id() -> String:
 func refresh_layout() -> void:
 	if _laying_out: return
 	_laying_out = true
-	_ensure_heading()
 	visible = _rows.size() >= 2
-	_heading.visible = visible
 	if not visible:
-		remove_child(_heading)
-		_heading.queue_free()
-		_heading = null
 		custom_minimum_size = Vector2.ZERO
 		size = Vector2.ZERO
 	else:
