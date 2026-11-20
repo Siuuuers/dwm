@@ -143,6 +143,16 @@ func test_gallery_preview_modal_keys_and_return_focus() -> void:
 	assert_true(gallery.visible)
 	assert_eq(probe.escapes, 0, "viewer owns Esc before title/unhandled navigation")
 	assert_eq(profile.get_profile_snapshot(), before)
+	gallery._show_gallery_tab("records")
+	assert_true(gallery.close_for_title_host())
+	var discovered: Array[String] = ["picture3"]
+	assert_true(profile.record_displayed_artwork(discovered).ok)
+	gallery.open_in_title_host()
+	gallery._show_gallery_tab("artwork")
+	await get_tree().process_frame
+	assert_not_null(artwork._rows[2].icon)
+	assert_false(artwork._rows[2].disabled)
+	assert_true(artwork._rows[0].has_focus())
 	ART.reload_placements()
 
 func test_seven_day_art_assets_and_split_placement() -> void:
