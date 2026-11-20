@@ -611,6 +611,19 @@ func _end_title_transition() -> void:
 	_sync_title_navigation()
 	_update_title_destination()
 
+func _on_profile_reset(section: StringName) -> void:
+	if section != &"entire_profile" or not _title_source_alive(): return
+	if is_instance_valid(_gallery_instance):
+		_gallery_instance.queue_free()
+		_gallery_instance = null
+		if _gallery_host.visible:
+			_gallery_host.hide()
+			_gallery_button.grab_focus()
+	if is_instance_valid(_setting_instance):
+		_setting_instance.queue_free()
+		_setting_instance = null
+	_setting_closed()
+
 func _setting_closed() -> void:
 	var was_visible := _setting_host.visible
 	if is_instance_valid(_setting_host):
@@ -686,6 +699,8 @@ func _build_login_shell() -> void:
 		locale.locale_changed.connect(_refresh_login_shell)
 	if profile != null:
 		profile.preference_changed.connect(func(_path, _value): _refresh_login_shell())
+		if profile.has_signal("profile_reset"):
+			profile.profile_reset.connect(_on_profile_reset, CONNECT_DEFERRED)
 	var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
 	if bootstrap != null and not bootstrap.get_startup_state().get("title_ready", false):
 		bootstrap.application_ready.connect(_refresh_login_shell)

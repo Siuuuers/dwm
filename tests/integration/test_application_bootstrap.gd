@@ -175,6 +175,35 @@ class BackgroundBootstrap extends Node:
 		return {"ok": true}
 	func get_startup_state() -> Dictionary: return {"ready": runtime_ready}
 
+func test_entire_profile_reset_requires_idle_title_without_live_session() -> void:
+	var app := InjectableBootstrap.new()
+	app.staged_startup = true
+	add_child_autofree(app)
+	var game: Node = autofree(GAME_STATE.new())
+	var router: Node = autofree(SCENE_ROUTER.new())
+	var saves: Node = autofree(SAVE_MANAGER.new())
+	app.injected_targets = {&"GameState": game, &"SceneRouter": router, &"SaveManager": saves}
+	var gate := ApplicationMutationGate.new()
+	app._application_gate = gate
+	var prior := get_tree().current_scene
+	var title := Node.new()
+	get_tree().root.add_child(autofree(title))
+	title.scene_file_path = "res://scenes/menu/MenuScene.tscn"
+	get_tree().current_scene = title
+	assert_false(app.is_profile_reset_admitted(), "runtime reconciliation is still pending")
+	app._state.ready = true
+	assert_true(app.is_profile_reset_admitted())
+	var lease := gate.acquire(&"restore")
+	assert_false(app.is_profile_reset_admitted(), "a restore owns this title")
+	assert_true(gate.release(&"restore", lease.value.token).ok)
+	game._live_session_active = true
+	assert_false(app.is_profile_reset_admitted(), "a mounted run still owns the profile")
+	game._live_session_active = false
+	assert_true(app.is_profile_reset_admitted())
+	get_tree().current_scene = prior
+	assert_false(app.is_profile_reset_admitted(), "a route id alone does not establish the title")
+
+
 func test_optional_resources_are_queued_only_after_runtime_ready() -> void:
 	var loader: Node = autofree(BackgroundLoader.new())
 	var bootstrap: Node = autofree(BackgroundBootstrap.new())

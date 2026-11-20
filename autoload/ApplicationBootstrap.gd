@@ -318,6 +318,19 @@ func advance_runtime() -> Dictionary:
 func get_startup_state() -> Dictionary:
 	return _state.duplicate(true)
 
+func is_profile_reset_admitted() -> bool:
+	if not _state.ready or _quitting or _startup_recovery_busy or not _pending_live_continuation.is_empty():
+		return false
+	var title := get_tree().current_scene
+	if title == null or title.is_queued_for_deletion() or title.scene_file_path != "res://scenes/menu/MenuScene.tscn":
+		return false
+	var router := _target(&"SceneRouter")
+	var game := _target(&"GameState")
+	return router.get_current_route_id() == "menu" and not router.is_restore_publication_held() \
+		and _application_gate.guard_external(&"profile_reset").ok and not _target(&"SaveManager").is_save_locked() \
+		and not game.capture_live_session().value.active and not game.has_new_run_replacement()
+
+
 func get_scene_startup_recovery() -> Dictionary:
 	return {"ok": true, "value": _scene_startup_recovery.duplicate(true)}
 

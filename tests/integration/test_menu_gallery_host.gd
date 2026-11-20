@@ -173,6 +173,36 @@ func _open_settings() -> Control:
 	return app.settings_content if app != null else null
 
 
+func test_entire_profile_reset_reopens_fresh_title_destinations() -> void:
+	assert_true(_profile.unlock_ending("ending.alone", "menu-gallery:reset").ok)
+	await _menu._on_gallery_pressed()
+	var gallery: Control = _menu._gallery_instance
+	assert_not_null(gallery)
+	if gallery == null: return
+	var old_gallery := gallery.get_instance_id()
+	await _menu._on_setting_pressed()
+	var settings: Control = _menu._setting_instance.settings_content
+	var old_settings := settings.get_instance_id()
+	settings.select_category("records")
+	var reset: Button = settings._reset_buttons.entire_profile
+	reset.pressed.emit()
+	await _settle()
+	assert_true(settings.confirmations.entire_profile.visible)
+	settings.confirmations.entire_profile.confirmed.emit()
+	await _settle()
+	assert_false(_menu._setting_host.visible)
+	assert_false(_menu._gallery_host.visible)
+	assert_eq(_profile.get_profile_snapshot().gallery_unlocks, [])
+	await _menu._on_setting_pressed()
+	settings = _menu._setting_instance.settings_content
+	assert_ne(settings.get_instance_id(), old_settings)
+	assert_eq(settings._selected, "language")
+	assert_eq(settings.sheet_scroll.scroll_vertical, 0)
+	await _menu._on_gallery_pressed()
+	assert_ne(_menu._gallery_instance.get_instance_id(), old_gallery)
+	assert_eq(_menu._gallery_instance.get_node("%EndingTileGrid").get_child_count(), 0)
+
+
 func test_actual_entry_return_back_and_reopen_reuse_one_gallery() -> void:
 	assert_true(_profile.unlock_ending("ending.alone", "menu-gallery:first").get("ok", false))
 	var gallery := await _open_gallery()
