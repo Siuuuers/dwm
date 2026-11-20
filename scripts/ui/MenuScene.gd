@@ -533,9 +533,11 @@ func _on_gallery_pressed() -> void:
 			return
 		if _gallery_replay_profile != null:
 			_gallery_instance.configure_replay(_gallery_replay_bridge)
+		_gallery_host.show()
 		_gallery_host.add_child(_gallery_instance)
-	_gallery_host.show()
-	_gallery_instance.open_in_title_host()
+	else:
+		_gallery_host.show()
+		_gallery_instance.open_in_title_host()
 	_end_title_transition()
 
 func _on_setting_pressed() -> void:
