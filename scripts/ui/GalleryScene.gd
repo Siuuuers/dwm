@@ -381,7 +381,6 @@ func _focus_entry() -> void:
 		if not _dialogue.focus_first(): _return_button.grab_focus()
 		return
 	if _active_tab == "artwork" and is_instance_valid(_artwork):
-		_artwork.refresh()
 		_artwork.focus_first()
 		return
 	if _ending_tile_grid.get_child_count() > 0:
