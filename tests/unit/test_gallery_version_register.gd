@@ -62,8 +62,12 @@ func test_plural_geometry_and_single_version_absence() -> void:
 	assert_eq(_register.custom_minimum_size, Vector2.ZERO)
 	assert_eq(_register.get_rows().size(), 0)
 	assert_null(_register.get_node_or_null("VersionHeading"))
+	var added: Array[StringName] = []
+	_register.child_entered_tree.connect(func(child: Node): added.append(child.name))
 	var no_versions: Array[Dictionary] = []
 	_register.set_versions(no_versions, "", "en", "")
+	_register.refresh_layout()
+	assert_eq(added.size(), 0, "An empty version list lays out without creating heading nodes")
 	assert_eq(_register.size, Vector2.ZERO)
 	assert_null(_register.row_for_signature("fixture-first"))
 
