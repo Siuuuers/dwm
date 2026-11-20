@@ -53,6 +53,7 @@ var _general_status: Label
 var _sample_labels: Array[Label] = []
 var _presentation_locale: String = ""
 var _presentation_font_style: String = ""
+var _presentation_large_targets := false
 var _presentation_percent: int = 0
 var _presentation_palette: StringName = &""
 var _presentation_high_contrast: bool = false
@@ -511,8 +512,9 @@ func apply_text_size(percent: int, large_targets: bool) -> void:
 	var high_contrast: bool = contrast_value
 	var colour_preset: String = colour_value
 	var font_size := roundi(24.0 * float(percent) / 100.0)
-	if locale != _presentation_locale or font_style != _presentation_font_style or percent != _presentation_percent or palette_id != _presentation_palette \
-			or high_contrast != _presentation_high_contrast or colour_preset != _presentation_colour_preset or day != _presentation_day:
+	var theme_changed: bool = locale != _presentation_locale or font_style != _presentation_font_style or percent != _presentation_percent or palette_id != _presentation_palette \
+			or high_contrast != _presentation_high_contrast or colour_preset != _presentation_colour_preset or day != _presentation_day
+	if theme_changed:
 		var candidate := PRESENTATION._build_context(locale, percent, palette_id, high_contrast, colour_preset, day, font_style, _scene_presentation)
 		if candidate == null:
 			return
@@ -529,8 +531,16 @@ func apply_text_size(percent: int, large_targets: bool) -> void:
 		for category: String in _rails:
 			PRESENTATION.apply_category(_rails[category], category == _selected)
 	$Heading/CategoryHeading.add_theme_font_size_override("font_size", font_size)
-	if _controls_sheet != null:
-		_controls_sheet.set_presentation(theme, font_size, large_targets)
+	if theme_changed or _presentation_large_targets != large_targets:
+		_presentation_large_targets = large_targets
+		if _controls_sheet != null:
+			_controls_sheet.set_presentation(theme, font_size, large_targets)
+		for dialog: ConfirmationDialog in confirmations.values():
+			dialog.set_presentation(theme, font_size, large_targets)
+			for button: Button in [dialog.get_ok_button(), dialog.get_cancel_button()]:
+				button.custom_minimum_size.y = maxf(64.0 if large_targets else 48.0, float(font_size) * 2.0)
+	elif _controls_sheet != null:
+		_controls_sheet.refresh()
 	var sample_copy: Array = PRESENTATION.SAMPLE_COPY.get(locale, PRESENTATION.SAMPLE_COPY.en)
 	for index: int in range(_sample_labels.size()):
 		_sample_labels[index].text = sample_copy[index]
@@ -565,12 +575,7 @@ func apply_text_size(percent: int, large_targets: bool) -> void:
 		var breaks := TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
 		var text_height := theme.default_font.get_multiline_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, 192.0 - inset * 2.0, font_size, -1, breaks).y
 		button.custom_minimum_size.y = maxf(64.0 if large_targets else 52.0, text_height + 16.0)
-	for dialog: ConfirmationDialog in confirmations.values():
-		dialog.set_presentation(theme, font_size, large_targets)
-		dialog.get_label().add_theme_font_size_override("font_size", font_size)
-		for button: Button in [dialog.get_ok_button(), dialog.get_cancel_button()]:
-			button.add_theme_font_size_override("font_size", font_size)
-			button.custom_minimum_size.y = maxf(64.0 if large_targets else 48.0, float(font_size) * 2.0)
+
 	queue_redraw()
 	_selected_extension.queue_redraw()
 
