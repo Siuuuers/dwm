@@ -571,7 +571,7 @@ func depart(preserve_review: bool = false) -> void:
 		import_dialog.hide()
 	_import_proposal.clear()
 	_original_source.clear()
-	if not keep_review:
+	if not keep_review and is_reviewing_import():
 		_review.clear()
 		_review_draft.clear()
 		if is_node_ready():
