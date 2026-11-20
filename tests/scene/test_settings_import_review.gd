@@ -5,6 +5,14 @@ const LOCALIZATION := preload("res://autoload/LocalizationManager.gd")
 const CONTENT := preload("res://scenes/shared/SettingsContent.tscn")
 const RULES := preload("res://scripts/settings/ControlsBindingRules.gd")
 const LEGACY := preload("res://scripts/settings/ControlsLegacyPresentation.gd")
+class ImportFiles extends FakeFileOps:
+	var reject_next_write := false
+	func write_bytes(path: String, bytes: PackedByteArray) -> Dictionary:
+		if reject_next_write:
+			reject_next_write = false
+			return {"ok": false, "code": &"fixture_write_failure"}
+		return super.write_bytes(path, bytes)
+
 var _surface: SubViewport
 var _input_backup: Dictionary = {}
 
@@ -33,7 +41,7 @@ func after_each() -> void:
 
 
 func _fixture(locale: String = "en", percent: int = 100, nondefault_pending: bool = false) -> Dictionary:
-	var ops := OWNERS.FILES.new()
+	var ops := ImportFiles.new()
 	var profile := OWNERS.PROFILE.new()
 	add_child_autofree(profile)
 	assert_true(profile.initialize(OWNERS.STORAGE.new("import-review.memory", ops)).ok)
@@ -223,7 +231,7 @@ func test_stale_or_failed_apply_never_activates_the_review() -> void:
 		if failure != "before_confirmation":
 			await _confirm(f)
 		if failure == "storage":
-			f.ops.fail_after(f.ops.operation_count() + 1)
+			f.ops.reject_next_write = true
 		else:
 			assert_true(f.profile.configure_line_registry({"reply_lines": [{"line_id": "newer.review.revision"}]}).ok)
 			assert_true(f.profile.mark_line_visited("newer.review.revision").ok)
