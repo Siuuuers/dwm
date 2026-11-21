@@ -1208,7 +1208,9 @@ func _make_spec(host: String, scene_dimensions: Dictionary = {}) -> Dictionary:
 	var values: Dictionary={}
 	for pair: Array in [[&"board_id","board"],[&"placement_nonce","placement"],
 			[&"debug_nonce","debug"],[&"explosion_nonce","explosion"]]:
-		var issued: Dictionary=_issuer.issue(pair[0])
+		# The final durable issue persists the preceding board receipts in the same write.
+		var defer_issue: bool = not scene_dimensions.is_empty() and pair[0] != &"explosion_nonce" and _issuer.has_method("issue_deferred")
+		var issued: Dictionary = _issuer.issue_deferred(pair[0]) if defer_issue else _issuer.issue(pair[0])
 		if not issued.get("ok",false): return issued
 		values[pair[1]]={"token":str(issued.value.token),"receipt_id":str(issued.value.issuer_receipt.receipt_id)}
 	var kind := "solo_challenge" if host=="canonical_solo" else "pair_challenge"
