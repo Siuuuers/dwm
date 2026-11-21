@@ -1456,6 +1456,14 @@
       "signature": "var day: int"
     },
     {
+      "symbol": "capture_run_lifecycle",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_real_computer_reveal_save"
+    },
+    {
       "symbol": "capture_run_snapshot_input",
       "kind": "function",
       "availability": "current",

@@ -47,7 +47,7 @@ var _scene_lease := ""
 var _scene_first_reveal_cell := -1
 
 func configure_frozen_narrative_contexts() -> Dictionary:
-	if _game_state == null or not _game_state.has_method("capture_run_snapshot_input"):
+	if _game_state == null or not _game_state.has_method("capture_run_lifecycle"):
 		return _fail(&"frozen_context_state_unavailable")
 	_frozen_narrative_enabled = true
 	return _ok({})
@@ -63,7 +63,7 @@ func configure_attempt_history(gate: Object) -> Dictionary:
 		return _fail(&"invalid_dating_attempt_gate")
 	for method: String in ["get_dating_attempt", "prepare_dating_attempt", "commit_dating_attempt", "prepare_dating_continuation", "has_completed_ending"]:
 		if not _profile.has_method(method): return _fail(&"invalid_dating_attempt_profile")
-	for method: String in ["capture_run_snapshot_input", "prepare_dating_challenge_effect", "apply_dating_challenge_effect_receipt"]:
+	for method: String in ["capture_run_lifecycle", "capture_run_snapshot_input", "prepare_dating_challenge_effect", "apply_dating_challenge_effect_receipt"]:
 		if not _game_state.has_method(method): return _fail(&"invalid_dating_attempt_state")
 	if _attempt_gate != null and _attempt_gate != gate: return _fail(&"dating_attempt_gate_conflict")
 	_attempt_gate = gate
@@ -439,7 +439,7 @@ func reconcile_restore_silent(restored_snapshot: Dictionary) -> Dictionary:
 	return _restore_attempt(stored, true)
 
 func _attempt_identity() -> Dictionary:
-	return _game_state.capture_run_snapshot_input().lifecycle
+	return _game_state.capture_run_lifecycle()
 
 func _rebind_record(record: Dictionary, command: Dictionary) -> Dictionary:
 	if record.get("schema_version") == 4: return record.duplicate(true)
