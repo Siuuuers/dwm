@@ -1,6 +1,7 @@
 extends "res://addons/gut/test.gd"
 ## Real reducer with existing injected Run End/checkpoint authority.
 ## This checks classification and exclusive destination selection, not native entry.
+const RULES := preload("res://scripts/application/run/DatingChallengeRules.gd")
 const FIXTURE := preload("res://tests/support/SceneChallengeFixture.gd")
 var f: RefCounted
 
@@ -87,5 +88,5 @@ func test_historical_four_target_perfect_projection_stays_won() -> void:
 	assert_true(f.action("reveal", 323).ok)
 	var targets: Dictionary = f.authority.bundle.challenges[0].targets.duplicate(true)
 	targets.erase("perfect")
-	assert_eq(FIXTURE.OWNER.scene_closure_outcome(f.record(), targets), "won")
-	assert_eq(FIXTURE.OWNER.scene_closure_outcome(f.record(), f.authority.bundle.challenges[0].targets), "perfect")
+	assert_eq(RULES.scene_closure_outcome(f.record(), targets), "won")
+	assert_eq(RULES.scene_closure_outcome(f.record(), f.authority.bundle.challenges[0].targets), "perfect")

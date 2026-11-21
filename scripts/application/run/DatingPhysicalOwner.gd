@@ -1461,7 +1461,7 @@ func _scene_closed_record_matches(closed: Dictionary) -> bool:
 				or not _game_state.scene_physical_consumed(_record, _game_state.scene_challenge_outcomes): return false
 	if _record.is_empty(): return closed.get("outcome") == "never_started"
 	if not _valid_record(_record, {}): return false
-	var expected := scene_closure_outcome(_record, {"perfect": true})
+	var expected := RULES.scene_closure_outcome(_record, {"perfect": true})
 	return closed.get("kind") == "challenge_closed" and (closed.get("outcome") == expected \
 		or (expected == "perfect" and closed.get("outcome") == "won"))
 
@@ -1702,13 +1702,6 @@ func close_scene_challenge_owned(lease: String) -> Dictionary:
 	_scene_lease = ""
 	return result
 
-static func scene_closure_outcome(record: Dictionary, targets: Dictionary) -> String:
-	if record.is_empty(): return "never_started"
-	if record.state == "in_progress": return "unfinished"
-	if record.state == "won" and targets.has("perfect") and not RULES.perfect_reasons(record.board, 4).is_empty():
-		return "perfect"
-	return str(record.state)
-
 func _close_scene_locked() -> Dictionary:
 	var end: Dictionary = _scene_authority.validate_scene_challenge_end(_admitted_command.duplicate(true))
 	if not end.get("ok", false): return end
@@ -1741,7 +1734,7 @@ func _close_scene_locked() -> Dictionary:
 	var challenge := {}
 	for row: Dictionary in _scene_bundle.challenges:
 		if row.challenge_id == binding.value.challenge_id: challenge = row
-	outcome = scene_closure_outcome(_record, challenge.get("targets", {}))
+	outcome = RULES.scene_closure_outcome(_record, challenge.get("targets", {}))
 	if not challenge.get("targets", {}).has(outcome): return _fail(&"scene_challenge_target_missing")
 	var result := {"kind": "challenge_closed", "challenge_occurrence": ATTEMPTS.semantic_slot({"kind": "scene_challenge",
 			"scene_occurrence": binding.value.scene_occurrence, "challenge_id": binding.value.challenge_id,
