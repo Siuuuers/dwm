@@ -234,7 +234,7 @@ func test_early_click_waits_with_loading_and_dispatches_once() -> void:
 	menu._gallery_button.pressed.emit()
 	assert_eq(menu._pending_destination, "new_acc", "First accepted click owns the pending intent")
 	get_node("/root/StartupLoader").set_process(true)
-	for frame in 10: await get_tree().process_frame
+	await wait_until(func(): return menu._pending_destination == "", 10.0)
 	assert_eq(menu._pending_destination, "")
 	assert_eq(save_owner.prepares, 1, "Loaded destination dispatches its original handler once")
 	assert_true(is_instance_valid(menu._confirmation))
