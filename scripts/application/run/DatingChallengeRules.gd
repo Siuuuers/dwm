@@ -17,3 +17,10 @@ static func perfect_reasons(board: Dictionary, record_version: int = 3) -> Array
 
 static func three_bv(board: Dictionary) -> int:
 	return PERFORMANCE.three_bv(board)
+
+static func scene_closure_outcome(record: Dictionary, targets: Dictionary) -> String:
+	if record.is_empty(): return "never_started"
+	if record.state == "in_progress": return "unfinished"
+	if record.state == "won" and targets.has("perfect") and not perfect_reasons(record.board, 4).is_empty():
+		return "perfect"
+	return str(record.state)

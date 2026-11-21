@@ -5122,7 +5122,7 @@ func _validate_scene_physical_record(snapshot: Dictionary) -> Dictionary:
 		for outcome: Dictionary in snapshot.gameplay.scene_challenge_outcomes.values():
 			if outcome.get("physical_slot", "") != slot and not (outcome.get("physical_slot", "").is_empty() \
 					and outcome.challenge_id == record.context.challenge_id): continue
-			var expected: String = preload("res://scripts/application/run/DatingPhysicalOwner.gd").scene_closure_outcome(record, {"perfect": true})
+			var expected: String = preload("res://scripts/application/run/DatingChallengeRules.gd").scene_closure_outcome(record, {"perfect": true})
 			if outcome.outcome != expected and not (expected == "perfect" and outcome.outcome == "won"):
 				return _transaction_failure(&"scene_challenge_outcome_mismatch", "")
 	return {"ok": true}
