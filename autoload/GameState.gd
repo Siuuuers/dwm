@@ -4285,7 +4285,6 @@ var _scene_save_owner: Object
 var _scene_entry_operation: Dictionary = {}
 
 var _scene_challenge_operation: Dictionary = {}
-var _scene_challenge_validating := false
 
 func configure_scene_challenge_runtime() -> Dictionary:
 	if not is_instance_valid(_narrative_checkpoint_port) \
@@ -4623,42 +4622,23 @@ func commit_scene_challenge_checkpoint(record: Dictionary, reference: Dictionary
 			or record.get("command_sha256") != admitted.value.command.command_sha256 \
 			or not _scene_challenge_record_matches(record, reference):
 		return _transaction_failure(&"scene_challenge_profile_mismatch", "")
-	var live := capture_live_session()
-	if not live.ok: return live
-	var candidate := capture_run_snapshot_input().duplicate(true)
+	var candidate := capture_run_snapshot_input()
 	if candidate.gameplay.route_context.get("active_dating_challenge") != record \
 			or candidate.gameplay.route_context.get("dating_active_attempt_ref") != reference:
 		return _transaction_failure(&"scene_challenge_candidate_mismatch", "")
-	_scene_challenge_operation = {"lease": lease, "session": live.value.duplicate(true),
-		"snapshot": candidate, "checkpoint": current.value.checkpoint.duplicate(true),
-		"record": record.duplicate(true), "reference": reference.duplicate(true)}
-	var saved: Dictionary = _narrative_checkpoint_port.commit_scene_challenge(candidate.duplicate(true),
-		current.value.checkpoint.duplicate(true))
+	var checkpoint: Dictionary = current.value.checkpoint
+	_scene_challenge_operation = {"snapshot": candidate, "checkpoint": checkpoint, "lease": lease}
+	var saved: Dictionary = _narrative_checkpoint_port.commit_scene_challenge(candidate, checkpoint)
 	_scene_challenge_operation = {}
 	if not saved.get("ok", false) and saved.get("committed", false):
 		return _scene_event_fatal(saved.get("code", &"scene_challenge_commit_uncertain"))
 	return saved
 
-func _validate_scene_challenge_checkpoint(snapshot: Dictionary, checkpoint: Dictionary, phase: String) -> bool:
-	if _scene_challenge_validating or _scene_challenge_operation.is_empty() \
-			or phase not in ["before_prepare", "before_commit", "after_commit"]: return false
-	var operation := _scene_challenge_operation.duplicate(true)
-	if not _mutation_gate.is_lease_active(&"causal_transaction", operation.lease) \
-			or not _SCENE_EVENT._equal(snapshot, operation.snapshot) \
-			or not _SCENE_EVENT._equal(checkpoint, operation.checkpoint): return false
-	_scene_challenge_validating = true
-	var live := capture_live_session()
-	var admitted := _retained_scene_challenge_command()
-	var current := _scene_runtime_event_context() if admitted.ok else admitted
-	var valid: bool = live.get("ok", false) and current.get("ok", false)
-	if valid:
-		valid = _SCENE_EVENT._equal(live.value, operation.session) \
-			and _SCENE_EVENT._equal(current.value.checkpoint, checkpoint)
-		valid = valid and _SCENE_EVENT._equal(capture_run_snapshot_input(), snapshot) \
-			and _scene_challenge_record_matches(operation.record, operation.reference)
-	_scene_challenge_validating = false
-	return valid and _SCENE_EVENT._equal(operation, _scene_challenge_operation) \
-		and _mutation_gate.is_lease_active(&"causal_transaction", operation.lease)
+func _validate_scene_challenge_checkpoint(snapshot: Dictionary, checkpoint: Dictionary) -> bool:
+	return not _scene_challenge_operation.is_empty() \
+		and is_same(snapshot, _scene_challenge_operation.snapshot) \
+		and is_same(checkpoint, _scene_challenge_operation.checkpoint) \
+		and _mutation_gate.is_lease_active(&"causal_transaction", _scene_challenge_operation.lease)
 
 func configure_scene_checkpoint_source(save_owner: Object) -> Dictionary:
 	if not is_instance_valid(save_owner) or not save_owner.has_method("get_latest_stable_checkpoint"):
