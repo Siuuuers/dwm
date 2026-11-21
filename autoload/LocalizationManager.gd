@@ -21,7 +21,6 @@ var _locale_id := ""
 var _presentation_profile: Dictionary = {}
 var _warned_missing: Dictionary = {}
 var _roots: Dictionary = {}
-var _restore_backup: Dictionary = {}
 var _restore_applied: Array = []
 var _publishing_own_presentation := false
 
@@ -292,13 +291,9 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 			or str(_profile.get_preference(&"preferences.accessibility.font_style", "pixel")) != str(plan["presentation_profile"].get("font_style", "pixel")) \
 			or int(_profile.get_preference(&"preferences.accessibility.text_size", 100)) != int(plan["presentation_profile"].get("text_size", 100)):
 		return _fail(&"localization_restore_profile_mismatch")
-	var backup := capture_restore_state()
-	if not backup.get("ok", false):
-		return backup
 	var applied := _apply_root_plans(plan["root_plans"])
 	if not applied.get("ok", false):
 		return applied
-	_restore_backup = (backup["value"] as Dictionary).duplicate(true)
 	_restore_applied = applied.get("applied", []).duplicate()
 	_locale_id = plan["canonical_locale_id"]
 	_bundle = (plan["bundle"] as Dictionary).duplicate(true)
@@ -322,7 +317,6 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 func finalize_restore() -> Dictionary:
 	_finalize_roots(_restore_applied)
 	_restore_applied = []
-	_restore_backup = {}
 	return _success()
 
 
