@@ -2068,8 +2068,6 @@ func configure_skip_context(profile: Object, mode: StringName) -> Dictionary:
 		if not entries.get("ok", false): return entries
 		var ids := _ENTRY_MANIFEST.load_ids_default()
 		if not ids.get("ok", false): return ids
-		var checked := _ENTRY_MANIFEST.validate_ids_document(ids.value)
-		if not checked.get("ok", false): return checked
 		var owners := {}
 		var scene_registry: bool = ids.value.get("kind") == "scene_ids_registry"
 		var registered_lines: Array = ids.value.lines if scene_registry else ids.value.reply_lines
