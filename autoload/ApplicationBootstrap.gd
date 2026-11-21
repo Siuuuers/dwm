@@ -492,8 +492,6 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			if not checked_entries.get("ok", false): return checked_entries
 			var ids: Dictionary = DIALOGIC_ENTRY_MANIFEST.load_ids_default()
 			if not ids.get("ok", false): return ids
-			var checked_ids: Dictionary = DIALOGIC_ENTRY_MANIFEST.validate_ids_document(ids["value"])
-			if not checked_ids.get("ok", false): return checked_ids
 			if not manager.has_method("configure_line_registry"):
 				return _failure(&"missing_line_registry_seam", "ProfileManager line registry is unavailable")
 			var configured: Dictionary = manager.call(&"configure_line_registry", ids["value"])
