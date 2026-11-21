@@ -64,15 +64,9 @@ func test_profile_stage_validates_and_binds_shipped_visited_registry_before_init
 	assert_true(result.get("ok", false), str(result))
 	assert_eq(profile.calls, ["configure", "initialize"],
 		"registry binding precedes initialize, which emits profile_restored")
-	var replies: Array = profile.registry.get("reply_lines", [])
-	assert_eq(replies.size(), 18, "the shipped reply block is passed")
-	var observer_lines: Array[String] = []
-	for atom: Variant in profile.registry.get("atoms", []):
-		if atom is Dictionary and (atom as Dictionary).get("kind") == "observer_presentation":
-			observer_lines.append(str((atom as Dictionary).get("associated_line_id", "")))
-	observer_lines.sort()
-	assert_eq(observer_lines, ["line.observer.lavinia.day2.restraint",
-		"line.observer.priscilla.day2.verification"], "both shipped observer lines are available")
+	assert_eq(profile.registry.get("kind"), "scene_ids_registry")
+	assert_has(profile.registry.get("lines", []), {"line_id": "line.Day1.002", "owning_entry_id": "Day1"})
+
 
 func test_profile_stage_stops_before_initialize_when_registry_binding_fails() -> void:
 	var bootstrap: Node = autofree(InjectableBootstrap.new())
