@@ -159,12 +159,7 @@ func create_computer_board() -> void:
 	# Real grid GUI press/release, after scrolling its owner to the selected cell.
 	assert_true(grid.focus_cell(323))
 	await get_tree().process_frame
-	assert_true(panel._can_interact())
-	assert_true("reveal" in panel.public_view.board.cells[323].actions)
-	var clicked := [false]
-	grid.gui_input.connect(func(_event: InputEvent): clicked[0] = true, CONNECT_ONE_SHOT)
 	await _click(grid.cell_nodes[323])
-	assert_true(clicked[0], "viewport click reaches the grid")
 	assert_eq(panel.public_view.phase, "active", str({"failed": panel._failed, "blocked": grid._interaction_blocked,
 		"cell_rect": grid.cell_nodes[323].get_global_rect(), "grid_rect": grid.get_global_rect(),
 		"panel_rect": panel.get_global_rect(), "viewport": get_viewport().get_visible_rect()}))
@@ -173,7 +168,7 @@ func create_computer_board() -> void:
 	await _screenshot("active")
 	assert_eq(bridge.capture_reading_checkpoint(false), checkpoint, "board click cannot advance captions")
 	var record: Dictionary = game.capture_dating_challenge_state().value.duplicate(true)
-	assert_false(record.is_empty())
+	assert_has(record.board.revealed_indices, 323, "the clicked cell was revealed")
 	get_viewport().gui_release_focus()
 	await _keyboard(KEY_ENTER, true)
 	await _click(_controls(host, "CheckComputer"))

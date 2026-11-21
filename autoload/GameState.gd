@@ -3032,6 +3032,10 @@ func _capture_desktop_snapshot() -> Dictionary:
 	return captured.duplicate(true) if captured is Dictionary else {}
 
 
+func capture_run_lifecycle() -> Dictionary:
+	return _run_lifecycle.to_dict()
+
+
 func capture_run_snapshot_input() -> Dictionary:
 	if _run_lifecycle.is_scene_run():
 		var scene_gameplay := {}
