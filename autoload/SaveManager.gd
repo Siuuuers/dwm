@@ -918,7 +918,6 @@ func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictio
 	if typeof(bundle) != TYPE_DICTIONARY or typeof(bundle.get("snapshot")) != TYPE_DICTIONARY:
 		record["reason"] = "unreadable"
 		return {"ok": true, "value": record}
-	var snapshot: Dictionary = bundle["snapshot"]
 	record["state"] = "occupied"
 	record["family"] = "scene"
 	var display_time := SAVE_DOCUMENT_SCHEMA.normalize_optional_saved_time(document.get("saved_time"))
