@@ -94,7 +94,7 @@ func test_title_template_cancel_stale_and_same_operation_retry() -> void:
 	if not await _press(menu._new_acc_button, "fresh New Acc"): return
 	if not await _wait_opening(1): return
 	assert_true("TEST TEMPLATE: opening caption." in _caption().caption_text.text)
-	assert_true(saves._prepared_new_run.is_empty())
+	assert_true(saves._prepared_new_run_token.is_empty())
 	assert_true(saves._new_run_transaction_id.is_empty())
 	var first: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	var reading: Dictionary = bridge.capture_reading_checkpoint(false)
@@ -116,7 +116,7 @@ func test_title_template_cancel_stale_and_same_operation_retry() -> void:
 	assert_eq(FileAccess.get_sha256("user://saves/autosave.json"), auto_hash)
 	await _screenshot("title-template-consent")
 	if not await _press(menu._confirmation.cancel_button, "Cancel replacement"): return
-	assert_true(saves._prepared_new_run.is_empty())
+	assert_true(saves._prepared_new_run_token.is_empty())
 	assert_eq(profile.get_profile_snapshot(), profile_before)
 	assert_eq(game.capture_run_snapshot_input(), live_before)
 	assert_eq(FileAccess.get_sha256("user://saves/autosave.json"), auto_hash)
@@ -166,7 +166,7 @@ func test_title_template_cancel_stale_and_same_operation_retry() -> void:
 	assert_eq(completed.value.activation_state, "acknowledged")
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), slot_hash)
 	assert_true(saves._new_run_transaction_id.is_empty())
-	assert_true(saves._prepared_new_run.is_empty())
+	assert_true(saves._prepared_new_run_token.is_empty())
 	assert_false(saves.commit_prepared_new_run("invalid-token").ok)
 	assert_eq(ready_count, 2)
 	assert_true("TEST TEMPLATE: opening caption." in _caption().caption_text.text)

@@ -61,7 +61,7 @@ const _SCENE_PARTICIPANT_ORDER: Array[String] = [
 	"run", "desktop_consequence", "desktop_board", "profile", "localization", "audio", "route", "narrative",
 ]
 var _new_run_transaction_id := ""
-var _prepared_new_run: Dictionary = {}
+var _prepared_new_run_token := ""
 var _prepared_new_run_counter := 0
 var _lock_owner: StringName = &""
 var _pending_deferred_save := false
@@ -253,7 +253,7 @@ func configure_scene_title_new_run(target_id: String) -> Dictionary:
 		return _fail(&"scene_title_audio_catalogue_required", "")
 	if not _scene_title_new_run_target.is_empty():
 		return {"ok": true} if _scene_title_new_run_target == target_id else _fail(&"scene_title_new_run_already_configured", "")
-	if _new_run_busy or not _prepared_new_run.is_empty() or not _new_run_transaction_id.is_empty():
+	if _new_run_busy or not _prepared_new_run_token.is_empty() or not _new_run_transaction_id.is_empty():
 		return _fail(&"new_run_busy", "")
 	for row: Dictionary in _scene_new_run_bundle.targets:
 		if row.target_id == target_id and row.target.kind == "scene":
@@ -424,7 +424,7 @@ func _admit_new_run_journal_io() -> Dictionary:
 		return _mutation_gate.guard_external(&"new_run_journal")
 	if not _mutation_gate.is_internal_owner_active(&"new_run"):
 		return _fail(&"new_run_recovery_conflict", "retained custody is no longer active")
-	if _new_run_transaction_id.is_empty() and _prepared_new_run.is_empty():
+	if _new_run_transaction_id.is_empty() and _prepared_new_run_token.is_empty():
 		return _fail(&"new_run_recovery_conflict", "retained custody has no operation")
 	return {"ok": true}
 
@@ -445,8 +445,7 @@ func prepare_new_run_action(initial_context: Dictionary) -> Dictionary:
 		var replaces_live: bool = _restore_participants.run.has_new_run_replacement()
 		_prepared_new_run_counter += 1
 		var token := "prepared-new-run-%d-%d" % [get_instance_id(), _prepared_new_run_counter]
-		_prepared_new_run = {"token": token, "scene_target_id": _scene_title_new_run_target,
-			"initial_context": _scene_title_new_run_context}
+		_prepared_new_run_token = token
 		var occupied: bool = _storage.exists("autosave.json")
 		return {"ok": true, "value": {"token": token,
 			"requires_confirmation": replaces_live or occupied,
@@ -454,50 +453,31 @@ func prepare_new_run_action(initial_context: Dictionary) -> Dictionary:
 	return _fail(&"scene_new_run_not_configured", "scene title target required")
 
 func cancel_prepared_new_run(token: String) -> Dictionary:
-	if token.is_empty() or _prepared_new_run.is_empty() or token != str(_prepared_new_run.get("token", "")):
+	if token.is_empty() or token != _prepared_new_run_token:
 		return _fail(&"invalid_new_run_preparation", "")
-	_prepared_new_run.clear()
+	_prepared_new_run_token = ""
 	return {"ok": true, "code": &"ok", "value": {"cancelled": true}}
 
 func commit_prepared_new_run(token: String) -> Dictionary:
 	if _new_run_busy: return _fail(&"new_run_busy", "")
-	if token.is_empty() or _prepared_new_run.is_empty() or token != str(_prepared_new_run.get("token", "")):
+	if token.is_empty() or token != _prepared_new_run_token:
 		return _fail(&"invalid_new_run_preparation", "")
 	var ready := _new_run_ready(true)
 	if not ready.get("ok", false): return ready
 	if not _new_run_transaction_id.is_empty():
-		_prepared_new_run.clear()
+		_prepared_new_run_token = ""
 		return _new_run_failure(_fail(&"new_run_recovery_required", ""))
 	_new_run_busy = true
-	var result: Dictionary = call("_commit_prepared_new_run", false)
+	var result := _take_new_run_custody()
+	if result.ok:
+		_prepared_new_run_token = ""
+		result = _start_scene_new_run_in_memory(_scene_title_new_run_target, _scene_title_new_run_context)
+		if not result.ok and _scene_restore_activation.is_empty(): _release_new_run_custody()
 	_new_run_busy = false
 	return result
 
 func commit_prepared_new_run_responsive(token: String) -> Dictionary:
-	if _new_run_busy: return _fail(&"new_run_busy", "")
-	if token.is_empty() or _prepared_new_run.is_empty() or token != str(_prepared_new_run.get("token", "")):
-		return _fail(&"invalid_new_run_preparation", "")
-	var ready := _new_run_ready(true)
-	if not ready.get("ok", false): return ready
-	if not _new_run_transaction_id.is_empty():
-		_prepared_new_run.clear()
-		return _new_run_failure(_fail(&"new_run_recovery_required", ""))
-	_new_run_busy = true
-	_new_run_slice_started_us = Time.get_ticks_usec()
-	var result: Dictionary = await _commit_prepared_new_run(true)
-	_new_run_busy = false
-	return result
-
-
-func _commit_prepared_new_run(_responsive: bool = false) -> Dictionary:
-	var acquired := _take_new_run_custody()
-	if not acquired.get("ok", false): return acquired
-	var retained := _prepared_new_run.duplicate(true)
-	_prepared_new_run.clear()
-	var result := _start_scene_new_run_in_memory(retained.scene_target_id, retained.initial_context)
-	if not result.ok and _scene_restore_activation.is_empty(): _release_new_run_custody()
-	return result
-
+	return commit_prepared_new_run(token)
 
 func retry_new_run(transaction_id: String) -> Dictionary:
 	if _new_run_busy: return _fail(&"new_run_busy", "")
