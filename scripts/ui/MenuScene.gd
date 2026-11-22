@@ -349,9 +349,7 @@ func _on_new_acc_pressed() -> void:
 		_show_new_acc_unavailable(false)
 		return
 	_new_acc_owner = owner
-	var prepared: Dictionary = owner.prepare_new_run_action({
-		"route_id": "main", "dialogic_checkpoint": {}, "active_app_id": null,
-		"audio_context": {}, "content_version": 1})
+	var prepared: Dictionary = owner.prepare_new_run_action()
 	if not _finish_new_acc_transition():
 		if prepared.get("ok", false): owner.cancel_prepared_new_run(str(prepared.value.token))
 		return

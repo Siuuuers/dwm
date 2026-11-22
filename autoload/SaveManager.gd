@@ -423,15 +423,13 @@ func _admit_new_run_journal_io() -> Dictionary:
 		return _fail(&"new_run_recovery_conflict", "retained custody has no operation")
 	return {"ok": true}
 
-func prepare_new_run_action(initial_context: Dictionary) -> Dictionary:
+func prepare_new_run_action() -> Dictionary:
 	if _new_run_busy or not _scene_restore_activation.is_empty(): return _fail(&"new_run_busy", "")
 	if not _scene_title_new_run_target.is_empty():
 		for key: String in _SCENE_PARTICIPANT_ORDER:
 			if not _restore_participants.has(key): return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", key)
 	var ready := _new_run_ready(true)
 	if not ready.get("ok", false): return ready
-	var context_error := _validate_new_run_context(initial_context)
-	if not context_error.is_empty(): return _fail(&"invalid_initial_context", context_error)
 	if not _new_run_transaction_id.is_empty():
 		return _new_run_failure(_fail(&"new_run_recovery_required", ""))
 	var admitted: Dictionary = _mutation_gate.guard_external(&"new_run_prepare")
@@ -652,23 +650,6 @@ func _save_load_profile_finish(profile: Dictionary, result: Dictionary) -> Dicti
 	print("DWM_SAVE_LOAD_PROFILE " + JSON.stringify(profile))
 	return result
 
-
-func _validate_new_run_context(initial_context: Dictionary) -> String:
-	var keys: Array = initial_context.keys()
-	keys.sort()
-	if keys != ["active_app_id", "audio_context", "content_version", "dialogic_checkpoint", "route_id"]:
-		return "unexpected initial_context keys: " + str(keys)
-	if typeof(initial_context["route_id"]) != TYPE_STRING or initial_context["route_id"] != "main":
-		return "route_id must be \"main\""
-	if typeof(initial_context["dialogic_checkpoint"]) != TYPE_DICTIONARY or not (initial_context["dialogic_checkpoint"] as Dictionary).is_empty():
-		return "dialogic_checkpoint must be {}"
-	if initial_context["active_app_id"] != null:
-		return "active_app_id must be null"
-	if typeof(initial_context["audio_context"]) != TYPE_DICTIONARY or not (initial_context["audio_context"] as Dictionary).is_empty():
-		return "audio_context must be {}"
-	if typeof(initial_context["content_version"]) != TYPE_INT or int(initial_context["content_version"]) < 1:
-		return "content_version must be a positive integer"
-	return ""
 
 func _release_transaction(owner: StringName, gate_token: String, holds_save_lock: bool) -> void:
 	if _mutation_gate != null and gate_token != "":

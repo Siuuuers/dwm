@@ -10,8 +10,8 @@ class TitleObserver extends RefCounted:
 	var last_prepare: Dictionary = {}
 	var last_commit: Dictionary = {}
 	var last_retry: Dictionary = {}
-	func prepare_new_run_action(context: Dictionary) -> Dictionary:
-		last_prepare = owner.prepare_new_run_action(context)
+	func prepare_new_run_action() -> Dictionary:
+		last_prepare = owner.prepare_new_run_action()
 		return last_prepare
 	func cancel_prepared_new_run(token: String) -> Dictionary:
 		return owner.cancel_prepared_new_run(token)

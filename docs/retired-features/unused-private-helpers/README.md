@@ -61,3 +61,7 @@ At `8bcefb84`, both retry entry points reached the same synchronous scene recove
 ## Title New Game dispatch
 
 At `bf7827d8`, the responsive commit and retry methods forwarded directly to their synchronous counterparts. Title now calls those owners directly after presenting the busy state. Both aliases had a single production caller and held no saved data.
+
+## Title preparation context
+
+At `a0d2a0e6`, Title supplied five fixed fields to prepare New Game consent. SaveManager discarded them after validation. Commit already uses the registered scene target and its content version. Consent reads the live run and autosave, and its token carries no serialized game data.

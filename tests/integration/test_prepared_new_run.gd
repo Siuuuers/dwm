@@ -20,15 +20,11 @@ func after_each() -> void:
 	fixture.close()
 	scope.restore()
 
-func _context() -> Dictionary:
-	return {"route_id": "main", "dialogic_checkpoint": {}, "active_app_id": null,
-		"audio_context": {}, "content_version": 1}
-
 func test_prepare_cancel_and_commit_preserve_storage_until_scene_activation() -> void:
 	var profile_before: Dictionary = fixture.profile.get_profile_snapshot()
 	var identity_before: Dictionary = fixture.root.capture()
 	var session_before: Dictionary = fixture.game.capture_live_session()
-	var prepared: Dictionary = fixture.manager.prepare_new_run_action(_context())
+	var prepared: Dictionary = fixture.manager.prepare_new_run_action()
 	assert_true(prepared.ok, str(prepared))
 	if not prepared.ok: return
 	assert_false(prepared.value.requires_confirmation)
@@ -39,7 +35,7 @@ func test_prepare_cancel_and_commit_preserve_storage_until_scene_activation() ->
 	assert_false(fixture.read_autosave().ok)
 	assert_eq(fixture.profile.get_profile_snapshot(), profile_before)
 
-	prepared = fixture.manager.prepare_new_run_action(_context())
+	prepared = fixture.manager.prepare_new_run_action()
 	assert_true(prepared.ok)
 	var started: Dictionary = fixture.manager.commit_prepared_new_run(prepared.value.token)
 	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
@@ -50,7 +46,7 @@ func test_prepare_cancel_and_commit_preserve_storage_until_scene_activation() ->
 	assert_eq(fixture.manager.commit_prepared_new_run(prepared.value.token).code, &"invalid_new_run_preparation")
 	assert_eq(fixture.profile.get_profile_snapshot(), profile_before)
 	assert_false(fixture.read_autosave().ok)
-	var replacement: Dictionary = fixture.manager.prepare_new_run_action(_context())
+	var replacement: Dictionary = fixture.manager.prepare_new_run_action()
 	assert_true(replacement.ok)
 	assert_true(replacement.value.replaces_live)
 	assert_true(replacement.value.requires_confirmation)

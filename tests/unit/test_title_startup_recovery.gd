@@ -33,7 +33,7 @@ class StartupOwner extends Node:
 class SaveCounter extends RefCounted:
 	var prepares := 0
 	var retries := 0
-	func prepare_new_run_action(_context: Dictionary) -> Dictionary:
+	func prepare_new_run_action() -> Dictionary:
 		prepares += 1
 		return {"ok": false, "code": "fixture_unavailable"}
 	func retry_new_run(_token: String) -> Dictionary:

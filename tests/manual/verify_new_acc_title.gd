@@ -14,10 +14,8 @@ class NewAccOwner extends RefCounted:
 	var autosave := true
 	var next_commit := "recovery"
 	var retry_ok := false
-	func prepare_new_run_action(context: Dictionary) -> Dictionary:
+	func prepare_new_run_action() -> Dictionary:
 		prepares += 1
-		if context != {"route_id":"main","dialogic_checkpoint":{},"active_app_id":null,"audio_context":{},"content_version":1}:
-			return {"ok":false,"code":"bad_context"}
 		return {"ok":true,"value":{"token":"prepared-%d" % prepares,
 			"requires_confirmation":live or autosave,"replaces_live":live,"replaces_autosave":autosave}}
 	func commit_prepared_new_run(token: String) -> Dictionary:
