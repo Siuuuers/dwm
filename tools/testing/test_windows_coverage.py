@@ -868,18 +868,11 @@ class ReadabilityCoverageTests(unittest.TestCase):
         for extra in ('autoload/SaveManager.gd', 'scripts/narrative/DialogicRuntimeAdapter.gd'):
             self.assertEqual(select(paths | {extra})['readability'], 'false')
 
-    def test_initial_frame_checkout_preserves_inputs_without_historical_evidence(self):
-        job = WORKFLOW.split('\n  focused-tests:', 1)[1].split('\n  startup-load-comparison:', 1)[0]
-        checkout = job.split('      - name: Check out initial-frame and new-run inputs\n', 1)[1].split('      - name:', 1)[0]
-        self.assertIn("if: matrix.suite != 'scene_current_frames' && matrix.suite != 'scene_current_creation'", job.split('      - name:', 1)[0])
-        self.assertIn("if: matrix.suite == 'scene_current_frames' || matrix.suite == 'scene_current_creation'", checkout)
+    def assert_checkout_paths(self, checkout, keep, omit):
         self.assertIn('sparse-checkout-cone-mode: false', checkout)
-        patterns = textwrap.dedent(checkout.split('          sparse-checkout: |\n', 1)[1])
-        keep = {'project.godot', 'evidence/.gdignore', 'assets/nested/image.png',
-                'tools/evidence/print_user_dir.gd', 'tools/testing/Invoke-CloudTests.ps1'}
-        keep.update(root + '/nested/input.gd' for root in ('autoload', 'scripts', 'scenes', 'tests'))
-        omit = {'evidence/archive.zip', 'evidence/phase_2r/old/results.json',
-                'evidence/phase_2r/old/nested/screenshot.png'}
+        block = re.search(r'^          sparse-checkout: \|\n((?:            [^\n]+\n?)+)', checkout, re.M)
+        self.assertIsNotNone(block, 'expected explicit sparse checkout patterns')
+        patterns = textwrap.dedent(block[1])
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             subprocess.run(['git', 'init', '-q', str(root)], check=True)
@@ -894,10 +887,30 @@ class ReadabilityCoverageTests(unittest.TestCase):
                            input=patterns, text=True, check=True)
             self.assertEqual({name for name in keep | omit if (root / name).exists()}, keep)
 
+    def test_coverage_selector_checkout_leaves_game_assets_and_archives_out(self):
+        job = WORKFLOW.split('\n  test-scope:', 1)[1].split('\n  focused-tests:', 1)[0]
+        checkout = job.split('      - uses: actions/checkout@', 1)[1].split('      - name:', 1)[0]
+        keep = {'.github/workflows/windows-tests.yml', 'tools/testing/test_windows_coverage.py',
+                'tools/testing/challenge_transition_scope.py'}
+        omit = {'assets/nested/image.png', 'evidence/phase_2r/old/archive.zip',
+                'autoload/GameState.gd', 'tools/testing/unused_probe.py'}
+        self.assert_checkout_paths(checkout, keep, omit)
+
+    def test_initial_frame_checkout_preserves_inputs_without_historical_evidence(self):
+        job = WORKFLOW.split('\n  focused-tests:', 1)[1].split('\n  startup-load-comparison:', 1)[0]
+        checkout = job.split('      - name: Check out initial-frame and new-run inputs\n', 1)[1].split('      - name:', 1)[0]
+        self.assertIn("if: matrix.suite != 'scene_current_frames' && matrix.suite != 'scene_current_creation'", job.split('      - name:', 1)[0])
+        self.assertIn("if: matrix.suite == 'scene_current_frames' || matrix.suite == 'scene_current_creation'", checkout)
+        keep = {'project.godot', 'evidence/.gdignore', 'assets/nested/image.png',
+                'tools/evidence/print_user_dir.gd', 'tools/testing/Invoke-CloudTests.ps1'}
+        keep.update(root + '/nested/input.gd' for root in ('autoload', 'scripts', 'scenes', 'tests'))
+        omit = {'evidence/archive.zip', 'evidence/phase_2r/old/results.json',
+                'evidence/phase_2r/old/nested/screenshot.png'}
+        self.assert_checkout_paths(checkout, keep, omit)
+
     def test_public_surface_checkout_retains_contracts_and_complete_scan_roots(self):
         job = re.split(r'\n  [a-z][\w-]*:', WORKFLOW.split('\n  public-surfaces:', 1)[1])[0]
         checkout = job.split('      - uses: actions/checkout@v7', 1)[1].split('      - name:', 1)[0]
-        patterns = textwrap.dedent(checkout.split('          sparse-checkout: |\n', 1)[1])
         keep = {'project.godot', 'evidence/.gdignore', 'assets/nested/image.png',
                 'evidence/phase_2r/runtime/game_state_required_surface.json',
                 'evidence/phase_2r/runtime/game_state_surface.json',
@@ -906,24 +919,11 @@ class ReadabilityCoverageTests(unittest.TestCase):
         keep.update(root + '/nested/input.gd' for root in
                     ('autoload', 'scripts', 'scenes', 'tests', 'tools', 'addons', '.github/workflows'))
         omit = {'evidence/archive.zip', 'evidence/phase_2r/old/nested/screenshot.png'}
-        with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
-            subprocess.run(['git', 'init', '-q', str(root)], check=True)
-            for name in keep | omit:
-                path = root / name
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text(name)
-            subprocess.run(['git', '-C', str(root), 'add', '.'], check=True)
-            subprocess.run(['git', '-C', str(root), '-c', 'user.name=Test', '-c', 'user.email=test@example.invalid',
-                            'commit', '-qm', 'fixture'], check=True)
-            subprocess.run(['git', '-C', str(root), 'sparse-checkout', 'set', '--no-cone', '--stdin'],
-                           input=patterns, text=True, check=True)
-            self.assertEqual({name for name in keep | omit if (root / name).exists()}, keep)
+        self.assert_checkout_paths(checkout, keep, omit)
 
     def test_gallery_checkout_retains_fixtures_without_historical_evidence(self):
         job = re.split(r'\n  [a-z][\w-]*:', WORKFLOW.split('\n  rendered-journeys:', 1)[1])[0]
         checkout = job.split('      - uses: actions/checkout@v7', 1)[1].split('      - name:', 1)[0]
-        patterns = textwrap.dedent(checkout.split('          sparse-checkout: |\n', 1)[1])
         keep = {'project.godot', 'evidence/.gdignore', 'assets/nested/image.png',
                 'tests/fixtures/dialogic/gallery_collection_catalogue.json',
                 'tests/fixtures/dialogic/gallery_collection.dtl',
@@ -933,19 +933,7 @@ class ReadabilityCoverageTests(unittest.TestCase):
         keep.update(root + '/nested/input.gd' for root in
                     ('autoload', 'scripts', 'scenes', 'tests', 'tools', 'addons', '.github/workflows'))
         omit = {'evidence/archive.zip', 'evidence/phase_2r/old/nested/screenshot.png'}
-        with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
-            subprocess.run(['git', 'init', '-q', str(root)], check=True)
-            for name in keep | omit:
-                path = root / name
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text(name)
-            subprocess.run(['git', '-C', str(root), 'add', '.'], check=True)
-            subprocess.run(['git', '-C', str(root), '-c', 'user.name=Test', '-c', 'user.email=test@example.invalid',
-                            'commit', '-qm', 'fixture'], check=True)
-            subprocess.run(['git', '-C', str(root), 'sparse-checkout', 'set', '--no-cone', '--stdin'],
-                           input=patterns, text=True, check=True)
-            self.assertEqual({name for name in keep | omit if (root / name).exists()}, keep)
+        self.assert_checkout_paths(checkout, keep, omit)
 
     def test_initial_frame_batch_preserves_creation_in_narrow_routes(self):
         matrix = next(line for line in WORKFLOW.splitlines() if '        suite: ${{ fromJSON(' in line)
