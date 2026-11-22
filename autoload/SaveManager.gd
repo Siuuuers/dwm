@@ -471,9 +471,6 @@ func commit_prepared_new_run(token: String) -> Dictionary:
 	_new_run_busy = false
 	return result
 
-func commit_prepared_new_run_responsive(token: String) -> Dictionary:
-	return commit_prepared_new_run(token)
-
 func retry_new_run(transaction_id: String) -> Dictionary:
 	if _new_run_busy: return _fail(&"new_run_busy", "")
 	var ready := _new_run_ready(true)
@@ -483,9 +480,6 @@ func retry_new_run(transaction_id: String) -> Dictionary:
 	var result: Dictionary = _retry_new_run(transaction_id)
 	_new_run_busy = false
 	return result
-
-func retry_new_run_responsive(transaction_id: String) -> Dictionary:
-	return retry_new_run(transaction_id)
 
 func _retry_new_run(transaction_id: String) -> Dictionary:
 	if not _scene_restore_activation.is_empty() and _scene_restore_activation.operation_id == transaction_id \

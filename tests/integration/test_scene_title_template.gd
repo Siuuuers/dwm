@@ -15,11 +15,11 @@ class TitleObserver extends RefCounted:
 		return last_prepare
 	func cancel_prepared_new_run(token: String) -> Dictionary:
 		return owner.cancel_prepared_new_run(token)
-	func commit_prepared_new_run_responsive(token: String) -> Dictionary:
-		last_commit = await owner.commit_prepared_new_run_responsive(token)
+	func commit_prepared_new_run(token: String) -> Dictionary:
+		last_commit = owner.commit_prepared_new_run(token)
 		return last_commit
-	func retry_new_run_responsive(transaction: String) -> Dictionary:
-		last_retry = await owner.retry_new_run_responsive(transaction)
+	func retry_new_run(transaction: String) -> Dictionary:
+		last_retry = owner.retry_new_run(transaction)
 		return last_retry
 var observer: TitleObserver
 
