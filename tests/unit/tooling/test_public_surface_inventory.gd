@@ -17,22 +17,6 @@ const TASK3_IMPLEMENTED_SIGNATURES := {
 	"reply_invitation": "func reply_invitation(friend_id: String, command_id: String, command_issuer_receipt: Dictionary) -> Dictionary",
 }
 
-# Plan 01 Task 4 (dwm-p2r.13) added the five narrow committed-Schedule delegation seams plus the one
-# declared publication signal to GameState, and pinned their classification to Task 9 because the
-# checked-in required-surface manifest was not a Task-4 path. Task 9 (dwm-p2r.15) has now classified
-# them in that manifest as current/retain, so the inventory is built from the checked-in manifest
-# alone and the frozen signatures below are asserted against it.
-const TASK4_SCHEDULE_COMMIT_SIGNATURES := {
-	"capture_schedule_commit_state": "func capture_schedule_commit_state() -> Dictionary",
-	"prepare_schedule_commit_candidate": "func prepare_schedule_commit_candidate(committed: Dictionary, motivation_charged: int) -> Dictionary",
-	"commit_schedule_commit_candidate": "func commit_schedule_commit_candidate(candidate: Dictionary) -> Dictionary",
-	"rollback_schedule_commit_state": "func rollback_schedule_commit_state(backup: Dictionary) -> Dictionary",
-	"publish_schedule_commit": "func publish_schedule_commit(publication: Dictionary) -> Dictionary",
-	"committed_schedule_published": "signal committed_schedule_published(result: Dictionary)",
-}
-
-const TASK4_CONTRACT_TEST := "test_schedule_commit_seams_are_narrow_reversible_and_silent"
-
 const FIXTURE_SCRIPT := """extends Node
 
 signal sample_changed(value: int)
@@ -316,34 +300,6 @@ func test_task3_required_surface_realizes_authenticated_contacts_and_retires_leg
 		return
 	for symbol: String in TASK3_IMPLEMENTED_SIGNATURES:
 		assert_eq(_record(inventory, symbol).get("signature"), TASK3_IMPLEMENTED_SIGNATURES[symbol], symbol)
-
-
-func test_task4_committed_schedule_seams_carry_their_exact_frozen_signatures() -> void:
-	var parsed := StrictJson.parse_object(FileAccess.get_file_as_string(REQUIRED_PATH))
-	assert_true(parsed.get("ok", false), "required surface must strict-parse")
-	if not parsed.get("ok", false):
-		return
-	for symbol: String in TASK4_SCHEDULE_COMMIT_SIGNATURES:
-		var classified: Array = []
-		for entry: Dictionary in parsed["value"].get("symbols", []):
-			if str(entry.get("symbol", "")) == symbol and str(entry.get("availability", "")) == "current":
-				classified.append(entry)
-		assert_eq(classified.size(), 1, "Task 9 classifies " + symbol + " exactly once in the checked-in manifest")
-		if classified.size() == 1:
-			assert_eq(str((classified[0] as Dictionary).get("disposition", "")), "retain", symbol + " is retained")
-			assert_eq(str((classified[0] as Dictionary).get("contract_test", "")), TASK4_CONTRACT_TEST,
-				symbol + " names its Task-4 contract test")
-	var inventory: Dictionary = _build_game_state_inventory(parsed["value"])
-	assert_true(inventory.get("ok", false), JSON.stringify(inventory.get("errors", [])))
-	if not inventory.get("ok", false):
-		return
-	for symbol: String in TASK4_SCHEDULE_COMMIT_SIGNATURES:
-		var record := _record(inventory, symbol)
-		assert_eq(str(record.get("signature", "")), str(TASK4_SCHEDULE_COMMIT_SIGNATURES[symbol]),
-			"the frozen Task-4 seam signature is " + symbol)
-		assert_eq(str(record.get("disposition", "")), "retain", symbol)
-	assert_eq(str(_record(inventory, "committed_schedule_published").get("kind", "")), "signal",
-		"exactly one declared committed-Schedule publication signal")
 
 
 func _build_game_state_inventory(required: Dictionary) -> Dictionary:

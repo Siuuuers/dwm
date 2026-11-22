@@ -35,10 +35,9 @@ class DiagnosticParticipant:
 	func _init(key: String) -> void: plan_key = key
 	func prepare(input: Dictionary) -> Dictionary:
 		return {"ok": true, "value": {plan_key: input.duplicate(true)}}
-	func prepare_scene_new_run(snapshot: Dictionary, allocation: Dictionary, profile_material: Dictionary,
-			bundle: Dictionary, issuer: Object, creation_owner: Object) -> Dictionary:
+	func prepare_scene_new_run(snapshot: Dictionary, bundle: Dictionary, creation_owner: Object) -> Dictionary:
 		if narrative_preparer == null: return {"ok": false, "code": &"TEST.narrative_preparer_missing"}
-		return narrative_preparer.prepare_scene_new_run(snapshot, allocation, profile_material, bundle, issuer, creation_owner)
+		return narrative_preparer.prepare_scene_new_run(snapshot, bundle, creation_owner)
 	func prepare_scene_load(snapshot: Dictionary) -> Dictionary:
 		return narrative_preparer.prepare_scene_load(snapshot)
 	func capture() -> Dictionary: return {"ok": true, "value": {}}

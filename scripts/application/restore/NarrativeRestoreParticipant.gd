@@ -107,8 +107,7 @@ func prepare_scene_load(snapshot: Dictionary) -> Dictionary:
 		if _prepared_terminal else _prepared_scene_checkpoint
 	return {"ok": true, "value": {"narrative_plan": plan}}
 
-func prepare_scene_new_run(snapshot: Dictionary, _allocation_candidate: Dictionary, _profile_material: Dictionary,
-		_bundle: Dictionary, _issuer: Object, creation_owner: Object) -> Dictionary:
+func prepare_scene_new_run(snapshot: Dictionary, bundle: Dictionary, creation_owner: Object) -> Dictionary:
 	_prepared_scene_checkpoint = {}
 	if not is_instance_valid(creation_owner) or creation_owner.get_script() != load("res://autoload/SaveManager.gd") \
 			or not _owner is Node or not _owner.is_inside_tree() \
@@ -126,11 +125,11 @@ func prepare_scene_new_run(snapshot: Dictionary, _allocation_candidate: Dictiona
 	_prepared_scene_checkpoint = checkpoint.duplicate(true)
 	_prepared_scene_arrival_cues = []
 	var game: Node = _owner.get_node("/root/GameState")
-	var presentation: Dictionary = game.prepare_scene_presentation_arrival(snapshot.scene, _bundle, "")
+	var presentation: Dictionary = game.prepare_scene_presentation_arrival(snapshot.scene, bundle, "")
 	if not presentation.ok: return presentation
 	_prepared_scene_presentation_checkpoint = presentation.value.autosave
-	if _bundle.get("audio_catalogue", {}).get("schema_version") == 3:
-		var arrival: Dictionary = game.prepare_scene_audio_arrival(snapshot.scene, _bundle, "")
+	if bundle.get("audio_catalogue", {}).get("schema_version") == 3:
+		var arrival: Dictionary = game.prepare_scene_audio_arrival(snapshot.scene, bundle, "")
 		if not arrival.ok: return arrival
 		_prepared_scene_arrival_cues = arrival.value.cues
 	return {"ok": true, "value": {"narrative_plan": checkpoint.duplicate(true)}}

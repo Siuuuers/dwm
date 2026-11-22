@@ -1,9 +1,6 @@
 extends "res://addons/gut/test.gd"
 # Durable desktop consequence-publication ledger (Plan 02 Task 6, dwm-p2r.32).
 #
-# Mirrors test_schedule_foundation_publication_ledger.gd's discipline: the subject is the REAL
-# ledger over the REAL JsonFileStorage over a GUID-isolated temporary root. A restart is modelled by
-# rebuilding the whole stack over the same bytes, never by flipping an in-memory flag.
 #
 # FIX (dwm-p2r.35.1 remediation, finding W1): the ledger's closed kind union is exactly
 # `causal_sequence|action_source|board_fate` (plan02-frozen-contracts.md line 328), each with its OWN
@@ -13,7 +10,6 @@ extends "res://addons/gut/test.gd"
 
 const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const LEDGER_PATH := "res://scripts/infrastructure/save/DesktopPublicationLedger.gd"
-const OTHER_LEDGER_PATH := "res://scripts/infrastructure/save/ScheduleFoundationPublicationLedger.gd"
 const FIXED_PATH := "desktop-publications.json"
 # The strict parser the ledger's OLD normalization path went through; the golden bytes in the
 # dwm-634.3 session-4 guard below are computed the old way, in-test, and compared to disk.
@@ -392,27 +388,6 @@ func test_exact_text_validation_cache_is_bounded_and_changed_bytes_fail_closed()
 	assert_false(rejected_schema.get("ok", true),
 		"a strict-only cache entry must still receive full document validation")
 	assert_eq(rejected_schema.get("code"), &"publication_ledger_schema_invalid")
-
-
-func test_disjoint_from_plan01_schedule_foundation_ledger() -> void:
-	if not _require_ledger():
-		return
-	assert_ne(LEDGER_PATH, OTHER_LEDGER_PATH)
-	assert_ne(_ledger_script.FIXED_PATH, "schedule-foundation-publications.json")
-	var probed: Dictionary = PROBE.load_script(OTHER_LEDGER_PATH)
-	assert_true(probed.get("ok", false), "the Plan 01 ledger must still exist and load")
-	var other_script: Script = probed["value"]
-	assert_ne(_ledger_script.KINDS, other_script.KINDS)
-	# The two ledgers even at the same storage root never collide on a fixed relative path.
-	var ledger := _loaded()
-	var other: Object = other_script.new()
-	other.configure(_storage)
-	other.load()
-	var desktop_path := _root.path_join(_ledger_script.FIXED_PATH)
-	var other_path := _root.path_join(other_script.FIXED_PATH)
-	assert_ne(desktop_path, other_path)
-	assert_true(FileAccess.file_exists(desktop_path))
-	assert_true(FileAccess.file_exists(other_path))
 
 
 # ---- dwm-634.3 session 4: normalize the new record by walk, not by emit+reparse ----

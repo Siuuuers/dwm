@@ -49,9 +49,9 @@ func test_identity_script_loads() -> void:
 
 
 
-func test_registry_is_the_closed_six_app_set() -> void:
+func test_registry_lists_current_desktop_apps() -> void:
 	assert_eq(_registry().get_ids(), [
-		&"minesweeper", &"contacts", &"schedule", &"shop",
+		&"minesweeper", &"contacts", &"shop",
 		&"backup", &"settings",
 	])
 
@@ -202,8 +202,8 @@ func test_host_open_app_reopening_the_same_app_emits_no_hide_or_suspend() -> voi
 		"reopening the already-active app neither hides nor suspends itself")
 
 
-func test_host_open_app_never_blocks_the_other_five_apps_regardless_of_board_phase() -> void:
-	var other_apps: Array[StringName] = [&"contacts", &"schedule", &"shop", &"backup", &"settings"]
+func test_host_open_app_never_blocks_other_apps_regardless_of_board_phase() -> void:
+	var other_apps: Array[StringName] = [&"contacts", &"shop", &"backup", &"settings"]
 	var phases: Array[StringName] = [
 		&"NONE", &"PREPARING", &"PREPARED_UNSTARTED", &"ACTIVE_VISIBLE", &"ACTIVE_SUSPENDED", &"SETTLING",
 	]

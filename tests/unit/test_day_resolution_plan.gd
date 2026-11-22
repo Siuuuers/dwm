@@ -219,9 +219,10 @@ func test_day7_retains_its_committed_aggregate_and_holds_no_entry_substages() ->
 	var created: Dictionary = load(PLAN_PATH).create("res-d7", 7, aggregate, [], null, null)
 	assert_true(created.get("ok", false), JSON.stringify(created))
 	var plan: RefCounted = created["value"]["plan"]
-	assert_eq(plan.get_committed_schedule()["entries"], entries,
+	var data: Dictionary = plan.to_dict()
+	assert_eq(data.committed_schedule.entries, entries,
 		"Day 7 retains its committed aggregate rather than clearing it")
-	for stage: Dictionary in plan.to_dict()["stages"]:
+	for stage: Dictionary in data.stages:
 		assert_true((stage["substages"] as Array).is_empty(),
 			"Day 7 executes no entry substage: " + str(stage["stage_id"]))
 
@@ -371,10 +372,8 @@ func test_a_rooted_plan_persists_its_root_and_start_receipt_losslessly() -> void
 		return
 	assert_eq((restored["value"]["plan"] as RefCounted).to_dict(), data,
 		"a rooted plan round trips byte-identically, so a restore derives the SAME children")
-	assert_eq(plan.get_resolution_issuer_receipt(), _issuer_receipt(),
-		"the accessor hands back a detached copy of the root")
 	assert_eq(plan.get_day_resolution_start_receipt(), _start_receipt(),
-		"and of the start receipt")
+		"the accessor returns the start receipt")
 	assert_eq(plan.get_command_id(), "done.day3", "and of the command id")
 
 

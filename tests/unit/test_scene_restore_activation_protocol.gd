@@ -133,7 +133,7 @@ func _advance(stage: String, allocation: Variant = null) -> void:
 	operation = result.value
 
 func _start() -> Dictionary:
-	return manager._run_scene_restore_transaction(plans, {}, "scene", "selected", true,
+	return manager._run_scene_restore_transaction(plans, {}, "scene", "selected",
 		{"kind": "scene_restore", "transaction_id": operation.transaction_id,
 			"request_fingerprint": operation.request_fingerprint}, "lease", true)
 
@@ -215,7 +215,7 @@ func test_restart_after_recorded_route_reapplies_live_owners_without_rewriting_p
 	gate = Gate.new()
 	manager._mutation_gate = gate
 	manager._lock_owner = &"restore"
-	var result: Dictionary = manager._run_scene_restore_transaction(plans, {}, "scene", "selected", true,
+	var result: Dictionary = manager._run_scene_restore_transaction(plans, {}, "scene", "selected",
 		{"kind": "scene_restore", "transaction_id": operation.transaction_id,
 			"request_fingerprint": operation.request_fingerprint}, "lease", false)
 	assert_eq(result.get("code"), &"scene_activation_pending", str(result))

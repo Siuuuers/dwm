@@ -319,7 +319,6 @@ $suites = @{
         'tests/unit/test_temporary_storage.gd'
         'tests/unit/test_save_document_schema.gd'
         'tests/unit/tooling/test_phase2r_closeout_sentinel.gd'
-        'tests/unit/tooling/test_phase2r_schedule_gate.gd'
     )
     reading_delivery = @(
         'tests/unit/test_dtl_master_structure.gd'

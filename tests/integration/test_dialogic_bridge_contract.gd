@@ -161,19 +161,6 @@ func test_an_idle_bridge_emits_no_completion_at_all() -> void:
 	assert_true(finished.is_empty(), "a bridge with no retained timeline finishes nothing")
 
 
-# -------------------------------------------------------------------------------------------------
-# Seven-Day Flow Plan 01 Task 5 (dwm-oyo.2 DEVIATION-9, rulings R-CC and R-DD).
-#
-# The production path start is retired BODY-first: its declared signature must stay byte-exact
-# because the frozen schedule gate pins the bridge's declared surface, so retirement means the
-# body fails closed in the legacy failure shape while the spelling survives. The bridge's legacy
-# timeline vocabulary now resolves through the exact locator API (get_path_for_id) instead of the
-# deprecated permissive resolver. The scans below are scoped to production code and to tokens the
-# frozen positive scan does not require, so they cannot collide with the schedule-gate law that
-# REQUIRES the literal start_timeline_id call inside DialogicPresentationOwnerAdapter.
-# -------------------------------------------------------------------------------------------------
-
-
 func _gd_files(root: String) -> Array[String]:
 	var output: Array[String] = []
 	var directories: Array[String] = [root]

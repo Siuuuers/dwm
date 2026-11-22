@@ -64,14 +64,6 @@ func _draw_app_icon(face: Color, ink: Color, structure: Color) -> void:
 				_icon_rect(3 + step, 18 - step, 1, 1, structure)
 				_icon_rect(20 - step, 18 - step, 1, 1, structure)
 			_icon_rect(11, 14, 2, 1, ink)
-		&"schedule":
-			_icon_rect(3, 5, 18, 17, ink)
-			_icon_rect(4, 6, 16, 15, face)
-			_icon_rect(4, 6, 16, 4, structure)
-			_icon_rect(7, 2, 2, 6, ink)
-			_icon_rect(15, 2, 2, 6, ink)
-			for x: int in [6, 11, 16]:
-				for y: int in [12, 17]: _icon_rect(x, y, 2, 2, ink)
 		&"shop":
 			_icon_rect(4, 10, 16, 12, structure)
 			_icon_rect(5, 11, 14, 10, face)

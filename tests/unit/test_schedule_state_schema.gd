@@ -1,23 +1,4 @@
 extends "res://addons/gut/test.gd"
-# Canonical committed-Schedule state schema (Plan 01 Task 4, dwm-p2r.13, Step 4.1).
-#
-# ScheduleStateSchema owns the exact top-level `committed_schedule` aggregate, its committed entry
-# records, and its embedded commit receipt. It owns NO registry law: route, effects, cost, allowed
-# days, kind and participants stay with ScheduleActionRegistry/ScheduleRules, so a caller-supplied
-# route/effect/cost member is rejected here purely as an unknown key.
-#
-# RECONCILED IN TASK 5 (was a deliberate, recorded divergence): a receipt-backed EMPTY Done
-# aggregate (entries == [] with a non-null `empty_schedule_done` commit receipt) is legal under the
-# frozen contract at plan line 324-353 and is validated here. `ScheduleRules._committed_structure`
-# used to reject that shape, so Task 4 never routed a receipt-backed empty aggregate through
-# ScheduleRules. Task 5 aligned the two NULLABILITY rules when RunSnapshotSchema began delegating
-# committed validation to this module, so ScheduleRules now admits the shape. Receipt CONTENTS
-# remain this module's law alone (ScheduleRules cannot call into here without a cyclic dependency),
-# so a caller must validate through validate_aggregate before relying on build_route_plan.
-#
-# The module does not exist during RED, so it is loaded through DynamicScriptProbe and every test
-# reports its absence as one named assertion instead of a parse crash.
-
 const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
 const SCHEMA_PATH := "res://scripts/domain/schedule/ScheduleStateSchema.gd"

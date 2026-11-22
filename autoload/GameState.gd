@@ -80,7 +80,6 @@ signal contact_message_unlocked(result: Dictionary)
 signal contact_choice_selected(result: Dictionary)
 signal date_unlocks_changed()
 signal ending_route_selected(result: Dictionary)
-signal schedule_changed()
 signal chat_changed(friend_id: String)
 signal unread_friend(result: Dictionary)
 signal contact_open_committed(result: Dictionary)
@@ -91,7 +90,6 @@ signal daily_state_reset()
 signal condition_effect_resolved(result: Dictionary)
 signal hospital_needed(result: Dictionary)
 signal save_relevant_state_changed()
-signal committed_schedule_published(result: Dictionary)
 
 const _RUN_LIFECYCLE_SCRIPT := preload("res://scripts/domain/run/RunLifecycle.gd")
 const _DESKTOP_BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
@@ -1418,33 +1416,8 @@ func _committed_entries() -> Array:
 	return _canonical_committed_schedule()["entries"] as Array
 
 
-func _legacy_entry_from_committed(entry: Dictionary) -> Dictionary:
-	var participants: Array = entry.get("participants", [])
-	match str(entry.get("action_kind", "")):
-		"solo":
-			return {
-				"type": "solo",
-				"friend_id": str(participants[0]) if participants.size() > 0 else "",
-				"advance_day_after_finish": true,
-			}
-		"group":
-			return {
-				"type": "group",
-				"friend_ids": participants.duplicate(),
-				"inviter_id": _group_inviter(),
-				"advance_day_after_finish": true,
-			}
-	var action_id := str(entry.get("action_id", ""))
-	return {"type": action_id, "id": action_id}
-
-
-func _is_committed_date_entry(entry: Dictionary) -> bool:
-	return str(entry.get("action_kind", "")) in ["solo", "group"]
-
-
 func _reset_committed_schedule_for_day_end() -> void:
 	_committed_schedule = {}
-	emit_signal("schedule_changed")
 	emit_signal("save_relevant_state_changed")
 
 
@@ -1459,28 +1432,6 @@ func get_scheduled_date_friend_ids() -> Array[String]:
 				for fid: Variant in entry.get("participants", []):
 					out.append(str(fid))
 	return out
-
-
-func get_scheduled_date_entries() -> Array:
-	var out: Array = []
-	for entry in _committed_entries():
-		if _is_committed_date_entry(entry):
-			out.append(_legacy_entry_from_committed(entry))
-	return out
-
-
-func get_scheduled_date_count() -> int:
-	var c: int = 0
-	for entry in _committed_entries():
-		if _is_committed_date_entry(entry):
-			c += 1
-	return c
-
-
-func get_max_scheduled_dates_for_current_day() -> int:
-	if day >= 1 and day <= 6:
-		return 2
-	return 1
 
 
 func collect_unscheduled_accepted_invitations_for_day_end() -> Array:
@@ -1500,71 +1451,6 @@ func get_missed_invitation_for_friend(friend_id: String, target_day: int = -1) -
 		if rec is Dictionary and rec.get("friend_id", "") == friend_id and int(rec.get("day", -999)) == d - 1:
 			return rec.duplicate()
 	return {}
-
-
-func execute_schedule_sequence_until_route_needed() -> Dictionary:
-	execute_non_date_schedule_effects()
-
-	var date_entries: Array = []
-	var twofriends_entries: Array = []
-	for entry in get_scheduled_date_entries():
-		date_entries.append(entry)
-
-	var cond: Dictionary = resolve_pressure_health_condition_end_of_day()
-	var needs_hospital: bool = bool(cond.get("needs_hospital", false))
-
-	for unscheduled in collect_unscheduled_accepted_invitations_for_day_end():
-		if unscheduled.get("type") == "group":
-			var entry: Dictionary = create_missed_group_twofriends_entry(day, unscheduled.get("friend_ids", []), unscheduled.get("inviter_id", ""))
-			twofriends_entries.append(entry)
-
-	var route: String = "advance"
-	if needs_hospital:
-		route = "hospital"
-	elif date_entries.size() > 0:
-		route = "dating"
-	elif twofriends_entries.size() > 0:
-		route = "twofriends"
-
-	return {
-		"ok": true,
-		"executed": true,
-		"needs_hospital": needs_hospital,
-		"route": route,
-		"date_entries": date_entries,
-		"twofriends_entries": twofriends_entries,
-		"reason": route,
-	}
-
-
-func execute_non_date_schedule_effects() -> void:
-	var loaded: Dictionary = _SCHEDULE_ACTION_REGISTRY.load_current()
-	if not loaded.get("ok", false):
-		return
-	var registry: Object = (loaded["value"] as Dictionary)["registry"]
-	for entry in _committed_entries():
-		if _is_committed_date_entry(entry):
-			continue
-		var found: Dictionary = registry.find_record(str(entry.get("action_id", "")))
-		if not found.get("ok", false):
-			continue
-		var effect_ids: Array = ((found["value"] as Dictionary)["record"] as Dictionary).get("effect_ids", [])
-		if not effect_ids.is_empty():
-			_apply_effect_ids(effect_ids)
-
-
-func create_missed_group_twofriends_entry(day_arg: int, friend_ids: Array, inviter_id: String) -> Dictionary:
-	var key: String = _sorted_pair_key(friend_ids[0], friend_ids[1]) if friend_ids.size() >= 2 else "unknown"
-	missed_group_date_counts[key] = int(missed_group_date_counts.get(key, 0)) + 1
-	emit_signal("save_relevant_state_changed")
-	return {
-		"type": "twofriends",
-		"friend_ids": friend_ids,
-		"inviter_id": inviter_id,
-		"day": day_arg,
-		"source": "missed_group",
-		"advance_day_after_finish": false,
-	}
 
 
 func resolve_pressure_health_condition_end_of_day() -> Dictionary:
@@ -3303,176 +3189,7 @@ func _apply_restore_bookkeeping(candidate: Dictionary) -> void:
 
 const _SCHEDULE_STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 
-const _SCHEDULE_COMMIT_CANDIDATE_KEYS: Array[String] = [
-	"before_fingerprint", "committed_schedule", "motivation",
-]
-const _SCHEDULE_COMMIT_BACKUP_KEYS: Array[String] = ["committed_schedule", "motivation"]
-const _SCHEDULE_PUBLICATION_KEYS: Array[String] = ["committed_schedule", "schedule_commit_receipt"]
-
 var _committed_schedule: Dictionary = {}
-
-
-func capture_schedule_warning_state() -> Dictionary:
-	var identity: Dictionary = _run_lifecycle.get_desktop_identity_context()
-	var next_ordinal: Variant = _warning_next_app_round_ordinal()
-	return {"ok": true, "code": &"ok", "value": {"state": {
-		"run_id": str(identity["run_id"]),
-		"branch_id": str(identity["branch_id"]),
-		"desktop_timeline_generation": int(identity["desktop_timeline_generation"]),
-		"causal_day_instance": str(identity["causal_day_instance"]),
-		"day": int(day),
-		"eligible_unread_date_message_ids": _warning_unread_date_message_ids(),
-		"accepted_date_action_ids": _warning_accepted_date_action_ids(),
-		"next_app_round_ordinal": next_ordinal,
-		"base_opportunity_remaining": next_ordinal != null and int(next_ordinal) <= 2,
-		"motivation": int(get_stat(STAT_MOTIVATION)),
-	}}, "receipt": {}}
-
-
-func _warning_next_app_round_ordinal() -> Variant:
-	var next_ordinal: int = int(minesweeper_app_rounds_finished_today) + 1
-	if next_ordinal > 5 or not has_minesweeper_app_round_available():
-		return null
-	return next_ordinal
-
-
-func _warning_unread_date_message_ids() -> Array:
-	var ids: Dictionary = {}
-	var current_day: int = int(day)
-	var messages: Dictionary = contacts.get("messages", {})
-	var watermarks: Dictionary = contacts.get("read_watermarks", {})
-	for friend_id: String in messages:
-		var watermark: int = int(watermarks.get(friend_id, 0))
-		for raw: Variant in messages.get(friend_id, []) as Array:
-			if typeof(raw) != TYPE_DICTIONARY:
-				continue
-			var record := raw as Dictionary
-			if str(record.get("visibility", "")) != "visible":
-				continue
-			if int(record.get("sequence", 0)) <= watermark:
-				continue
-			if int(record.get("target_day", -1)) != current_day:
-				continue
-			if str(record.get("type", "")) not in ["solo_offer", "group_offer"]:
-				continue
-			var message_id := str(record.get("message_id", ""))
-			if not message_id.is_empty():
-				ids[message_id] = true
-	var sorted_ids: Array = ids.keys()
-	sorted_ids.sort()
-	return sorted_ids
-
-
-func _warning_accepted_date_action_ids() -> Array:
-	var ids: Dictionary = {}
-	var current_day: int = int(day)
-	var solo_actions: Dictionary = contacts.get("solo_actions", {})
-	for action_id: String in solo_actions:
-		var action: Dictionary = solo_actions[action_id]
-		if str(action.get("state", "")) == "ACCEPTED" \
-				and int(action.get("day", -1)) == current_day:
-			ids[str(action_id)] = true
-	var group: Dictionary = contacts.get("group_action", {})
-	if str(group.get("state", "")) == "ACCEPTED" \
-			and typeof(group.get("day")) == TYPE_INT \
-			and int(group.get("day")) == current_day:
-		var group_id := str(group.get("action_id", ""))
-		if not group_id.is_empty():
-			ids[group_id] = true
-	var sorted_ids: Array = ids.keys()
-	sorted_ids.sort()
-	return sorted_ids
-
-
-func capture_schedule_commit_state() -> Dictionary:
-	var current := _canonical_committed_schedule()
-	var motivation := int(stats.get(STAT_MOTIVATION, 0))
-	return {"ok": true, "code": &"ok", "value": {
-		"before_fingerprint": _schedule_commit_fingerprint(motivation, current),
-		"motivation": motivation,
-		"committed_schedule": current,
-	}, "receipt": {}}
-
-
-func prepare_schedule_commit_candidate(committed: Dictionary, motivation_charged: int) -> Dictionary:
-	if typeof(committed) != TYPE_DICTIONARY or committed.is_empty():
-		return _transaction_failure(&"invalid_schedule_candidate", "a canonical aggregate is required")
-	if motivation_charged < 0:
-		return _transaction_failure(&"invalid_schedule_motivation_charge", "the charge is nonnegative")
-	var validated: Dictionary = _SCHEDULE_STATE_SCHEMA.validate_aggregate(committed)
-	if not validated.get("ok", false):
-		return validated
-	var motivation := int(stats.get(STAT_MOTIVATION, 0))
-	if motivation < motivation_charged:
-		return _transaction_failure(&"insufficient_motivation",
-			"the owner cannot pay %d motivation" % motivation_charged)
-	var current := _canonical_committed_schedule()
-	return {"ok": true, "code": &"ok", "value": {"candidate": {
-		"before_fingerprint": _schedule_commit_fingerprint(motivation, current),
-		"motivation": motivation - motivation_charged,
-		"committed_schedule": (validated["value"] as Dictionary)["committed_schedule"],
-	}}, "receipt": {}}
-
-
-func commit_schedule_commit_candidate(candidate: Dictionary) -> Dictionary:
-	var day7_admitted := require_day7_presentations_complete()
-	if not day7_admitted.get("ok", false): return day7_admitted
-	var shape := _schedule_member_error(candidate, _SCHEDULE_COMMIT_CANDIDATE_KEYS,
-		&"invalid_schedule_candidate")
-	if not shape.is_empty():
-		return shape
-	var motivation_error := _schedule_motivation_error(candidate["motivation"])
-	if not motivation_error.is_empty():
-		return motivation_error
-	var validated: Dictionary = _SCHEDULE_STATE_SCHEMA.validate_aggregate(candidate["committed_schedule"])
-	if not validated.get("ok", false):
-		return validated
-	var current := _canonical_committed_schedule()
-	var motivation := int(stats.get(STAT_MOTIVATION, 0))
-	if str(candidate["before_fingerprint"]) != _schedule_commit_fingerprint(motivation, current):
-		return _transaction_failure(&"schedule_commit_state_stale",
-			"the candidate was prepared against different owner state")
-	stats[STAT_MOTIVATION] = int(candidate["motivation"])
-	_committed_schedule = (validated["value"] as Dictionary)["committed_schedule"]
-	return {"ok": true, "code": &"ok",
-		"value": {"committed_schedule": _committed_schedule.duplicate(true)}, "receipt": {}}
-
-
-func rollback_schedule_commit_state(backup: Dictionary) -> Dictionary:
-	var shape := _schedule_member_error(backup, _SCHEDULE_COMMIT_BACKUP_KEYS,
-		&"invalid_schedule_backup")
-	if not shape.is_empty():
-		return shape
-	var motivation_error := _schedule_motivation_error(backup["motivation"])
-	if not motivation_error.is_empty():
-		return motivation_error
-	var validated: Dictionary = _SCHEDULE_STATE_SCHEMA.validate_aggregate(backup["committed_schedule"])
-	if not validated.get("ok", false):
-		return validated
-	stats[STAT_MOTIVATION] = int(backup["motivation"])
-	_committed_schedule = (validated["value"] as Dictionary)["committed_schedule"]
-	return {"ok": true, "code": &"ok", "value": {"restored": true}, "receipt": {}}
-
-
-func publish_schedule_commit(publication: Dictionary) -> Dictionary:
-	var shape := _schedule_member_error(publication, _SCHEDULE_PUBLICATION_KEYS,
-		&"invalid_schedule_publication")
-	if not shape.is_empty():
-		return shape
-	var current := _canonical_committed_schedule()
-	if publication["committed_schedule"] != current:
-		return _transaction_failure(&"schedule_publication_state_mismatch",
-			"the publication is not the owner's current canonical state")
-	var receipt: Variant = current["commit_receipt"]
-	if typeof(receipt) != TYPE_DICTIONARY or receipt != publication["schedule_commit_receipt"]:
-		return _transaction_failure(&"schedule_publication_state_mismatch",
-			"the publication receipt is not the committed aggregate's own receipt")
-	committed_schedule_published.emit({
-		"committed_schedule": current.duplicate(true),
-		"schedule_commit_receipt": (receipt as Dictionary).duplicate(true),
-	})
-	return {"ok": true, "code": &"ok", "value": {"published": true},
-		"receipt": (receipt as Dictionary).duplicate(true)}
 
 
 func _canonical_committed_schedule() -> Dictionary:
@@ -3485,35 +3202,6 @@ func _canonical_committed_schedule() -> Dictionary:
 			"commit_receipt": null,
 		}
 	return _committed_schedule.duplicate(true)
-
-
-func _schedule_commit_fingerprint(motivation: int, committed: Dictionary) -> String:
-	var hashed: Dictionary = _SCHEDULE_STATE_SCHEMA.canonical_sha256({
-		"committed_schedule": committed, "motivation": motivation,
-	})
-	if not hashed.get("ok", false):
-		return ""
-	return str((hashed["value"] as Dictionary)["sha256"])
-
-
-func _schedule_member_error(value: Variant, expected: Array[String], code: StringName) -> Dictionary:
-	if typeof(value) != TYPE_DICTIONARY:
-		return _transaction_failure(code, "a dictionary is required")
-	var keys: Array = (value as Dictionary).keys()
-	keys.sort()
-	if keys != expected:
-		return _transaction_failure(code, "the member set is exactly " + str(expected))
-	return {}
-
-
-func _schedule_motivation_error(value: Variant) -> Dictionary:
-	if typeof(value) != TYPE_INT:
-		return _transaction_failure(&"invalid_schedule_motivation_charge",
-			"motivation must be a strict int")
-	if int(value) < _stat_min(STAT_MOTIVATION) or int(value) > _stat_max(STAT_MOTIVATION):
-		return _transaction_failure(&"invalid_schedule_motivation_charge",
-			"motivation must stay inside its declared range")
-	return {}
 
 
 func _apply_gameplay_silent(gameplay: Dictionary) -> void:
@@ -3854,8 +3542,7 @@ func prepare_scene_new_run_snapshot_input(allocation_candidate: Dictionary, entr
 		"applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [],
 		"command_receipts": {}}}}
 
-func prepare_scene_new_run(snapshot: Dictionary, _allocation_candidate: Dictionary, _profile_material: Dictionary,
-		_bundle: Dictionary, issuer: Object, creation_owner: Object) -> Dictionary:
+func prepare_scene_new_run(snapshot: Dictionary, issuer: Object, creation_owner: Object) -> Dictionary:
 	_scene_new_run_plan = {}
 	_scene_new_run_plan_owner = null
 	if not is_instance_valid(creation_owner) or creation_owner != get_node_or_null("/root/SaveManager") \

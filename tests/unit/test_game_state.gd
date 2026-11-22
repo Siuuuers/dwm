@@ -5,6 +5,8 @@ const PERMANENT_PROFILE_KEYS := ["settings", "audio_state", "seen_endings"]
 const IDENTITY_ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const FAKE_ISSUER_ROOT := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
 
+const GAME_STATE_SCRIPT := preload("res://autoload/GameState.gd")
+@onready var GameState: GAME_STATE_SCRIPT = get_node("/root/GameState")
 var _identity_issuer: RefCounted
 var _commands: Dictionary
 
@@ -408,7 +410,7 @@ func test_contact_proof_and_tampered_replay_failures_preserve_contacts_schedule_
 	GameState.finish_minesweeper_app_round({"context": "app"})
 	watch_signals(GameState)
 	var pristine_contacts: Dictionary = GameState.contacts.duplicate(true)
-	var pristine_schedule: Dictionary = GameState.capture_schedule_commit_state()["value"]["committed_schedule"]
+	var pristine_schedule: Dictionary = GameState.capture_run_snapshot_input()["committed_schedule"]
 	var command := _command("failure-preservation")
 	var id_only: Dictionary = GameState.open_contact("priscilla", command["id"], {})
 	assert_false(id_only.get("ok", true))
@@ -422,7 +424,7 @@ func test_contact_proof_and_tampered_replay_failures_preserve_contacts_schedule_
 		"priscilla", command["id"], other["receipt"])
 	assert_false(mismatch.get("ok", true))
 	assert_eq(GameState.contacts, pristine_contacts, "proof failures preserve Contacts byte-for-byte")
-	assert_eq(GameState.capture_schedule_commit_state()["value"]["committed_schedule"],
+	assert_eq(GameState.capture_run_snapshot_input()["committed_schedule"],
 		pristine_schedule, "proof failures never commit Schedule")
 	assert_signal_emit_count(GameState, "contact_open_committed", 0)
 
@@ -432,13 +434,13 @@ func test_contact_proof_and_tampered_replay_failures_preserve_contacts_schedule_
 	assert_signal_emit_count(GameState, "contact_open_committed", 1)
 	GameState.contacts["transaction_receipts"][command["id"]]["action_id"] = "solo:sylvia:day1"
 	var tampered_contacts: Dictionary = GameState.contacts.duplicate(true)
-	var schedule_before_replay: Dictionary = GameState.capture_schedule_commit_state()["value"]["committed_schedule"]
+	var schedule_before_replay: Dictionary = GameState.capture_run_snapshot_input()["committed_schedule"]
 	var rejected_replay: Dictionary = GameState.open_contact(
 		"priscilla", command["id"], command["receipt"])
 	assert_false(rejected_replay.get("ok", true),
 		"a linked source cannot replay through a changed stored operation")
 	assert_eq(GameState.contacts, tampered_contacts, "tampered replay rejection preserves Contacts")
-	assert_eq(GameState.capture_schedule_commit_state()["value"]["committed_schedule"],
+	assert_eq(GameState.capture_run_snapshot_input()["committed_schedule"],
 		schedule_before_replay, "tampered replay cannot commit Schedule")
 	assert_signal_emit_count(GameState, "contact_open_committed", 1)
 
@@ -456,12 +458,12 @@ func test_group_reply_tampered_replay_preserves_contacts_schedule_and_signal_cou
 	GameState.contacts["transaction_receipts"][command["id"]]["action_id"] = \
 		"group:priscilla_lavinia:day6"
 	var contacts_before: Dictionary = GameState.contacts.duplicate(true)
-	var schedule_before: Dictionary = GameState.capture_schedule_commit_state()["value"]["committed_schedule"]
+	var schedule_before: Dictionary = GameState.capture_run_snapshot_input()["committed_schedule"]
 	var replayed: Dictionary = GameState.reply_invitation(
 		"lavinia", command["id"], command["receipt"])
 	assert_false(replayed.get("ok", true), "tampered group replay fails closed")
 	assert_eq(GameState.contacts, contacts_before)
-	assert_eq(GameState.capture_schedule_commit_state()["value"]["committed_schedule"], schedule_before)
+	assert_eq(GameState.capture_run_snapshot_input()["committed_schedule"], schedule_before)
 	assert_signal_emit_count(GameState, "invitation_reply_committed", 1)
 
 func test_get_contact_view_delegates_to_module() -> void:
@@ -852,9 +854,3 @@ func test_game_state_no_longer_owns_a_duplicate_schedule_effect_table() -> void:
 	assert_false(constants.has("_SCHEDULE_ACTION_EFFECTS"),
 		"expected RED: GameState._SCHEDULE_ACTION_EFFECTS is a second source of Schedule "
 			+ "effect truth and must be replaced by ScheduleActionRegistry lookups")
-
-
-# The two legacy add/can-add facade tests retired here with their subject (Plan 01 Task 5,
-# dwm-p2r.13). The registry is now the sole source of ordinary-action effects, exercised through
-# GameState.execute_non_date_schedule_effects, and admission is owned by
-# GameStateScheduleCommitPort's registry-backed commit transaction rather than an add-time facade.

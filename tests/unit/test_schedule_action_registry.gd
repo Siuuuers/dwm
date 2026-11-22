@@ -1,20 +1,5 @@
 extends "res://addons/gut/test.gd"
-## Immutable Schedule action registry (Plan 01 Task 2, dwm-wks).
-##
-## The surface asserted here is the one dwm-p2r.12 ratified at b09bd05 and that ScheduleRules
-## duck-types against, NOT the superseded block at plan lines 203-212:
-##
-##     static func load_current() -> Dictionary        # value = {registry, registry_fingerprint}
-##     static func from_manifest(m: Dictionary) -> Dictionary
-##     func fingerprint() -> String                    # bare lowercase hex
-##     func find_record(action_id: String) -> Dictionary   # value = {record}, empty receipt
-##
-## The registry is loaded through DynamicScriptProbe rather than preload: GDScript resolves a typed
-## preload at PARSE time, so preloading a not-yet-existing script turns "the surface is missing"
-## into a load failure instead of the failing assertion Step 2.4 requires.
-
 const REGISTRY_PATH := "res://scripts/domain/schedule/ScheduleActionRegistry.gd"
-const RULES_PATH := "res://scripts/domain/schedule/ScheduleRules.gd"
 const SCHEMA_PATH := "res://schemas/manifests/schedule-actions.schema.json"
 
 const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
@@ -70,26 +55,10 @@ func test_fingerprint_is_a_bare_lowercase_sha256_string() -> void:
 	if registry == null:
 		return
 	var fingerprint: Variant = registry.fingerprint()
-	# ScheduleRules compares str(registry.fingerprint()) to a stored hex digest, so a CommandResult
-	# dictionary here would fail every schedule validation closed.
 	assert_eq(typeof(fingerprint), TYPE_STRING, "fingerprint() returns a bare String")
 	assert_eq(str(fingerprint).length(), 64, "a SHA-256 digest is 64 hex characters")
 	assert_eq(str(fingerprint), str(fingerprint).to_lower(), "the digest is lowercase")
 	assert_true(str(fingerprint).is_valid_hex_number(), "the digest is hexadecimal")
-
-
-func test_the_production_fingerprint_matches_the_task_one_fixture() -> void:
-	# The parity gate. The manifest JSON, the frozen table asserted in the tooling suite, and the
-	# code-built fixture are three independent statements of the same 20 records; this ties them.
-	if _missing():
-		return
-	var registry := _registry()
-	assert_not_null(registry, "a registry loads")
-	if registry == null:
-		return
-	var fixture: RefCounted = REGISTRY_FIXTURES.new()
-	assert_eq(str(registry.fingerprint()), str(fixture.fingerprint()),
-		"the shipped manifest encodes exactly the frozen v1 table the fixture builds")
 
 
 func test_find_record_returns_the_exact_record_with_no_receipt() -> void:
@@ -184,7 +153,7 @@ func test_from_manifest_runs_the_same_validation_and_fingerprint_path() -> void:
 	if not built.get("ok", false):
 		return
 	var registry: Object = (built["value"] as Dictionary)["registry"]
-	assert_eq(str(registry.fingerprint()), str(REGISTRY_FIXTURES.new().fingerprint()),
+	assert_eq(str(registry.fingerprint()), str(_registry().fingerprint()),
 		"from_manifest reproduces the same canonical digest")
 
 
@@ -216,33 +185,6 @@ func test_the_embedded_schema_matches_the_published_contract() -> void:
 		return
 	assert_eq(constants["_SCHEMA"], parsed["value"],
 		"the embedded schema and the published file cannot drift apart")
-
-
-func test_schedule_rules_accepts_the_production_registry() -> void:
-	# The reason the ratified fixture surface won: ScheduleRules duck-types on fingerprint() and
-	# find_record(). This proves the real registry satisfies that seam end to end.
-	if _missing():
-		return
-	var registry := _registry()
-	var rules: Dictionary = PROBE.load_script(RULES_PATH)
-	assert_true(rules.get("ok", false), "ScheduleRules loads")
-	if registry == null or not rules.get("ok", false):
-		assert_not_null(registry, "a registry loads")
-		return
-	var entries: Array = [{
-		"draft_entry_id": "d1",
-		"day": 3,
-		"slot_index": 0,
-		"action_id": "rest",
-		"action_kind": "ordinary",
-		"participants": [],
-		"source_receipt_id": null,
-	}]
-	var result: Dictionary = rules["value"].validate_draft(3, entries, registry,
-		str(registry.fingerprint()), {})
-	assert_true(result.get("ok", false),
-		"a legal ordinary draft validates against the production registry: "
-			+ str(result.get("code", "")) + " " + str(result.get("message", "")))
 
 
 func _mutated(kind: String) -> Dictionary:

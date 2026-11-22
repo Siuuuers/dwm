@@ -10,11 +10,6 @@ extends RefCounted
 ##   this validator          -- everything above, PLUS completeness (the exact v1 record count) and
 ##                              cross-manifest effect-vocabulary parity against effects.json.
 ##                              Runs in tests and CI only.
-##
-## The split is load-bearing. tests/support/ScheduleRegistryFixtures.stale_records() deliberately
-## uses an effect id outside the effects vocabulary so it can produce a different digest for the
-## stale-fingerprint rejection test; cross-validating effects inside the registry would stop that
-## fixture from constructing and break test_schedule_strict_validation.gd, which Task 2 may not edit.
 
 const EXPECTED_RECORD_COUNT := 20
 const MANIFEST_PATH := "res://data/manifests/schedule_actions.v1.json"

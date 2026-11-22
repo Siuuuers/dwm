@@ -123,9 +123,9 @@ func test_logout_action_never_enters_workspace_cache_or_restore() -> void:
 	assert_false(h.commit_restore(invalid_cache).get("ok", true))
 	assert_eq(h.get_state(), before)
 
-func test_all_six_content_workspaces_still_capture_and_restore() -> void:
+func test_registered_workspaces_capture_and_restore() -> void:
 	var h := _host()
-	for id: StringName in [&"minesweeper", &"contacts", &"schedule", &"shop", &"backup", &"settings"]:
+	for id: StringName in REGISTRY.new().get_ids():
 		h.reset(1)
 		assert_true(h.open_app(id, 1).get("ok", false))
 		assert_eq(h.capture_persistent_state(), {"active_app_id": id})
