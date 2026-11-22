@@ -176,20 +176,31 @@ func request_quit() -> void:
 	_quitting = true
 	var was_paused := get_tree().paused
 	get_tree().paused = true
-	var audio := _target(&"AudioManager")
-	if audio != null:
-		var stopped: Dictionary = await audio.call(&"shutdown")
-		if not stopped.ok:
-			_quitting = false
-			get_tree().paused = was_paused
-			if is_instance_valid(_content_error_layer):
-				_content_error_layer.free()
-			_content_error_layer = null
-			show_content_error({"code": stopped.code, "message": "Audio is still stopping. Please try Quit again."})
-			return
+	var prepared := await _prepare_quit()
+	if not prepared.ok:
+		_quitting = false
+		get_tree().paused = was_paused
+		if is_instance_valid(_content_error_layer):
+			_content_error_layer.free()
+		_content_error_layer = null
+		show_content_error(prepared)
+		return
 	var loader := _target(&"StartupLoader")
 	if loader != null: await loader.shutdown()
 	get_tree().quit()
+
+func _prepare_quit() -> Dictionary:
+	var profile := _target(&"ProfileManager")
+	if profile != null:
+		var flushed: Dictionary = profile.flush_reading_history()
+		if not flushed.ok:
+			return {"ok": false, "code": flushed.code, "message": "Reading history could not be saved. Please try Quit again."}
+	var audio := _target(&"AudioManager")
+	if audio != null:
+		var stopped: Dictionary = await audio.shutdown()
+		if not stopped.ok:
+			return {"ok": false, "code": stopped.code, "message": "Audio is still stopping. Please try Quit again."}
+	return {"ok": true}
 
 func show_content_error(result: Dictionary) -> void:
 	if is_instance_valid(_content_error_layer): return
