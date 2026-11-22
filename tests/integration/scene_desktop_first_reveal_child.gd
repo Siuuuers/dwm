@@ -261,7 +261,7 @@ func load_scene_desktop_first_reveal() -> void:
 			if raw.get("ok", false):
 				phase = "participants"
 				raw = saves._prepare_restore_document(saves._resolve_locator(&"slot", 1),
-					raw.value.document, raw.value)
+					raw.value.document)
 		print("SCENE_DESKTOP_FIRST_REVEAL_LOAD_DIAGNOSTIC ", JSON.stringify({
 			"phase": phase, "ok": raw.get("ok", false), "code": str(raw.get("code", "")),
 			"message": str(raw.get("message", "")).left(1000),

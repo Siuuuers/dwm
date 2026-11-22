@@ -286,7 +286,7 @@ func test_selected_load_prepares_current_state_once_without_older_substitution()
 	var current := {"snapshot": {"marker": "current"}}
 	var earlier := {"snapshot": {"marker": "earlier"}}
 	var refused: Dictionary = manager._prepare_restore_document({},
-		{"current_snapshot": current, "recovery_journal": [earlier]}, {})
+		{"current_snapshot": current, "recovery_journal": [earlier]})
 	observer.refuse = false
 	assert_eq(refused.get("code"), &"fixture_selected_state_refused")
 	assert_eq(observer.snapshots, [current.snapshot], "only the explicitly selected current state is attempted")
