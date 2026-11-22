@@ -13,4 +13,4 @@ static func prepare(manager: Node, kind: StringName, slot_id: int = -1) -> Dicti
 	var admitted: Dictionary = MIGRATIONS.migrate_document(parsed.value,
 		{"kind": locator.kind, "slot_id": locator.slot_id})
 	if not admitted.get("ok", false): return admitted
-	return manager._prepare_restore_document(locator, admitted.value.document, admitted.value)
+	return manager._prepare_restore_document(locator, admitted.value.document)

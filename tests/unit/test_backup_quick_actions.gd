@@ -18,8 +18,8 @@ class RestoreFixture extends "res://autoload/SaveManager.gd":
 		if not read.get("ok", false): return read
 		var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]))
 		if not parsed.get("ok", false): return parsed
-		return _prepare_restore_document(locator, parsed["value"], {})
-	func _prepare_restore_document(_locator: Dictionary, document: Dictionary, _migration: Dictionary, _scene_seed_material: Dictionary = {}) -> Dictionary:
+		return _prepare_restore_document(locator, parsed["value"])
+	func _prepare_restore_document(_locator: Dictionary, document: Dictionary) -> Dictionary:
 		restore_prepares += 1
 		if restore_unavailable:
 			return {"ok": false, "code": restore_failure_code}
@@ -54,8 +54,8 @@ class QuickWriteProbe extends "res://tests/support/ManualSaveWitnessPort.gd":
 		if not read.get("ok", false): return read
 		var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]))
 		if not parsed.get("ok", false): return parsed
-		return _prepare_restore_document(locator, parsed["value"], {})
-	func _prepare_restore_document(_locator: Dictionary, document: Dictionary, _migration: Dictionary, _scene_seed_material: Dictionary = {}) -> Dictionary:
+		return _prepare_restore_document(locator, parsed["value"])
+	func _prepare_restore_document(_locator: Dictionary, document: Dictionary) -> Dictionary:
 		var bundle: Dictionary = document["current_snapshot"].duplicate(true)
 		return {"ok": true, "value": {"prepared": {
 			"bundle": bundle, "checkpoint_id": bundle["snapshot"]["checkpoint_id"]}}}

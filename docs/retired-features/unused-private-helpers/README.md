@@ -53,3 +53,7 @@ At `a1679544`, SaveManager's private `_commit_prepared_new_run` started the conf
 ## Initial reading checkpoint
 
 At `2c3b208`, DialogicBridge passed a null reading session through its private `_build_scene_initial_checkpoint` wrapper. Every caller built a fresh session. The public builder now reconstructs the scene directly, and the current-scene builder creates that session.
+
+## Save recovery dispatch
+
+At `8bcefb84`, both retry entry points reached the same synchronous scene recovery. The private resume wrapper discarded the frame-yield flag. Both autosave/profile settlement callers passed false. The responsive entry point now delegates to the ordinary retry, and reconciliation uses the transaction ID directly after skipping retired load records. Journal conflict checks still precede the first custody or storage mutation.

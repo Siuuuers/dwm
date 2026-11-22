@@ -37,8 +37,6 @@ class DesktopProbe extends RefCounted:
 		return {"ok": true, "value": {plan_key: {}}}
 
 class RunProbe extends RefCounted:
-	func prepare(_input: Dictionary) -> Dictionary:
-		return {"ok": true, "value": {"run_plan": {}}}
 	func _prepare_admitted_snapshot(_snapshot: Dictionary) -> Dictionary:
 		return {"ok": true, "value": {"run_plan": {}}}
 
@@ -66,7 +64,7 @@ func test_scene_load_failure_does_not_compensate_untouched_settings() -> void:
 	for key: String in ["profile", "localization"]:
 		assert_eq(participants[key].calls, [])
 
-func test_ordinary_preparation_uses_current_audio_preferences_and_recovery_keeps_original_path() -> void:
+func test_load_preparation_uses_current_audio_preferences() -> void:
 	var preparation := preload("res://autoload/SaveManager.gd").new()
 	var current := CurrentProfile.new()
 	var audio := AudioProbe.new()
@@ -90,16 +88,11 @@ func test_ordinary_preparation_uses_current_audio_preferences_and_recovery_keeps
 		"active_occurrence_id": "TEST.settings", "entry_id": "scene.test.b",
 		"notification": {}, "active_challenge": {}, "return_to": null}}
 	var document := {"current_snapshot": {"snapshot": snapshot}}
-	var result: Dictionary = preparation._prepare_restore_document_profiled({}, document,
-		{"legacy_profile_patch_input": {}}, {})
+	var result: Dictionary = preparation._prepare_restore_document({}, document)
 	assert_eq(result.get("code"), &"audio_probe_reached", str(result))
 	assert_eq(audio.preferences, current.profile.preferences)
 	assert_eq(current.profile.gallery_unlocks, ["current"])
 	assert_eq(profile.calls, [])
 	assert_eq(localization.calls, [])
-	var recovery: Dictionary = preparation._prepare_bundle_with_all_participants(document.current_snapshot,
-		{"legacy_profile_patch_input": {}}, document, {})
-	assert_eq(recovery.get("code"), &"settings_restore_called")
-	assert_eq(profile.calls, ["prepare"])
 	scope.restore()
 	preparation.free()

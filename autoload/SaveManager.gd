@@ -48,7 +48,6 @@ var _scene_new_run_bundle: Dictionary = {}
 var _scene_title_new_run_target := ""
 var _scene_title_new_run_context: Dictionary = {}
 var _new_run_busy := false
-var _new_run_slice_started_us := 0
 var _new_run_gate_token := ""
 var _session_activation_tickets: Dictionary = {}
 var _scene_restore_preparations: Dictionary = {}
@@ -346,7 +345,7 @@ func _resume_scene_new_run(operation: Dictionary, gate_token: String) -> Diction
 		return _drive_scene_restore_activation()
 	if operation.stage == CONTINUATION_JOURNAL.STAGE_COMPLETED and operation.activation_state == "acknowledged":
 		return _release_new_run_custody()
-	var settled: Dictionary = call("_settle_new_run_pair", operation, false)
+	var settled: Dictionary = _settle_new_run_pair(operation)
 	if not settled.get("ok", false): return _new_run_failure(settled)
 	operation = settled.value
 	if operation.stage == CONTINUATION_JOURNAL.STAGE_ALLOCATED:
@@ -481,22 +480,14 @@ func retry_new_run(transaction_id: String) -> Dictionary:
 	if not ready.get("ok", false): return ready
 	if transaction_id.is_empty(): return _fail(&"invalid_new_run_transaction", "")
 	_new_run_busy = true
-	var result: Dictionary = call("_retry_new_run", transaction_id, false)
+	var result: Dictionary = _retry_new_run(transaction_id)
 	_new_run_busy = false
 	return result
 
 func retry_new_run_responsive(transaction_id: String) -> Dictionary:
-	if _new_run_busy: return _fail(&"new_run_busy", "")
-	var ready := _new_run_ready(true)
-	if not ready.get("ok", false): return ready
-	if transaction_id.is_empty(): return _fail(&"invalid_new_run_transaction", "")
-	_new_run_busy = true
-	_new_run_slice_started_us = Time.get_ticks_usec()
-	var result: Dictionary = await _retry_new_run(transaction_id, true)
-	_new_run_busy = false
-	return result
+	return retry_new_run(transaction_id)
 
-func _retry_new_run(transaction_id: String, responsive: bool = false) -> Dictionary:
+func _retry_new_run(transaction_id: String) -> Dictionary:
 	if not _scene_restore_activation.is_empty() and _scene_restore_activation.operation_id == transaction_id \
 			and _scene_restore_activation.continuation.kind == "memory_new_run":
 		return _drive_scene_restore_activation()
@@ -511,11 +502,11 @@ func _retry_new_run(transaction_id: String, responsive: bool = false) -> Diction
 			return _fail(&"new_run_recovery_conflict", "another unresolved operation exists")
 	var found: Dictionary = _continuation_journal.get_operation(transaction_id)
 	if not found.get("ok", false): return found
-	if found.get("ok", false) and found["value"]["kind"] != "scene_new_run":
+	if found["value"]["kind"] != "scene_new_run":
 		return _fail(&"invalid_new_run_transaction", "")
 	var acquired := _take_new_run_custody(transaction_id)
 	if not acquired.get("ok", false): return acquired
-	return await _resume_new_run(found["value"], _new_run_gate_token, responsive)
+	return _resume_scene_new_run(found["value"], _new_run_gate_token)
 
 func reconcile_new_run_storage() -> Dictionary:
 	if _new_run_busy: return _fail(&"new_run_busy", "")
@@ -533,17 +524,14 @@ func _reconcile_new_run_storage() -> Dictionary:
 	if not retired.get("ok", false): return retired
 	var listed: Dictionary = _continuation_journal.list_incomplete()
 	if not listed.get("ok", false): return listed
-	var pending: Array[Dictionary] = []
-	for operation: Dictionary in listed["value"]:
-		if operation["kind"] == "scene_new_run": pending.append(operation)
-	if not pending.is_empty() and listed["value"].size() != 1:
-		return _fail(&"new_run_recovery_conflict", "conflicting incomplete continuations")
 	var settled: Array[String] = []
 	for operation: Dictionary in listed["value"]:
 		if operation["kind"] != "scene_new_run": continue
+		if listed["value"].size() != 1:
+			return _fail(&"new_run_recovery_conflict", "conflicting incomplete continuations")
 		var acquired := _take_new_run_custody(str(operation["transaction_id"]))
 		if not acquired.get("ok", false): return acquired
-		var result: Dictionary = call("_settle_new_run_pair", operation, false)
+		var result: Dictionary = _settle_new_run_pair(operation)
 		if not result.get("ok", false): return _new_run_failure(result)
 		settled.append(str(operation["transaction_id"]))
 		var released := _release_new_run_custody()
@@ -563,7 +551,7 @@ func _record_new_run_target(operation: Dictionary, target: StringName, revision:
 	return _continuation_journal.record_new_run_target(str(operation["transaction_id"]),
 		str(operation["request_fingerprint"]), target, revision)
 
-func _settle_new_run_pair(operation: Dictionary, responsive: bool = false) -> Dictionary:
+func _settle_new_run_pair(operation: Dictionary) -> Dictionary:
 	if not _identity_issuer.has_method("verify_issued"):
 		return _fail(&"invalid_identity_issuer", "verify_issued is required for recovery")
 	var verified: Dictionary = _continuation_journal.reconcile_startup(str(operation["transaction_id"]), _identity_issuer)
@@ -581,23 +569,18 @@ func _settle_new_run_pair(operation: Dictionary, responsive: bool = false) -> Di
 	if not committed.get("ok", false): return committed
 	if _canonical_sha256(committed["value"]) != str(operation["allocation_candidate_fingerprint"]):
 		return _fail(&"allocation_candidate_fingerprint_mismatch", "")
-	if responsive: await _render_new_run_frame()
 	if operation["stage"] == CONTINUATION_JOURNAL.STAGE_INTENT:
 		var allocated := _advance_new_run(operation, CONTINUATION_JOURNAL.STAGE_ALLOCATED, committed["value"])
 		if not allocated.get("ok", false): return allocated
 		operation = allocated["value"]
-	if responsive: await _render_new_run_frame()
 	var identity := _record_new_run_target(operation, &"identity", str(operation["allocation_candidate_fingerprint"]))
 	if not identity.get("ok", false): return identity
 	operation = identity["value"]
-	if responsive: await _render_new_run_frame()
 	var autosave := _persist_new_run_autosave(materials["autosave"], operation)
 	if not autosave.get("ok", false): return autosave
-	if responsive: await _render_new_run_frame()
 	var saved := _record_new_run_target(operation, &"autosave", str(materials["autosave"]["outgoing_hash"]))
 	if not saved.get("ok", false): return saved
 	operation = saved["value"]
-	if responsive: await _render_new_run_frame()
 	var profile: Dictionary = _new_run_profile_owner.prove_new_run_consumption(materials["profile"])
 	if not profile.get("ok", false):
 		profile = _new_run_profile_owner.persist_new_run_consumption(materials["profile"])
@@ -606,7 +589,6 @@ func _settle_new_run_pair(operation: Dictionary, responsive: bool = false) -> Di
 	if not profile.get("ok", false): return profile
 	autosave = _prove_new_run_autosave(materials["autosave"])
 	if not autosave.get("ok", false): return autosave
-	if responsive: await _render_new_run_frame()
 	return _record_new_run_target(operation, &"profile", str(materials["profile"]["outgoing_hash"]))
 
 func _prove_new_run_autosave(material: Dictionary) -> Dictionary:
@@ -1435,23 +1417,17 @@ func _prepare_restore_content(locator: Dictionary, expected_revision: String) ->
 	var migrated: Dictionary = SAVE_MIGRATIONS.load_current_document(parsed["value"])
 	if not migrated.get("ok", false):
 		return migrated
-	var document: Dictionary = migrated["value"]["document"]
-	return _prepare_restore_document(locator, document, migrated["value"])
+	return _prepare_restore_document(locator, migrated.value.document)
 
-func _prepare_restore_document(locator: Dictionary, document: Dictionary, migration_output: Dictionary) -> Dictionary:
+func _prepare_restore_document(locator: Dictionary, document: Dictionary) -> Dictionary:
 	var profile := _save_load_profile_begin("restore_prepare", "", locator)
-	return _save_load_profile_finish(profile, _prepare_restore_document_profiled(document, profile))
-
-
-func _prepare_restore_document_profiled(document: Dictionary, profile: Dictionary) -> Dictionary:
 	if _restore_participants.is_empty():
-		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "")
-
-	var prepared := _prepare_bundle_with_all_participants(document["current_snapshot"])
+		return _save_load_profile_finish(profile, _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", ""))
+	var result := _prepare_bundle_with_all_participants(document.current_snapshot)
 	_save_load_profile_phase(profile, "participant_prepare_us")
-	if not prepared.get("ok", false):
-		return prepared
-	return {"ok": true, "code": &"ok", "value": {"prepared": prepared["value"]}}
+	if result.ok:
+		result = {"ok": true, "code": &"ok", "value": {"prepared": result.value}}
+	return _save_load_profile_finish(profile, result)
 
 func _prepare_bundle_with_all_participants(bundle: Dictionary) -> Dictionary:
 	var snapshot: Dictionary = bundle.snapshot
@@ -1580,27 +1556,11 @@ func reconcile_incomplete_continuations() -> Dictionary:
 	for operation: Variant in (listed["value"] as Array):
 		if operation.get("kind") == "scene_restore": continue
 		var transaction_id := str((operation as Dictionary)["transaction_id"])
-		var reconciled: Dictionary = _resume_operation((operation as Dictionary).duplicate(true))
+		var reconciled: Dictionary = retry_new_run(transaction_id)
 		results.append({"transaction_id": transaction_id, "result": reconciled})
 		if operation.get("kind") == "scene_new_run" and not reconciled.get("ok", false):
 			return reconciled
 	return {"ok": true, "code": &"ok", "value": {"reconciled": results}}
-
-
-func _resume_operation(operation: Dictionary) -> Dictionary:
-	if operation.get("kind") == "scene_restore":
-		return {"ok": true, "value": {"transaction_id": operation.transaction_id, "outcome": "obsolete_load_ignored"}}
-	return retry_new_run(str(operation.transaction_id))
-
-
-func _render_new_run_frame() -> void:
-	if not is_inside_tree() or Time.get_ticks_usec() - _new_run_slice_started_us < 8000: return
-	await get_tree().process_frame
-	_new_run_slice_started_us = Time.get_ticks_usec()
-
-
-func _resume_new_run(operation: Dictionary, gate_token: String, _responsive: bool = false) -> Dictionary:
-	return _resume_scene_new_run(operation, gate_token)
 
 
 func _delete(locator: Dictionary) -> Dictionary:
