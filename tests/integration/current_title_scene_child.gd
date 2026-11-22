@@ -243,9 +243,7 @@ func create_current_title_scene() -> void:
 	assert_true(game.has_new_run_replacement())
 	# Integration check of consent ownership after raw routing, not native UI proof.
 	# The supported rendered New Acc/Logout journey is exercised above.
-	var retained_preparation: Dictionary = saves.prepare_new_run_action({
-		"route_id": "main", "dialogic_checkpoint": {}, "active_app_id": null,
-		"audio_context": {}, "content_version": 1})
+	var retained_preparation: Dictionary = saves.prepare_new_run_action()
 	if not _ok(retained_preparation): return
 	assert_true(retained_preparation.value.requires_confirmation, "retained unfinished run requires consent")
 	assert_true(retained_preparation.value.replaces_live)

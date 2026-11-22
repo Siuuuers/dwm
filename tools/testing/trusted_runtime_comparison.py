@@ -326,13 +326,8 @@ def prepare(root, harness):
     profile_path.write_text(profile_text)
     saves = root / "autoload/SaveManager.gd"
     save_text = saves.read_text()
-    header = "func prepare_new_run_action(initial_context: Dictionary) -> Dictionary:\n"
-    save_text = replace_once(save_text, header, header +
-        '\tvar probe := get_node("/root/StartupProbe")\n'
-        '\tvar began: Dictionary = probe.begin_newacc_phase()\n'
-        '\tvar result: Dictionary = _probe_prepare_new_run_action(initial_context)\n'
-        '\tprobe.finish_newacc_phase("newacc.prepare_action", began, result)\n'
-        '\treturn result\n\n' + header.replace("func prepare_new_run_action", "func _probe_prepare_new_run_action"))
+    save_text = attribute_methods(save_text, "SaveManager", ("prepare_new_run_action",)).replace(
+        '"call.SaveManager.prepare_new_run_action"', '"newacc.prepare_action"')
     save_text = attribute_methods(save_text, "SaveManager", (
         "_start_scene_new_run_in_memory", "_prepare_scene_new_run_plans",
         "_run_scene_restore_transaction", "_prepare_restore",

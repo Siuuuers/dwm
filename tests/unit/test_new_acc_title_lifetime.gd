@@ -37,7 +37,7 @@ class NewAccOwner extends RefCounted:
 	var retries: Array[String] = []
 	var cancels: Array[String] = []
 	var on_commit: Callable
-	func prepare_new_run_action(_context: Dictionary) -> Dictionary:
+	func prepare_new_run_action() -> Dictionary:
 		prepares += 1
 		return {"ok": true, "value": {"token": "prepared-lifetime", "requires_confirmation": requires_confirmation,
 			"replaces_autosave": true, "replaces_live": false}}
