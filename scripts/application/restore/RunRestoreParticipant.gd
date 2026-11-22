@@ -83,7 +83,6 @@ func capture() -> Dictionary:
 	return _owner.capture_restore_state()
 
 func apply_silent(plan: Dictionary) -> Dictionary:
-	# A freed creation owner must still go through the New Game custody check.
 	if not is_same(_scene_creation_owner, null):
 		var applied: Dictionary = _owner.apply_scene_new_run_silent(plan, _scene_creation_owner)
 		if applied.get("ok", false):
