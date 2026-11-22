@@ -24,20 +24,17 @@ const SHUTDOWN_COPY := {
 }
 
 const NEW_ACC_COPY := {
-	"ja": ["新しいアカウントを始めますか？","始まりはまだここにあります。もう一度、入りましょうか？","始まりはまだここにあります。もう一度、入りましょうか？","キャンセル","開始","新規作成できません","アカウントを準備できませんでした。再試行してください。","状態が変わりました。開始前に新規作成の内容を確認してください。","新規アカウントの復旧が必要です","開始処理が完了していません。再試行して同じ処理を完了してください。","再試行"],
-	"ko": ["새 계정을 시작할까요?","시작은 아직 여기에 있습니다. 다시 들어갈까요?","시작은 아직 여기에 있습니다. 다시 들어갈까요?","취소","시작","새 계정을 만들 수 없음","계정을 준비하지 못했습니다. 다시 시도하세요.","상태가 변경되었습니다. 시작하기 전에 새 계정 내용을 다시 확인하세요.","새 계정 복구 필요","계정 시작이 완료되지 않았습니다. 다시 시도하여 같은 작업을 완료하세요.","다시 시도"],
-	"en": ["Start a new account?", "The beginning is still here. Shall we enter again?",
-		"The beginning is still here. Shall we enter again?", "Cancel", "Start",
+	"ja": ["新しいアカウントを始めますか？","始まりはまだここにあります。もう一度、入りましょうか？","キャンセル","開始","新規作成できません","アカウントを準備できませんでした。再試行してください。","状態が変わりました。開始前に新規作成の内容を確認してください。","新規アカウントの復旧が必要です","開始処理が完了していません。再試行して同じ処理を完了してください。","再試行"],
+	"ko": ["새 계정을 시작할까요?","시작은 아직 여기에 있습니다. 다시 들어갈까요?","취소","시작","새 계정을 만들 수 없음","계정을 준비하지 못했습니다. 다시 시도하세요.","상태가 변경되었습니다. 시작하기 전에 새 계정 내용을 다시 확인하세요.","새 계정 복구 필요","계정 시작이 완료되지 않았습니다. 다시 시도하여 같은 작업을 완료하세요.","다시 시도"],
+	"en": ["Start a new account?", "The beginning is still here. Shall we enter again?", "Cancel", "Start",
 		"New Acc unavailable", "The account could not be prepared. Try again.",
 		"The available state changed. Review New Acc again before starting.",
 		"New Acc needs recovery", "The account has not finished starting. Retry to complete the same operation.", "Retry"],
-	"zh-CN": ["开始新账号？", "起点仍在这里。要再进去一次吗？",
-		"起点仍在这里。要再进去一次吗？", "取消", "开始",
+	"zh-CN": ["开始新账号？", "起点仍在这里。要再进去一次吗？", "取消", "开始",
 		"无法新建账号", "暂时无法准备新账号。请重试。",
 		"当前状态已改变。开始前，请重新确认新建账号。",
 		"新账号需要恢复", "新账号尚未完成启动。请重试以完成同一次操作。", "重试"],
-	"zh-HK": ["開始新帳號？", "起點仍在這裡。要再進去一次嗎？",
-		"起點仍在這裡。要再進去一次嗎？", "取消", "開始",
+	"zh-HK": ["開始新帳號？", "起點仍在這裡。要再進去一次嗎？", "取消", "開始",
 		"無法建立帳號", "暫時無法準備新帳號。請重試。",
 		"目前狀態已改變。開始前，請重新確認建立帳號。",
 		"新帳號需要復原", "新帳號尚未完成啟動。請重試以完成同一次操作。", "重試"],
@@ -362,8 +359,8 @@ func _on_new_acc_pressed() -> void:
 		return
 	var copy: Array = NEW_ACC_COPY[_locale]
 	present_confirmation({"title": copy[0],
-		"body": copy[1] if prepared.value.replaces_autosave else copy[2],
-		"cancel": copy[3], "confirm": copy[4], "risk": "danger", "warning": true,
+		"body": copy[1],
+		"cancel": copy[2], "confirm": copy[3], "risk": "danger", "warning": true,
 		"theme": BACKUP_THEME.build(_locale, _percent, &"after_hours", 1, false, "standard", _font_style)}, _commit_new_acc, _cancel_new_acc)
 
 func _cancel_new_acc() -> void:
@@ -405,13 +402,13 @@ func _handle_new_acc_result(result: Dictionary) -> void:
 
 func _show_new_acc_unavailable(stale: bool) -> void:
 	var copy: Array = NEW_ACC_COPY[_locale]
-	present_confirmation({"title": copy[5], "body": copy[7] if stale else copy[6],
-		"cancel": copy[3], "confirm": copy[10], "risk": "neutral", "warning": false,
+	present_confirmation({"title": copy[4], "body": copy[6] if stale else copy[5],
+		"cancel": copy[2], "confirm": copy[9], "risk": "neutral", "warning": false,
 		"theme": BACKUP_THEME.build(_locale, _percent, &"after_hours", 1, false, "standard", _font_style)}, _on_new_acc_pressed, _focus_new_acc)
 
 func _show_new_acc_recovery() -> void:
 	var copy: Array = NEW_ACC_COPY[_locale]
-	present_confirmation({"title": copy[8], "body": copy[9], "confirm": copy[10],
+	present_confirmation({"title": copy[7], "body": copy[8], "confirm": copy[9],
 		"cancelable": false, "risk": "neutral", "warning": false,
 		"theme": BACKUP_THEME.build(_locale, _percent, &"after_hours", 1, false, "standard", _font_style)}, _retry_new_acc, Callable())
 

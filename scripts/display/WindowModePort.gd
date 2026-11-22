@@ -32,7 +32,7 @@ func apply_mode(mode: Variant, window_size: Variant = "1280x720") -> Dictionary:
 	if not _valid_size(window_size): return _failure(&"invalid_window_size")
 	var captured := capture_output()
 	if not captured.ok: return captured
-	var target: Dictionary = captured.value.duplicate(true)
+	var target: Dictionary = captured.value
 	var usable: Variant = _platform.screen_get_usable_rect(target.screen)
 	if not _valid_rect(usable): return _failure(&"window_output_unavailable")
 	target.borderless = mode == "borderless"

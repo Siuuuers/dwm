@@ -128,7 +128,7 @@ func test_title_template_cancel_stale_and_same_operation_retry() -> void:
 	var revised_profile: Dictionary = profile.get_profile_snapshot().duplicate(true)
 	if not await _press(menu._confirmation.confirm_button, "reject stale Start"): return
 	if not await _wait_confirmation(menu): return
-	assert_eq(menu._confirmation.request.body, menu.NEW_ACC_COPY[menu._locale][7])
+	assert_eq(menu._confirmation.request.body, menu.NEW_ACC_COPY[menu._locale][6])
 	assert_eq(profile.get_profile_snapshot(), revised_profile)
 	assert_eq(game.capture_run_snapshot_input(), live_before)
 	assert_eq(FileAccess.get_sha256("user://saves/autosave.json"), auto_hash)

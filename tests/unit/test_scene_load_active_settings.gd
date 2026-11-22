@@ -21,8 +21,8 @@ class ActiveSettingsOnly extends RefCounted:
 		return {"ok": false}
 
 class CurrentProfile extends RefCounted:
-	var profile := {"preferences": {"audio": {"music_volume": 0.25}}, "gallery_unlocks": ["current"]}
-	func get_profile_snapshot() -> Dictionary: return profile.duplicate(true)
+	var profile := {"preferences": {"audio": {"music_volume": 0.25}, "reading": {"auto_enabled": true}}, "gallery_unlocks": ["current"]}
+	func get_preference_group(group: StringName) -> Dictionary: return profile.preferences[group].duplicate(true)
 
 class AudioProbe extends RefCounted:
 	var preferences := {}
@@ -90,7 +90,7 @@ func test_load_preparation_uses_current_audio_preferences() -> void:
 	var document := {"current_snapshot": {"snapshot": snapshot}}
 	var result: Dictionary = preparation._prepare_restore_document({}, document)
 	assert_eq(result.get("code"), &"audio_probe_reached", str(result))
-	assert_eq(audio.preferences, current.profile.preferences)
+	assert_eq(audio.preferences, {"audio": current.profile.preferences.audio})
 	assert_eq(current.profile.gallery_unlocks, ["current"])
 	assert_eq(profile.calls, [])
 	assert_eq(localization.calls, [])
