@@ -21,7 +21,12 @@ func after_each() -> void:
 	scope.restore()
 
 func test_prepare_cancel_and_commit_preserve_storage_until_scene_activation() -> void:
+	var persisted_before: Dictionary = fixture.storage.read_text("profile.json")
+	var pending: Array[Dictionary] = [{"beat_id": "test.pending", "line_id": "test.line",
+		"owning_entry_id": "test.entry", "presentation_signature": {"revision": "1"}}]
+	assert_true(fixture.profile.stage_caption_history(pending, "").ok)
 	var profile_before: Dictionary = fixture.profile.get_profile_snapshot()
+	watch_signals(fixture.profile)
 	var identity_before: Dictionary = fixture.root.capture()
 	var session_before: Dictionary = fixture.game.capture_live_session()
 	var prepared: Dictionary = fixture.manager.prepare_new_run_action()
@@ -46,6 +51,10 @@ func test_prepare_cancel_and_commit_preserve_storage_until_scene_activation() ->
 	assert_eq(fixture.manager.commit_prepared_new_run(prepared.value.token).code, &"invalid_new_run_preparation")
 	assert_eq(fixture.profile.get_profile_snapshot(), profile_before)
 	assert_false(fixture.read_autosave().ok)
+	assert_signal_emit_count(fixture.profile, "profile_restored", 1)
+	assert_eq(fixture.storage.read_text("profile.json"), persisted_before)
+	assert_true(fixture.profile.flush_reading_history().ok)
+	assert_ne(fixture.storage.read_text("profile.json"), persisted_before)
 	var replacement: Dictionary = fixture.manager.prepare_new_run_action()
 	assert_true(replacement.ok)
 	assert_true(replacement.value.replaces_live)

@@ -44,13 +44,13 @@ func prepare(input: Dictionary) -> Dictionary:
 func prepare_frozen_profile(candidate: Dictionary) -> Dictionary:
 	if not is_instance_valid(_owner) or not _owner.has_method("prepare_profile_document"):
 		return _fail(&"invalid_profile_owner", "profile document validation is unavailable")
-	var prepared: Dictionary = _owner.prepare_profile_document(candidate.duplicate(true))
+	var prepared: Dictionary = _owner.prepare_profile_document(candidate)
 	if not prepared.get("ok", false):
 		return prepared
 	return _prepare_profile_plan(prepared.get("value", {}))
 
 func _prepare_profile_plan(candidate: Dictionary) -> Dictionary:
-	var profile_plan := {"profile": candidate.duplicate(true)}
+	var profile_plan := {"profile": candidate}
 	if _window_output != null:
 		var available := _require_window_output()
 		if not available.get("ok", false):
