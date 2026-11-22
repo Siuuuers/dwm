@@ -242,14 +242,6 @@
       "contract_test": "test_game_state_signals_after_commit"
     },
     {
-      "symbol": "schedule_changed",
-      "kind": "signal",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_game_state_signals_after_commit"
-    },
-    {
       "symbol": "chat_changed",
       "kind": "signal",
       "availability": "current",
@@ -1106,30 +1098,6 @@
       "contract_test": "test_schedule_query_contracts"
     },
     {
-      "symbol": "get_scheduled_date_entries",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_schedule_query_contracts"
-    },
-    {
-      "symbol": "get_scheduled_date_count",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_schedule_query_contracts"
-    },
-    {
-      "symbol": "get_max_scheduled_dates_for_current_day",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_schedule_query_contracts"
-    },
-    {
       "symbol": "collect_unscheduled_accepted_invitations_for_day_end",
       "kind": "function",
       "availability": "current",
@@ -1144,30 +1112,6 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_missed_invitation_query_uses_prior_day_filters_and_returns_a_detached_record"
-    },
-    {
-      "symbol": "execute_schedule_sequence_until_route_needed",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_schedule_done_command"
-    },
-    {
-      "symbol": "execute_non_date_schedule_effects",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_schedule_done_command"
-    },
-    {
-      "symbol": "create_missed_group_twofriends_entry",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "replace",
-      "replacement": "func resolve_invitations_for_day(attendance: Dictionary, command_id: String) -> Dictionary",
-      "contract_test": "test_invitation_day_resolution"
     },
     {
       "symbol": "resolve_pressure_health_condition_end_of_day",
@@ -1328,62 +1272,6 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_prepare_new_run_snapshot_input_is_pure"
-    },
-    {
-      "symbol": "capture_schedule_commit_state",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_schedule_commit_seams_are_narrow_reversible_and_silent"
-    },
-    {
-      "symbol": "capture_schedule_warning_state",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_capture_schedule_warning_state_is_narrow_read_only_and_exact"
-    },
-    {
-      "symbol": "prepare_schedule_commit_candidate",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_schedule_commit_seams_are_narrow_reversible_and_silent"
-    },
-    {
-      "symbol": "commit_schedule_commit_candidate",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_schedule_commit_seams_are_narrow_reversible_and_silent"
-    },
-    {
-      "symbol": "rollback_schedule_commit_state",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_schedule_commit_seams_are_narrow_reversible_and_silent"
-    },
-    {
-      "symbol": "publish_schedule_commit",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_schedule_commit_seams_are_narrow_reversible_and_silent"
-    },
-    {
-      "symbol": "committed_schedule_published",
-      "kind": "signal",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_schedule_commit_seams_are_narrow_reversible_and_silent"
     },
     {
       "symbol": "begin_minesweeper_round",

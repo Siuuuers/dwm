@@ -4,10 +4,6 @@ extends "res://addons/gut/test.gd"
 ## This suite is the human-readable statement of the frozen 20-record table. It asserts the JSON
 ## field by field so a drift reports WHICH record and WHICH field moved, rather than only a changed
 ## digest. The digest tie-break lives in test_schedule_action_registry.gd.
-##
-## Cross-manifest effect parity against data/manifests/effects.json lives HERE and in the CLI
-## validator, never in the registry load path: tests/support/ScheduleRegistryFixtures.stale_records()
-## deliberately uses an effect id outside that vocabulary, and it must keep constructing.
 
 const MANIFEST_PATH := "res://data/manifests/schedule_actions.v1.json"
 const SCHEMA_PATH := "res://schemas/manifests/schedule-actions.schema.json"

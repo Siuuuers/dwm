@@ -2,8 +2,6 @@ class_name DataCatalog
 extends RefCounted
 
 const _SHOP_REGISTRY := preload("res://scripts/domain/shop/MinesweeperShopRegistry.gd")
-const _SCHEDULE_REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
-const _STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 
 const _CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const _SEVEN_DAY_CALENDAR := preload("res://scripts/domain/contact/SevenDayCalendar.gd")
@@ -147,75 +145,6 @@ func _make_shop_item(row: Dictionary, facts: Dictionary) -> ShopItemData:
 	if row.get("secret", false):
 		item.secret_accessibility_label_key = "shop.secret_supportz.accessible_name"
 	return item
-
-
-func get_schedule_actions() -> Array:
-	var out: Array = []
-	for row in _schedule_rows():
-		out.append(_make_schedule_action(row))
-	return out
-
-
-func get_schedule_action(action_id: String) -> Dictionary:
-	for row in _schedule_rows():
-		if row["id"] == action_id:
-			var effects: Array[String] = []
-			effects.assign(row["effects"] as Array)
-			return {
-				"id": row["id"],
-				"requires_friend": row["requires_friend"],
-				"motivation_cost": row["cost"],
-				"effect_ids": effects,
-			}
-	return {}
-
-
-func _schedule_rows() -> Array:
-	var loaded: Dictionary = _SCHEDULE_REGISTRY.load_current()
-	if not loaded.get("ok", false):
-		return []
-	var manifest_path: String = _SCHEDULE_REGISTRY.MANIFEST_PATH
-	if not FileAccess.file_exists(manifest_path):
-		return []
-	var parsed: Dictionary = _STRICT_JSON.parse_object(FileAccess.get_file_as_string(manifest_path))
-	if not parsed.get("ok", false):
-		return []
-	var ordinary: Array = []
-	var routes: Array = []
-	var seen_routes: Dictionary = {}
-	for record: Dictionary in (parsed.get("value", {}) as Dictionary).get("records", []) as Array:
-		if str(record.get("action_kind", "")) == "ordinary":
-			ordinary.append(_schedule_row(str(record.get("action_id", "")), record))
-		var route: Variant = record.get("route_id")
-		if route != null and not seen_routes.has(route):
-			seen_routes[route] = true
-			routes.append(_schedule_row(str(route), record))
-	return ordinary + routes
-
-
-func _schedule_row(id: String, record: Dictionary) -> Dictionary:
-	var effects: Array[String] = []
-	effects.assign(record.get("effect_ids", []) as Array)
-	return {
-		"id": id,
-		"requires_friend": not (record.get("participants", []) as Array).is_empty(),
-		"cost": int(record.get("motivation_cost", 0)),
-		"effects": effects,
-	}
-
-
-func _make_schedule_action(row: Dictionary) -> ScheduleActionData:
-	var a := ScheduleActionData.new()
-	a.id = row["id"]
-	a.display_name = (row["id"] as String).capitalize()
-	a.localization_key = "schedule.action.%s" % row["id"]
-	a.motivation_cost = row["cost"]
-	var effects: Array[String] = []
-	effects.assign(row["effects"])
-	a.effect_ids = effects
-	a.requires_friend = row["requires_friend"]
-	a.image_path = "res://art/schedule/%s.png" % row["id"]
-	return a
 
 
 func get_minesweeper_tasks() -> Array:

@@ -600,10 +600,6 @@ func test_the_remappers_duplicated_child_kinds_equal_the_real_issuers_child_kind
 # unambiguously onto one of them pin that literal; the rest assert distinctness only.
 # =================================================================================================
 
-const WARNING_POLICY_PATH := "res://scripts/domain/schedule/ScheduleWarningPolicy.gd"
-const VIEW_STATE_PATH := "res://scripts/domain/schedule/ScheduleViewState.gd"
-const REGISTRY_PATH := "res://scripts/domain/schedule/ScheduleActionRegistry.gd"
-const CONTROLLER_PATH := "res://scripts/application/schedule/ScheduleViewController.gd"
 
 ## The two allocation tokens `_snapshot()` and `_bundle()` above already hard-code. Named here so a
 ## v5 fixture can never drift away from the v4 fixture it extends.
@@ -638,9 +634,6 @@ const HOSPITAL_STAGE_IDS: Array = [
 
 # ---- v5 builders (siblings of _snapshot()/_bundle(), never edits of them) ----
 
-## P(name,value) -- the projection spelling ScheduleViewController._p() owns and the remapper must
-## duplicate at Step 4 (ledger 3.12, Tier B). This file computes it a THIRD time so row R26 is a
-## genuine three-way cross-check rather than a comparison of one implementation with itself.
 func _p(name: String, value: Variant) -> String:
 	var emitted: Dictionary = load(CANONICAL_JSON_PATH).call("stringify", value)
 	return name + "=" + str(emitted.get("value", ""))
@@ -671,9 +664,6 @@ func _v5_view(day: int, causal_day_instance: String, overrides: Dictionary = {})
 	return view
 
 
-## The exact twelve-key ScheduleWarningPolicy context (ledger 1.2.3). Internally consistent by
-## construction: board_identity mirrors the context's own four shared members and the effective base
-## ordinal is the board identity's own, so any fault a row injects is the only fault present.
 func _warning_context(branch_id: String, generation: int, causal_day_instance: String,
 		run_id: String = RUN_ID) -> Dictionary:
 	return {
@@ -696,8 +686,6 @@ func _warning_context(branch_id: String, generation: int, causal_day_instance: S
 	}
 
 
-## The stored preimage, byte-for-byte the shape ScheduleWarningPolicy.warning_state_fingerprint()
-## hashes: EXACTLY {view_projection, context} with the four-member projection.
 func _warning_preimage(view: Dictionary, context: Dictionary) -> Dictionary:
 	return {
 		"view_projection": {
@@ -785,7 +773,6 @@ func _terminal_receipt(pending: Dictionary, terminal_result: String, transaction
 	return receipt
 
 
-## The consumed index key ScheduleWarningPolicy.next_warning() itself reads.
 func _consumed_key(digest: String, warning_kind: String) -> String:
 	return digest + "|" + warning_kind
 
@@ -1028,15 +1015,6 @@ func _multi_bundle(mapping: Dictionary) -> Dictionary:
 			"new_transaction_issuer_receipt": _transaction_receipt(new_id),
 		}
 	return bundle
-
-
-func _registry() -> Dictionary:
-	var loaded: Dictionary = load(REGISTRY_PATH).call("load_current")
-	assert_true(loaded.get("ok", false),
-		"the shipped schedule action registry must load (compile hazard H10): " + str(loaded))
-	var value: Dictionary = loaded.get("value", {})
-	return {"registry": value.get("registry"),
-		"fingerprint": str(value.get("registry_fingerprint", ""))}
 
 
 # ---- shared rejection assertions (ledger 4.0 rule 1) ----
@@ -1359,8 +1337,7 @@ func test_prepare_rekeys_consumed_warning_receipts_to_the_recomputed_digest() ->
 	var remapped_view := _prepared_view(result)
 	var consumed_map: Dictionary = remapped_view.get("consumed_warning_receipts", {})
 	assert_true(consumed_map.has(_consumed_key(new_digest, "accepted_date")),
-		"a stale consumed key silently suppresses a warning ScheduleWarningPolicy.next_warning() "
-			+ "would otherwise raise")
+		"the consumed warning uses the remapped digest")
 	assert_false(consumed_map.has(_consumed_key(old_digest, "accepted_date")),
 		"the old key is gone, not left beside the new one")
 
@@ -1720,75 +1697,6 @@ func test_prepare_rejects_a_ledger_hash_that_disagrees_with_the_remapped_payload
 	var result: Dictionary = _remapper().call("prepare", snapshot, "restore-txn-r23", bundle)
 	_assert_refuses_with(result, &"remap_ledger_payload_mismatch",
 		"R23 the ledger's two hashes must equal the payload's own recomputed pair")
-
-
-func test_the_view_ledger_is_excluded_from_the_optimistic_fingerprint_preimage() -> void:
-	var registry := _registry()
-	var bare := _v5_view(3, OLD_CAUSAL)
-	var with_ledger := bare.duplicate(true)
-	var entry := _ledger_entry(
-		_child_provenance(_transaction_receipt("old-tx-r24"), "condition", 0, []),
-		"a".repeat(64), "b".repeat(64))
-	with_ledger["condition_departure_receipts"] = {
-		str(entry["source_condition_receipt_id"]): entry,
-	}
-	var view_state: Script = load(VIEW_STATE_PATH)
-	var bare_fingerprint: Dictionary = view_state.call("fingerprint", bare, registry["registry"],
-		registry["fingerprint"])
-	var ledger_fingerprint: Dictionary = view_state.call("fingerprint", with_ledger,
-		registry["registry"], registry["fingerprint"])
-	assert_true(bare_fingerprint.get("ok", false), JSON.stringify(bare_fingerprint))
-	assert_true(ledger_fingerprint.get("ok", false), JSON.stringify(ledger_fingerprint))
-	var bare_value: Dictionary = bare_fingerprint.get("value", {})
-	var ledger_value: Dictionary = ledger_fingerprint.get("value", {})
-	assert_eq(str(ledger_value.get("fingerprint", "")), str(bare_value.get("fingerprint", "")),
-		"the append-only ledger is excluded from the optimistic preimage -- the structural reason a "
-			+ "recovery remap can never fabricate a different view expectation")
-
-
-# ---- real-owner cross-checks (R25-R26) ----
-
-func test_the_remappers_warning_digest_equals_the_real_schedule_warning_policy_digest() -> void:
-	if not _exists(): return
-	var context := _warning_context("branch-old", 0, OLD_CAUSAL)
-	var view := _v5_view(3, OLD_CAUSAL)
-	var preimage := _warning_preimage(view, context)
-	var remapper_digest := str(_remapper().call("_canonical_sha256", preimage))
-	var policy: Dictionary = load(WARNING_POLICY_PATH).call("warning_state_fingerprint", view,
-		context)
-	assert_true(policy.get("ok", false), JSON.stringify(policy))
-	assert_eq(remapper_digest.length(), 64, "a lowercase sha256 hex digest")
-	var policy_value: Dictionary = policy.get("value", {})
-	assert_eq(remapper_digest, str(policy_value.get("fingerprint", "")),
-		"the remapper computes its own canonical hash (S1-E: warning_state_fingerprint needs a full "
-			+ "seven-key view and is unusable here), so nothing but this cross-check proves the two "
-			+ "shipped spellings of the one section-2.6 recipe stay byte-identical")
-
-
-func test_the_remappers_projection_helper_equals_the_real_controllers_p() -> void:
-	if not _exists(): return
-	var source := FileAccess.get_file_as_string(REMAPPER_PATH)
-	var controller: Object = load(CONTROLLER_PATH).new()
-	var samples: Array = [
-		["warning_kind", "base_minesweeper"],
-		["ordinal", 4],
-		["source_ids", ["a-id", "b-id"]],
-	]
-	for sample: Array in samples:
-		var field := str(sample[0])
-		assert_eq(_p(field, sample[1]), str(controller.call("_p", field, sample[1])),
-			"this file's own third copy must already agree with the real controller: " + field)
-	assert_true(source.contains("static func _p("),
-		"Step 4 gives the domain-layer remapper its own _p() duplicate (ledger 3.12, Tier B), "
-			+ "because _p is private on the application-layer ScheduleViewController")
-	if not source.contains("static func _p("):
-		return
-	for duplicated: Array in samples:
-		var duplicated_field := str(duplicated[0])
-		assert_eq(str(_remapper().call("_p", duplicated_field, duplicated[1])),
-			str(controller.call("_p", duplicated_field, duplicated[1])),
-			"the remapper duplicate must equal ScheduleViewController._p() exactly: "
-				+ duplicated_field)
 
 
 func _prepared_consequence(result: Dictionary) -> Dictionary:

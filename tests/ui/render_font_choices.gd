@@ -82,7 +82,7 @@ func _mount_font_desktop() -> void:
 	main.get_node("%ComputerPanel").add_child(desktop)
 	viewport.add_child(main)
 	check(main.get_node_or_null("%StatHud") == null, "mounted shell has no retired HUD")
-	var host := SCHEDULE.HOST.new()
+	var host := HOST.new()
 	host.reset(1)
 	check(desktop.configure_contacts(ContactPort.new(), locale, profile, host).get("ok", false), "desktop locale/profile owners")
 	desktop._foreground_eligible = true

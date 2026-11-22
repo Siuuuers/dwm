@@ -1,6 +1,5 @@
 extends "res://addons/gut/test.gd"
 
-const GAME_STATE_PATH := "res://autoload/GameState.gd"
 const REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
 const STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 const PLAN := preload("res://scripts/domain/run/DayResolutionPlan.gd")
@@ -26,9 +25,6 @@ const RETAINED_ENTRY_FIELDS: Array[String] = ["action_id", "day", "slot_index"]
 ## kind and both are legitimate; bare twofriends was a route/date-type and is not.
 const PSEUDO_ROUTE := "twofriends"
 const PAIR_STAGE := "twofriends_if_deferred"
-## The one surviving producer of the pseudo-route, and the seam that must have no caller.
-const LEGACY_ROUTE_PRODUCER := "execute_schedule_sequence_until_route_needed"
-
 ## Every component dwm-p2r.14 installed or reworked on the presentation path.
 const HOSPITAL_PORT_PATH := "res://scripts/application/run/HospitalPresentationPort.gd"
 const DATING_PORT_PATH := "res://scripts/application/run/DatingPresentationPort.gd"
@@ -98,26 +94,6 @@ func test_twofriends_survives_only_as_a_stage_and_never_as_a_route() -> void:
 		"the deferred pair keeps its presentation KIND")
 	assert_false((DATING_PORT.CONTEXT_KINDS as Array).has(PSEUDO_ROUTE),
 		"the bare pseudo-route is not an accepted dating context kind")
-
-
-## THE PSEUDO-ROUTE PRODUCER STILL EXISTS, and this pins its containment rather than pretending it
-## does not. GameState.execute_schedule_sequence_until_route_needed() still returns
-## route == "twofriends" and create_missed_group_twofriends_entry() still builds an old-shape
-## {type,friend_ids,...} entry. Both belong to the legacy transport GameState's own comment records
-## as replaced by the committed-receipt start port -- and both are UNCALLED. This test is what
-## makes "uncalled" a fact instead of a claim: it goes red the moment anyone wires the pseudo-route
-## back into production.
-func test_the_legacy_pseudo_route_producer_has_no_caller_in_production() -> void:
-	var callers: Array[String] = []
-	for path: String in _production_scripts("res://scripts") + _production_scripts("res://autoload"):
-		if path == GAME_STATE_PATH:
-			continue
-		if _code_lines(path).contains(LEGACY_ROUTE_PRODUCER):
-			callers.append(path)
-	assert_eq(callers, [] as Array[String],
-		LEGACY_ROUTE_PRODUCER + " must remain uncalled; callers found: " + str(callers))
-	assert_true(_code_lines(GAME_STATE_PATH).contains(LEGACY_ROUTE_PRODUCER),
-		"the seam being pinned still exists in GameState, so this scan is not vacuous")
 
 
 # -------------------------------------------------------------------------------------------------
@@ -192,21 +168,6 @@ func _strip_comment_lines(source: String) -> String:
 			continue
 		kept.append(line)
 	return "\n".join(kept)
-
-
-## Every production .gd under root, recursively. Tests are excluded by construction: nothing under
-## res://tests is reachable from either root passed in.
-func _production_scripts(root: String) -> Array[String]:
-	var found: Array[String] = []
-	var directory := DirAccess.open(root)
-	if directory == null:
-		return found
-	for name: String in directory.get_files():
-		if name.ends_with(".gd"):
-			found.append(root.path_join(name))
-	for name: String in directory.get_directories():
-		found.append_array(_production_scripts(root.path_join(name)))
-	return found
 
 
 func _registry_records() -> Array:

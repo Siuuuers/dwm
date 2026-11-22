@@ -1,5 +1,7 @@
 # Current UI Canon
 
+The desktop day planner was retired on 22 November 2026. Schedule entries below record its former design. See the [retirement record](../../retired-features/day-planner.md).
+
 This directory is the merge-forward destination for the game's current UI
 design. It will contain one canonical dossier per UI family so a reader can
 find that family's complete UI truth without choosing among overlapping design

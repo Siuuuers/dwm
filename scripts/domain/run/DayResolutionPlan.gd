@@ -335,28 +335,8 @@ func to_dict() -> Dictionary:
 	}
 
 
-func get_committed_schedule() -> Dictionary:
-	return _committed_schedule.duplicate(true)
-
-
-func get_route_plan() -> Array:
-	return _route_plan.duplicate(true)
-
-
-func get_schedule_commit_receipt_id() -> Variant:
-	return _schedule_commit_receipt_id
-
-
-func get_board_fate_receipt_id() -> Variant:
-	return _board_fate_receipt_id
-
-
 func get_command_id() -> String:
 	return _command_id
-
-
-func get_resolution_issuer_receipt() -> Variant:
-	return _detached(_resolution_issuer_receipt)
 
 
 func get_day_resolution_start_receipt() -> Variant:

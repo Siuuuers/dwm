@@ -73,7 +73,7 @@ func _run() -> void:
 func _install_overrides() -> void:
 	_place("ui.title", "ui-960x656.svg", Vector2i(960, 656))
 	_place("ui.desktop", "ui-800x656.svg", Vector2i(800, 656))
-	for id: String in ["minesweeper", "contacts", "schedule", "shop", "backup", "settings", "logout"]:
+	for id: String in ["minesweeper", "contacts", "shop", "backup", "settings", "logout"]:
 		_place("launcher." + id, "ui-48.svg", Vector2i(48, 48))
 	for id: String in ["shell.background", "shell.character.angela", "shell.keepsakes"]:
 		_place(id, "ui-480x504.svg", Vector2i(480, 504))

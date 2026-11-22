@@ -3,7 +3,6 @@ extends "res://addons/gut/test.gd"
 const GAME_STATE_PATH := "res://autoload/GameState.gd"
 const GATE_PATH := "res://scripts/application/transaction/ApplicationMutationGate.gd"
 const SURFACE_PATH := "res://evidence/phase_2r/runtime/game_state_surface.json"
-const _CONTACT_INVITATION_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 
 func _fresh_game_state() -> Node:
 	var game_state: Node = load(GAME_STATE_PATH).new()
@@ -97,84 +96,6 @@ func test_prepare_new_run_snapshot_input_is_pure() -> void:
 	assert_eq(game_state.to_save_dict(), live_before, "live run state is untouched")
 	assert_eq(game_state.day, 4, "live day is untouched")
 
-const TASK4_SCHEDULE_SEAMS: Array[String] = [
-	"capture_schedule_commit_state", "prepare_schedule_commit_candidate",
-	"commit_schedule_commit_candidate", "rollback_schedule_commit_state",
-	"publish_schedule_commit",
-]
-
-# Plan 01 Task 4 (dwm-p2r.13): these five seams are facade DELEGATION only. They cover current
-# motivation, the canonical committed_schedule and the narrow precondition fingerprint; they are not
-# a second validator, and GameStateScheduleCommitPort keeps the public transaction interface.
-func test_schedule_commit_seams_are_narrow_reversible_and_silent() -> void:
-	var game_state := _fresh_game_state()
-	var absent: Array[String] = []
-	for seam: String in TASK4_SCHEDULE_SEAMS:
-		if not game_state.has_method(seam):
-			absent.append(seam)
-	assert_eq(absent, [] as Array[String], "the narrow committed-Schedule seams must exist")
-	if not absent.is_empty():
-		return
-	var emissions: Array[String] = []
-	for entry: Dictionary in game_state.get_script().get_script_signal_list():
-		var signal_name := str(entry.get("name", ""))
-		if (entry.get("args", []) as Array).size() == 0:
-			game_state.connect(signal_name, func() -> void: emissions.append(signal_name))
-		elif (entry.get("args", []) as Array).size() == 1:
-			game_state.connect(signal_name, func(_a) -> void: emissions.append(signal_name))
-
-	var captured: Dictionary = game_state.capture_schedule_commit_state()
-	assert_true(captured["ok"], JSON.stringify(captured))
-	var captured_keys: Array = (captured["value"] as Dictionary).keys()
-	captured_keys.sort()
-	assert_eq(captured_keys, ["before_fingerprint", "committed_schedule", "motivation"],
-		"the capture seam is exactly narrow")
-	var aggregate: Dictionary = captured["value"]["committed_schedule"]
-	assert_eq(aggregate, {
-		"schema_version": 1, "day": 1, "registry_fingerprint": null,
-		"entries": [], "commit_receipt": null,
-	}, "an uninitialized owner exposes the canonical empty aggregate for its day")
-	assert_eq(int(captured["value"]["motivation"]), 7)
-
-	var prepared: Dictionary = game_state.prepare_schedule_commit_candidate(aggregate, 2)
-	assert_true(prepared["ok"], JSON.stringify(prepared))
-	assert_eq(int(prepared["value"]["candidate"]["motivation"]), 5, "the candidate carries the charge")
-	assert_eq(game_state.get_stat("motivation"), 7, "prepare applies nothing")
-	assert_false(game_state.prepare_schedule_commit_candidate(aggregate, 8).get("ok", true),
-		"the owner refuses a charge it cannot pay")
-	assert_false(game_state.prepare_schedule_commit_candidate(aggregate, -1).get("ok", true))
-	assert_false(game_state.prepare_schedule_commit_candidate({}, 0).get("ok", true),
-		"the seam validates the canonical aggregate it is handed")
-	assert_eq(emissions, [] as Array[String], "capture and prepare are silent")
-
-	var committed: Dictionary = game_state.commit_schedule_commit_candidate(prepared["value"]["candidate"])
-	assert_true(committed["ok"], JSON.stringify(committed))
-	assert_eq(game_state.get_stat("motivation"), 5, "commit changes motivation")
-	assert_eq(game_state.capture_schedule_commit_state()["value"]["committed_schedule"], aggregate)
-	assert_eq(emissions, [] as Array[String], "commit installs the candidate silently")
-	assert_false(game_state.commit_schedule_commit_candidate(prepared["value"]["candidate"]).get("ok", true),
-		"a candidate prepared against a stale precondition fingerprint is refused")
-
-	var restored: Dictionary = game_state.rollback_schedule_commit_state({
-		"motivation": 7, "committed_schedule": aggregate,
-	})
-	assert_true(restored["ok"], JSON.stringify(restored))
-	assert_eq(restored["value"], {"restored": true})
-	assert_eq(game_state.get_stat("motivation"), 7, "rollback restores exactly the backup")
-	assert_eq(emissions, [] as Array[String], "rollback is silent")
-	assert_false(game_state.rollback_schedule_commit_state({"motivation": 7}).get("ok", true),
-		"the backup member set is exact")
-
-	assert_false(game_state.publish_schedule_commit({
-		"committed_schedule": aggregate, "schedule_commit_receipt": null,
-	}).get("ok", true), "a publication without its commit receipt is refused")
-	assert_false(game_state.publish_schedule_commit({
-		"committed_schedule": {"schema_version": 1, "day": 2, "registry_fingerprint": null,
-			"entries": [], "commit_receipt": null},
-		"schedule_commit_receipt": {},
-	}).get("ok", true), "a publication the owner does not hold is refused")
-	assert_eq(emissions, [] as Array[String], "a refused publication emits nothing")
-
 func test_day7_terminal_via_facade_never_creates_day8() -> void:
 	var game_state := _fresh_game_state()
 	game_state._lifecycle_set_playing_day(7)
@@ -187,67 +108,3 @@ func test_day7_terminal_via_facade_never_creates_day8() -> void:
 	assert_true(applied.get("ok", false))
 	assert_eq(game_state.day, 7, "a legacy Day-8 sentinel migrates to the Day-7 terminal")
 	assert_eq(game_state._run_lifecycle.get_state(), &"ENDING")
-
-
-# ---- Task 3 (Amendment Plan 03, dwm-oyo.3): the read-only Schedule-warning capture ----
-
-const WARNING_STATE_KEYS: Array = [
-	"accepted_date_action_ids", "base_opportunity_remaining", "branch_id",
-	"causal_day_instance", "day", "desktop_timeline_generation",
-	"eligible_unread_date_message_ids", "motivation", "next_app_round_ordinal", "run_id",
-]
-
-func test_capture_schedule_warning_state_is_narrow_read_only_and_exact() -> void:
-	var game_state := _fresh_game_state()
-	var live_before: Dictionary = game_state.to_save_dict()
-	var captured: Dictionary = game_state.capture_schedule_warning_state()
-	assert_true(captured.get("ok", false), JSON.stringify(captured))
-	var envelope_keys: Array = captured.keys()
-	envelope_keys.sort()
-	assert_eq(envelope_keys, ["code", "ok", "receipt", "value"], "the master envelope")
-	assert_eq(captured.get("receipt", {"x": 1}), {}, "a read issues no receipt")
-	var value_keys: Array = (captured.get("value", {}) as Dictionary).keys()
-	assert_eq(value_keys, ["state"], "the value is exactly {state}")
-	var state: Dictionary = (captured.get("value", {}) as Dictionary).get("state", {})
-	var state_keys: Array = state.keys()
-	state_keys.sort()
-	assert_eq(state_keys, WARNING_STATE_KEYS, "the exact ten-member warning state")
-	assert_eq(int(state.get("day", -1)), game_state.day, "day is the lifecycle's")
-	assert_eq(int(state.get("motivation", -1)), 7, "motivation is the canonical stat")
-	assert_eq(state.get("eligible_unread_date_message_ids", ["x"]), [],
-		"a fresh run has no unread date-enabling message")
-	assert_eq(state.get("accepted_date_action_ids", ["x"]), [],
-		"a fresh run has no acceptance")
-	var ordinal: Variant = state.get("next_app_round_ordinal", -1)
-	assert_true(ordinal == null or (typeof(ordinal) == TYPE_INT
-		and int(ordinal) >= 1 and int(ordinal) <= 5),
-		"next_app_round_ordinal is 1..5 or null, null only after exhaustion")
-	assert_true(typeof(state.get("base_opportunity_remaining", "x")) == TYPE_BOOL,
-		"base_opportunity_remaining is a strict bool")
-	assert_eq(game_state.to_save_dict(), live_before, "the capture mutates nothing")
-
-
-func test_capture_schedule_warning_state_facts_are_day_scoped_and_detached() -> void:
-	var game_state := _fresh_game_state()
-	var offered_b: Dictionary = _CONTACT_INVITATION_STATE.prepare_offer_solo(
-		game_state.contacts, "sylvia", 1, "msg:s1", "tx:offer:s1")
-	assert_true(offered_b.get("ok", false), JSON.stringify(offered_b))
-	game_state.contacts = (offered_b.get("value", {}) as Dictionary).get("candidate", {})
-	var offered_a: Dictionary = _CONTACT_INVITATION_STATE.prepare_offer_solo(
-		game_state.contacts, "priscilla", 1, "msg:p1", "tx:offer:p1")
-	assert_true(offered_a.get("ok", false), JSON.stringify(offered_a))
-	game_state.contacts = (offered_a.get("value", {}) as Dictionary).get("candidate", {})
-	var offered_far: Dictionary = _CONTACT_INVITATION_STATE.prepare_offer_solo(
-		game_state.contacts, "lavinia", 2, "msg:l2", "tx:offer:l2")
-	assert_true(offered_far.get("ok", false), JSON.stringify(offered_far))
-	game_state.contacts = (offered_far.get("value", {}) as Dictionary).get("candidate", {})
-	var captured: Dictionary = game_state.capture_schedule_warning_state()
-	assert_true(captured.get("ok", false), JSON.stringify(captured))
-	var state: Dictionary = (captured.get("value", {}) as Dictionary).get("state", {})
-	assert_eq(state.get("eligible_unread_date_message_ids", []), ["msg:p1", "msg:s1"],
-		"unread current-day offers, sorted and unique; another day's offer is excluded")
-	(state.get("eligible_unread_date_message_ids", []) as Array).clear()
-	var recaptured: Dictionary = game_state.capture_schedule_warning_state()
-	assert_eq(((recaptured.get("value", {}) as Dictionary).get("state", {})
-		as Dictionary).get("eligible_unread_date_message_ids", []), ["msg:p1", "msg:s1"],
-		"the returned arrays are detached canonical facts")
