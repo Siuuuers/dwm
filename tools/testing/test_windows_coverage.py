@@ -930,19 +930,23 @@ class ReadabilityCoverageTests(unittest.TestCase):
         omit = {'evidence/archive.zip', 'evidence/phase_2r/old/nested/screenshot.png'}
         self.assert_checkout_paths(checkout, keep, omit)
 
-    def test_gallery_checkout_retains_fixtures_without_historical_evidence(self):
-        job = re.split(r'\n  [a-z][\w-]*:', WORKFLOW.split('\n  rendered-journeys:', 1)[1])[0]
-        checkout = job.split('      - uses: actions/checkout@v7', 1)[1].split('      - name:', 1)[0]
+    def test_reading_checkouts_retain_fixtures_without_historical_evidence(self):
         keep = {'project.godot', 'evidence/.gdignore', 'assets/nested/image.png',
                 'tests/fixtures/dialogic/gallery_collection_catalogue.json',
                 'tests/fixtures/dialogic/gallery_collection.dtl',
                 'data/manifests/art_placements.json',
                 'tests/ui/render_gallery_version_register.gd',
-                'tests/ui/render_gallery_caption_collection.gd'}
+                'tests/ui/render_gallery_caption_collection.gd',
+                'tests/ui/render_self_talk_load.gd', 'tools/testing/run_progression_checks.py',
+                'tools/verification/story_progression/StoryProgression.tla'}
         keep.update(root + '/nested/input.gd' for root in
                     ('autoload', 'scripts', 'scenes', 'tests', 'tools', 'addons', '.github/workflows'))
         omit = {'evidence/archive.zip', 'evidence/phase_2r/old/nested/screenshot.png'}
-        self.assert_checkout_paths(checkout, keep, omit)
+        for name in ('rendered-journeys', 'self-talk-panel', 'progression'):
+            with self.subTest(job=name):
+                job = re.split(r'\n  [a-z][\w-]*:', WORKFLOW.split('\n  ' + name + ':\n', 1)[1])[0]
+                checkout = job.split('      - uses: actions/checkout@v7', 1)[1].split('      - name:', 1)[0]
+                self.assert_checkout_paths(checkout, keep, omit)
 
     def test_initial_frame_batch_preserves_creation_in_narrow_routes(self):
         matrix = next(line for line in WORKFLOW.splitlines() if '        suite: ${{ fromJSON(' in line)
