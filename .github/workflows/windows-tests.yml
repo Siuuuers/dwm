@@ -221,7 +221,7 @@ jobs:
                   }) and all(p in native_audio_paths or (p.endswith('.gd.uid') and p[:-4] in native_audio_paths)
                              for p in paths)
                   prose = {path for path in paths if
-                      re.fullmatch(r'docs/agent/[^/]+\.md', path) and path not in {
+                      re.fullmatch(r'(?:docs/agent|handoff)/[^/]+\.md', path) and path not in {
                           'docs/agent/2026-09-23-next-session-handoff.md',
                           'docs/agent/execution-map.md',
                       }}
@@ -1930,7 +1930,7 @@ jobs:
           chmod +x "$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64"
           echo "GODOT_CONSOLE_PATH=$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64" >> "$GITHUB_ENV"
           curl --fail --location --retry 3 'https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar' --output "$RUNNER_TEMP/tla2tools.jar"
-          printf '%s  %s\n' 'e20447644bfabd29d6bd0fc2c0eb1473fb301c1a0e4dfe1961938ce5a191edbf' "$RUNNER_TEMP/tla2tools.jar" | sha256sum --check
+          printf '%s  %s\n' 'fdffef247f563ef6edbfd44958d2a82db79e7564e07cb673262d896353fa6713' "$RUNNER_TEMP/tla2tools.jar" | sha256sum --check
       - name: Start native speech service for mounted settings refresh
         timeout-minutes: 2
         run: bash tools/testing/start_cloud_speech.sh

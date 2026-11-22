@@ -55,15 +55,14 @@ func initialize(profile: Node, manifest_path: String = "res://localization/manif
 	if not loaded.get("ok", false):
 		_readiness = &"failed"
 		return loaded
-	var catalog_store: Dictionary = (loaded["value"] as Dictionary).duplicate(true)
-	_catalog_store = catalog_store
-	var source_locale: String = catalog_store["manifest"]["source_locale"]
+	_catalog_store = loaded["value"]
+	var source_locale: String = _catalog_store["manifest"]["source_locale"]
 	var stored_locale := str(profile.get_preference(&"preferences.language.primary_locale_id", source_locale))
-	var canonical_locale := _resolve_locale_in_bundle(catalog_store, stored_locale)
+	var canonical_locale := _resolve_locale_in_bundle(_catalog_store, stored_locale)
 	if canonical_locale.is_empty():
 		canonical_locale = source_locale
-	var next_bundle := _bundle_for_locale(catalog_store, canonical_locale)
-	var next_presentation := _make_presentation_in_bundle(catalog_store, canonical_locale)
+	var next_bundle := _bundle_for_locale(_catalog_store, canonical_locale)
+	var next_presentation := _make_presentation_in_bundle(_catalog_store, canonical_locale)
 	var prepared_roots := _prepare_root_plans(next_presentation)
 	if not prepared_roots.get("ok", false):
 		_readiness = &"failed"

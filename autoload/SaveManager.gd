@@ -223,11 +223,10 @@ func _commit_prepared_scene_restore(prepared: Dictionary) -> Dictionary:
 	var retained := _validate_scene_restore_preparation(prepared)
 	if not retained.get("ok", false): return retained
 	prepared = _scene_restore_preparations[prepared.scene_preparation_token].prepared
-	var plans: Dictionary = prepared.participant_plans.duplicate(true)
 	var operation_id := "scene_load:" + str(prepared.scene_preparation_token)
 	_scene_restore_preparations.erase(prepared.scene_preparation_token)
 	_completed_scene_restore.clear()
-	return _run_scene_restore_transaction(plans, prepared.journal_seed,
+	return _run_scene_restore_transaction(prepared.participant_plans, prepared.journal_seed,
 		str(prepared.route_id), str(prepared.checkpoint_id),
 		{"kind": "memory_restore", "transaction_id": operation_id}, "", false)
 
@@ -919,7 +918,6 @@ func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictio
 	if typeof(bundle) != TYPE_DICTIONARY or typeof(bundle.get("snapshot")) != TYPE_DICTIONARY:
 		record["reason"] = "unreadable"
 		return {"ok": true, "value": record}
-	var snapshot: Dictionary = bundle["snapshot"]
 	record["state"] = "occupied"
 	record["family"] = "scene"
 	var display_time := SAVE_DOCUMENT_SCHEMA.normalize_optional_saved_time(document.get("saved_time"))
@@ -1385,7 +1383,7 @@ func _prepare_restore_content(locator: Dictionary, expected_revision: String) ->
 		return read
 	if not expected_revision.is_empty() and str(read["value"]["revision"]) != expected_revision:
 		return _fail(&"stale_backup_target", "")
-	var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]["text"]))
+	var parsed: Dictionary = _parse_document_text(str(read["value"]["text"]))
 	if not parsed.get("ok", false):
 		return _fail(&"corrupt_save_document", relative_path)
 

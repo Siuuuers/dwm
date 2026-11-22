@@ -1,6 +1,8 @@
 class_name LocalizationSchema
 extends RefCounted
 
+static var _placeholder := RegEx.create_from_string("\\{([A-Za-z_][A-Za-z0-9_]*)\\}")
+
 static func validate_manifest(manifest: Dictionary, base_path: String) -> Dictionary:
 	if not _exact_keys(manifest, ["schema_version", "source_locale", "aliases", "font_profiles", "locales"]): return _fail("invalid_manifest_keys")
 	if manifest["schema_version"] != 1 or typeof(manifest["source_locale"]) != TYPE_STRING: return _fail("invalid_manifest_header")
@@ -47,8 +49,9 @@ static func validate_locale_file(catalog: Dictionary, expected_locale: String) -
 	return {"ok": true, "value": catalog.duplicate(true)}
 
 static func extract_named_placeholders(text: String) -> PackedStringArray:
-	var output := PackedStringArray(); var seen := {}; var regex := RegEx.new(); regex.compile("\\{([A-Za-z_][A-Za-z0-9_]*)\\}")
-	for match in regex.search_all(text):
+	var output := PackedStringArray()
+	var seen := {}
+	for match in _placeholder.search_all(text):
 		var key := match.get_string(1)
 		if not seen.has(key): seen[key] = true; output.append(key)
 	output.sort(); return output
