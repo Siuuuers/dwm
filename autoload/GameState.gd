@@ -3854,8 +3854,7 @@ func prepare_scene_new_run_snapshot_input(allocation_candidate: Dictionary, entr
 		"applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [],
 		"command_receipts": {}}}}
 
-func prepare_scene_new_run(snapshot: Dictionary, _allocation_candidate: Dictionary, _profile_material: Dictionary,
-		_bundle: Dictionary, issuer: Object, creation_owner: Object) -> Dictionary:
+func prepare_scene_new_run(snapshot: Dictionary, issuer: Object, creation_owner: Object) -> Dictionary:
 	_scene_new_run_plan = {}
 	_scene_new_run_plan_owner = null
 	if not is_instance_valid(creation_owner) or creation_owner != get_node_or_null("/root/SaveManager") \

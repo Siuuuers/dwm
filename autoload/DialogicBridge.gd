@@ -204,31 +204,27 @@ func prepare_scene_initial_checkpoint(allocation_candidate: Dictionary, profile_
 	return {"ok": true, "value": {"receipt": admitted.value, "checkpoint": checkpoint.value}}
 
 static func build_scene_initial_checkpoint(receipt: Dictionary, bundle: Dictionary) -> Dictionary:
-	return _build_scene_initial_checkpoint(receipt, bundle, null)
-
-static func _build_scene_initial_checkpoint(receipt: Dictionary, bundle: Dictionary,
-		configured_session: RefCounted) -> Dictionary:
 	var result: Dictionary = receipt.scene_admission.result
 	var matched := false
 	for row: Dictionary in bundle.targets:
 		if row.target_id == result.target_id and row.target.kind == "scene" and row.target.entry_id == result.entry_id:
 			matched = true
+			break
 	if not matched: return {"ok": false, "code": &"scene_initial_target_invalid"}
 	var scene := {"registration_sha256": _ENTRY_MANIFEST.scene_registration_fingerprint(),
 		"active_occurrence_id": receipt.transaction_id, "entry_id": result.entry_id,
 		"notification": {}, "active_challenge": {}, "return_to": null}
-	return _build_current_scene_initial_checkpoint(scene, bundle, configured_session)
+	return _build_current_scene_initial_checkpoint(scene, bundle)
 
-static func _build_current_scene_initial_checkpoint(scene: Dictionary, bundle: Dictionary,
-		configured_session: RefCounted = null) -> Dictionary:
+static func _build_current_scene_initial_checkpoint(scene: Dictionary, bundle: Dictionary) -> Dictionary:
 	var entry_id: String = str(scene.get("entry_id", ""))
 	var occurrence: String = str(scene.get("active_occurrence_id", ""))
 	if entry_id.is_empty() or occurrence.is_empty() or scene.get("return_to") != null:
 		return {"ok": false, "code": &"scene_initial_target_invalid"}
 	var target := {}
 	for row: Dictionary in bundle.targets:
-		if row.target.entry_id == entry_id and row.target.kind == "scene": target = row.target.duplicate(true)
-	if target.is_empty() or target.kind != "scene" or target.entry_id != entry_id:
+		if row.target.entry_id == entry_id and row.target.kind == "scene": target = row.target
+	if target.is_empty():
 		return {"ok": false, "code": &"scene_initial_target_invalid"}
 	var labels: Array = []
 	var path := ""
@@ -252,13 +248,9 @@ static func _build_current_scene_initial_checkpoint(scene: Dictionary, bundle: D
 	if not presentation.ok: return presentation
 	var frame := {"expected_stage": "scene", "playback_id": occurrence, "role": "scene",
 		"transaction_id": occurrence, "presentation": presentation.value}
-	var candidate: RefCounted
-	if configured_session == null:
-		candidate = _READING_SESSION.new()
-		var configured: Dictionary = candidate.configure_scene()
-		if not configured.ok: return configured
-	else:
-		candidate = configured_session._fork_scene_configuration()
+	var candidate := _READING_SESSION.new()
+	var configured: Dictionary = candidate.configure_scene()
+	if not configured.ok: return configured
 	var begun: Dictionary = candidate.begin_scene(occurrence)
 	if not begun.ok: return begun
 	var entered: Dictionary = candidate.admit_scene(entry_id, frame, index)

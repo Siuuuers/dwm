@@ -25,7 +25,7 @@ func test_memory_load_waits_for_ui_and_native_then_retains_only_process_local_re
 	var before: String = storage.text
 	manager._lock_owner = &""
 	var id := "scene_load:1"
-	var result: Dictionary = manager._run_scene_restore_transaction(plans, {}, "scene", "saved-caption", true,
+	var result: Dictionary = manager._run_scene_restore_transaction(plans, {}, "scene", "saved-caption",
 		{"kind": "memory_restore", "transaction_id": id}, "", false)
 	assert_eq(result.get("code"), &"scene_activation_pending", str(result))
 	assert_false(manager.capture_scene_restore_activation(id).ok)

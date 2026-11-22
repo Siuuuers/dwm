@@ -229,7 +229,7 @@ func _commit_prepared_scene_restore(prepared: Dictionary) -> Dictionary:
 	_scene_restore_preparations.erase(prepared.scene_preparation_token)
 	_completed_scene_restore.clear()
 	return _run_scene_restore_transaction(plans, prepared.journal_seed,
-		str(prepared.route_id), str(prepared.checkpoint_id), true,
+		str(prepared.route_id), str(prepared.checkpoint_id),
 		{"kind": "memory_restore", "transaction_id": operation_id}, "", false)
 
 
@@ -258,8 +258,7 @@ func configure_scene_title_new_run(target_id: String) -> Dictionary:
 	for row: Dictionary in _scene_new_run_bundle.targets:
 		if row.target_id == target_id and row.target.kind == "scene":
 			_scene_title_new_run_target = target_id
-			_scene_title_new_run_context = {"route_id": "scene", "audio_context": {},
-				"content_version": row.target.content_version}
+			_scene_title_new_run_context = {"content_version": row.target.content_version}
 			return {"ok": true}
 	return _fail(&"scene_initial_target_invalid", target_id)
 
@@ -301,23 +300,20 @@ func _start_scene_new_run_in_memory(target_id: String, initial_context: Dictiona
 		"scene", null, {}, initial_context.content_version, 1)
 	if not built.ok: return built
 	var snapshot: Dictionary = built.value.snapshot
-	var profile := {"candidate": _new_run_profile_owner.get_profile_snapshot()}
-	var plans := _prepare_scene_new_run_plans(snapshot, allocation, profile)
+	var plans := _prepare_scene_new_run_plans(snapshot, _new_run_profile_owner.get_profile_snapshot())
 	if not plans.ok: return plans
 	var reset := {"candidate_kind": "reset", "run_id": snapshot.run_id, "next_sequence": 2,
 		"current": {"checkpoint_kind": "day_start", "snapshot": snapshot}, "earlier": []}
 	_new_run_transaction_id = operation_id
 	return _run_scene_restore_transaction(plans.value, reset, "scene", snapshot.checkpoint_id,
-		false, {"kind": "memory_new_run", "transaction_id": operation_id}, _new_run_gate_token, false)
+		{"kind": "memory_new_run", "transaction_id": operation_id}, _new_run_gate_token, false)
 
-func _prepare_scene_new_run_plans(snapshot: Dictionary, allocation: Dictionary, profile_material: Dictionary) -> Dictionary:
-	var run: Dictionary = _restore_participants.run.prepare_scene_new_run(snapshot, allocation,
-		profile_material, _scene_new_run_bundle, _identity_issuer, self)
+func _prepare_scene_new_run_plans(snapshot: Dictionary, candidate_profile: Dictionary) -> Dictionary:
+	var run: Dictionary = _restore_participants.run.prepare_scene_new_run(snapshot, _identity_issuer, self)
 	if not run.get("ok", false): return run
-	var profile: Dictionary = _restore_participants.profile.prepare_frozen_profile(profile_material.candidate)
+	var profile: Dictionary = _restore_participants.profile.prepare_frozen_profile(candidate_profile)
 	if not profile.get("ok", false): return profile
-	var narrative: Dictionary = _restore_participants.narrative.prepare_scene_new_run(snapshot, allocation,
-		profile_material, _scene_new_run_bundle, _identity_issuer, self)
+	var narrative: Dictionary = _restore_participants.narrative.prepare_scene_new_run(snapshot, _scene_new_run_bundle, self)
 	if not narrative.get("ok", false): return narrative
 	var plans := {"run": run.value.run_plan, "profile": profile.value.profile_plan, "narrative": narrative.value.narrative_plan}
 	var audio_snapshot := snapshot.duplicate()
@@ -330,7 +326,7 @@ func _prepare_scene_new_run_plans(snapshot: Dictionary, allocation: Dictionary, 
 		"desktop_board": {"state": snapshot.desktop.board, "schema_version": 9},
 		"localization": {"locale_id": profile.value.locale_id, "font_style": profile.value.get("font_style", "pixel"),
 			"text_size": profile.value.get("text_size", 100)},
-		"audio": {"preferences": profile_material.candidate.preferences, "audio_context": audio_context.value},
+		"audio": {"preferences": candidate_profile.preferences, "audio_context": audio_context.value},
 		"route": {"route_id": "scene", "route_context": {"run_id": snapshot.run_id,
 			"lifecycle_state": snapshot.lifecycle.state, "active_app_id": null,
 			"scene": snapshot.scene.duplicate(true), "contacts": snapshot.contacts.duplicate(true)}}}
@@ -361,13 +357,13 @@ func _resume_scene_new_run(operation: Dictionary, gate_token: String) -> Diction
 	var parsed: Dictionary = STRICT_JSON.parse_object(material.autosave.outgoing_text)
 	if not parsed.get("ok", false): return _new_run_failure(parsed)
 	var snapshot: Dictionary = parsed.value.current_snapshot.snapshot
-	var plans := _prepare_scene_new_run_plans(snapshot, material.allocation_candidate, material.profile)
+	var plans := _prepare_scene_new_run_plans(snapshot, material.profile.candidate)
 	if not plans.get("ok", false): return _new_run_failure(plans)
 	var reset: Dictionary = _journal.prepare_scene_new_run_reset(snapshot, material.allocation_candidate,
 		material.profile, _scene_new_run_bundle, _identity_issuer)
 	if not reset.get("ok", false): return _new_run_failure(reset)
 	return _run_scene_restore_transaction(plans.value, reset.value.candidate, "scene", snapshot.checkpoint_id,
-		false, {"kind": "scene_new_run", "transaction_id": operation.transaction_id,
+		{"kind": "scene_new_run", "transaction_id": operation.transaction_id,
 		"request_fingerprint": operation.request_fingerprint}, gate_token,
 		operation.stage in [CONTINUATION_JOURNAL.STAGE_APPLIED, CONTINUATION_JOURNAL.STAGE_COMPLETED])
 
@@ -1738,7 +1734,7 @@ func _advance_scene_restore(continuation: Dictionary, expected: String, next: St
 		"participant_name": participant, "participant_receipt": receipt, "failure": null})
 
 func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Variant,
-		route_id: String, checkpoint_id: String, _emit_restored: bool, continuation: Dictionary,
+		route_id: String, checkpoint_id: String, continuation: Dictionary,
 		gate_token: String, already_applied: bool) -> Dictionary:
 	if not _scene_restore_activation.is_empty(): return _fail(&"scene_restore_busy", "")
 	var operation_id: String = continuation.transaction_id

@@ -49,11 +49,9 @@ func prepare_scene_new_run_snapshot_input(allocation_candidate: Dictionary, entr
 		occurrence: String) -> Dictionary:
 	return _owner.prepare_scene_new_run_snapshot_input(allocation_candidate, entry_id, occurrence)
 
-func prepare_scene_new_run(snapshot: Dictionary, allocation_candidate: Dictionary, profile_material: Dictionary,
-		bundle: Dictionary, issuer: Object, creation_owner: Object) -> Dictionary:
+func prepare_scene_new_run(snapshot: Dictionary, issuer: Object, creation_owner: Object) -> Dictionary:
 	_scene_creation_owner = null
-	var prepared: Dictionary = _owner.prepare_scene_new_run(snapshot, allocation_candidate, profile_material,
-		bundle, issuer, creation_owner)
+	var prepared: Dictionary = _owner.prepare_scene_new_run(snapshot, issuer, creation_owner)
 	if not prepared.get("ok", false): return prepared
 	_scene_creation_owner = creation_owner
 	return prepared

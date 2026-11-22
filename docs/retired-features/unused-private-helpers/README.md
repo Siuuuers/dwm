@@ -49,3 +49,7 @@ or comment-cleanup completion claim.
 ## Prepared New Game commit
 
 At `a1679544`, SaveManager's private `_commit_prepared_new_run` started the configured Title scene. Its two public callers now share one implementation. Consent retains the single-use token. The configured target and context already belong to SaveManager.
+
+## Initial reading checkpoint
+
+At `2c3b208`, DialogicBridge passed a null reading session through its private `_build_scene_initial_checkpoint` wrapper. Every caller built a fresh session. The public builder now reconstructs the scene directly, and the current-scene builder creates that session.
