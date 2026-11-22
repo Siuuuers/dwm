@@ -119,6 +119,7 @@ func create_recall() -> void:
 	proof.profile = profile.get_profile_snapshot().duplicate(true)
 	if not _write_json(RECALL_PROOF, proof): return
 	await _screenshot("challenge-recall-selected")
+	if not _ok(await get_node("/root/ApplicationBootstrap")._prepare_quit()): return
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256)
 
 func load_recall() -> void:

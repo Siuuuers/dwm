@@ -48,6 +48,8 @@ Physical Profile writes and Run writes are separate operations. Preserve active
 attempt references and Load branch allocation so a selected earlier board is
 not replaced by newer Profile progress. Validate current physical facts, not
 all historical closures. Global reading and Gallery records never rewind.
+Normal Quit, including closing the window, writes pending reading discoveries
+to the global Profile. Each save slot keeps its existing checkpoint.
 
 ## Ordinary passage completion
 
