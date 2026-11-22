@@ -56,10 +56,6 @@ func test_existing_passage_card_keeps_attached_thought_in_same_step() -> void:
 	assert_eq(card.body, "Caption.\n\nThought.")
 	assert_eq(card.receipt.line_id, "a")
 
-class HistorySession extends RefCounted:
-	var family := "scene"
-	var boundary := "between_entries"
-
 class HistoryBridge extends "res://autoload/DialogicBridge.gd":
 	var encountered := [{"line_id": "caption", "text": "Caption."},
 		{"line_id": "thought", "text": "Thought.", "self_talk": true}]
@@ -70,7 +66,9 @@ class HistoryBridge extends "res://autoload/DialogicBridge.gd":
 
 func test_public_history_includes_thoughts_in_encountered_order() -> void:
 	var bridge: Node = add_child_autofree(HistoryBridge.new())
-	bridge._reading_session = HistorySession.new()
+	bridge._reading_session = SESSION.new()
+	bridge._reading_session.family = "scene"
+	bridge._reading_session.command_id = "fixture-history"
 	var result: Dictionary = bridge.get_reading_history()
 	assert_true(result.ok)
 	assert_eq(result.value.captions.map(func(row: Dictionary) -> String: return row.line_id), ["caption", "thought"])
