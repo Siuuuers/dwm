@@ -91,7 +91,7 @@ Use Java 17 or newer. Download the checker outside the repository:
 
 ```sh
 curl --fail --location https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar --output /tmp/tla2tools.jar
-printf '%s  %s\n' e20447644bfabd29d6bd0fc2c0eb1473fb301c1a0e4dfe1961938ce5a191edbf /tmp/tla2tools.jar | sha256sum --check
+printf '%s  %s\n' fdffef247f563ef6edbfd44958d2a82db79e7564e07cb673262d896353fa6713 /tmp/tla2tools.jar | sha256sum --check
 java -XX:+UseParallelGC -cp /tmp/tla2tools.jar tlc2.TLC -workers 2 -coverage 1 -dump /tmp/dwm-progression-reachable -metadir /tmp/dwm-progression-states tools/verification/story_progression/StoryProgression.tla
 python tools/verification/story_progression/check_witnesses.py /tmp/dwm-progression-reachable.dump
 python -m unittest discover -s tools/verification/story_progression -p 'test_*.py'
