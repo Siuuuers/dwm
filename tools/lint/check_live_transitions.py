@@ -16,6 +16,12 @@ PAUSE = 'scripts/application/lifecycle/ProductionPauseController.gd'
 BINDINGS = 'scripts/ui/SettingsControlsSheet.gd'
 CAPTION = 'scripts/ui/witnessed/WitnessedCaptionLayer.gd'
 RULES = (
+    (SAVE, ('prepare_new_run_action',),
+     r'\b_scene_title_new_run_context\b',
+     'New Game consent needs a token and replacement status; commit owns the registered scene context'),
+    (SAVE, ('reconcile_incomplete_continuations',),
+     r'\boperation(?:\s+as\s+Dictionary\s*\))?\s*\.\s*duplicate\s*\(\s*true\s*\)',
+     'Retry by transaction ID; avoid deep-copying the journal operation during dispatch'),
     (GAME, ('_retained_scene_challenge_command',),
      r'\b_scene_runtime_event_context\s*\(',
      'Retained Challenge command lookup must not capture runtime context; checkpoint and End boundaries own capture'),
