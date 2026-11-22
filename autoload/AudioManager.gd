@@ -615,10 +615,6 @@ func finalize_restore() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
 
 
-func get_missing_audio_report() -> Array:
-	return _manifest.get_missing_audio_paths()
-
-
 func _notification(what: int) -> void:
 	if not _initialized: return
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:

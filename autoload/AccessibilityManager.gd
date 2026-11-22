@@ -4,11 +4,14 @@ extends Node
 var _profile: Node
 var _mutation_gate: Object
 
-func _ready() -> void:
-	pass
-
 func configure_mutation_gate(gate: Object) -> Dictionary:
-	return _configure_gate(gate)
+	if gate == null or not gate.has_signal("capability_changed"): return {"ok": false, "code": &"invalid_mutation_gate", "details": {}, "receipt": {}}
+	for method in [&"acquire", &"release", &"guard_external", &"is_active", &"get_active_owner", &"is_internal_owner_active", &"latch_fatal", &"is_fatal_latched"]:
+		if not gate.has_method(method): return {"ok": false, "code": &"invalid_mutation_gate", "details": {}, "receipt": {}}
+	if _mutation_gate != null and _mutation_gate.get_instance_id() != gate.get_instance_id(): return {"ok": false, "code": &"mutation_gate_already_configured", "details": {}, "receipt": {}}
+	var already := _mutation_gate != null
+	_mutation_gate = gate
+	return {"ok": true, "code": &"ok", "value": {"gate_instance_id": gate.get_instance_id(), "already_configured": already}, "receipt": {}}
 
 func initialize(profile: Node) -> Dictionary:
 	if profile == null or not profile.has_method("get_preference"): return {"ok": false, "code": &"invalid_profile_manager"}
@@ -54,19 +57,6 @@ func get_minimum_click_size() -> Vector2:
 	return Vector2(48, 48)
 
 
-func make_control_accessible(control: Control, label_key: String = "") -> void:
-	if control == null:
-		return
-	control.focus_mode = Control.FOCUS_ALL
-	if label_key != "":
-		control.set_meta("a11y_label_key", label_key)
-		var loc := get_node_or_null("/root/LocalizationManager")
-		if loc != null and loc.has_method("t"):
-			control.tooltip_text = loc.t(label_key)
-	var min_size := get_minimum_click_size()
-	control.custom_minimum_size = control.custom_minimum_size.max(min_size)
-
-
 func should_reduce_motion() -> bool:
 	return bool(_setting("reduced_motion", false))
 
@@ -74,11 +64,6 @@ func should_reduce_motion() -> bool:
 func get_text_delay() -> float:
 	var speed: String = str(_profile.get_preference(&"preferences.reading.reveal_speed","normal")) if _profile != null else "normal"
 	return {"instant":0.0,"fast":0.015,"normal":0.03,"slow":0.06}.get(speed,0.03)
-
-
-func get_auto_advance_delay() -> float:
-	var delay: String = str(_profile.get_preference(&"preferences.reading.auto_delay","normal")) if _profile != null else "normal"
-	return {"short":1.0,"normal":2.0,"long":3.0}.get(delay,2.0)
 
 
 func apply_large_click_targets(root: Node) -> void:
@@ -100,36 +85,3 @@ func apply_reduced_motion_to_tree(root: Node) -> void:
 		(root as Control).set_meta("a11y_reduced_motion", reduce)
 	for child in root.get_children():
 		apply_reduced_motion_to_tree(child)
-
-
-func are_subtitles_enabled() -> bool:
-	return bool(_setting("subtitles_enabled", true))
-
-
-func are_captions_enabled() -> bool:
-	return bool(_setting("captions_enabled", true))
-
-
-func should_show_visual_audio_cues() -> bool:
-	return bool(_setting("visual_audio_cues", true))
-
-
-func should_allow_flashing_effects() -> bool:
-	return bool(_setting("flashing_effects_enabled", false))
-
-
-func get_text_box_opacity() -> float:
-	return float(_setting("text_box_opacity", 0.90))
-
-
-func get_subtitle_background_opacity() -> float:
-	return float(_setting("subtitle_background_opacity", 0.85))
-
-func _configure_gate(gate: Object) -> Dictionary:
-	if gate == null or not gate.has_signal("capability_changed"): return {"ok": false, "code": &"invalid_mutation_gate", "details": {}, "receipt": {}}
-	for method in [&"acquire", &"release", &"guard_external", &"is_active", &"get_active_owner", &"is_internal_owner_active", &"latch_fatal", &"is_fatal_latched"]:
-		if not gate.has_method(method): return {"ok": false, "code": &"invalid_mutation_gate", "details": {}, "receipt": {}}
-	if _mutation_gate != null and _mutation_gate.get_instance_id() != gate.get_instance_id(): return {"ok": false, "code": &"mutation_gate_already_configured", "details": {}, "receipt": {}}
-	var already := _mutation_gate != null
-	_mutation_gate = gate
-	return {"ok": true, "code": &"ok", "value": {"gate_instance_id": gate.get_instance_id(), "already_configured": already}, "receipt": {}}

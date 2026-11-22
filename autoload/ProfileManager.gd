@@ -45,7 +45,6 @@ var _profile: Dictionary = {}
 var _profile_revision := 0
 var _reading_history_dirty := false
 var _initialized := false
-var _fresh_profile_pending := false
 var _profile_existed_at_initialize := false
 var _mutation_blocked := false
 var _mutation_gate: Object
@@ -101,7 +100,6 @@ func initialize(storage: RefCounted = null) -> Dictionary:
 			return persisted
 		_profile = defaults.duplicate(true)
 		_profile_revision += 1
-		_fresh_profile_pending = true
 	else:
 		_profile_existed_at_initialize = true
 		var text_result: Dictionary = _storage.call(&"read_text", "profile.json")
@@ -386,16 +384,6 @@ func _new_run_hash(value: Variant) -> bool:
 	for codepoint: int in value.to_ascii_buffer():
 		if not (codepoint >= 0x30 and codepoint <= 0x39) and not (codepoint >= 0x61 and codepoint <= 0x66): return false
 	return true
-
-
-func _has_first_run_accessibility_setup() -> bool:
-	return _initialized and _fresh_profile_pending
-
-
-func _take_first_run_accessibility_setup() -> bool:
-	var pending := _has_first_run_accessibility_setup()
-	_fresh_profile_pending = false
-	return pending
 
 
 func prepare_profile_document(raw: Dictionary) -> Dictionary:

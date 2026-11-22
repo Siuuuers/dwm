@@ -80,7 +80,7 @@ func test_preference_reset_updates_every_plan02_consumer_in_same_frame() -> void
 	assert_true(profile.reset_preferences().get("ok", false))
 	assert_eq(localization.get_locale(), "zh_HK", "Reset Preferences preserves the language tuple")
 	assert_eq(_profile_language(profile), retained_language)
-	assert_eq(profile.get_preference(&"preferences.accessibility.text_size"), 100)
+	assert_eq(profile.get_preference(&"preferences.accessibility.text_size"), 125)
 	assert_eq(profile.get_preference(&"preferences.reading.skip_mode"), "read_only")
 	assert_eq(input.get_action_label("game_quick_save"), OS.get_keycode_string(KEY_F6), "preference reset retains canonical Controls")
 	assert_eq(port.bus_states[&"Music"]["muted"], false)

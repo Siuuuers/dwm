@@ -1551,11 +1551,6 @@ func _find_bundle_by_checkpoint_id(document: Dictionary, checkpoint_id: String) 
 	return {}
 
 
-static func _slot_id_string(kind: String, slot_id: Variant) -> String:
-	if kind == "slot":
-		return "slot:%d" % int(slot_id)
-	return kind
-
 static func _is_sha256(value: String) -> bool:
 	if value.length() != 64:
 		return false
@@ -1685,13 +1680,6 @@ func _validate_checkpoint_inputs(checkpoint_inputs: Dictionary) -> String:
 
 static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": {}}
-
-static func _source_identity_from_lifecycle(lifecycle: Dictionary) -> Dictionary:
-	var receipt: Variant = lifecycle.get("causal_day_instance_issuer_receipt")
-	return {"branch_id": lifecycle.get("branch_id"),
-		"desktop_timeline_generation": lifecycle.get("desktop_timeline_generation"),
-		"causal_day_instance": lifecycle.get("causal_day_instance"),
-		"causal_day_instance_issuer_receipt": receipt.duplicate(true) if typeof(receipt) == TYPE_DICTIONARY else receipt}
 
 func _validate_scene_restore_preparation(prepared: Dictionary) -> Dictionary:
 	var token: Variant = prepared.get("scene_preparation_token")

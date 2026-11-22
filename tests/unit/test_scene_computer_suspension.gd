@@ -5,6 +5,7 @@ const GATE := preload("res://scripts/application/transaction/ApplicationMutation
 const HANDLE := {"generation": 1, "handle_id": "TEST.pause", "holder": &"TEST", "reason": &"universal_pause"}
 class Session extends RefCounted:
 	var family := "scene"
+	var boundary := "line"
 	var ledger := RefCounted.new()
 class Bridge extends "res://autoload/DialogicBridge.gd":
 	var native := {"generation": 1, "event_index": 2, "request_id": "TEST.native", "paused": false}
@@ -15,9 +16,10 @@ class Bridge extends "res://autoload/DialogicBridge.gd":
 		var value := native.duplicate(true)
 		value.erase("paused")
 		return {"ok": true, "value": value}
-	# Explicit semantic marker fixture; this does not qualify native marker binding.
-	func _marker_source_valid() -> bool:
-		return true
+	func capture_reading_checkpoint(_complete_reveal: bool = false) -> Dictionary:
+		return {"ok": true, "value": {"entry_id": "TEST.entry", "content_version": 1,
+			"reading_session": {"occurrence_id": "TEST.session", "registration_sha256": "TEST.registration",
+				"boundary": "line", "frontier": {"publication_id": "TEST.publication", "line_id": "TEST.line"}}}}
 	func _capture_presentation_frontier() -> Dictionary:
 		return {"ok": true, "value": native.duplicate(true)}
 	func _set_presentation_paused(value: bool) -> Dictionary:
@@ -131,15 +133,17 @@ func test_full_pause_restore_and_busy_gate_conflict_before_writing() -> void:
 	assert_true(bridge.release_computer_captions(host).ok)
 
 func test_checkpoint_reads_held_source_under_lease_but_refuses_same_semantic_native_replacement() -> void:
-	bridge._marker_context = {"checkpoint": {"TEST.semantic_line": "unchanged"},
-		"anchor": {"TEST.publication": "same"}, "playback_token": "TEST.playback"}
-	var semantic := bridge._marker_context.duplicate(true)
+	bridge._active_entry = {"execution_mode": &"canonical", "token": "TEST.playback"}
+	var semantic := bridge.capture_reading_checkpoint().value as Dictionary
 	assert_true(bridge.hold_computer_captions(host).ok)
 	var acquired: Dictionary = gate.acquire(&"causal_transaction")
 	assert_true(acquired.ok)
 	var held: Dictionary = bridge.capture_scene_event_boundary()
 	assert_true(held.ok, "read-only source proof remains available during a causal checkpoint")
-	if held.ok: assert_eq(held.value, semantic)
+	if held.ok:
+		assert_eq(held.value.checkpoint, semantic)
+		assert_eq(held.value.playback_token, "TEST.playback")
+		assert_eq(held.value.anchor.publication_id, "TEST.publication")
 	assert_true(gate.is_lease_active(&"causal_transaction", acquired.value.token))
 	bridge._computer_hold_changing = true
 	assert_eq(bridge.capture_scene_event_boundary().code, &"computer_source_changed")
@@ -148,6 +152,6 @@ func test_checkpoint_reads_held_source_under_lease_but_refuses_same_semantic_nat
 	var changed: Dictionary = bridge.capture_scene_event_boundary()
 	assert_false(changed.ok)
 	assert_eq(changed.code, &"computer_source_changed")
-	assert_eq(bridge._marker_context, semantic, "semantic equality alone cannot authorize the checkpoint")
+	assert_eq(bridge.capture_reading_checkpoint().value, semantic, "semantic equality alone cannot authorize the checkpoint")
 	assert_true(gate.is_lease_active(&"causal_transaction", acquired.value.token))
 	assert_true(gate.release(&"causal_transaction", acquired.value.token).ok)

@@ -16,14 +16,8 @@ const REQUIRED_SCENE_PATHS := [
 	"res://scenes/apps/BackupApp.tscn",
 	"res://scenes/ending/EndingScene.tscn",
 	"res://scenes/hospital/HospitalScene.tscn",
-	"res://scenes/shared/BoxMeter.tscn",
 	"res://scenes/shared/AppWindowBase.tscn",
-	"res://scenes/shared/IconButton.tscn",
-	"res://scenes/shared/ContactBox.tscn",
-	"res://scenes/shared/ChatBubble.tscn",
 	"res://scenes/shared/ShopItemBox.tscn",
-	"res://scenes/shared/SaveSlotRow.tscn",
-	"res://scenes/shared/DialogueBox.tscn",
 ]
 
 func _init() -> void:

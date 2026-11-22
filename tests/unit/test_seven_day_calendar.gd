@@ -15,6 +15,7 @@ const FRIEND_DAYS := {"priscilla": [1, 2, 4, 6], "lavinia": [2, 3, 5, 6], "sylvi
 
 const RETAINED_ORDINARY := preload("res://tests/support/RetainedOrdinaryRegistryFixture.gd")
 var _retained_ordinary: RefCounted
+@onready var GameState: Node = get_node("/root/GameState")
 
 func after_each() -> void:
 	if _retained_ordinary != null:

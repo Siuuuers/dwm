@@ -722,22 +722,6 @@
       "contract_test": "test_get_stat_returns_canonical_internal_values_without_mutation"
     },
     {
-      "symbol": "get_stat_min",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_stat_query_contracts"
-    },
-    {
-      "symbol": "get_stat_max",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_stat_query_contracts"
-    },
-    {
       "symbol": "get_stat_display_value",
       "kind": "function",
       "availability": "current",
@@ -826,14 +810,6 @@
       "contract_test": "test_lucky_charm_purchase_transacts_exactly_once_against_real_ports"
     },
     {
-      "symbol": "remove_inventory",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "replace",
-      "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
-      "contract_test": "test_inventory_mutations_via_effect_transactions"
-    },
-    {
       "symbol": "change_affection",
       "kind": "function",
       "availability": "current",
@@ -875,14 +851,6 @@
     },
     {
       "symbol": "get_minesweeper_total_playable_rounds",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_minesweeper_query_contracts"
-    },
-    {
-      "symbol": "get_minesweeper_playable_rounds_remaining",
       "kind": "function",
       "availability": "current",
       "disposition": "retain",
@@ -1034,28 +1002,12 @@
       "contract_test": "test_sylvia_achieved_third_round_offer_uses_tier_without_granting_a_round"
     },
     {
-      "symbol": "build_date_entry_from_unlock",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_date_entry_builder_contracts"
-    },
-    {
       "symbol": "is_group_date_unlocked",
       "kind": "function",
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_contact_query_contracts"
-    },
-    {
-      "symbol": "build_group_date_entry_from_unlock",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_date_entry_builder_contracts"
     },
     {
       "symbol": "get_day7_ending_candidates_from_schedule",
@@ -1154,76 +1106,12 @@
       "contract_test": "test_advance_day_resets_and_ends"
     },
     {
-      "symbol": "prepare_dating_queue",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_dating_stage_receipts"
-    },
-    {
-      "symbol": "prepare_dating_entries",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_dating_stage_receipts"
-    },
-    {
-      "symbol": "get_current_pending_date_friend_id",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_dating_queue_query_contracts"
-    },
-    {
-      "symbol": "get_current_pending_date_entry",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_dating_queue_query_contracts"
-    },
-    {
       "symbol": "apply_dating_challenge_result",
       "kind": "function",
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_dating_stage_receipts"
-    },
-    {
-      "symbol": "advance_date_queue_or_day",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_dating_stage_receipts"
-    },
-    {
-      "symbol": "clear_pending_date_state",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_dating_stage_receipts"
-    },
-    {
-      "symbol": "set_story_flag",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "replace",
-      "replacement": "func commit_variable_transaction(transaction_id: String, variable_id: String, value: Variant, source_id: String) -> Dictionary",
-      "contract_test": "test_variable_transaction_commands"
-    },
-    {
-      "symbol": "get_story_flag",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_story_flag_contracts"
     },
     {
       "symbol": "to_save_dict",
@@ -1240,14 +1128,6 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_active_run_rollback_keeps_independent_nested_gameplay_and_existing_publication"
-    },
-    {
-      "symbol": "get_save_summary",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_save_summary_contract"
     },
     {
       "symbol": "configure_mutation_gate",

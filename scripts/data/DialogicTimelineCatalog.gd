@@ -4,7 +4,6 @@ extends RefCounted
 const DEFAULT_MANIFEST_PATH := "res://data/manifests/timelines.json"
 const _STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 
-const SUPPORTED_LOCALES := ["en"]
 const DEFAULT_LOCALE := "en"
 
 static var _records: Dictionary = {}
@@ -63,44 +62,6 @@ static func get_path_for_id(timeline_id: String) -> Dictionary:
 	return {"ok": true, "value": {"path": "res://" + str((_records[timeline_id] as Dictionary)["path"])}}
 
 
-static func get_line_record(timeline_id: String, line_id: String) -> Dictionary:
-	_ensure()
-	if not _records.has(timeline_id):
-		return {"ok": false, "code": &"unknown_timeline_id", "message": timeline_id}
-	for line in (_records[timeline_id] as Dictionary).get("lines", []):
-		if typeof(line) == TYPE_DICTIONARY and str((line as Dictionary).get("id", "")) == line_id:
-			return {"ok": true, "value": (line as Dictionary).duplicate(true)}
-	return {"ok": false, "code": &"unknown_line_id", "message": line_id}
-
-
-static func get_event_record(timeline_id: String, event_id: String) -> Dictionary:
-	_ensure()
-	if not _records.has(timeline_id):
-		return {"ok": false, "code": &"unknown_timeline_id", "message": timeline_id}
-	for event in (_records[timeline_id] as Dictionary).get("events", []):
-		if typeof(event) == TYPE_DICTIONARY and str((event as Dictionary).get("event_id", "")) == event_id:
-			return {"ok": true, "value": (event as Dictionary).duplicate(true)}
-	return {"ok": false, "code": &"unknown_event_id", "message": event_id}
-
-
-static func validate_successor(timeline_id: String, event_id: String, post_event_id: Variant, choice_id: Variant = null) -> Dictionary:
-	var event := get_event_record(timeline_id, event_id)
-	if not event.get("ok", false):
-		return event
-	var record: Dictionary = event["value"]
-	var expected: Variant = record.get("post_event_id")
-	if choice_id != null:
-		var successors: Dictionary = record.get("choice_successors", {})
-		if not successors.has(str(choice_id)):
-			return {"ok": false, "code": &"unknown_choice_id", "message": str(choice_id)}
-		expected = successors[str(choice_id)]
-	if post_event_id == null and expected == null:
-		return {"ok": true, "value": {"terminal": true}}
-	if str(post_event_id) != str(expected):
-		return {"ok": false, "code": &"illegal_successor", "message": "%s != %s" % [str(post_event_id), str(expected)]}
-	return {"ok": true, "value": {"post_event_id": str(expected)}}
-
-
 static func validate_all() -> Dictionary:
 	_ensure()
 	if _records.is_empty():
@@ -110,13 +71,6 @@ static func validate_all() -> Dictionary:
 		if not (ResourceLoader.exists(res_path) or FileAccess.file_exists(res_path)):
 			return {"ok": false, "code": &"missing_timeline_file", "message": res_path}
 	return {"ok": true, "value": {"count": _records.size()}}
-
-
-
-static func get_supported_locales() -> Array[String]:
-	var out: Array[String] = []
-	out.assign(SUPPORTED_LOCALES)
-	return out
 
 
 static func get_required_timeline_ids() -> Array[String]:

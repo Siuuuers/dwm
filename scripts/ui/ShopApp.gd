@@ -326,9 +326,6 @@ func _restore_host_view(revision: int) -> void:
 func configure_shop(items: Array, locale: String = "en", percent: int = 100, large_targets: bool = false, palette: StringName = &"after_hours", day: int = 1, high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> Dictionary:
 	return _configure_shop_context(items, locale, percent, large_targets, palette, day, high_contrast, colour_preset, font_style, false)
 
-func configure_scene_shop(items: Array, locale: String = "en", percent: int = 100, large_targets: bool = false, palette: StringName = &"after_hours", high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> Dictionary:
-	return _configure_shop_context(items, locale, percent, large_targets, palette, null, high_contrast, colour_preset, font_style, true)
-
 func _configure_shop_context(items: Array, locale: String = "en", percent: int = 100, large_targets: bool = false, palette: StringName = &"after_hours", day: Variant = 1, high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", scene: bool = false) -> Dictionary:
 	if _scene_presentation and not scene: return {"ok": false, "code": &"scene_calendar_configuration_forbidden"}
 	if is_node_ready() and not _view_is_current(): return {"ok":false,"code":"shop_view_detached"}

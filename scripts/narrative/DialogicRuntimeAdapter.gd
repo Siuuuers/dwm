@@ -1782,22 +1782,6 @@ func advance_one_event() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"current_event_idx": int(_dialogic.current_event_idx)}}
 
 
-func prepare_runtime_restore(checkpoint: Dictionary, manifest: Dictionary) -> Dictionary:
-	if typeof(checkpoint) != TYPE_DICTIONARY or checkpoint.is_empty():
-		return _fail(&"invalid_checkpoint", "checkpoint is required")
-	if typeof(manifest) != TYPE_DICTIONARY:
-		return _fail(&"invalid_manifest", "manifest record is required")
-	return {"ok": true, "code": &"ok", "value": {"plan": checkpoint.duplicate(true)}}
-
-
-func apply_restore(plan: Dictionary) -> Dictionary:
-	if not _bound:
-		return _fail(&"runtime_not_bound", "bind_runtime must be called first")
-	if typeof(plan) != TYPE_DICTIONARY:
-		return _fail(&"invalid_plan", "plan is required")
-	return {"ok": true, "code": &"ok", "value": {}}
-
-
 func _connect_once(source: Object, signal_name: String, callable: Callable) -> void:
 	if not source.is_connected(signal_name, callable):
 		source.connect(signal_name, callable)

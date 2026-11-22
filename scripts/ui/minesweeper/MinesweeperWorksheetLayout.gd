@@ -25,7 +25,7 @@ static func measure_view(columns: int, rows: int, band: Vector2i, large: bool, c
 	if cell_size < 10 or cell_size > 60 or cell_size % 2 != 0:
 		return {"ok": false, "code": &"invalid_worksheet_geometry"}
 	var source_target := 32 if large else 24
-	if fit: return _fit_view(columns, rows, band, source_target, 30.0 / source_target, true)
+	if fit: return _fit_view(columns, rows, band, source_target)
 	if band.x <= 2 * source_target or band.y <= 2 * source_target:
 		return {"ok": false, "code": &"invalid_worksheet_geometry"}
 	return _measure_scrolled(columns, rows, band, source_target,
@@ -93,21 +93,14 @@ static func _rail(rect: Rect2i, viewport: int, mount: int, scroll: int, target: 
 		Vector2i(target, length) if vertical else Vector2i(length, target))
 	return {"rect": rect, "thumb": thumb}
 
-static func fit_board(columns: int, rows: int, band: Vector2i, large: bool = false) -> Dictionary:
-	var target := 32 if large else 24
-	return _fit_view(columns, rows, band, target, 1.0, false)
-
-
-static func _fit_view(columns: int, rows: int, band: Vector2i, source_target: int,
-		maximum_scale: float, rendered_target: bool) -> Dictionary:
+static func _fit_view(columns: int, rows: int, band: Vector2i, source_target: int) -> Dictionary:
 	if columns < 1 or rows < 1 or band.x < 2 or band.y < 2:
 		return {"ok":false,"code":&"invalid_worksheet_geometry"}
 	var source := Vector2(columns * source_target + 2, rows * source_target + 2)
-	var factor := minf(maximum_scale,minf((band.x - 1.0)/source.x,(band.y - 1.0)/source.y))
+	var factor := minf(30.0 / source_target,minf((band.x - 1.0)/source.x,(band.y - 1.0)/source.y))
 	var extent := source * factor
 	var origin := (Vector2(band) - extent) / 2.0
-	var target: Variant = source_target * factor if rendered_target else source_target
-	return {"ok":true,"value":{"target":target,"scale":factor,
+	return {"ok":true,"value":{"target":source_target * factor,"scale":factor,
 		"well":Rect2(Vector2.ZERO,Vector2(band)),"mount":Rect2(origin,extent),
 		"scroll":Vector2i.ZERO,"maximum_scroll":Vector2i.ZERO,
 		"horizontal":null,"vertical":null,"corner":Rect2i()}}

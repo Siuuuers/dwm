@@ -122,24 +122,18 @@ func _ready() -> void:
 	_new_acc_button.call_deferred("grab_focus")
 	_bind_startup_recovery()
 	_start_title_music.call_deferred()
-	_start_title_resource_loading.call_deferred()
+	var frame := get_tree().process_frame if DisplayServer.get_name() == "headless" else RenderingServer.frame_post_draw
+	frame.connect(_start_title_resource_loading, CONNECT_ONE_SHOT)
 
 func _start_title_music() -> void:
 	if _title_source_alive() and get_tree().current_scene == self:
 		get_node("/root/AudioManager").play_title_music()
 
 func _start_title_resource_loading() -> void:
-	await get_tree().process_frame
-	if not _title_source_alive(): return
-	if DisplayServer.get_name() != "headless":
-		await RenderingServer.frame_post_draw
 	if not _title_source_alive(): return
 	var loader := get_node("/root/StartupLoader")
 	for paths: Array in TITLE_DESTINATIONS.values():
 		loader.queue_resources(paths)
-
-func _destination_resources_ready(destination: String) -> bool:
-	return get_node("/root/StartupLoader").resources_ready(TITLE_DESTINATIONS[destination])
 
 func _title_request_is_current(source_id: int) -> bool:
 	if not _title_source_alive(): return false
@@ -155,7 +149,9 @@ func _destination_runtime_ready(destination: String) -> bool:
 
 func _prepare_title_destination(destination: String) -> bool:
 	if not _title_source_alive() or not _can_leave_login(): return false
-	if _destination_resources_ready(destination) and _destination_runtime_ready(destination): return true
+	var loader := get_node("/root/StartupLoader")
+	var paths: Array = TITLE_DESTINATIONS[destination]
+	if loader.resources_ready(paths) and _destination_runtime_ready(destination): return true
 	if not _begin_title_transition(): return false
 	_pending_destination = destination
 	var scene := get_tree().current_scene
@@ -174,11 +170,9 @@ func _prepare_title_destination(destination: String) -> bool:
 		_end_title_transition()
 		return false
 	_title_welcome.set_busy("loading")
-	var loader := get_node("/root/StartupLoader")
-	var paths: Array = TITLE_DESTINATIONS[destination]
-	if destination != "settings": loader.prioritize_destination(destination)
+	loader.prioritize_destination(destination)
 	loader.queue_resources(paths, true)
-	while not _destination_resources_ready(destination) or not _destination_runtime_ready(destination):
+	while not loader.resources_ready(paths) or not _destination_runtime_ready(destination):
 		var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
 		var startup: Dictionary = bootstrap.get_startup_state() if bootstrap != null else {}
 		if startup.get("failed_stage") not in [null, &""] or not startup.get("fatal_result", {}).is_empty():

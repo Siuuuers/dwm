@@ -207,9 +207,8 @@ func commit_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary, name
 	if not checkpoint.get("reading_session") is Dictionary:
 		return _fail(&"scene_event_checkpoint_invalid", "a reading checkpoint is required")
 	if checkpoint.reading_session.get("schema_version") == 4:
-		var marker := _validate_marker_commit(snapshot_input, checkpoint)
-		if not marker.ok: return marker
-	elif checkpoint.reading_session.get("boundary") != "line":
+		return _fail(&"event_handoff_authority_invalid", "")
+	if checkpoint.reading_session.get("boundary") != "line":
 		return _fail(&"scene_event_checkpoint_invalid", "a reading line checkpoint is required")
 	var scene_entry := not _scene_entry.is_empty()
 	if scene_entry:
@@ -918,41 +917,6 @@ func _copy(value: Variant) -> Variant:
 
 func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": {}}
-
-
-var _marker_authority: Object
-var _marker_validator: Callable
-
-func configure_marker_handoff(authority: Object, validator: Callable) -> Dictionary:
-	if _publishing_scene_challenge: return _fail(&"transaction_in_progress", "Challenge owns checkpoint publication")
-	if not _scene_mutation.is_empty() and _scene_mutation.kind in ["shop", "round"]: return _fail(&"transaction_in_progress", "Scene app mutation owns checkpoint publication")
-	if authority == null or not validator.is_valid() or validator.get_object() != authority \
-			or (_marker_authority != null and (_marker_authority != authority or _marker_validator != validator)):
-		return _fail(&"event_handoff_authority_invalid", "")
-	_marker_authority = authority
-	_marker_validator = validator
-	return {"ok": true}
-
-func _validate_marker_commit(snapshot: Dictionary, checkpoint: Dictionary) -> Dictionary:
-	if not is_instance_valid(_marker_authority) or not _marker_validator.is_valid():
-		return _fail(&"event_handoff_authority_invalid", "")
-	var operation := READING_NEXT.validate(checkpoint.reading_session, str(checkpoint.get("entry_id", "")))
-	if not operation.ok: return operation
-	if operation.value.phase != "destination" or operation.value.plan.destination.kind != "notification" \
-			or _next_source.get("operation_id") != operation.value.operation_id:
-		return _fail(&"reading_next_source_not_committed", "")
-	var captured: Dictionary = _real_port.capture()
-	if not captured.get("ok", false): return captured
-	var current: Dictionary = captured.value.backup.get("current", {}).get("snapshot", {})
-	if current.get("checkpoint_id") != _next_source.checkpoint_id \
-			or not _player_checkpoint_same(current.get("narrative_checkpoint"), _next_source.checkpoint):
-		return _fail(&"reading_next_source_changed", "")
-	var before_header: Dictionary = _next_source.checkpoint.duplicate(true)
-	var after_header := checkpoint.duplicate(true)
-	before_header.erase("reading_session")
-	after_header.erase("reading_session")
-	if before_header != after_header: return _fail(&"reading_next_source_changed", "")
-	return _marker_validator.call(snapshot.duplicate(true), checkpoint.duplicate(true), _next_source.duplicate(true))
 
 
 func _player_checkpoint_same(left: Variant, right: Variant) -> bool:

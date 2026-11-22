@@ -285,14 +285,6 @@ func get_stat(stat_id: String) -> int:
 	return int(stats.get(stat_id, 0))
 
 
-func get_stat_min(stat_id: String) -> int:
-	return _stat_min(stat_id)
-
-
-func get_stat_max(stat_id: String) -> int:
-	return _stat_max(stat_id)
-
-
 func get_stat_display_value(stat_id: String) -> int:
 	var v: int = int(stats.get(stat_id, 0))
 	match stat_id:
@@ -380,20 +372,6 @@ func add_inventory(item_id: String, count: int = 1) -> void:
 	emit_signal("save_relevant_state_changed")
 
 
-func remove_inventory(item_id: String, count: int = 1) -> bool:
-	var have: int = int(inventory.get(item_id, 0))
-	if have < count:
-		return false
-	have -= count
-	if have <= 0:
-		inventory.erase(item_id)
-	else:
-		inventory[item_id] = have
-	emit_signal("inventory_changed")
-	emit_signal("save_relevant_state_changed")
-	return true
-
-
 func change_affection(friend_id: String, delta: int) -> bool:
 	var cur: int = int(affection.get(friend_id, 0))
 	var new_v: int = clampi(cur + int(delta), AFFECTION_MIN, AFFECTION_MAX)
@@ -429,10 +407,6 @@ func get_minesweeper_display_rounds_max() -> int:
 
 func get_minesweeper_total_playable_rounds() -> int:
 	return MINESWEEPER_BASE_ROUNDS - minesweeper_round_floor
-
-
-func get_minesweeper_playable_rounds_remaining() -> int:
-	return maxi(0, minesweeper_rounds_left - minesweeper_round_floor)
 
 
 func has_minesweeper_app_round_available() -> bool:
@@ -1014,36 +988,9 @@ func is_date_unlocked(friend_id: String, target_day: int = -1) -> bool:
 	return _CONTACT_INVITATION_STATE.is_date_addable(contacts, "solo:%s:day%d" % [friend_id, d])
 
 
-func build_date_entry_from_unlock(friend_id: String, target_day: int = -1) -> Dictionary:
-	var d: int = target_day if target_day >= 0 else day
-	return {
-		"type": "solo",
-		"friend_id": friend_id,
-		"friend_ids": [friend_id],
-		"inviter_id": "",
-		"day": d,
-		"source": "unlock",
-		"advance_day_after_finish": true,
-		"gift_item_id": "",
-	}
-
-
 func is_group_date_unlocked(target_day: int = -1) -> bool:
 	var d: int = target_day if target_day >= 0 else day
 	return _CONTACT_INVITATION_STATE.is_date_addable(contacts, "group:%s:day%d" % [_CONTACT_INVITATION_STATE.GROUP_PAIR_KEY, d])
-
-
-func build_group_date_entry_from_unlock(target_day: int = -1) -> Dictionary:
-	var d: int = target_day if target_day >= 0 else day
-	return {
-		"type": "group",
-		"friend_ids": _group_pair_ids(),
-		"inviter_id": _group_inviter(),
-		"day": d,
-		"source": "unlock",
-		"advance_day_after_finish": true,
-		"gift_item_id": "",
-	}
 
 
 func get_day7_ending_candidates_from_schedule() -> Array[String]:
@@ -1629,34 +1576,6 @@ func _begin_new_day() -> void:
 	emit_signal("daily_state_reset")
 
 
-func prepare_dating_queue(friend_ids: Array[String]) -> void:
-	var entries: Array = []
-	for fid in friend_ids:
-		entries.append(build_date_entry_from_unlock(fid))
-	prepare_dating_entries(entries)
-
-
-func prepare_dating_entries(entries: Array) -> void:
-	pending_date_entries = entries.duplicate()
-	pending_date_entry_index = 0
-	pending_date_advance_day_after_finish = true
-	if pending_date_entries.size() > 0:
-		pending_date_friend_id = _entry_friend_id(pending_date_entries[0])
-	else:
-		pending_date_friend_id = ""
-	emit_signal("save_relevant_state_changed")
-
-
-func get_current_pending_date_friend_id() -> String:
-	return pending_date_friend_id
-
-
-func get_current_pending_date_entry() -> Dictionary:
-	if pending_date_entry_index >= 0 and pending_date_entry_index < pending_date_entries.size():
-		return pending_date_entries[pending_date_entry_index]
-	return {}
-
-
 func _validate_dating_terminal_fact(terminal_fact: Dictionary) -> Dictionary:
 	var fact_keys: Array = terminal_fact.keys()
 	fact_keys.sort()
@@ -1880,34 +1799,6 @@ func store_dating_challenge_state(candidate: Dictionary, emit_changes: bool = tr
 	return {"ok": true, "code": &"ok", "value": {"stored": true}, "receipt": {}}
 
 
-func advance_date_queue_or_day() -> bool:
-	if pending_date_entry_index < pending_date_entries.size() - 1:
-		pending_date_entry_index += 1
-		pending_date_friend_id = _entry_friend_id(pending_date_entries[pending_date_entry_index])
-		emit_signal("save_relevant_state_changed")
-		return true
-	if pending_date_advance_day_after_finish:
-		advance_day_or_end()
-	return false
-
-
-func clear_pending_date_state() -> void:
-	pending_date_entries = []
-	pending_date_entry_index = 0
-	pending_date_friend_id = ""
-	pending_date_advance_day_after_finish = false
-	emit_signal("save_relevant_state_changed")
-
-
-func set_story_flag(key: String, value: Variant) -> void:
-	story_flags[key] = value
-	emit_signal("save_relevant_state_changed")
-
-
-func get_story_flag(key: String, default_value: Variant = false) -> Variant:
-	return story_flags.get(key, default_value)
-
-
 func to_save_dict() -> Dictionary:
 	var out: Dictionary = {}
 	for key in _SAVE_WHITELIST:
@@ -1960,15 +1851,6 @@ func apply_save_dict(data: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
-func get_save_summary() -> Dictionary:
-	return {
-		"day": day,
-		"money": money,
-		"coins": coins,
-		"ending_id": route_context.get("ending_id", ""),
-	}
-
-
 func _apply_effect_ids(effect_ids: Array) -> void:
 	var er: Node = get_node_or_null("/root/EffectResolver")
 	if er != null and er.has_method("apply_effect_ids"):
@@ -1992,17 +1874,6 @@ func _group_scheduled() -> bool:
 		if str(entry.get("action_kind", "")) == "group":
 			return true
 	return false
-
-
-func _entry_friend_id(entry: Dictionary) -> String:
-	var t: String = entry.get("type", "")
-	if t == "solo":
-		return entry.get("friend_id", "")
-	if t == "group":
-		var fids: Array = entry.get("friend_ids", [])
-		return fids[0] if fids.size() > 0 else ""
-	return ""
-
 
 
 const _GATE_CONTRACT_METHODS: Array[String] = [

@@ -21,11 +21,10 @@ func _init() -> void:
 func _owner_path(owner: String) -> String:
 	return "res://addons/dialogic/Core/DialogicGameHandler.gd" if owner == "Dialogic" else "res://autoload/%s.gd" % owner
 
-func _attach(owner: String, script: Script) -> Node:
+func _attach(owner: String, script: Script) -> void:
 	var instance: Node = script.new()
 	instance.name = owner
 	get_tree().root.add_child(instance)
-	return instance
 
 func _install() -> void:
 	_bootstrap = load("res://autoload/ApplicationBootstrap.gd").new()
