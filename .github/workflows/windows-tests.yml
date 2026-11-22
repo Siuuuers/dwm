@@ -221,7 +221,7 @@ jobs:
                   }) and all(p in native_audio_paths or (p.endswith('.gd.uid') and p[:-4] in native_audio_paths)
                              for p in paths)
                   prose = {path for path in paths if
-                      re.fullmatch(r'docs/agent/[^/]+\.md', path) and path not in {
+                      re.fullmatch(r'(?:docs/agent|handoff)/[^/]+\.md', path) and path not in {
                           'docs/agent/2026-09-23-next-session-handoff.md',
                           'docs/agent/execution-map.md',
                       }}

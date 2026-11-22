@@ -331,7 +331,7 @@ class WindowsCoverageTests(unittest.TestCase):
             select({'tools/testing/test_windows_coverage.py', 'docs/agent/prose.md'}, check_code=2)
 
     def test_reviewed_prose_selects_docs_checks_for_pr_and_push(self):
-        paths = {'docs/agent/new-technical-handoff.md', 'docs/agent/2026-11-04-f5-baseline.md'}
+        paths = {'docs/agent/new-technical-handoff.md', 'handoff/2026-11-22-opening-after-359.md'}
         for event, data, base in (
             ('pull_request', {'pull_request': {'base': {'sha': 'a' * 40}}}, 'HEAD^'),
             ('push', {'before': 'a' * 40}, 'a' * 40),
@@ -357,7 +357,7 @@ class WindowsCoverageTests(unittest.TestCase):
     def test_docs_contracts_other_markdown_and_mixed_changes_retain_coverage(self):
         prose = 'docs/agent/new-technical-handoff.md'
         for path in ('docs/agent/execution-map.md', 'docs/agent/2026-09-23-next-session-handoff.md',
-                     'docs/agent/nested/note.md', 'story/README.md', 'README.md', 'AGENTS.md',
+                     'docs/agent/nested/note.md', 'handoff/nested/note.md', 'handoff/result.json', 'story/README.md', 'README.md', 'AGENTS.md',
                      'docs/design/rule.md', 'docs/superpowers/plans/plan.md', 'evidence/result.md',
                      'tests/fixtures/README.md', 'autoload/GameState.gd', 'autoload/SaveManager.gd',
                      DAY, 'autoload/AudioManager.gd', 'tools/runtime/PublicSurfaceInventory.gd',
