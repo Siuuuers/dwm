@@ -387,7 +387,7 @@ func _new_run_hash(value: Variant) -> bool:
 
 
 func prepare_profile_document(raw: Dictionary) -> Dictionary:
-	return MIGRATION.prepare_document(raw.duplicate(true))
+	return MIGRATION.prepare_document(raw)
 
 
 func prepare_preferences(changes: Dictionary) -> Dictionary:
