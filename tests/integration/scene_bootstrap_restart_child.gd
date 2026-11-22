@@ -53,6 +53,18 @@ func _start_services() -> bool:
 	assert_eq(ready_count, 0, "completed prior operations do not fabricate a live Ready")
 	return true
 
+func _observe_first_text_preferences() -> Array:
+	var observed := []
+	var runtime := get_node("/root/Dialogic")
+	var on_step := func(step: StringName) -> void:
+		if step == &"profile_preferences_reapplied": observed.append(step)
+	bridge.preference_boundary_step.connect(on_step)
+	runtime.Text.text_started.connect(func(_info: Dictionary) -> void:
+		bridge.preference_boundary_step.disconnect(on_step)
+		observed.append([runtime.Settings.settings[&"text_speed"], runtime.Inputs.auto_advance.delay_modifier,
+			runtime.Inputs.auto_advance.enabled_until_user_input]), CONNECT_ONE_SHOT)
+	return observed
+
 func _await_ready() -> bool:
 	for frame: int in 240:
 		if ready_count == 1: return true
@@ -73,6 +85,9 @@ func _write_json(path: String, value: Dictionary) -> bool:
 
 func create_saved_text() -> void:
 	if not _start_services(): return
+	if not _ok(profile.set_preferences({
+		&"preferences.reading.reveal_speed": "slow", &"preferences.reading.auto_delay": "short",
+	})): return
 	assert_false(FileAccess.file_exists("user://saves/slot_1.json"))
 	var audio: Node = get_node("/root/AudioManager")
 	var started: Dictionary = saves.start_scene_new_run("target_b", {
@@ -122,11 +137,14 @@ func load_saved_text() -> void:
 	var prepared: Dictionary = backup.prepare_action("load", "slot:1")
 	if not _ok(prepared): return
 	assert_false(prepared.value.confirmation_required)
+	var first_text := _observe_first_text_preferences()
 	var restored: Dictionary = backup.commit_action(prepared.value.token)
 	assert_eq(restored.get("code"), &"scene_activation_pending", str(restored))
 	if restored.get("code") != &"scene_activation_pending": return
 	assert_eq(ready_count, 0)
 	if not await _await_ready(): return
+	assert_eq(first_text, [&"profile_preferences_reapplied", [2.0, 0.5, false]],
+		"selected slot applies profile reading settings before its first caption")
 	for frame: int in 4: await get_tree().process_frame
 	assert_eq(ready_count, 1)
 	assert_eq(get_tree().current_scene.scene_file_path, HOST)
