@@ -235,12 +235,14 @@ jobs:
                       if workflow in paths:
                           sources = [subprocess.run(['git', 'show', ref + ':' + workflow], capture_output=True)
                                      for ref in (base, 'HEAD')]
-                          pattern = rb'(?ms)^  (inventory-tooling|rendered-desktop|public-surfaces|rendered-journeys):\n.*?(?=^\S|^  \S|\Z)'
+                          job_names = {'inventory-tooling', 'rendered-desktop', 'public-surfaces', 'rendered-journeys',
+                                       'self-talk-panel', 'progression'}
+                          pattern = rb'(?ms)^  (' + '|'.join(sorted(job_names)).encode() + rb'):\n.*?(?=^\S|^  \S|\Z)'
                           jobs = [dict((match[1].decode(), match[0]) for match in re.finditer(pattern, source.stdout))
                                   for source in sources]
                           if (all(source.returncode == 0 for source in sources)
-                                  and all(set(job) == {'inventory-tooling', 'rendered-desktop', 'public-surfaces', 'rendered-journeys'} for job in jobs)
-                                  and all(len(re.findall(pattern, source.stdout)) == 4 for source in sources)
+                                  and all(set(job) == job_names for job in jobs)
+                                  and all(len(re.findall(pattern, source.stdout)) == len(job_names) for source in sources)
                                   and re.sub(pattern, b'', sources[0].stdout) == re.sub(pattern, b'', sources[1].stdout)):
                               ci_jobs = sorted(set(ci_jobs) | {name for name in jobs[0] if jobs[0][name] != jobs[1][name]})
                           else:
@@ -822,6 +824,8 @@ jobs:
               inventory_tooling = False
           if ci_jobs:
               inventory_tooling = 'inventory-tooling' in ci_jobs
+              self_talk_panel = 'self-talk-panel' in ci_jobs
+              progression = 'progression' in ci_jobs
               print('CI job-only changes: ' + ', '.join(ci_jobs))
           if docs_only:
               print('Documentation only: ' + ', '.join(sorted(paths)))
