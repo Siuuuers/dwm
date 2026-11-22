@@ -34,6 +34,7 @@ class NewAccOwner extends RefCounted:
 	var requires_confirmation := true
 	var prepares := 0
 	var commits := 0
+	var retries: Array[String] = []
 	var cancels: Array[String] = []
 	var on_commit: Callable
 	func prepare_new_run_action(_context: Dictionary) -> Dictionary:
@@ -47,8 +48,9 @@ class NewAccOwner extends RefCounted:
 	func cancel_prepared_new_run(token: String) -> Dictionary:
 		cancels.append(token)
 		return {"ok": true}
-	func retry_new_run(_transaction: String) -> Dictionary:
-		return {"ok": false}
+	func retry_new_run(transaction: String) -> Dictionary:
+		retries.append(transaction)
+		return {"ok": true}
 
 var original_scene: Node
 var source: Control
@@ -203,6 +205,11 @@ func test_fresh_start_presents_busy_once_and_ignores_duplicate_press() -> void:
 	assert_eq(save_owner.prepares, 1)
 	assert_eq(save_owner.commits, 1)
 	RenderingServer.frame_post_draw.disconnect(observe_draw)
+	menu._confirmation.confirm_button.pressed.emit()
+	for frame in 3: await get_tree().process_frame
+	assert_eq(save_owner.retries, ["retained-lifetime"])
+	assert_eq(save_owner.commits, 1)
+	assert_eq(menu._new_acc_transaction, "")
 
 
 func test_scene_change_during_busy_commit_cancels_preparation_without_starting() -> void:

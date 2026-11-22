@@ -389,10 +389,7 @@ func _commit_new_acc() -> void:
 		return
 	var result := {"ok": false}
 	if is_instance_valid(owner):
-		if owner.has_method("commit_prepared_new_run_responsive"):
-			result = await owner.commit_prepared_new_run_responsive(_new_acc_token)
-		else:
-			result = owner.commit_prepared_new_run(_new_acc_token)
+		result = owner.commit_prepared_new_run(_new_acc_token)
 	_cancel_new_acc()
 	if _finish_new_acc_transition(): _handle_new_acc_result(result)
 
@@ -433,10 +430,7 @@ func _retry_new_acc() -> void:
 		return
 	var result := {"ok": false}
 	if is_instance_valid(owner):
-		if owner.has_method("retry_new_run_responsive"):
-			result = await owner.retry_new_run_responsive(_new_acc_transaction)
-		else:
-			result = owner.retry_new_run(_new_acc_transaction)
+		result = owner.retry_new_run(_new_acc_transaction)
 	if not _finish_new_acc_transition(): return
 	if result.get("ok", false):
 		_handle_new_acc_result(result)

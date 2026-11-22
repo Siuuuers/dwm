@@ -57,3 +57,7 @@ At `2c3b208`, DialogicBridge passed a null reading session through its private `
 ## Save recovery dispatch
 
 At `8bcefb84`, both retry entry points reached the same synchronous scene recovery. The private resume wrapper discarded the frame-yield flag. Both autosave/profile settlement callers passed false. The responsive entry point now delegates to the ordinary retry, and reconciliation uses the transaction ID directly after skipping retired load records. Journal conflict checks still precede the first custody or storage mutation.
+
+## Title New Game dispatch
+
+At `bf7827d8`, the responsive commit and retry methods forwarded directly to their synchronous counterparts. Title now calls those owners directly after presenting the busy state. Both aliases had a single production caller and held no saved data.
