@@ -18,10 +18,16 @@ class LiveTransitionDependencies(unittest.TestCase):
         self.insert(SESSION, '_fork_scene_configuration', 'sibling._scene_nodes = _scene_nodes.duplicate()')
         self.insert(GAME, 'scene_event_registration', 'return registered.bundle')
         self.insert(PROFILE, 'stage_caption_history', '_reading_history_dirty = true')
+        self.insert(SAVE, 'prepare_new_run_action', '_storage.exists("autosave.json")')
+        self.insert(SAVE, 'reconcile_incomplete_continuations', 'retry_new_run(operation.transaction_id)')
+        self.sources[SAVE] += 'func commit_prepared_new_run(token):\n\tstart(target, _scene_title_new_run_context)\n'
         self.assertEqual(violations(self.sources), [])
 
     def test_rejects_each_regression(self):
         cases = [
+            (SAVE, 'prepare_new_run_action', 'prepared.context = _scene_title_new_run_context'),
+            (SAVE, 'reconcile_incomplete_continuations', '_resume_operation((operation as Dictionary).duplicate(true))'),
+            (SAVE, 'reconcile_incomplete_continuations', 'operation.duplicate(true)'),
             (GAME, '_retained_scene_challenge_command', '_scene_runtime_event_context()'),
             (CAPTION, '_ready', 'configure_presentation()\n\t_apply_preferences()'),
             (CAPTION, '_ready', '_configure_recovery_presentation()'),
