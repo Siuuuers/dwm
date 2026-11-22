@@ -45,3 +45,7 @@ Cloud CI results belong to the PR; this record does not claim an engine run.
 Other candidates remain unapproved until their callers, Godot references and
 current behavior have been reviewed. This is not a repository-wide dead-code
 or comment-cleanup completion claim.
+
+## Prepared New Game commit
+
+At `a1679544`, SaveManager's private `_commit_prepared_new_run` started the configured Title scene. Its two public callers now share one implementation. Consent retains the single-use token. The configured target and context already belong to SaveManager.

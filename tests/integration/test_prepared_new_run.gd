@@ -35,7 +35,7 @@ func test_prepare_cancel_and_commit_preserve_storage_until_scene_activation() ->
 	assert_eq(fixture.root.capture(), identity_before)
 	assert_eq(fixture.game.capture_live_session(), session_before)
 	assert_true(fixture.manager.cancel_prepared_new_run(prepared.value.token).ok)
-	assert_true(fixture.manager._prepared_new_run.is_empty())
+	assert_eq(fixture.manager.commit_prepared_new_run(prepared.value.token).code, &"invalid_new_run_preparation")
 	assert_false(fixture.read_autosave().ok)
 	assert_eq(fixture.profile.get_profile_snapshot(), profile_before)
 
@@ -47,7 +47,7 @@ func test_prepare_cancel_and_commit_preserve_storage_until_scene_activation() ->
 	assert_false(fixture.game.capture_live_session().value.active)
 	fixture.confirm_activation()
 	assert_true(fixture.game.capture_live_session().value.active)
-	assert_true(fixture.manager._prepared_new_run.is_empty())
+	assert_eq(fixture.manager.commit_prepared_new_run(prepared.value.token).code, &"invalid_new_run_preparation")
 	assert_eq(fixture.profile.get_profile_snapshot(), profile_before)
 	assert_false(fixture.read_autosave().ok)
 	var replacement: Dictionary = fixture.manager.prepare_new_run_action(_context())
