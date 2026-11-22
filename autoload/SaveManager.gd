@@ -223,11 +223,10 @@ func _commit_prepared_scene_restore(prepared: Dictionary) -> Dictionary:
 	var retained := _validate_scene_restore_preparation(prepared)
 	if not retained.get("ok", false): return retained
 	prepared = _scene_restore_preparations[prepared.scene_preparation_token].prepared
-	var plans: Dictionary = prepared.participant_plans.duplicate(true)
 	var operation_id := "scene_load:" + str(prepared.scene_preparation_token)
 	_scene_restore_preparations.erase(prepared.scene_preparation_token)
 	_completed_scene_restore.clear()
-	return _run_scene_restore_transaction(plans, prepared.journal_seed,
+	return _run_scene_restore_transaction(prepared.participant_plans, prepared.journal_seed,
 		str(prepared.route_id), str(prepared.checkpoint_id),
 		{"kind": "memory_restore", "transaction_id": operation_id}, "", false)
 
