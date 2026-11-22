@@ -1420,11 +1420,11 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary) -> Dictionary:
 	plans.desktop_board = board_prep.value.board_plan
 	plans.profile = {"reuse_current": true}
 	plans.localization = {"reuse_current": true}
-	var preferences: Dictionary = _new_run_profile_owner.get_profile_snapshot().preferences
+	var audio_preferences: Dictionary = _new_run_profile_owner.get_preference_group(&"audio")
 	var derived := RUN_SNAPSHOT_SCHEMA.derive_scene_audio_context(snapshot)
 	if not derived.ok: return derived
 	var audio_prep: Dictionary = _restore_participants.audio.prepare(
-		{"preferences": preferences, "audio_context": derived.value})
+		{"preferences": {"audio": audio_preferences}, "audio_context": derived.value})
 	if not audio_prep.ok: return audio_prep
 	plans.audio = audio_prep.value.audio_plan
 	var route_context := RUN_SNAPSHOT_SCHEMA.derive_route_restore_context(snapshot)

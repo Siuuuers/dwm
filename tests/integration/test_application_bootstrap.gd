@@ -82,10 +82,10 @@ class UnavailableWindowOutput:
 	func capture_output() -> Dictionary:
 		return {"ok": false, "code": &"window_output_unavailable", "details": {}, "receipt": {}}
 
-	func apply_mode(_mode: String) -> Dictionary:
+	func apply_mode(_mode: String, _size: String) -> Dictionary:
 		return {"ok": false, "code": &"window_output_unavailable", "details": {}, "receipt": {}}
 
-	func output_matches(_mode: String) -> bool:
+	func output_matches(_mode: String, _size: String) -> bool:
 		return false
 
 	func restore_output(_snapshot: Dictionary) -> Dictionary:

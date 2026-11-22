@@ -533,6 +533,10 @@ func get_profile_snapshot() -> Dictionary:
 	return _profile.duplicate(true)
 
 
+func get_preference_group(group: StringName) -> Dictionary:
+	return _profile.preferences[group].duplicate(true)
+
+
 func get_profile_revision() -> int:
 	return _profile_revision
 

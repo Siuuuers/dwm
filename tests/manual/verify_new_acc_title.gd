@@ -166,7 +166,7 @@ func _edge_cases() -> void:
 	await _frames()
 	await _key(KEY_TAB)
 	await _key(KEY_ENTER)
-	_check(_menu._confirmation.request.body == _menu.NEW_ACC_COPY.en[7], "stale consent is explained without committing again")
+	_check(_menu._confirmation.request.body == _menu.NEW_ACC_COPY.en[6], "stale consent is explained without committing again")
 	before = _owner.prepares
 	await _key(KEY_TAB)
 	await _key(KEY_ENTER)

@@ -35,14 +35,14 @@ func initialize(profile: Node, transactions: RefCounted) -> Dictionary:
 	if not is_instance_valid(profile) or not profile.has_method("get_preference") \
 		or not is_instance_valid(transactions) or not transactions.has_method("bind_window_output"):
 		return _failure(&"invalid_settings_output_owner")
-	for method: StringName in [&"get_profile_snapshot", &"get_profile_revision"]:
+	for method: StringName in [&"get_preference_group", &"get_profile_revision"]:
 		if not profile.has_method(method): return _failure(&"invalid_settings_output_owner")
 	if not profile.has_signal("preference_changed") or not transactions.has_method("is_busy") \
 		or not transactions.has_method("commit_settings_window_preference"):
 		return _failure(&"invalid_settings_output_owner")
 	_profile = profile
 	_transactions = transactions
-	var prepared := prepare_restore(_profile.get_profile_snapshot().preferences)
+	var prepared := prepare_restore({"display": _profile.get_preference_group(&"display")})
 	if not prepared.ok: return prepared
 	var captured: Dictionary = _port.capture_output()
 	_available = captured.get("ok", false)
@@ -123,9 +123,9 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 	var captured: Dictionary = _port.capture_output()
 	if not captured.get("ok", false): return captured
 	_applying = true
-	var applied: Dictionary = _port.apply_mode(plan.window_mode) if window_size == "1280x720" else _port.apply_mode(plan.window_mode, window_size)
+	var applied: Dictionary = _port.apply_mode(plan.window_mode, window_size)
 	if applied.get("ok", false):
-		var matches: bool = _port.output_matches(plan.window_mode) if window_size == "1280x720" else _port.output_matches(plan.window_mode, window_size)
+		var matches: bool = _port.output_matches(plan.window_mode, window_size)
 		if not matches: applied = _failure(&"window_output_unproven")
 	if not applied.get("ok", false):
 		var restored: Dictionary = _port.restore_output(captured.value)

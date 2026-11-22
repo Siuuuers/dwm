@@ -65,3 +65,7 @@ At `bf7827d8`, the responsive commit and retry methods forwarded directly to the
 ## Title preparation context
 
 At `a0d2a0e6`, Title supplied five fixed fields to prepare New Game consent. SaveManager discarded them after validation. Commit already uses the registered scene target and its content version. Consent reads the live run and autosave, and its token carries no serialized game data.
+
+## Window startup, Load audio and Title confirmation
+
+At `c1d72301`, window initialization and Load audio copied the entire Global profile to read one preferences group each. Each now receives its own detached group. Window application uses the selected size directly, and its physical output target comes from a fresh capture. New Game consent had identical live-run and autosave messages in all five languages, so Title uses one body per language.
