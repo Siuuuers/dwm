@@ -239,6 +239,9 @@ class WindowsCoverageTests(unittest.TestCase):
             (['inventory-tooling'], {workflow}),
             (['rendered-desktop'], {workflow}),
             (['public-surfaces'], {workflow}),
+            (['self-talk-panel'], {workflow}),
+            (['progression'], {workflow}),
+            (['progression', 'self-talk-panel', 'test-scope'], {workflow, coverage}),
             (['rendered-journeys'], {workflow}),
             (['rendered-journeys', 'test-scope'], {workflow, coverage, 'docs/agent/gallery-checkout.md'}),
             (['public-surfaces', 'test-scope'], {workflow, coverage, 'docs/agent/2026-11-12-public-surface-checkout.md'}),
@@ -257,7 +260,9 @@ class WindowsCoverageTests(unittest.TestCase):
                 label = {'inventory-tooling': 'Linux / inventory tooling',
                          'rendered-desktop': 'Rendered desktop and dialogue / Linux software OpenGL',
                          'public-surfaces': 'Windows / public API surface contracts',
-                         'rendered-journeys': 'Rendered current Gallery components'}[name]
+                         'rendered-journeys': 'Rendered current Gallery components',
+                         'self-talk-panel': 'Linux / self-talk panel',
+                         'progression': 'Linux / progression protocol'}[name]
                 before = before.replace('    name: ' + label, '    name: Previous ' + label, 1)
             for event, data in (
                 ('pull_request', {'pull_request': {'base': {'sha': 'a' * 40}}}),
@@ -272,8 +277,9 @@ class WindowsCoverageTests(unittest.TestCase):
                 if any(path.startswith('docs/agent/') for path in paths):
                     self.assertTrue(any(args[:3] == ['git', 'diff', '--check'] for args in commands))
                 self.assertEqual(result['inventory_tooling'], str('inventory-tooling' in names).lower())
-                for key in ('comparison', 'progression', 'self_talk_panel'):
-                    self.assertEqual(result[key], 'false', key)
+                self.assertEqual(result['self_talk_panel'], str('self-talk-panel' in names).lower())
+                self.assertEqual(result['progression'], str('progression' in names).lower())
+                self.assertEqual(result['comparison'], 'false')
                 self.assertFalse(any('b' * 40 in arg or '.zip' in arg for args in commands for arg in args))
 
     def test_ci_route_keeps_shared_workflow_changes_broad(self):
@@ -282,6 +288,9 @@ class WindowsCoverageTests(unittest.TestCase):
             WORKFLOW.replace('contents: read', 'contents: write', 1),
             WORKFLOW.replace('cancel-in-progress: true', 'cancel-in-progress: false', 1),
             WORKFLOW.replace('  test-scope:', '  test-scope: # changed', 1),
+            WORKFLOW.replace('Linux / self-talk panel', 'Previous panel setup', 1)
+                    .replace('Linux / progression protocol', 'Previous protocol setup', 1)
+                    .replace('cancel-in-progress: true', 'cancel-in-progress: false', 1),
             WORKFLOW.replace('  windows-export:', '  windows-export: # changed', 1),
             WORKFLOW.replace('  inventory-tooling:', '  renamed-inventory:', 1),
             WORKFLOW + '\n  inventory-tooling:\n    runs-on: ubuntu-24.04\n',
