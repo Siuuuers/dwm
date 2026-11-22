@@ -1384,7 +1384,7 @@ func _prepare_restore_content(locator: Dictionary, expected_revision: String) ->
 		return read
 	if not expected_revision.is_empty() and str(read["value"]["revision"]) != expected_revision:
 		return _fail(&"stale_backup_target", "")
-	var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]["text"]))
+	var parsed: Dictionary = _parse_document_text(str(read["value"]["text"]))
 	if not parsed.get("ok", false):
 		return _fail(&"corrupt_save_document", relative_path)
 
