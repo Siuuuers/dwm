@@ -130,10 +130,6 @@ static func scene_registration_fingerprint() -> String:
 	_registration_used = true
 	return "" if _scene_bundle.is_empty() else _scene_bundle_fingerprint
 
-static func _scene_hash(value: Variant) -> String:
-	var encoded := CANONICAL_JSON.stringify(value)
-	return str(encoded.value).sha256_text() if encoded.ok else ""
-
 static func _scene_freeze(value: Variant) -> void:
 	if value is Dictionary or value is Array:
 		for child: Variant in (value.values() if value is Dictionary else value):

@@ -589,20 +589,8 @@ func _change_to(scene_id: String, startup_publish: bool = false) -> Dictionary:
 	return {"ok": true, "code": &"ok"}
 
 
-func start_game_from_menu() -> void:
-	if _return_title_publishing: return
-	var gs := _gs()
-	if gs != null and gs.has_method("reset_game"):
-		gs.reset_game()
-	goto_main()
-
-
 func goto_menu() -> void:
 	_change_to("menu")
-
-
-func goto_main() -> void:
-	_change_to("main")
 
 
 func goto_ending() -> void:
@@ -741,8 +729,3 @@ func finalize_restore() -> Dictionary:
 	if _startup_hold_active:
 		return {"ok": true, "code": &"ok", "value": {"deferred": true, "route_id": get_current_route_id()}}
 	return {"ok": true, "code": &"ok"}
-
-
-func get_current_scene_id() -> String:
-	return _current_scene_id
-

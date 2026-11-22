@@ -48,22 +48,6 @@ const SCENE_LITERAL_OWNERS := {
 	"res://scenes/shared/AppWindowBase.tscn|VBoxContainer/TopBar/TopBarHBox/TitleLabel|text|App": {
 		"disposition": "localized_call", "key": "dynamic", "reason": "AppWindowBase catalogs the configured app title",
 		"owner_path": "res://scripts/ui/AppWindowBase.gd", "markers": ["_title_label.text = get_node(\"/root/LocalizationManager\").t(title_key)"]},
-	"res://scenes/shared/BoxMeter.tscn|VBoxContainer/HeaderHBox/NameLabel|text|Stat": {
-		"disposition": "localized_call", "key": "dynamic", "reason": "BoxMeter catalogs the configured stat name",
-		"owner_path": "res://scripts/ui/BoxMeter.gd", "markers": ["_name_label.text = get_node(\"/root/LocalizationManager\").t(display_name_key)"]},
-	"res://scenes/shared/ChatBubble.tscn|VBox/SpeakerLabel|text|Speaker": {
-		"disposition": "narrative_owned_by_dialogic", "key": "", "reason": "ChatBubble projects the active narrative speaker",
-		"owner_path": "res://scripts/ui/ChatBubble.gd", "markers": ["speaker_label.text = speaker_name"]},
-	"res://scenes/shared/ContactBox.tscn|HBox/TextVBox/NameLabel|text|Friend": {
-		"disposition": "runtime_data", "key": "", "reason": "ContactBox projects the supplied contact display name",
-		"owner_path": "res://scripts/ui/ContactBox.gd", "markers": ["name_label.text = display_name"]},
-	"res://scenes/shared/IconButton.tscn|VBoxContainer/IconLabel|text|Icon": {
-		"disposition": "localized_call", "key": "dynamic", "reason": "IconButton catalogs the configured launcher label",
-		"owner_path": "res://scripts/ui/IconButton.gd", "markers": ["_icon_label.text = get_node(\"/root/LocalizationManager\").t(label_key)"]},
-	"res://scenes/shared/SaveSlotRow.tscn|VBox/SlotTitleLabel|text|Slot": {
-		"disposition": "runtime_data", "key": "",
-		"reason": "unmounted SaveSlotRow scaffold placeholder; no production scene or script instances this resource",
-		"owner_path": "res://scripts/ui/SaveSlotRow.gd", "markers": ["class_name SaveSlotRow", "slot_title_label: Label"]},
 }
 
 ## Private translation helpers are path-specific. A coincidentally named helper elsewhere gets no waiver.
@@ -131,7 +115,7 @@ const SCRIPT_EXPRESSION_OWNERS := {
 	"res://scripts/ui/minesweeper/MinesweeperScrollRail.gd|accessibility_name|989486ebcea4820f555bd3a9536945923d60035d5c0a8b829d806751b27f5aad": {"key": "MinesweeperScrollRail.name.inline", "reason": "exact Korean branch of the five-locale scroll projection", "group": "scroll"},
 	"res://scripts/ui/minesweeper/MinesweeperScrollRail.gd|accessibility_description|bb1cf70f65f0706e9509841e30cb2ee2572aa31caabbba2336436f1ba747afb4": {"key": "MinesweeperScrollRail.position.inline", "reason": "exact Korean branch of the five-locale scroll projection", "group": "scroll"},
 	"res://scripts/ui/ComputerDesktop.gd|text|9974a83b9a4c20ba322e8ad75441fa8eef97ddd72c4f8e129a75c6d7f032a037": {"key": "ComputerDesktop.delivered.inline", "reason": "exact English fallback and four translated locale projections"},
-	"res://scripts/ui/ComputerDesktop.gd|text|a352a79534af992328560ab4bfa2e0190692458609dc2f9b157e8d5689919ec5": {"key": "ComputerDesktop.delivering.inline", "reason": "exact English fallback and four translated locale projections"},
+	"res://scripts/ui/ComputerDesktop.gd|text|2a146a939d8a4e0f2441fa9611ceeda5da501781abc9c704a1c266021faf00e0": {"key": "ComputerDesktop.delivering.inline", "reason": "exact English fallback and four translated locale projections"},
 	"res://scripts/ui/desktop/TitleWelcome.gd|text|0787a2c453729d1fbad817a0290fcc59e7b60b09929788af61fda1df267a1eed": {"key": "TitleWelcome.welcome.inline", "reason": "exact English fallback and four translated locale projections"},
 }
 

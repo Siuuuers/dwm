@@ -77,17 +77,6 @@ static func is_complete(plan: Dictionary) -> Dictionary:
 	return _ok({"complete": _is_complete_shape(plan)})
 
 
-static func cursor_stage(plan: Dictionary) -> Dictionary:
-	var validated := validate(plan)
-	if not validated.get("ok", false):
-		return validated
-	var cursor := int(plan["cursor"])
-	if cursor == STAGE_COUNT:
-		return _ok({"index": cursor, "stage": null})
-	var record: Dictionary = (plan["stages"] as Array)[cursor]
-	return _ok({"index": cursor, "stage": record.duplicate(true)})
-
-
 static func stage_key(resolution_receipt_id: String, stage_id: String) -> Dictionary:
 	if resolution_receipt_id.strip_edges().is_empty():
 		return _fault(&"invalid_plan_shape", "resolution_receipt_id",

@@ -23,12 +23,6 @@ var _held := false
 var _hover := false
 var _roles := SHOP_THEME.resolve(&"after_hours")
 
-func apply_palette(palette: StringName, day: int = 1, high_contrast: bool = false, colour_preset: String = "standard") -> bool:
-	return _apply_palette_context(palette, day, high_contrast, colour_preset, false)
-
-func apply_palette_scene(palette: StringName, high_contrast: bool = false, colour_preset: String = "standard") -> bool:
-	return _apply_palette_context(palette, null, high_contrast, colour_preset, true)
-
 func _apply_palette_context(palette: StringName, day: Variant = 1, high_contrast: bool = false, colour_preset: String = "standard", scene: bool = false) -> bool:
 	if _scene_presentation and not scene: return false
 	var candidate: Dictionary = SHOP_THEME._resolve_context(palette, day, high_contrast, colour_preset, scene)

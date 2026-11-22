@@ -90,9 +90,6 @@ func _configure_context(english: Font, simplified: Font, traditional: Font, text
 func apply_presentation(palette: StringName, day: int, high_contrast: bool, colour_preset: String) -> bool:
 	return _apply_presentation_context(palette, day, high_contrast, colour_preset, false)
 
-func apply_scene_presentation(palette: StringName, high_contrast: bool, colour_preset: String) -> bool:
-	return _apply_presentation_context(palette, null, high_contrast, colour_preset, true)
-
 func _apply_presentation_context(palette: StringName, day: Variant, high_contrast: bool, colour_preset: String, scene: bool = false) -> bool:
 	if _scene_presentation and not scene: return false
 	if _fonts.is_empty(): return false

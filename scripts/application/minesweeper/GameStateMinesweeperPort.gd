@@ -312,10 +312,6 @@ func commit_desktop_completion(candidate: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
-var _accepted_notifications: Dictionary = {}
-var _published_notifications: Dictionary = {}
-
-
 func publish_desktop_completion(receipt: Dictionary, events: Array) -> Dictionary:
 	var published := publish(receipt, events)
 	if not published.get("ok", false): return published
@@ -325,38 +321,6 @@ func publish_desktop_completion(receipt: Dictionary, events: Array) -> Dictionar
 		_game_state.emit_signal("stat_changed", stat_id, int(_game_state.get_stat(stat_id)),
 			int(_game_state.call(&"_stat_min", stat_id)), int(_game_state.call(&"_stat_max", stat_id)))
 	return published
-
-
-func accept_desktop_notification(record: Dictionary) -> Dictionary:
-	var action: Dictionary = record.get("action_receipt", {})
-	var condition: Dictionary = record.get("condition_receipt", {})
-	var intent: Dictionary = record.get("payload", {})
-	var key := str(record.get("key", ""))
-	if _game_state == null or key.is_empty() or record.get("consumer") != "desktop_notification" \
-			or condition.get("decision") != "no_departure" or intent.get("intent_id") != key \
-			or intent.get("action_commit_receipt_id") != action.get("commit_receipt_id") \
-			or int(action.get("day", -1)) != int(_game_state.day):
-		return _fail(&"invalid_desktop_notification", "")
-	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
-	for field in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"]:
-		if action.get(field) != lifecycle.get(field): return _fail(&"stale_desktop_notification", "")
-	if _accepted_notifications.has(key):
-		return {"ok": true} if _accepted_notifications[key] == record \
-			else _fail(&"desktop_notification_conflict", "")
-	_accepted_notifications[key] = record.duplicate(true)
-	return {"ok": true}
-
-
-func publish_desktop_notifications() -> void:
-	for key: String in _accepted_notifications:
-		if _published_notifications.has(key): continue
-		var record: Dictionary = _accepted_notifications[key]
-		_published_notifications[key] = true
-		if not record.action_receipt.get("unlock_receipt_ids", []).is_empty():
-			var friend_id := str(_game_state.call(&"get_daily_message_friend_for_finished_round",
-				int(_game_state.minesweeper_app_rounds_finished_today), int(_game_state.day)))
-			_game_state.emit_signal("contact_message_unlocked", {"day": int(_game_state.day),
-				"notification_id": key, "friend_id": friend_id})
 
 
 func rollback(backup: Dictionary) -> Dictionary:

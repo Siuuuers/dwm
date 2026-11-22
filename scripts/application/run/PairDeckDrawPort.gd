@@ -158,9 +158,6 @@ func _draw(witnessed: Array) -> Dictionary:
 		if result.get("ok", false) or result.code != &"pair_draw_nonce_rejected": return result
 	return _fail(&"pair_draw_random_source_exhausted")
 
-static func is_counted(window: Variant) -> bool:
-	return window is Dictionary and bool(window.get("counts", false))
-
 static func _ok(value: Variant) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": value}
 static func _fail(code: StringName) -> Dictionary:

@@ -11,8 +11,6 @@ const _CONDITION_SEQUELA := "sequela"
 const _CAPABILITY_ITEM_IDS: Array[String] = ["lucky_charm", "debug_key"]
 const _SUPPORTZ_ITEM_ID := "supportz"
 
-var _note_catalogue: Dictionary = {}
-var _note_catalogue_configured: bool = false
 var _game_state: Object = null
 var _desktop_identity_context: Variant = {}
 
@@ -97,7 +95,7 @@ func prepare_purchase(item: Dictionary, quote: Dictionary, transaction_id: Strin
 	if item_id in _RETIRED_ITEM_IDS:
 		return _fail(&"retired_shop_item", "", {})
 	if item_id in _NOTE_RULES.ITEM_IDS and item.get("effect_ids", []) != ["inventory:add:" + item_id]:
-		return _prepare_note(item, quote, transaction_id)
+		return _fail(&"note_catalogue_unconfigured", "", {})
 	if item_id not in _CAPABILITY_ITEM_IDS and item_id != _SUPPORTZ_ITEM_ID:
 		return _prepare_ordinary(item, quote, transaction_id)
 	if str(quote.get("item_id", "")) != item_id:
@@ -293,51 +291,6 @@ func _capture_identity() -> Dictionary:
 	var shaped := _exact_keys(captured.value,
 		["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"], &"invalid_desktop_identity_context")
 	return captured if shaped.get("ok", false) else shaped
-
-
-func configure_note_catalogue(catalogue: Variant) -> Dictionary:
-	var checked: Dictionary = _NOTE_RULES.validate_counts_and_catalogue({}, catalogue)
-	if not checked.get("ok", false): return checked
-	var value: Dictionary = checked.value.catalogue
-	if _note_catalogue_configured and _note_catalogue != value:
-		return _fail(&"note_catalogue_already_configured", "", {})
-	_note_catalogue = value.duplicate(true)
-	_note_catalogue_configured = true
-	return {"ok": true}
-
-
-func _prepare_note(item: Dictionary, quote: Dictionary, transaction_id: String) -> Dictionary:
-	if not _note_catalogue_configured:
-		return _fail(&"note_catalogue_unconfigured", "", {})
-	if typeof(item.get("currency")) != TYPE_STRING or item.currency != "money" \
-			or typeof(item.get("price")) != TYPE_INT or item.price != 45 \
-			or typeof(item.get("max_purchases")) != TYPE_INT or item.max_purchases != 3 \
-			or not item.get("effect_ids") is Array or not item.effect_ids.is_empty() \
-			or typeof(item.get("quantity")) != TYPE_INT or item.quantity != 1:
-		return _fail(&"invalid_note_shop_record", "", {})
-	if quote.get("transaction_id") != transaction_id or quote.get("item_id") != item.item_id or quote.get("currency") != "money" \
-			or typeof(quote.get("price")) != TYPE_INT or quote.price != 45 \
-			or typeof(quote.get("quantity", 1)) != TYPE_INT or quote.get("quantity", 1) != 1:
-		return _fail(&"invalid_ordinary_shop_quote", "", {})
-	var source: Dictionary = _game_state.to_save_dict().duplicate(true)
-	var prepared: Dictionary = _NOTE_RULES.prepare(item.item_id, item.quantity,
-		source.get("money"), source.get("shop_purchase_counts", {}), _note_catalogue)
-	if not prepared.get("ok", false): return prepared
-	var gameplay: Dictionary = source.duplicate(true)
-	gameplay.money = prepared.value.candidate.money
-	gameplay.shop_purchase_counts = prepared.value.candidate.shop_purchase_counts.duplicate(true)
-	var contacts: Dictionary = _game_state.contacts.duplicate(true)
-	var candidate := {"transaction_id": transaction_id, "item_id": item.item_id,
-		"currency": "money", "price": 45,
-		"ordinary_source_gameplay": source.duplicate(true),
-		"ordinary_source_contacts": contacts.duplicate(true),
-		"ordinary_gameplay": gameplay, "ordinary_contacts": contacts.duplicate(true)}
-	var checked := validate_note_candidate(candidate)
-	if not checked.get("ok", false): return checked
-	return {"ok": true, "value": {"candidate": candidate,
-		"condition_after": {"pressure": int(_game_state.get_stat("pressure")),
-			"carried_sequela": (_game_state.condition_effects_today as Array).has("sequela")},
-		"backup": {"gameplay": source.duplicate(true), "contacts": contacts.duplicate(true)}}}
 
 
 func validate_note_candidate(candidate: Dictionary) -> Dictionary:

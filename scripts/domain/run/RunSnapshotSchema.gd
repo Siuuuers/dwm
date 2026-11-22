@@ -135,18 +135,6 @@ static func validate_primitive_tree(value: Variant, path: String = "$") -> Dicti
 static func prepare_candidate(snapshot: Dictionary) -> Dictionary:
 	return validate(snapshot)
 
-static func is_compatible_bundle(bundle: Dictionary, compatibility: Dictionary) -> bool:
-	if typeof(bundle.get("snapshot")) != TYPE_DICTIONARY:
-		return false
-	var validated := validate(bundle["snapshot"])
-	if not validated.get("ok", false):
-		return false
-	var snapshot: Dictionary = validated["value"]["candidate"]
-	if compatibility.has("content_version") \
-			and int(snapshot["content_version"]) != int(compatibility["content_version"]):
-		return false
-	return true
-
 static func derive_route_restore_context(snapshot: Dictionary) -> Dictionary:
 	if snapshot.get("schema_version") != SCENE_SCHEMA_VERSION:
 		return _fail(&"unsupported_schema_version", str(snapshot.get("schema_version")))
@@ -410,43 +398,6 @@ static func build_scene(snapshot_input: Dictionary, dialogic_checkpoint: Diction
 	if not checked.ok: return checked
 	return {"ok": true, "code": &"ok", "value": {"snapshot": checked.value.candidate}}
 
-static func build_scene_new_run_candidate(snapshot_input: Dictionary, dialogic_checkpoint: Dictionary,
-		_audio_context: Dictionary, content_version: int, allocation_candidate: Dictionary,
-		profile_material: Dictionary, bundle: Dictionary, issuer: Object) -> Dictionary:
-	if not _scene_keys(snapshot_input, SCENE_INPUT_KEYS) or not snapshot_input.lifecycle is Dictionary:
-		return _fail(&"invalid_snapshot_input", "initial scene input requires its complete owner shape")
-	if not snapshot_input.command_receipts is Dictionary or snapshot_input.command_receipts.size() != 1 \
-			or not snapshot_input.applied_effect_transaction_ids is Array or not snapshot_input.applied_effect_transaction_ids.is_empty() \
-			or not snapshot_input.applied_variable_transaction_ids is Array or not snapshot_input.applied_variable_transaction_ids.is_empty():
-		return _fail(&"scene_initial_state_invalid", "initial live input requires only its genuine creation admission")
-	var admission: Variant = snapshot_input.command_receipts.values()[0]
-	if not admission is Dictionary: return _fail(&"scene_initial_state_invalid", "initial admission must be an object")
-	var admitted := SCENE_EVENT_CONTRACT.validate_scene_initial_admission_candidate(admission, allocation_candidate, profile_material, bundle, issuer)
-	if not admitted.ok: return admitted
-	if not snapshot_input.scene is Dictionary \
-			or snapshot_input.command_receipts.keys() != [allocation_candidate.request.transaction_id] \
-			or snapshot_input.scene.get("entry_id") != admission.scene_admission.result.entry_id:
-		return _fail(&"scene_initial_state_invalid", "initial scene differs from genuine creation admission")
-	var snapshot: Dictionary = snapshot_input.duplicate(true)
-	for member: String in ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
-		snapshot.erase(member)
-	if not snapshot.get("desktop") is Dictionary or not snapshot.desktop.get("board") is Dictionary:
-		return _fail(&"invalid_desktop_aggregate", "desktop board input is required")
-	var player_board: Dictionary = DESKTOP_BOARD_STATE.project_player_state(snapshot.desktop.board)
-	if not player_board.ok: return player_board
-	snapshot.desktop.board = player_board.value.snapshot
-	snapshot.merge({"schema_version": SCENE_SCHEMA_VERSION, "content_version": content_version,
-		"run_id": snapshot_input.lifecycle.get("run_id"), "checkpoint_sequence": 1,
-		"checkpoint_id": str(snapshot_input.lifecycle.get("run_id", "")) + ":1",
-		"route_id": "scene",
-		"narrative_checkpoint": dialogic_checkpoint.duplicate(true)})
-	var player_reading: Dictionary = SCENE_READING.project_player_checkpoint(snapshot.narrative_checkpoint)
-	if not player_reading.ok: return player_reading
-	snapshot.narrative_checkpoint = player_reading.value
-	var checked := validate_scene_new_run_candidate(snapshot, allocation_candidate, profile_material, bundle, issuer)
-	if not checked.ok: return checked
-	return {"ok": true, "code": &"ok", "value": {"snapshot": checked.value.candidate}}
-
 static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_candidate: Dictionary,
 		profile_material: Dictionary, bundle: Dictionary, issuer: Object,
 		acknowledged_checkpoint: Dictionary = {}) -> Dictionary:
@@ -662,19 +613,11 @@ static func _scene_semantic_authenticates_receipts() -> bool:
 	return owner.get("_identity_issuer") == _scene_issuer \
 		and owner.get_node_or_null("/root/SaveManager") == _scene_creation_owner
 
-static func _scene_can_reuse_reading() -> bool:
-	if not _scene_semantic_authenticates_receipts(): return false
-	var bridge: Variant = _scene_authority.get("_scene_event_bridge")
-	return is_instance_valid(bridge) and bridge.get_script() == load("res://autoload/DialogicBridge.gd")
-
 static func _scene_terminal_reading_owners() -> Array:
 	if not _scene_semantic_authenticates_receipts(): return []
 	var frozen := preload("res://scripts/narrative/FrozenRunContext.gd")
 	if not frozen.scene_validation_uses(_scene_issuer, _scene_creation_owner): return []
 	return [_scene_authority, _scene_issuer, _scene_creation_owner]
-
-static func _scene_terminal_reading_owners_match(owners: Array) -> bool:
-	return not owners.is_empty() and owners == _scene_terminal_reading_owners()
 
 static func is_scene_terminal(snapshot: Dictionary) -> bool:
 	var lifecycle: Variant = snapshot.get("lifecycle")

@@ -449,13 +449,6 @@ static func _bind_scene_context(envelope: Variant, shaped: Dictionary, registere
 	shaped.value["programme_entry"] = entries[bound.entry_id].duplicate(true)
 	return {"ok": true, "inspection": shaped, "registered": registered}
 
-static func validate_target(target: Variant, bundle: Variant) -> Dictionary:
-	var checked := validate_bundle_structure(bundle)
-	if not checked.ok: return checked
-	for row: Dictionary in checked.value.targets.values():
-		if _equal(row.target, target): return {"ok": true}
-	return _fail(&"scene_target_unregistered")
-
 static func scene_completion_request(envelope: Dictionary, anchor: Dictionary, bundle: Dictionary) -> Dictionary:
 	var context := _inspect_scene_context(envelope, bundle)
 	if not context.ok: return context

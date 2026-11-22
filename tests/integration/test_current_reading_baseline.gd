@@ -57,6 +57,7 @@ func test_current_content_native_input_reading_baseline() -> void:
 	var point: Vector2 = button.get_global_transform_with_canvas() * (button.size / 2.0)
 	if not _prepare_sample("fresh_process_new_acc", FIRST_LINE): return
 	assert_false(_measurement.runtime_programme_cached, "first entry has no prepared runtime programme")
+	var first_text := _observe_first_text_preferences()
 	RenderingServer.frame_post_draw.connect(_observe_draw)
 	for pressed: bool in [true, false]:
 		var event := InputEventMouseButton.new()
@@ -68,6 +69,8 @@ func test_current_content_native_input_reading_baseline() -> void:
 		get_viewport().push_input(event, true)
 		await get_tree().process_frame
 	if not await _finish_sample(): return
+	assert_eq(first_text, [&"profile_preferences_reapplied", [0.5, 1.0, false]],
+		"Title New Acc applies profile reading settings before its first caption")
 	var run_id: String = game.capture_live_session().value.run_id
 	for index: int in range(2, 5):
 		var caption: Node = _caption()

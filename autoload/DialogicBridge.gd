@@ -191,18 +191,6 @@ func prepare_day_entry(entry_id: String, context: Dictionary) -> Dictionary:
 	_scene_stage_busy = false
 	return result
 
-func prepare_scene_initial_checkpoint(allocation_candidate: Dictionary, profile_material: Dictionary,
-		target_id: String, issuer: Object) -> Dictionary:
-	var registration := _ENTRY_MANIFEST.scene_contract_tables()
-	if not registration.ok: return registration
-	var bundle: Dictionary = registration.bundle
-	var admitted := _MARKER_EVENT.prepare_scene_initial_admission(
-		allocation_candidate, profile_material, target_id, bundle, issuer)
-	if not admitted.ok: return admitted
-	var checkpoint := build_scene_initial_checkpoint(admitted.value, bundle)
-	if not checkpoint.ok: return checkpoint
-	return {"ok": true, "value": {"receipt": admitted.value, "checkpoint": checkpoint.value}}
-
 static func build_scene_initial_checkpoint(receipt: Dictionary, bundle: Dictionary) -> Dictionary:
 	var result: Dictionary = receipt.scene_admission.result
 	var matched := false
@@ -490,7 +478,7 @@ static func _scene_publication_ref(value: Variant) -> bool:
 static func _scene_digest(value: Dictionary) -> String:
 	var encoded := _CANONICAL_JSON.stringify(value)
 	return str(encoded.value).sha256_text() if encoded.ok else ""
-const DIALOGIC_CLEAR_KEEP_VARIABLES := 1
+
 const _SCENE_ART := preload("res://scripts/data/ArtManifest.gd")
 const _HOSPITAL_ART := preload("res://scripts/ui/HospitalScene.gd")
 const _ART_HOLD_VIEW := preload("res://scripts/ui/witnessed/SceneArtHoldSurface.gd")
@@ -1301,14 +1289,6 @@ func _on_playback_start_failed(failure: Dictionary, halt_runtime: bool = false) 
 	timeline_failed.emit(failure.duplicate(true))
 
 
-func validate_required_timelines() -> Dictionary:
-	return DialogicTimelineCatalog.build_missing_timeline_report("en")
-
-
-func get_required_timeline_paths() -> Array[String]:
-	return DialogicTimelineCatalog.get_required_timeline_paths("en")
-
-
 func get_current_timeline_id() -> String:
 	return _current_timeline_id
 
@@ -2099,8 +2079,6 @@ func can_next_current_line() -> bool:
 func _can_prepare_next() -> bool:
 	if has_reading_session() and _reading_session.family == "scene" and _reading_session.boundary == "control":
 		return project_scene_optional_frontier().get("ok", false)
-	if _marker_entry_active():
-		return capture_next_frontier().get("ok", false)
 	if has_reading_session() and _reading_session.family == "scene":
 		var marker := capture_scene_pending_marker()
 		return marker.get("ok", false) and _line_presentation_context().get("ok", false)
@@ -2144,8 +2122,6 @@ func _perform_next(expected_frontier: Dictionary) -> Dictionary:
 		result = _scene_event_context_provider.get_object().continue_optional_scene_challenge() if current.get("ok", false) and current == expected_frontier else _command_failure(&"presentation_frontier_changed")
 		if not result.get("ok", false) and capture_scene_optional_frontier(false) == expected_frontier:
 			result["scene_departure_profile_revision"] = _skip_profile.get_profile_revision()
-	elif _marker_entry_active():
-		result = await _perform_marker_next(expected_frontier)
 	else:
 		result = await _perform_caption_next(expected_frontier)
 	_progression_phase = ProgressionPhase.IDLE
@@ -2188,8 +2164,6 @@ func _perform_caption_next(expected_frontier: Dictionary) -> Dictionary:
 	var candidate := _READING_SESSION.new()
 	var configured: Dictionary = candidate.configure(_reading_catalogue_document)
 	if not configured.ok: return configured
-	var markers := _configure_session_markers(candidate)
-	if not markers.ok: return markers
 	var restored: Dictionary = candidate.restore(target_reading.value, plan.entry_id)
 	if not restored.ok: return restored
 	var destination_line := "" if plan.destination.kind == "completion" else str(plan.destination.caption.beat.line_id)
@@ -2711,8 +2685,6 @@ func begin_hospital_reading(command: Dictionary) -> Dictionary:
 	var candidate := _READING_SESSION.new()
 	var configured: Dictionary = candidate.configure(_hospital_reading_catalogue_document)
 	if not configured.ok: return configured
-	var markers := _configure_session_markers(candidate)
-	if not markers.ok: return markers
 	if not candidate.catalogue.has(entry_id): return {"ok": true, "value": {"enabled": false}}
 	if has_active_playback() and not is_hospital_reading_restore_for(command):
 		return _command_failure(&"narrative_playback_active")
@@ -2769,8 +2741,6 @@ func begin_reading_session(command: Dictionary) -> Dictionary:
 	var candidate := _READING_SESSION.new()
 	var configured: Dictionary = candidate.configure(document)
 	if not configured.ok: return configured
-	var markers := _configure_session_markers(candidate)
-	if not markers.ok: return markers
 	if not candidate.catalogue.has(entry_id) or command.get("context", {}).get("kind") != candidate.family:
 		if not _reading_restore_pending.is_empty() or _reading_restore_adoption:
 			return _command_failure(&"reading_restore_command_mismatch")
@@ -2870,8 +2840,6 @@ func can_capture_reading_checkpoint() -> bool:
 		if not frame.ok or not _READING_TRAVERSAL._same(frame.value, _active_entry.get("frozen_context")):
 			return false
 		return _runtime_adapter.can_capture_reading_frontier()
-	if _marker_entry_active() and _runtime_adapter.is_marker_source_held():
-		return _progression_phase != ProgressionPhase.NEXT_ACTIVE and not _pause_changing and _reading_restore_pending.is_empty()
 	if _progression_phase == ProgressionPhase.NEXT_ACTIVE or not has_reading_session() or _reading_session.latest_entry.is_empty() \
 			or not _reading_restore_pending.is_empty(): return false
 	if _reading_session.boundary == "between_entries": return not has_active_playback()
@@ -2885,8 +2853,6 @@ func capture_reading_checkpoint(complete_reveal: bool = false) -> Dictionary:
 	if not can_capture_reading_checkpoint(): return _command_failure(&"reading_frontier_unavailable")
 	var frontier := {}
 	if _reading_session.boundary == "line":
-		if _marker_entry_active() and _runtime_adapter.is_marker_source_held():
-			return _marker_checkpoint()
 		var native_frontier: Dictionary = _runtime_adapter.complete_reading_frontier() if complete_reveal \
 			else _runtime_adapter.capture_reading_frontier()
 		if not native_frontier.ok: return native_frontier
@@ -3033,8 +2999,6 @@ func validate_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Diction
 	var candidate := _READING_SESSION.new()
 	var configured: Dictionary = candidate.configure(_reading_catalogue_for_entry(checkpoint.entry_id))
 	if not configured.ok: return configured
-	var markers := _configure_session_markers(candidate)
-	if not markers.ok: return markers
 	var reconstructed: Dictionary = candidate.restore(checkpoint.reading_session, checkpoint.entry_id)
 	if not reconstructed.ok: return reconstructed
 	var frames: Dictionary = checkpoint.reading_session.ledger.entry_contexts
@@ -3406,8 +3370,6 @@ func _resume_reading_checkpoint(checkpoint: Dictionary, execution_mode: StringNa
 	var candidate := _READING_SESSION.new()
 	var configured: Dictionary = candidate.configure(_reading_catalogue_for_entry(checkpoint.entry_id))
 	if not configured.ok: return configured
-	var markers := _configure_session_markers(candidate)
-	if not markers.ok: return markers
 	var restored: Dictionary = candidate.restore(checkpoint.reading_session, checkpoint.entry_id)
 	if not restored.ok: return restored
 	if candidate.family == "hospital" and not _hospital_reading_command.is_empty() \
@@ -3564,10 +3526,6 @@ func _has_physical_playback() -> bool:
 	return _start_in_progress or not (_ordinary_playback.is_empty() and _active_entry.is_empty() and _active_playback.is_empty()) \
 		or (_runtime_adapter != null and _runtime_adapter.has_method("has_active_playback") and _runtime_adapter.has_active_playback())
 
-
-func is_entry_playback_active(playback_token: String, entry_id: String) -> bool:
-	return not _active_entry.is_empty() and _active_entry.get("token") == playback_token \
-		and _active_entry.get("entry_id") == entry_id
 
 func capture_pause_frontier(timeline_id: String = "") -> Dictionary:
 	if (int(not _ordinary_playback.is_empty()) + int(not _active_entry.is_empty()) + int(not _active_playback.is_empty())) != 1 or _start_in_progress or not _active_transaction.is_empty() or _restore_playback_started \
@@ -4500,17 +4458,6 @@ func capture_scene_pending_marker() -> Dictionary:
 		return _command_failure(&"scene_marker_unavailable")
 	return {"ok": true, "value": source.value.marker.duplicate(true)}
 
-func is_scene_challenge_departed(marker_id: String) -> bool:
-	if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary != "line": return false
-	var captured := capture_reading_checkpoint(false)
-	if not captured.get("ok", false): return false
-	var reading: Dictionary = captured.value.reading_session
-	var nodes: Array = _reading_session._scene_nodes.get(reading.entry_id, [])
-	for index: int in nodes.size():
-		if nodes[index].get("marker_id") == marker_id:
-			return index < int(reading.program_index)
-	return false
-
 func project_scene_optional_frontier(guard_mutation: bool = true) -> Dictionary:
 	if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary != "control":
 		return _command_failure(&"scene_challenge_control_required")
@@ -4524,8 +4471,6 @@ func project_scene_optional_frontier(guard_mutation: bool = true) -> Dictionary:
 		if not guarded.get("ok", false): return guarded
 	if not _computer_hold_frontier.is_empty() and (_computer_hold_changing or not _computer_frontier_matches(true)):
 		return _command_failure(&"computer_source_changed")
-	if not _marker_context.is_empty() and not _marker_source_valid():
-		return _command_failure(&"reading_marker_source_changed")
 	if _active_entry.get("execution_mode") != &"canonical" or not can_capture_reading_checkpoint():
 		return _command_failure(&"scene_challenge_control_required")
 	var projected: Dictionary = _runtime_adapter.project_scene_control_frontier(_reading_session)
@@ -4562,9 +4507,6 @@ func capture_scene_challenge_control() -> Dictionary:
 func capture_scene_event_boundary() -> Dictionary:
 	if not _computer_hold_frontier.is_empty() and (_computer_hold_changing or not _computer_frontier_matches(true)):
 		return _command_failure(&"computer_source_changed")
-	if not _marker_context.is_empty():
-		if not _marker_source_valid(): return _command_failure(&"reading_marker_source_changed")
-		return {"ok": true, "value": _marker_context.duplicate(true)}
 	if not has_reading_session() or _reading_session.family not in ["solo", "scene"] or (_reading_session.boundary != "line" and not (_reading_session.family == "scene" and _reading_session.boundary == "control")) \
 			or _active_entry.is_empty() or _active_entry.get("execution_mode") != &"canonical" \
 			or not _pause_handle.is_empty() or _pause_changing or _progression_phase == ProgressionPhase.NEXT_ACTIVE \
@@ -4586,7 +4528,7 @@ func capture_scene_event_boundary() -> Dictionary:
 			"publication_id": anchor_frontier.publication_id, "line_id": anchor_frontier.line_id}}}
 
 func validate_live_scene_event_anchor(anchor: Dictionary, checkpoint: Dictionary) -> Dictionary:
-	if not has_reading_session() or _reading_session.family != "scene" or not _marker_context.is_empty():
+	if not has_reading_session() or _reading_session.family != "scene":
 		return _command_failure(&"event_anchor_invalid")
 	var current := capture_scene_event_boundary()
 	if not current.ok: return current
@@ -4650,262 +4592,13 @@ func _validate_scene5_event_anchors(anchors: Array[Dictionary], checkpoint: Dict
 
 
 var _admitting_frontier: Dictionary = {}
-var _reading_marker_document: Dictionary = {}
-var _marker_issuer: RefCounted
-var _marker_context: Dictionary = {}
-var _marker_source: Dictionary = {}
-var _marker_source_session: RefCounted
-var _marker_lease := ""
-var _marker_seal: Dictionary = {}
-var _marker_seal_used := false
-var _marker_source_checkpoint_id := ""
-const _MARKER_ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
-const _MARKER_EVENT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
-
-func configure_test_reading_markers(document: Dictionary, issuer: RefCounted) -> Dictionary:
-	if has_reading_session() or has_active_playback() or issuer == null or issuer.get_script() != _MARKER_ISSUER \
-			or _scene_event_port == null or _narrative_checkpoint_port == null:
-		return _command_failure(&"reading_markers_unavailable")
-	if not _reading_marker_document.is_empty():
-		return {"ok": true} if _reading_marker_document == document and _marker_issuer == issuer else _command_failure(&"reading_markers_already_configured")
-	var candidate := _READING_SESSION.new()
-	var configured: Dictionary = candidate.configure(_reading_catalogue_document)
-	if not configured.ok: return configured
-	var checked: Dictionary = candidate.configure_markers(document)
-	if not checked.ok: return checked
-	var port: Dictionary = _scene_event_port.configure_owned_handoff(self, Callable(self, "_validate_marker_dispatch"))
-	if not port.ok: return port
-	var checkpoint: Dictionary = _narrative_checkpoint_port.configure_marker_handoff(self, Callable(self, "_validate_marker_commit"))
-	if not checkpoint.ok: return checkpoint
-	_reading_marker_document = document.duplicate(true)
-	preload("res://scripts/narrative/FrozenPresentationContext.gd")._freeze(_reading_marker_document)
-	_marker_issuer = issuer
-	return {"ok": true}
-
-func _configure_session_markers(session: RefCounted) -> Dictionary:
-	return session.configure_markers(_reading_marker_document) if session.family == "solo" else {"ok": true}
-
-func _marker_entry_active() -> bool:
-	return has_reading_session() and _reading_session.marker_entries.has(_reading_session.latest_entry)
-
-func capture_next_frontier() -> Dictionary:
-	if not _marker_entry_active(): return capture_current_line_presentation_frontier()
-	if _active_entry.is_empty() or not _pause_handle.is_empty() or _pause_changing \
-			or not _active_transaction.is_empty() or not _reading_restore_pending.is_empty() \
-			or _mutation_gate == null or _skip_profile == null or _runtime_adapter == null \
-			or (is_inside_tree() and get_tree().paused): return _command_failure(&"reading_next_unavailable")
-	var guarded: Dictionary = _mutation_gate.guard_external(&"reading_next")
-	if not guarded.ok: return guarded
-	if not _runtime_adapter.is_marker_source_held(): return capture_current_line_presentation_frontier()
-	var native: Dictionary = _runtime_adapter.marker_source_identity()
-	if not native.ok: return native
-	var checkpoint := _marker_checkpoint()
-	if not checkpoint.ok: return checkpoint
-	return {"ok": true, "value": {"kind": "held_marker_source", "token": str(_active_entry.token),
-		"native": native.value, "reading": checkpoint.value.reading_session}}
-
-func _marker_checkpoint() -> Dictionary:
-	if not _marker_entry_active(): return _command_failure(&"reading_frontier_unavailable")
-	var native: Dictionary = _runtime_adapter.marker_source_identity()
-	if not native.ok: return native
-	var captured: Dictionary = _reading_session.capture(native.value.frontier if _reading_session.boundary == "line" else {})
-	if not captured.ok: return captured
-	var entry_id: String = _reading_session.latest_entry
-	var context: Dictionary = captured.value.ledger.entry_contexts[entry_id]
-	var document := _ensure_entry_document()
-	if not document.ok: return document
-	return {"ok": true, "value": {"content_version": int(_reading_session.catalogue[entry_id].content_version),
-		"entry_id": entry_id, "frozen_context": context.duplicate(true),
-		"manifest_fingerprint": _ENTRY_MANIFEST.fingerprint(document.value), "stage": str(context.expected_stage),
-		"transaction_id": str(context.transaction_id), "reading_session": captured.value}}
-
-func _marker_source_valid() -> bool:
-	if _marker_source.is_empty() or _reading_session != _marker_source_session \
-			or _active_entry != _marker_source.entry or not _pause_handle.is_empty() or _pause_changing \
-			or not _active_transaction.is_empty() or _reading_session.ledger.snapshot() != _marker_source.ledger \
-			or _skip_profile.get_profile_revision() != _marker_source.revision \
-			or _runtime_adapter.capture_pause_frontier() != _marker_source.pause \
-			or not _MARKER_EVENT._same_types(_marker_reading_identity(), _marker_source.reading) \
-			or _marker_reading_identity() != _marker_source.reading: return false
-	if not _marker_lease.is_empty() and not _mutation_gate.is_lease_active(&"causal_transaction", _marker_lease): return false
-	var native: Dictionary = _runtime_adapter.marker_source_identity()
-	return native.get("ok", false) and native.value == _marker_source.native
-
-func _marker_boundary(checkpoint: Dictionary, anchor: Dictionary) -> Dictionary:
-	return {"checkpoint": checkpoint.duplicate(true), "anchor": anchor.duplicate(true),
-		"playback_token": str(_active_entry.token)}
-
-func _perform_marker_next(expected: Dictionary) -> Dictionary:
-	if is_pause_restore_pending():
-		return _command_failure(&"reading_next_unavailable")
-	if not _line_ack_fatal_failure.is_empty(): return _line_ack_fatal_failure.duplicate(true)
-	var current := capture_next_frontier()
-	if not current.ok or current != expected: return _command_failure(&"presentation_frontier_changed")
-	if _skip_profile.get_preference(&"preferences.reading.auto_enabled", false): return _command_failure(&"reading_next_auto_enabled")
-	if not _runtime_adapter.is_marker_source_held():
-		var admission := _line_presentation_context(expected)
-		if not admission.ok: return admission
-		var revealed: Dictionary = _runtime_adapter.reveal_current_line(true)
-		if not revealed.ok: return revealed
-		if capture_next_frontier() != expected: return _command_failure(&"presentation_frontier_changed")
-		var acknowledged := _acknowledge_next_source(expected)
-		if not acknowledged.ok: return acknowledged
-	var captured := _marker_checkpoint()
-	if not captured.ok: return captured
-	var source: Dictionary = captured.value
-	var native: Dictionary = _runtime_adapter.marker_source_identity()
-	if not native.ok: return native
-	_marker_source_session = _reading_session
-	_marker_source = {"entry": _active_entry.duplicate(true), "ledger": _reading_session.ledger.snapshot(),
-		"revision": _skip_profile.get_profile_revision(), "native": native.value.duplicate(true),
-		"pause": _runtime_adapter.capture_pause_frontier(), "reading": _marker_reading_identity()}
-	var tail: Dictionary = source.reading_session.ledger.captions.back()
-	_marker_context = _marker_boundary(source, {"session_id": source.reading_session.ledger.session_token,
-		"entry_id": source.entry_id, "content_version": source.content_version,
-		"catalogue_fingerprint": source.reading_session.catalogue_fingerprint,
-		"line_id": tail.beat.line_id, "publication_id": tail.publication_id})
-	var result: Dictionary = await _run_marker_next(source, expected)
-	_marker_context = {}
-	_marker_source = {}
-	_marker_source_session = null
-	_marker_lease = ""
-	_marker_seal = {}
-	_marker_source_checkpoint_id = ""
-	return result
-
-func _run_marker_next(source: Dictionary, expected: Dictionary) -> Dictionary:
-	var source_frontier: Dictionary = source.reading_session.frontier
-	var planned: Dictionary = _reading_session.prepare_marker_next(source_frontier, Callable(_skip_profile, "is_caption_variant_witnessed"))
-	if not planned.ok: return planned
-	if not _marker_source_valid(): return _command_failure(&"reading_marker_source_changed")
-	var event := {}
-	if planned.get("needs_event", false):
-		var context: Dictionary = _scene_event_context_provider.call()
-		if not context.get("ok", false): return context
-		if not _marker_source_valid(): return _command_failure(&"reading_marker_source_changed")
-		var prior: Dictionary = _reading_session.next_operation
-		if prior.get("schema_version") == 2 and prior.get("phase") == "source" \
-				and prior.plan.destination.kind == "notification" \
-				and prior.plan.source_reading == _READING_TRAVERSAL.without_operation(source.reading_session):
-			var semantic: Dictionary = prior.plan.destination.semantic
-			if semantic.source == context.value.source and _marker_issuer.verify_issued(semantic.issuer_receipt, &"transaction_id").get("ok", false):
-				event = semantic.duplicate(true)
-		if event.is_empty():
-			var issued: Dictionary = _marker_issuer.issue(&"transaction_id")
-			if not issued.ok: return issued
-			if not _marker_source_valid(): return _command_failure(&"reading_marker_source_changed")
-			var marker: Dictionary = _reading_session.marker_entries[source.entry_id]
-			event = {"schema_version": 1, "source": context.value.source.duplicate(true),
-				"event_id": marker.event_id, "ordinal": marker.ordinal, "predecessor": marker.predecessor,
-				"kind": marker.kind, "payload": marker.payload.duplicate(true),
-				"command_id": issued.value.token, "issuer_receipt": issued.value.issuer_receipt.duplicate(true)}
-		event["playback_token"] = context.value.playback_token
-		var semantic := event.duplicate(true)
-		semantic.erase("playback_token")
-		planned = _reading_session.prepare_marker_next(source_frontier, Callable(_skip_profile, "is_caption_variant_witnessed"), semantic)
-		if not planned.ok: return planned
-	if not _marker_source_valid(): return _command_failure(&"reading_marker_source_changed")
-	var plan: Dictionary = planned.value
-	var from := _READING_TRAVERSAL.project(plan, "source")
-	var to := _READING_TRAVERSAL.project(plan, "destination")
-	if not from.ok: return from
-	if not to.ok: return to
-	var candidate := _READING_SESSION.new()
-	var configured: Dictionary = candidate.configure(_reading_catalogue_document)
-	if not configured.ok: return configured
-	configured = _configure_session_markers(candidate)
-	if not configured.ok: return configured
-	var restored: Dictionary = candidate.restore(to.value, source.entry_id)
-	if not restored.ok: return restored
-	var programme: Dictionary = _reading_session.entry_program(source.entry_id)
-	if not programme.ok: return programme
-	var line := ""
-	if plan.destination.kind == "notification": line = plan.destination.anchor.line_id
-	elif plan.destination.kind == "line": line = plan.destination.caption.beat.line_id
-	var seek: Dictionary = _runtime_adapter.prepare_marker_seek(str(_active_entry.label), programme.value.lines, line)
-	if not seek.ok: return seek
-	if not _marker_source_valid(): return _command_failure(&"reading_marker_source_changed")
-	var acquired: Dictionary = _mutation_gate.acquire(&"causal_transaction")
-	if not acquired.ok: return acquired
-	_marker_lease = str(acquired.value.token)
-	_progression_phase = ProgressionPhase.NEXT_ACTIVE
-	_next_generation += 1
-	_next_runtime_result = {}
-	next_traversal_changed.emit()
-	if not _marker_source_valid(): return _finish_next(_marker_lease, _command_failure(&"reading_marker_source_changed"))
-	var before := source.duplicate(true)
-	before.reading_session = from.value
-	var operation_id: String = from.value.next_operation.operation_id
-	var committed: Dictionary = _narrative_checkpoint_port.commit_reading_next(before, operation_id, "source")
-	if not committed.ok: return _finish_next(_marker_lease, committed)
-	if not _marker_source_valid(): return _finish_next(_marker_lease, _next_fatal(&"reading_marker_source_changed", false))
-	_marker_source_checkpoint_id = str(committed.value.checkpoint_id)
-	_reading_session.next_operation = from.value.next_operation.duplicate(true)
-	_marker_source.reading = _marker_reading_identity()
-	var held: Dictionary = _runtime_adapter.hold_marker_source(_marker_source.native.frontier)
-	if not held.ok or not _marker_source_valid(): return _finish_next(_marker_lease, _next_fatal(&"reading_marker_hold_failed", false))
-	var destination := source.duplicate(true)
-	destination.reading_session = to.value
-	if plan.destination.kind == "notification":
-		_marker_context = _marker_boundary(destination, plan.destination.anchor)
-		_marker_seal = {"operation_id": operation_id, "source_checkpoint_id": _marker_source_checkpoint_id,
-			"generation": _next_generation, "candidate": destination.duplicate(true), "event": event.duplicate(true)}
-		_marker_seal_used = false
-		committed = _scene_event_port.dispatch_owned(event, _marker_lease, _marker_seal.duplicate(true))
-	else:
-		committed = _narrative_checkpoint_port.commit_reading_next(destination, operation_id, "destination")
-	if not committed.get("ok", false): return _finish_next(_marker_lease, committed)
-	if not _marker_source_valid(): return _finish_next(_marker_lease, _next_fatal(&"reading_marker_install_source_changed"))
-	var settled := Callable(self, "_on_next_runtime_finished").bind(_next_generation)
-	_runtime_adapter.connect("reading_seek_finished", settled)
-	_reading_session = candidate
-	var installed: Dictionary = _runtime_adapter.install_marker_candidate(seek.value, candidate.ledger, to.value.frontier)
-	if installed.get("ok", false) and installed.get("value", {}).get("pending", false) and _next_runtime_result.is_empty():
-		await _next_runtime_settled
-	if _runtime_adapter.is_connected("reading_seek_finished", settled): _runtime_adapter.disconnect("reading_seek_finished", settled)
-	if installed.get("ok", false) and not _next_runtime_result.is_empty(): installed = _next_runtime_result
-	if not installed.get("ok", false): return _finish_next(_marker_lease, _next_fatal(&"reading_marker_install_failed"))
-	return _finish_next(_marker_lease, {"ok": true, "code": &"next_complete", "value": {
-		"destination": plan.destination.kind, "operation_id": operation_id}})
-
-func _validate_marker_dispatch(event: Dictionary, lease: String, seal: Dictionary) -> Dictionary:
-	if _progression_phase != ProgressionPhase.NEXT_ACTIVE or not _marker_source_valid() or lease != _marker_lease or _marker_seal_used \
-			or seal != _marker_seal or event != seal.get("event") or seal.get("generation") != _next_generation:
-		return _command_failure(&"event_handoff_invalid")
-	_marker_seal_used = true
-	return {"ok": true}
-
-func _validate_marker_commit(snapshot: Dictionary, checkpoint: Dictionary, source: Dictionary) -> Dictionary:
-	if not _marker_seal_used or not _marker_source_valid() or checkpoint != _marker_seal.get("candidate") \
-			or source.get("checkpoint_id") != _marker_source_checkpoint_id \
-			or source.get("operation_id") != _marker_seal.get("operation_id"):
-		return _command_failure(&"event_handoff_invalid")
-	var candidate := snapshot.duplicate(true)
-	candidate["narrative_checkpoint"] = checkpoint.duplicate(true)
-	if not snapshot.get("lifecycle") is Dictionary or not snapshot.lifecycle.get("run_id") is String:
-		return _command_failure(&"event_handoff_invalid")
-	candidate["run_id"] = snapshot.lifecycle.run_id
-	return validate_scene_marker_snapshot(candidate)
 
 func validate_scene_marker_snapshot(snapshot: Dictionary) -> Dictionary:
 	var checkpoint: Variant = snapshot.get("narrative_checkpoint", {})
 	if not checkpoint is Dictionary: return _command_failure(&"reading_marker_checkpoint_invalid")
 	var reading: Variant = checkpoint.get("reading_session", {})
 	if not reading is Dictionary: return _command_failure(&"reading_marker_checkpoint_invalid")
-	if reading.is_empty(): return {"ok": true}
-	var entry_id: String = str(checkpoint.get("entry_id", ""))
-	if _reading_marker_document.is_empty():
-		return _command_failure(&"reading_markers_unavailable") if reading.get("schema_version") == 4 else {"ok": true}
-	var candidate := _READING_SESSION.new()
-	var configured: Dictionary = candidate.configure(_reading_catalogue_for_entry(entry_id))
-	if not configured.ok: return configured
-	if candidate.family != "solo":
-		return _command_failure(&"reading_marker_checkpoint_invalid") if reading.get("schema_version") == 4 else {"ok": true}
-	var marked: Dictionary = candidate.configure_markers(_reading_marker_document)
-	if not marked.ok: return marked
-	var receipts: Variant = snapshot.get("command_receipts", {})
-	if not receipts is Dictionary: return _command_failure(&"event_receipt_invalid")
-	return candidate.validate_marker_receipts(reading, entry_id, receipts, str(snapshot.get("run_id", "")))
+	return _command_failure(&"reading_markers_unavailable") if reading.get("schema_version") == 4 else {"ok": true}
 
 func _acknowledge_next_source(frontier: Dictionary) -> Dictionary:
 	if _progression_phase != ProgressionPhase.NEXT_ADMITTING:
@@ -4914,15 +4607,6 @@ func _acknowledge_next_source(frontier: Dictionary) -> Dictionary:
 	var result := _record_line_presentation(frontier)
 	_progression_phase = ProgressionPhase.NEXT_ADMITTING
 	return result
-
-func _marker_reading_identity() -> Dictionary:
-	return {"boundary": _reading_session.boundary, "frontier": _reading_session.marker_frontier.duplicate(true),
-		"operation": _reading_session.next_operation.duplicate(true), "command_id": _reading_session.command_id,
-		"entry": _reading_session.latest_entry, "pre_entry": _reading_session.pre_entry_id,
-		"catalogue": _reading_session.fingerprint, "markers": _reading_session.marker_fingerprint}
-
-
-
 
 var _computer_hold_host: WeakRef
 var _computer_hold_session: RefCounted

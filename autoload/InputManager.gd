@@ -1,7 +1,5 @@
 extends Node
 
-signal input_scheme_changed(scheme: String)
-signal controller_connected(device_id: int)
 signal controller_disconnected(device_id: int)
 signal input_bindings_changed()
 signal source_input_custody_changed()
@@ -18,7 +16,6 @@ const _REQUIRED_UI_ACTIONS := [
 	"ui_focus_next", "ui_focus_prev",
 ]
 
-var _current_scheme: String = "keyboard"
 var _profile: Node
 var _mutation_gate: Object
 var _suspension_handle: Dictionary = {}
@@ -140,11 +137,14 @@ func _input_lifecycle_failure(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code, "value": null}
 
 
-func _ready() -> void:
-	pass
-
 func configure_mutation_gate(gate: Object) -> Dictionary:
-	return _configure_gate(gate)
+	if gate == null or not gate.has_signal("capability_changed"): return {"ok": false, "code": &"invalid_mutation_gate", "details": {}, "receipt": {}}
+	for method in [&"acquire", &"release", &"guard_external", &"is_active", &"get_active_owner", &"is_internal_owner_active", &"latch_fatal", &"is_fatal_latched"]:
+		if not gate.has_method(method): return {"ok": false, "code": &"invalid_mutation_gate", "details": {}, "receipt": {}}
+	if _mutation_gate != null and _mutation_gate.get_instance_id() != gate.get_instance_id(): return {"ok": false, "code": &"mutation_gate_already_configured", "details": {}, "receipt": {}}
+	var already := _mutation_gate != null
+	_mutation_gate = gate
+	return {"ok": true, "code": &"ok", "value": {"gate_instance_id": gate.get_instance_id(), "already_configured": already}, "receipt": {}}
 
 func initialize(profile: Node) -> Dictionary:
 	if profile == null or not profile.has_method("get_input_mappings") or not profile.has_method("set_input_mapping"):
@@ -213,30 +213,14 @@ func ensure_default_input_map() -> void:
 			InputMap.add_action(action)
 
 
-func get_current_input_scheme() -> String:
-	return _current_scheme
-
-
-func set_current_input_scheme(scheme: String) -> void:
-	if scheme != _current_scheme:
-		_current_scheme = scheme
-		emit_signal("input_scheme_changed", scheme)
-
-
-func is_controller_connected() -> bool:
-	return Input.get_connected_joypads().size() > 0
-
-
 func _on_joy_connection_changed(device_id: int, connected: bool) -> void:
-	if connected:
-		emit_signal("controller_connected", device_id)
-	else:
-		var prefix := "joy:%s:" % device_id
-		for contact: String in _physical_contacts.keys():
-			if contact.begins_with(prefix): _physical_contacts.erase(contact)
-		for contact: String in _resume_quarantine.keys():
-			if contact.begins_with(prefix): _resume_quarantine.erase(contact)
-		emit_signal("controller_disconnected", device_id)
+	if connected: return
+	var prefix := "joy:%s:" % device_id
+	for contact: String in _physical_contacts.keys():
+		if contact.begins_with(prefix): _physical_contacts.erase(contact)
+	for contact: String in _resume_quarantine.keys():
+		if contact.begins_with(prefix): _resume_quarantine.erase(contact)
+	emit_signal("controller_disconnected", device_id)
 
 
 func get_action_label(action_name: String) -> String:
@@ -314,21 +298,3 @@ func _is_disabled(control: Control) -> bool:
 func make_button_focusable(button: BaseButton) -> void:
 	if button != null:
 		button.focus_mode = Control.FOCUS_ALL
-
-
-func apply_focus_to_tree(root: Node) -> void:
-	if root == null:
-		return
-	if root is BaseButton:
-		(root as BaseButton).focus_mode = Control.FOCUS_ALL
-	for child in root.get_children():
-		apply_focus_to_tree(child)
-
-func _configure_gate(gate: Object) -> Dictionary:
-	if gate == null or not gate.has_signal("capability_changed"): return {"ok": false, "code": &"invalid_mutation_gate", "details": {}, "receipt": {}}
-	for method in [&"acquire", &"release", &"guard_external", &"is_active", &"get_active_owner", &"is_internal_owner_active", &"latch_fatal", &"is_fatal_latched"]:
-		if not gate.has_method(method): return {"ok": false, "code": &"invalid_mutation_gate", "details": {}, "receipt": {}}
-	if _mutation_gate != null and _mutation_gate.get_instance_id() != gate.get_instance_id(): return {"ok": false, "code": &"mutation_gate_already_configured", "details": {}, "receipt": {}}
-	var already := _mutation_gate != null
-	_mutation_gate = gate
-	return {"ok": true, "code": &"ok", "value": {"gate_instance_id": gate.get_instance_id(), "already_configured": already}, "receipt": {}}

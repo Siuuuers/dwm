@@ -39,8 +39,6 @@ var _minesweeper_round_source_port: Object = null
 var _shop_purchase_source_port: Object = null
 var _condition_policy_port: Object = null
 var _schedule_view_port: Object = null
-var _notification_consumer := Callable()
-var _notification_publisher := Callable()
 var _completion_checkpoint_capture := Callable()
 var _completion_checkpoints: Dictionary = {}
 var _recovery_gate_token := ""
@@ -87,15 +85,6 @@ func configure(state_port: Object, causal_sequence_port: Object, board_fate_port
 	_checkpoint_port = checkpoint_port
 	_mutation_gate = mutation_gate
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
-
-
-func configure_notification_consumer(consumer: Callable, publisher: Callable) -> Dictionary:
-	if not consumer.is_valid() or not publisher.is_valid(): return _fail(&"invalid_notification_consumer", "", {})
-	if _notification_consumer.is_valid() and (_notification_consumer != consumer or _notification_publisher != publisher):
-		return _fail(&"notification_consumer_already_configured", "", {})
-	_notification_consumer = consumer
-	_notification_publisher = publisher
-	return {"ok": true}
 
 
 func configure_completion_checkpoint_capture(capture_inputs: Callable) -> Dictionary:
@@ -160,22 +149,6 @@ func configure_identity_issuer(identity_issuer: Object) -> Dictionary:
 		return {"ok": true, "code": &"ok", "value": {"already_configured": true}, "receipt": {}}
 	_identity_issuer = identity_issuer
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
-
-
-@warning_ignore("unused_parameter")
-func configure_schedule_departure_ports(schedule_port: Object, day_start_port: Object,
-		schedule_view_port: Object, terminal_intent_port: Object,
-		publication_port: Object) -> Dictionary:
-	return _fail(&"not_configured",
-		"the Schedule-departure extension is Plan 03 Task 6 work; this Ruling 18-A stub binds nothing",
-		{})
-
-
-@warning_ignore("unused_parameter")
-func request_schedule_departure(raw_request: Dictionary) -> Dictionary:
-	return _fail(&"not_configured",
-		"request_schedule_departure requires the Task-6 Schedule-departure composition",
-		{})
 
 
 func committed_condition_receipt(causal_day_instance: String) -> Dictionary:
@@ -556,7 +529,6 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 	var recovery_released := _release_recovery_gate()
 	if not recovery_released.get("ok", false):
 		return recovery_released
-	if _notification_publisher.is_valid(): _notification_publisher.call()
 
 	var causal_sequence: int = int(((recovery_payload["causal_sequence_reservation_candidate"] as Dictionary)
 		["causal_sequence_receipt"] as Dictionary)["causal_sequence"])
@@ -675,9 +647,6 @@ func _terminal_cleanup(transaction_id: String) -> Dictionary:
 	if not advanced.get("ok", false):
 		return advanced
 	var advance_value: Dictionary = advanced["value"]
-	var notification := _accept_completion_notification(advance_value["stage_candidate"])
-	if not notification.get("ok", false): return notification
-	advance_value["stage_candidate"] = notification["value"]["state"]
 	var completed := _checkpoint_completion(transaction_id, advance_value["stage_candidate"])
 	if not completed.get("ok", false):
 		return completed
@@ -686,25 +655,6 @@ func _terminal_cleanup(transaction_id: String) -> Dictionary:
 		return checkpointed
 	_completion_checkpoints.erase(transaction_id)
 	return {"ok": true}
-
-
-func _accept_completion_notification(completed: Dictionary) -> Dictionary:
-	var entry: Variant = completed.get("outbox", {}).get("notification")
-	if not _notification_consumer.is_valid() or not entry is Dictionary \
-			or entry.get("status") != "pending":
-		return {"ok": true, "value": {"state": completed}}
-	var accepted: Dictionary = _notification_consumer.call(entry.duplicate(true))
-	if not accepted.get("ok", false): return accepted
-	var detached := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd").new()
-	var restored: Dictionary = detached.prepare_restore(completed)
-	if not restored.get("ok", false): return restored
-	detached.commit(restored.value.candidate)
-	var published: Dictionary = detached.prepare_outbox_publication({
-		"kind": "notification", "key": entry.key, "payload_hash": entry.payload_hash,
-		"provenance": entry.provenance.duplicate(true), "consumer": "desktop_notification",
-	})
-	if not published.get("ok", false): return published
-	return {"ok": true, "value": {"state": published.value.candidate.state_after}}
 
 
 func _checkpoint_completion(transaction_id: String, stage_candidate: Dictionary) -> Dictionary:

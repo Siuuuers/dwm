@@ -49,14 +49,6 @@ func _frozen_enabled() -> bool:
 func _projection_contexts(friend_id: String = "") -> Dictionary:
 	return _game_state.ensure_contact_presentation_contexts(friend_id) if _frozen_enabled() else _ok({})
 
-func get_echo_presentation(echo: Dictionary) -> Dictionary:
-	if _scene_enabled(): return _ok({})
-	if not _frozen_enabled(): return _ok({})
-	var cached := _projection_contexts()
-	if not cached.ok: return cached
-	return FROZEN.read(cached.value, "echo.fallback.day7", str(echo.get("echo_id", "")))
-
-
 func get_day7_followup_cards(primary: String = "en", secondary: String = "") -> Dictionary:
 	if _scene_enabled(): return _ok({"cards": []})
 	if _game_state == null: return _fail(&"contacts_presentation_unconfigured")

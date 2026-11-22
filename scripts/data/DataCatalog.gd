@@ -26,45 +26,6 @@ const _TASK_IDS := [
 	"win_win_win",
 ]
 
-const _FRIEND_ICON := {"priscilla": "P", "lavinia": "L", "sylvia": "S"}
-
-
-func get_friend_ids() -> Array[String]:
-	var out: Array[String] = []
-	out.assign(FRIEND_IDS)
-	return out
-
-
-func get_friends() -> Dictionary:
-	var out: Dictionary = {}
-	for id in FRIEND_IDS:
-		out[id] = _make_friend(id)
-	return out
-
-
-func get_friend(friend_id: String) -> Dictionary:
-	if not (friend_id in FRIEND_IDS):
-		return {}
-	return {
-		"id": friend_id,
-		"display_name": friend_id.capitalize(),
-		"localization_key": "friend.%s" % friend_id,
-		"icon_text": _FRIEND_ICON.get(friend_id, ""),
-	}
-
-
-func _make_friend(friend_id: String) -> FriendData:
-	var fd := FriendData.new()
-	fd.id = friend_id
-	fd.display_name = friend_id.capitalize()
-	fd.localization_key = "friend.%s" % friend_id
-	fd.icon_text = _FRIEND_ICON.get(friend_id, "")
-	fd.portrait_path = "res://art/characters/%s/%s_portrait.png" % [friend_id, friend_id]
-	fd.dating_sprite_path = "res://art/characters/%s/%s_dating.png" % [friend_id, friend_id]
-	fd.tiny_path = "res://art/characters/%s/%s_tiny.png" % [friend_id, friend_id]
-	return fd
-
-
 func get_shop_items() -> Array:
 	var out: Array = []
 	for row in _SHOP_ROWS:
@@ -154,12 +115,6 @@ func get_minesweeper_tasks() -> Array:
 	return out
 
 
-func get_minesweeper_task(task_id: String) -> Dictionary:
-	if task_id in _TASK_IDS:
-		return {"id": task_id, "reward_coins": 1, "localization_key": "minesweeper.task.%s" % task_id}
-	return {}
-
-
 func _make_task(task_id: String) -> MinesweeperTaskData:
 	var t := MinesweeperTaskData.new()
 	t.id = task_id
@@ -208,8 +163,3 @@ func get_invitation_days_for_friend(friend_id: String) -> Array[int]:
 
 func get_group_invitation_days() -> Array[int]:
 	return _SEVEN_DAY_CALENDAR.group_days()
-
-
-func get_group_invitation_pairs() -> Array[Array]:
-	return [["priscilla", "lavinia"]]
-
