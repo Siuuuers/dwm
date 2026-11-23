@@ -2762,18 +2762,6 @@ func has_new_run_replacement() -> bool:
 	return _run_configuration_installed and _run_lifecycle.get_state() in [&"PLAYING", &"ENDING"]
 
 
-func get_new_run_replacement_baseline() -> Dictionary:
-	var captured: Dictionary = capture_restore_state()
-	if not captured.get("ok", false):
-		return {"ok": false, "code": &"new_run_replacement_unavailable"}
-	var backup: Dictionary = captured["value"]["backup"]
-	var encoded: Dictionary = _CANONICAL_JSON.stringify(backup)
-	if not encoded.get("ok", false):
-		return {"ok": false, "code": &"new_run_replacement_unavailable"}
-	var present := has_new_run_replacement()
-	return {"ok": true, "value": {"present": present, "revision": str(encoded["value"]).sha256_text()}}
-
-
 func configure_desktop_snapshot_provider(provider: Callable) -> Dictionary:
 	if not provider.is_valid() or provider.get_argument_count() != 0:
 		return {"ok": false, "code": &"invalid_desktop_snapshot_provider"}

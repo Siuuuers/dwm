@@ -40,13 +40,13 @@ func test_both_catalogs_cover_all_source_ids_and_exact_placeholders() -> void:
 	var loaded: Dictionary = CATALOG.load_bundle("res://localization/manifest.json")
 	assert_true(loaded.get("ok", false), str(loaded))
 	if not loaded.get("ok", false): return
-	var source: Dictionary = SCHEMA._message_map(loaded.value.catalogs.en)
+	var source: Dictionary = _message_map(loaded.value.catalogs.en)
 	for id: String in ["gallery.history.added", "gallery.history.failed", "gallery.history.uncertain", "scene.controls.apps", "scene.controls.check_computer", "scene.controls.close_computer", "scene.thought.yes", "gallery.artwork.hints", "gallery.tab.artwork", "ui.pause.back", "witnessed.self_talk.name",
 		"gallery.tab.dialogue", "gallery.dialogue.empty", "gallery.dialogue.unread", "gallery.dialogue.thought",
 		"gallery.dialogue.passage", "settings.reset.dialogue_library", "settings.confirm.dialogue_library"]:
 		assert_true(source.has(id), "source catalogue includes " + id)
 	for language: String in ["ja", "ko"]:
-		var translated: Dictionary = SCHEMA._message_map(loaded.value.catalogs[language])
+		var translated: Dictionary = _message_map(loaded.value.catalogs[language])
 		assert_eq(translated.size(), source.size())
 		assert_true(manager.set_locale(language).get("ok", false))
 		for id: String in source:
@@ -192,3 +192,8 @@ func test_legacy_manifest_only_root_restores_original_explicit_font() -> void:
 	if restored != null:
 		assert_eq(restored.get_font_name(), original.get_font_name())
 		assert_eq(restored.variation_embolden, 0.5)
+
+func _message_map(catalog: Dictionary) -> Dictionary:
+	var texts := {}
+	for message in catalog.messages: texts[message.id] = message.text
+	return texts

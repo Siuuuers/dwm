@@ -39,17 +39,18 @@ static func validate_manifest(manifest: Dictionary, base_path: String) -> Dictio
 		if not _nullable_chain_terminates(id, fonts, "fallback_profile"): return _fail("font_fallback_cycle")
 	return {"ok": true, "value": manifest.duplicate(true), "base_path": base_path}
 
-static func validate_locale_file(catalog: Dictionary, expected_locale: String) -> Dictionary:
+static func _message_placeholders(catalog: Dictionary, expected_locale: String) -> Dictionary:
 	if not _exact_keys(catalog, ["schema_version", "locale", "messages"]) or catalog.get("schema_version") != 1 or catalog.get("locale") != expected_locale: return _fail("invalid_locale_file")
-	var ids := {}
+	var messages := {}
 	for message_value in catalog["messages"]:
 		if typeof(message_value) != TYPE_DICTIONARY or not _exact_keys(message_value, ["id", "text"]): return _fail("invalid_message")
-		if typeof(message_value["id"]) != TYPE_STRING or message_value["id"].is_empty() or ids.has(message_value["id"]) or typeof(message_value["text"]) != TYPE_STRING: return _fail("duplicate_or_invalid_message")
-		ids[message_value["id"]] = true
-	return {"ok": true, "value": catalog.duplicate(true)}
+		if typeof(message_value["id"]) != TYPE_STRING or message_value["id"].is_empty() or messages.has(message_value["id"]) or typeof(message_value["text"]) != TYPE_STRING: return _fail("duplicate_or_invalid_message")
+		messages[message_value["id"]] = extract_named_placeholders(message_value["text"])
+	return {"ok": true, "value": messages}
 
 static func extract_named_placeholders(text: String) -> PackedStringArray:
 	var output := PackedStringArray()
+	if not text.contains("{"): return output
 	var seen := {}
 	for match in _placeholder.search_all(text):
 		var key := match.get_string(1)
@@ -61,15 +62,16 @@ static func validate_bundle(manifest: Dictionary, catalogs: Dictionary) -> Dicti
 	if not manifest_result.get("ok", false): return manifest_result
 	var source_id: String = manifest["source_locale"]
 	if not catalogs.has(source_id): return _fail("missing_source_catalog")
-	var source_messages := _message_map(catalogs[source_id])
+	var source := _message_placeholders(catalogs[source_id], source_id)
+	if not source.ok: return source
 	for record in manifest["locales"]:
 		var id: String = record["id"]
+		if id == source_id: continue
 		if not catalogs.has(id): return _fail("missing_locale_catalog")
-		var valid := validate_locale_file(catalogs[id], id)
-		if not valid.get("ok", false): return valid
-		var messages := _message_map(catalogs[id])
-		for message_id in messages:
-			if not source_messages.has(message_id) or extract_named_placeholders(messages[message_id]) != extract_named_placeholders(source_messages[message_id]): return _fail("placeholder_mismatch")
+		var translated := _message_placeholders(catalogs[id], id)
+		if not translated.ok: return translated
+		for key in translated.value:
+			if source.value.get(key) != translated.value[key]: return _fail("placeholder_mismatch")
 	return {"ok": true, "value": {"manifest": manifest.duplicate(true), "catalogs": catalogs.duplicate(true)}}
 
 static func build_legacy_subset_records(tables: Dictionary) -> Dictionary:
@@ -85,9 +87,6 @@ static func fingerprint_records(records: Array[Dictionary]) -> String:
 		for field in [record["locale"], record["id"], record["text"]]: context.update((field as String).to_utf8_buffer()); context.update(PackedByteArray([0]))
 	return context.finish().hex_encode()
 
-static func _message_map(catalog: Dictionary) -> Dictionary:
-	var output := {}; for message in catalog.get("messages", []): output[message["id"]] = message["text"]
-	return output
 static func _exact_keys(value: Dictionary, keys: Array) -> bool:
 	if value.size() != keys.size(): return false
 	for key in keys:

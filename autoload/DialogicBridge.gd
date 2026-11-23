@@ -3032,9 +3032,6 @@ func _validate_reading_entry(session: RefCounted, entry_id: String, context: Dic
 
 
 func _prepare_scene_reading_candidate(checkpoint: Dictionary, entry_contexts: Dictionary = {}) -> Dictionary:
-	var expanded := _READING_SESSION.expand_player_checkpoint(checkpoint)
-	if not expanded.ok: return expanded
-	checkpoint = expanded.value
 	var keys := _RESUME_CHECKPOINT_KEYS.duplicate()
 	keys.append("manifest_fingerprint")
 	keys.append("reading_session")

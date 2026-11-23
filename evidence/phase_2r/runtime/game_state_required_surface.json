@@ -1635,15 +1635,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_valid_install_publishes_only_presence_and_full_backup_hash"
-    },
-    {
-      "symbol": "get_new_run_replacement_baseline",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_valid_install_publishes_only_presence_and_full_backup_hash"
+      "contract_test": "test_installation_alone_never_publishes_a_session_and_activation_requires_custody"
     },
     {
       "symbol": "configure_desktop_snapshot_provider",

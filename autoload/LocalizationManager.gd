@@ -25,10 +25,6 @@ var _restore_applied: Array = []
 var _publishing_own_presentation := false
 
 
-func _ready() -> void:
-	pass
-
-
 func configure_mutation_gate(gate: Object) -> Dictionary:
 	if gate == null or not gate.has_signal("capability_changed"):
 		return _fail(&"invalid_mutation_gate")
@@ -56,6 +52,12 @@ func initialize(profile: Node, manifest_path: String = "res://localization/manif
 		_readiness = &"failed"
 		return loaded
 	_catalog_store = loaded["value"]
+	var catalogs: Dictionary = _catalog_store["catalogs"]
+	for locale: String in catalogs:
+		var texts := {}
+		for message: Dictionary in catalogs[locale]["messages"]:
+			texts[message["id"]] = message["text"]
+		catalogs[locale] = texts
 	var source_locale: String = _catalog_store["manifest"]["source_locale"]
 	var stored_locale := str(profile.get_preference(&"preferences.language.primary_locale_id", source_locale))
 	var canonical_locale := _resolve_locale_in_bundle(_catalog_store, stored_locale)
@@ -482,9 +484,8 @@ func _lookup(key: String) -> Variant:
 	var catalogs: Dictionary = _bundle["catalogs"]
 	var cursor: Variant = _locale_id
 	while cursor != null:
-		for message in catalogs[cursor]["messages"]:
-			if message["id"] == key:
-				return message["text"]
+		if catalogs[cursor].has(key):
+			return catalogs[cursor][key]
 		cursor = _locale_record_in_bundle(_bundle, cursor)["fallback_locale"]
 	return null
 

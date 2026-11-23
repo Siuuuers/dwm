@@ -1,15 +1,15 @@
 extends "res://addons/gut/test.gd"
 
-const FIXTURE := preload("res://tests/unit/test_new_run_replacement_baseline.gd")
+const GAME := preload("res://autoload/GameState.gd")
+const SIGNALS := ["save_relevant_state_changed", "day_changed", "money_changed", "daily_state_reset"]
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
-var fixture: Node
 var run_owner: Node
 var gate: RefCounted
 
 func before_each() -> void:
-	fixture = add_child_autofree(FIXTURE.new())
-	fixture.gut = gut
-	run_owner = fixture._owner()
+	run_owner = autofree(GAME.new())
+	run_owner.reset_game()
+	watch_signals(run_owner)
 	gate = GATE.new()
 	assert_true(run_owner.configure_mutation_gate(gate).ok)
 
@@ -26,7 +26,10 @@ func _ticket(operation: String, run_id: String) -> Dictionary:
 		"owner_id": session.owner_id, "run_id": run_id}
 
 func _install(run_id: String) -> void:
-	assert_true(run_owner.apply_restore_silent({"snapshot": fixture._snapshot(run_owner, run_id)}).ok)
+	var snapshot: Dictionary = run_owner.capture_run_snapshot_input()
+	snapshot.lifecycle.run_id = run_id
+	var installed: Dictionary = run_owner.apply_restore_silent({"snapshot": snapshot})
+	assert_true(installed.ok, str(installed))
 
 func _activate(operation: String, run_id: String) -> Dictionary:
 	var ticket := _ticket(operation, run_id)
@@ -50,6 +53,7 @@ func test_installation_alone_never_publishes_a_session_and_activation_requires_c
 	assert_true(run_owner.activate_live_session(ticket).ok)
 	var live: Dictionary = run_owner.capture_live_session().value
 	assert_true(live.active)
+	assert_true(run_owner.has_new_run_replacement())
 	assert_false(run_owner.validate_live_session(live).ok, "gate still blocks callbacks after activation")
 	assert_true(gate.release(&"new_run", lease.value.token).ok)
 	assert_true(run_owner.validate_live_session(live).ok)
@@ -92,7 +96,7 @@ func test_retirement_is_quiet_preserves_dormant_facts_and_refuses_old_capture_an
 	var raw: Dictionary = run_owner.capture_run_snapshot_input()
 	var backup: Dictionary = run_owner.capture_restore_state().value
 	var counts := {}
-	for signal_name: String in FIXTURE.SIGNALS: counts[signal_name] = get_signal_emit_count(run_owner, signal_name)
+	for signal_name: String in SIGNALS: counts[signal_name] = get_signal_emit_count(run_owner, signal_name)
 	assert_false(run_owner.retire_live_session(handle).ok)
 	var lease: Dictionary = gate.acquire(&"session_abandonment")
 	assert_true(run_owner.retire_live_session(handle).ok)
@@ -102,9 +106,9 @@ func test_retirement_is_quiet_preserves_dormant_facts_and_refuses_old_capture_an
 	assert_true(run_owner.retire_live_session(handle).ok)
 	assert_eq(run_owner.capture_live_session().value, retired)
 	assert_eq(run_owner.capture_run_snapshot_input(), raw, "no run/board/RNG/receipt reset belongs to Return")
-	assert_false(run_owner.get_new_run_replacement_baseline().value.present)
+	assert_false(run_owner.has_new_run_replacement())
 	assert_false(run_owner.rollback_restore_silent(backup).ok, "old backups cannot rewind retirement")
-	for signal_name: String in FIXTURE.SIGNALS: assert_eq(get_signal_emit_count(run_owner, signal_name), counts[signal_name])
+	for signal_name: String in SIGNALS: assert_eq(get_signal_emit_count(run_owner, signal_name), counts[signal_name])
 	assert_true(gate.release(&"session_abandonment", lease.value.token).ok)
 	assert_false(run_owner.validate_live_session(handle).ok)
 	assert_false(run_owner.capture_live_run_snapshot_input(handle).ok)

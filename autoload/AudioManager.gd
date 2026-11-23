@@ -86,10 +86,6 @@ func get_settings_audio_capability() -> Dictionary:
 	return {"ok": true, "value": {"volume": available, "samples": false}}
 
 
-func _ready() -> void:
-	pass
-
-
 func _exit_tree() -> void:
 	if _settings_transactions != null and _settings_transactions.has_preview():
 		_settings_transactions.cancel_current_preview()
