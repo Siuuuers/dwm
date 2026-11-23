@@ -25,10 +25,6 @@ var _restore_applied: Array = []
 var _publishing_own_presentation := false
 
 
-func _ready() -> void:
-	pass
-
-
 func configure_mutation_gate(gate: Object) -> Dictionary:
 	if gate == null or not gate.has_signal("capability_changed"):
 		return _fail(&"invalid_mutation_gate")

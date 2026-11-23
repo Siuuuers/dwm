@@ -57,10 +57,6 @@ var _scene_absence_context: Dictionary = {}
 var _scene_absence_context_value: Dictionary = {}
 
 
-func _ready() -> void:
-	pass
-
-
 func configure_mutation_gate(gate: Object) -> Dictionary:
 	if gate == null or not gate.has_signal("capability_changed"):
 		return _command_failure(&"invalid_mutation_gate")
