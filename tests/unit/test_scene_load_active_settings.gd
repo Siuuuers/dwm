@@ -1,7 +1,5 @@
-extends "res://tests/unit/test_scene_restore_activation_protocol.gd"
+extends "res://tests/support/SceneRestoreActivationFixture.gd"
 
-# Exercise the existing scene transaction and journal, with settings owners that
-# refuse restoration. No Godot/native presentation claim is made by this suite.
 class ActiveSettingsOnly extends RefCounted:
 	var calls: Array[String] = []
 	func prepare(_input: Dictionary) -> Dictionary:
@@ -46,19 +44,18 @@ func test_scene_load_reuses_settings_without_capture_apply_or_publication() -> v
 		plans[key] = {"reuse_current": true}
 	var result := _start()
 	assert_eq(result.code, &"scene_activation_pending")
-	participants.route.confirm(operation.transaction_id)
-	participants.narrative.confirm(operation.transaction_id)
+	participants.route.confirm("scene_load:1")
+	participants.narrative.confirm("scene_load:1")
 	assert_eq(participants.run.activated, 1)
-	assert_true(gate.released)
 	for key: String in ["profile", "localization"]:
 		assert_eq(participants[key].calls, [], "Load leaves active settings owners untouched")
-	assert_eq(journal.get_operation(operation.transaction_id).value.activation_state, "acknowledged")
+	assert_true(manager.capture_scene_restore_activation("scene_load:1").ok)
 
 func test_scene_load_failure_does_not_compensate_untouched_settings() -> void:
 	for key: String in ["profile", "localization"]:
 		participants[key] = ActiveSettingsOnly.new()
 		plans[key] = {"reuse_current": true}
-	storage.refuse = true
+	manager._journal.refuse_install = true
 	assert_false(_start().ok)
 	assert_eq(participants.run.rollbacks, 1)
 	for key: String in ["profile", "localization"]:

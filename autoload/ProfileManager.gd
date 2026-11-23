@@ -28,9 +28,6 @@ const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const CONTROLS_RULES := preload("res://scripts/settings/ControlsBindingRules.gd")
 const CONTROLS_IMPORT := preload("res://scripts/settings/ControlsBindingImport.gd")
 
-const NEW_RUN_MATERIAL_KEYS := ["before", "candidate", "captured_dark", "profile_revision",
-	"source_revision", "outgoing_text", "outgoing_hash"]
-
 const SCENE_NEW_RUN_MATERIAL_KEYS := ["before", "candidate", "profile_revision", "source_revision",
 	"outgoing_text", "outgoing_hash", "scene_assignment"]
 
@@ -38,8 +35,6 @@ const PRIMARY_LOCALE_PATH := &"preferences.language.primary_locale_id"
 const FONT_STYLE_PATH := &"preferences.accessibility.font_style"
 const _AUDIO_MEMORY_SURFACES := [&"META_POST_ENDING_TITLE", &"META_BACKUP_LOAD", &"META_GALLERY_REPLAY"]
 
-var _new_run_storage_bound := false
-var _new_run_persisting := false
 var _storage: RefCounted
 var _profile: Dictionary = {}
 var _profile_revision := 0
@@ -84,8 +79,6 @@ func initialize(storage: RefCounted = null) -> Dictionary:
 		return _failure(&"already_initialized", "ProfileManager initializes exactly once")
 	if storage == null:
 		return _failure(&"invalid_storage", "A storage adapter is required")
-	if _new_run_storage_bound and _storage != storage:
-		return _failure(&"profile_storage_already_bound", "New Run storage cannot be replaced")
 	_storage = storage
 	var reconciled: Dictionary = _storage.call(&"reconcile", "profile.json", _profile_migration_text_validator)
 	if not reconciled.get("ok", false):
@@ -129,88 +122,6 @@ func initialize(storage: RefCounted = null) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": _profile.duplicate(true)}
 
 
-func configure_new_run_storage(storage: RefCounted) -> Dictionary:
-	if not _supports_new_run_storage(storage):
-		return _failure(&"invalid_storage", "New Run requires revision-aware Profile storage")
-	if _storage != null and _storage != storage:
-		return _failure(&"profile_storage_already_bound", "New Run must retain the same Profile storage")
-	var already: bool = _new_run_storage_bound
-	_storage = storage
-	_new_run_storage_bound = true
-	return {"ok": true, "code": &"ok", "value": {"already_configured": already}}
-
-
-func prepare_new_run_consumption(expected_revision: Variant) -> Dictionary:
-	if not _initialized:
-		return _failure(&"not_initialized", "Profile must be initialized before New Run preparation")
-	if _mutation_blocked:
-		return _failure(&"indeterminate_commit", "Profile mutation is blocked", true)
-	if typeof(expected_revision) != TYPE_INT or expected_revision < 1:
-		return _failure(&"invalid_profile_revision", "New Run requires an exact Profile revision")
-	if expected_revision != _profile_revision:
-		return _failure(&"profile_revision_changed", "New Run preparation no longer matches Profile")
-	if not _supports_new_run_storage(_storage):
-		return _failure(&"invalid_storage", "New Run requires revision-aware Profile storage")
-	var flushed := flush_reading_history()
-	if not flushed.ok: return flushed
-	var checked: Dictionary = _validate_new_run_profile(_profile)
-	if not checked.get("ok", false): return checked
-	var before: Dictionary = checked["value"]
-	var inspected: Dictionary = _storage.inspect_revision("profile.json")
-	if not inspected.get("ok", false): return inspected
-	var disk: Dictionary = inspected["value"]
-	if not _new_run_hash(disk.get("revision")) or typeof(disk.get("text")) != TYPE_STRING:
-		return _failure(&"profile_source_changed", "Current Profile bytes are unavailable")
-	var decoded: Dictionary = _profile_text_validator(disk["text"])
-	if not decoded.get("ok", false) or decoded.get("value") != before \
-			or _profile_revision != expected_revision or _profile != before:
-		return _failure(&"profile_source_changed", "Live and stored Profile disagree")
-	var candidate: Dictionary = before.duplicate(true)
-	candidate["preferences"]["dark_mode"]["next_run_enabled"] = false
-	var emitted: Dictionary = WRITER.stringify(candidate)
-	if not emitted.get("ok", false): return emitted
-	var text: String = emitted["value"]
-	return {"ok": true, "code": &"ok", "value": {
-		"before": before.duplicate(true), "candidate": candidate,
-		"captured_dark": before["preferences"]["dark_mode"]["next_run_enabled"],
-		"profile_revision": expected_revision, "source_revision": disk["revision"],
-		"outgoing_text": text, "outgoing_hash": text.sha256_text()}}
-
-
-func prepare_scene_new_run_consumption(expected_revision: Variant, run_id: String,
-		creation_transaction_id: String, rng_nonce: Variant = null) -> Dictionary:
-	if not _initialized: return _failure(&"not_initialized", "Profile must be initialized")
-	if _mutation_blocked: return _failure(&"indeterminate_commit", "Profile mutation is blocked", true)
-	if typeof(expected_revision) != TYPE_INT or expected_revision < 1:
-		return _failure(&"invalid_profile_revision", "An exact Profile revision is required")
-	if expected_revision != _profile_revision: return _failure(&"profile_revision_changed", "Profile changed")
-	if not _supports_new_run_storage(_storage): return _failure(&"invalid_storage", "Revision-aware storage is required")
-	var flushed := flush_reading_history()
-	if not flushed.ok: return flushed
-	var checked: Dictionary = SCHEMA.validate(_profile)
-	if not checked.ok: return checked
-	var before: Dictionary = checked.value
-	var inspected: Dictionary = _storage.inspect_revision("profile.json")
-	if not inspected.ok: return inspected
-	var disk: Dictionary = inspected.value
-	if not _new_run_hash(disk.get("revision")) or typeof(disk.get("text")) != TYPE_STRING:
-		return _failure(&"profile_source_changed", "Current Profile bytes are unavailable")
-	var decoded: Dictionary = _profile_text_validator(disk.text)
-	if not decoded.ok or decoded.value != before or _profile_revision != expected_revision or _profile != before:
-		return _failure(&"profile_source_changed", "Live and stored Profile disagree")
-	var assignment: Dictionary = PAIR_DECK.prepare_scene_assignment(before.pair_deck_draws, run_id, creation_transaction_id, rng_nonce)
-	if not assignment.ok: return assignment
-	var candidate := before.duplicate(true)
-	candidate.pair_deck_draws[run_id] = assignment.value.duplicate(true)
-	var emitted: Dictionary = WRITER.stringify(candidate)
-	if not emitted.ok: return emitted
-	var material := {"before": before.duplicate(true), "candidate": candidate,
-		"profile_revision": expected_revision, "source_revision": disk.revision,
-		"outgoing_text": emitted.value, "outgoing_hash": str(emitted.value).sha256_text(),
-		"scene_assignment": {"run_id": run_id, "receipt": assignment.value.duplicate(true)}}
-	var validated: Dictionary = validate_scene_new_run_material(material)
-	return {"ok": true, "code": &"ok", "value": material} if validated.ok else validated
-
 static func validate_scene_new_run_material(material: Dictionary) -> Dictionary:
 	if not PAIR_DECK._scene_keys(material, SCENE_NEW_RUN_MATERIAL_KEYS) \
 			or not material.before is Dictionary or not material.candidate is Dictionary \
@@ -246,145 +157,6 @@ static func validate_scene_new_run_material(material: Dictionary) -> Dictionary:
 			or material.outgoing_text != expected.value or material.outgoing_text.sha256_text() != material.outgoing_hash:
 		return {"ok": false, "code": &"invalid_scene_new_run_material"}
 	return {"ok": true, "code": &"ok"}
-
-func persist_new_run_consumption(material: Dictionary) -> Dictionary:
-	if _new_run_persisting:
-		return _failure(&"profile_new_run_busy", "Profile persistence is already active")
-	var checked: Dictionary = _validate_new_run_material(material)
-	if not checked.get("ok", false): return checked
-	var detached: Dictionary = material.duplicate(true)
-	var admitted: Dictionary = _admit_new_run_persistence(detached)
-	if not admitted.get("ok", false): return admitted
-	_new_run_persisting = true
-	var result: Dictionary = _persist_new_run_material(detached)
-	_new_run_persisting = false
-	return result
-
-
-func prove_new_run_consumption(material: Dictionary) -> Dictionary:
-	var checked: Dictionary = _validate_new_run_material(material)
-	if not checked.get("ok", false): return checked
-	if not _supports_new_run_storage(_storage):
-		return _failure(&"invalid_storage", "New Run requires revision-aware Profile storage")
-	var inspected: Dictionary = _storage.inspect_revision("profile.json")
-	if not inspected.get("ok", false): return inspected
-	if inspected["value"].get("revision") != material["outgoing_hash"] \
-			or inspected["value"].get("text") != material["outgoing_text"]:
-		return _failure(&"profile_output_unproven", "Stored Profile differs from the retained consumption")
-	return {"ok": true, "code": &"ok", "value": {
-		"outgoing_hash": material["outgoing_hash"], "already_persisted": true}}
-
-
-func _persist_new_run_material(material: Dictionary) -> Dictionary:
-	var inspected: Dictionary = _storage.inspect_revision("profile.json")
-	if not inspected.get("ok", false) and inspected.get("code") == &"reconcile_required":
-		var marker_read: Dictionary = _storage.inspect_revision("profile.json.txn.json")
-		if not marker_read.get("ok", false): return marker_read
-		var marker_text: Variant = marker_read["value"].get("text")
-		if typeof(marker_text) != TYPE_STRING:
-			return _failure(&"profile_source_changed", "No bound Profile write marker is available")
-		var parsed: Dictionary = STRICT_JSON.parse_object(marker_text)
-		if not parsed.get("ok", false): return parsed
-		var marker: Dictionary = parsed["value"]
-		if typeof(marker.get("schema_version")) != TYPE_INT or marker["schema_version"] != 2 \
-				or marker.get("relative_path") != "profile.json" or marker.get("operation") != "write_revision" \
-				or marker.get("previous_hash") != material["source_revision"] \
-				or marker.get("outgoing_hash") != material["outgoing_hash"]:
-			return _failure(&"profile_source_changed", "Pending Profile write belongs to other material")
-		var admitted: Dictionary = _admit_new_run_persistence(material)
-		if not admitted.get("ok", false): return admitted
-		var recovered: Dictionary = _storage.reconcile("profile.json", _profile_text_validator)
-		if not recovered.get("ok", false) and recovered.get("code") != &"write_not_committed":
-			return recovered
-		inspected = _storage.inspect_revision("profile.json")
-	if not inspected.get("ok", false): return inspected
-	var current: Dictionary = inspected["value"]
-	var admitted: Dictionary = _admit_new_run_persistence(material)
-	if not admitted.get("ok", false): return admitted
-	if current.get("revision") == material["outgoing_hash"] and current.get("text") == material["outgoing_text"]:
-		return {"ok": true, "code": &"ok", "value": {"outgoing_hash": material["outgoing_hash"], "already_persisted": true}}
-	if current.get("revision") != material["source_revision"] or typeof(current.get("text")) != TYPE_STRING:
-		return _failure(&"profile_source_changed", "Profile bytes no longer match the prepared source")
-	var decoded: Dictionary = _profile_text_validator(current["text"])
-	if not decoded.get("ok", false) or decoded.get("value") != material["before"]:
-		return _failure(&"profile_source_changed", "Stored Profile does not match the prepared source")
-	var written: Dictionary = _storage.write_atomic_if_revision("profile.json", material["outgoing_text"],
-		_profile_text_validator, material["source_revision"])
-	if not written.get("ok", false): return written
-	var proved: Dictionary = _storage.inspect_revision("profile.json")
-	if not proved.get("ok", false): return proved
-	if proved["value"].get("revision") != material["outgoing_hash"] \
-			or proved["value"].get("text") != material["outgoing_text"]:
-		return _failure(&"profile_output_unproven", "Profile persistence could not be proved", true)
-	admitted = _admit_new_run_persistence(material)
-	if not admitted.get("ok", false): return admitted
-	return {"ok": true, "code": &"ok", "value": {"outgoing_hash": material["outgoing_hash"], "already_persisted": false}}
-
-
-func _admit_new_run_persistence(material: Dictionary) -> Dictionary:
-	if not _supports_new_run_storage(_storage):
-		return _failure(&"invalid_storage", "New Run requires revision-aware Profile storage")
-	if not is_instance_valid(_mutation_gate) or _mutation_gate.is_fatal_latched() \
-			or not _mutation_gate.is_internal_owner_active(&"new_run"):
-		return _failure(&"new_run_custody_required", "Profile persistence requires active nonfatal New Run custody")
-	if _mutation_blocked:
-		return _failure(&"indeterminate_commit", "Profile mutation is blocked", true)
-	if _initialized and (_profile_revision != material["profile_revision"] or _profile != material["before"]):
-		return _failure(&"profile_revision_changed", "Live Profile no longer matches frozen material")
-	return {"ok": true}
-
-
-func _validate_new_run_material(material: Dictionary) -> Dictionary:
-	if material.has("scene_assignment"): return validate_scene_new_run_material(material)
-	if material.size() != NEW_RUN_MATERIAL_KEYS.size():
-		return _failure(&"invalid_new_run_profile_material", "Unexpected material members")
-	for key: Variant in material:
-		if typeof(key) != TYPE_STRING or key not in NEW_RUN_MATERIAL_KEYS:
-			return _failure(&"invalid_new_run_profile_material", "Unexpected material member")
-	if typeof(material["before"]) != TYPE_DICTIONARY or typeof(material["candidate"]) != TYPE_DICTIONARY \
-			or typeof(material["captured_dark"]) != TYPE_BOOL or typeof(material["profile_revision"]) != TYPE_INT \
-			or material["profile_revision"] < 1 or not _new_run_hash(material["source_revision"]) \
-			or not _new_run_hash(material["outgoing_hash"]) or typeof(material["outgoing_text"]) != TYPE_STRING:
-		return _failure(&"invalid_new_run_profile_material", "Malformed material facts")
-	var checked: Dictionary = _validate_new_run_profile(material["before"])
-	if not checked.get("ok", false): return checked
-	var candidate: Dictionary = material["before"].duplicate(true)
-	if material["captured_dark"] != candidate["preferences"]["dark_mode"]["next_run_enabled"]:
-		return _failure(&"invalid_new_run_profile_material", "Captured Dark differs from the source")
-	candidate["preferences"]["dark_mode"]["next_run_enabled"] = false
-	var candidate_checked: Dictionary = _validate_new_run_profile(material["candidate"])
-	if not candidate_checked.get("ok", false): return candidate_checked
-	var expected: Dictionary = WRITER.stringify(candidate)
-	var supplied: Dictionary = WRITER.stringify(material["candidate"])
-	if not expected.get("ok", false) or not supplied.get("ok", false) \
-			or expected.get("value") != supplied.get("value") or material["outgoing_text"] != expected.get("value") \
-			or material["outgoing_text"].sha256_text() != material["outgoing_hash"]:
-		return _failure(&"invalid_new_run_profile_material", "Only canonical Dark selector consumption is allowed")
-	return {"ok": true}
-
-
-func _validate_new_run_profile(profile: Dictionary) -> Dictionary:
-	var checked: Dictionary = SCHEMA.validate(profile)
-	if not checked.get("ok", false): return checked
-	var dark: Dictionary = profile["preferences"]["dark_mode"]
-	if dark["next_run_enabled"] and not dark["available"]:
-		return _failure(&"invalid_new_run_profile_material", "Unavailable Dark cannot be enabled")
-	return checked
-
-
-func _supports_new_run_storage(storage: RefCounted) -> bool:
-	if not is_instance_valid(storage): return false
-	for method: StringName in [&"inspect_revision", &"write_atomic_if_revision", &"reconcile"]:
-		if not storage.has_method(method): return false
-	return true
-
-
-func _new_run_hash(value: Variant) -> bool:
-	if typeof(value) != TYPE_STRING or value.length() != 64: return false
-	for codepoint: int in value.to_ascii_buffer():
-		if not (codepoint >= 0x30 and codepoint <= 0x39) and not (codepoint >= 0x61 and codepoint <= 0x66): return false
-	return true
-
 
 func prepare_profile_document(raw: Dictionary) -> Dictionary:
 	return MIGRATION.prepare_document(raw)
@@ -474,7 +246,7 @@ func _commit_profile_candidate(candidate: Dictionary, defer_signals: bool = fals
 		if scene_draws != _scene_assignment_records(_profile.pair_deck_draws):
 			return _failure(&"scene_assignment_joint_new_run_required", "Only joint New Run persists scene assignments")
 		if not scene_draws.is_empty():
-			if not _supports_new_run_storage(_storage): return _failure(&"invalid_storage", "Revision-aware storage is required")
+			if not is_instance_valid(_storage) or not _storage.has_method(&"inspect_revision"): return _failure(&"invalid_storage", "Revision-aware storage is required")
 			var stored: Dictionary = _storage.inspect_revision("profile.json")
 			if not stored.ok: return stored
 			var stored_profile: Dictionary = _profile_text_validator(str(stored.value.get("text", "")))
@@ -924,12 +696,12 @@ func _prove_scene_assignment_observed_body(run_id: String, receipt: Dictionary) 
 	if not PAIR_DECK._scene_id(run_id): return _failure(&"invalid_scene_assignment", "Run identity is required")
 	var expected: Dictionary = PAIR_DECK.validate_scene(receipt)
 	if not expected.ok: return expected
-	if not _supports_new_run_storage(_storage):
+	if not is_instance_valid(_storage) or not _storage.has_method(&"inspect_revision"):
 		return _failure(&"invalid_storage", "Revision-aware Profile storage is required")
 	var inspected: Dictionary = _storage.inspect_revision("profile.json")
 	if not inspected.ok: return inspected
 	var disk: Dictionary = inspected.value
-	if typeof(disk.get("text")) != TYPE_STRING or not _new_run_hash(disk.get("revision")) \
+	if typeof(disk.get("text")) != TYPE_STRING or typeof(disk.get("revision")) != TYPE_STRING \
 			or disk.text.sha256_text() != disk.revision:
 		return _failure(&"scene_assignment_unproven", "Current Profile bytes are unavailable")
 	var decoded: Dictionary = _profile_text_validator(disk.text)

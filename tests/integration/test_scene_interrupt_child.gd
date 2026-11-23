@@ -98,17 +98,10 @@ func resume_interrupted_load() -> void:
 	assert_eq(witness.narrative_confirmations, [])
 	assert_eq(fixture.persistent_files(), witness.persistent_files, "process interruption preserves persistent bytes")
 	var operation_id: String = witness.operation_id
-	var before: Dictionary = fixture.manager._continuation_journal.get_operation(operation_id)
-	assert_false(before.ok, "interrupted Load leaves no durable continuation")
 	assert_true(witness.operation_absent)
 	assert_eq(fixture.ready_count, 0)
 	var profile_before: Dictionary = fixture.profile.get_profile_snapshot().duplicate(true)
 	assert_true(WRITER._deep_same(profile_before, witness.profile))
-	var reconciled: Dictionary = fixture.manager.reconcile_incomplete_continuations()
-	assert_true(reconciled.ok, str(reconciled))
-	if not reconciled.ok: return
-	assert_eq(reconciled.value.reconciled, [], "startup has no unfinished Load to resume")
-	assert_eq(fixture.ready_count, 0)
 	var prepared: Dictionary = fixture.manager.prepare_restore_autosave()
 	assert_true(prepared.ok, str(prepared))
 	if not prepared.ok: return
@@ -119,7 +112,7 @@ func resume_interrupted_load() -> void:
 	var activated: Dictionary = await fixture.await_activation()
 	assert_true(activated.ok, str(activated))
 	if not activated.ok: return
-	assert_false(fixture.manager._continuation_journal.get_operation(fresh_operation_id).ok)
+	assert_false(fixture.storage.exists(fixture.JOURNAL.JOURNAL_PATH))
 	assert_true(fixture.manager.capture_scene_restore_activation(fresh_operation_id).ok)
 	assert_eq(fixture.game.capture_run_snapshot_input().lifecycle, witness.snapshot.lifecycle)
 	assert_eq(fixture.ready_count, 1)
@@ -159,11 +152,8 @@ func resume_interrupted_load() -> void:
 		assert_true(publication.get("value", {}).get("duplicate", false))
 	assert_eq(fixture.native_markers, [])
 	assert_true(fixture.manager.retry_scene_activation(fresh_operation_id).ok)
-	var repeated: Dictionary = fixture.manager.reconcile_incomplete_continuations()
-	assert_true(repeated.ok, str(repeated))
-	if repeated.ok: assert_eq(repeated.value.reconciled, [])
 	await get_tree().process_frame
-	assert_eq(fixture.ready_count, 1, "retry and repeated recovery cannot publish a second readiness")
+	assert_eq(fixture.ready_count, 1, "retry cannot publish a second readiness")
 	assert_eq(fixture.route_confirmations, [fresh_operation_id])
 	assert_eq(fixture.narrative_confirmations, [fresh_operation_id])
 	var proof := {"phase": "resume", "point": point, "process_id": OS.get_process_id(),

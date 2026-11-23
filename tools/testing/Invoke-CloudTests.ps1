@@ -61,10 +61,7 @@ $suites = @{
     scene_passage_connected = @('tests/integration/test_scene_passage_connected_create.gd')
     scene_passage_catalogue = @('tests/unit/test_scene_passage_gallery.gd')
     scene_audio_connected = @('tests/integration/test_scene_audio_connected_create.gd')
-    scene_save_metadata = @(
-        'tests/integration/test_scene_initial_candidate.gd'
-        'tests/unit/test_scene_creation_storage_recovery.gd'
-    )
+    scene_save_metadata = @('tests/integration/test_scene_initial_candidate.gd')
     scene_player_position = @('tests/unit/test_scene_player_position.gd', 'tests/unit/test_scene_content_recovery.gd')
     scene_native_restore = @('tests/integration/test_scene_native_activation_runtime.gd')
     scene_owner_composition = @('tests/integration/test_scene_owner_composition.gd')
@@ -155,7 +152,7 @@ $suites = @{
         'tests/unit/test_normalization_identity.gd'
     )
     persistence = @(
-        'tests/unit/test_scene_restore_journal.gd'
+        'tests/unit/test_scene_new_run_journal.gd'
         'tests/unit/test_scene_memory_load.gd'
         'tests/integration/test_scene_direct_load.gd'
         'tests/unit/test_scene_load_active_settings.gd'
@@ -170,7 +167,6 @@ $suites = @{
         'tests/unit/test_pair_deck_draw.gd'
         'tests/unit/test_pair_deck_draw_port.gd'
         'tests/unit/test_profile_v4_upgrade.gd'
-        'tests/unit/test_profile_new_run_consumption.gd'
         'tests/unit/test_save_migrations.gd'
         'tests/integration/test_save_manager_journal.gd'
         'tests/integration/test_restore_transaction.gd'
@@ -311,7 +307,6 @@ $suites = @{
     )
     new_account = @(
         'tests/unit/test_canonical_writer_compatibility.gd'
-        'tests/unit/test_continuation_serialization_cache.gd'
         'tests/unit/test_new_acc_title_lifetime.gd'
         'tests/unit/test_run_dark_configuration.gd'
         'tests/integration/test_prepared_new_run.gd'

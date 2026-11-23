@@ -2,7 +2,7 @@ extends Node
 
 signal application_ready()
 signal development_subset_ready(subset_id: StringName)
-signal startup_recovery_changed()
+signal startup_failed()
 
 class ContactsDesktopEvictionPort extends RefCounted:
 	var view: WeakRef
@@ -118,11 +118,6 @@ var _runtime_stage_index := STAGE_ORDER.find(&"initialize_dialogic_bridge")
 var _started := false
 var _quitting := false
 var _start_begun := false
-var _startup_recovery_busy := false
-var _scene_startup_recovery: Dictionary = {}
-var _new_run_startup_recovery := {
-	"available": false, "transaction_id": "", "failed_stage": &"",
-}
 var _startup_route_owner: Object = null
 var _startup_route_hold_token := ""
 var _debug_gate_factory: Callable
@@ -330,7 +325,7 @@ func get_startup_state() -> Dictionary:
 	return _state.duplicate(true)
 
 func is_profile_reset_admitted() -> bool:
-	if not _state.ready or _quitting or _startup_recovery_busy or not _pending_live_continuation.is_empty():
+	if not _state.ready or _quitting or not _pending_live_continuation.is_empty():
 		return false
 	var title := get_tree().current_scene
 	if title == null or title.is_queued_for_deletion() or title.scene_file_path != "res://scenes/menu/MenuScene.tscn":
@@ -342,148 +337,13 @@ func is_profile_reset_admitted() -> bool:
 		and not game.capture_live_session().value.active and not game.has_new_run_replacement()
 
 
-func get_scene_startup_recovery() -> Dictionary:
-	return {"ok": true, "value": _scene_startup_recovery.duplicate(true)}
-
-
-func retry_scene_startup_activation(transaction_id: String) -> Dictionary:
-	if _startup_recovery_busy:
-		return _failure(&"scene_startup_retry_busy", "Startup recovery is already running")
-	if _scene_startup_recovery.is_empty() or transaction_id.is_empty() or transaction_id != _scene_startup_recovery.transaction_id:
-		return _failure(&"scene_startup_recovery_unavailable", "No matching scene activation is pending")
-	var saves := _target(&"SaveManager")
-	if saves == null or not saves.has_method("retry_scene_activation"):
-		return _failure(&"scene_activation_unavailable", "Scene activation owner is unavailable")
-	_startup_recovery_busy = true
-	var failed_stage: StringName = _scene_startup_recovery.failed_stage
-	var result: Dictionary = saves.retry_scene_activation(transaction_id)
-	if result.get("ok", false):
-		if not _startup_route_hold_token.is_empty():
-			if _startup_route_owner == null or not _startup_route_owner.has_method("complete_startup_scene_activation"):
-				result = _failure(&"scene_startup_route_unavailable", "Scene startup publication owner is unavailable")
-			else:
-				result = _startup_route_owner.complete_startup_scene_activation(_startup_route_hold_token, transaction_id)
-		if result.get("ok", false):
-			result = _continue_startup_after_recovery(failed_stage, transaction_id)
-		if result.get("ok", false):
-			_scene_startup_recovery.clear()
-			startup_recovery_changed.emit()
-	if not result.get("ok", false):
-		_scene_startup_recovery["cause"] = result.duplicate(true)
-	_startup_recovery_busy = false
-	return result
-
-
-func get_new_run_startup_recovery() -> Dictionary:
-	return {"ok": true, "code": &"ok", "value": {
-		"available": bool(_new_run_startup_recovery["available"]),
-		"transaction_id": str(_new_run_startup_recovery["transaction_id"]),
-	}}
-
-
-func retry_new_run_startup(transaction_id: String) -> Dictionary:
-	if _startup_recovery_busy:
-		return _failure(&"new_run_startup_retry_busy", "Startup recovery is already running")
-	if not bool(_new_run_startup_recovery["available"]):
-		return _failure(&"new_run_startup_recovery_unavailable", "No retryable New Run startup failure is retained")
-	if transaction_id.is_empty() or transaction_id != str(_new_run_startup_recovery["transaction_id"]):
-		return _failure(&"invalid_new_run_startup_transaction", "The retained New Run transaction does not match")
-	_startup_recovery_busy = true
-	var result := _retry_new_run_startup(transaction_id)
-	_startup_recovery_busy = false
-	return result
-
-
-func _retry_new_run_startup(transaction_id: String) -> Dictionary:
-	var failed_stage: StringName = _new_run_startup_recovery["failed_stage"]
-	if failed_stage == &"initialize_saves":
-		var save_manager := _target(&"SaveManager")
-		if save_manager == null or not save_manager.has_method("reconcile_new_run_storage"):
-			return _record_startup_stage_failure(failed_stage,
-				_failure(&"missing_stage_adapter", "New Acc startup recovery is unavailable"))
-		var settled: Dictionary = save_manager.call(&"reconcile_new_run_storage")
-		if not settled.get("ok", false):
-			return _record_startup_retry_failure(failed_stage, transaction_id, settled)
-		if failed_stage not in _state["completed_stages"]:
-			_state["completed_stages"].append(failed_stage)
-	return _continue_startup_after_recovery(failed_stage, transaction_id)
-
-
-func _continue_startup_after_recovery(failed_stage: StringName, transaction_id: String) -> Dictionary:
-	var reached_failure := false
-	for stage_id: StringName in STAGE_ORDER:
-		if stage_id == failed_stage:
-			reached_failure = true
-		if not reached_failure or stage_id in _state["completed_stages"]:
-			continue
-		var stage_result: Dictionary = _run_stage(stage_id, _state["mode"])
-		if not stage_result.get("ok", false):
-			return _record_startup_retry_failure(stage_id, transaction_id, stage_result)
-		_state["completed_stages"].append(stage_id)
-	var published: Dictionary = _publish_startup_route_hold()
-	if not published.get("ok", false):
-		_state["completed_stages"].erase(&"publish_application_ready")
-		return _record_startup_retry_failure(&"publish_application_ready", transaction_id, published)
-	_clear_new_run_startup_recovery()
-	_state["fatal_result"] = {}
-	_state["failed_stage"] = null
-	_started = true
-	if not bool(_state["ready"]):
-		_state["title_ready"] = true
-		_state["ready"] = true
-		application_ready.emit()
-	return {"ok": true, "code": &"ok", "value": get_startup_state()}
-
-
-func _record_startup_retry_failure(stage_id: StringName, transaction_id: String,
-		result: Dictionary) -> Dictionary:
-	if result.get("code") == &"NEW_RUN_RECOVERY_PENDING" 			and str(result.get("transaction_id", "")) != transaction_id:
-		return _record_startup_stage_failure(stage_id,
-			_failure(&"new_run_startup_transaction_changed",
-				"Startup recovery returned a different transaction"))
-	return _record_startup_stage_failure(stage_id, result)
-
-
 func _record_startup_stage_failure(stage_id: StringName, result: Dictionary) -> Dictionary:
-	if result.get("code") == &"scene_activation_pending" and typeof(result.get("transaction_id")) == TYPE_STRING and not str(result.transaction_id).is_empty():
-		if not _scene_startup_recovery.is_empty() and _scene_startup_recovery.transaction_id != result.transaction_id:
-			return _failure(&"scene_startup_transaction_changed", "Pending scene operation changed")
-		_scene_startup_recovery = {"available": true, "transaction_id": result.transaction_id,
-			"failed_stage": stage_id, "cause": result.duplicate(true)}
-		_state["ready"] = false
-		_state["fatal_result"] = {}
-		_state["failed_stage"] = stage_id
-		_started = true
-		startup_recovery_changed.emit()
-		return result.duplicate(true)
 	print("STARTUP_FAILED stage=%s code=%s" % [stage_id, str(result.get("code", "unknown"))])
-	var retained := result.duplicate(true)
-	_state["fatal_result"] = retained
+	_state["fatal_result"] = result.duplicate(true)
 	_state["failed_stage"] = stage_id
 	_started = true
-	var qualifies: bool = _state["mode"] == MODE_FINAL 		and stage_id in [&"initialize_saves", &"publish_application_ready"] 		and retained.get("code") == &"NEW_RUN_RECOVERY_PENDING" 		and typeof(retained.get("transaction_id")) == TYPE_STRING 		and not str(retained["transaction_id"]).is_empty()
-	if qualifies:
-		_new_run_startup_recovery = {
-			"available": true,
-			"transaction_id": str(retained["transaction_id"]),
-			"failed_stage": stage_id,
-		}
-		startup_recovery_changed.emit()
-	else:
-		var recovery_was_available: bool = bool(_new_run_startup_recovery["available"])
-		_clear_new_run_startup_recovery()
-		if not recovery_was_available:
-			startup_recovery_changed.emit()
-	return retained
-
-
-func _clear_new_run_startup_recovery() -> void:
-	var changed: bool = bool(_new_run_startup_recovery["available"])
-	_new_run_startup_recovery = {
-		"available": false, "transaction_id": "", "failed_stage": &"",
-	}
-	if changed:
-		startup_recovery_changed.emit()
+	startup_failed.emit()
+	return result
 
 
 func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
@@ -544,18 +404,7 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 						_desktop_identity_nonce_issuer)
 					if not save_issuer.get("ok", false):
 						return save_issuer
-			var profile := _target(&"ProfileManager")
-			if profile == null or not profile.has_method("configure_new_run_storage") \
-					or not save_manager.has_method("configure_new_run_profile_owner") \
-					or not save_manager.has_method("reconcile_new_run_storage"):
-				return _failure(&"missing_stage_adapter", "New Acc startup recovery is unavailable")
-			var profile_bound: Dictionary = profile.call(&"configure_new_run_storage", _profile_storage)
-			if not profile_bound.get("ok", false): return profile_bound
-			var recovery_bound: Dictionary = save_manager.call(&"configure_new_run_profile_owner", profile)
-			if not recovery_bound.get("ok", false): return recovery_bound
-			var scene_creation := _configure_registered_scene_creation()
-			if not scene_creation.get("ok", false): return scene_creation
-			return save_manager.call(&"reconcile_new_run_storage")
+			return save_initialized
 		&"initialize_dialogic_bridge":
 			var bridge := _target(&"DialogicBridge")
 			var profile := _target(&"ProfileManager")
@@ -912,9 +761,7 @@ func get_desktop_contract_state() -> Dictionary:
 	return state
 
 func _desktop_amendment_probe_fields() -> Dictionary:
-	var save_manager := _target(&"SaveManager")
 	var game_state := _target(&"GameState")
-	var continuation_journal: Object = save_manager.get("_continuation_journal") if save_manager != null else null
 	var restore_participant_ids := {
 	}
 	for key: String in ["run", "desktop_consequence", "desktop_board", "schedule_view", "profile",
@@ -925,7 +772,6 @@ func _desktop_amendment_probe_fields() -> Dictionary:
 		and _retained_minesweeper_generation_port != null and _retained_dating_physical_owner != null
 	return {
 		"mutation_gate_instance_id": _instance_id(_application_gate),
-		"continuation_journal_instance_id": _instance_id(continuation_journal),
 		"desktop_publication_ledger_instance_id": _instance_id(_retained_desktop_publication_ledger),
 		"host_instance_id": _instance_id(_desktop_host_state),
 		"board_state_instance_id": _instance_id(_desktop_board_state),
@@ -1000,9 +846,6 @@ func _configure_restore_participants() -> Dictionary:
 		_desktop_board_state = load("res://scripts/domain/minesweeper/DesktopBoardState.gd").new()
 		var scene_payments: Dictionary = _desktop_board_state.configure_scene_payments(_desktop_identity_nonce_issuer)
 		if not scene_payments.get("ok", false): return scene_payments
-	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_contract_tables()
-	if not selected.get("ok", false):
-		return selected
 	var participants := {
 		"run": load("res://scripts/application/restore/RunRestoreParticipant.gd").new(game_state),
 		"desktop_consequence": load("res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd").new(_desktop_consequence_state),
@@ -1024,28 +867,25 @@ func _configure_restore_participants() -> Dictionary:
 	return configured
 
 
-func _configure_registered_scene_creation() -> Dictionary:
-	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_contract_tables()
-	if not selected.get("ok", false):
-		return selected
-	var saves := _target(&"SaveManager")
-	var configured: Dictionary = saves.configure_scene_new_run(_target(&"DialogicBridge"))
-	if not configured.get("ok", false): return configured
-	var first_target: String = DIALOGIC_ENTRY_MANIFEST.first_target_id()
-	if first_target.is_empty() or selected.bundle.get("schema_version") != 3: return {"ok": true}
-	return saves.configure_scene_title_new_run(first_target)
-
 func _configure_registered_scene_runtime() -> Dictionary:
+	var saves := _target(&"SaveManager")
+	var bridge := _target(&"DialogicBridge")
+	var profile_bound: Dictionary = saves.configure_new_run_profile_owner(_target(&"ProfileManager"))
+	if not profile_bound.ok: return profile_bound
+	var creation: Dictionary = saves.configure_scene_new_run(bridge)
+	if not creation.ok: return creation
 	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_contract_tables()
-	if not selected.get("ok", false):
-		return selected
-	if not DIALOGIC_ENTRY_MANIFEST.first_target_id().is_empty() and FileAccess.file_exists("res://data/manifests/scene_ending_reading_catalogue.json") and OS.get_environment("DWM_SCENE_READING_FIXTURE") != "1" and not OS.get_cmdline_user_args().has(DIALOGIC_ENTRY_MANIFEST.SCENE_TEST_FLAG) and not OS.get_cmdline_args().has(DIALOGIC_ENTRY_MANIFEST.SCENE_TEST_FLAG):
+	if not selected.ok: return selected
+	var first_target: String = DIALOGIC_ENTRY_MANIFEST.first_target_id()
+	if not first_target.is_empty() and selected.bundle.get("schema_version") == 3:
+		var title: Dictionary = saves.configure_scene_title_new_run(first_target)
+		if not title.ok: return title
+	if not first_target.is_empty() and FileAccess.file_exists("res://data/manifests/scene_ending_reading_catalogue.json") and OS.get_environment("DWM_SCENE_READING_FIXTURE") != "1" and not OS.get_cmdline_user_args().has(DIALOGIC_ENTRY_MANIFEST.SCENE_TEST_FLAG) and not OS.get_cmdline_args().has(DIALOGIC_ENTRY_MANIFEST.SCENE_TEST_FLAG):
 		var catalogue: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
 			FileAccess.get_file_as_string("res://data/manifests/scene_ending_reading_catalogue.json"))
 		if not catalogue.get("ok", false): return catalogue
-		var configured: Dictionary = _target(&"DialogicBridge").configure_reading_catalogue(catalogue.value)
+		var configured: Dictionary = bridge.configure_reading_catalogue(catalogue.value)
 		if not configured.get("ok", false): return configured
-	var saves := _target(&"SaveManager")
 	var game := _target(&"GameState")
 	var router := _target(&"SceneRouter")
 	var proof: Dictionary = RUN_SNAPSHOT_SCHEMA_FOR_PROBE.configure_scene_validation(
@@ -1094,12 +934,6 @@ func _configure_desktop_production_graph() -> Dictionary:
 			return ledger_loaded
 		_retained_desktop_publication_ledger = ledger
 	var ledger: RefCounted = _retained_desktop_publication_ledger
-
-	var save_manager := _target(&"SaveManager")
-	if save_manager != null and save_manager.has_method("reconcile_incomplete_continuations"):
-		var reconciled: Dictionary = save_manager.call(&"reconcile_incomplete_continuations")
-		if not reconciled.get("ok", false):
-			return reconciled
 
 	if _desktop_identity_provider.is_null():
 		_desktop_identity_provider = Callable(game_state, "capture_desktop_identity_context")

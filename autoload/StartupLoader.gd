@@ -41,11 +41,6 @@ func _install() -> void:
 	if not staged: return
 	var title_result: Dictionary = _bootstrap.start_title()
 	if not title_result.get("ok", false):
-		# Recovery keeps the original synchronous continuation and all its real owners.
-		for owner: String in RUNTIME:
-			_attach(owner, load(_owner_path(owner)))
-		if _bootstrap.get_startup_state().failed_stage == &"initialize_saves":
-			_bootstrap.prepare_runtime()
 		get_tree().change_scene_to_file(TITLE)
 		return
 	for owner: String in RUNTIME: _runtime_paths.append(_owner_path(owner))

@@ -20,10 +20,6 @@ class Save extends Node:
 	signal live_session_ready()
 	func initialize(_storage: Object) -> Dictionary: return {"ok": true}
 	func configure_new_run_profile_owner(_profile: Object) -> Dictionary: return {"ok": true}
-	func reconcile_new_run_storage() -> Dictionary: return {"ok": true}
-
-class Profile extends Node:
-	func configure_new_run_storage(_storage: Object) -> Dictionary: return {"ok": true}
 
 class Game extends Node:
 	func capture_live_session() -> Dictionary:
@@ -33,7 +29,7 @@ func _fixture() -> Dictionary:
 	var bootstrap: Node = autofree(Bootstrap.new())
 	var save: Node = autofree(Save.new())
 	var checkpoints := Checkpoints.new()
-	bootstrap.targets = {&"SaveManager": save, &"ProfileManager": autofree(Profile.new()),
+	bootstrap.targets = {&"SaveManager": save, &"ProfileManager": autofree(Node.new()),
 		&"GameState": autofree(Game.new())}
 	bootstrap._application_gate = GATE.new()
 	bootstrap._retained_checkpoint_port = checkpoints
@@ -51,6 +47,7 @@ func test_successful_session_activation_clears_old_action_before_continuation_on
 
 func test_routine_continuation_keeps_same_session_retry_receipts() -> void:
 	var f := _fixture()
-	f.bootstrap._on_day_resolution_completed({"ok": true})
+	assert_true(f.bootstrap._run_stage(&"initialize_saves", &"final").ok)
+	f.bootstrap._application_gate.transaction_released.emit()
 	assert_eq(f.checkpoints.clears, 0)
 	assert_eq(f.bootstrap.queued_receipts, [{"old_action": "pending"}])

@@ -30,8 +30,7 @@ const SCENE_INITIAL_KEYS: Array[String] = [
 
 
 static func validate(materials: Variant, initial_context: Dictionary, transaction_id: String,
-		allocation_fingerprint: String, scene_bundle: Dictionary = {}, scene_issuer: Object = null,
-		acknowledged_scene_history: bool = false) -> Dictionary:
+		allocation_fingerprint: String, scene_bundle: Dictionary, scene_issuer: Object) -> Dictionary:
 	if typeof(materials) != TYPE_DICTIONARY:
 		return _fail(&"new_run_materials_invalid", "materials must be an object")
 	var detached: Dictionary = (materials as Dictionary).duplicate(true)
@@ -39,11 +38,10 @@ static func validate(materials: Variant, initial_context: Dictionary, transactio
 		return _fail(&"new_run_materials_invalid", "materials have unexpected members")
 	if transaction_id.strip_edges().is_empty() or not _is_sha256(allocation_fingerprint):
 		return _fail(&"new_run_materials_invalid", "transaction identity is malformed")
-	return _validate_scene(detached, initial_context, transaction_id, allocation_fingerprint, scene_bundle, scene_issuer, acknowledged_scene_history)
+	return _validate_scene(detached, initial_context, transaction_id, allocation_fingerprint, scene_bundle, scene_issuer)
 
 static func _validate_scene(materials: Dictionary, initial_context: Dictionary,
-		transaction_id: String, allocation_fingerprint: String, scene_bundle: Dictionary, scene_issuer: Object,
-		acknowledged_scene_history: bool) -> Dictionary:
+		transaction_id: String, allocation_fingerprint: String, scene_bundle: Dictionary, scene_issuer: Object) -> Dictionary:
 	var run_schema: Script = load("res://scripts/domain/run/RunSnapshotSchema.gd")
 	var primitive: Dictionary = run_schema.validate_primitive_tree(initial_context)
 	if not primitive.ok: return primitive
@@ -70,7 +68,7 @@ static func _validate_scene(materials: Dictionary, initial_context: Dictionary,
 			or assignment.receipt.creation_transaction_id != transaction_id:
 		return _fail(&"new_run_profile_invalid", "scene assignment does not bind this allocated creation")
 	var autosave := _validate_autosave(materials.autosave, initial_context, allocation.value,
-		assignment.receipt, materials.profile, scene_bundle, scene_issuer, acknowledged_scene_history)
+		assignment.receipt, materials.profile, scene_bundle, scene_issuer)
 	if not autosave.get("ok", false): return autosave
 	return {"ok": true, "code": &"ok", "value": {"materials": materials.duplicate(true)}}
 
@@ -164,8 +162,7 @@ static func _validate_receipt(value: Variant, namespace_value: String, purpose: 
 
 static func _validate_autosave(value: Variant, initial_context: Dictionary,
 		allocation: Dictionary, scene_assignment: Dictionary,
-		profile_material: Dictionary = {}, scene_bundle: Dictionary = {}, scene_issuer: Object = null,
-		acknowledged_scene_history: bool = false) -> Dictionary:
+		profile_material: Dictionary, scene_bundle: Dictionary, scene_issuer: Object) -> Dictionary:
 	if typeof(value) != TYPE_DICTIONARY or not _has_exact_keys(value as Dictionary, AUTOSAVE_KEYS):
 		return _fail(&"new_run_autosave_invalid", "Autosave material has unexpected members")
 	var autosave: Dictionary = value
@@ -179,20 +176,16 @@ static func _validate_autosave(value: Variant, initial_context: Dictionary,
 	var parsed: Dictionary = STRICT_JSON.parse_object(outgoing_text)
 	if not parsed.get("ok", false):
 		return _fail(&"new_run_autosave_invalid", "Autosave bytes are not strict JSON")
-	var validated: Dictionary
-	var historical_checkpoint := {}
-	if acknowledged_scene_history:
-		var current: Variant = parsed.value.get("current_snapshot")
-		var snapshot: Variant = current.get("snapshot") if current is Dictionary else null
-		var checkpoint: Variant = snapshot.get("narrative_checkpoint") if snapshot is Dictionary else null
-		var reading: Variant = checkpoint.get("reading_session") if checkpoint is Dictionary else null
-		if not reading is Dictionary:
-			return _fail(&"new_run_autosave_invalid", "historical initial reading is missing")
-		var projected := _project_acknowledged_initial_checkpoint(initial_context.dialogic_checkpoint, reading.get("schema_version"))
-		if not projected.ok: return projected
-		historical_checkpoint = projected.value
-	validated = SAVE_DOCUMENT_SCHEMA.validate_scene_new_run_candidate(parsed["value"] as Dictionary,
-		allocation, profile_material, scene_bundle, scene_issuer, historical_checkpoint)
+	var current: Variant = parsed.value.get("current_snapshot")
+	var retained: Variant = current.get("snapshot") if current is Dictionary else null
+	var checkpoint: Variant = retained.get("narrative_checkpoint") if retained is Dictionary else null
+	var reading: Variant = checkpoint.get("reading_session") if checkpoint is Dictionary else null
+	if not reading is Dictionary:
+		return _fail(&"new_run_autosave_invalid", "historical initial reading is missing")
+	var projected := _project_acknowledged_initial_checkpoint(initial_context.dialogic_checkpoint, reading.get("schema_version"))
+	if not projected.ok: return projected
+	var validated := SAVE_DOCUMENT_SCHEMA.validate_scene_new_run_candidate(parsed.value,
+		allocation, profile_material, scene_bundle, scene_issuer, projected.value)
 	if not validated.get("ok", false):
 		return _fail(&"new_run_autosave_invalid", "Autosave bytes do not satisfy the current schema")
 	var document: Dictionary = validated["value"]["candidate"]
@@ -216,16 +209,13 @@ static func _validate_autosave(value: Variant, initial_context: Dictionary,
 			or lifecycle.get("causal_day_instance") != allocation["causal_day_instance"] \
 			or lifecycle.get("causal_day_instance_issuer_receipt") != allocation["causal_day_instance_issuer_receipt"]:
 		return _fail(&"new_run_autosave_invalid", "Autosave snapshot does not bind allocated identity")
-	var player_checkpoint: Dictionary = {"ok": true, "value": historical_checkpoint} if acknowledged_scene_history else \
-		preload("res://scripts/narrative/SoloReadingSession.gd").project_player_checkpoint(initial_context.dialogic_checkpoint)
-	if not player_checkpoint.ok: return player_checkpoint
 	if document.get("schema_version") != 9 or snapshot.get("schema_version") != 9 \
 			or lifecycle.get("state") != "PLAYING" or lifecycle.get("restore_provenance") != null \
 			or lifecycle.get("scene_assignment") != scene_assignment \
 			or snapshot.get("route_id") != "scene" or initial_context.get("route_id") != "scene" \
 			or initial_context.get("active_app_id") != null \
 			or snapshot.get("content_version") != initial_context.get("content_version") \
-			or not SAVE_DOCUMENT_SCHEMA.RUN_SNAPSHOT_SCHEMA._scene_exact_value(snapshot.get("narrative_checkpoint"), player_checkpoint.value):
+			or not SAVE_DOCUMENT_SCHEMA.RUN_SNAPSHOT_SCHEMA._scene_exact_value(snapshot.get("narrative_checkpoint"), projected.value):
 		return _fail(&"new_run_autosave_invalid", "scene Autosave differs from its allocated assignment or initial context")
 	return {"ok": true, "code": &"ok", "value": autosave.duplicate(true)}
 

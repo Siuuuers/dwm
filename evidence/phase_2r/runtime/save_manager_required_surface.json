@@ -2,7 +2,7 @@
   "schema": "save_manager_required_surface.v1",
   "symbols": [
     {"symbol": "flush_profile_reading_history", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_checkpoint_and_manual_saves_flush_staged_caption_history"},
-    {"symbol": "capture_scene_restore_activation", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_memory_load_waits_for_ui_and_native_then_retains_only_process_local_readiness"},
+    {"symbol": "capture_scene_restore_activation", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_memory_load_waits_for_route_and_native_readiness"},
     {"symbol": "save_completed", "kind": "signal", "availability": "current", "disposition": "deprecate", "replacement": "signal save_capability_changed(capability: Dictionary)", "contract_test": "test_save_family_writes_closed_relative_names"},
     {"symbol": "load_completed", "kind": "signal", "availability": "current", "disposition": "deprecate", "replacement": "signal run_restored(checkpoint_id: String, route_id: String)", "contract_test": "test_restore_preparation_and_delete_families"},
     {"symbol": "save_failed", "kind": "signal", "availability": "current", "disposition": "deprecate", "replacement": "signal save_capability_changed(capability: Dictionary)", "contract_test": "test_save_family_writes_closed_relative_names"},
@@ -20,7 +20,6 @@
     {"symbol": "CANONICAL_JSON", "kind": "constant", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_save_family_writes_closed_relative_names"},
     {"symbol": "SAVE_MIGRATIONS", "kind": "constant", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_current_documents_are_admitted_for_their_exact_locator_and_dark_value"},
     {"symbol": "PROJECTOR", "kind": "constant", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_failed_rollback_preserves_sparse_owner_and_original_refusals"},
-    {"symbol": "CONTINUATION_JOURNAL", "kind": "constant", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_completed_pending_creation_restarts_then_acknowledges_once"},
     {"symbol": "configure_backup_capture_provider", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_capture_provider_and_guard_are_immutable_and_guard_arity_is_checked"},
     {"symbol": "initialize", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_invalid_save_references_do_not_touch_storage"},
     {"symbol": "configure_identity_issuer", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_scene_activation_waits_for_both_owners_and_replacement_retires_old_handle"},
@@ -31,8 +30,7 @@
     {"symbol": "prepare_new_run_action", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_prepare_cancel_and_commit_preserve_storage_until_scene_activation"},
     {"symbol": "cancel_prepared_new_run", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_prepare_cancel_and_commit_preserve_storage_until_scene_activation"},
     {"symbol": "commit_prepared_new_run", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_prepare_cancel_and_commit_preserve_storage_until_scene_activation"},
-    {"symbol": "retry_new_run", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_title_template_cancel_stale_and_same_operation_retry"},
-    {"symbol": "reconcile_new_run_storage", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_boot_itself_reconciles_before_returning_ok_not_only_when_called_a_second_time"},
+    {"symbol": "retry_new_run", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_new_runs_preserve_disk_and_profile_then_normal_save_load_restores_progress"},
     {"symbol": "save_latest_to_slot", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_save_family_writes_closed_relative_names"},
     {"symbol": "quick_save_latest", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_save_family_writes_closed_relative_names"},
     {"symbol": "autosave_latest", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_save_family_writes_closed_relative_names"},
@@ -60,7 +58,6 @@
     {"symbol": "is_save_locked", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_lock_idempotence_and_cross_owner_release"},
     {"symbol": "get_save_capability", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_capability_values_per_owner"},
     {"symbol": "load_context", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_load_context_reads_the_exact_current_snapshot_without_mutation"},
-    {"symbol": "reconcile_incomplete_continuations", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_startup_leaves_obsolete_load_record_untouched_without_resuming_it"},
     {"symbol": "save_slot", "kind": "function", "availability": "current", "disposition": "deprecate", "replacement": "func save_latest_to_slot(slot_id: int) -> Dictionary", "contract_test": "test_deprecated_wrappers_delegate"},
     {"symbol": "load_slot", "kind": "function", "availability": "current", "disposition": "deprecate", "replacement": "func prepare_restore_slot(slot_id: int) -> Dictionary", "contract_test": "test_deprecated_wrappers_delegate"},
     {"symbol": "quick_save", "kind": "function", "availability": "current", "disposition": "deprecate", "replacement": "func quick_save_latest() -> Dictionary", "contract_test": "test_deprecated_wrappers_delegate"},
@@ -70,11 +67,11 @@
     {"symbol": "has_slot", "kind": "function", "availability": "current", "disposition": "deprecate", "replacement": "func save_exists(kind: StringName, slot_id: int = -1) -> bool", "contract_test": "test_deprecated_wrappers_delegate"},
     {"symbol": "get_slot_metadata", "kind": "function", "availability": "current", "disposition": "deprecate", "replacement": "func get_save_metadata(kind: StringName, slot_id: int = -1) -> Dictionary", "contract_test": "test_deprecated_wrappers_delegate"},
     {"symbol": "get_all_slot_metadata", "kind": "function", "availability": "current", "disposition": "deprecate", "replacement": "func get_all_save_metadata() -> Array[Dictionary]", "contract_test": "test_deprecated_wrappers_delegate"},
-    {"symbol": "configure_scene_new_run", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_joint_creation_persists_exact_material_before_activation_and_alternates_after_ack"},
-    {"symbol": "configure_scene_title_new_run", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_title_template_cancel_stale_and_same_operation_retry"},
-    {"symbol": "start_scene_new_run", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_joint_creation_persists_exact_material_before_activation_and_alternates_after_ack"},
+    {"symbol": "configure_scene_new_run", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_new_runs_preserve_disk_and_profile_then_normal_save_load_restores_progress"},
+    {"symbol": "configure_scene_title_new_run", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_prepare_cancel_and_commit_preserve_storage_until_scene_activation"},
+    {"symbol": "start_scene_new_run", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_new_runs_preserve_disk_and_profile_then_normal_save_load_restores_progress"},
     {"symbol": "retry_scene_activation", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_fresh_process_selected_load_preserves_saved_caption_and_history"},
     {"symbol": "configure_scene_restore_participants", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_real_bootstrap_scene_text_and_selected_load_keep_owner_authority"},
-    {"symbol": "capture_committed_scene_creation", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_rebuilt_other_initial_target_is_valid_preparation_but_not_committed_authority"}
+    {"symbol": "capture_committed_scene_creation", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_completed_creation_proof_reads_only_the_referenced_record"}
   ]
 }

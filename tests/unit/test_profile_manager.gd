@@ -417,21 +417,12 @@ func test_failed_first_dating_width_write_preserves_inheritance_and_publishes_no
 	assert_eq(changes, [])
 
 
-func test_new_account_preserves_panel_widths_and_preferences_reset_restores_inheritance() -> void:
+func test_preferences_reset_restores_panel_width_inheritance() -> void:
 	var fixture := _new_manager()
 	var manager: Node = fixture.manager
-	assert_true(manager.configure_new_run_storage(fixture.storage).get("ok", false))
 	assert_true(manager.set_preferences({&"preferences.display.angela_panel_width": 400,
 		&"preferences.display.dating_solo_portrait_width": 562,
 		&"preferences.display.dating_group_portrait_width": 600}).get("ok", false))
-	var before: Dictionary = manager.get_profile_snapshot()
-	var disk: Dictionary = fixture.ops.snapshot_persisted()
-	var prepared: Dictionary = manager.prepare_new_run_consumption(manager.get_profile_revision())
-	assert_true(prepared.get("ok", false), str(prepared))
-	if not prepared.get("ok", false): return
-	assert_eq(prepared.value.candidate.preferences.display, before.preferences.display)
-	assert_eq(manager.get_profile_snapshot(), before)
-	assert_eq(fixture.ops.snapshot_persisted(), disk, "New Account preparation leaves permanent widths untouched")
 	assert_true(manager.reset_preferences().get("ok", false))
 	assert_eq(manager.get_preference(&"preferences.display.angela_panel_width"), 480)
 	assert_eq(manager.get_preference(&"preferences.display.dating_solo_portrait_width"), 0)

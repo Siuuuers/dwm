@@ -103,7 +103,6 @@ func setup(scene_tree: SceneTree, shared_root: String = "") -> Dictionary:
 	gate = GATE.new()
 	profile = PROFILE.new()
 	checked = profile.initialize(storage)
-	if checked.ok: checked = profile.configure_new_run_storage(storage)
 	if checked.ok: checked = profile.configure_mutation_gate(gate)
 	if not checked.ok: return checked
 	manager = SAVE.new()
@@ -142,14 +141,6 @@ func confirm_activation() -> void:
 	participants.route.confirm()
 	participants.narrative.confirm()
 
-func reopen_journal() -> Dictionary:
-	var reopened: RefCounted = JOURNAL.new()
-	var checked: Dictionary = reopened.configure(storage, manager)
-	if not checked.ok: return checked
-	checked = reopened.configure_scene_new_run_validation(preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_registration().value, issuer)
-	if not checked.ok: return checked
-	return {"ok": true, "value": reopened}
-
 func read_autosave() -> Dictionary:
 	var read: Dictionary = storage.read_text("autosave.json")
 	return PARSER.parse_object(read.value) if read.ok else read
@@ -181,3 +172,14 @@ func close() -> void:
 # Test fixtures select registration before any owner binds its immutable bundle.
 func _install_registration() -> Dictionary:
 	return REGISTRATION.install_registration()
+
+static func profile_material(before: Dictionary, allocation: Dictionary, nonce: int) -> Dictionary:
+	var writer := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+	var receipt: Dictionary = preload("res://scripts/domain/relationship/PairDeckDraw.gd").prepare_scene_assignment(
+		before.pair_deck_draws, allocation.run_id, allocation.request.transaction_id, nonce).value
+	var candidate := before.duplicate(true)
+	candidate.pair_deck_draws[allocation.run_id] = receipt
+	var text: String = writer.stringify(candidate).value
+	return {"before": before, "candidate": candidate, "profile_revision": 1,
+		"source_revision": str(writer.stringify(before).value).sha256_text(), "outgoing_text": text,
+		"outgoing_hash": text.sha256_text(), "scene_assignment": {"run_id": allocation.run_id, "receipt": receipt}}

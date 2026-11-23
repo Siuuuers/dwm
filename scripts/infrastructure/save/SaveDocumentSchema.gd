@@ -83,7 +83,7 @@ static func build(
 
 static func validate_scene_new_run_candidate(document: Dictionary, allocation_candidate: Dictionary,
 		profile_material: Dictionary, bundle: Dictionary, issuer: Object,
-		acknowledged_checkpoint: Dictionary = {}) -> Dictionary:
+		acknowledged_checkpoint: Dictionary) -> Dictionary:
 	document = document.duplicate()
 	document.erase("save_reason")
 	document.erase("ink_marks")

@@ -400,7 +400,7 @@ static func build_scene(snapshot_input: Dictionary, dialogic_checkpoint: Diction
 
 static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_candidate: Dictionary,
 		profile_material: Dictionary, bundle: Dictionary, issuer: Object,
-		acknowledged_checkpoint: Dictionary = {}) -> Dictionary:
+		acknowledged_checkpoint: Dictionary) -> Dictionary:
 	var retained := snapshot.duplicate()
 	retained.erase("audio_context")
 	retained.erase("active_app_id")
@@ -431,19 +431,13 @@ static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_ca
 			return _fail(&"invalid_lifecycle", "initial lifecycle differs from its allocation")
 	if not _scene_exact_value(candidate.lifecycle.scene_assignment, profile_material.scene_assignment.receipt):
 		return _fail(&"invalid_lifecycle", "initial lifecycle differs from its frozen assignment")
-	if acknowledged_checkpoint.is_empty():
-		var current := validate_current_scene(candidate.scene, bundle)
-		if not current.ok: return current
-		var audio := derive_scene_audio_context(candidate, bundle)
-		if not audio.ok: return audio
-	else:
-		if not _scene_current_keys(candidate.scene) \
-				or candidate.scene.registration_sha256 != acknowledged_checkpoint.manifest_fingerprint \
-				or candidate.scene.entry_id != acknowledged_checkpoint.entry_id \
-				or acknowledged_checkpoint.transaction_id != transaction_id \
-				or candidate.content_version != acknowledged_checkpoint.content_version \
-				or not _scene_exact_value(candidate.narrative_checkpoint, acknowledged_checkpoint):
-			return _fail(&"scene_initial_state_invalid", "historical creation differs from retained initial reading")
+	if not _scene_current_keys(candidate.scene) \
+			or candidate.scene.registration_sha256 != acknowledged_checkpoint.manifest_fingerprint \
+			or candidate.scene.entry_id != acknowledged_checkpoint.entry_id \
+			or acknowledged_checkpoint.transaction_id != transaction_id \
+			or candidate.content_version != acknowledged_checkpoint.content_version \
+			or not _scene_exact_value(candidate.narrative_checkpoint, acknowledged_checkpoint):
+		return _fail(&"scene_initial_state_invalid", "historical creation differs from retained initial reading")
 	if candidate.scene.active_occurrence_id != transaction_id or candidate.scene.notification != {} \
 			or candidate.scene.active_challenge != {} or candidate.scene.return_to != null:
 		return _fail(&"scene_initial_state_invalid", "initial scene cannot contain prior control state")
@@ -467,33 +461,6 @@ static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_ca
 	desktop.board = player_board.value.snapshot
 	if not _scene_exact_value(candidate.desktop, desktop):
 		return _fail(&"scene_initial_state_invalid", "initial desktop cannot contain prior attempts or consequences")
-	if not acknowledged_checkpoint.is_empty():
-		return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
-	var reading := _validate_scene_reading(candidate)
-	if not reading.ok: return reading
-	var checkpoint: Dictionary = reading.checkpoint
-	var saved: Dictionary = checkpoint.reading_session
-	if checkpoint.transaction_id != transaction_id or checkpoint.entry_id != candidate.scene.entry_id \
-			or typeof(checkpoint.content_version) != TYPE_INT or typeof(saved.schema_version) != TYPE_INT \
-			or typeof(saved.program_index) != TYPE_INT \
-			or saved.boundary != "line" or saved.next_operation != null \
-			or saved.ledger.captions.size() != 1 or saved.ledger.entry_contexts.size() != 1:
-		return _fail(&"scene_initial_state_invalid", "initial reading must contain only its first caption and frame")
-	var bridge_owner: Script = load("res://autoload/DialogicBridge.gd")
-	var initial_reading: Dictionary = bridge_owner._build_current_scene_initial_checkpoint(candidate.scene, bundle, reading.session)
-	if not initial_reading.ok: return initial_reading
-	var projected_initial: Dictionary = SCENE_READING.project_player_checkpoint(initial_reading.value)
-	if not projected_initial.ok: return projected_initial
-	var projected_candidate: Dictionary = SCENE_READING.project_player_checkpoint(checkpoint)
-	if not projected_candidate.ok: return projected_candidate
-	if not _scene_exact_value(projected_candidate.value, projected_initial.value):
-		return _fail(&"scene_initial_state_invalid", "initial checkpoint must be the registered target's exact first caption")
-	var frozen_owner: Script = load("res://scripts/narrative/FrozenRunContext.gd")
-	var frames: Dictionary = frozen_owner.derive_current_scene_frames(candidate.scene, saved)
-	if not frames.ok: return frames
-	if frames.value.entry_contexts.size() != 1 \
-			or not _scene_exact_value(frames.value.entry_contexts.values()[0], checkpoint.frozen_context):
-		return _fail(&"reading_entry_context_mismatch", "initial frozen frame differs from its authenticated admission")
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
 
 static func _scene_has_initial_admission(snapshot: Dictionary) -> bool:

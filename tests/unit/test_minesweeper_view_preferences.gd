@@ -120,24 +120,6 @@ func test_failed_preference_write_keeps_memory_and_profile_bytes_unchanged() -> 
 	assert_eq(changes, [])
 
 
-func test_new_account_preparation_preserves_all_four_permanent_view_scopes() -> void:
-	var ops := FILES.new()
-	var storage := STORAGE.new(ROOT + "-new-account", ops)
-	var manager: Node = autofree(MANAGER.new())
-	assert_true(manager.initialize(storage).get("ok", false))
-	assert_true(manager.configure_new_run_storage(storage).get("ok", false))
-	assert_true(manager.set_preferences(_nondefault_view_changes()).get("ok", false))
-	var before: Dictionary = manager.get_profile_snapshot()
-	var disk: Dictionary = ops.snapshot_persisted()
-	var prepared: Dictionary = manager.prepare_new_run_consumption(manager.get_profile_revision())
-	assert_true(prepared.get("ok", false), str(prepared))
-	if not prepared.get("ok", false): return
-	assert_eq(prepared.value.before.preferences.display, before.preferences.display)
-	assert_eq(prepared.value.candidate.preferences.display, before.preferences.display)
-	assert_eq(manager.get_profile_snapshot(), before)
-	assert_eq(ops.snapshot_persisted(), disk, "New Account preparation does not write a checkpoint")
-
-
 func test_older_save_restore_plan_keeps_current_view_scopes_without_legacy_patch() -> void:
 	var ops := FILES.new()
 	var manager: Node = autofree(MANAGER.new())

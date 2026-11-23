@@ -39,7 +39,6 @@ const ACCESSIBILITY_MANAGER := preload("res://autoload/AccessibilityManager.gd")
 const DIALOGIC_BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const JSON_STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FAKE_AUDIO_PORT := preload("res://tests/support/FakeAudioPlaybackPort.gd")
-const SAVE_CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
 const MINESWEEPER_COORDINATOR := preload("res://scripts/domain/minesweeper/MinesweeperRoundCoordinator.gd")
 const FAKE_GATE := preload("res://tests/support/FakeApplicationMutationGate.gd")
 const FAKE_EVICTION := preload("res://tests/support/FakeDesktopEvictionPort.gd")
@@ -147,6 +146,8 @@ func _make_graph(label: String) -> Dictionary:
 	var identity_constructed: Dictionary = bootstrap.call(
 		&"_construct_identity_issuer_and_contact_commands")
 	assert_true(identity_constructed.get("ok", false), str(identity_constructed))
+	var saves_initialized: Dictionary = bootstrap.call(&"_run_stage", &"initialize_saves", &"final")
+	assert_true(saves_initialized.get("ok", false), str(saves_initialized))
 	var profile_initialized: Dictionary = bootstrap.call(&"_run_stage", &"initialize_profile", &"final")
 	assert_true(profile_initialized.get("ok", false), str(profile_initialized))
 	var audio_initialized: Dictionary = bootstrap.call(&"_run_stage", &"initialize_audio", &"final")
@@ -155,11 +156,7 @@ func _make_graph(label: String) -> Dictionary:
 	assert_true(window_initialized.get("ok", false), str(window_initialized))
 	assert_same(targets[&"WindowModeManager"].call(&"get_settings_output_transactions"),
 		targets[&"AudioManager"].call(&"get_settings_output_transactions"))
-	assert_true(targets[&"SaveManager"].call(&"initialize",
-		JSON_STORAGE.new(root.path_join("saves"))).get("ok", false))
-	var checkpoint_port: RefCounted = SAVE_CHECKPOINT_PORT.new(targets[&"SaveManager"])
-	assert_true(checkpoint_port.configure_fatal_latch(bootstrap.get("_application_gate")).get("ok", false))
-	bootstrap.set("_retained_checkpoint_port", checkpoint_port)
+	var checkpoint_port: RefCounted = bootstrap.get("_retained_checkpoint_port")
 	return {"bootstrap": bootstrap, "targets": targets, "checkpoint_port": checkpoint_port, "root": root}
 
 
@@ -543,87 +540,6 @@ func test_each_stage_failure_returns_one_fatal_result_and_never_reaches_readines
 		assert_null(bootstrap.get("_retained_minesweeper_coordinator"),
 			"%s leaves no partially configured round graph" % stage_id)
 
-
-class RecoveryProfile extends Node:
-	var trace: Array = []
-	var bound_storage: RefCounted
-	var registry_bound := false
-	func configure_new_run_storage(storage: RefCounted) -> Dictionary:
-		bound_storage = storage
-		trace.append("bind_profile")
-		return {"ok": true}
-	func configure_line_registry(registry: Dictionary) -> Dictionary:
-		trace.append("bind_line_registry")
-		registry_bound = preload("res://scripts/narrative/DialogicEntryManifest.gd").validate_ids_document(registry).get("ok", false)
-		return {"ok": registry_bound}
-	func initialize(storage: RefCounted) -> Dictionary:
-		trace.append("initialize_profile")
-		return {"ok": storage == bound_storage and registry_bound}
-
-
-class RecoverySaves extends Node:
-	func configure_scene_new_run(_bridge: Object) -> Dictionary:
-		return {"ok": true}
-	func configure_scene_title_new_run(_target: String) -> Dictionary:
-		return {"ok": true}
-	var trace: Array = []
-	var fail_settlement := false
-	var profile: Object
-	func initialize(_storage: RefCounted) -> Dictionary:
-		trace.append("initialize_saves")
-		return {"ok": true}
-	func configure_new_run_profile_owner(owner: Object) -> Dictionary:
-		profile = owner
-		trace.append("bind_recovery")
-		return {"ok": true}
-	func reconcile_new_run_storage() -> Dictionary:
-		trace.append("settle_pair")
-		return {"ok": not fail_settlement, "code": &"NEW_RUN_RECOVERY_PENDING"}
-
-
-class RecoveryBootstrap extends InjectableBootstrap:
-	var trace: Array = []
-	func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
-		# Exercise real save/profile stages inside the real start() sequencing loop;
-		# unrelated graph construction is outside this storage-order regression.
-		if stage_id in [&"initialize_saves", &"initialize_profile"]:
-			return super._run_stage(stage_id, mode)
-		if stage_id == &"initialize_localization": trace.append("first_consumer")
-		return {"ok": true}
-
-
-func test_new_acc_storage_settles_before_profile_and_failure_stops_all_consumers() -> void:
-	for fail_settlement: bool in [false, true]:
-		var trace: Array = []
-		var profile: Node = autofree(RecoveryProfile.new())
-		var saves: Node = autofree(RecoverySaves.new())
-		var bootstrap: Node = autofree(RecoveryBootstrap.new())
-		profile.trace = trace
-		saves.trace = trace
-		saves.fail_settlement = fail_settlement
-		bootstrap.trace = trace
-		bootstrap.injected_targets = {&"ProfileManager": profile, &"SaveManager": saves}
-		var root: String = _isolated_root("new-acc-storage-order")
-		if root.is_empty():
-			return
-		var storage: RefCounted = JSON_STORAGE.new(root)
-		bootstrap.set("_selected_root", root)
-		bootstrap.set("_profile_storage", storage)
-		bootstrap.set("_application_gate", FAKE_GATE.new())
-		watch_signals(bootstrap)
-		var result: Dictionary = bootstrap.start()
-		assert_eq(result.get("ok", false), not fail_settlement)
-		assert_same(profile.bound_storage, storage)
-		assert_same(saves.profile, profile)
-		var expected: Array = ["initialize_saves", "bind_profile", "bind_recovery", "settle_pair"]
-		if not fail_settlement:
-			expected.append_array(["bind_line_registry", "initialize_profile", "first_consumer"])
-			assert_signal_emitted(bootstrap, "application_ready")
-		else:
-			assert_eq(result.get("code"), &"NEW_RUN_RECOVERY_PENDING")
-			assert_signal_not_emitted(bootstrap, "application_ready")
-		assert_eq(trace, expected)
-		assert_eq(bootstrap.get_startup_state().ready, not fail_settlement)
 
 class TitleBootstrap extends InjectableBootstrap:
 	func _select_and_prove_roots(_mode: StringName) -> Dictionary:

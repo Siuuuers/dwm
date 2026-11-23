@@ -7,13 +7,6 @@ const FIXTURE := preload("res://tests/unit/test_new_acc_title_lifetime.gd")
 class IsolatedRouter extends ROUTER:
 	func _gs() -> Node: return null
 
-class NoStartupRecovery extends RefCounted:
-	signal startup_recovery_changed()
-	func get_new_run_startup_recovery() -> Dictionary:
-		return {"ok": true, "value": {"available": false, "transaction_id": ""}}
-	func get_startup_state() -> Dictionary: return {"ready": true, "fatal_result": {}}
-	func retry_new_run_startup(_token: String) -> Dictionary: return {"ok": false}
-
 var router: Node
 var gate: RefCounted
 var original_scene: Node
@@ -83,7 +76,6 @@ func _configure_target() -> void:
 	add_child(locale)
 	add_child(profile)
 	prepared_node.configure_settings_services({"localization": locale, "profile": profile})
-	prepared_node.configure_startup_recovery_owner(NoStartupRecovery.new())
 	# Service lifetimes extend past the prepared Menu; tests own them.
 	services.assign([locale, profile])
 

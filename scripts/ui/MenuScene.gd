@@ -82,9 +82,8 @@ var _new_acc_token := ""
 var _new_acc_transaction := ""
 var _new_acc_source: WeakRef
 var _new_acc_source_captured := false
-var _startup_recovery_owner: Object
-var _startup_recovery_owner_bound := false
-var _startup_recovery_active := false
+var startup_owner: Object
+var _startup_unavailable := false
 var _pending_destination := ""
 
 func configure_settings_services(services: Dictionary) -> void:
@@ -117,7 +116,11 @@ func _ready() -> void:
 		button.gui_input.connect(_ledger_input.bind(button))
 	_update_title_destination()
 	_new_acc_button.call_deferred("grab_focus")
-	_bind_startup_recovery()
+	if startup_owner == null: startup_owner = get_node_or_null("/root/ApplicationBootstrap")
+	if startup_owner != null:
+		startup_owner.startup_failed.connect(_show_startup_unavailable, CONNECT_DEFERRED)
+		if not startup_owner.get_startup_state().fatal_result.is_empty():
+			_show_startup_unavailable.call_deferred()
 	_start_title_music.call_deferred()
 	var frame := get_tree().process_frame if DisplayServer.get_name() == "headless" else RenderingServer.frame_post_draw
 	frame.connect(_start_title_resource_loading, CONNECT_ONE_SHOT)
@@ -139,9 +142,8 @@ func _title_request_is_current(source_id: int) -> bool:
 
 func _destination_runtime_ready(destination: String) -> bool:
 	if destination == "settings": return true
-	var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
-	if bootstrap == null: return true
-	var state: Dictionary = bootstrap.get_startup_state()
+	if startup_owner == null: return true
+	var state: Dictionary = startup_owner.get_startup_state()
 	return not state.get("title_ready", false) or state.get("ready", false)
 
 func _prepare_title_destination(destination: String) -> bool:
@@ -170,19 +172,10 @@ func _prepare_title_destination(destination: String) -> bool:
 	loader.prioritize_destination(destination)
 	loader.queue_resources(paths, true)
 	while not loader.resources_ready(paths) or not _destination_runtime_ready(destination):
-		var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
-		var startup: Dictionary = bootstrap.get_startup_state() if bootstrap != null else {}
-		if startup.get("failed_stage") not in [null, &""] or not startup.get("fatal_result", {}).is_empty():
+		var startup: Dictionary = startup_owner.get_startup_state() if startup_owner != null else {}
+		if not startup.get("fatal_result", {}).is_empty() or loader.resources_failed(paths):
 			_pending_destination = ""
 			_end_title_transition()
-			_check_startup_recovery()
-			return false
-		if loader.resources_failed(paths):
-			_pending_destination = ""
-			_end_title_transition()
-			_new_acc_source = weakref(scene) if is_instance_valid(scene) else null
-			_new_acc_source_captured = true
-			_startup_recovery_active = true
 			_show_startup_unavailable()
 			return false
 		await get_tree().process_frame
@@ -208,78 +201,12 @@ func _mount_title_art() -> void:
 	add_child(art)
 	move_child(art, 0)
 
-func configure_startup_recovery_owner(owner: Object) -> void:
-	if is_instance_valid(_startup_recovery_owner) and _startup_recovery_owner.has_signal("startup_recovery_changed"):
-		if _startup_recovery_owner.startup_recovery_changed.is_connected(_queue_startup_recovery_check):
-			_startup_recovery_owner.startup_recovery_changed.disconnect(_queue_startup_recovery_check)
-	_startup_recovery_owner = owner
-	_startup_recovery_owner_bound = true
-	if is_node_ready(): _bind_startup_recovery()
-
-func _bind_startup_recovery() -> void:
-	if not _startup_recovery_owner_bound:
-		_startup_recovery_owner = get_node_or_null("/root/ApplicationBootstrap")
-		_startup_recovery_owner_bound = true
-	if not is_instance_valid(_startup_recovery_owner): return
-	if not _startup_recovery_owner.has_method("get_new_run_startup_recovery"): return
-	if _startup_recovery_owner.has_signal("startup_recovery_changed"):
-		if not _startup_recovery_owner.startup_recovery_changed.is_connected(_queue_startup_recovery_check):
-			_startup_recovery_owner.startup_recovery_changed.connect(_queue_startup_recovery_check)
-	_queue_startup_recovery_check()
-
-func _queue_startup_recovery_check() -> void:
-	if _title_source_alive(): _check_startup_recovery.call_deferred()
-
-func _startup_recovery_fact() -> Dictionary:
-	if not is_instance_valid(_startup_recovery_owner): return {}
-	if not _startup_recovery_owner.has_method("get_new_run_startup_recovery"): return {}
-	var result: Dictionary = _startup_recovery_owner.get_new_run_startup_recovery()
-	if not result.get("ok", false) or not result.get("value") is Dictionary: return {}
-	var value: Dictionary = result.value
-	if typeof(value.get("available")) != TYPE_BOOL or typeof(value.get("transaction_id")) != TYPE_STRING: return {}
-	return value
-
-func _check_startup_recovery() -> void:
+func _show_startup_unavailable() -> void:
 	if not _title_source_alive() or _title_transition or is_instance_valid(_confirmation): return
-	if not _new_acc_transaction.is_empty() or not _new_acc_token.is_empty(): return
-	var recovery := _startup_recovery_fact()
-	var retryable: bool = recovery.get("available", false) and not str(recovery.get("transaction_id", "")).is_empty()
-	if not retryable:
-		if not is_instance_valid(_startup_recovery_owner) or not _startup_recovery_owner.has_method("get_startup_state"): return
-		var startup: Dictionary = _startup_recovery_owner.get_startup_state()
-		if startup.get("ready", false) or not startup.get("fatal_result") is Dictionary or startup.fatal_result.is_empty(): return
 	var scene := get_tree().current_scene
 	_new_acc_source = weakref(scene) if scene != null else null
 	_new_acc_source_captured = true
-	_startup_recovery_active = true
-	if retryable:
-		_new_acc_transaction = str(recovery.transaction_id)
-		_show_new_acc_recovery()
-	else:
-		_show_startup_unavailable()
-
-func _retry_startup_new_acc() -> void:
-	_title_transition = true
-	_sync_title_navigation()
-	if not await _present_new_acc_busy("retrying"):
-		_finish_new_acc_transition()
-		return
-	var result := {"ok": false}
-	if is_instance_valid(_startup_recovery_owner) and _startup_recovery_owner.has_method("retry_new_run_startup"):
-		result = _startup_recovery_owner.retry_new_run_startup(_new_acc_transaction)
-	if not _finish_new_acc_transition(): return
-	if result.get("ok", false):
-		_startup_recovery_active = false
-		_handle_new_acc_result(result)
-		_focus_new_acc()
-		return
-	var recovery := _startup_recovery_fact()
-	if recovery.get("available", false) and str(recovery.get("transaction_id", "")) == _new_acc_transaction:
-		_show_new_acc_recovery()
-	else:
-		_show_startup_unavailable()
-
-func _show_startup_unavailable() -> void:
+	_startup_unavailable = true
 	var copy: Array = STARTUP_UNAVAILABLE_COPY[_locale]
 	present_confirmation({"title": copy[0], "body": copy[1], "confirm": SHUTDOWN_COPY[_locale][3],
 		"cancelable": false, "risk": "neutral", "warning": false,
@@ -414,9 +341,6 @@ func _show_new_acc_recovery() -> void:
 
 func _retry_new_acc() -> void:
 	if _new_acc_transaction.is_empty() or _title_transition or not _new_acc_source_is_current(): return
-	if _startup_recovery_active:
-		_retry_startup_new_acc()
-		return
 	var owner := _menu_new_acc_owner()
 	_title_transition = true
 	_sync_title_navigation()
@@ -793,7 +717,7 @@ func _show_login_unavailable() -> void:
 	_title_home.grab_focus()
 
 func _can_leave_login() -> bool:
-	return not _title_transition and not _startup_recovery_active and _new_acc_transaction.is_empty() and _source_departure_admitted()
+	return not _title_transition and not _startup_unavailable and _new_acc_transaction.is_empty() and _source_departure_admitted()
 
 func _source_departure_admitted() -> bool:
 	return not is_instance_valid(_confirmation) \

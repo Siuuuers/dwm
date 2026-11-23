@@ -48,8 +48,7 @@ func persistent_files() -> Dictionary:
 	return hashes
 
 func _stop_after_memory_apply(operation_id: String) -> void:
-	var reread: Dictionary = manager._continuation_journal.get_operation(operation_id)
-	if reread.ok:
+	if storage.exists(JOURNAL.JOURNAL_PATH):
 		stop_failure = {"ok": false, "code": &"test_load_wrote_operation"}
 		return
 	if persistent_files() != interrupt_context.persistent_files:

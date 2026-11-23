@@ -72,40 +72,21 @@ func setup(scene_tree: SceneTree) -> Dictionary:
 	for key: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance", "causal_day_instance_issuer_receipt"]:
 		identity[key] = result.value[key]
 
-	# Exercise G's actual revision-aware Profile material persistence under the
-	# existing NewRun gate; reload the canonical Profile from those exact bytes.
-	# This is not a completed joint Autosave/Profile creation transaction.
+	# A historical Save9 carries its original pair draw in the physical Profile.
 	gate = GATE.new()
-	var writer: Node = PROFILE.new()
-	result = writer.initialize(storage)
-	if not result.ok:
-		writer.free()
-		return result
-	result = writer.configure_new_run_storage(storage)
-	if result.ok: result = writer.configure_mutation_gate(gate)
-	if not result.ok:
-		writer.free()
-		return result
-	var material: Dictionary = writer.prepare_scene_new_run_consumption(writer.get_profile_revision(),
-		identity.run_id, transaction.value.token, 0)
-	if not material.ok:
-		writer.free()
-		return material
-	var lease: Dictionary = gate.acquire(&"new_run")
-	if not lease.ok:
-		writer.free()
-		return lease
-	result = writer.persist_new_run_consumption(material.value)
-	if result.ok: result = writer.prove_new_run_consumption(material.value)
-	var released: Dictionary = gate.release(&"new_run", lease.value.token)
-	writer.free()
-	if not result.ok: return result
-	if not released.ok: return released
+	var historical := PROFILE.SCHEMA.make_defaults()
+	var assignment := PROFILE.PAIR_DECK.prepare_scene_assignment({}, identity.run_id, transaction.value.token, 0)
+	if not assignment.ok: return assignment
+	historical.pair_deck_draws[identity.run_id] = assignment.value
 	profile = PROFILE.new()
+	var encoded_profile := WRITER.stringify(historical)
+	if not encoded_profile.ok: return encoded_profile
+	result = storage.write_atomic("profile.json", encoded_profile.value, profile._profile_text_validator)
+	if not result.ok: return result
 	result = profile.initialize(storage)
 	if not result.ok: return result
 	var retained: Dictionary = profile.get_pair_deck_draw(identity.run_id)
-	if not retained.ok or retained.value != material.value.scene_assignment.receipt:
+	if not retained.ok or retained.value != assignment.value:
 		return {"ok": false, "code": &"TEST.profile_reload_mismatch"}
 	old_profile = tree.root.get_node("ProfileManager")
 	old_profile_index = old_profile.get_index()

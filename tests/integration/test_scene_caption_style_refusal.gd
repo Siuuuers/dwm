@@ -38,10 +38,6 @@ func after_all() -> void:
 		_watchdog.stop()
 		_watchdog.queue_free()
 
-func _ok(result: Dictionary) -> bool:
-	assert_true(result.get("ok", false), str(result))
-	return result.get("ok", false)
-
 func test_retired_native_style_refuses_activation_without_acknowledging_creation() -> void:
 	if not fixture_ready: return
 	fixture.runtime.Styles.style_changed.connect(fixture.refuse_selected_style, CONNECT_ONE_SHOT)
@@ -65,12 +61,7 @@ func test_retired_native_style_refuses_activation_without_acknowledging_creation
 	assert_false(fixture.bridge._scene_restore.confirmed)
 	assert_eq(fixture.manager._scene_restore_activation.operation_id, operation_id)
 	assert_eq(fixture.manager._scene_restore_activation.failure, refused)
-	var reopened: Dictionary = fixture.reopen_journal()
-	if not _ok(reopened): return
-	var durable: Dictionary = reopened.value.get_creation_operation(operation_id)
-	if not _ok(durable): return
-	assert_eq(durable.value.transaction_id, operation_id)
-	assert_eq(durable.value.activation_state, "pending", "refused native style cannot acknowledge durable creation")
+	assert_false(fixture.storage.exists(fixture.JOURNAL.JOURNAL_PATH))
 	var retried: Dictionary = fixture.manager.retry_scene_activation(operation_id)
 	assert_eq(retried, refused, "same pending operation retains its actual failure")
 	for frame: int in 4: await get_tree().process_frame
