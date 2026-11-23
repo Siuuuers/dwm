@@ -85,11 +85,8 @@ func _catalog_text(locale: String, key: String) -> String:
 	var catalogs: Dictionary = store.get("catalogs", {})
 	assert_true(catalogs.has(locale), "the locale has its own validated catalog: " + locale)
 	if not catalogs.has(locale): return ""
-	for message: Dictionary in catalogs[locale].get("messages", []):
-		if message.get("id") == key:
-			return str(message.get("text", ""))
-	assert_true(false, "%s is authored in %s without fallback" % [key, locale])
-	return ""
+	assert_true(catalogs[locale].has(key), "%s is authored in %s without fallback" % [key, locale])
+	return catalogs[locale].get(key, "")
 
 func _row(content: Control) -> Dictionary:
 	content.select_category("accessibility")
