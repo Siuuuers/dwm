@@ -80,7 +80,7 @@ var _title_transition := false
 var _new_acc_owner: Object
 var _new_acc_token := ""
 var _new_acc_transaction := ""
-var _new_acc_source_id := -1 # Zero represents a captured empty current scene.
+var _new_acc_source_id := -1
 var startup_owner: Object
 var _startup_unavailable := false
 var _pending_destination := ""
