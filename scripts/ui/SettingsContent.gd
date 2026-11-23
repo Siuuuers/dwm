@@ -252,6 +252,7 @@ func _build_content() -> void:
 		if category == "records":
 			_add_resets(sheet, ["preferences", "visited_history", "gallery", "dialogue_library", "entire_profile"])
 	_general_status = _label("")
+	_general_status.hide()
 	_general_status.name = "SettingsStatus"
 	$SheetScroll/Sheets.add_child(_general_status)
 
