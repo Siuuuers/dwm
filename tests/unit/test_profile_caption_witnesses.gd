@@ -493,14 +493,3 @@ func test_live_caption_history_stays_in_memory_until_one_flush() -> void:
 	assert_eq(restarted.get_dialogue_library(), f.manager.get_dialogue_library())
 	assert_true(restarted.is_caption_variant_witnessed(beats[0]))
 	assert_true(library.CATALOGUE.configure([], [], {}).ok)
-
-
-func test_new_run_preparation_flushes_live_caption_history_before_disk_comparison() -> void:
-	var f := _fixture()
-	var beats: Array[Dictionary] = [_beat()]
-	assert_true(f.manager.stage_caption_history(beats, "").ok)
-	var writes: int = f.storage.writes
-	var prepared: Dictionary = f.manager.prepare_new_run_consumption(f.manager.get_profile_revision())
-	assert_true(prepared.ok, str(prepared))
-	assert_eq(f.storage.writes, writes + 1)
-	assert_true(prepared.value.before.witnessed_caption_variants.has(_key(_beat())))

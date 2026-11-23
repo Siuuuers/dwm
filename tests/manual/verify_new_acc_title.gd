@@ -31,16 +31,9 @@ class NewAccOwner extends RefCounted:
 		return {"ok":retry_ok}
 
 class StartupOwner extends Node:
-	signal startup_recovery_changed()
-	var available := true
-	var calls: Array[String] = []
-	func get_new_run_startup_recovery() -> Dictionary:
-		return {"ok":true,"value":{"available":available,"transaction_id":"startup-retained" if available else ""}}
-	func retry_new_run_startup(transaction: String) -> Dictionary:
-		calls.append(transaction)
-		available = false
-		startup_recovery_changed.emit()
-		return {"ok":false,"code":"fixture_unavailable"}
+	signal startup_failed()
+	func get_startup_state() -> Dictionary:
+		return {"ready":false,"fatal_result":{"ok":false,"code":"fixture_unavailable"}}
 
 var _view: SubViewport
 var _menu: Control
@@ -152,7 +145,7 @@ func _edge_cases() -> void:
 	_owner.autosave = false
 	await _menu._on_new_acc_pressed()
 	await _frames()
-	_check(_menu._confirmation.request.body == "Current progress will be replaced. Other saves will remain.","live-only copy does not invent occupied Autosave")
+	_check(_menu._confirmation.request.body == _menu.NEW_ACC_COPY.en[1],"live-only replacement shows the shared consent copy")
 	await _key(KEY_ESCAPE)
 	_owner.live = false
 	_owner.next_commit = "ok"
@@ -187,20 +180,11 @@ func _startup_sample(language: String, percent: int) -> void:
 	_menu = MENU.instantiate()
 	_menu.set_script(SAFE_MENU)
 	_menu.configure_settings_services({"profile":_profile,"localization":_locale})
-	_menu.configure_startup_recovery_owner(startup)
+	_menu.startup_owner = startup
 	_menu.configure_new_acc_owner(_owner)
 	_view.add_child(_menu)
 	await _frames()
 	var sheet: Control = _menu._confirmation
-	if not _check(is_instance_valid(sheet),"startup automatically presents retained Retry"): return
-	_check(sheet.confirm_button.has_focus() and not sheet.cancel_button.visible,"startup Retry owns initial focus")
-	_measure(sheet,percent)
-	_capture("%s-%d-startup-retry.png" % [language,percent])
-	await _key(KEY_ESCAPE)
-	_check(_menu._confirmation == sheet and startup.calls.is_empty(),"startup Back retains operation")
-	await _key(KEY_ENTER)
-	_check(startup.calls == ["startup-retained"],"startup Retry targets retained Bootstrap operation")
-	sheet = _menu._confirmation
 	if not _check(is_instance_valid(sheet),"generic failure has a factual sheet"): return
 	_check(sheet.confirm_button.has_focus() and not sheet.cancel_button.visible,"startup unavailable retains single action custody")
 	_check(sheet.confirm_button.accessibility_name == _menu.SHUTDOWN_COPY[_menu._locale][3],"unavailable offers localized Shut down")
@@ -209,7 +193,7 @@ func _startup_sample(language: String, percent: int) -> void:
 	await _key(KEY_ESCAPE)
 	_check(_menu.quit_requests == 0 and _menu._confirmation == sheet,"Back does not quit")
 	await _key(KEY_ENTER)
-	_check(_menu.quit_requests == 1 and startup.calls.size() == 1,"explicit action reaches intercepted shutdown once")
+	_check(_menu.quit_requests == 1,"explicit action reaches intercepted shutdown once")
 	_startup_samples.append({"locale":language,"text_percent":percent,"palette":"Standard Backup paper",
 		"logical_size":[1280,720],"native_size":[640,360]})
 	_menu.queue_free()
@@ -261,7 +245,7 @@ func _finish() -> void:
 	var report := FileAccess.open(_folder.path_join("measurements.json"),FileAccess.WRITE)
 	if report != null:
 		report.store_string(JSON.stringify({"ok":_failures.is_empty(),"failures":_failures,"checks":_checks,
-			"captures":_captures,"samples":_samples,"startup_samples":_startup_samples,"scope":"Actual Menu and shared sheet New Acc plus startup recovery native rendering/input with explicit in-memory operation outcome fixtures. Real fonts/catalogs; Standard paper only. No storage, OS assistive-technology or complete New Acc acceptance claim."},"\t")+"\n")
+			"captures":_captures,"samples":_samples,"startup_samples":_startup_samples,"scope":"Actual Menu and shared sheet New Acc plus startup failure native rendering/input with explicit in-memory operation outcome fixtures. Real fonts/catalogs; Standard paper only. No storage, OS assistive-technology or complete New Acc acceptance claim."},"\t")+"\n")
 		report.close()
 	else: _check(false,"report write")
 	print("NEW_ACC_TITLE_", "VERIFIED" if _failures.is_empty() else "FAILED", " captures=",_captures," checks=",_checks," evidence=",_folder)

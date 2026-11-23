@@ -79,6 +79,6 @@
       "scene_save_metadata",
       "current_title"
     ],
-    "retained_scope": "Ordinary Load recovery tests in test_scene_creation_storage_recovery.gd remain selected. Initial reading configuration isolation, runtime content reuse with build-time physical validation, audio silence and current frame consistency remain covered. Rendered current_title and matched Windows comparison own connected player-journey evidence."
+    "retained_scope": "Current Load activation is exercised by test_scene_memory_load.gd. Initial reading configuration isolation, runtime content reuse with build-time physical validation, audio silence and current frame consistency remain covered. Rendered current_title and matched Windows comparison own connected player-journey evidence."
   }
 }

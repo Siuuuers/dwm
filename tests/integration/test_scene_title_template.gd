@@ -1,28 +1,7 @@
 extends "res://tests/integration/scene_computer_child.gd"
-## FINAL owners and real files; only content selection and returning to title are setup.
-## All New Acc, consent, cancellation and retry actions use actual Viewport input.
+## FINAL owners, template content, and actual Viewport input.
 const TEMPLATE := preload("res://tests/templates/scene_startup/Registration.gd")
-const MENU_PATH := "res://scenes/menu/MenuScene.tscn"
 var actions: Array[String] = []
-# Records actual owner outcomes without replacing any result or persistence work.
-class TitleObserver extends RefCounted:
-	var owner: Node
-	var last_prepare: Dictionary = {}
-	var last_commit: Dictionary = {}
-	var last_retry: Dictionary = {}
-	func prepare_new_run_action() -> Dictionary:
-		last_prepare = owner.prepare_new_run_action()
-		return last_prepare
-	func cancel_prepared_new_run(token: String) -> Dictionary:
-		return owner.cancel_prepared_new_run(token)
-	func commit_prepared_new_run(token: String) -> Dictionary:
-		last_commit = owner.commit_prepared_new_run(token)
-		return last_commit
-	func retry_new_run(transaction: String) -> Dictionary:
-		last_retry = owner.retry_new_run(transaction)
-		return last_retry
-var observer: TitleObserver
-
 
 func _install_content_registration() -> Dictionary:
 	return TEMPLATE.new()._install_registration()
@@ -30,18 +9,12 @@ func _install_content_registration() -> Dictionary:
 func _title() -> Node:
 	if get_tree().current_scene != null and get_tree().current_scene.scene_file_path == HOST:
 		var pause: Node = get_node("/root/SceneRouter")._production_pause
-		if not _ok(await pause.request_pause()): return null
+		if not _ok(await pause.request_pause(false)): return null
 		if not _ok(pause.request_return()): return null
 	else:
-		assert_eq(get_tree().change_scene_to_file(MENU_PATH), OK)
+		get_node("/root/SceneRouter").goto_menu()
 	for frame: int in 12: await get_tree().process_frame
-	var menu: Node = get_tree().current_scene
-	assert_eq(menu.scene_file_path, MENU_PATH)
-	if observer == null:
-		observer = TitleObserver.new()
-		observer.owner = saves
-	menu.configure_new_acc_owner(observer)
-	return menu
+	return get_tree().current_scene
 
 func _press(button: Button, label: String) -> bool:
 	assert_true(is_instance_valid(button), label)
@@ -66,8 +39,7 @@ func _wait_opening(count: int) -> bool:
 			await _screenshot("title-template-timeout")
 			fail_test("Title did not reach template opening: " + str({"activation": saves._scene_restore_activation,
 				"ready": ready_count, "scene": get_tree().current_scene.scene_file_path if get_tree().current_scene != null else "",
-				"line": bridge._runtime_adapter.current_line_id(), "prepare": observer.last_prepare,
-				"commit": observer.last_commit, "retry": observer.last_retry}))
+				"line": bridge._runtime_adapter.current_line_id()}))
 			return false
 		await get_tree().process_frame
 	return false
@@ -79,7 +51,7 @@ func _wait_confirmation(menu: Node) -> bool:
 	fail_test("Title confirmation did not appear")
 	return false
 
-func test_title_template_cancel_stale_and_same_operation_retry() -> void:
+func test_title_template_cancel_then_confirm_replacement() -> void:
 	if not _start_services(): return
 	if not _ok(profile.set_preference(&"preferences.reading.auto_enabled", false)): return
 	assert_false(saves.configure_scene_title_new_run("TEST.missing").ok)
@@ -102,9 +74,10 @@ func test_title_template_cancel_stale_and_same_operation_retry() -> void:
 	assert_eq(first.scene.active_occurrence_id, reading.value.reading_session.occurrence_id)
 	if not _ok(saves.save_latest_to_slot(1)): return
 	var slot_hash := FileAccess.get_sha256("user://saves/slot_1.json")
-	var auto_hash := FileAccess.get_sha256("user://saves/autosave.json")
+	assert_false(FileAccess.file_exists("user://saves/autosave.json"))
 	assert_eq(slot_hash.length(), 64, "physical slot exists before replacement")
-	assert_eq(auto_hash.length(), 64, "physical autosave exists before replacement")
+	if not _ok(saves.autosave_latest()): return
+	var auto_hash := FileAccess.get_sha256("user://saves/autosave.json")
 	await _screenshot("title-template-opening")
 	menu = await _title()
 	if menu == null: return
@@ -121,57 +94,18 @@ func test_title_template_cancel_stale_and_same_operation_retry() -> void:
 	assert_eq(game.capture_run_snapshot_input(), live_before)
 	assert_eq(FileAccess.get_sha256("user://saves/autosave.json"), auto_hash)
 	assert_eq(ready_count, 1)
-	# A real preference revision invalidates a previously displayed replacement decision.
-	if not await _press(menu._new_acc_button, "prepare stale replacement"): return
+	if not await _press(menu._new_acc_button, "prepare replacement"): return
 	if not await _wait_confirmation(menu): return
-	if not _ok(profile.set_preference(&"preferences.reading.auto_delay", "short")): return
-	var revised_profile: Dictionary = profile.get_profile_snapshot().duplicate(true)
-	if not await _press(menu._confirmation.confirm_button, "reject stale Start"): return
-	if not await _wait_confirmation(menu): return
-	assert_eq(menu._confirmation.request.body, menu.NEW_ACC_COPY[menu._locale][6])
-	assert_eq(profile.get_profile_snapshot(), revised_profile)
-	assert_eq(game.capture_run_snapshot_input(), live_before)
-	assert_eq(FileAccess.get_sha256("user://saves/autosave.json"), auto_hash)
-	assert_eq(ready_count, 1)
-	if not await _press(menu._confirmation.cancel_button, "dismiss stale decision"): return
-	if not await _press(menu._new_acc_button, "prepare retryable replacement"): return
-	if not await _wait_confirmation(menu): return
-	# Refuse an actual autosave write after durable scene creation intent.
-	var original_files: RefCounted = saves._storage._file_ops
-	var fault := CONTENT.WriteRefusal.new()
-	fault.refuse_on = 1
-	saves._storage._file_ops = fault
-	if not await _press(menu._confirmation.confirm_button, "Start with write refusal"): return
-	if not await _wait_confirmation(menu): return
-	assert_eq(fault.refused, 1)
-	var transaction: String = menu._new_acc_transaction
-	assert_false(transaction.is_empty())
-	assert_eq(transaction, saves._new_run_transaction_id)
-	assert_false(menu._confirmation.cancel_button.visible)
-	var pending: Dictionary = saves._continuation_journal.get_operation(transaction)
-	if not _ok(pending): return
-	var frozen: Dictionary = pending.value.duplicate(true)
-	await _screenshot("title-template-retry")
-	saves._storage._file_ops = original_files
-	if not await _press(menu._confirmation.confirm_button, "Retry same creation"): return
+	if not await _press(menu._confirmation.confirm_button, "confirm replacement"): return
 	if not await _wait_opening(2): return
 	var second: Dictionary = game.capture_run_snapshot_input()
 	assert_ne(second.lifecycle.run_id, first.lifecycle.run_id)
-	assert_ne(second.lifecycle.scene_assignment.form, first.lifecycle.scene_assignment.form)
-	assert_eq(second.lifecycle.scene_assignment.creation_transaction_id, transaction)
-	assert_eq(second.lifecycle.scene_assignment, frozen.new_run_materials.profile.scene_assignment.receipt)
-	var completed: Dictionary = saves._continuation_journal.get_operation(transaction)
-	if not _ok(completed): return
-	assert_eq(completed.value.new_run_materials, frozen.new_run_materials, "Retry retains the complete original decision")
-	assert_eq(completed.value.activation_state, "acknowledged")
+	assert_false(second.lifecycle.has("scene_assignment"))
+	assert_eq(profile.get_profile_snapshot(), profile_before)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), slot_hash)
-	assert_true(saves._new_run_transaction_id.is_empty())
-	assert_true(saves._prepared_new_run_token.is_empty())
-	assert_false(saves.commit_prepared_new_run("invalid-token").ok)
+	assert_eq(FileAccess.get_sha256("user://saves/autosave.json"), auto_hash)
 	assert_eq(ready_count, 2)
 	assert_true("TEST TEMPLATE: opening caption." in _caption().caption_text.text)
-	await _screenshot("title-template-retried-opening")
+	await _screenshot("title-template-replacement-opening")
 	_write_json("res://.godot/ci/title-template-proof.json", {"process_id": OS.get_process_id(),
-		"ready_count": ready_count, "actions": actions, "refusals": fault.refused,
-		"first_assignment": first.lifecycle.scene_assignment, "second_assignment": second.lifecycle.scene_assignment,
-		"retry_transaction": transaction, "preserved_slot_sha256": slot_hash})
+		"ready_count": ready_count, "actions": actions, "preserved_slot_sha256": slot_hash})

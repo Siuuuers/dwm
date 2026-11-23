@@ -75,8 +75,7 @@ func exercise_phase(phase: String) -> void:
 	var activated: Dictionary = await fixture.await_activation()
 	assert_true(activated.ok, str(activated))
 	if not activated.ok: return
-	var operation: Dictionary = fixture.manager._continuation_journal.get_operation(operation_id)
-	assert_false(operation.ok, "New Run and Load have no durable continuation operation")
+	assert_false(fixture.storage.exists(fixture.JOURNAL.JOURNAL_PATH), "New Run and Load have no durable continuation operation")
 	assert_eq(fixture.ready_count, 1)
 	assert_eq(fixture.route_confirmations, [operation_id])
 	assert_eq(fixture.narrative_confirmations, [operation_id])

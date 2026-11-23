@@ -19,11 +19,6 @@ class StoryDayFixture extends "res://tests/support/SceneNewRunFixture.gd":
 		bundle.scene_programme["story_days"] = {"scene.test.a": 1, "scene.test.b": 1, "contact.test.a": 2}
 		return REGISTRATION.MANIFEST.configure_test_scene_registration(bundle)
 
-class CheckpointStorageOwner extends RefCounted:
-	var _storage: RefCounted
-	var _journal: RefCounted
-	var _restore_participants := {}
-
 var fixture: RefCounted
 var fixture_ready := false
 
@@ -253,34 +248,6 @@ func test_current_load_preparation_does_not_validate_the_complete_snapshot() -> 
 		var plan: Dictionary = prepared.result.value.prepared
 		fixture.manager._scene_restore_preparations.erase(plan.scene_preparation_token)
 
-func test_current_scene_source_admission_preserves_state_and_rejects_changed_hash() -> void:
-	assert_true(fixture_ready)
-	if not fixture_ready: return
-	var before: Dictionary = _observed()
-	var document: Dictionary = fixture.read_autosave().value
-	var locator := {"bundle_id": fixture.manager._canonical_sha256(document.current_snapshot),
-		"checkpoint_id": document.current_snapshot.snapshot.checkpoint_id,
-		"document_sha256": fixture.manager._canonical_sha256(document.current_snapshot.snapshot),
-		"slot_id": document.kind}
-	# The real created Save9 is the source. This diagnostic exercises only the
-	# journal's source binding, without allocating or committing a new operation.
-	var operation := {"kind": "scene_restore", "transaction_id": "source-binding-diagnostic",
-		"selected_document": document, "source_locator": locator}
-	operation["request_fingerprint"] = fixture.manager._canonical_sha256(operation)
-	var journal: RefCounted = fixture.manager._continuation_journal
-	var accepted: Dictionary = journal._validate_scene_source(operation)
-	assert_true(accepted.get("ok", false), str(accepted))
-	var changed := operation.duplicate(true)
-	changed.source_locator.document_sha256 = "0".repeat(64)
-	# Bind the changed request itself so rejection must come from the source hash.
-	var request := changed.duplicate(true)
-	request.erase("request_fingerprint")
-	changed.request_fingerprint = fixture.manager._canonical_sha256(request)
-	var refused: Dictionary = journal._validate_scene_source(changed)
-	assert_false(refused.get("ok", true))
-	assert_eq(refused.get("message"), "DesktopContinuationOperationJournal: selected checkpoint identity or content conflicts")
-	assert_eq(_observed(), before, "source admission changes no saved or live gameplay state")
-
 func test_new_scene_writes_omit_fallback_snapshots_without_changing_admitted_history() -> void:
 	assert_true(fixture_ready)
 	if not fixture_ready: return
@@ -425,8 +392,7 @@ func test_later_save_load_needs_no_durable_creation_operation() -> void:
 	if not fixture_ready: return
 	var source: Dictionary = fixture.read_autosave().value.current_snapshot.snapshot
 	assert_false(source.lifecycle.has("scene_assignment"))
-	var journal: RefCounted = fixture.manager._continuation_journal
-	assert_false(journal.get_creation_operation(source.scene.active_occurrence_id).ok,
+	assert_false(fixture.storage.exists(fixture.JOURNAL.JOURNAL_PATH),
 		"in-memory New Acc creates no durable creation operation")
 	var before := _observed()
 	var prepared: Dictionary = fixture.manager.prepare_restore_autosave()
@@ -460,7 +426,7 @@ func test_old_content_autosave_backup_rolls_back_exact_bytes_and_allows_retry() 
 	if file == null: return
 	file.store_string(old_text)
 	file.close()
-	var owner := CheckpointStorageOwner.new()
+	var owner: Node = autofree(fixture.manager.get_script().new())
 	owner._storage = STORAGE.new(temporary.value)
 	owner._journal = JOURNAL.new()
 	var journal_backup: Dictionary = fixture.manager._journal.capture_state().value.backup

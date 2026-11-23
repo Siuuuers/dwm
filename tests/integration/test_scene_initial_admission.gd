@@ -9,7 +9,8 @@ const NAMESPACE := preload("res://tests/support/FakeDesktopNamespaceSource.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FILES := preload("res://scripts/infrastructure/storage/FileOps.gd")
 const TEMP := preload("res://tests/support/TemporaryStorage.gd")
-const PROFILE := preload("res://autoload/ProfileManager.gd")
+const SCHEMA := preload("res://scripts/profile/ProfileSchema.gd")
+const CREATION := preload("res://tests/support/SceneNewRunFixture.gd")
 var issuer: RefCounted
 var allocation: Dictionary
 var material: Dictionary
@@ -42,15 +43,7 @@ func _prepare(nonce: int = 0) -> bool:
 	assert_true(result.ok, str(result))
 	if not result.ok: return false
 	allocation = result.value
-	var profile: Node = PROFILE.new()
-	result = profile.initialize(storage)
-	if result.ok: result = profile.configure_new_run_storage(storage)
-	if result.ok: result = profile.prepare_scene_new_run_consumption(profile.get_profile_revision(), allocation.run_id,
-		transaction.value.token, nonce)
-	profile.free()
-	assert_true(result.ok, str(result))
-	if not result.ok: return false
-	material = result.value
+	material = CREATION.profile_material(SCHEMA.make_defaults(), allocation, nonce)
 	bundle = MANIFEST.scene_registration().value
 	result = CONTRACT.prepare_scene_initial_admission(allocation, material, "target_b", bundle, issuer)
 	assert_true(result.ok, str(result))

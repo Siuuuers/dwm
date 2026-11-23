@@ -206,7 +206,6 @@ func _check_transport_labels() -> void:
 func _title_and_gallery(language: String) -> void:
 	var menu: Control = MENU.instantiate()
 	menu.configure_settings_services({"profile": profile, "localization": locale})
-	menu.configure_startup_recovery_owner(null)
 	viewport.add_child(menu)
 	await capture("title", language, 100, menu)
 	menu.queue_free()

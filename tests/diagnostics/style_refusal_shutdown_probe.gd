@@ -96,14 +96,7 @@ func _exercise_refusal() -> void:
 	_check(not fixture.bridge._scene_restore.get("confirmed", true), "native_unconfirmed")
 	_check(fixture.manager._scene_restore_activation.get("operation_id") == operation_id, "same_activation_operation")
 	_check(fixture.manager._scene_restore_activation.get("failure") == refused, "same_activation_failure")
-	var reopened: Dictionary = fixture.reopen_journal()
-	if not _check(reopened.get("ok", false), "reopened_real_journal"):
-		return
-	var durable: Dictionary = reopened.value.get_creation_operation(operation_id)
-	if not _check(durable.get("ok", false), "read_real_durable_operation"):
-		return
-	_check(durable.value.get("transaction_id") == operation_id, "same_durable_operation")
-	_check(durable.value.get("activation_state") == "pending", "durable_activation_unacknowledged")
+	_check(not fixture.storage.exists(fixture.JOURNAL.JOURNAL_PATH), "no_creation_journal")
 	var retried: Dictionary = fixture.manager.retry_scene_activation(operation_id)
 	_check(retried == refused, "retry_retains_same_failure")
 	for frame: int in 4: await process_frame

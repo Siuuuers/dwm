@@ -29,6 +29,11 @@ func test_new_runs_preserve_disk_and_profile_then_normal_save_load_restores_prog
 	var started: Dictionary = fixture.start()
 	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
 	if started.get("code") != &"scene_activation_pending": return
+	var retried: Dictionary = fixture.manager.retry_new_run(started.transaction_id)
+	assert_eq(retried.get("code"), &"scene_activation_pending")
+	assert_eq(retried.get("transaction_id"), started.transaction_id)
+	assert_eq(fixture.participants.route.publications, 0)
+	assert_eq(fixture.participants.narrative.publications, 0)
 	var initial: Dictionary = fixture.manager.get_latest_stable_checkpoint().value.bundle.snapshot
 	assert_eq(initial.schema_version, 9)
 	assert_eq(initial.checkpoint_sequence, 1)

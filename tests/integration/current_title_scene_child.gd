@@ -7,6 +7,8 @@ const CURRENT_ART := preload("res://scripts/data/ArtManifest.gd")
 const TITLE_PROOF := "user://current-title-scene-proof.json"
 const TITLE_SLOT := "user://saves/slot_1.json"
 const AUTOSAVE := "user://saves/autosave.json"
+const OLD_JOURNAL := "user://saves/desktop-continuation-operations.json"
+const PENDING_JOURNAL := "res://tests/fixtures/saves/pending_scene_creation_journal.json"
 const FIRST_LINE := "line.Day1.one"
 
 func _screenshot(label: String) -> void:

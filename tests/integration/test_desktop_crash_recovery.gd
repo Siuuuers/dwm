@@ -88,9 +88,7 @@ func _boot_process(storage_root: String) -> Dictionary:
 	assert_true(game_state.configure_mutation_gate(gate).get("ok", false))
 
 	assert_true(profile.configure_mutation_gate(gate).get("ok", false))
-	assert_true(profile.configure_new_run_storage(storage).get("ok", false))
 	assert_true(save_manager.configure_new_run_profile_owner(profile).get("ok", false))
-	assert_true(save_manager.reconcile_new_run_storage().get("ok", false))
 
 	assert_true(profile.call(&"initialize", storage).get("ok", false),
 		"ProfileManager must be initialized the same way the real initialize_profile stage does it")
@@ -177,24 +175,6 @@ func test_a_new_run_preserves_the_committed_global_profile_and_chains_its_locale
 	second.fixture.confirm_activation()
 	assert_eq(second.fixture.profile.get_profile_snapshot(), before)
 	assert_eq(second.localization.get_locale(), "zh_CN")
-
-func test_boot_itself_reconciles_before_returning_ok_not_only_when_called_a_second_time() -> void:
-	if _shared_root.is_empty():
-		return
-	# _configure_desktop_production_graph() calls SaveManager.reconcile_incomplete_continuations()
-	# itself (Phase 1), so a caller never has to remember to call it separately. Proven by armed
-	# absence: configuring the graph with NO prior incomplete operation must still succeed (a
-	# missing/failing reconciliation call inside the graph would surface as this same failure).
-	var process := _boot_process(_shared_root)
-	assert_true((process["bootstrap"] as Node).call(&"_configure_desktop_production_graph").get("ok", false),
-		"identical replay of the graph construction (which reconciles again) is still ok")
-
-
-# -------------------------------------------------------------------------------------------------
-# the desktop publication ledger survives a fresh reload (at-most-once durability, independent of
-# either honest gap: this exercises record_before_emit()/load() directly, matching the ledger's own
-# established unit-test discipline, but against the Bootstrap-RETAINED instance)
-# -------------------------------------------------------------------------------------------------
 
 func test_the_bootstrap_retained_publication_ledger_survives_a_fresh_reload() -> void:
 	if _shared_root.is_empty():

@@ -1,249 +1,68 @@
-extends "res://addons/gut/test.gd"
+extends GutTest
 
-# State-machine diagnostics only: fake materials bypass candidate admission here.
-# Genuine allocation/Profile/Save/native evidence belongs to connected creation tests.
+const FIXTURE := preload("res://tests/support/SceneNewRunFixture.gd")
 const JOURNAL := preload("res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd")
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const STRICT := preload("res://scripts/validation/StrictJson.gd")
-const RESTORE_TEST := preload("res://tests/unit/test_scene_restore_journal.gd")
-
-class StateMachineOnly:
-	extends JOURNAL
-	func _validate_kind_fields(operation: Dictionary, _kind: String) -> Dictionary:
-		if operation.get("new_run_materials", {}).get("fixture") != "state-machine-only":
-			return {"ok": false}
-		if operation.has("new_run_targets"):
-			return _validate_new_run_targets(operation["new_run_targets"], operation)
-		return {"ok": true}
-
-var storage: RESTORE_TEST.MemoryStorage
-var loader: RESTORE_TEST.SourceLoader
-var journal: StateMachineOnly
+const MATERIALS := preload("res://scripts/infrastructure/save/NewRunMaterials.gd")
+var fixture: RefCounted
+var scope := preload("res://tests/support/SceneValidationScope.gd").new()
 
 func before_each() -> void:
-	storage = RESTORE_TEST.MemoryStorage.new()
-	loader = RESTORE_TEST.SourceLoader.new()
-	journal = StateMachineOnly.new()
-	assert_true(journal.configure(storage, loader)["ok"])
+	scope.install(true)
+	fixture = FIXTURE.new()
 
-func _request() -> Dictionary:
-	var tx := "transaction_id." + "a".repeat(64)
-	var context := {"active_app_id": null, "audio_context": {}, "content_version": 1,
-		"dialogic_checkpoint": {"fixture": "actual-reading-is-tested-elsewhere"}, "route_id": "scene"}
-	var allocation := {"fixture": "retained-allocation"}
-	return {"allocation_candidate_fingerprint": WRITER.stringify(allocation)["value"].sha256_text(),
-		"initial_context": context, "initial_context_sha256": WRITER.stringify(context)["value"].sha256_text(),
-		"kind": "scene_new_run", "source_locator": null, "request_fingerprint": "b".repeat(64),
-		"new_run_materials": {"fixture": "state-machine-only", "allocation_candidate": allocation,
-			"autosave": {"outgoing_hash": "c".repeat(64)}, "profile": {"outgoing_hash": "d".repeat(64)}},
-		"transaction_id": tx, "transaction_issuer_receipt": {"counter": 0, "namespace": "e".repeat(64),
-			"numeric_value": null, "purpose": "transaction_id", "receipt_id": "issuer_receipt." + "f".repeat(64), "token": tx}}
+func after_each() -> void:
+	fixture.close()
+	scope.restore()
 
-func _intent() -> Dictionary:
-	var prepared: Dictionary = journal.prepare_intent(_request())
-	assert_true(prepared.get("ok", false), str(prepared))
-	if not prepared.get("ok", false): return {}
-	var committed: Dictionary = journal.commit_intent(prepared["value"])
-	assert_true(committed.get("ok", false), str(committed))
-	return committed.get("value", {})
-
-func _advance(operation: Dictionary, stage: String, allocation: Variant = null) -> Dictionary:
-	return journal.advance({"transaction_id": operation["transaction_id"], "request_fingerprint": operation["request_fingerprint"],
-		"expected_stage": operation["stage"], "next_stage": stage, "expected_next_participant_index": operation["next_participant_index"],
-		"allocation_receipt": allocation, "participant_name": null, "participant_receipt": null, "failure": null})
-
-func _allocated() -> Dictionary:
-	var operation := _intent()
-	if operation.is_empty(): return {}
-	var result := _advance(operation, JOURNAL.STAGE_ALLOCATED, operation["new_run_materials"]["allocation_candidate"])
-	assert_true(result.get("ok", false), str(result))
-	return result.get("value", {})
-
-func _applied() -> Dictionary:
-	var operation := _allocated()
-	if operation.is_empty(): return {}
-	for target: String in JOURNAL.NEW_RUN_TARGET_ORDER:
-		var recorded: Dictionary = journal.record_new_run_target(operation["transaction_id"], operation["request_fingerprint"],
-			StringName(target), journal._expected_new_run_target_revision(operation, target))
-		assert_true(recorded.get("ok", false), str(recorded))
-		if not recorded.get("ok", false): return {}
-		operation = recorded["value"]
-	var result := _advance(operation, JOURNAL.STAGE_APPLYING)
-	assert_true(result.get("ok", false), str(result))
-	if not result.get("ok", false): return {}
-	operation = result["value"]
-	for name: String in JOURNAL.SCENE_PARTICIPANT_ORDER:
-		var request := {"transaction_id": operation["transaction_id"], "request_fingerprint": operation["request_fingerprint"],
-			"expected_stage": JOURNAL.STAGE_APPLYING, "next_stage": JOURNAL.STAGE_APPLYING,
-			"expected_next_participant_index": operation["next_participant_index"], "allocation_receipt": null,
-			"participant_name": name, "participant_receipt": {"applied": name}, "failure": null}
-		result = journal.advance(request)
-		assert_true(result.get("ok", false), str(result))
-		if not result.get("ok", false): return {}
-		operation = result["value"]
-		var writes := storage.writes
-		var replayed: Dictionary = journal.advance(request.duplicate(true))
-		assert_true(replayed.get("ok", false), str(replayed))
-		assert_eq(replayed.get("value"), operation)
-		assert_eq(storage.writes, writes)
-	result = _advance(operation, JOURNAL.STAGE_APPLIED)
-	assert_true(result.get("ok", false), str(result))
-	return result.get("value", {})
-
-func test_creation_requires_retained_allocation_and_ordered_three_targets() -> void:
-	var operation := _intent()
-	if operation.is_empty(): return
-	assert_false(_advance(operation, JOURNAL.STAGE_ALLOCATED, {"different": true})["ok"])
-	operation = _advance(operation, JOURNAL.STAGE_ALLOCATED, operation["new_run_materials"]["allocation_candidate"])["value"]
-	assert_false(_advance(operation, JOURNAL.STAGE_APPLYING)["ok"])
-	assert_false(journal.record_new_run_target(operation["transaction_id"], operation["request_fingerprint"], &"profile", "d".repeat(64))["ok"])
-	assert_true(journal.record_new_run_target(operation["transaction_id"], operation["request_fingerprint"], &"identity", operation["allocation_candidate_fingerprint"])["ok"])
-	assert_false(_advance(operation, JOURNAL.STAGE_APPLYING)["ok"])
-	assert_eq(journal.get_operation(operation["transaction_id"])["value"]["new_run_materials"], operation["new_run_materials"])
-
-func test_completed_pending_creation_restarts_then_acknowledges_once() -> void:
-	var operation := _applied()
-	if operation.is_empty(): return
-	assert_eq(operation["next_participant_index"], 8)
-	assert_false(operation["participant_receipts"].has("schedule_view"))
-	assert_true(_advance(operation, JOURNAL.STAGE_COMPLETED)["ok"])
-	var restarted := StateMachineOnly.new()
-	assert_true(restarted.configure(storage, loader)["ok"])
-	var incomplete: Dictionary = restarted.list_incomplete()
-	assert_true(incomplete["ok"])
-	assert_eq(incomplete["value"][0]["activation_state"], "pending")
-	assert_true(restarted.reconcile_startup(operation["transaction_id"], RESTORE_TEST.IssuerShapeOnly.new())["ok"])
-	assert_eq(loader.calls, [])
-	assert_true(restarted.acknowledge_scene_activation(operation["transaction_id"], operation["request_fingerprint"])["ok"])
-	var writes := storage.writes
-	assert_true(restarted.acknowledge_scene_activation(operation["transaction_id"], operation["request_fingerprint"])["ok"])
-	assert_eq(storage.writes, writes)
-	assert_eq(restarted.list_incomplete()["value"], [])
-
-func test_uncertain_completion_physically_reloads_same_frozen_creation() -> void:
-	var operation := _applied()
-	if operation.is_empty(): return
-	storage.promote_then_refuse = true
-	assert_false(_advance(operation, JOURNAL.STAGE_COMPLETED)["ok"])
-	var reloaded: Dictionary = journal.reload_operation_from_storage(operation["transaction_id"])
-	assert_true(reloaded["ok"])
-	assert_eq(reloaded["value"]["activation_state"], "pending")
-	assert_eq(reloaded["value"]["new_run_materials"], operation["new_run_materials"])
-	assert_eq(reloaded["value"]["new_run_targets"], operation["new_run_targets"])
-
-func test_creation_schema_and_early_activation_are_closed() -> void:
-	var operation := _intent()
-	if operation.is_empty(): return
-	assert_null(operation["activation_state"])
-	assert_false(operation.has("selected_document"))
-	assert_false(journal.acknowledge_scene_activation(operation["transaction_id"], operation["request_fingerprint"])["ok"])
-	var physical: Dictionary = STRICT.parse_object(storage.text)["value"]
-	assert_eq(physical["schema_version"], 5)
-	physical["schema_version"] = 4
-	storage.text = WRITER.stringify(physical)["value"]
-	assert_false(journal.reload_operation_from_storage(operation["transaction_id"])["ok"])
-	var actual := JOURNAL.new()
-	assert_true(actual.configure(RESTORE_TEST.MemoryStorage.new(), loader)["ok"])
-	assert_false(actual.prepare_intent(_request())["ok"], "real journal never admits these diagnostic materials")
-
-func test_pending_creation_conflicts_with_pending_restore_and_blocks_other_intents() -> void:
-	var operation := _applied()
-	if operation.is_empty(): return
-	assert_true(_advance(operation, JOURNAL.STAGE_COMPLETED)["ok"])
-	var other := _request()
-	other["transaction_id"] = "transaction_id." + "0".repeat(64)
-	other["transaction_issuer_receipt"]["token"] = other["transaction_id"]
-	assert_false(journal.prepare_intent(other)["ok"])
-	# Inspect the common fence directly; retained Restore validation is covered by
-	# its separate real journal tests. A different kind must not hide this conflict.
-	var pending_restore := {"kind": "scene_restore", "stage": JOURNAL.STAGE_COMPLETED,
-		"activation_state": "pending", "transaction_id": other["transaction_id"]}
-	journal._document["operations"][other["transaction_id"]] = pending_restore
-	assert_false(journal.list_incomplete()["ok"])
-
-func test_creation_durable_intent_cannot_abort_or_accept_restore_members() -> void:
-	var operation := _intent()
-	if operation.is_empty(): return
-	var aborted: Dictionary = journal.advance({"transaction_id": operation["transaction_id"], "request_fingerprint": operation["request_fingerprint"],
-		"expected_stage": JOURNAL.STAGE_INTENT, "next_stage": JOURNAL.STAGE_ABORTED, "expected_next_participant_index": 0,
-		"allocation_receipt": null, "participant_name": null, "participant_receipt": null,
-		"failure": {"code": "source_unprovable", "message": "diagnostic", "details": {}}})
-	assert_false(aborted["ok"])
-	var changed := operation.duplicate(true)
-	changed["selected_document"] = {}
-	assert_false(journal.commit_intent(changed)["ok"])
-	changed = operation.duplicate(true)
-	changed["activation_state"] = "pending"
-	assert_false(journal.commit_intent(changed)["ok"])
-
-func test_exact_text_validation_window_is_bounded_detached_and_never_admits_other_bytes() -> void:
-	var journal: Object = JOURNAL.new()
-	var text := "{\"value\":{\"nested\":[]}}"
-	journal._remember_validated_text(text, {"value": {"nested": []}})
-	var first: Dictionary = journal._parse_document(text)
-	assert_true(first.get("ok", false), str(first))
-	(first.value.value.nested as Array).append("mutated")
-	assert_eq(journal._parse_document(text).value, {"value": {"nested": []}},
-		"a caller cannot mutate the retained exact-text proof")
-	assert_false(journal._parse_known_document(text + " garbage").get("ok", false),
-		"a nearby but distinct byte string still receives strict parsing")
-	for index: int in 4:
-		journal._remember_validated_text("{\"entry\":%d}" % index, {"entry": index})
-	assert_eq((journal.get("_validated_text_order") as Array).size(), 4)
-	assert_false((journal.get("_validated_text_documents") as Dictionary).has(text),
-		"the proof window evicts its oldest exact text")
-
-func test_complete_creation_intent_survives_restart_byte_exact() -> void:
-	var prepared: Dictionary = journal.prepare_intent(_request())
-	assert_true(prepared.ok, str(prepared))
-	if not prepared.ok: return
-	assert_eq(storage.writes, 0)
-	assert_true(journal.commit_intent(prepared.value).ok)
-	assert_eq(storage.writes, 1)
-	var restarted := StateMachineOnly.new()
-	assert_true(restarted.configure(storage, loader).ok)
-	var recovered: Dictionary = restarted.get_operation(prepared.value.transaction_id)
-	assert_true(recovered.ok, str(recovered))
-	assert_eq(recovered.get("value"), prepared.value)
-
-func _creation_with_retired_restore() -> Dictionary:
-	var creation := _intent()
-	if creation.is_empty(): return {}
-	var document: Dictionary = STRICT.parse_object(storage.text).value
-	var tx := "transaction_id." + "b".repeat(64)
-	document.operations[tx] = {"kind": "scene_restore", "transaction_id": tx,
-		"selected_document": {"obsolete": "content no longer installed"}}
-	storage.text = WRITER.stringify(document).value
-	return creation
-
-func test_retirement_removes_only_scene_load_records_before_source_admission() -> void:
-	var creation := _creation_with_retired_restore()
-	if creation.is_empty(): return
-	var current := StateMachineOnly.new()
-	assert_true(current.configure(storage, loader).ok)
-	var writes_before: int = storage.writes
-	var retired: Dictionary = current.with_creation_storage_recovery(current.retire_scene_restore_operations)
-	assert_true(retired.ok, str(retired))
-	if not retired.ok: return
-	assert_eq(retired.value.removed, 1)
-	assert_eq(storage.writes, writes_before + 1)
-	assert_eq(storage.write_paths.slice(writes_before), [JOURNAL.JOURNAL_PATH])
-	assert_eq(STRICT.parse_object(storage.text).value.operations, {creation.transaction_id: creation})
-	assert_eq(loader.calls, [])
-	var reads_before: int = storage.retirement_reads
-	assert_eq(current.retire_scene_restore_operations().value.removed, 0)
-	assert_eq(storage.retirement_reads, reads_before)
-	assert_eq(storage.writes, writes_before + 1)
-
-func test_retirement_refusal_preserves_creation_and_can_retry() -> void:
-	var creation := _creation_with_retired_restore()
-	if creation.is_empty(): return
-	var before := storage.text
-	storage.refuse = true
-	var current := StateMachineOnly.new()
-	assert_true(current.configure(storage, loader).ok)
-	assert_false(current.retire_scene_restore_operations().ok)
-	assert_eq(storage.text, before)
-	storage.refuse = false
-	assert_true(current.retire_scene_restore_operations().ok)
-	assert_eq(STRICT.parse_object(storage.text).value.operations, {creation.transaction_id: creation})
+func test_completed_creation_proof_reads_only_the_referenced_record() -> void:
+	var setup: Dictionary = fixture.setup(get_tree())
+	assert_true(setup.ok, str(setup))
+	if not setup.ok: return
+	var started: Dictionary = fixture.start()
+	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
+	if started.get("code") != &"scene_activation_pending": return
+	fixture.confirm_activation()
+	var tx: String = started.transaction_id
+	var allocation: Dictionary = fixture.issuer.capture_root().value.allocation_receipts[tx]
+	var profile := FIXTURE.profile_material(fixture.profile.get_profile_snapshot(), allocation, 0)
+	var snapshot: Dictionary = fixture.manager.get_latest_stable_checkpoint().value.bundle.snapshot
+	snapshot.lifecycle["scene_assignment"] = profile.scene_assignment.receipt
+	var bundle: Dictionary = fixture.manager._scene_new_run_bundle
+	var reading: Dictionary = fixture.bridge._build_current_scene_initial_checkpoint(snapshot.scene, bundle)
+	assert_true(reading.ok, str(reading))
+	if not reading.ok: return
+	var projected := MATERIALS._project_acknowledged_initial_checkpoint(reading.value, 7)
+	assert_true(projected.ok, str(projected))
+	if not projected.ok: return
+	snapshot.narrative_checkpoint = projected.value
+	var context := {"route_id": "scene", "active_app_id": null, "audio_context": {},
+		"content_version": snapshot.content_version, "dialogic_checkpoint": reading.value}
+	var autosave := {"schema_version": 9, "kind": "autosave", "slot_id": null,
+		"current_snapshot": {"checkpoint_kind": "day_start", "snapshot": snapshot}, "recovery_journal": []}
+	var text: String = WRITER.stringify(autosave).value + "\n"
+	var material := {"allocation_candidate": allocation, "profile": profile,
+		"autosave": {"source_revision": "absent", "outgoing_text": text, "outgoing_hash": text.sha256_text()}}
+	var receipts := {}
+	for name: String in JOURNAL.SCENE_PARTICIPANT_ORDER: receipts[name] = {}
+	var fingerprint: String = WRITER.stringify(allocation).value.sha256_text()
+	var operation := {"kind": "scene_new_run", "transaction_id": tx, "stage": "completed", "activation_state": "acknowledged",
+		"initial_context": context, "initial_context_sha256": WRITER.stringify(context).value.sha256_text(),
+		"new_run_materials": material, "new_run_targets": {"identity": fingerprint, "profile": profile.outgoing_hash, "autosave": text.sha256_text()},
+		"request_fingerprint": WRITER.stringify({"kind": "scene_new_run", "transaction_id": tx,
+			"initial_context": context, "new_run_materials": material}).value.sha256_text(),
+		"allocation_candidate_fingerprint": fingerprint, "allocation_receipt": allocation,
+		"transaction_issuer_receipt": allocation.request.transaction_issuer_receipt, "failure": null,
+		"source_locator": null, "next_participant_index": receipts.size(), "participant_receipts": receipts}
+	var journal_text: String = WRITER.stringify({"schema_version": 5, "operations": {
+		tx: operation, "old": {"kind": "scene_new_run", "stage": "intent_committed"}}}).value
+	assert_true(fixture.storage.write_atomic("profile.json", profile.outgoing_text, STRICT.parse_object).ok)
+	assert_true(fixture.storage.write_atomic(JOURNAL.JOURNAL_PATH, journal_text, STRICT.parse_object).ok)
+	var captured: Dictionary = fixture.manager.capture_committed_scene_creation(tx)
+	assert_true(captured.ok, str(captured.get("message", captured.get("code"))))
+	if captured.ok:
+		assert_eq(captured.value.allocation_candidate, allocation)
+		assert_eq(captured.value.profile_material, profile)
+		assert_eq(captured.value.initial_scene, snapshot.scene)
+	assert_eq(fixture.storage.read_text(JOURNAL.JOURNAL_PATH).value, journal_text)

@@ -460,16 +460,6 @@ func publish_startup_route_hold(token: String) -> Dictionary:
 	_startup_published_result = result.duplicate(true)
 	return result
 
-func complete_startup_scene_activation(token: String, operation_id: String) -> Dictionary:
-	if token.is_empty() or token != _startup_hold_token or _startup_publishing:
-		return _startup_failure("stale_startup_route_hold")
-	var checked := validate_scene_activation(operation_id)
-	if not checked.get("ok", false): return checked
-	_startup_request.clear()
-	_startup_hold_active = false
-	_startup_published_result = {"ok": true, "value": {"route_id": "scene", "deferred": false}}
-	return _startup_published_result.duplicate(true)
-
 func _hold_startup_request(request: Dictionary) -> Dictionary:
 	_route_custody_revision += 1
 	_startup_request = request.duplicate(true)

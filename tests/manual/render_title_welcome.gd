@@ -36,7 +36,6 @@ func _run() -> void:
 		viewport.add_child(profile)
 		var menu: Control = MENU.instantiate()
 		menu.configure_settings_services({"profile": profile, "localization": locale})
-		menu.configure_startup_recovery_owner(null)
 		viewport.add_child(menu)
 		menu._title_welcome.set_busy(sample.stage)
 		for frame in 3: await RenderingServer.frame_post_draw
