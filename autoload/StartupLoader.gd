@@ -126,7 +126,7 @@ func _process(_delta: float) -> void:
 			var result: Dictionary = _bootstrap.advance_runtime()
 			if not result.get("ok", false):
 				_phase = &"idle"
-			elif _bootstrap.get_startup_state().ready:
+			elif result.ready:
 				_phase = &"idle"
 				queue_resources(_bootstrap.BACKGROUND_RESOURCES)
 

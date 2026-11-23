@@ -26,8 +26,6 @@ const RUNTIME_RESOURCES: Array[String] = [
 	"res://scripts/application/run/DatingPresentationPort.gd",
 	"res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd",
 	"res://scripts/application/ending/DialogicEndingPlaybackPort.gd",
-	"res://scripts/narrative/DialogicRuntimeAdapter.gd",
-	"res://scripts/data/DialogicTimelineCatalog.gd",
 	"res://scripts/domain/desktop/DesktopAppHostState.gd",
 	"res://scripts/application/restore/RunRestoreParticipant.gd",
 	"res://scripts/application/restore/ProfileRestoreParticipant.gd",
@@ -35,8 +33,6 @@ const RUNTIME_RESOURCES: Array[String] = [
 	"res://scripts/application/restore/AudioRestoreParticipant.gd",
 	"res://scripts/application/restore/RouteRestoreParticipant.gd",
 	"res://scripts/application/restore/NarrativeRestoreParticipant.gd",
-	"res://scripts/domain/desktop/DesktopConsequenceState.gd",
-	"res://scripts/domain/minesweeper/DesktopBoardState.gd",
 	"res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd",
 	"res://scripts/application/restore/DesktopBoardRestoreParticipant.gd",
 	"res://scripts/domain/minesweeper/MinesweeperRoundCoordinator.gd",
@@ -49,9 +45,6 @@ const RUNTIME_RESOURCES: Array[String] = [
 	"res://scripts/application/minesweeper/GameStateDesktopBoardPort.gd",
 	"res://scripts/application/minesweeper/SaveManagerDesktopBoardPort.gd",
 	"res://scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd",
-	"res://scripts/domain/shop/MinesweeperShopRegistry.gd",
-	"res://scripts/ui/desktop/DesktopConfirmation.gd",
-	"res://scripts/ui/backup/BackupTheme.gd",
 	"res://scripts/application/run/DatingPhysicalOwner.gd",
 	"res://scripts/application/desktop/SessionExitCoordinator.gd",
 	"res://scripts/application/narrative/SceneEventCommandPort.gd",
@@ -309,7 +302,7 @@ func advance_runtime() -> Dictionary:
 		if not result.get("ok", false): return _record_startup_stage_failure(stage_id, result)
 		_state["completed_stages"].append(stage_id)
 		_runtime_stage_index += 1
-		if stage_id == &"initialize_dialogic_bridge": return {"ok": true}
+		if stage_id == &"initialize_dialogic_bridge": return {"ok": true, "ready": false}
 	var published := _publish_startup_route_hold()
 	if not published.get("ok", false):
 		_state["completed_stages"].erase(&"publish_application_ready")
@@ -318,7 +311,7 @@ func advance_runtime() -> Dictionary:
 	_state["title_ready"] = true
 	_state["ready"] = true
 	application_ready.emit()
-	return {"ok": true}
+	return {"ok": true, "ready": true}
 
 
 func get_startup_state() -> Dictionary:
