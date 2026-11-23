@@ -169,8 +169,7 @@ class BackgroundBootstrap extends Node:
 	var finish := false
 	func advance_runtime() -> Dictionary:
 		runtime_ready = finish
-		return {"ok": true}
-	func get_startup_state() -> Dictionary: return {"ready": runtime_ready}
+		return {"ok": true, "ready": runtime_ready}
 
 func test_entire_profile_reset_requires_idle_title_without_live_session() -> void:
 	var app := InjectableBootstrap.new()
