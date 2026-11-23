@@ -80,8 +80,7 @@ var _title_transition := false
 var _new_acc_owner: Object
 var _new_acc_token := ""
 var _new_acc_transaction := ""
-var _new_acc_source: WeakRef
-var _new_acc_source_captured := false
+var _new_acc_source_id := -1
 var startup_owner: Object
 var _startup_unavailable := false
 var _pending_destination := ""
@@ -135,10 +134,15 @@ func _start_title_resource_loading() -> void:
 	for paths: Array in TITLE_DESTINATIONS.values():
 		loader.queue_resources(paths)
 
+func _current_scene_id() -> int:
+	var scene := get_tree().current_scene
+	return scene.get_instance_id() if scene != null else 0
+
 func _title_request_is_current(source_id: int) -> bool:
 	if not _title_source_alive(): return false
 	var scene := get_tree().current_scene
-	return (scene.get_instance_id() if scene != null else 0) == source_id
+	if scene == null: return source_id == 0
+	return scene.get_instance_id() == source_id and not scene.is_queued_for_deletion()
 
 func _destination_runtime_ready(destination: String) -> bool:
 	if destination == "settings": return true
@@ -153,8 +157,7 @@ func _prepare_title_destination(destination: String) -> bool:
 	if loader.resources_ready(paths) and _destination_runtime_ready(destination): return true
 	if not _begin_title_transition(): return false
 	_pending_destination = destination
-	var scene := get_tree().current_scene
-	var source_id := scene.get_instance_id() if scene != null else 0
+	var source_id := _current_scene_id()
 	if not await _close_setting():
 		_pending_destination = ""
 		_end_title_transition()
@@ -203,9 +206,7 @@ func _mount_title_art() -> void:
 
 func _show_startup_unavailable() -> void:
 	if not _title_source_alive() or _title_transition or is_instance_valid(_confirmation): return
-	var scene := get_tree().current_scene
-	_new_acc_source = weakref(scene) if scene != null else null
-	_new_acc_source_captured = true
+	_new_acc_source_id = _current_scene_id()
 	_startup_unavailable = true
 	var copy: Array = STARTUP_UNAVAILABLE_COPY[_locale]
 	present_confirmation({"title": copy[0], "body": copy[1], "confirm": SHUTDOWN_COPY[_locale][3],
@@ -213,7 +214,7 @@ func _show_startup_unavailable() -> void:
 		"theme": BACKUP_THEME.build(_locale, _percent, &"after_hours", 1, false, "standard", _font_style)}, _on_startup_shutdown, Callable())
 
 func _on_startup_shutdown() -> void:
-	if _new_acc_source_is_current(): _on_shut_down_confirmed()
+	if _title_request_is_current(_new_acc_source_id): _on_shut_down_confirmed()
 
 func configure_new_acc_owner(owner: Object) -> void:
 	_new_acc_owner = owner
@@ -230,36 +231,28 @@ func _title_source_alive() -> bool:
 		node = node.get_parent()
 	return true
 
-func _new_acc_source_is_current() -> bool:
-	if not _title_source_alive() or not _new_acc_source_captured: return false
-	if _new_acc_source == null: return get_tree().current_scene == null
-	var source: Node = _new_acc_source.get_ref() as Node
-	return is_instance_valid(source) and not source.is_queued_for_deletion() and get_tree().current_scene == source
-
 func _present_new_acc_busy(stage: String) -> bool:
 	_title_welcome.set_busy(stage)
 	await get_tree().process_frame
-	if not _new_acc_source_is_current(): return false
+	if not _title_request_is_current(_new_acc_source_id): return false
 	await get_tree().process_frame
-	return _new_acc_source_is_current()
+	return _title_request_is_current(_new_acc_source_id)
 
 
 func _finish_new_acc_transition() -> bool:
 	_title_transition = false
-	if not _new_acc_source_is_current(): return false
+	if not _title_request_is_current(_new_acc_source_id): return false
 	_end_title_transition()
 	return true
 
 func _on_new_acc_pressed() -> void:
 	if not await _prepare_title_destination("new_acc"): return
 	if not _title_source_alive() or not _begin_title_transition(): return
-	var scene := get_tree().current_scene
-	_new_acc_source = weakref(scene) if scene != null else null
-	_new_acc_source_captured = true
+	_new_acc_source_id = _current_scene_id()
 	if not await _close_setting():
 		_finish_new_acc_transition()
 		return
-	if not _new_acc_source_is_current():
+	if not _title_request_is_current(_new_acc_source_id):
 		_title_transition = false
 		return
 	_close_backup_app()
@@ -299,7 +292,7 @@ func _cancel_new_acc() -> void:
 
 func _commit_new_acc() -> void:
 	if _new_acc_token.is_empty() or _title_transition: return
-	if not _new_acc_source_is_current():
+	if not _title_request_is_current(_new_acc_source_id):
 		_cancel_new_acc()
 		return
 	var owner := _menu_new_acc_owner()
@@ -316,7 +309,7 @@ func _commit_new_acc() -> void:
 	if _finish_new_acc_transition(): _handle_new_acc_result(result)
 
 func _handle_new_acc_result(result: Dictionary) -> void:
-	if not _new_acc_source_is_current(): return
+	if not _title_request_is_current(_new_acc_source_id): return
 	if result.get("ok", false):
 		_new_acc_transaction = ""
 		_sync_title_navigation()
@@ -340,7 +333,7 @@ func _show_new_acc_recovery() -> void:
 		"theme": BACKUP_THEME.build(_locale, _percent, &"after_hours", 1, false, "standard", _font_style)}, _retry_new_acc, Callable())
 
 func _retry_new_acc() -> void:
-	if _new_acc_transaction.is_empty() or _title_transition or not _new_acc_source_is_current(): return
+	if _new_acc_transaction.is_empty() or _title_transition or not _title_request_is_current(_new_acc_source_id): return
 	var owner := _menu_new_acc_owner()
 	_title_transition = true
 	_sync_title_navigation()
@@ -357,7 +350,7 @@ func _retry_new_acc() -> void:
 		_show_new_acc_recovery()
 
 func _focus_new_acc() -> void:
-	if _new_acc_source_is_current() and not _title_transition:
+	if _title_request_is_current(_new_acc_source_id) and not _title_transition:
 		_new_acc_button.grab_focus()
 
 func _exit_tree() -> void:
