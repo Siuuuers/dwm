@@ -145,7 +145,7 @@ func _edge_cases() -> void:
 	_owner.autosave = false
 	await _menu._on_new_acc_pressed()
 	await _frames()
-	_check(_menu._confirmation.request.body == "Current progress will be replaced. Other saves will remain.","live-only copy does not invent occupied Autosave")
+	_check(_menu._confirmation.request.body == _menu.NEW_ACC_COPY.en[1],"live-only replacement shows the shared consent copy")
 	await _key(KEY_ESCAPE)
 	_owner.live = false
 	_owner.next_commit = "ok"
