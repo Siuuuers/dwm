@@ -9,7 +9,6 @@ const _BOARD_SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoar
 const _PREPARATION := preload("res://scripts/domain/minesweeper/MinesweeperPreparationState.gd")
 const _KERNEL := preload("res://scripts/domain/minesweeper/MinesweeperGeneratorKernel.gd")
 const _CATALOG := preload("res://scripts/domain/minesweeper/MinesweeperBoardCatalog.gd")
-const _REDUCER := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")
 const _PHASE_UNPAID := "UNPAID_UNSTARTED"
 const _PHASE_PAID := "PAID_UNSTARTED"
 const _PHASE_NONE := "NONE"
