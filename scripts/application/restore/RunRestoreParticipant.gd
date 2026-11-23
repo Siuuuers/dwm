@@ -12,11 +12,6 @@ func _init(owner: Object) -> void:
 func has_new_run_replacement() -> bool:
 	return _owner.has_new_run_replacement()
 
-func get_new_run_replacement_baseline() -> Dictionary:
-	if not is_instance_valid(_owner) or not _owner.has_method("get_new_run_replacement_baseline"):
-		return _fail(&"new_run_replacement_unavailable", "")
-	return _owner.get_new_run_replacement_baseline()
-
 func capture_live_session() -> Dictionary:
 	return _owner.capture_live_session()
 
