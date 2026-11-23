@@ -65,7 +65,10 @@ const BACKGROUND_RESOURCES: Array[String] = [
 	"res://scripts/application/shop/ShopPresentationPort.gd",
 ]
 const FATAL_DIAGNOSTIC_PROJECTOR := preload("res://scripts/application/transaction/FatalDiagnosticProjector.gd")
-const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
+const RUN_SNAPSHOT_SCHEMA_FOR_PROBE := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
+const SAVE_DOCUMENT_SCHEMA_FOR_PROBE := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
+const RUN_SNAPSHOT_SCHEMA_VERSION := RUN_SNAPSHOT_SCHEMA_FOR_PROBE.SCHEMA_VERSION
+const SAVE_DOCUMENT_SCHEMA_VERSION := SAVE_DOCUMENT_SCHEMA_FOR_PROBE.DOCUMENT_VERSION
 const _RESTORE_ORDER: Array[StringName] = [
 	&"identity_allocation", &"run", &"desktop_consequence", &"desktop_board", &"schedule_view",
 	&"profile", &"localization", &"audio", &"route", &"narrative",
@@ -564,7 +567,7 @@ func _construct_identity_issuer_and_contact_commands() -> Dictionary:
 		return injected
 	var scene_runtime: Dictionary = game_state.configure_scene_runtime_validation()
 	if not scene_runtime.get("ok", false): return scene_runtime
-	var scene_schema: Dictionary = RUN_SNAPSHOT_SCHEMA.configure_scene_validation(_desktop_identity_nonce_issuer, game_state)
+	var scene_schema: Dictionary = RUN_SNAPSHOT_SCHEMA_FOR_PROBE.configure_scene_validation(_desktop_identity_nonce_issuer, game_state)
 	if not scene_schema.get("ok", false): return scene_schema
 	var frozen_contacts: Dictionary = game_state.configure_frozen_contacts_contexts()
 	if not frozen_contacts.get("ok", false): return frozen_contacts
@@ -780,8 +783,8 @@ func _desktop_amendment_probe_fields() -> Dictionary:
 		"snapshot_provider_instance_id": _instance_id(game_state),
 		"restore_order": _RESTORE_ORDER.duplicate(),
 		"restore_participant_instance_ids": restore_participant_ids,
-		"run_snapshot_schema_version": RUN_SNAPSHOT_SCHEMA.SCHEMA_VERSION,
-		"save_document_schema_version": load("res://scripts/infrastructure/save/SaveDocumentSchema.gd").DOCUMENT_VERSION,
+		"run_snapshot_schema_version": RUN_SNAPSHOT_SCHEMA_VERSION,
+		"save_document_schema_version": SAVE_DOCUMENT_SCHEMA_VERSION,
 		"registry_versions": {"minesweeper_shop": load("res://scripts/domain/shop/MinesweeperShopRegistry.gd").REGISTRY_VERSION},
 		"desktop_graph_constructed": desktop_graph_constructed,
 	}
@@ -885,7 +888,7 @@ func _configure_registered_scene_runtime() -> Dictionary:
 		if not configured.get("ok", false): return configured
 	var game := _target(&"GameState")
 	var router := _target(&"SceneRouter")
-	var proof: Dictionary = RUN_SNAPSHOT_SCHEMA.configure_scene_validation(
+	var proof: Dictionary = RUN_SNAPSHOT_SCHEMA_FOR_PROBE.configure_scene_validation(
 		_desktop_identity_nonce_issuer, game, saves)
 	if not proof.get("ok", false): return proof
 	return router.configure_scene_host("res://scenes/narrative/SceneHost.tscn")
