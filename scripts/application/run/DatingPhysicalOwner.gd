@@ -1250,14 +1250,13 @@ func _project_board() -> Variant:
 		var forced: int = int(_record.envelope.forced_cell) if _record.schema_version in [3, 4] else -1
 		var cells: Array = []
 		for index in int(_record.spec.width) * int(_record.spec.height):
-			var legal: bool = _record.phase in ["challenge", "ready", "active"]
+			var legal: bool = _record.phase in ["challenge", "ready", "active"] and (forced < 0 or index == forced)
 			var flagged: bool = shell.flagged_indices.has(index)
 			var actions: Array = []
 			if legal:
 				if flagged: actions = ["unflag"]
-				elif forced < 0 or index == forced:
-					actions = ["reveal", "flag"] if _record.schema_version in [3, 4] else ["reveal"]
-				elif _record.schema_version in [3, 4]: actions = ["flag"]
+				elif index == forced: actions = ["reveal"]
+				else: actions = ["reveal", "flag"] if _record.schema_version in [3, 4] else ["reveal"]
 			cells.append({"index": index, "face": "covered", "mark": "flag" if flagged else "none", "number": 0,
 				"bracketed": index == forced, "inspectable": legal, "pressable": not actions.is_empty(), "actions": actions})
 		var estimate: Variant = null

@@ -72,6 +72,7 @@ func test_full_default_round_end_to_end() -> void:
 
 
 func test_full_debug_round_end_to_end() -> void:
+	_state_port.generation_capabilities = ["first_cell_safe", "forced_no_guess"]
 	var identity: Dictionary = _coordinator.get_entry_context("beginner")["value"]["identity"]
 	var begun := _coordinator.begin_debug_preparation(_debug_request(identity, 0, "beginner"))
 	assert_true(begun.get("ok", false), JSON.stringify(begun))

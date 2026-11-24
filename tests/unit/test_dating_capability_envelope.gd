@@ -152,19 +152,25 @@ func test_debug_preparation_and_shell_flags_resume_without_changing_the_certifie
 	var other: int = (forced + 1) % 324
 	var certified: Dictionary = game.saved.envelope.prepared_layout.duplicate(true)
 	var view: Dictionary = physical.pull_physical(command.physical_token).value
-	var revealable: Array = []
-	for cell: Dictionary in view.board.cells:
-		if cell.actions.has("reveal"): revealable.append(cell.index)
-		assert_true(cell.actions.has("flag"), "certification restricts Reveal, not covered-cell marking")
-	assert_eq(revealable, [forced])
+	var actionable: Array = view.board.cells.filter(func(cell: Dictionary) -> bool:
+		return cell.inspectable or cell.pressable or not cell.actions.is_empty())
+	assert_eq(actionable, [view.board.cells[forced]])
+	assert_eq(view.board.cells[forced].actions, ["reveal"])
 	assert_true(view.board.cells[forced].bracketed)
 	assert_false(_act("reveal", other).ok)
-	assert_true(_act("flag", forced).ok)
-	assert_true(_act("flag", other).ok)
+	assert_false(_act("flag", forced).ok)
+	assert_false(_act("flag", other).ok)
+	# Older saves can retain flags on the certified opening and elsewhere.
+	var reducer := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")
+	var shell_before: Dictionary = game.saved.envelope.shell
+	for index: int in [forced, other]:
+		shell_before = reducer.set_shell_flag(shell_before, 18, 18, index, true, "old-flag-%d" % index).value.shell
+	game.saved.envelope.shell = shell_before
 	view = physical.pull_physical(command.physical_token).value
 	assert_eq(view.board.cells[forced].actions, ["unflag"])
 	assert_true(view.board.cells[forced].bracketed)
-	assert_eq(view.board.cells[other].actions, ["unflag"])
+	assert_eq(view.board.cells[other].actions, [])
+	assert_false(_act("unflag", other).ok)
 	assert_eq(view.no_flag, "lost")
 	var marked: Dictionary = game.saved.duplicate(true)
 	assert_false(_act("reveal", forced).ok, "a flagged forced cell must be unflagged first")
@@ -175,7 +181,7 @@ func test_debug_preparation_and_shell_flags_resume_without_changing_the_certifie
 	assert_eq(game.saved, marked, "fresh ownership retains both prepared flags and the exact certificate")
 	assert_true(_act("unflag", forced).ok)
 	view = physical.pull_physical(command.physical_token).value
-	assert_eq(view.board.cells[forced].actions, ["reveal", "flag"])
+	assert_eq(view.board.cells[forced].actions, ["reveal"])
 	assert_false(_act("reveal", other).ok)
 	var shell: Dictionary = game.saved.envelope.shell.duplicate(true)
 	assert_true(_act("reveal", forced).ok)

@@ -96,11 +96,9 @@ static func _candidate(snapshot: Dictionary) -> Dictionary:
 	var shell := {"flagged_indices": candidate.get("flagged_indices", []), "actions": candidate.get("actions", [])}
 	var shell_valid := SCHEMA.validate_shell(shell, int(spec.width), int(spec.height))
 	if not shell_valid.ok: return _fail()
-	var result := _shell(spec.width, spec.height, snapshot.revision, shell_valid.value.shell.flagged_indices, true)
+	var result := _shell(spec.width, spec.height, snapshot.revision, shell_valid.value.shell.flagged_indices,
+		true, false, candidate.forced_cell)
 	result.value.mine_estimate = int(layout.mine_count) - shell_valid.value.shell.flagged_indices.size()
-	for cell: Dictionary in result.value.cells:
-		cell.bracketed = cell.index == candidate.forced_cell
-		if cell.index != candidate.forced_cell: cell.actions.erase("reveal")
 	return result
 
 
@@ -134,15 +132,20 @@ static func _fail() -> Dictionary:
 	return {"ok": false, "code": &"invalid_minesweeper_presentation_source"}
 
 
-static func _shell(width: int, height: int, revision: int, flags: Array, reveal_eligible: bool, custody: bool = false) -> Dictionary:
+static func _shell(width: int, height: int, revision: int, flags: Array, reveal_eligible: bool,
+		custody: bool = false, forced_cell: int = -1) -> Dictionary:
 	var cells: Array[Dictionary] = []
 	for index in width * height:
-		var cell := {"index": index, "face": "covered", "mark": "none", "number": 0,
-			"bracketed": false, "inspectable": not custody, "pressable": not custody, "actions": []}
-		if not custody:
-			if flags.has(index):
-				cell.mark = "flag"
+		var bracketed := index == forced_cell
+		var actionable := not custody and (forced_cell < 0 or bracketed)
+		var flagged := flags.has(index)
+		var cell := {"index": index, "face": "covered", "mark": "flag" if flagged else "none", "number": 0,
+			"bracketed": bracketed, "inspectable": actionable, "pressable": actionable, "actions": []}
+		if actionable:
+			if flagged:
 				cell.actions = ["unflag"]
+			elif bracketed:
+				cell.actions = ["reveal"]
 			else:
 				cell.actions = ["reveal", "flag"] if reveal_eligible else ["flag"]
 		cells.append(cell)
