@@ -1136,7 +1136,7 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 	if not _preserves_presentation_chronology(_profile, validation.value):
 		return _failure(&"presentation_chronology_rewrite", "Run restoration cannot rewrite reached-presentation chronology")
 	_restore_backup = _profile.duplicate(true)
-	_profile = (validation["value"] as Dictionary).duplicate(true)
+	_profile = validation["value"]
 	_profile_revision += 1
 	return {"ok": true, "code": &"ok"}
 
@@ -1148,7 +1148,7 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 	var validation := SCHEMA.validate(source)
 	if not validation.get("ok", false):
 		return validation
-	_profile = (validation["value"] as Dictionary).duplicate(true)
+	_profile = validation["value"]
 	_profile_revision += 1
 	_restore_backup = {}
 	return {"ok": true, "code": &"ok"}
