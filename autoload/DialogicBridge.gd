@@ -3027,7 +3027,7 @@ func _prepare_scene_reading_candidate(checkpoint: Dictionary, entry_contexts: Di
 		if typeof(checkpoint.get(key)) != TYPE_STRING or checkpoint[key].strip_edges().is_empty():
 			return _command_failure(&"reading_checkpoint_invalid")
 	var selected := _ENTRY_MANIFEST.scene_contract_tables()
-	if not selected.ok or checkpoint.manifest_fingerprint != _ENTRY_MANIFEST.scene_registration_fingerprint():
+	if not selected.ok or checkpoint.manifest_fingerprint != selected.value.fingerprint:
 		return _command_failure(&"reading_catalogue_mismatch")
 	var candidate := _READING_SESSION.new()
 	var configured: Dictionary = candidate.configure_scene()
@@ -3041,19 +3041,15 @@ func _prepare_scene_reading_candidate(checkpoint: Dictionary, entry_contexts: Di
 			or checkpoint.transaction_id != frame.value.transaction_id \
 			or (not entry_contexts.is_empty() and not _READING_TRAVERSAL._same(entry_contexts, saved.ledger.entry_contexts)):
 		return _command_failure(&"reading_context_invalid")
-	var path := ""
-	for entry: Dictionary in selected.bundle.entry_manifest.entries:
-		if entry.entry_id == checkpoint.entry_id:
-			if entry.content_version != checkpoint.content_version: return _command_failure(&"reading_catalogue_mismatch")
-			path = entry.locators.en.path
+	var programmes: Dictionary = selected.value.entries
+	var programme: Dictionary = programmes.get(checkpoint.entry_id, {})
+	if programme.is_empty(): return _command_failure(&"reading_entry_mismatch")
+	if programme.content_version != checkpoint.content_version: return _command_failure(&"reading_catalogue_mismatch")
+	var path := _ENTRY_MANIFEST.scene_timeline_path(selected.bundle.entry_manifest, checkpoint.entry_id)
 	if path.is_empty(): return _command_failure(&"reading_entry_mismatch")
 	if saved.boundary == "control":
-		var labels: Array = []
-		var markers: Array = []
-		for entry: Dictionary in selected.bundle.entry_manifest.entries: labels.append(entry.entry_id)
-		for row: Dictionary in selected.bundle.scene_programme.entries:
-			if row.entry_id == checkpoint.entry_id: markers = row.markers
-		var compiled := DialogicRuntimeAdapter.compile_runtime_scene_programme(path, checkpoint.entry_id, labels, markers)
+		var markers: Array = programme.markers
+		var compiled := DialogicRuntimeAdapter.compile_runtime_scene_programme(path, checkpoint.entry_id, programmes.keys(), markers)
 		if not compiled.ok: return compiled
 		var predecessor := DialogicRuntimeAdapter._scene_control_predecessor(saved, compiled.value, markers)
 		if not predecessor.ok: return predecessor
