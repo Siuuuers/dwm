@@ -19,7 +19,6 @@ const WITNESS_SIGNAL := "history.line.witness"
 
 const SCENE_SCHEMA_PATH := "res://schemas/manifests/dialogic-scene-entries.schema.json"
 static var _scene_bundle: Dictionary = {}
-static var _scene_bundle_fingerprint := ""
 static var _scene_contract_tables: Dictionary = {}
 static var _registration_used := false
 static var _startup_selection_checked := false
@@ -63,10 +62,8 @@ static func _select_startup_fixture() -> Dictionary:
 				selected = _scene_fail("story order unavailable")
 			else:
 				_first_target_id = order.value.target_id
-				var found := false
-				for row: Dictionary in _scene_bundle.targets:
-					if row.target_id == _first_target_id and row.target.kind == "scene": found = true
-				if not found: selected = _scene_fail("story first target unavailable")
+				var first_target: Dictionary = _scene_contract_tables.targets.get(_first_target_id, {})
+				if first_target.is_empty() or first_target.target.kind != "scene": selected = _scene_fail("story first target unavailable")
 	if not selected.ok: _startup_selection_error = selected.duplicate(true)
 	return selected
 
@@ -99,13 +96,12 @@ static func _configure_scene_registration(bundle: Dictionary, passages: Dictiona
 		var indexed := {}
 		for row: Dictionary in rows: indexed[row[pair[1]]] = row
 		_scene_contract_tables[pair[0]] = indexed
-	for entry: Dictionary in _scene_contract_tables.entries.values():
+	for entry: Dictionary in _scene_bundle.scene_programme.entries:
 		for marker: Dictionary in entry.markers:
 			_scene_contract_tables.markers[marker.marker_id] = {"entry_id": entry.entry_id, "marker": marker}
 	_scene_freeze(_scene_contract_tables)
 	_scene_freeze(_scene_bundle)
-	_scene_bundle_fingerprint = fingerprint
-	return {"ok": true, "value": _scene_bundle_fingerprint}
+	return {"ok": true, "value": fingerprint}
 
 static func scene_registration() -> Dictionary:
 	var startup := _select_startup_fixture()
@@ -128,7 +124,7 @@ static func prepared_scene_contract(bundle: Variant) -> Dictionary:
 static func scene_registration_fingerprint() -> String:
 	if not _select_startup_fixture().ok: return ""
 	_registration_used = true
-	return "" if _scene_bundle.is_empty() else _scene_bundle_fingerprint
+	return _scene_contract_tables.get("fingerprint", "")
 
 static func _scene_freeze(value: Variant) -> void:
 	if value is Dictionary or value is Array:
@@ -1005,9 +1001,9 @@ static func validate_ids_document(ids_document: Dictionary) -> Dictionary:
 
 static func validate_line_id(document: Dictionary, entry_id: String, line_id: String) -> Dictionary:
 	if document.get("schema_version") == 2:
-		var selected := scene_registration()
-		if not selected.ok or document != selected.value.entry_manifest: return _scene_fail("unselected entries")
-		for row: Dictionary in selected.value.ids_registry.lines:
+		var selected := scene_contract_tables()
+		if not selected.ok or document != selected.bundle.entry_manifest: return _scene_fail("unselected entries")
+		for row: Dictionary in selected.bundle.ids_registry.lines:
 			if row.line_id == line_id and row.owning_entry_id == entry_id:
 				return {"ok": true, "value": row.duplicate(true)}
 		return _fail(&"LINE_ID_UNREGISTERED", line_id)

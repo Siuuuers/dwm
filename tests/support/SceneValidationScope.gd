@@ -14,7 +14,7 @@ func install(select_registration: bool = false) -> void:
 	assert(_saved.is_empty())
 	_saved = {"run": [RUN._scene_issuer, RUN._scene_authority, RUN._scene_creation_owner, RUN._scene_semantic_busy],
 		"frozen": [FROZEN._scene_issuer, FROZEN._scene_creation_owner],
-		"manifest": [MANIFEST._scene_bundle, MANIFEST._scene_bundle_fingerprint, MANIFEST._registration_used,
+		"manifest": [MANIFEST._scene_bundle, MANIFEST._registration_used,
 			MANIFEST._startup_selection_checked, MANIFEST._startup_selection_error, MANIFEST._first_target_id],
 		"contract_tables": MANIFEST._scene_contract_tables,
 		"signatures": SIGNATURE._entries,
@@ -26,7 +26,6 @@ func install(select_registration: bool = false) -> void:
 	if select_registration:
 		MANIFEST._scene_bundle = {}
 		MANIFEST._scene_contract_tables = {}
-		MANIFEST._scene_bundle_fingerprint = ""
 		MANIFEST._registration_used = false
 		MANIFEST._startup_selection_checked = true
 		MANIFEST._startup_selection_error = {}
@@ -54,11 +53,10 @@ func restore() -> void:
 	FROZEN._scene_creation_owner = _saved.frozen[1]
 	MANIFEST._scene_bundle = _saved.manifest[0]
 	MANIFEST._scene_contract_tables = _saved.contract_tables
-	MANIFEST._scene_bundle_fingerprint = _saved.manifest[1]
-	MANIFEST._registration_used = _saved.manifest[2]
-	MANIFEST._startup_selection_checked = _saved.manifest[3]
-	MANIFEST._startup_selection_error = _saved.manifest[4]
-	MANIFEST._first_target_id = _saved.manifest[5]
+	MANIFEST._registration_used = _saved.manifest[1]
+	MANIFEST._startup_selection_checked = _saved.manifest[2]
+	MANIFEST._startup_selection_error = _saved.manifest[3]
+	MANIFEST._first_target_id = _saved.manifest[4]
 	SIGNATURE._entries = _saved.signatures
 	PRESENTATION._schemas = _saved.presentation[0]
 	PRESENTATION._ids = _saved.presentation[1]
