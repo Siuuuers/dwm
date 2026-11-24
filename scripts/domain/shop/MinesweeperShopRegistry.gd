@@ -58,15 +58,13 @@ const _SCHEMA := {
 	},
 }
 
-static var _records: Dictionary = {}
-static var _ids: Array[String] = []
-static var _loaded: bool = false
+static var _records: Dictionary[String, Dictionary] = {}
 
 
 
 static func initialize(path: String = MANIFEST_PATH) -> Dictionary:
-	if _loaded:
-		return _ok({"registry_version": REGISTRY_VERSION, "record_count": _ids.size()})
+	if not _records.is_empty():
+		return _ok({"registry_version": REGISTRY_VERSION, "record_count": _records.size()})
 	if not FileAccess.file_exists(path):
 		return _fail(&"missing_shop_manifest", "the Minesweeper shop manifest is absent",
 			{"path": path})
@@ -84,16 +82,11 @@ static func initialize(path: String = MANIFEST_PATH) -> Dictionary:
 	var semantics := _validate_semantics(records)
 	if not semantics.is_empty():
 		return semantics
-	var by_id: Dictionary = {}
-	var ids: Array[String] = []
+	var by_id: Dictionary[String, Dictionary] = {}
 	for record: Dictionary in records:
-		var item_id := str(record["item_id"])
-		by_id[item_id] = record.duplicate(true)
-		ids.append(item_id)
+		by_id[record.item_id] = record
 	_records = by_id
-	_ids = ids
-	_loaded = true
-	return _ok({"registry_version": REGISTRY_VERSION, "record_count": _ids.size()})
+	return _ok({"registry_version": REGISTRY_VERSION, "record_count": _records.size()})
 
 
 
@@ -110,22 +103,17 @@ static func get_record(item_id: String) -> Dictionary:
 static func get_ids() -> Array[String]:
 	if not initialize().get("ok", false):
 		return []
-	var out: Array[String] = []
-	out.assign(_ids)
-	return out
+	return _records.keys()
 
 
 static func validate_all() -> Dictionary:
 	var ready := initialize()
 	if not ready.get("ok", false):
 		return ready
-	var records: Array = []
-	for item_id: String in _ids:
-		records.append(_records[item_id])
-	var semantics := _validate_semantics(records)
+	var semantics := _validate_semantics(_records.values())
 	if not semantics.is_empty():
 		return semantics
-	return _ok({"record_count": _ids.size()})
+	return _ok({"record_count": _records.size()})
 
 
 

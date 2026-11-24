@@ -151,7 +151,7 @@ func get_catalog(locale: String) -> Dictionary:
 			return _fail(&"shop_catalog_copy_unavailable")
 		var maximum := int(item.get("max_purchases"))
 		var command_cap := 1 if maximum == 0 else maximum
-		var owned := _is_owned_nonrepeatable(item)
+		var owned := _is_owned_nonrepeatable(maximum, item.effect_ids)
 		var row := {
 			"id": public_id,
 			"name": name,
@@ -175,7 +175,7 @@ func get_catalog(locale: String) -> Dictionary:
 	for public_id: String in _PUBLIC_ORDER:
 		if not rows_by_id.has(public_id):
 			return _fail(&"shop_catalog_unavailable")
-		rows.append((rows_by_id[public_id] as Dictionary).duplicate(true))
+		rows.append(rows_by_id[public_id])
 	var result := _ok(rows)
 	result["balances"] = {"money": int(_game_state.get("money")), "coins": int(_game_state.get("coins"))}
 	return result
@@ -185,18 +185,21 @@ func can_purchase(item_id: String, quantity: int = 1) -> Dictionary:
 	var admitted := _admit_session()
 	if not admitted.get("ok", false):
 		return admitted
-	var resolved := _resolve_item(item_id)
-	if not resolved.get("ok", false):
-		return resolved
-	var item: ShopItemData = resolved["value"]
+	if item_id not in _PUBLIC_ORDER and item_id != "supportz":
+		return _fail(&"unregistered_shop_item")
+	var source_id := str(_PUBLIC_TO_SOURCE.get(item_id, item_id))
+	var item: Variant = _data_catalog.call(&"get_shop_item", source_id)
+	if not item is Dictionary or item.is_empty():
+		return _fail(&"unregistered_shop_item")
 	if _scene_mode:
-		var preview: Variant = _game_state.call(&"preview_scene_shop_purchase", item.id, quantity)
+		var preview: Variant = _game_state.call(&"preview_scene_shop_purchase", source_id, quantity)
 		return preview.duplicate(true) if preview is Dictionary \
 			else _fail(&"shop_preview_result_malformed")
-	var checked := _validate_quantity(item_id, item, quantity)
+	var maximum := int(item.get("max_purchases", -1))
+	var checked := _validate_quantity(item_id, maximum, quantity)
 	if not checked.get("ok", false):
 		return checked
-	if _is_owned_nonrepeatable(item):
+	if _is_owned_nonrepeatable(maximum, item.get("effect_ids", [])):
 		return _fail(&"shop_item_already_owned")
 	if item_id == "supportz":
 		var supportz := _supportz_eligibility()
@@ -204,8 +207,8 @@ func can_purchase(item_id: String, quantity: int = 1) -> Dictionary:
 			return supportz
 		if not bool((supportz["value"] as Dictionary)["eligible"]):
 			return _fail(&"supportz_not_eligible")
-	var total := int(item.get("price")) * quantity
-	if not _can_afford(str(item.get("currency")), total):
+	var total := int(item.get("price", 0)) * quantity
+	if not _can_afford(str(item.get("currency", "")), total):
 		return _fail(&"insufficient_funds")
 	return _ok({"eligible": true, "total": total})
 
@@ -241,9 +244,9 @@ func purchase(item_id: String, quantity: int) -> Dictionary:
 		_pending_purchase = {
 			"item_id": item_id, "quantity": quantity,
 			"source_id": str(_PUBLIC_TO_SOURCE.get(item_id, item_id)),
-			"source_context": source_context.duplicate(true),
+			"source_context": source_context,
 			"transaction_id": issue_value.transaction_id,
-			"issuer_receipt": issue_value.issuer_receipt.duplicate(true),
+			"issuer_receipt": issue_value.issuer_receipt,
 		}
 		return _retry_purchase()
 	return _prepare_purchase(item_id, quantity, issue_value)
@@ -298,7 +301,7 @@ func _prepare_purchase(item_id: String, quantity: int, issue_value: Dictionary) 
 		"expected_board_identity": _detached(board.get("identity")),
 		"expected_board_revision": int(board.get("revision", -1)),
 	}
-	_pending_purchase = {"item_id": item_id, "quantity": quantity, "accept_request": accept_request.duplicate(true)}
+	_pending_purchase = {"item_id": item_id, "quantity": quantity, "accept_request": accept_request}
 	return _retry_purchase()
 
 
@@ -366,31 +369,11 @@ func _supportz_eligibility() -> Dictionary:
 	})
 
 
-func _resolve_item(public_id: String) -> Dictionary:
-	if public_id not in _PUBLIC_ORDER and public_id != "supportz":
-		return _fail(&"unregistered_shop_item")
-	var source_id := str(_PUBLIC_TO_SOURCE.get(public_id, public_id))
-	var raw: Variant = _data_catalog.call(&"get_shop_item", source_id)
-	if typeof(raw) != TYPE_DICTIONARY or (raw as Dictionary).is_empty():
-		return _fail(&"unregistered_shop_item")
-	var item := ShopItemData.new()
-	item.id = source_id
-	item.price = int((raw as Dictionary).get("price", 0))
-	item.currency = str((raw as Dictionary).get("currency", ""))
-	item.max_purchases = int((raw as Dictionary).get("max_purchases", -1))
-	var effects: Array[String] = []
-	for effect: Variant in ((raw as Dictionary).get("effect_ids", []) as Array):
-		effects.append(str(effect))
-	item.effect_ids = effects
-	return _ok(item)
-
-
-func _validate_quantity(public_id: String, item: ShopItemData, quantity: int) -> Dictionary:
+func _validate_quantity(public_id: String, maximum: int, quantity: int) -> Dictionary:
 	if quantity < 1:
 		return _fail(&"invalid_shop_quantity")
 	if public_id in _SPECIAL_IDS and quantity != 1:
 		return _fail(&"shop_quantity_exceeds_batch_cap")
-	var maximum := int(item.max_purchases)
 	if maximum > 0 and quantity > maximum:
 		return _fail(&"shop_quantity_exceeds_batch_cap")
 	if maximum == 0 and quantity != 1:
@@ -398,10 +381,11 @@ func _validate_quantity(public_id: String, item: ShopItemData, quantity: int) ->
 	return _ok({})
 
 
-func _is_owned_nonrepeatable(item: ShopItemData) -> bool:
-	if int(item.max_purchases) != 1:
+func _is_owned_nonrepeatable(maximum: int, effects: Array) -> bool:
+	if maximum != 1:
 		return false
-	for effect: String in item.effect_ids:
+	for value: Variant in effects:
+		var effect := str(value)
 		if effect.begins_with("inventory:add:"):
 			var inventory_id := effect.trim_prefix("inventory:add:")
 			return _owns(_game_state.get("inventory"), inventory_id)
