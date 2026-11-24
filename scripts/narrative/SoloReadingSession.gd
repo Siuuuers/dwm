@@ -650,9 +650,6 @@ func project_scene_day_history(frontier: Dictionary, _choices: Dictionary, _outc
 		_scene_bundle, player_progress.get("history_sections", []), _history_programme)
 	if not projected.ok: return projected
 	var rows: Array = projected.value.captions
-	for row: Dictionary in rows:
-		_ensure_scene_programme(row.entry_id)
-		if _scene_text.has(row.line_id): row.text = _scene_text[row.line_id]
 	var thought: Dictionary = _scene_display.get(tail.beat.line_id, {}).get("self_talk", {})
 	var expected_tail: String = tail.beat.line_id
 	if not thought.is_empty() and rows.any(func(row: Dictionary) -> bool: return row.line_id == thought.line_id):
@@ -660,6 +657,7 @@ func project_scene_day_history(frontier: Dictionary, _choices: Dictionary, _outc
 	if rows.is_empty() or rows.back().line_id != expected_tail or rows.back().entry_id != latest_entry:
 		return _fail(&"reading_frontier_invalid")
 	for row: Dictionary in rows:
+		if _scene_text.has(row.line_id): row.text = _scene_text[row.line_id]
 		if row.line_id == tail.beat.line_id: row.publication_id = tail.publication_id
 		if _scene_thought_ids.has(row.line_id): row["self_talk"] = true
 	return {"ok": true, "value": {"captions": rows, "frontier": frontier.duplicate(true),

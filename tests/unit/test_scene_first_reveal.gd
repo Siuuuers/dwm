@@ -29,7 +29,8 @@ func test_first_reveal_publishes_the_clicked_cell_once() -> void:
 	var mines := range(33)
 	mines.append_array([288, 289, 307])
 	f.generation.arm_materialize({"schema_version": 1, "width": 18, "height": 18, "mine_indices": mines, "mine_count": 36})
-	assert_true(_reveal(323).ok)
+	var opened := _reveal(323)
+	assert_true(opened.ok)
 	var board: Dictionary = f.record()
 	assert_eq(board.phase, "active")
 	assert_has(board.board.revealed_indices, 323)
@@ -39,7 +40,7 @@ func test_first_reveal_publishes_the_clicked_cell_once() -> void:
 	var fresh: Dictionary = f.owner.pull_scene_panel(f.token).value
 	assert_eq(fresh.board.cells[323].face, "revealed")
 	assert_has(fresh.actions, "reveal")
-	assert_true(_reveal(323).ok)
+	assert_eq(_reveal(323), opened)
 	assert_eq(f.authority.checkpoints, [board])
 	assert_eq(f.record(), board)
 
