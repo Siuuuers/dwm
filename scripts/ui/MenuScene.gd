@@ -103,7 +103,6 @@ func _ready() -> void:
 	_build_login_shell()
 	for button in _ledger_buttons():
 		button.gui_input.connect(_ledger_input.bind(button))
-	_update_title_destination()
 	_new_acc_button.call_deferred("grab_focus")
 	if startup_owner == null: startup_owner = get_node_or_null("/root/ApplicationBootstrap")
 	if startup_owner != null:
@@ -590,13 +589,17 @@ func _build_login_shell() -> void:
 	if locale != null:
 		locale.locale_changed.connect(_refresh_login_shell)
 	if profile != null:
-		profile.preference_changed.connect(func(_path, _value): _refresh_login_shell())
+		profile.preference_changed.connect(_on_title_preference_changed)
 		if profile.has_signal("profile_reset"):
 			profile.profile_reset.connect(_on_profile_reset, CONNECT_DEFERRED)
 	var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
 	if bootstrap != null and not bootstrap.get_startup_state().get("title_ready", false):
 		bootstrap.application_ready.connect(_refresh_login_shell)
 	_refresh_login_shell()
+
+func _on_title_preference_changed(path: StringName, _value: Variant) -> void:
+	if path in [&"preferences.accessibility.text_size", &"preferences.accessibility.font_style"]:
+		_refresh_login_shell()
 
 func _refresh_login_shell(_value: String = "") -> void:
 	if not _title_source_alive(): return

@@ -11,7 +11,9 @@ class Locale extends Node:
 
 class Profile extends Node:
 	signal preference_changed(path: StringName, value: Variant)
-	func get_preference(_path: StringName, fallback: Variant = null) -> Variant: return fallback
+	var text_size := 100
+	func get_preference(path: StringName, fallback: Variant = null) -> Variant:
+		return text_size if path == &"preferences.accessibility.text_size" else fallback
 
 class StartupOwner extends Node:
 	signal startup_failed()
@@ -96,6 +98,17 @@ func _assert_single_action(copy: String) -> void:
 func test_no_retained_operation_keeps_normal_title_and_initial_focus() -> void:
 	await _mount()
 	assert_false(is_instance_valid(menu._confirmation))
+	assert_true(menu._new_acc_button.has_focus())
+
+func test_title_refreshes_its_theme_for_text_size_and_preserves_focus() -> void:
+	await _mount()
+	var profile: Profile = menu._menu_profile()
+	var original_theme: Theme = menu.theme
+	profile.preference_changed.emit(&"preferences.audio.master_volume", 0.25)
+	assert_same(menu.theme, original_theme)
+	profile.text_size = 150
+	profile.preference_changed.emit(&"preferences.accessibility.text_size", 150)
+	assert_eq(menu._clock_label.get_theme_font_size("font_size"), 36)
 	assert_true(menu._new_acc_button.has_focus())
 
 func test_initial_generic_startup_failure_offers_only_shutdown_without_a_new_run_identity() -> void:
