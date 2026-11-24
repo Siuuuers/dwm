@@ -641,7 +641,7 @@ func prepare_scene_next(frontier: Dictionary, is_witnessed: Callable) -> Diction
 	var checked := TRAVERSAL.validate_scene_path(plan, nodes)
 	return {"ok": true, "value": plan} if checked.ok else checked
 
-func project_scene_day_history(frontier: Dictionary, _choices: Dictionary, _outcomes: Dictionary) -> Dictionary:
+func project_scene_day_history(frontier: Dictionary) -> Dictionary:
 	if family != "scene": return _fail(&"reading_session_unavailable")
 	if ledger == null or ledger._sequence.is_empty(): return _fail(&"reading_frontier_invalid")
 	var tail: Dictionary = ledger._sequence.back()

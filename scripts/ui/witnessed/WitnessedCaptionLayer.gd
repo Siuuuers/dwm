@@ -1260,7 +1260,7 @@ func _project_scene_caption_memory() -> bool:
 	for index: int in range(rows.size() - 1): preceding.append(rows[index].text)
 	_paired_scrollback = rows.slice(0, rows.size() - 1)
 	if not reproject_retained_captions(preceding, true): return false
-	_scene_caption_memory = memory.duplicate(true)
+	_scene_caption_memory = memory
 	return true
 
 
