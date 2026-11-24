@@ -363,6 +363,7 @@ func test_restore_uses_candidate_font_and_size_with_silent_apply_rollback_and_pr
 	var prepared: Dictionary = locale_participant.prepare(profile_plan.value)
 	assert_true(prepared.get("ok", false), str(prepared))
 	var plan: Dictionary = prepared.value.localization_plan
+	assert_false(plan.has("profile_candidate"), "The profile participant already owns the restore candidate")
 	assert_eq(plan.presentation_profile.font_style, "readable")
 	assert_eq(plan.presentation_profile.text_size, 150)
 	assert_eq(_manager.get_presentation_profile().font_style, "pixel", "Candidate remains unpublished")

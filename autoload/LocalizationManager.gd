@@ -142,7 +142,22 @@ func get_font_paths(profile_id: String) -> Dictionary:
 
 
 func prepare_locale(locale_input: String, font_style: String = "", text_size: int = 0) -> Dictionary:
-	var explicit_typography := not font_style.is_empty() or text_size != 0
+	var prepared := prepare_locale_presentation(locale_input, font_style, text_size)
+	if not prepared.get("ok", false):
+		return prepared
+	var plan: Dictionary = prepared["value"]
+	var candidate: Dictionary = _profile.prepare_locale_preference(plan["canonical_locale_id"])
+	if not candidate.get("ok", false):
+		return candidate
+	if not font_style.is_empty() or text_size != 0:
+		var accessibility: Dictionary = candidate["value"]["preferences"]["accessibility"]
+		accessibility["font_style"] = plan["presentation_profile"]["font_style"]
+		accessibility["text_size"] = plan["presentation_profile"]["text_size"]
+	plan["profile_candidate"] = candidate["value"]
+	return prepared
+
+
+func prepare_locale_presentation(locale_input: String, font_style: String, text_size: int) -> Dictionary:
 	if _readiness not in [&"initializing", &"ready"]:
 		return _fail(&"localization_not_ready")
 	var canonical := _resolve_locale_in_bundle(_catalog_store, locale_input)
@@ -159,18 +174,11 @@ func prepare_locale(locale_input: String, font_style: String = "", text_size: in
 	var root_plans := _prepare_root_plans(presentation)
 	if not root_plans.get("ok", false):
 		return root_plans
-	var profile_candidate: Dictionary = _profile.prepare_locale_preference(canonical)
-	if not profile_candidate.get("ok", false):
-		return profile_candidate
-	if explicit_typography:
-		profile_candidate["value"]["preferences"]["accessibility"]["font_style"] = font_style
-		profile_candidate["value"]["preferences"]["accessibility"]["text_size"] = text_size
 	return _success({
 		"canonical_locale_id": canonical,
 		"bundle": _bundle_for_locale(_catalog_store, canonical),
 		"presentation_profile": presentation,
 		"root_plans": root_plans["value"],
-		"profile_candidate": profile_candidate["value"],
 	})
 
 
