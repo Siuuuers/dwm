@@ -141,13 +141,10 @@ func snapshot(expected_fingerprint: Variant) -> Dictionary:
 	var guard := _expected_fingerprint_error(expected_fingerprint)
 	if not guard.is_empty():
 		return guard
-	var records: Dictionary = {}
-	for action_id: String in _records:
-		records[action_id] = (_records[action_id] as Dictionary).duplicate(true)
 	return {
 		"ok": true,
 		"code": &"ok",
-		"value": {"records": records, "registry_fingerprint": _fingerprint},
+		"value": {"records": _records.duplicate(true), "registry_fingerprint": _fingerprint},
 		"receipt": {},
 	}
 
