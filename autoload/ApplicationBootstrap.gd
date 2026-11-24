@@ -487,7 +487,7 @@ func _inject_mutation_gate(targets: Array, mode: StringName) -> Dictionary:
 	var gate: Object = _application_gate
 	_state["gate_injection"]["gate_instance_id"] = gate.get_instance_id()
 	for target_name: StringName in targets:
-		if _title_phase and target_name in [&"GameState", &"SceneRouter"]: continue
+		if _title_phase and target_name in [&"GameState", &"SceneRouter", &"DialogicBridge"]: continue
 		if target_name in _state["gate_injection"]["targets"]: continue
 		_state["gate_injection"]["targets"].append(target_name)
 		var target := _target(target_name)

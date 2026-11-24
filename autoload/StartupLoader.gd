@@ -2,8 +2,8 @@ extends Node
 
 # Own resource requests until completion even when the requesting scene leaves.
 const CORE := ["ProfileManager", "SaveManager", "LocalizationManager", "AudioManager",
-	"SystemTtsCoordinator", "WindowModeManager", "InputManager", "AccessibilityManager", "DialogicBridge"]
-const RUNTIME := ["GameState", "EffectResolver", "SceneRouter", "Dialogic"]
+	"SystemTtsCoordinator", "WindowModeManager", "InputManager", "AccessibilityManager"]
+const RUNTIME := ["DialogicBridge", "GameState", "EffectResolver", "SceneRouter", "Dialogic"]
 const TITLE := "res://scenes/menu/MenuScene.tscn"
 var _pending: Array[String] = []
 var _active := ""
