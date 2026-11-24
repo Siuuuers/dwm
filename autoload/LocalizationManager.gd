@@ -228,6 +228,8 @@ func t(key: String, params: Dictionary = {}) -> String:
 	if text == null:
 		_warn_once(&"missing", key)
 		return "[missing:%s]" % key
+	if params.is_empty() and not text.contains("{"):
+		return text
 	var expected := SCHEMA.extract_named_placeholders(text)
 	var actual := PackedStringArray(params.keys())
 	actual.sort()
@@ -484,8 +486,9 @@ func _lookup(key: String) -> Variant:
 	var catalogs: Dictionary = _bundle["catalogs"]
 	var cursor: Variant = _locale_id
 	while cursor != null:
-		if catalogs[cursor].has(key):
-			return catalogs[cursor][key]
+		var text: Variant = catalogs[cursor].get(key)
+		if text != null:
+			return text
 		cursor = _locale_record_in_bundle(_bundle, cursor)["fallback_locale"]
 	return null
 
@@ -504,7 +507,7 @@ func _bundle_for_locale(catalog_store: Dictionary, locale_id: String) -> Diction
 	var catalogs: Dictionary = {}
 	var cursor: Variant = locale_id
 	while cursor != null:
-		catalogs[cursor] = (catalog_store["catalogs"][cursor] as Dictionary).duplicate(true)
+		catalogs[cursor] = (catalog_store["catalogs"][cursor] as Dictionary).duplicate()
 		cursor = _locale_record_in_bundle(catalog_store, cursor)["fallback_locale"]
 	return {
 		"manifest": (catalog_store["manifest"] as Dictionary).duplicate(true),

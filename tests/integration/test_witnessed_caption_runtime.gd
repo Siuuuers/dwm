@@ -2113,7 +2113,12 @@ func test_continue_projection_uses_existing_surface_and_follows_source_admission
 	if not await _mount_root_accept_fixture("Current.\nFollowing."): return
 	var surface: Control = caption.background_input
 	assert_eq(surface.get_script().resource_path, "res://scripts/ui/witnessed/WitnessedAccessibleContinue.gd")
-	assert_eq(surface._label, get_node("/root/LocalizationManager").t("button.continue"))
+	var initial_label: String = surface._label
+	assert_eq(initial_label, localization.t("button.continue"))
+	assert_true(localization.set_locale("zh_CN").get("ok", false))
+	surface._refresh_projection()
+	assert_ne(surface._label, initial_label)
+	assert_eq(surface._label, localization.t("button.continue"))
 	assert_true(surface._available)
 	assert_eq(caption.caption_text.focus_mode, Control.FOCUS_ALL, "text retains keyboard focus")
 	caption._history_open = true
