@@ -265,12 +265,10 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 	var source: Variant = _scene_stage_source.call(binding.duplicate(true))
 	if not source is Dictionary or not source.get("ok", false): return _command_failure(&"scene_staging_source_invalid")
 	var registration := _ENTRY_MANIFEST.scene_contract_tables()
-	if not registration.ok or binding.registration_sha256 != _ENTRY_MANIFEST.scene_registration_fingerprint():
+	if not registration.ok or binding.registration_sha256 != registration.value.fingerprint:
 		return _command_failure(&"scene_staging_registration_invalid")
 	var bundle: Dictionary = registration.bundle
-	var target := {}
-	for row: Dictionary in bundle.targets:
-		if row.target_id == binding.target_id: target = row.target.duplicate(true)
+	var target: Dictionary = registration.value.targets.get(binding.target_id, {}).get("target", {})
 	if target.is_empty() or target.entry_id != entry_id or context.get("playback_id") != binding.target_occurrence_id \
 			or context.get("presentation", {}).get("fields", {}).get("admission_receipt_id") != binding.admission_receipt_id:
 		return _command_failure(&"scene_staging_target_invalid")
@@ -302,9 +300,7 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 		var begun: Dictionary = candidate.begin_scene(str(binding.operation_id))
 		if not begun.ok: return begun
 	var path := _ENTRY_MANIFEST.scene_timeline_path(bundle.entry_manifest, entry_id)
-	var markers: Array = []
-	for programme: Dictionary in bundle.scene_programme.entries:
-		if programme.entry_id == entry_id: markers = programme.markers
+	var markers: Array = registration.value.entries.get(entry_id, {}).get("markers", [])
 	var compiled := DialogicRuntimeAdapter.compile_runtime_scene_programme(path, entry_id, markers)
 	if not compiled.ok: return compiled
 	if not compiled.value.label_nodes.has(target.label):
@@ -335,7 +331,7 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 	var retained_transport := transport.duplicate(true)
 	FrozenPresentationContext._freeze(retained_transport)
 	_scene_stage = {"candidate": candidate, "candidate_state": candidate_state.value, "transport": retained_transport, "binding": binding.duplicate(true),
-		"target": target, "binding_sha256": _scene_digest(binding), "checkpoint_sha256": _scene_digest(checkpoint),
+		"target": target.duplicate(true), "binding_sha256": _scene_digest(binding), "checkpoint_sha256": _scene_digest(checkpoint),
 		"source_session": source_session, "native_source": native_source, "source_state": source_state,
 		"source_entry": source_entry, "runtime": _runtime_adapter, "path": path}
 	var retained: Variant = _scene_stage_port.call("retain_scene_entry", self, capability, binding.duplicate(true), checkpoint.duplicate(true))
