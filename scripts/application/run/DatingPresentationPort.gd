@@ -5,9 +5,8 @@ const _STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchem
 
 const ROUTE_ID := "dating"
 const OWNER_KIND := "dating_challenge"
-const COMPLETION_CHILD_KIND := &"day_resolution_stage"
-const ROOT_PURPOSE := &"transaction_id"
-const COMPLETION_ROLE := "presentation.completion"
+const _PROVENANCE := preload("res://scripts/application/run/PresentationCompletionProvenance.gd")
+const COMPLETION_CHILD_KIND := _PROVENANCE.CHILD_KIND
 const STATUS_COMPLETED := "completed"
 
 const CONTEXT_KINDS: Array[String] = ["group", "solo", "twofriends_if_deferred"]
@@ -304,64 +303,7 @@ func _validate_request(request: Dictionary) -> Dictionary:
 	var context_error := _context_error(request["context"])
 	if context_error != "":
 		return _fail(&"invalid_presentation_context", context_error, {})
-	if typeof(request["resolution_issuer_receipt"]) != TYPE_DICTIONARY \
-			or typeof(request["completion_transaction_provenance"]) != TYPE_DICTIONARY:
-		return _fail(&"invalid_presentation_intent",
-			"the root receipt and child provenance must be dictionaries", {})
-
-	var root: Dictionary = request["resolution_issuer_receipt"]
-	var verified: Variant = _identity_issuer.call(&"verify_issued", root.duplicate(true),
-		ROOT_PURPOSE)
-	if typeof(verified) != TYPE_DICTIONARY or not (verified as Dictionary).get("ok", false):
-		return _fail(&"presentation_root_unverified",
-			"the resolution issuer receipt did not verify", {})
-	return _validate_completion_child(request, root)
-
-
-func _validate_completion_child(request: Dictionary, root: Dictionary) -> Dictionary:
-	var provenance: Dictionary = request["completion_transaction_provenance"]
-	var revalidated: Variant = _identity_issuer.call(&"validate_child", provenance.duplicate(true),
-		COMPLETION_CHILD_KIND)
-	if typeof(revalidated) != TYPE_DICTIONARY or not (revalidated as Dictionary).get("ok", false):
-		return _fail(&"presentation_completion_unverified",
-			"the completion provenance did not revalidate through the issuer", {})
-	if str(provenance.get("child_id", "")) != str(request["completion_transaction_id"]):
-		return _fail(&"presentation_completion_unverified",
-			"the completion id disagrees with its own provenance", {})
-	if str(provenance.get("parent_receipt_id", "")) != str(root.get("receipt_id", "")):
-		return _fail(&"presentation_completion_unverified",
-			"the completion child is not parented to this resolution root", {})
-
-	var expected := _completion_sources(request)
-	if expected.is_empty():
-		return _fail(&"invalid_presentation_intent",
-			"the completion projection is not canonically representable", {})
-	var actual: Variant = provenance.get("source_ids")
-	if typeof(actual) != TYPE_ARRAY or (actual as Array) != expected:
-		return _fail(&"presentation_completion_unverified",
-			"the completion provenance does not project these exact bytes",
-			{"expected": expected, "actual": actual})
-	return _ok({"validated": true})
-
-
-func _completion_sources(request: Dictionary) -> Array:
-	var context_hash: Dictionary = _STATE_SCHEMA.canonical_sha256(request["context"])
-	if not context_hash.get("ok", false):
-		return []
-	var tokens: Array = [
-		_project("role", COMPLETION_ROLE),
-		_project("resolution_id", str(request["resolution_id"])),
-		_project("stage_id", str(request["stage_id"])),
-		_project("substage_id", str(request["substage_id"])),
-		_project("route_id", ROUTE_ID),
-		_project("timeline_id", str(request["timeline_id"])),
-		_project("context_sha256", str((context_hash["value"] as Dictionary)["sha256"])),
-	]
-	for token: String in tokens:
-		if token.is_empty():
-			return []
-	tokens.sort()
-	return tokens
+	return _PROVENANCE.validate(request, _identity_issuer)
 
 
 func _context_error(context: Variant) -> String:
@@ -444,13 +386,6 @@ static func _completion_result(receipt: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok",
 		"value": {"completion_receipt": receipt.duplicate(true)},
 		"receipt": receipt.duplicate(true)}
-
-
-static func _project(path: String, value: Variant) -> String:
-	var canonical: Dictionary = _STATE_SCHEMA.canonical_json(value)
-	if not canonical.get("ok", false):
-		return ""
-	return path + "=" + str((canonical["value"] as Dictionary)["text"])
 
 
 func _exact_keys(value: Dictionary, expected: Array[String], code: StringName) -> Dictionary:

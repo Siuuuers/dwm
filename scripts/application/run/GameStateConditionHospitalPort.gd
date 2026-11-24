@@ -1,6 +1,7 @@
 class_name GameStateConditionHospitalPort
 extends RefCounted
 
+const PRESENTATION_PROVENANCE := preload("res://scripts/application/run/PresentationCompletionProvenance.gd")
 const CANON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const CLOSURE := preload("res://scripts/application/run/ConditionHospitalContactsAdapter.gd")
@@ -284,7 +285,7 @@ func _presentation_request(plan: Dictionary, stage_id: String, context: Dictiona
 		"completion_transaction_id": "", "completion_transaction_provenance": {}}
 	var completion: Dictionary = _issuer.derive_child({"child_kind": "day_resolution_stage",
 		"parent_receipt_id": root_id, "ordinal": ordinal,
-		"source_ids": port._completion_sources(request)})
+		"source_ids": PRESENTATION_PROVENANCE.source_ids(request)})
 	if not completion.get("ok", false): return completion
 	request.completion_transaction_id = str(completion.value.child_id)
 	request.completion_transaction_provenance = completion.value.provenance.duplicate(true)

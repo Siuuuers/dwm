@@ -48,6 +48,7 @@ var _native_ends := 0
 
 var _root_counter := 0
 var _issuer: RefCounted
+var _game: Node
 var _bridge: Node
 var _owner: RefCounted
 var _port: RefCounted
@@ -136,9 +137,10 @@ func before_each() -> void:
 	_bridge.name = "TestDialogicBridge"
 	add_child(_bridge)
 	assert_true(_bridge.initialize(null, _runtime_adapter).get("ok", false))
-	_saved_global_contacts = GameState.contacts.duplicate(true)
+	_game = get_node("/root/GameState")
+	_saved_global_contacts = _game.contacts.duplicate(true)
 	# Physical playback fixture uses the real attendance projection, not an owner subclass.
-	GameState.contacts.sylvia_hospital_witness_receipts = {"fixture": {
+	_game.contacts.sylvia_hospital_witness_receipts = {"fixture": {
 		"kind": "sylvia_hospital_witness", "resolution_kind": "condition_hospital",
 		"care_followup_day": 4, "source_receipt_id": "entry.a", "hospital_miss_receipt_id": "miss.a"}}
 	_owner = OWNER.new()
@@ -157,7 +159,7 @@ func before_each() -> void:
 func after_each() -> void:
 	if not _fixture_ready:
 		return
-	GameState.contacts = _saved_global_contacts.duplicate(true)
+	_game.contacts = _saved_global_contacts.duplicate(true)
 	# Every admitted return-only presentation drains through its real native end
 	# before its bridge, owner, layout, or runtime can be destroyed.
 	if is_instance_valid(_bridge) and _bridge.has_active_playback():
@@ -288,10 +290,10 @@ func test_a_valid_intent_returns_the_canonical_command_and_nothing_else() -> voi
 
 
 func _game_state_owner_snapshot() -> Dictionary:
-	var snapshot: Dictionary = GameState.capture_run_snapshot_input().duplicate(true)
+	var snapshot: Dictionary = _game.capture_run_snapshot_input().duplicate(true)
 	# The captured gameplay already includes route_context. Repeat it at the top level so the exact
 	# owner seam the old Hospital scene mutated remains explicit in a failed snapshot diff.
-	snapshot["route_context"] = (GameState.route_context as Dictionary).duplicate(true)
+	snapshot["route_context"] = (_game.route_context as Dictionary).duplicate(true)
 	return snapshot
 
 
