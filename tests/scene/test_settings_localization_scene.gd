@@ -642,8 +642,9 @@ func test_task9_exact_localized_tts_specimens_and_rates_use_no_receipt_api() -> 
 
 func test_task9_committed_primary_locale_refreshes_shared_rail_labels() -> void:
 	var instance: Node = load("res://scenes/menu/Setting.tscn").instantiate()
-	_surface.add_child(instance)
 	var content: Control = instance.find_child("SettingsContent", true, false)
+	content.configure_services({"tts": null})
+	_surface.add_child(instance)
 	var localization: Node = get_node("/root/LocalizationManager")
 	var original: String = localization.get_locale()
 	var result: Dictionary = localization.set_locale("zh_CN")
