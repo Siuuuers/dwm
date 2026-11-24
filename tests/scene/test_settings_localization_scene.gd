@@ -535,7 +535,9 @@ func test_task9_unavailable_tts_preserves_desired_preference_and_disables_contro
 	if fixture["content"].get_controller() == null:
 		return
 	fixture["profile"].set_preference(&"preferences.reading.read_aloud_enabled", true)
-	assert_true(fixture["content"].control_for(&"preferences.reading.read_aloud_enabled").disabled)
+	var read_aloud: CheckBox = fixture["content"].control_for(&"preferences.reading.read_aloud_enabled")
+	assert_true(read_aloud.disabled)
+	assert_true(read_aloud.get_meta("settings_unavailable"))
 	assert_true(fixture["content"].control_for(&"preferences.reading.read_aloud_rate").disabled)
 	assert_true(fixture["content"].test_buttons["TTS"].disabled,
 		"a missing compatible OS voice keeps Test truthful and unavailable")
@@ -543,6 +545,10 @@ func test_task9_unavailable_tts_preserves_desired_preference_and_disables_contro
 		_settings_text("settings.status.no_compatible_voice"))
 	assert_true(fixture["profile"].get_preference(&"preferences.reading.read_aloud_enabled"))
 	assert_eq(fixture["tts"].requests, [])
+	fixture["tts"].available = true
+	fixture["content"].get_controller().refresh()
+	assert_false(read_aloud.disabled)
+	assert_false(read_aloud.get_meta("settings_unavailable"))
 
 func test_task9_independent_scroll_wrapping_and_exact_rail_at_all_text_sizes() -> void:
 	var fixture: Dictionary = _task9_fixture()
