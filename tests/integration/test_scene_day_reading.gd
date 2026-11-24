@@ -342,7 +342,7 @@ func test_reentry_loop_snapshot_restores_current_publication_and_history_section
 	if not projected.ok: return
 	var text_rows: Array = []
 	for row: Dictionary in projected.value.captions: text_rows.append(row.text)
-	assert_eq(text_rows, ["A loop."])
+	assert_eq(text_rows, ["A first.", "A loop."])
 	assert_eq(restored.player_progress.history_sections, loop.value.player_progress.history_sections)
 	assert_eq(restored.ledger.snapshot(), session.ledger.snapshot())
 	var after_restore := FIXTURE.advance_detached(restored, true)
