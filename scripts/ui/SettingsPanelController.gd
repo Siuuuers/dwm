@@ -154,6 +154,7 @@ func refresh() -> void:
 			control.set_pressed_no_signal(bool(value))
 			control.disabled = disabled
 		elif control is HSlider:
+			control.set_meta("settings_committed_value", float(value))
 			if _drag.get("path") != path:
 				control.set_value_no_signal(float(value))
 			control.editable = not disabled
@@ -235,7 +236,7 @@ func begin_volume_drag(path: StringName) -> void:
 	_pointer_path = path
 	if not _interactive() or not _has_audio_sink() or _busy or not _controls.has(path) or not _controls[path] is HSlider or not _controls[path].editable:
 		return
-	cancel_volume_drag()
+	if not _drag.is_empty(): cancel_volume_drag()
 	_generation += 1
 	_drag = {"path": path, "handle": null, "generation": _generation, "value": float(_value(path)), "pending": null, "busy": false, "ending": false}
 	_refresh_volume_presentation(path)

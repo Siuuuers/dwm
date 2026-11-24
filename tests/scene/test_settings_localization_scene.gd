@@ -259,7 +259,9 @@ class FakeSettingsTts:
 	var source_stops: Array = []
 	var active_source: String = ""
 	var recovery_waits: int = 0
+	var capability_queries := 0
 	func refresh_capability(_locale: String) -> Dictionary:
+		capability_queries += 1
 		return {"ok": true, "value": {"available": available}}
 	func request_speech(text: String, locale: String, rate: StringName, source: String) -> Dictionary:
 		requests.append({"text": text, "locale": locale, "rate": rate, "source": source})
@@ -333,9 +335,16 @@ func test_task9_pointer_drag_previews_then_commits_once_with_exact_handle() -> v
 		return
 	var slider: HSlider = content.control_for(&"preferences.audio.music_volume")
 	assert_not_null(slider)
+	var queries: int = fixture.tts.capability_queries
 	slider.drag_started.emit()
+	var status: Label = content.statuses[&"preferences.audio.music_volume"]
+	var preview_style := status.get_theme_stylebox("normal")
 	slider.value = 0.4
 	slider.value = 0.5
+	assert_same(status.get_theme_stylebox("normal"), preview_style)
+	assert_true(status.text.contains("50%"))
+	assert_eq(fixture.tts.capability_queries, queries)
+	assert_eq(slider.get_meta("settings_committed_value"), 0.8)
 	assert_eq(fixture["profile"].get_preference(&"preferences.audio.music_volume"), 0.8)
 	assert_eq(fixture["volume"].commits.size(), 0)
 	slider.drag_ended.emit(true)
