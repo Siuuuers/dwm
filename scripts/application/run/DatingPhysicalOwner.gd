@@ -171,9 +171,8 @@ func pull_physical(physical_token: String) -> Dictionary:
 
 
 func pull_scene_panel(physical_token: String) -> Dictionary:
-	if not _scene_command(): return _fail(&"scene_challenge_unadmitted")
-	var view: Dictionary = _pull_scene(physical_token)
-	if not view.get("ok", false): return view
+	var view := _pull_scene(physical_token)
+	if not view.ok: return view
 	if not _record.is_empty():
 		view.value.host = str(_record.spec.difficulty_id)
 		return view
@@ -189,21 +188,7 @@ func pull_scene_panel(physical_token: String) -> Dictionary:
 
 func dispatch_scene_panel_action(physical_token: String, action: String, cell_index: int,
 		expected_revision: int) -> Dictionary:
-	if not _scene_input_open(): return _fail(&"scene_challenge_command_refused")
-	var view: Dictionary = pull_scene_panel(physical_token)
-	if not view.get("ok", false): return view
-	if view.value.get("phase") == "never_started":
-		if action != "reveal" or expected_revision != 0 or cell_index < 0 \
-				or cell_index >= int(view.value.board.width) * int(view.value.board.height):
-			return _fail(&"scene_challenge_command_refused")
-		return _dispatch_scene_first_reveal(physical_token, cell_index)
-	if action == "reveal" and expected_revision == 0 and _pending_checkpoint.is_empty() \
-			and _record.get("phase") == "preparing" and cell_index == int(_record.envelope.forced_cell):
-		return view
-	if action == "reveal":
-		var duplicate: Dictionary = _scene_duplicate_first_reveal(cell_index, expected_revision)
-		if duplicate.get("matched", false): return duplicate.result
-	return _dispatch_scene(physical_token, action, cell_index, expected_revision)
+	return _dispatch_scene(physical_token, action, cell_index, expected_revision, true)
 
 func dispatch_physical(physical_token: String, action: String, cell_index: int,
 		expected_revision: int) -> Dictionary:
@@ -269,7 +254,7 @@ func _dispatch_physical(physical_token: String, action: String, cell_index: int,
 			var prepared: Dictionary = _advance_preparation()
 			if not prepared.get("ok", false): return prepared
 		"challenge":
-			var changed: Dictionary = _settle_board() if action == "settle" else _board_action(action,cell_index)
+			var changed: Dictionary = _settle_board() if action == "settle" else _board_action(action, cell_index, view.board)
 			if not changed.get("ok",false): return changed
 		"cleared_awaiting_terminal_choice":
 			if action != "continue" or cell_index != -1: return _fail(&"dating_challenge_command_refused")
@@ -678,8 +663,7 @@ func _advance_preparation() -> Dictionary:
 	if _attempt_gate != null: return _restore_attempt(_admitted_command, false, true)
 	return _ok({})
 
-func _board_action(action: String, index: int) -> Dictionary:
-	var projected: Dictionary = _project_board()
+func _board_action(action: String, index: int, projected: Dictionary) -> Dictionary:
 	if index < 0 or index >= projected.cells.size() or action not in projected.cells[index].actions:
 		return _fail(&"dating_challenge_action_unavailable")
 	var reduced: Dictionary
@@ -1537,37 +1521,33 @@ func _scene_unstarted_board(selected: Dictionary) -> Dictionary:
 		"mine_estimate": int(selected.base_mine_count) + int(inputs.value.effective_extra_mines),
 		"terminal": false, "custody": false, "cells": cells})
 
-func _scene_duplicate_first_reveal(cell_index: int, expected_revision: int) -> Dictionary:
-	if expected_revision != 0 or cell_index != _scene_first_reveal_cell \
-			or not _pending_checkpoint.is_empty() or not _record.get("board") is Dictionary:
-		return {"matched": false}
-	return {"matched": true, "result": _pull_scene(_record.physical_token)}
-
-func _dispatch_scene_first_reveal(token: String, index: int) -> Dictionary:
-	if not _scene_input_open(): return _fail(&"scene_challenge_command_refused")
-	var current: Dictionary = _pull_scene(token)
-	if not current.get("ok", false) or current.value.get("phase") != "never_started":
-		return _fail(&"scene_challenge_command_refused")
-	return _commit_scene_action("first_reveal", index)
-
-func _dispatch_scene(token: String, action: String, index: int, revision: int) -> Dictionary:
+func _dispatch_scene(token: String, action: String, index: int, revision: int, from_panel: bool = false) -> Dictionary:
 	if not _scene_input_open(): return _fail(&"scene_challenge_command_refused")
 	var view := _pull_scene(token)
 	if not view.ok: return view
-	if action not in view.value.actions or revision != int(view.value.get("revision", 0)):
+	if from_panel and action == "reveal" and revision == 0 and _pending_checkpoint.is_empty():
+		if _record.get("phase") == "preparing" and index == int(_record.envelope.forced_cell):
+			view.value.host = str(_record.spec.difficulty_id)
+			return view
+		if index == _scene_first_reveal_cell and _record.get("board") is Dictionary:
+			return view
+	if from_panel and view.value.phase == "never_started":
+		var profile := _scene_board_profile()
+		if not profile.ok: return profile
+		if action != "reveal" or revision != 0 or index < 0 or index >= int(profile.value.width) * int(profile.value.height):
+			return _fail(&"scene_challenge_command_refused")
+		action = "first_reveal"
+	elif action not in view.value.actions or revision != int(view.value.get("revision", 0)):
 		return _fail(&"scene_challenge_command_refused")
-	return _commit_scene_action(action, index)
-
-func _commit_scene_action(action: String, index: int) -> Dictionary:
 	var lease: Dictionary = _attempt_gate.acquire(&"causal_transaction")
 	if not lease.ok: return lease
 	_scene_lease = str(lease.value.token)
-	var result := _scene_action(action, index)
+	var result := _scene_action(action, index, view.value)
 	_scene_lease = ""
 	var released: Dictionary = _attempt_gate.release(&"causal_transaction", str(lease.value.token))
 	return result if released.ok else released
 
-func _scene_action(action: String, index: int) -> Dictionary:
+func _scene_action(action: String, index: int, view: Dictionary) -> Dictionary:
 	if action == "retry": return _scene_checkpoint()
 	var prior := _record.duplicate(true)
 	var prior_history := _history_state()
@@ -1577,10 +1557,10 @@ func _scene_action(action: String, index: int) -> Dictionary:
 	elif action == "first_reveal":
 		changed = _scene_start(index)
 		if changed.get("ok", false) and _record.phase == "ready":
-			changed = _board_action("reveal", index)
+			changed = _board_action("reveal", index, _project_board())
 	elif action == "prepare": changed = _scene_prepare()
 	else:
-		changed = _board_action(action, index)
+		changed = _board_action(action, index, view.board)
 	if changed.ok and _record.board != null:
 		_record.phase = "terminal" if _record.board.terminal else "active"
 		_record.state = ("lost" if str(_record.board.outcome) == "exploded" else "won") if _record.board.terminal else "in_progress"
@@ -1643,7 +1623,7 @@ func _scene_prepare() -> Dictionary:
 		_record.envelope.preparation = null
 		_record.phase = "ready"
 		if accepted_reveal >= 0:
-			var revealed: Dictionary = _board_action("reveal", accepted_reveal)
+			var revealed: Dictionary = _board_action("reveal", accepted_reveal, _project_board())
 			if not revealed.ok: return revealed
 	else: return _fail(&"scene_preparation_result_invalid")
 	return _ok({})
