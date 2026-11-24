@@ -233,15 +233,17 @@ func refresh() -> void:
 	if is_reviewing_import() and not pending:
 		depart()
 	var bindings: Dictionary = _review_draft if is_reviewing_import() else value.get("bindings", {})
+	var locale: String = _content.current_locale().replace("_", "-")
 	for record: Dictionary in REGISTRY.records():
 		var action := String(record.id)
-		_headers[action].text = _action_label(action)
+		var action_label: String = record.labels.get(locale, record.labels.en)
+		_headers[action].text = action_label
 		for slot: String in ["keyboard", "controller"]:
 			var button := button_for(action, slot)
 			var binding: Dictionary = bindings.get(action, {}).get(slot, {})
 			button.text = _binding_label(binding)
 			button.get_node("BindingCaption").text = button.text
-			button.accessibility_name = "%s, %s, %s" % [_action_label(action), _text("settings.controls." + slot), button.text]
+			button.accessibility_name = "%s, %s, %s" % [action_label, _text("settings.controls." + slot), button.text]
 			button.disabled = unavailable or (pending and not is_reviewing_import())
 			_style_button(button)
 	for label: Label in _slot_labels:

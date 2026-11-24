@@ -649,6 +649,9 @@ func test_task9_committed_primary_locale_refreshes_shared_rail_labels() -> void:
 	var result: Dictionary = localization.set_locale("zh_CN")
 	assert_true(result["ok"])
 	assert_eq(content.get_node("RailScroll/Rail/LanguageCategory").get_child(0).text, "语言")
+	for slot: String in ["Keyboard", "Controller"]:
+		var button := content.find_child("GameQuickSave" + slot, true, false) as Button
+		assert_true(button.accessibility_name.begins_with("快速保存, "), slot)
 	assert_true(localization.set_locale(original)["ok"])
 func test_task9_title_settings_reopens_after_closing_its_cached_host() -> void:
 	var host := Control.new()

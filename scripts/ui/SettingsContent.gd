@@ -448,6 +448,11 @@ func _clear_focus_perimeter(scroll: ScrollContainer, control: Control) -> void:
 
 
 func refresh_labels() -> void:
+	var locale_names := {}
+	var localization: Variant = _services.get("localization")
+	if localization != null:
+		for record: Dictionary in localization.get_selectable_locales():
+			locale_names[record.id] = record.native_name
 	$Heading/CategoryHeading.text = text("settings.category." + _selected)
 	for label: Label in _localized_labels:
 		label.text = text(_localized_labels[label])
@@ -468,7 +473,7 @@ func refresh_labels() -> void:
 				if path == &"preferences.display.window_size":
 					caption = str(value).replace("x", " × ")
 				elif String(path).ends_with("locale_id"):
-					caption = _locale_name(str(value))
+					caption = locale_names.get(value, str(value))
 				else:
 					caption = text(("settings.rate." if path == &"preferences.reading.read_aloud_rate" else "settings.value.") + str(value))
 				option.add_item(caption)
@@ -609,15 +614,6 @@ func get_palette_id() -> StringName:
 	var pending: Variant = profile.get_preference(&"preferences.dark_mode.next_run_enabled", false)
 	return &"midnight" if typeof(available) == TYPE_BOOL and available \
 			and typeof(pending) == TYPE_BOOL and pending else &"after_hours"
-
-
-func _locale_name(locale: String) -> String:
-	var localization: Variant = _services.get("localization")
-	if localization != null:
-		for record: Dictionary in localization.get_selectable_locales():
-			if record["id"] == locale:
-				return record["native_name"]
-	return locale
 
 
 func get_controller() -> RefCounted:
