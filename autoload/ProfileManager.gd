@@ -1281,15 +1281,14 @@ func _legacy_input_text_validator(text: String) -> Dictionary:
 
 func _build_publication(old: Dictionary, current: Dictionary) -> Dictionary:
 	var changes: Array[Dictionary] = []
-	var preference_changes: Array[Dictionary] = []
-	for record in PREFERENCE_REGISTRY.records():
-		var path: StringName = record["path"]
-		var before: Variant = _get_profile_path(old, path)
-		var after: Variant = _get_profile_path(current, path)
-		if before != after:
-			preference_changes.append({"kind": &"preference", "id": path, "value": after})
-	preference_changes.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return _utf8_less(String(a["id"]), String(b["id"])))
-	changes.append_array(preference_changes)
+	if old.preferences != current.preferences:
+		for record in PREFERENCE_REGISTRY.RECORDS:
+			var path: StringName = record["path"]
+			var before: Variant = _get_profile_path(old, path)
+			var after: Variant = _get_profile_path(current, path)
+			if before != after:
+				changes.append({"kind": &"preference", "id": path, "value": after})
+		changes.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return _utf8_less(String(a["id"]), String(b["id"])))
 	var old_actions: Dictionary = old["input_mappings"]
 	var new_actions: Dictionary = current["input_mappings"]
 	for action_id in _union_sorted(old_actions.keys(), new_actions.keys()):
@@ -1377,20 +1376,13 @@ func _canonical_locale_id(locale_id: String) -> String:
 
 
 func _fallback_secondary_locale(primary_locale_id: String, previous_primary_locale_id: String) -> String:
-	var locale_ids := _registered_locale_ids()
+	var locale_ids := PREFERENCE_REGISTRY.LOCALE_IDS
 	if previous_primary_locale_id != primary_locale_id and previous_primary_locale_id in locale_ids:
 		return previous_primary_locale_id
 	for locale_id in locale_ids:
 		if locale_id != primary_locale_id:
 			return locale_id
 	return primary_locale_id
-
-
-func _registered_locale_ids() -> Array:
-	for record in PREFERENCE_REGISTRY.records():
-		if record["path"] == PRIMARY_LOCALE_PATH:
-			return (record["allowed_values"] as Array).duplicate()
-	return []
 
 
 func _union_sorted(left: Array, right: Array) -> Array:

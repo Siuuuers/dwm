@@ -3,7 +3,7 @@ extends RefCounted
 
 const WINDOW_SIZES := ["1280x720", "1600x900", "1920x1080"]
 
-const _LOCALE_IDS := ["en", "zh_CN", "zh_HK", "ja", "ko"]
+const LOCALE_IDS := ["en", "zh_CN", "zh_HK", "ja", "ko"]
 const _MINESWEEPER_CELL_SIZES := [10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60]
 
 const _ANGELA_PANEL_WIDTHS := [
@@ -36,9 +36,9 @@ const _DATING_GROUP_WIDTHS := [
 	636, 640,
 ]
 
-const _RECORDS := [
-	{"path": &"preferences.language.primary_locale_id", "type": &"locale_id", "default_value": "en", "section_id": &"language", "renderer": &"locale_option", "player_writable": true, "visible": true, "allowed_values": _LOCALE_IDS, "step": 0.0, "label": "Primary language"},
-	{"path": &"preferences.language.secondary_locale_id", "type": &"locale_id", "default_value": "zh_CN", "section_id": &"language", "renderer": &"locale_option", "player_writable": true, "visible": true, "allowed_values": _LOCALE_IDS, "step": 0.0, "label": "Secondary language"},
+const RECORDS: Array[Dictionary] = [
+	{"path": &"preferences.language.primary_locale_id", "type": &"locale_id", "default_value": "en", "section_id": &"language", "renderer": &"locale_option", "player_writable": true, "visible": true, "allowed_values": LOCALE_IDS, "step": 0.0, "label": "Primary language"},
+	{"path": &"preferences.language.secondary_locale_id", "type": &"locale_id", "default_value": "zh_CN", "section_id": &"language", "renderer": &"locale_option", "player_writable": true, "visible": true, "allowed_values": LOCALE_IDS, "step": 0.0, "label": "Secondary language"},
 	{"path": &"preferences.language.dual_enabled", "type": &"bool", "default_value": false, "section_id": &"language", "renderer": &"toggle", "player_writable": true, "visible": true, "allowed_values": [], "step": 0.0, "label": "Dual language"},
 	{"path": &"preferences.reading.reveal_speed", "type": &"enum_string", "default_value": "normal", "section_id": &"reading", "renderer": &"enum_option", "player_writable": true, "visible": true, "allowed_values": ["instant", "fast", "normal", "slow"], "step": 0.0, "label": "Reveal speed"},
 	{"path": &"preferences.reading.auto_enabled", "type": &"bool", "default_value": false, "section_id": &"reading", "renderer": &"toggle", "player_writable": true, "visible": true, "allowed_values": [], "step": 0.0, "label": "Auto advance"},
@@ -87,10 +87,7 @@ const _RECORDS := [
 
 
 static func records() -> Array[Dictionary]:
-	var output: Array[Dictionary] = []
-	for record in _RECORDS:
-		output.append(record.duplicate(true))
-	return output
+	return RECORDS.duplicate(true)
 
 
 static func validate(path: StringName, value: Variant) -> Dictionary:
@@ -128,7 +125,7 @@ static func default_value(path: StringName) -> Variant:
 
 static func visible_records(section_id: StringName) -> Array[Dictionary]:
 	var output: Array[Dictionary] = []
-	for record in _RECORDS:
+	for record in RECORDS:
 		if bool(record.get("visible", false)) and record.get("section_id") == section_id:
 			output.append(record.duplicate(true))
 	return output
@@ -144,7 +141,7 @@ static func is_player_writable(path: StringName) -> bool:
 
 
 static func _record_for(path: StringName) -> Dictionary:
-	for record in _RECORDS:
+	for record in RECORDS:
 		if record["path"] == path:
 			return record
 	return {}
