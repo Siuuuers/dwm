@@ -329,7 +329,7 @@ func _scene_projection_current(friend_id: String, primary: String, secondary: St
 	var context: Variant = _game_state.call(&"capture_scene_contact_context")
 	if not context is Dictionary or not context.get("ok", false) or not context.get("value") is Dictionary:
 		return _fail(&"scene_contact_context_unavailable")
-	var state: Dictionary = (_game_state.get("contacts") as Dictionary).duplicate(true)
+	var state: Dictionary = _game_state.get("contacts")
 	if context.value.get("contacts_sha256") != CONTACT_STATE._s_hash(state): return _fail(&"scene_contact_context_stale")
 	return _scene_project(state, friend_id, primary, secondary, str(context.value.get("registration_sha256", "")))
 

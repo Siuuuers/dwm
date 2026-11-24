@@ -309,12 +309,12 @@ func present_pending_reply(rendered_line: Dictionary, locale: String) -> bool:
 	for key: String in ["view_token", "line_id", "text"]:
 		if not rendered_line.get(key) is String or rendered_line[key].is_empty(): return false
 	if not _pending_reply.is_empty(): return _pending_reply == rendered_line
-	_pending_reply = rendered_line.duplicate(true)
+	_pending_reply = rendered_line.duplicate()
 	_pending_emitted = false
 	_pending_label = _append_entry({"id": "ui:ordinary:" + rendered_line.view_token,
 		"outgoing": true, "texts": {locale: rendered_line.text}}, [locale])
 	_pending_label.name = "PendingOrdinaryReply"
-	_pending_label.draw.connect(_on_pending_reply_drawn.bind(_pending_label, rendered_line.duplicate(true)))
+	_pending_label.draw.connect(_on_pending_reply_drawn.bind(_pending_label))
 	_reveal_pending_reply.call_deferred(str(rendered_line.view_token))
 	return true
 
@@ -323,11 +323,11 @@ func _reveal_pending_reply(token: String) -> void:
 		or not is_instance_valid(transcript) or not is_instance_valid(_pending_label): return
 	transcript.ensure_control_visible(_pending_label)
 
-func _on_pending_reply_drawn(label: Label, rendered_line: Dictionary) -> void:
-	if _pending_emitted or label != _pending_label or rendered_line != _pending_reply \
+func _on_pending_reply_drawn(label: Label) -> void:
+	if _pending_emitted or label != _pending_label \
 		or not is_instance_valid(label) or not label.is_visible_in_tree() or is_queued_for_deletion(): return
 	_pending_emitted = true
-	pending_reply_drawn.emit(rendered_line.duplicate(true))
+	pending_reply_drawn.emit(_pending_reply.duplicate())
 
 func _style_label(label: Label, locale: String, outgoing: bool) -> void:
 	label.add_theme_font_override("font", _fonts[locale])
@@ -349,7 +349,7 @@ func _scroll_anchor() -> Dictionary:
 func _restore_scroll(anchor: Dictionary, revision: int, frames_left: int = 3) -> void:
 	if not is_inside_tree() or is_queued_for_deletion() or revision != _revision: return
 	if frames_left > 0:
-		var next := _restore_scroll.bind(anchor.duplicate(true), revision, frames_left - 1)
+		var next := _restore_scroll.bind(anchor, revision, frames_left - 1)
 		if not get_tree().process_frame.is_connected(next):
 			get_tree().process_frame.connect(next, CONNECT_ONE_SHOT)
 		return
