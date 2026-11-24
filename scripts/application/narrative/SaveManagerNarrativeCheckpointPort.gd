@@ -159,9 +159,9 @@ func _commit_reading_next_autosave(checkpoint: Dictionary, operation_id: String,
 	if not captured.get("ok", false): return captured
 	if phase == "destination":
 		var current: Dictionary = captured.value.backup.get("current", {}).get("snapshot", {})
-		var header := checkpoint.duplicate(true)
+		var header := checkpoint.duplicate()
 		header.erase("reading_session")
-		var source_header: Dictionary = _next_source.checkpoint.duplicate(true)
+		var source_header: Dictionary = _next_source.checkpoint.duplicate()
 		source_header.erase("reading_session")
 		if current.get("checkpoint_id") != _next_source.checkpoint_id \
 				or not _player_checkpoint_same(current.get("narrative_checkpoint"), _next_source.checkpoint) or header != source_header:
@@ -593,7 +593,7 @@ func _scene_route_candidate_valid(candidate: Dictionary, input: Dictionary, chec
 	if not input.desktop.get("board") is Dictionary: return false
 	var player_board: Dictionary = BOARD_STATE.project_player_state(input.desktop.board)
 	if not player_board.ok: return false
-	var expected_desktop: Dictionary = input.desktop.duplicate(true)
+	var expected_desktop: Dictionary = input.desktop.duplicate()
 	expected_desktop.board = player_board.value.snapshot
 	for key: String in ["lifecycle", "gameplay", "contacts", "desktop", "scene"]:
 		var expected: Variant = expected_desktop if key == "desktop" else input[key]
@@ -781,7 +781,7 @@ func prepare_candidate(owner_id: StringName, snapshot_input: Dictionary, transac
 	var content := _call_provider("content_version", [])
 	if not content.get("ok", false):
 		return content
-	var inputs := _checkpoint_inputs(active["value"], audio["value"], content["value"], checkpoint, route["value"], snapshot_input.duplicate(true))
+	var inputs := _checkpoint_inputs(active["value"], audio["value"], content["value"], checkpoint, route["value"], snapshot_input)
 	var prepared: Dictionary = _real_port.prepare(inputs, checkpoint_kind, STAGE_DISK_WRITE.duplicate(true))
 	if not prepared.get("ok", false):
 		return prepared
