@@ -397,13 +397,13 @@ func test_runtime_compiler_reuses_frozen_selected_mapping_without_rereading_sour
 	var labels: Array = []
 	for entry: Dictionary in bundle.entry_manifest.entries: labels.append(entry.entry_id)
 	var programme: Dictionary = bundle.scene_programme.entries[0]
-	var first := ADAPTER.compile_runtime_scene_programme(PATH, programme.entry_id, labels, programme.markers)
+	var first := ADAPTER.compile_runtime_scene_programme(PATH, programme.entry_id, programme.markers)
 	assert_true(first.ok)
 	if not first.ok: return
 	assert_true(first.is_read_only())
 	assert_true(first.value.nodes.is_read_only())
 	_write("not the installed programme")
-	var reused := ADAPTER.compile_runtime_scene_programme(PATH, programme.entry_id, labels, programme.markers)
+	var reused := ADAPTER.compile_runtime_scene_programme(PATH, programme.entry_id, programme.markers)
 	assert_true(is_same(first, reused), "same process keeps its installed immutable programme")
 	assert_false(ADAPTER.compile_scene_programme(PATH, programme.entry_id, labels, programme.markers).ok,
 		"explicit artifact checking still reads physical input")
@@ -418,7 +418,7 @@ func test_runtime_preparation_shares_one_native_parse_for_entries_in_one_dtl() -
 	var first_timeline: DialogicTimeline
 	for programme: Dictionary in bundle.scene_programme.entries:
 		var compiled := ADAPTER.compile_runtime_scene_programme(PATH, programme.entry_id,
-			labels, programme.markers, parsed_sources)
+			programme.markers, parsed_sources)
 		assert_true(compiled.ok)
 		assert_eq(parsed_sources.size(), 1, "one physical DTL owns one invocation-local parse")
 		if parsed_sources.is_empty(): return
@@ -430,7 +430,7 @@ func test_runtime_preparation_shares_one_native_parse_for_entries_in_one_dtl() -
 	assert_gt(bundle.scene_programme.entries.size(), 1, "fixture exercises several entries")
 	parsed_sources.clear()
 	var programme: Dictionary = bundle.scene_programme.entries[0]
-	assert_true(ADAPTER.compile_runtime_scene_programme(PATH, programme.entry_id, labels, programme.markers).ok,
+	assert_true(ADAPTER.compile_runtime_scene_programme(PATH, programme.entry_id, programme.markers).ok,
 		"cached semantic mappings remain valid after local native resources are released")
 
 func test_initial_checkpoint_reuses_runtime_compilation_and_keeps_exact_first_caption() -> void:
@@ -512,17 +512,15 @@ func test_scene_programmes_compile_only_when_admitted_or_restored() -> void:
 
 func test_lazy_runtime_entries_share_parse_until_registration_changes_and_bypass_translation() -> void:
 	var bundle := _install_reading_source()
-	var labels: Array = []
-	for entry: Dictionary in bundle.entry_manifest.entries: labels.append(entry.entry_id)
 	# Force a cold runtime parse instead of the strict fixture-selection result.
 	ADAPTER._scene_compile_cache.erase(PATH)
 	var first: Dictionary = bundle.scene_programme.entries[0]
 	var second: Dictionary = bundle.scene_programme.entries[1]
-	assert_true(ADAPTER.compile_runtime_scene_programme(PATH, first.entry_id, labels, first.markers).ok)
+	assert_true(ADAPTER.compile_runtime_scene_programme(PATH, first.entry_id, first.markers).ok)
 	assert_true(ADAPTER._scene_runtime_parsed_sources.has(PATH))
 	if not ADAPTER._scene_runtime_parsed_sources.has(PATH): return
 	var parsed: DialogicTimeline = ADAPTER._scene_runtime_parsed_sources[PATH].timeline
-	assert_true(ADAPTER.compile_runtime_scene_programme(PATH, second.entry_id, labels, second.markers).ok)
+	assert_true(ADAPTER.compile_runtime_scene_programme(PATH, second.entry_id, second.markers).ok)
 	assert_true(is_same(parsed, ADAPTER._scene_runtime_parsed_sources[PATH].timeline),
 		"separate lazy calls reuse the same day parse")
 	ProjectSettings.set_setting("dialogic/translation/enabled", true)
@@ -533,7 +531,7 @@ func test_lazy_runtime_entries_share_parse_until_registration_changes_and_bypass
 	TranslationServer.add_translation(_translation)
 	TranslationServer.set_locale("en")
 	var local_parse := {}
-	var translated := ADAPTER.compile_runtime_scene_programme(PATH, first.entry_id, labels, first.markers, local_parse)
+	var translated := ADAPTER.compile_runtime_scene_programme(PATH, first.entry_id, first.markers, local_parse)
 	assert_true(translated.ok)
 	if translated.ok:
 		assert_true(translated.value.events.any(func(event: Dictionary) -> bool:
@@ -547,7 +545,7 @@ func test_lazy_runtime_entries_share_parse_until_registration_changes_and_bypass
 	inner.install(true)
 	assert_true(MANIFEST.configure_test_scene_registration(bundle).ok)
 	ADAPTER._scene_compile_cache.erase(PATH)
-	assert_true(ADAPTER.compile_runtime_scene_programme(PATH, first.entry_id, labels, first.markers).ok)
+	assert_true(ADAPTER.compile_runtime_scene_programme(PATH, first.entry_id, first.markers).ok)
 	assert_false(is_same(parsed, ADAPTER._scene_runtime_parsed_sources[PATH].timeline),
 		"new selected registration cannot retain the prior native parse")
 	assert_eq(ADAPTER._scene_runtime_programmes.keys(), [first.entry_id])

@@ -94,15 +94,11 @@ func _configure_scene_observed_body() -> Dictionary:
 
 func _ensure_scene_programme(entry_id: String) -> Dictionary:
 	if _scene_nodes.has(entry_id): return {"ok": true}
-	var labels: Array = []
-	var path := ""
-	for entry: Dictionary in manifest.entries:
-		labels.append(entry.entry_id)
-		if entry.entry_id == entry_id: path = entry.locators.en.path
+	var path := DialogicEntryManifest.scene_timeline_path(manifest, entry_id)
 	for programme: Dictionary in _scene_bundle.scene_programme.entries:
 		if programme.entry_id != entry_id: continue
 		var compiled := DialogicRuntimeAdapter.compile_runtime_scene_programme(path,
-			entry_id, labels, programme.markers)
+			entry_id, programme.markers)
 		if not compiled.ok: return compiled
 		if not compiled.value.nodes.is_read_only(): FROZEN._freeze(compiled.value.nodes)
 		_scene_nodes[entry_id] = compiled.value.nodes
