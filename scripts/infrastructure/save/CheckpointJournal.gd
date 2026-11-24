@@ -254,13 +254,17 @@ func _prepare_seed_from_valid_bundles(valid_bundles: Array, selected_bundle: Dic
 		"diagnostics": diagnostics,
 	}}
 
+func current_bundle_hash() -> String:
+	return "" if _current.is_empty() else CANONICAL_JSON.sha256(_current)
+
+func _state_fields() -> Dictionary:
+	return {"run_id": _run_id, "next_sequence": _next_sequence, "current": _current, "earlier": _earlier}
+
+func state_hash() -> String:
+	return CANONICAL_JSON.sha256(_state_fields())
+
 func capture_state() -> Dictionary:
-	return {"ok": true, "code": &"ok", "value": {"backup": {
-		"run_id": _run_id,
-		"next_sequence": _next_sequence,
-		"current": _current.duplicate(true),
-		"earlier": _earlier.duplicate(true),
-	}}}
+	return {"ok": true, "code": &"ok", "value": {"backup": _state_fields().duplicate(true)}}
 
 func restore_state(backup: Dictionary) -> Dictionary:
 	for key: String in ["run_id", "next_sequence", "current", "earlier"]:

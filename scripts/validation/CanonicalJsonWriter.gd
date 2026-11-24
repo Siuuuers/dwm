@@ -7,6 +7,12 @@ static var _ordinary_ascii := RegEx.create_from_string("\\A[\\x20-\\x21\\x23-\\x
 static var _printable_ascii := RegEx.create_from_string("\\A[\\x20-\\x7E]*\\z")
 static var _native_string_range := RegEx.create_from_string("\\A[\\x08-\\x0A\\x0C-\\x0D\\x20-\\x{D7FF}\\x{E000}-\\x{10FFFF}]*\\z")
 
+static func sha256(value: Variant) -> String:
+	var emitted: Dictionary = stringify(value)
+	if not emitted.get("ok", false):
+		return ""
+	return str(emitted["value"]).sha256_text()
+
 static func stringify(value: Variant) -> Dictionary:
 	if _can_use_native_encoder(value):
 		return _ok(JSON.stringify(value, "", true))

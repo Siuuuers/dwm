@@ -643,21 +643,21 @@ func is_quick_condition_current(condition: Dictionary) -> bool:
 	return condition == _quick_condition(condition["action"])
 
 func _quick_condition(action: String) -> Dictionary:
-	var stable := get_latest_stable_checkpoint()
+	var stable_hash: String = _journal.current_bundle_hash()
 	var captured := _capture_backup_inputs() if _backup_capture_configured else {"ok": false, "code": &"not_configured"}
 	var target: Dictionary = {"ok": false, "code": &"not_initialized"}
 	if _storage != null:
 		target = _storage.inspect_revision(str(_backup_locator("quick")["relative_path"]))
 	var evidence := {
 		"owner": str(get_instance_id()), "action": action,
-		"stable": _canonical_sha256(stable["value"]["bundle"]) if stable.get("ok", false) else "",
-		"capture": _canonical_sha256(captured["value"]) if captured.get("ok", false) else str(captured.get("code", "unavailable")),
+		"stable": stable_hash,
+		"capture": CANONICAL_JSON.sha256(captured["value"]) if captured.get("ok", false) else str(captured.get("code", "unavailable")),
 		"target": target["value"]["revision"] if target.get("ok", false) else str(target.get("code", "unavailable")),
 		"lock": str(_lock_owner),
 		"gate_owner": str(_mutation_gate.get_active_owner()) if _mutation_gate != null else "",
 		"fatal": _mutation_gate.is_fatal_latched() if _mutation_gate != null else false,
 	}
-	return {"action": action, "signature": _canonical_sha256(evidence)}
+	return {"action": action, "signature": CANONICAL_JSON.sha256(evidence)}
 
 func _quick_guard_status(action: String) -> String:
 	if _storage == null or (_mutation_gate != null and _mutation_gate.is_fatal_latched()):
@@ -790,7 +790,7 @@ func _prepare_backup_action_profiled(action: String, locator_id: String, profile
 			return built
 		candidate["document"] = built["value"]
 		if not candidate.has("journal_candidate"):
-			candidate["stable_hash"] = _canonical_sha256(bundle)
+			candidate["stable_hash"] = CANONICAL_JSON.sha256(bundle)
 		_save_load_profile_phase(profile, "stable_hash_us")
 	elif action == "load":
 		if not record["loadable"]:
@@ -864,11 +864,10 @@ func _commit_backup_action_profiled(token: String, profile: Dictionary) -> Dicti
 				var captured := _capture_backup_inputs()
 				if not captured.get("ok", false):
 					return captured
-				if _canonical_sha256(captured["value"]) != candidate["capture_hash"] or _backup_journal_hash() != candidate["journal_hash"]:
+				if CANONICAL_JSON.sha256(captured["value"]) != candidate["capture_hash"] or _backup_journal_hash() != candidate["journal_hash"]:
 					return _fail(&"stale_backup_source", "")
 			else:
-				var stable := get_latest_stable_checkpoint()
-				if not stable.get("ok", false) or _canonical_sha256(stable["value"]["bundle"]) != candidate["stable_hash"]:
+				if not _journal.has_current_bundle() or _journal.current_bundle_hash() != candidate["stable_hash"]:
 					return _fail(&"stale_backup_source", "")
 			var flushed := flush_profile_reading_history()
 			if not flushed.ok: return flushed
@@ -963,7 +962,7 @@ func _compose_live_checkpoint_input(snapshot_input: Dictionary) -> Dictionary:
 
 
 func _backup_journal_hash() -> String:
-	return _canonical_sha256(_journal.capture_state()["value"]["backup"])
+	return _journal.state_hash()
 
 func _prepare_backup_capture() -> Dictionary:
 	var journal_hash := _backup_journal_hash()
@@ -985,7 +984,7 @@ func _prepare_backup_capture() -> Dictionary:
 	if _backup_journal_hash() != journal_hash:
 		return _fail(&"stale_backup_source", "Journal changed during capture")
 	return {"ok": true, "value": {"journal_candidate": prepared["value"]["candidate"],
-		"capture_hash": _canonical_sha256(inputs), "journal_hash": journal_hash}}
+		"capture_hash": CANONICAL_JSON.sha256(inputs), "journal_hash": journal_hash}}
 
 func _backup_guard() -> Dictionary:
 	if _storage == null:
@@ -1162,7 +1161,7 @@ func _write_latest(locator: Dictionary, save_reason: String, session_exit: bool 
 	var document: Dictionary = validated["value"]["candidate"]
 	if str(document["kind"]) != str(locator["kind"]) or document["slot_id"] != locator["slot_id"]:
 		return _fail(&"reread_mismatch", "locator or reason drift")
-	if _canonical_sha256(document) != _canonical_sha256(built["value"]):
+	if CANONICAL_JSON.sha256(document) != CANONICAL_JSON.sha256(built["value"]):
 		return _fail(&"reread_mismatch", "saved candidate drift")
 	var result := {"ok": true, "code": &"ok", "value": {
 		"kind": str(locator["kind"]),
@@ -1288,7 +1287,7 @@ func load_context(locator: Dictionary) -> Dictionary:
 	if bundle.is_empty():
 		return _fail(&"source_bundle_not_found", str(locator.get("checkpoint_id", "")))
 	var context: Dictionary = bundle["snapshot"]
-	var context_hash := _canonical_sha256(context)
+	var context_hash := CANONICAL_JSON.sha256(context)
 	if context_hash.is_empty():
 		return _fail(&"context_not_canonicalizable", "")
 	return {"ok": true, "code": &"ok", "value": {
@@ -1317,12 +1316,6 @@ func _find_bundle_by_checkpoint_id(document: Dictionary, checkpoint_id: String) 
 			return entry
 	return {}
 
-
-static func _canonical_sha256(value: Variant) -> String:
-	var emitted: Dictionary = CANONICAL_JSON.stringify(value)
-	if not emitted.get("ok", false):
-		return ""
-	return str(emitted["value"]).sha256_text()
 
 func _delete(locator: Dictionary) -> Dictionary:
 	if locator.is_empty():
