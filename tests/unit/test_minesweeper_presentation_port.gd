@@ -124,7 +124,8 @@ func test_pull_exposes_only_public_projection_and_pre_reveal_flag_action() -> vo
 	assert_eq(pulled.value.keys(), ["width", "height", "revision", "mine_estimate", "terminal", "custody", "cells"])
 	assert_eq(pulled.value.cells[0].actions, ["reveal", "flag"])
 	assert_false(pulled.value.has("identity"))
-	assert_true((pulled.value.cells[0].actions as Array).has("flag"))
+	pulled.value.cells[0].actions.clear()
+	assert_eq(port.get_configuration(pulled.value).code, &"stale_minesweeper_presentation")
 
 
 func test_valid_first_reveal_and_active_flag_use_real_coordinator_and_issuer() -> void:

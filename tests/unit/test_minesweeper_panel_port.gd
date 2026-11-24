@@ -649,6 +649,7 @@ func test_unpaid_tier_change_and_untouched_new_board_never_generate_or_spend() -
 
 
 func test_unpaid_flags_without_capacity_preserve_no_flag_and_untouched_new_board_is_noop() -> void:
+	state.minesweeper_rounds_left = state.minesweeper_round_floor
 	state.set_stat("motivation",0)
 	var initial: Dictionary = port.pull()
 	assert_true(initial.ok,str(initial))
@@ -667,7 +668,7 @@ func test_unpaid_flags_without_capacity_preserve_no_flag_and_untouched_new_board
 	var unflagged: Dictionary = port.dispatch("unflag",2,flagged.value.board.revision)
 	assert_true(unflagged.ok,str(unflagged))
 	assert_eq(unflagged.value.register.no_flag,"lost")
-	assert_eq(state.minesweeper_rounds_left,2)
+	assert_eq(state.minesweeper_rounds_left,state.minesweeper_round_floor)
 	assert_eq(state.get_stat("motivation"),0)
 	assert_true(generation.call_log.is_empty())
 

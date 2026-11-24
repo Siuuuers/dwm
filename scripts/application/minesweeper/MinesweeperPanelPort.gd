@@ -54,7 +54,7 @@ func pull() -> Dictionary:
 	_discard_stale_terminal()
 	if not _held_terminal.is_empty():
 		if not _owner.has_method("get_configuration_context"):
-			return _present_success(_held_terminal)
+			return _present_success(_held_terminal.duplicate(true))
 		_clear_held_terminal()
 	var initial: Variant = _owner.call(&"get_state")
 	if not initial is Dictionary or not initial.get("ok", false) \
@@ -91,8 +91,8 @@ func pull() -> Dictionary:
 		if configuration.value.new_board_enabled: actions.append("new_board")
 		register.value.difficulty_enabled = configuration.value.difficulty_enabled.duplicate()
 	return _present_success({
-		"board": board.value.duplicate(true), "register": register.value.duplicate(true),
-		"assignments": assignments.value.duplicate(), "actions": actions, "settled": false,
+		"board": board.value, "register": register.value,
+		"assignments": assignments.value, "actions": actions, "settled": false,
 	})
 
 
@@ -201,7 +201,7 @@ func set_foreground(foreground: bool, expected_revision: int) -> Dictionary:
 			var retained: Dictionary = _board_port.set_foreground(foreground, expected_revision)
 			if not retained.get("ok", false): return _refused()
 			return pull()
-		return _present_success(_held_terminal)
+		return _present_success(_held_terminal.duplicate(true))
 	if not _has_fresh_difficulty(): return _refused()
 	var result: Dictionary = _board_port.call(&"set_foreground", foreground, expected_revision)
 	if not result.get("ok", false): return _refused()
@@ -227,7 +227,7 @@ func _terminal_view(board: Dictionary, prior_register: Dictionary, assignments: 
 		if not configuration.get("ok",false): return {}
 		register["difficulty_enabled"] = configuration.value.difficulty_enabled.duplicate()
 	return {
-		"board": board.duplicate(true), "register": register,
+		"board": board, "register": register,
 		"assignments": assignments.duplicate(),
 		"actions": SETTLED_ACTIONS.duplicate() if settled else [],
 		"settled": settled,
@@ -272,7 +272,7 @@ func _routine_view(board: Dictionary, context: Dictionary, inputs: Dictionary,
 	actions.assign(PLAY_ACTIONS)
 	if configuration.new_board_enabled: actions.append("new_board")
 	return {
-		"board": board.duplicate(true), "register": register,
+		"board": board, "register": register,
 		"assignments": inputs.assignments.duplicate(), "actions": actions, "settled": false,
 	}
 
@@ -282,7 +282,7 @@ func _hold_terminal(value: Dictionary) -> Dictionary:
 	if marker.is_empty(): return _unavailable()
 	_held_terminal = value.duplicate(true)
 	_held_session = marker
-	return _present_success(_held_terminal)
+	return _present_success(value)
 
 
 func _present_success(value: Dictionary) -> Dictionary:
@@ -290,7 +290,7 @@ func _present_success(value: Dictionary) -> Dictionary:
 	_presented_difficulty = str(value.register.difficulty)
 	_presented_view = value.duplicate(true)
 	_presented_session = _session_marker()
-	return {"ok": true, "value": value.duplicate(true)}
+	return {"ok": true, "value": value}
 
 
 func _present_failure(value: Dictionary) -> void:
