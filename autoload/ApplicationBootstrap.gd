@@ -1557,7 +1557,7 @@ func open_scene_apps(host: Control) -> Dictionary:
 		if held.get("recovery_required", false): host.set_computer_open(true)
 		return held
 	host.set_computer_open(true)
-	var active: Variant = _desktop_host_state.get_state().get("active_app_id")
+	var active: Variant = _desktop_host_state.get_active_app_id()
 	if active != null and active not in [&"settings", &"backup"] and desktop._active_id == &"":
 		var restored: Dictionary = desktop.open_app(StringName(active))
 		if not restored.get("ok", false): return restored
