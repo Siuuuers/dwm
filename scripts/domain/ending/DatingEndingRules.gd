@@ -11,11 +11,6 @@ const CANONICAL_ENDING_IDS: Array[String] = [
 ]
 const POSTSCRIPT_IDS: Array[String] = ["ending.lavinia.observation", "ending.priscilla.observation"]
 const FRIEND_IDS: Array[String] = ["priscilla", "lavinia", "sylvia"]
-const SELECTION_INPUT_KEYS: Array[String] = [
-	"affection_tiers", "candidate_friend_id", "dating_route_state",
-	"pl_post_ending", "sylvia_special",
-]
-
 const HOSPITAL_INPUT_KEYS: Array[String] = [
 	"condition_effect_ids", "day", "health", "pressure",
 	"scheduled_date_outcomes", "transaction_id",
@@ -27,60 +22,6 @@ const DATE_OUTCOMES: Array[String] = [
 const FAINTING_LOST_OUTCOMES: Array[String] = ["prevented_by_fainting", "cancelled_by_fainting"]
 const HOSPITAL_RECOVERED_HEALTH := 6
 const HOSPITAL_RECOVERED_PRESSURE := 3
-
-static func select_primary_ending(inputs: Dictionary) -> Dictionary:
-	var shape_error := _validate_inputs(inputs)
-	if shape_error != "":
-		return {"ok": false, "code": &"invalid_ending_inputs", "message": shape_error}
-	var candidate_friend_id := str(inputs["candidate_friend_id"])
-	var dating_route_state: Dictionary = inputs["dating_route_state"]
-	var affection_tiers: Dictionary = inputs["affection_tiers"]
-	var sylvia_special := bool(inputs["sylvia_special"])
-	var pl_post := bool(inputs["pl_post_ending"])
-
-	var ending_id := ""
-	if sylvia_special:
-		ending_id = "ending.sylvia.special"
-	elif pl_post:
-		ending_id = "ending.priscilla_lavinia"
-	elif candidate_friend_id == "":
-		ending_id = "ending.alone"
-	else:
-		ending_id = _friend_ending(candidate_friend_id, dating_route_state, affection_tiers)
-
-	var epilogue_ending_id := ""
-	if pl_post and ending_id != "ending.priscilla_lavinia":
-		epilogue_ending_id = "ending.priscilla_lavinia"
-
-	return {"ok": true, "code": &"ok", "value": {
-		"ending_id": ending_id,
-		"epilogue_ending_id": epilogue_ending_id,
-	}}
-
-static func recompute_synchronized_primary(inputs: Dictionary) -> Dictionary:
-	var forced := inputs.duplicate(true)
-	forced["pl_post_ending"] = false
-	var primary := select_primary_ending(forced)
-	if not primary.get("ok", false):
-		return primary
-	var ending_id := str(primary["value"]["ending_id"])
-	var epilogue := "ending.priscilla_lavinia" if bool(inputs.get("pl_post_ending", false)) else ""
-	return {"ok": true, "code": &"ok", "value": {
-		"ending_id": ending_id,
-		"epilogue_ending_id": epilogue,
-	}}
-
-static func is_canonical_ending(ending_id: String) -> bool:
-	return ending_id in CANONICAL_ENDING_IDS
-
-static func _friend_ending(friend_id: String, dating_route_state: Dictionary, affection_tiers: Dictionary) -> String:
-	if friend_id not in FRIEND_IDS:
-		return "ending.alone"
-	var drs: Dictionary = dating_route_state.get(friend_id, {})
-	var dark_points := int(drs.get("dark_points", 0))
-	if dark_points >= 2:
-		return "ending.%s.dark" % friend_id
-	return "ending.%s.sweet" % friend_id
 
 const PRIMARY_INPUT_KEYS: Array[String] = [
 	"completed_candidate", "dark_points", "day", "hospital_skipped_sylvia_solo_count", "receipt_index",
@@ -335,24 +276,4 @@ static func _validate_hospital_input(input: Dictionary) -> String:
 			return "an outcome names one friend (solo) or the canonical pair (group)"
 		if str(outcome["action_id"]).is_empty():
 			return "action_id must be nonempty"
-	return ""
-
-
-static func _validate_inputs(inputs: Dictionary) -> String:
-	var keys: Array = inputs.keys()
-	keys.sort()
-	var expected := SELECTION_INPUT_KEYS.duplicate()
-	expected.sort()
-	if keys != Array(expected):
-		return "unexpected ending-input keys: " + str(keys)
-	if typeof(inputs["candidate_friend_id"]) != TYPE_STRING:
-		return "candidate_friend_id must be a String"
-	if typeof(inputs["dating_route_state"]) != TYPE_DICTIONARY:
-		return "dating_route_state must be a Dictionary"
-	if typeof(inputs["affection_tiers"]) != TYPE_DICTIONARY:
-		return "affection_tiers must be a Dictionary"
-	if typeof(inputs["sylvia_special"]) != TYPE_BOOL:
-		return "sylvia_special must be a bool"
-	if typeof(inputs["pl_post_ending"]) != TYPE_BOOL:
-		return "pl_post_ending must be a bool"
 	return ""
