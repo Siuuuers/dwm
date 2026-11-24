@@ -23,7 +23,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7
       with:
-        fetch-depth: 0
+        fetch-depth: ${{ (matrix.suite == 'new_account' || matrix.suite == 'desktop') && '0' || '1' }}
         persist-credentials: true
         ref: e5db010715c187cc775341d204391f527dc334ea
     - name: Verify immutable historical source
