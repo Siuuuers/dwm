@@ -281,20 +281,22 @@ func _dispatch_physical(physical_token: String, action: String, cell_index: int,
 	return _ok(_view())
 
 func _with_checkpoint(operation: Callable, publish_completion: bool, commit_history: bool = true) -> Dictionary:
+	var checkpointed := _checkpoint_writer.is_valid()
 	var backup: Dictionary = {}
-	var prior: Dictionary = _record.duplicate(true)
-	var prior_history := _history_state()
+	var prior: Dictionary = {}
+	var prior_history: Dictionary = {}
 	var routine_start: bool = _record.get("board") != null and str(_record.get("phase", "")) == "challenge"
 	var prior_pending := _routine_pending
-	if _checkpoint_writer.is_valid():
+	if checkpointed:
 		var captured: Dictionary = _game_state.capture_restore_state()
 		if not captured.get("ok", false): return captured
-		backup = captured.value.backup.duplicate(true)
+		backup = captured.value.backup
 		var physical: Dictionary = _game_state.capture_dating_challenge_state()
 		if not physical.get("ok", false): return physical
-		prior = physical.value.duplicate(true)
+		prior = physical.value
+		prior_history = _history_state()
 	var result: Dictionary = operation.call()
-	if _checkpoint_writer.is_valid():
+	if checkpointed:
 		var changed: bool = _record != prior
 		var retain_retry: bool = changed and str(_record.get("phase", "")) == "settlement_retry"
 		if not result.get("ok", false) and not retain_retry:
