@@ -117,6 +117,11 @@ static func scene_contract_tables() -> Dictionary:
 	if _scene_bundle.is_empty(): return _fail(&"scene_registration_absent", "no scene registration selected")
 	return {"ok": true, "value": _scene_contract_tables, "bundle": _scene_bundle}
 
+static func scene_timeline_path(manifest: Dictionary, entry_id: String) -> String:
+	for entry: Dictionary in manifest.entries:
+		if entry.entry_id == entry_id: return entry.locators.en.path
+	return ""
+
 static func prepared_scene_contract(bundle: Variant) -> Dictionary:
 	if _scene_bundle.is_empty() or not is_same(bundle, _scene_bundle): return {}
 	return {"ok": true, "value": _scene_contract_tables}

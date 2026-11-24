@@ -74,18 +74,13 @@ func reconcile_scene_publication(session: RefCounted) -> Dictionary:
 	if not frontier.ok: return frontier
 	var owner := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 	var selected := owner.scene_contract_tables()
-	if not selected.ok or session.fingerprint != owner.scene_registration_fingerprint():
+	if not selected.ok or session.fingerprint != selected.value.fingerprint:
 		return _fail(&"scene_source_registration_changed", "")
-	var labels: Array = []
-	var path := ""
-	var programme := {}
-	for entry: Dictionary in selected.bundle.entry_manifest.entries:
-		labels.append(entry.entry_id)
-		if entry.entry_id == _caption_entry: path = entry.locators.en.path
-	for row: Dictionary in selected.bundle.scene_programme.entries:
-		if row.entry_id == _caption_entry: programme = row
+	var programmes: Dictionary = selected.value.entries
+	var programme: Dictionary = programmes.get(_caption_entry, {})
+	var path := owner.scene_timeline_path(selected.bundle.entry_manifest, _caption_entry)
 	if programme.is_empty() or path != _requested_path: return _fail(&"scene_source_unavailable", "")
-	var compiled := compile_runtime_scene_programme(path, _caption_entry, labels, programme.markers)
+	var compiled := compile_runtime_scene_programme(path, _caption_entry, programmes.keys(), programme.markers)
 	if not compiled.ok: return compiled
 	var index: int = compiled.value.native_indices.find(int(_dialogic.current_event_idx))
 	if index < 0: return _fail(&"scene_source_boundary_invalid", "")
@@ -116,12 +111,8 @@ func _scene_source_boundary(session: RefCounted, allow_suspended_read: bool = fa
 	var selected := owner.scene_contract_tables()
 	if not selected.ok or session.fingerprint != selected.value.fingerprint:
 		return _fail(&"scene_source_registration_changed", "")
-	var path := ""
 	var programme: Dictionary = selected.value.entries.get(_caption_entry, {})
-	for entry: Dictionary in selected.bundle.entry_manifest.entries:
-		if entry.entry_id == _caption_entry:
-			path = entry.locators.en.path
-			break
+	var path := owner.scene_timeline_path(selected.bundle.entry_manifest, _caption_entry)
 	if programme.is_empty() or path != _requested_path: return _fail(&"scene_source_unavailable", "")
 	var compiled := compile_runtime_scene_programme(path, _caption_entry, selected.value.entries.keys(), programme.markers)
 	if not compiled.ok: return compiled
@@ -190,15 +181,11 @@ func install_scene_target(session: RefCounted, checkpoint: Dictionary, target: D
 		if row.target == target: registered = true
 	if not registered or target.entry_id != checkpoint.entry_id:
 		return _fail(&"scene_native_target_invalid", "registered target required")
-	var labels: Array = []
-	var path := ""
-	for entry: Dictionary in bundle.entry_manifest.entries:
-		labels.append(entry.entry_id)
-		if entry.entry_id == checkpoint.entry_id: path = entry.locators.en.path
-	var markers: Array = []
-	for row: Dictionary in bundle.scene_programme.entries:
-		if row.entry_id == checkpoint.entry_id: markers = row.markers
-	var compiled := compile_runtime_scene_programme(path, checkpoint.entry_id, labels, markers)
+	var programmes: Dictionary = selected.value.entries
+	var programme: Dictionary = programmes.get(checkpoint.entry_id, {})
+	var path := owner.scene_timeline_path(bundle.entry_manifest, checkpoint.entry_id)
+	var markers: Array = programme.get("markers", [])
+	var compiled := compile_runtime_scene_programme(path, checkpoint.entry_id, programmes.keys(), markers)
 	if not compiled.ok: return compiled
 	if not compiled.value.label_nodes.has(target.label) \
 			or compiled.value.label_nodes[target.label] != checkpoint.reading_session.program_index:
@@ -325,16 +312,11 @@ func _install_scene_frontier(session: RefCounted, checkpoint: Dictionary, source
 	if not presentation.ok: return presentation
 	var selected := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_contract_tables()
 	if not selected.ok: return selected
-	var labels: Array = []
-	var path := ""
-	var programme := {}
-	for entry: Dictionary in selected.bundle.entry_manifest.entries:
-		labels.append(entry.entry_id)
-		if entry.entry_id == checkpoint.entry_id: path = entry.locators.en.path
-	for row: Dictionary in selected.bundle.scene_programme.entries:
-		if row.entry_id == checkpoint.entry_id: programme = row
+	var programmes: Dictionary = selected.value.entries
+	var programme: Dictionary = programmes.get(checkpoint.entry_id, {})
+	var path := DialogicEntryManifest.scene_timeline_path(selected.bundle.entry_manifest, checkpoint.entry_id)
 	if programme.is_empty(): return _fail(&"scene_restore_native_invalid", "programme unavailable")
-	var compiled := compile_runtime_scene_programme(path, checkpoint.entry_id, labels, programme.markers)
+	var compiled := compile_runtime_scene_programme(path, checkpoint.entry_id, programmes.keys(), programme.markers)
 	if not compiled.ok: return compiled
 	if saved.program_index >= compiled.value.nodes.size():
 		return _fail(&"scene_restore_native_invalid", "installed programme changed")
@@ -888,22 +870,20 @@ func _prepare_scene_native_mappings() -> void:
 	if _scene_caption_occurrence.is_empty() or not _scene_native_next.is_empty(): return
 	var registered := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_contract_tables()
 	if not registered.ok: return
-	var labels: Array = []
-	for entry: Dictionary in registered.bundle.entry_manifest.entries: labels.append(entry.entry_id)
-	for programme: Dictionary in registered.bundle.scene_programme.entries:
-		if programme.entry_id != _caption_entry: continue
-		var compiled := compile_runtime_scene_programme(_requested_path, _caption_entry, labels, programme.markers)
-		if not compiled.ok: return
-		for index: int in compiled.value.nodes.size():
-			var node: Dictionary = compiled.value.nodes[index]
-			var native_index: int = compiled.value.native_indices[index]
-			if node.kind == "caption":
-				_scene_native_next[native_index] = int(compiled.value.native_indices[node.next])
-			if node.kind != "control" and node.has("audio_cues"):
-				_scene_native_audio[native_index] = node.audio_cues
-			if node.kind != "control" and node.has("presentation_commands"):
-				_scene_native_presentation[native_index] = node.presentation_commands
-		return
+	var programmes: Dictionary = registered.value.entries
+	var programme: Dictionary = programmes.get(_caption_entry, {})
+	if programme.is_empty(): return
+	var compiled := compile_runtime_scene_programme(_requested_path, _caption_entry, programmes.keys(), programme.markers)
+	if not compiled.ok: return
+	for index: int in compiled.value.nodes.size():
+		var node: Dictionary = compiled.value.nodes[index]
+		var native_index: int = compiled.value.native_indices[index]
+		if node.kind == "caption":
+			_scene_native_next[native_index] = int(compiled.value.native_indices[node.next])
+		if node.kind != "control" and node.has("audio_cues"):
+			_scene_native_audio[native_index] = node.audio_cues
+		if node.kind != "control" and node.has("presentation_commands"):
+			_scene_native_presentation[native_index] = node.presentation_commands
 
 
 func _on_caption_about_to_show(_info: Dictionary) -> void:
