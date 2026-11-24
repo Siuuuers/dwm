@@ -548,24 +548,17 @@ func test_first_reveal_adopts_a_certified_debug_candidate() -> void:
 	assert_true(_coordinator.run_debug_preparation_slice(_generic_request(_next_tx(), identity, 2)).ok)
 	var prepared: Dictionary = _coordinator.get_state().value
 	assert_eq(prepared.phase, "PREPARED_UNSTARTED")
-	for flagged: bool in [true, false]:
-		var wrong := _cell_request_with_real_transaction(identity, prepared.revision, 1)
-		wrong.flagged = flagged
-		assert_eq(_coordinator.set_flag(wrong).code, &"forced_cell_mismatch")
+	assert_eq(prepared.candidate.get("flagged_indices", []), [])
+	for cell: int in [0, 1]:
+		for flagged: bool in [true, false]:
+			var flag := _cell_request_with_real_transaction(identity, prepared.revision, cell)
+			flag.flagged = flagged
+			assert_eq(_coordinator.set_flag(flag).code, &"minesweeper_action_not_available")
+	var wrong_reveal := _first_reveal_request(_next_tx(), identity, prepared.revision, "beginner", 1)
+	assert_eq(_coordinator.reveal(wrong_reveal).code, &"forced_cell_mismatch")
 	assert_eq(_coordinator.get_state().value, prepared)
 
-	var unmark := _cell_request_with_real_transaction(identity, prepared.revision, 0)
-	unmark.flagged = false
-	assert_true(_coordinator.set_flag(unmark).ok)
-	var cleared: Dictionary = _coordinator.get_state().value
-	assert_eq(cleared.candidate.flagged_indices, [])
-	for flagged: bool in [true, false]:
-		var forced := _cell_request_with_real_transaction(identity, cleared.revision, 0)
-		forced.flagged = flagged
-		assert_eq(_coordinator.set_flag(forced).code, &"minesweeper_action_not_available")
-	assert_eq(_coordinator.get_state().value, cleared)
-
-	var request := _first_reveal_request(_next_tx(), identity, cleared.revision, "beginner", 0)
+	var request := _first_reveal_request(_next_tx(), identity, prepared.revision, "beginner", 0)
 	var result := _coordinator.reveal(request)
 	assert_true(result.get("ok", false), JSON.stringify(result))
 	assert_eq(result["value"]["receipt"]["proof_sha256"], "proof-xyz")

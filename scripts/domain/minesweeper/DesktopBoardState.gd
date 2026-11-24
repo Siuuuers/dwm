@@ -169,8 +169,20 @@ func prepare_restore(snapshot: Dictionary) -> Dictionary:
 	if snapshot.has("settled_inspection"):
 		var payments := _validate_current_scene_board(snapshot)
 		if not payments.ok: return payments
+	var restored := snapshot.duplicate(true)
+	if phase in [_PHASE_PREPARING, _PHASE_PREPARED_UNSTARTED] and (restored.candidate.has("flagged_indices") or restored.candidate.has("actions")):
+		var slot: Dictionary = restored.candidate
+		if not snapshot.has("settled_inspection"):
+			if not slot.get("spec") is Dictionary: return _fail(&"invalid_current_board_spec", "", {})
+			var spec := _BOARD_SCHEMA.validate_spec(slot.spec)
+			if not spec.ok: return spec
+			var shell := _BOARD_SCHEMA.validate_shell({"flagged_indices": slot.get("flagged_indices"),
+				"actions": slot.get("actions")}, spec.value.spec.width, spec.value.spec.height)
+			if not shell.ok: return shell
+		if phase == _PHASE_PREPARED_UNSTARTED and not slot.flagged_indices.is_empty():
+			slot.merge(_BOARD_SCHEMA.clear_debug_flags(slot), true)
 	return {"ok": true, "code": &"ok", "value": {"candidate": {
-		"kind": &"restore", "snapshot_after": snapshot.duplicate(true),
+		"kind": &"restore", "snapshot_after": restored,
 	}}, "receipt": {}}
 
 
@@ -261,7 +273,10 @@ func prepare_debug_slice(input: Dictionary, generation: Dictionary) -> Dictionar
 		"spec": spec.duplicate(true), "layout": layout, "forced_cell": int(forced_cell),
 		"proof_sha256": proof_sha256,
 	}
-	_copy_preparation_shell(certified_candidate)
+	if _candidate.has("actions"):
+		certified_candidate.merge(_BOARD_SCHEMA.clear_debug_flags(_candidate))
+	if _candidate.has("paid_start_receipt"):
+		certified_candidate["paid_start_receipt"] = _candidate.paid_start_receipt.duplicate(true)
 	return _envelope(input, &"debug_slice_certified", _PHASE_PREPARED_UNSTARTED, _identity,
 		certified_candidate, null, null)
 
@@ -423,6 +438,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 		if _scene_payment_issuer != null:
 			var checked := prepare_restore(snapshot)
 			if not checked.ok: return checked
+			snapshot = checked.value.candidate.snapshot_after
 		_phase = String(snapshot["phase"])
 		_revision = int(snapshot["revision"])
 		_identity = _dup_or_null(snapshot["identity"])
@@ -634,7 +650,7 @@ func prepare_shell_flag(input: Dictionary, shell: Dictionary) -> Dictionary:
 	var checked := _validate_shell_input(input)
 	if not checked.ok: return checked
 	if _phase == _PHASE_UNPAID: return prepare_unpaid_shell(input, str(_candidate.difficulty_id), shell)
-	if _phase not in [_PHASE_PAID, _PHASE_PREPARED_UNSTARTED]: return _fail(&"shell_flag_requires_unstarted_phase", "", {})
+	if _phase != _PHASE_PAID: return _fail(&"shell_flag_requires_unstarted_phase", "", {})
 	var valid := _BOARD_SCHEMA.validate_shell(shell, int(_candidate.spec.width), int(_candidate.spec.height))
 	if not valid.ok: return valid
 	var candidate: Dictionary = _candidate.duplicate(true)

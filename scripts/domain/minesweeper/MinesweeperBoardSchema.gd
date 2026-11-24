@@ -2,6 +2,8 @@ class_name MinesweeperBoardSchema
 extends RefCounted
 
 
+const DEBUG_CLEAR_PREFIX := "debug-clear:"
+
 const _SPEC_KEYS := [
 	"schema_version", "board_kind", "board_token", "board_token_receipt_id", "difficulty_id",
 	"width", "height", "base_mine_count", "pressure", "penalty_points_today", "raw_extra_mines",
@@ -377,3 +379,12 @@ static func validate_shell(shell: Dictionary, width: int, height: int) -> Dictio
 	if supplied != expected:
 		return _fail(&"invalid_board_shell", "shell flags disagree with history", {})
 	return {"ok": true, "value": {"shell": {"flagged_indices": expected, "actions": actions}}}
+
+
+static func clear_debug_flags(shell: Dictionary) -> Dictionary:
+	var actions: Array = shell.actions.duplicate(true)
+	for index: int in shell.flagged_indices:
+		var revision := actions.size() + 1
+		actions.append({"transaction_id": DEBUG_CLEAR_PREFIX + str(revision), "kind": "set_flag",
+			"cell_index": index, "flagged": false, "revision": revision})
+	return {"flagged_indices": [], "actions": actions}

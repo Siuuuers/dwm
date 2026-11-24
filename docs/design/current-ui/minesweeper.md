@@ -842,8 +842,7 @@ colour token.
 The registered 12-by-12 ordinary and 16-by-16 Large apertures contain:
 
 - a narrow filing pennant, mast, foot, and substrate-contrast outline for Flag;
-- four inward corner brackets for the prepared forced-Reveal locus; when an
-  older shell Flag coexists, Reveal becomes legal only after Unflag;
+- four inward corner brackets on the covered cell that accepts the first Reveal;
 - a compact punched core for a terminal mine;
 - that core separated into rays for an explosion;
 - retained Flag plus a clean registration box for correct Flag;
@@ -909,7 +908,6 @@ required fact.
 | revealed blank | revealed paper + read-only Focus/Hover for inspection; no Press or cell command |
 | revealed number | numeral + Focus/Hover; Press only while Chord is legal |
 | prepared Debug cell | covered + brackets + Focus/Hover/Press while Reveal is legal |
-| prepared Debug cell retaining a pre-existing Flag | covered + Flag + brackets + Focus/Hover/Press; only direct Unflag is legal |
 | temporarily inert cell | truthful content + worksheet-owner custody seam; no local Focus, Hover, Press, or command |
 | marked unflagged mine | mine core + marked frame/tab + Focus/Hover/Press |
 | marked flagged mine | Flag + marked frame/tab + Focus/Hover/Press |
@@ -1026,13 +1024,12 @@ prepared:
   solver progress, percentage, spinner, animated ellipsis, or artificial dwell
   appears.
 
-Once preparation commits, only the exact forced cell receives brackets and
-initial cell Focus. If it is unflagged, Reveal is legal. If it already carried
-a shell Flag from before its forced identity existed, Flag and brackets coexist
-and only Unflag is admitted; after Unflag, Reveal is admitted but a new Flag is
-not. Every other cell remains inert until forced Reveal succeeds. This
-preserves the uniform seed-chosen cell and the shell's public history while
-retaining M's law that the audience cannot Flag a prepared forced cell.
+When Debug preparation commits, the board clears every flag on the unopened
+grid. The required first cell receives brackets and initial focus. Reveal is
+available immediately on that cell. Every other cell stays inert until that
+Reveal succeeds. A saved board waiting for this Reveal opens the same way.
+Earlier player flag actions still count toward Foresight and No Flag. The
+automatic cleanup costs no clicks.
 
 The board never calls the cell `Debug`, `forced`, `safe`, `solvable`, or
 `no guess`. This dossier deliberately does not invent a new player command for
@@ -1707,8 +1704,8 @@ platform/theme verification law remains retained but unpassed.
    direct-Flag parity; Focus/Hover/Press; and viewport contact.
 3. **Desktop Expert fact pressure:** negative estimate; Foresight at and above
    100 percent; Lost; both scrollbars; and no evaluative style.
-4. **Complete cell alphabet:** covered; Flag; blank; numerals 1–8; Debug;
-   Debug plus Flag; inert covered/revealed; mine; explosion; correct/incorrect
+4. **Complete cell alphabet:** covered; Flag; blank; numerals 1–8; bracketed opening cell;
+   inert covered/revealed; mine; explosion; correct/incorrect
    Flag; marked/marked plus Flag; and every lawful Focus/Hover/Press overlap.
 5. **Desktop Cleared inspection:** terminal register; absent modes; external
    HUD currencies; New Board initial Focus; and read-only traversal.
@@ -1788,7 +1785,7 @@ conflicts are closed without rewriting their source artifacts:
 | M's one-board desktop lifecycle vs B's paid session with repeated replacement envelopes | one cost/decrement creates one paid session; eligible preterminal replacements inside it are free and nonterminal | B owns the later player-facing lifecycle; M retains cost, generation, and causal transaction law |
 | M's terminal `NONE` projection vs B's desktop terminal inspection | terminal truth settles once, then the exact read-only worksheet remains inspectable until Home or New Board | B owns current terminal UI; external owners retain settlement |
 | capability purchase while a board exists | no purchase mutates a frozen candidate; the next admitted replacement freezes then-current committed capabilities | Shop/M retain purchase/capability law; UI shows only the later truthful board |
-| M's prohibition on Flagging a prepared Debug forced cell vs B/V's Debug-plus-Flag projection | a Flag can coexist only when it was committed on the unpaid shell before the cell acquired forced identity; preparation preserves it and admits only Unflag, then Reveal; no new Flag is legal on a prepared forced cell | M retains uniform forced-cell generation and no-new-Flag law; B retains shell-history preservation; V's simultaneous public facts remain truthful |
+| Earlier shell Flags at a Debug opening | preparation clears the grid and the bracketed cell accepts Reveal immediately | the opening cell and player action history are retained |
 | legacy Perfect-then-Dark solo behavior | Perfect returns automatically and never marks the mine; only non-Perfect clear can publish Continue plus marked mine | B's explicit narrowing retires the legacy path |
 | B's internal `CHOICE` phase word vs the game's no-choosable-dialogue law | the internal state is a two-target board-terminal operation caused by Minesweeper; no narrative choice UI or public choice label exists | schema/domain terminology remains external; this dossier owns only presentation wording |
 | B/V Rehearsal rows vs current-v1 | every Full Date board/session/control/save/recovery/accessibility/proof surface is excluded and deferred | Deferred UI Feature Register remains sole current-v1 exclusion/reopening owner |
@@ -1895,7 +1892,7 @@ writing is already current authority.
 | 132–165 | provenance/gates | amendment strategy and rejected alternatives |
 | 166–227 | imported + external + narrowed | vocabulary and board identity; B narrows shell/session/envelope identity |
 | 228–417 | imported + external + narrowed | desktop lifecycle, suspension, causal departure, and recovery; B narrows paid replacement and terminal projection |
-| 418–563 | imported + external + narrowed | visible capability consequences; generator and safety mechanics remain M-owned, while later UI law clarifies a pre-existing shell Flag on the forced cell |
+| 418–563 | imported + external + narrowed | visible capability consequences; generator and safety mechanics remain M-owned, while the prepared Debug opening clears earlier shell flags |
 | 564–658 | external | Shop capability, purchase, and signed-round mechanics |
 | 659–746 | imported + external | board fate and cross-app continuity |
 | 747–898 | external | Schedule warning queue and receipts |

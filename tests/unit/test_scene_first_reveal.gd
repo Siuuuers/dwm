@@ -75,3 +75,41 @@ func test_debug_preparation_resumes_at_the_clicked_cell() -> void:
 	var board: Dictionary = f.record()
 	assert_has(board.board.revealed_indices, 323)
 	assert_eq(f.authority.checkpoints.back(), board)
+
+func test_restored_prepared_debug_flags_clear_before_first_reveal() -> void:
+	f.state.inventory = {"debug_key": 1, "lucky_charm": 1}
+	var profile: Dictionary = f.authority.bundle.board_profiles[0]
+	profile.width = 8
+	profile.height = 8
+	profile.base_mine_count = 10
+	assert_true(f.recreate_owner().ok)
+	assert_true(f.begin().ok)
+	assert_true(f.action("start").ok)
+	for slice in 4096:
+		if f.record().phase != "preparing": break
+		var prepared: Dictionary = f.action("prepare")
+		if not prepared.ok:
+			fail_test(str(prepared))
+			return
+	var saved: Dictionary = f.record()
+	assert_eq(saved.phase, "ready")
+	if saved.phase != "ready": return
+	var forced: int = saved.envelope.forced_cell
+	var previous := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd").set_shell_flag(
+		saved.envelope.shell, 8, 8, forced, true, "previous-mark")
+	assert_true(previous.ok)
+	saved.envelope.shell = previous.value.shell
+	assert_true(f.state.store_dating_challenge_state(saved).ok)
+	assert_true(f.recreate_owner().ok)
+	assert_true(f.begin().ok)
+	var view: Dictionary = f.owner.pull_scene_panel(f.token).value
+	assert_eq(view.board.cells[forced].mark, "none")
+	assert_eq(view.board.cells[forced].actions, ["reveal"])
+	assert_eq(f.record(), saved)
+	assert_true(_reveal(forced, view.revision).ok)
+	var active: Dictionary = f.record()
+	assert_has(active.board.revealed_indices, forced)
+	assert_eq(active.board.flagged_indices, [])
+	assert_eq(active.board.actions[0], previous.value.shell.actions[0])
+	assert_eq(active.board.adjacency_counts[forced], 0)
+	assert_true(preload("res://scripts/application/run/DatingChallengeEnvelope.gd").advances(saved, active))

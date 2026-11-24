@@ -5,8 +5,10 @@ const SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema
 const CATALOG := preload("res://scripts/domain/minesweeper/MinesweeperBoardCatalog.gd")
 
 static func desktop(snapshot: Dictionary, difficulty: String, entry_eligible: bool = false) -> Dictionary:
-	if not STATE.new().prepare_restore(snapshot).get("ok", false):
+	var restored := STATE.new().prepare_restore(snapshot)
+	if not restored.ok:
 		return _fail()
+	snapshot = restored.value.candidate.snapshot_after
 	var phase: String = snapshot.phase
 	if phase == "NONE":
 		var catalog := CATALOG.lookup("desktop_app", difficulty)
@@ -93,12 +95,8 @@ static func _candidate(snapshot: Dictionary) -> Dictionary:
 	if typeof(candidate.forced_cell) != TYPE_INT or candidate.forced_cell < 0 or candidate.forced_cell >= spec.width * spec.height: return _fail()
 	if layout.mine_indices.has(candidate.forced_cell): return _fail()
 	if candidate.proof_sha256 != null and typeof(candidate.proof_sha256) != TYPE_STRING: return _fail()
-	var shell := {"flagged_indices": candidate.get("flagged_indices", []), "actions": candidate.get("actions", [])}
-	var shell_valid := SCHEMA.validate_shell(shell, int(spec.width), int(spec.height))
-	if not shell_valid.ok: return _fail()
-	var result := _shell(spec.width, spec.height, snapshot.revision, shell_valid.value.shell.flagged_indices,
-		true, false, candidate.forced_cell)
-	result.value.mine_estimate = int(layout.mine_count) - shell_valid.value.shell.flagged_indices.size()
+	var result := _shell(spec.width, spec.height, snapshot.revision, [], true, false, candidate.forced_cell)
+	result.value.mine_estimate = int(layout.mine_count)
 	return result
 
 
