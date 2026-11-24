@@ -21,13 +21,14 @@ func test_scene_desktop_restore_uses_dayless_owner_candidate() -> void:
 	var participant := PARTICIPANT.new(router)
 	var desktop := DESKTOP.new()
 	assert_true(participant.configure_desktop_host(desktop).ok)
-	var prepared: Dictionary = participant.prepare({"route_id": "scene", "route_context": {"active_app_id": null}})
+	var prepared: Dictionary = participant.prepare({"route_id": "scene", "route_context": {"scene": {}, "active_app_id": "minesweeper"}})
 	assert_true(prepared.ok)
 	if not prepared.ok: return
 	assert_false(prepared.value.route_plan.desktop.has("current_day"))
 	assert_true(participant.apply_silent(prepared.value.route_plan).ok)
 	assert_false(desktop.get_state().has("current_day"))
-	assert_false(participant.prepare({"route_id": "scene", "route_context": {}}).ok)
+	assert_eq(desktop.get_active_app_id(), &"minesweeper")
+	assert_false(participant.prepare({"route_id": "scene", "route_context": {"scene": {}}}).ok)
 
 func test_scene_route_ack_requires_actual_mount_and_exact_operation() -> void:
 	var tree := get_tree()

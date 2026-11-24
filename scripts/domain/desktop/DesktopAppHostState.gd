@@ -27,26 +27,23 @@ func open_app(app_id: StringName, current_day: int, board_phase: StringName = &"
 	if _scene_mode: return {"ok": false, "code": &"scene_calendar_command_forbidden"}
 	if app_id == &"logout":
 		return {"ok": false, "code": &"desktop_action_not_workspace", "message": "Logout is launcher consent, not a workspace"}
-	if not REGISTRY.new().has_app(app_id):
+	var record := REGISTRY.new().get_record(app_id)
+	if not record.ok:
 		return {"ok": false, "code": &"unknown_app_id", "message": "app_id is not a registered desktop app"}
 	_current_day = current_day
-	var previous_app_id: StringName = _active_app_id
-	var hide_app_id: StringName = _active_app_id if _active_app_id != &"" else &""
+	return _open_workspace(app_id, board_phase, record.focus_target)
+
+
+func _open_workspace(app_id: StringName, board_phase: StringName, focus_target: NodePath) -> Dictionary:
+	var previous := _active_app_id
 	var was_cached := _cached_app_ids.has(app_id)
-	if not was_cached:
-		_cached_app_ids.append(app_id)
-	var record: Dictionary = REGISTRY.new().get_record(app_id)
-	var focus_target: NodePath = record.get("focus_target", NodePath())
+	if not was_cached: _cached_app_ids.append(app_id)
 	_active_app_id = app_id
-	var commands := _open_app_commands(previous_app_id, app_id, board_phase)
-	return {
-		"ok": true,
-		"instantiate": not was_cached,
-		"hide_app_id": hide_app_id if hide_app_id != &"" else null,
-		"show_app_id": app_id,
+	return {"ok": true, "instantiate": not was_cached,
+		"hide_app_id": previous if previous != &"" else null, "show_app_id": app_id,
 		"focus_target": focus_target,
-		"value": {"state": get_state(), "commands": commands},
-	}
+		"value": {"state": get_state(), "commands": _open_app_commands(previous, app_id, board_phase)}}
+
 
 
 func go_home(current_day: int, board_phase: StringName) -> Dictionary:
@@ -85,7 +82,7 @@ func change_day(new_day: int, board_phase: StringName = &"NONE") -> Dictionary:
 		"command_id": "desktop-day:%d" % new_day,
 		"kind": &"evict_cached_apps",
 		"day": new_day,
-		"app_ids": evicted.duplicate(true),
+		"app_ids": evicted,
 	}
 	var commands := _change_day_commands(board_phase)
 	_active_app_id = &""
@@ -93,20 +90,22 @@ func change_day(new_day: int, board_phase: StringName = &"NONE") -> Dictionary:
 	_current_day = new_day
 	return {"ok": true, "code": &"ok",
 		"value": {
-			"eviction_command": eviction_command.duplicate(true),
+			"eviction_command": eviction_command,
 			"commands": commands,
 			"state": get_state(),
 		}, "receipt": {}}
 
 
+func get_active_app_id() -> Variant:
+	return _active_app_id if _active_app_id != &"" else null
+
+
 func get_state() -> Dictionary:
-	if _scene_mode:
-		return {"active_app_id": _active_app_id if _active_app_id != &"" else null, "cached_app_ids": _cached_app_ids.duplicate(true)}
-	return {
-		"current_day": _current_day,
-		"active_app_id": _active_app_id if _active_app_id != &"" else null,
-		"cached_app_ids": _cached_app_ids.duplicate(true),
-	}
+	var state := {}
+	if not _scene_mode: state["current_day"] = _current_day
+	state["active_app_id"] = get_active_app_id()
+	state["cached_app_ids"] = _cached_app_ids.duplicate()
+	return state
 
 
 func capture_persistent_state() -> Dictionary:
@@ -225,17 +224,9 @@ func _commit_scene_restore(candidate: Dictionary) -> Dictionary:
 
 func open_scene_app(app_id: StringName, board_phase: StringName = &"NONE") -> Dictionary:
 	if not _scene_mode: return {"ok": false, "code": &"scene_desktop_not_installed"}
-	var admitted := prepare_scene_restore(app_id)
-	if not admitted.get("ok", false): return admitted
-	var previous := _active_app_id
-	var was_cached := _cached_app_ids.has(app_id)
-	if not was_cached: _cached_app_ids.append(app_id)
-	_active_app_id = app_id
-	var record: Dictionary = REGISTRY.new().get_record(app_id)
-	return {"ok": true, "instantiate": not was_cached,
-		"hide_app_id": previous if previous != &"" else null, "show_app_id": app_id,
-		"focus_target": record.get("focus_target", NodePath()),
-		"value": {"state": get_state(), "commands": _open_app_commands(previous, app_id, board_phase)}}
+	var record := REGISTRY.new().get_record(app_id)
+	if not record.ok: return {"ok": false, "code": &"invalid_scene_active_app"}
+	return _open_workspace(app_id, board_phase, record.focus_target)
 
 func scene_go_home(board_phase: StringName = &"NONE") -> Dictionary:
 	if not _scene_mode: return {"ok": false, "code": &"scene_desktop_not_installed"}

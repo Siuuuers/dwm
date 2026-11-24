@@ -246,15 +246,19 @@ func _ready() -> void:
 		for event in ["contact_open_committed", "contact_choice_selected", "invitation_reply_committed"]:
 			if state.has_signal(event) and not state.is_connected(event, _on_contacts_changed):
 				state.connect(event, _on_contacts_changed)
-	if _shop_port != null and _host_state != null and _host_state.get_state().get("active_app_id") == &"shop":
+	if _shop_port != null and _host_state != null and _host_active_app_id() == &"shop":
 		_restore_bound_app(&"shop")
 	elif _active_id == &"":
 		_focus_initial_launcher.call_deferred()
 
+func _host_active_app_id() -> Variant:
+	if _host_state.has_method("get_active_app_id"): return _host_state.get_active_app_id()
+	return _host_state.get_state().get("active_app_id")
+
 func _focus_initial_launcher() -> void:
 	if not is_inside_tree() or not is_visible_in_tree() or not can_process() or _active_id != &"" or _restoration_failed:
 		return
-	if _host_state != null and _host_state.get_state().get("active_app_id") != null: return
+	if _host_state != null and _host_active_app_id() != null: return
 	var target: Control = launcher_buttons[&"minesweeper"]
 	if target.is_visible_in_tree() and target.get_focus_mode_with_override() == Control.FOCUS_ALL:
 		target.grab_focus()
@@ -438,7 +442,7 @@ func configure_contacts(port: Object, localization: Object = null, profile: Obje
 			profile.connect("preference_changed", _on_preference_changed)
 	if is_node_ready():
 		_refresh_launcher()
-		var restored_value: Variant = _host_state.get_state().get("active_app_id") if _host_state != null else null
+		var restored_value: Variant = _host_active_app_id() if _host_state != null else null
 		var restored := StringName(restored_value) if restored_value != null else &""
 		if restored != &"":
 			var result := open_app(restored)
@@ -481,7 +485,7 @@ func configure_minesweeper(port: Object, localization: Object = null, profile: O
 		_profile.connect("preference_changed",_on_preference_changed)
 	if is_node_ready():
 		_refresh_launcher()
-		if _host_state.get_state().get("active_app_id") == &"minesweeper": return open_app(&"minesweeper")
+		if _host_active_app_id() == &"minesweeper": return open_app(&"minesweeper")
 	return {"ok":true}
 
 func configure_session_exit(owner: Object) -> Dictionary:
@@ -522,7 +526,7 @@ func configure_shop(provider: Object, localization: Object = null, profile: Obje
 		_profile.connect("preference_changed",_on_preference_changed)
 	if is_node_ready():
 		_refresh_launcher()
-		if _host_state.get_state().get("active_app_id") == &"shop": return _restore_bound_app(&"shop")
+		if _host_active_app_id() == &"shop": return _restore_bound_app(&"shop")
 	return {"ok":true}
 
 func _restore_bound_app(app_id: StringName) -> Dictionary:
@@ -654,7 +658,7 @@ func open_app(app_id: StringName) -> Dictionary:
 	if _active_id != &"" and _active_id != app_id:
 		return _route_failure(&"desktop_app_transition_unavailable")
 	if _host_state != null:
-		var active: Variant = _host_state.get_state().get("active_app_id")
+		var active: Variant = _host_active_app_id()
 		if active != null and active != "" and active != app_id:
 			return _route_failure(&"desktop_app_transition_unavailable")
 	if not _scene_navigation and app_id == &"contacts" and _presentation_port == null:
@@ -757,7 +761,7 @@ func return_home() -> Dictionary:
 	if is_instance_valid(_confirmation): return {"ok": false, "code": &"desktop_modal_active"}
 	if _active_id == &"":
 		if _scene_navigation and _scene_external_action.is_valid() \
-				and _host_state.get_state().get("active_app_id") in [&"settings", &"backup"]:
+				and _host_active_app_id() in [&"settings", &"backup"]:
 			return _scene_navigate(&"", true)
 		return {"ok": true}
 	var app: Node = _cached_app_windows.get(_active_id)
