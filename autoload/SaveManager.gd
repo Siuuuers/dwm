@@ -1438,11 +1438,10 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Dictio
 	if not held.get("ok", false): return _scene_restore_early_failure(held, creating)
 	var backups := {}
 	var applied: Array[String] = []
-	var journal_backup: Variant = null
 	var captured: Dictionary = _journal.capture_state()
 	if not captured.get("ok", false):
 		return _scene_restore_prepare_failure(captured, creating, applied, backups, operation_id, null)
-	journal_backup = captured.value.backup
+	var journal_backup: Variant = captured.value.backup
 	for key: String in _SCENE_PARTICIPANT_ORDER:
 		if key in ["profile", "localization"] and plans[key].get("reuse_current", false): continue
 		var backup: Dictionary = _restore_participants[key].capture()
@@ -1450,17 +1449,16 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Dictio
 			return _scene_restore_prepare_failure(backup, creating, applied, backups, operation_id, null)
 		backups[key] = backup.value
 	var route_token: Dictionary = {}
-	for key: String in _SCENE_PARTICIPANT_ORDER:
+	for key: String in backups:
 		var plan: Dictionary = plans[key].duplicate(true)
 		if key == "narrative":
 			plan["route_ready_token"] = route_token.duplicate(true)
 			plan["scene_restore_operation_id"] = operation_id
 			plan["read_only_restore"] = not creating
-		var reuse_current: bool = key in ["profile", "localization"] and plan.get("reuse_current", false)
-		var result: Dictionary = {"ok": true, "value": {}} if reuse_current else _restore_participants[key].apply_silent(plan)
+		var result: Dictionary = _restore_participants[key].apply_silent(plan)
 		if not result.get("ok", false):
 			return _scene_restore_prepare_failure(result, creating, applied, backups, operation_id, journal_backup)
-		if not reuse_current: applied.append(key)
+		applied.append(key)
 		if key == "route": route_token = result.get("value", {}).get("route_ready_token", {})
 	var seeded: Dictionary = _journal._install_prepared(journal_candidate)
 	if not seeded.get("ok", false):
@@ -1471,8 +1469,7 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Dictio
 		"owner": &"new_run" if creating else &"restore",
 		"checkpoint_id": checkpoint_id, "phase": "route", "route_confirmed": false,
 		"narrative_confirmed": false, "started": false, "failure": {}}
-	for key: String in _SCENE_PARTICIPANT_ORDER:
-		if key in ["profile", "localization"] and plans[key].get("reuse_current", false): continue
+	for key: String in applied:
 		var finalized: Dictionary = _restore_participants[key].finalize()
 		if not finalized.get("ok", false): return _scene_restore_activation_failure(finalized)
 	for key: String in ["route", "narrative"]:

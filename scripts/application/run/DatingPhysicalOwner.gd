@@ -174,20 +174,18 @@ func pull_scene_panel(physical_token: String) -> Dictionary:
 	if not _scene_command(): return _fail(&"scene_challenge_unadmitted")
 	var view: Dictionary = _pull_scene(physical_token)
 	if not view.get("ok", false): return view
-	var value: Dictionary = view.value.duplicate(true)
 	if not _record.is_empty():
-		value["host"] = str(_record.spec.difficulty_id)
-	else:
-		var profile: Dictionary = _scene_board_profile()
-		if not profile.get("ok", false): return profile
-		value["host"] = str(profile.value.difficulty_id)
-	if value.get("phase") != "never_started": return _ok(value)
-	var preview: Dictionary = _scene_unstarted_board()
-	if not preview.get("ok", false): return preview
-	value.actions = ["reveal"]
-	value.board = preview.value
-	value.revision = 0
-	return _ok(value)
+		view.value.host = str(_record.spec.difficulty_id)
+		return view
+	var profile := _scene_board_profile()
+	if not profile.ok: return profile
+	view.value.host = str(profile.value.difficulty_id)
+	if view.value.phase == "never_started":
+		var preview := _scene_unstarted_board(profile.value)
+		if not preview.ok: return preview
+		view.value.actions = ["reveal"]
+		view.value.board = preview.value
+	return view
 
 func dispatch_scene_panel_action(physical_token: String, action: String, cell_index: int,
 		expected_revision: int) -> Dictionary:
@@ -692,7 +690,7 @@ func _board_action(action: String, index: int) -> Dictionary:
 			var marked: Dictionary = REDUCER.set_shell_flag(_record.envelope.shell, int(_record.spec.width),
 				int(_record.spec.height), index, action == "flag", str(issued.value.token))
 			if not marked.get("ok", false): return marked
-			_record.envelope.shell = marked.value.shell.duplicate(true)
+			_record.envelope.shell = marked.value.shell
 			return _ok({})
 		var generated: Dictionary
 		if _record.schema_version in [3, 4] and _record.envelope.prepared_layout != null:
@@ -724,7 +722,7 @@ func _board_action(action: String, index: int) -> Dictionary:
 			"chord": reduced = REDUCER.chord(_record.board, index, transaction_id)
 			_: return _fail(&"dating_challenge_action_unavailable")
 	if not reduced.get("ok", false): return reduced
-	_record.board = reduced.value.board.duplicate(true)
+	_record.board = reduced.value.board
 	_record.board.outcome = str(_record.board.outcome)
 	for entry: Dictionary in _record.board.actions: entry.kind = str(entry.kind)
 	return _ok({})
@@ -1230,19 +1228,16 @@ func _make_spec(host: String, scene_dimensions: Dictionary = {}) -> Dictionary:
 	return _ok(valid.value.spec) if valid.get("ok",false) else valid
 
 func _view() -> Dictionary:
-	if not _pending_checkpoint.is_empty():
-		return {"phase": "checkpoint_retry", "host": _record.host, "board": _project_board(),
-			"outcome": _record.outcome, "actions": ["retry"], "no_flag": _no_flag_status(),
-			"special_mine_visible": false, "special_mine_enabled": false}
+	var phase: String = "checkpoint_retry" if not _pending_checkpoint.is_empty() else _record.phase
 	var actions: Array=[]
-	match _record.phase:
+	match phase:
 		"pre_challenge","post_challenge": actions=["continue"]
-		"settlement_retry": actions=["retry"]
+		"checkpoint_retry","settlement_retry": actions=["retry"]
 		"completed": actions=["resume_completion"]
 		"preparing": actions=["prepare"]
 		"challenge": actions=["settle"] if _record.board is Dictionary and bool(_record.board.terminal) else ["reveal","flag","unflag","chord"]
 		"cleared_awaiting_terminal_choice": actions=["continue"]
-	return {"phase":_record.phase,"host":_record.host,"board":_project_board(),
+	return {"phase":phase,"host":_record.host,"board":_project_board(),
 		"outcome":_record.outcome,"actions":actions,"no_flag":_no_flag_status(),
 		"special_mine_visible":false,"special_mine_enabled":false}
 
@@ -1528,10 +1523,7 @@ func _scene_board_profile() -> Dictionary:
 		return _fail(&"scene_board_profile_unsupported")
 	return _ok(selected.duplicate(true))
 
-func _scene_unstarted_board() -> Dictionary:
-	var profile: Dictionary = _scene_board_profile()
-	if not profile.get("ok", false): return profile
-	var selected: Dictionary = profile.value
+func _scene_unstarted_board(selected: Dictionary) -> Dictionary:
 	var owned: Dictionary = CAPABILITIES.resolve_owned(_game_state.inventory)
 	if not owned.get("ok", false): return owned
 	var inputs: Dictionary = CAPABILITIES.build_spec_inputs(owned.value,
@@ -1556,13 +1548,7 @@ func _dispatch_scene_first_reveal(token: String, index: int) -> Dictionary:
 	var current: Dictionary = _pull_scene(token)
 	if not current.get("ok", false) or current.value.get("phase") != "never_started":
 		return _fail(&"scene_challenge_command_refused")
-	var lease: Dictionary = _attempt_gate.acquire(&"causal_transaction")
-	if not lease.get("ok", false): return lease
-	_scene_lease = str(lease.value.token)
-	var result: Dictionary = _scene_action("first_reveal", index)
-	_scene_lease = ""
-	var released: Dictionary = _attempt_gate.release(&"causal_transaction", str(lease.value.token))
-	return result if released.get("ok", false) else released
+	return _commit_scene_action("first_reveal", index)
 
 func _dispatch_scene(token: String, action: String, index: int, revision: int) -> Dictionary:
 	if not _scene_input_open(): return _fail(&"scene_challenge_command_refused")
@@ -1570,6 +1556,9 @@ func _dispatch_scene(token: String, action: String, index: int, revision: int) -
 	if not view.ok: return view
 	if action not in view.value.actions or revision != int(view.value.get("revision", 0)):
 		return _fail(&"scene_challenge_command_refused")
+	return _commit_scene_action(action, index)
+
+func _commit_scene_action(action: String, index: int) -> Dictionary:
 	var lease: Dictionary = _attempt_gate.acquire(&"causal_transaction")
 	if not lease.ok: return lease
 	_scene_lease = str(lease.value.token)
