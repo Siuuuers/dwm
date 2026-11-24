@@ -93,9 +93,7 @@ func _make_shop_item(row: Dictionary, facts: Dictionary) -> ShopItemData:
 	item.localization_key = "shop.item.%s" % row["id"]
 	item.price = facts["price"]
 	item.currency = facts["currency"]
-	var effects: Array[String] = []
-	effects.assign(facts["effect_ids"] as Array)
-	item.effect_ids = effects
+	item.effect_ids = facts["effect_ids"]
 	item.max_purchases = facts["max_purchases"]
 	item.icon_text = (row["id"] as String).substr(0, 1).to_upper()
 	item.image_path = "res://art/shop/%s.png" % row["id"]

@@ -160,5 +160,7 @@ func test_catalog_projects_current_balances_with_session_admission() -> void:
 	assert_eq(port.get_catalog("en").balances, {"money": 123, "coins": 7})
 	owner.money = 78
 	assert_eq(port.get_catalog("en").balances.money, 78)
+	assert_true(port.can_purchase("bookend_keepsake", 1).ok)
+	assert_eq(owner.previews, [["priscilla_gift", 1]])
 	owner.generation += 1
 	assert_false(port.get_catalog("en").ok)
