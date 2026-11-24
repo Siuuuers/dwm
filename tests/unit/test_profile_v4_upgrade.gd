@@ -133,6 +133,7 @@ func test_v3_upgrade_closes_legacy_replay_without_inventing_archived_values() ->
 	var source := SCHEMA.make_defaults()
 	source.schema_version = 3
 	source.erase("dialogue_library")
+	source.erase("displayed_artwork_ids")
 	source.erase("observer_evidence")
 	source.erase("pair_deck_draws")
 	source.erase("reached_presentations")

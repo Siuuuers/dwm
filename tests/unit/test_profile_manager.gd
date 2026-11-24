@@ -192,6 +192,20 @@ func test_locale_candidate_commits_deferred_and_publishes_exactly_once() -> void
 	assert_eq(events, [[&"preferences.language.primary_locale_id", "zh_HK"]])
 	assert_eq(manager.call(&"publish_deferred_profile_signals", publication_id).get("code"), &"unknown_publication")
 
+func test_visited_publication_orders_only_added_and_removed_lines() -> void:
+	var manager: Node = _new_manager()["manager"]
+	var candidate: Dictionary = manager.get_profile_snapshot()
+	candidate.visited_line_ids = ["留", "a", "é"]
+	assert_true(manager.commit_prepared_profile(candidate).ok)
+	var events: Array = []
+	manager.visited_history_changed.connect(func(id: String, visited: bool) -> void: events.append([id, visited]))
+	candidate.visited_line_ids = ["猫", "é", "Z"]
+	var committed: Dictionary = manager.commit_prepared_profile(candidate, true)
+	assert_true(committed.ok)
+	assert_eq(events, [])
+	assert_true(manager.publish_deferred_profile_signals(committed.value.publication_id).ok)
+	assert_eq(events, [["Z", true], ["a", false], ["猫", true], ["留", false]])
+
 func test_prepared_gallery_transaction_is_idempotent_and_conflicts_fail() -> void:
 	var manager: Node = _new_manager()["manager"]
 	var prepared: Dictionary = manager.call(&"prepare_ending_unlock", "ending.alone", "run-1-ending")

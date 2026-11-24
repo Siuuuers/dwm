@@ -39,6 +39,7 @@ func test_v7_upgrade_adds_empty_evidence_without_inventing_proofs() -> void:
 	var old := SCHEMA.make_defaults()
 	old["schema_version"] = 7
 	old.erase("dialogue_library")
+	old.erase("displayed_artwork_ids")
 	old.erase("reached_presentation_chronology")
 	old.erase("witnessed_caption_variants")
 	for key: String in ["observer_evidence", "pair_deck_draws", "reached_presentations"]: old.erase(key)

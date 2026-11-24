@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "DWM profile schema v10",
-  "description": "Profile v10: seventeen required roots plus optional independently resettable dialogue-library discovery. GDScript normalizes an omitted library to empty without backfill and validates witness hashes, visited-line membership, the complete disjoint chronology partition and monotonic writes.",
+  "description": "Profile v10: seventeen required roots plus optional displayed artwork and independently resettable dialogue-library discovery. GDScript normalizes an omitted library to empty without backfill and validates witness hashes, visited-line membership, the complete disjoint chronology partition and monotonic writes.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -24,6 +24,11 @@
     "reached_presentation_chronology"
   ],
   "properties": {
+    "displayed_artwork_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "enum": ["picture1", "picture2", "picture3", "picture4", "picture5"]}
+    },
     "dialogue_library": {
       "type": "object",
       "description": "Independent Global discovery membership. An omitted field normalizes to empty; historical read witnesses do not imply checkpoint arrival. Runtime validates exact SHA-256 witness keys and preserves membership until library-only or full Profile reset.",

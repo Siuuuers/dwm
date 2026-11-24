@@ -16,6 +16,7 @@ func test_v4_profile_upgrade_preserves_facts_without_inventing_pair_witnesses() 
 	var old: Dictionary = SCHEMA.make_defaults()
 	old.schema_version = 4
 	old.erase("dialogue_library")
+	old.erase("displayed_artwork_ids")
 	old.erase("observer_evidence")
 	old.erase("pair_deck_draws")
 	old.erase("reached_presentations")
