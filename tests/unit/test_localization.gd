@@ -117,9 +117,11 @@ func test_lookup_uses_registered_fallback_and_exact_placeholder_sets() -> void:
 	assert_eq(_manager.t("desktop.notification.new_message_from_friend", {"friend_name": "Priscilla"}), "Angela received a new message from Priscilla.")
 	assert_eq(_manager.t("hud.minesweeper_rounds", {"remaining": 1}), "[format_error:hud.minesweeper_rounds]")
 	assert_eq(_manager.t("hud.minesweeper_rounds", {"remaining": 1, "max": 2, "extra": 3}), "[format_error:hud.minesweeper_rounds]")
+	assert_eq(_manager.t("hud.minesweeper_rounds"), "[format_error:hud.minesweeper_rounds]")
+	assert_eq(_manager.t("app.minesweeper", {"extra": 1}), "[format_error:app.minesweeper]")
 	assert_eq(_manager.t("missing.key"), "[missing:missing.key]")
 	assert_eq(_manager.t("missing.key"), "[missing:missing.key]")
-	assert_push_warning_count(2)
+	assert_push_warning_count(3)
 
 func test_prepare_locale_is_detached_and_unknown_locale_mutates_nothing() -> void:
 	assert_true(_initialize().get("ok", false))
