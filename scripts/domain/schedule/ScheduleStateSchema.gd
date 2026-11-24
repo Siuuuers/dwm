@@ -95,9 +95,9 @@ static func validate_aggregate(aggregate: Variant) -> Dictionary:
 
 	var transaction_id: Variant = null
 	if receipt != null:
-		var receipt_result := validate_commit_receipt(receipt)
-		if not receipt_result.get("ok", false):
-			return receipt_result
+		var receipt_error := _commit_receipt_error(receipt)
+		if not receipt_error.is_empty():
+			return receipt_error
 		transaction_id = str((receipt as Dictionary)["transaction_id"])
 
 	var seen_ids: Dictionary = {}
@@ -114,13 +114,18 @@ static func validate_aggregate(aggregate: Variant) -> Dictionary:
 		var binding := _receipt_binding_error(receipt as Dictionary, entries, day, fingerprint)
 		if not binding.is_empty():
 			return binding
-	return _ok({"committed_schedule": _detach(value)})
+	return _ok({"committed_schedule": value.duplicate(true)})
 
 
 static func validate_commit_receipt(receipt: Variant) -> Dictionary:
 	if typeof(receipt) != TYPE_DICTIONARY:
 		return _fail(&"invalid_commit_receipt", "the commit receipt must be a dictionary", {})
-	var value: Dictionary = receipt
+	var error := _commit_receipt_error(receipt)
+	if not error.is_empty(): return error
+	return _ok({"commit_receipt": receipt.duplicate(true)})
+
+
+static func _commit_receipt_error(value: Dictionary) -> Dictionary:
 	var members := _exact_keys(value, COMMIT_RECEIPT_KEYS, &"invalid_commit_receipt")
 	if not members.is_empty():
 		return members
@@ -166,12 +171,8 @@ static func validate_commit_receipt(receipt: Variant) -> Dictionary:
 			"motivation_charged is exactly one per committed entry",
 			{"field": "motivation_charged"})
 	var expected_kind := EMPTY_DONE_CHILD_KIND if entry_ids.is_empty() else COMMIT_CHILD_KIND
-	var provenance := _provenance_error(value["receipt_provenance"], expected_kind, 0,
+	return _provenance_error(value["receipt_provenance"], expected_kind, 0,
 		str(value["receipt_id"]), &"invalid_commit_receipt")
-	if not provenance.is_empty():
-		return provenance
-	return _ok({"commit_receipt": _detach(value)})
-
 
 
 static func canonical_json(value: Variant) -> Dictionary:
@@ -367,14 +368,6 @@ static func _sha256_hex(text: String) -> String:
 	context.start(HashingContext.HASH_SHA256)
 	context.update(text.to_utf8_buffer())
 	return context.finish().hex_encode()
-
-
-static func _detach(value: Variant) -> Variant:
-	if typeof(value) == TYPE_DICTIONARY:
-		return (value as Dictionary).duplicate(true)
-	if typeof(value) == TYPE_ARRAY:
-		return (value as Array).duplicate(true)
-	return value
 
 
 static func _ok(value: Dictionary) -> Dictionary:
