@@ -101,6 +101,8 @@ func test_snapshot_and_recursive_projection_do_not_alias_mutable_sources() -> vo
 	var frozen := CONTEXT.immutable_fields(built.value)
 	fields.tier = "love"
 	fields.due_echoes.append({"echo_id": "not real"})
+	assert_eq(built.value.fields.tier, "friend")
+	assert_true(built.value.fields.due_echoes.is_empty())
 	built.value.fields.tone = "dark"
 	assert_eq(frozen.tier, "friend")
 	assert_eq(frozen.tone, "sweet")

@@ -21,17 +21,13 @@ static func key_for(presentation: Dictionary) -> String:
 		return entry_id + "|" + str(echoes[0].get("echo_id", "")) if echoes.size() == 1 else ""
 	return entry_id
 
-static func immutable_snapshot(presentation: Dictionary) -> Dictionary:
-	var detached := presentation.duplicate(true)
-	FROZEN._freeze(detached)
-	return detached
-
 static func read(cache: Dictionary, entry_id: String, suffix: String = "") -> Dictionary:
 	var key := entry_id + ("|" + suffix if not suffix.is_empty() else "")
 	var presentation: Variant = cache.get("entries", {}).get(key)
 	var checked := FROZEN.validate(entry_id, presentation)
 	if not checked.ok: return _fail(&"contacts_frozen_snapshot_missing")
-	return _ok(immutable_snapshot(checked.value))
+	FROZEN._freeze(checked.value)
+	return checked
 
 static func offer(entry_id: String, relationship: Dictionary, attitude: String) -> Dictionary:
 	var fields := _constants(entry_id)
