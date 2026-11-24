@@ -2,6 +2,8 @@ import re
 
 from check_history import SESSION, function_body, source
 
+BOOTSTRAP = 'autoload/ApplicationBootstrap.gd'
+BRIDGE = 'autoload/DialogicBridge.gd'
 PROFILE = 'autoload/ProfileManager.gd'
 GAME = 'autoload/GameState.gd'
 ADAPTER = 'scripts/narrative/DialogicRuntimeAdapter.gd'
@@ -16,6 +18,21 @@ PAUSE = 'scripts/application/lifecycle/ProductionPauseController.gd'
 BINDINGS = 'scripts/ui/SettingsControlsSheet.gd'
 CAPTION = 'scripts/ui/witnessed/WitnessedCaptionLayer.gd'
 RULES = (
+    (BOOTSTRAP, ('_run_stage',),
+     r'\bload_ids_default\s*\(\s*(?:true\s*)?\)',
+     'Bootstrap reads registered story IDs; use the shared read-only registry'),
+    (GAME, ('_prepare_scene_day_renewal',),
+     r'\bcapture_run_snapshot_input\s*\(',
+     'Capture the desktop, lifecycle and gameplay needed for day renewal'),
+    (GAME, ('validate_live_session', 'validate_live_session_activation', 'retire_live_session'),
+     r'\b_run_lifecycle\s*\.\s*to_dict\s*\(',
+     'Use the current run ID accessor for live session identity checks'),
+    (GAME, ('prepare_scene_audio_arrival', 'prepare_scene_presentation_arrival'),
+     r'\bcompile_runtime_scene_programme\s*\(',
+     'Resolve the authored arrival node through the shared scene entry lookup'),
+    (BRIDGE, ('_prepare_scene_entry',),
+     r'\bscene_registration_fingerprint\s*\(',
+     'Compare the binding with the fingerprint from the selected registration'),
     (SAVE, ('prepare_new_run_action',),
      r'\b_scene_title_new_run_context\b',
      'New Game consent needs a token and replacement status; commit owns the registered scene context'),

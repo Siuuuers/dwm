@@ -1,6 +1,6 @@
 import unittest
 
-from check_live_transitions import ADAPTER, BINDINGS, CAPTION, CONTACTS, EVENT_PORT, GAME, PAUSE, PROFILE, RULES, SAVE, SESSION, violations
+from check_live_transitions import ADAPTER, BINDINGS, BOOTSTRAP, BRIDGE, CAPTION, CONTACTS, EVENT_PORT, GAME, PAUSE, PROFILE, RULES, SAVE, SESSION, violations
 
 
 class LiveTransitionDependencies(unittest.TestCase):
@@ -14,6 +14,11 @@ class LiveTransitionDependencies(unittest.TestCase):
         self.sources[path] = self.sources[path].replace(f'func {name}():\n', f'func {name}():\n\t{code}\n')
 
     def test_allowed_live_operations(self):
+        self.insert(BOOTSTRAP, '_run_stage', 'ids = MANIFEST.load_ids_default(false)')
+        self.insert(GAME, '_prepare_scene_day_renewal', 'desktop = _capture_desktop_snapshot()')
+        self.insert(GAME, 'validate_live_session', 'return _run_lifecycle.get_run_id()')
+        self.insert(GAME, 'prepare_scene_audio_arrival', 'node = _scene_entry_node(scene, bundle, label)')
+        self.insert(BRIDGE, '_prepare_scene_entry', 'fingerprint = registration.value.fingerprint')
         self.insert(SESSION, '_fork_scene_live', 'sibling.ledger = ledger.fork_live()')
         self.insert(SESSION, '_fork_scene_configuration', 'sibling._scene_nodes = _scene_nodes.duplicate()')
         self.insert(GAME, 'scene_event_registration', 'return registered.bundle')
@@ -24,6 +29,12 @@ class LiveTransitionDependencies(unittest.TestCase):
 
     def test_rejects_each_regression(self):
         cases = [
+            (BOOTSTRAP, '_run_stage', 'MANIFEST.load_ids_default()'),
+            (BOOTSTRAP, '_run_stage', 'MANIFEST.load_ids_default(true)'),
+            (GAME, '_prepare_scene_day_renewal', 'before = capture_run_snapshot_input().duplicate(true)'),
+            (GAME, 'validate_live_session', 'run_id = _run_lifecycle.to_dict().run_id'),
+            (GAME, 'prepare_scene_audio_arrival', 'adapter.compile_runtime_scene_programme(path, entry, markers)'),
+            (BRIDGE, '_prepare_scene_entry', 'fingerprint = MANIFEST.scene_registration_fingerprint()'),
             (SAVE, 'prepare_new_run_action', 'prepared.context = _scene_title_new_run_context'),
             (GAME, '_retained_scene_challenge_command', '_scene_runtime_event_context()'),
             (CAPTION, '_ready', 'configure_presentation()\n\t_apply_preferences()'),
