@@ -99,7 +99,7 @@ static func make_defaults() -> Dictionary:
 	var preferences := {}
 	for group in PREFERENCE_GROUPS:
 		preferences[group] = {}
-	for record in PREFERENCE_REGISTRY.records():
+	for record in PREFERENCE_REGISTRY.RECORDS:
 		var parts := String(record["path"]).split(".")
 		preferences[parts[1]][parts[2]] = _duplicate_value(record["default_value"])
 	return {
@@ -469,13 +469,13 @@ static func _validate_preferences(value: Variant) -> Dictionary:
 		var leaves := _expected_preference_leaves(group_name)
 		exact = _require_keys(preferences[group_name], leaves, "preferences." + group_name)
 		if not exact.get("ok", false): return exact
-	for record in PREFERENCE_REGISTRY.records():
+	for record in PREFERENCE_REGISTRY.RECORDS:
 		var qualified_path := String(record["path"])
 		var parts := qualified_path.split(".")
 		var leaf_result := PREFERENCE_REGISTRY.validate(record["path"], preferences[parts[1]][parts[2]])
 		if not leaf_result.get("ok", false): return leaf_result
 	var language: Dictionary = preferences["language"]
-	if language["primary_locale_id"] == language["secondary_locale_id"] and _registered_locale_count() > 1:
+	if language["primary_locale_id"] == language["secondary_locale_id"] and PREFERENCE_REGISTRY.LOCALE_IDS.size() > 1:
 		return _invalid("preferences.language.secondary_locale_id", "secondary locale must differ from primary when possible")
 	return {"ok": true}
 
@@ -528,18 +528,11 @@ static func _validate_v1_preference(path: StringName, value: Variant) -> Diction
 
 static func _expected_preference_leaves(group_name: String) -> Array:
 	var leaves := []
-	for record in PREFERENCE_REGISTRY.records():
+	for record in PREFERENCE_REGISTRY.RECORDS:
 		var parts := String(record["path"]).split(".")
 		if parts[1] == group_name:
 			leaves.append(parts[2])
 	return leaves
-
-
-static func _registered_locale_count() -> int:
-	for record in PREFERENCE_REGISTRY.records():
-		if record["path"] == &"preferences.language.primary_locale_id":
-			return (record["allowed_values"] as Array).size()
-	return 0
 
 
 static func is_scene_passage_id(value: Variant) -> bool:
