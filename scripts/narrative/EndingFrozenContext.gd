@@ -7,9 +7,9 @@ const FRIENDS := ["priscilla", "lavinia", "sylvia"]
 const SCOPES := ["priscilla", "lavinia", "sylvia", "priscilla_lavinia"]
 
 static func make_seed(inputs: Dictionary, evidence: Dictionary, pair_counts: Array, alone_cause: String) -> Dictionary:
-	var seed := {"schema_version": 1, "presentation_by_scope": inputs.duplicate(true),
-		"evidence_receipt_ids_by_scope": evidence.duplicate(true),
-		"pair_count_receipt_ids": pair_counts.duplicate(), "alone_cause": alone_cause}
+	var seed := {"schema_version": 1, "presentation_by_scope": inputs,
+		"evidence_receipt_ids_by_scope": evidence,
+		"pair_count_receipt_ids": pair_counts, "alone_cause": alone_cause}
 	return validate_seed(seed)
 
 static func validate_seed(seed: Variant) -> Dictionary:
