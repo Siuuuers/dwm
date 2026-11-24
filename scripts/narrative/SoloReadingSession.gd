@@ -62,9 +62,10 @@ func _configure_scene_observed_body() -> Dictionary:
 		var beats: Array = []
 		var variants := {}
 		for entry: Dictionary in bundle.caption_registry.entries:
-			var row: Dictionary = entry.duplicate(true)
+			var row: Dictionary = entry.duplicate()
 			row["label"] = entry.entry_id
 			row["content_version"] = entries[entry.entry_id].content_version
+			row.make_read_only()
 			compiled_catalogue[entry.entry_id] = row
 			for line: Dictionary in entry.lines:
 				var beat := {"beat_id": line.beat_id, "line_id": line.line_id, "owning_entry_id": entry.entry_id,
@@ -77,8 +78,9 @@ func _configure_scene_observed_body() -> Dictionary:
 		var registration := LEDGER.prepare_registration(bundle.entry_manifest, prepared.registry)
 		if not registration.ok: return registration
 		prepared["registration"] = registration.value
-		for owned: Dictionary in [prepared.catalogue, prepared.variants, prepared.registry]:
-			FROZEN._freeze(owned)
+		compiled_catalogue.make_read_only()
+		FROZEN._freeze(prepared.registry)
+		variants.make_read_only()
 		prepared.make_read_only()
 		if cacheable: _prepared_scene_configuration = prepared
 	family = "scene"
