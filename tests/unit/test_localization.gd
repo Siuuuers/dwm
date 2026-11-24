@@ -132,6 +132,8 @@ func test_prepare_locale_is_detached_and_unknown_locale_mutates_nothing() -> voi
 	var prepared: Dictionary = _manager.prepare_locale("zh_HK")
 	assert_true(prepared.get("ok", false), str(prepared))
 	prepared["value"]["presentation_profile"]["layout_direction"] = "rtl"
+	prepared["value"]["profile_candidate"]["preferences"]["accessibility"]["font_style"] = "readable"
+	assert_eq(_profile.get_profile_snapshot(), before_profile)
 	assert_eq(_manager.get_presentation_profile(), before_presentation)
 
 func test_pending_root_is_applied_during_initialization() -> void:
