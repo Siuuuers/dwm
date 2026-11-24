@@ -905,13 +905,18 @@ class ReadabilityCoverageTests(unittest.TestCase):
                 'autoload/GameState.gd', 'tools/testing/unused_probe.py'}
         self.assert_checkout_paths(checkout, keep, omit)
 
-    def test_initial_frame_checkout_preserves_inputs_without_historical_evidence(self):
+    def test_startup_and_load_checkout_preserves_inputs_without_historical_evidence(self):
         job = WORKFLOW.split('\n  focused-tests:', 1)[1].split('\n  startup-load-comparison:', 1)[0]
-        checkout = job.split('      - name: Check out initial-frame and new-run inputs\n', 1)[1].split('      - name:', 1)[0]
-        self.assertIn("if: matrix.suite != 'scene_current_frames' && matrix.suite != 'scene_current_creation'", job.split('      - name:', 1)[0])
-        self.assertIn("if: matrix.suite == 'scene_current_frames' || matrix.suite == 'scene_current_creation'", checkout)
+        checkout = job.split('      - name: Check out startup and Load inputs\n', 1)[1].split('      - name:', 1)[0]
+        suites = ['scene_current_frames', 'scene_current_creation', 'current_title', 'current_quick_load']
+        selected = f"contains(fromJSON('{json.dumps(suites, separators=(',', ':'))}'), matrix.suite)"
+        self.assertIn("if: ${{ !" + selected + " }}", job.split('      - name:', 1)[0])
+        self.assertIn('if: ' + selected, checkout)
         keep = {'project.godot', 'evidence/.gdignore', 'assets/nested/image.png',
-                'tools/evidence/print_user_dir.gd', 'tools/testing/Invoke-CloudTests.ps1'}
+                'tools/evidence/print_user_dir.gd', 'tools/testing/Invoke-CloudTests.ps1',
+                'tests/fixtures/saves/pending_scene_creation_journal.json',
+                'tests/integration/test_current_title_scene_create.gd', 'tests/integration/test_current_title_scene_load.gd',
+                'tests/integration/test_scene_pause_quick_load.gd', 'tests/support/ScenePauseLoadTestBase.gd'}
         keep.update(root + '/nested/input.gd' for root in ('autoload', 'scripts', 'scenes', 'tests'))
         omit = {'evidence/archive.zip', 'evidence/phase_2r/old/results.json',
                 'evidence/phase_2r/old/nested/screenshot.png'}
