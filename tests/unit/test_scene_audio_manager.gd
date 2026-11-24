@@ -181,6 +181,7 @@ func test_forward_zero_is_idempotent_but_restore_uses_authored_one_second() -> v
 	watch_signals(_manager)
 	assert_true(_manager.apply_restore_silent(restored.value).get("ok", false))
 	assert_eq(_port.players[&"AmbienceA"].playback_position, 1.0)
+	restored.value.snapshot.selection.anchor_id = "edited-after-load"
 	assert_eq(_manager.get_semantic_audio_context(), context)
 	assert_signal_not_emitted(_manager, "music_context_changed")
 	assert_signal_not_emitted(_manager, "ambience_context_changed")
