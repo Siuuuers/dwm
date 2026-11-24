@@ -20,9 +20,13 @@ func before_all() -> void:
 	if schema_result.get("ok", false): _schema_validator = schema_result["value"]
 
 func test_strict_parser_accepts_nested_object_and_detaches_values() -> void:
-	var result: Dictionary = _strict.call(&"parse_object", "{\"a\":[1,true,null,{\"b\":-2.5e1}]}")
+	var text := '{"a":[1,true,null,{"b":-2.5e1}]}'
+	var result: Dictionary = _strict.call(&"parse_object", text)
 	assert_true(result.get("ok", false), str(result))
 	assert_eq(result.get("value"), {"a": [1, true, null, {"b": -25.0}]})
+	var second: Dictionary = _strict.call(&"parse_object", text)
+	result.value.a[3].b = 0
+	assert_eq(second.value.a[3].b, -25.0)
 
 func test_strict_parser_rejects_duplicate_keys_before_materialization() -> void:
 	var result: Dictionary = _strict.call(&"parse_object", "{\"same\":1,\"same\":2}")

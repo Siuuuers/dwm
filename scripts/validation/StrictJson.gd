@@ -2,7 +2,7 @@ class_name StrictJson
 extends RefCounted
 
 static func parse_object(text: String) -> Dictionary:
-	var result: Dictionary = _Parser.new(text).parse_document()
+	var result := _parse_value_document(text)
 	if not result.get("ok", false):
 		return result
 	if typeof(result["value"]) != TYPE_DICTIONARY:
@@ -13,7 +13,7 @@ static func parse_object(text: String) -> Dictionary:
 			"line": 1,
 			"column": 1,
 		}
-	return {"ok": true, "value": (result["value"] as Dictionary).duplicate(true)}
+	return result
 
 static func _parse_value_document(text: String) -> Dictionary:
 	return _Parser.new(text).parse_document()
@@ -39,7 +39,7 @@ class _Parser:
 		_skip_whitespace()
 		if not _is_eof():
 			return _error(&"trailing_tokens", "Unexpected data after JSON value")
-		return {"ok": true, "value": value_result["value"]}
+		return value_result
 
 	func _parse_value() -> Dictionary:
 		if _is_eof():
@@ -69,7 +69,6 @@ class _Parser:
 		_advance()
 		_skip_whitespace()
 		var output := {}
-		var seen := {}
 		if _consume_if(0x7D):
 			return {"ok": true, "value": output}
 		while true:
@@ -79,9 +78,8 @@ class _Parser:
 			if not key_result.get("ok", false):
 				return key_result
 			var key: String = key_result["value"]
-			if seen.has(key):
+			if output.has(key):
 				return _error(&"duplicate_key", "Duplicate object member: %s" % key)
-			seen[key] = true
 			_skip_whitespace()
 			if not _consume_if(0x3A):
 				return _error(&"colon_required", "Expected ':' after object member name")
