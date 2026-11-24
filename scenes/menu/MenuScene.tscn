@@ -52,26 +52,31 @@ layout_mode = 2
 
 [node name="NewAccButton" type="Button" parent="MenuPanel/ButtonList" unique_id=623191703]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 text = "New Acc"
 
 [node name="LogInButton" type="Button" parent="MenuPanel/ButtonList" unique_id=1375291941]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 text = "Log in"
 
 [node name="GalleryButton" type="Button" parent="MenuPanel/ButtonList" unique_id=1875260599]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 text = "Gallery"
 
 [node name="SettingButton" type="Button" parent="MenuPanel/ButtonList" unique_id=2033078626]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 text = "Setting"
 
 [node name="ShutDownButton" type="Button" parent="MenuPanel/ButtonList" unique_id=1306146310]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 text = "Shut down"
 
@@ -93,3 +98,9 @@ offset_left = 320.0
 offset_top = 0.0
 offset_right = 1280.0
 offset_bottom = 656.0
+
+[connection signal="pressed" from="MenuPanel/ButtonList/NewAccButton" to="." method="_on_new_acc_pressed"]
+[connection signal="pressed" from="MenuPanel/ButtonList/LogInButton" to="." method="_on_log_in_pressed"]
+[connection signal="pressed" from="MenuPanel/ButtonList/GalleryButton" to="." method="_on_gallery_pressed"]
+[connection signal="pressed" from="MenuPanel/ButtonList/SettingButton" to="." method="_on_setting_pressed"]
+[connection signal="pressed" from="MenuPanel/ButtonList/ShutDownButton" to="." method="_on_shut_down_pressed"]

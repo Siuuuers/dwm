@@ -101,16 +101,6 @@ func _menu_localization() -> Node:
 func _ready() -> void:
 	_mount_title_art()
 	_build_login_shell()
-	if is_instance_valid(_new_acc_button) and not _new_acc_button.pressed.is_connected(_on_new_acc_pressed):
-		_new_acc_button.pressed.connect(_on_new_acc_pressed)
-	if is_instance_valid(_log_in_button) and not _log_in_button.pressed.is_connected(_on_log_in_pressed):
-		_log_in_button.pressed.connect(_on_log_in_pressed)
-	if is_instance_valid(_gallery_button) and not _gallery_button.pressed.is_connected(_on_gallery_pressed):
-		_gallery_button.pressed.connect(_on_gallery_pressed)
-	if is_instance_valid(_setting_button) and not _setting_button.pressed.is_connected(_on_setting_pressed):
-		_setting_button.pressed.connect(_on_setting_pressed)
-	if is_instance_valid(_shut_down_button) and not _shut_down_button.pressed.is_connected(_on_shut_down_pressed):
-		_shut_down_button.pressed.connect(_on_shut_down_pressed)
 	for button in _ledger_buttons():
 		button.gui_input.connect(_ledger_input.bind(button))
 	_update_title_destination()
@@ -619,8 +609,6 @@ func _refresh_login_shell(_value: String = "") -> void:
 	theme = DESKTOP_THEME.build(_locale, _percent, &"after_hours", 0.0, false, "standard", _font_style)
 	_title_home.theme = theme
 	_title_home.accessibility_name = {"en": "Return", "zh-CN": "返回", "zh-HK": "返回", "ja": "戻る", "ko": "돌아가기"}.get(locale, "Return")
-	for button in [_new_acc_button, _log_in_button, _gallery_button, _setting_button, _shut_down_button]:
-		button.custom_minimum_size.y = 64
 	_title_status.text = {"en": "Unavailable", "zh-CN": "不可用", "zh-HK": "不可用", "ja": "利用不可", "ko": "사용 불가"}.get(locale, "Unavailable")
 	_clock_label.set_presentation(_locale, _percent, _font_style)
 	_title_welcome.set_presentation(_locale, _percent, _font_style)
