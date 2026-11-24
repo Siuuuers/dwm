@@ -164,6 +164,15 @@ func test_two_portraits_keep_equal_centers_and_overlap_only_for_transparent_art(
 	view.set_portrait_width(325)
 	assert_eq(view.get_portrait_width(), 324.0, "four-pixel steps give each portrait a symmetric two-pixel slot change")
 
+func test_solo_portrait_kept_for_a_pair_is_checked_for_clipping() -> void:
+	var view := VIEW.new()
+	add_child_autofree(view)
+	var left := _texture()
+	view.configure_textures(null, [left], null, 100, false, true)
+	view.configure_textures(null, [left, _texture(true)], null, 100, false, true)
+	assert_true(view._portrait_slots[0].clip_contents)
+	assert_true(view._portrait_slots[1].clip_contents)
+
 func _dating_view(portrait_count: int = 1, challenge: bool = false) -> Control:
 	var view := VIEW.new()
 	assert_true(view.bind_view_preferences(_profile))
