@@ -5,7 +5,7 @@ const PARTICIPANT := preload("res://scripts/application/restore/DesktopBoardRest
 class BoardSpy extends RefCounted:
 	var used_scene := false
 	var retained_issuer: Object
-	func prepare_restore_scene(state: Dictionary, issuer: Object) -> Dictionary:
+	func prepare_player_restore_scene(state: Dictionary, issuer: Object) -> Dictionary:
 		used_scene = true
 		retained_issuer = issuer
 		return {"ok": true, "value": {"candidate": state.duplicate(true)}}

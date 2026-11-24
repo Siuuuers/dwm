@@ -12,6 +12,7 @@ var _difficulty := ""
 var _phase := ""
 var _identity: Variant = null
 var _revision := -1
+var _active_board_token: RefCounted
 var _projection: Dictionary = {}
 var _configuration: Dictionary = {}
 var _pending_configuration: Dictionary = {}
@@ -82,22 +83,22 @@ func dispatch(action: String, cell_index: int, expected_revision: int) -> Dictio
 	if not (cell.actions as Array).has(action):
 		return _failure(&"minesweeper_action_not_available")
 
-	var current := _read_owner(_difficulty)
-	if not current.ok or int(current.value.revision) != _revision \
-			or current.value.identity != _identity or current.value.phase != _phase:
-		if current.ok: _adopt(current.value)
-		else: _clear()
-		return _failure(&"stale_minesweeper_presentation", _projection)
-	var current_projection: Dictionary = current.value.projection
-	if cell_index >= (current_projection.cells as Array).size() \
-			or not (((current_projection.cells as Array)[cell_index] as Dictionary).actions as Array).has(action):
-		_adopt(current.value)
-		return _failure(&"minesweeper_action_not_available", _projection)
-	if current_projection != _projection:
-		_adopt(current.value)
-		return _failure(&"stale_minesweeper_presentation", _projection)
-	var routine_command: bool = current.value.phase == "ACTIVE_VISIBLE" \
-		and not bool(current_projection.get("terminal", false))
+	var routine_command := _phase == "ACTIVE_VISIBLE" and not bool(_projection.terminal)
+	if not has_current_active_board():
+		var current := _read_owner(_difficulty)
+		if not current.ok or int(current.value.revision) != _revision \
+				or current.value.identity != _identity or current.value.phase != _phase:
+			if current.ok: _adopt(current.value)
+			else: _clear()
+			return _failure(&"stale_minesweeper_presentation", _projection)
+		var current_projection: Dictionary = current.value.projection
+		if cell_index >= (current_projection.cells as Array).size() \
+				or not (((current_projection.cells as Array)[cell_index] as Dictionary).actions as Array).has(action):
+			_adopt(current.value)
+			return _failure(&"minesweeper_action_not_available", _projection)
+		if current_projection != _projection:
+			_adopt(current.value)
+			return _failure(&"stale_minesweeper_presentation", _projection)
 	var issued: Dictionary = _mint_transaction()
 	if not issued.get("ok", false):
 		return _failure(&"minesweeper_command_refused")
@@ -134,7 +135,7 @@ func dispatch(action: String, cell_index: int, expected_revision: int) -> Dictio
 		return _failure(&"minesweeper_presentation_unavailable")
 	_adopt(after_commit.value)
 	if routine_command and not bool(_projection.get("terminal", false)):
-		_accepted_routine_context = after_commit.value.routine_context.duplicate(true)
+		_accepted_routine_context = after_commit.value.routine_context
 		_accepted_routine_snapshot = after_commit.value.routine_snapshot
 	if _defers_settlement(after_commit.value):
 		_pending_settlement_view = after_commit.value
@@ -251,20 +252,23 @@ func get_configuration(projection: Dictionary) -> Dictionary:
 
 
 func get_accepted_routine_context(projection: Dictionary) -> Dictionary:
-	if _accepted_routine_context.is_empty() or _accepted_routine_snapshot.is_empty() \
+	if _accepted_routine_context.is_empty() \
 			or projection != _projection \
 			or bool(projection.get("terminal", false)):
 		_accepted_routine_context = {}
 		_accepted_routine_snapshot = {}
 		return {"ok": false}
-	var retained_context: Dictionary = _accepted_routine_context.duplicate(true)
+	var retained_context := _accepted_routine_context
 	var retained_snapshot: Dictionary = _accepted_routine_snapshot
 	_accepted_routine_context = {}
 	_accepted_routine_snapshot = {}
-	var current: Variant = _owner.call(&"get_state")
-	if not current is Dictionary or not current.get("ok", false) \
-			or not current.get("value") is Dictionary or current.value != retained_snapshot:
-		return {"ok": false}
+	if _active_board_token != null:
+		if not has_current_active_board(): return {"ok": false}
+	else:
+		var current: Variant = _owner.call(&"get_state")
+		if not current is Dictionary or not current.get("ok", false) \
+				or not current.get("value") is Dictionary or current.value != retained_snapshot:
+			return {"ok": false}
 	return {"ok": true, "value": retained_context}
 
 
@@ -474,7 +478,13 @@ func _mint_transaction() -> Dictionary:
 	return _issuer.call(&"issue_deferred", &"transaction_id")
 
 
+func has_current_active_board(difficulty: String = "") -> bool:
+	return _active_board_token != null and (difficulty.is_empty() or difficulty == _difficulty) \
+		and not _projection.terminal and _owner.get_active_board_token() == _active_board_token
+
+
 func _read_owner(difficulty: String, include_routine_context: bool = false) -> Dictionary:
+	var active_board_token: RefCounted = _owner.get_active_board_token() if _owner.has_method("get_active_board_token") else null
 	var state_result: Dictionary = _owner.call(&"get_state")
 	if not state_result.get("ok", false) or not state_result.get("value") is Dictionary:
 		return {"ok": false}
@@ -512,12 +522,12 @@ func _read_owner(difficulty: String, include_routine_context: bool = false) -> D
 		if not derived.get("ok", false): return {"ok": false}
 		routine_context = derived.value
 	return {"ok": true, "value": {
-		"difficulty": difficulty, "phase": str(snapshot.phase),
+		"difficulty": difficulty, "phase": str(snapshot.phase), "active_board_token": active_board_token,
 		"identity": identity.duplicate(true) if identity is Dictionary else null,
 		"revision": int(snapshot.revision), "projection": projected.value,
 		"terminal_foresight": terminal_foresight, "configuration": configuration.value,
 		"routine_context": routine_context,
-		"routine_snapshot": snapshot.duplicate(true) if not routine_context.is_empty() else {},
+		"routine_snapshot": snapshot.duplicate(true) if not routine_context.is_empty() and active_board_token == null else {},
 	}}
 
 
@@ -540,6 +550,7 @@ func _derive_routine_context(snapshot: Dictionary, difficulty: String,
 func _adopt(value: Dictionary) -> void:
 	_accepted_routine_context = {}
 	_accepted_routine_snapshot = {}
+	_active_board_token = value.active_board_token
 	_difficulty = value.difficulty
 	_phase = value.phase
 	_identity = value.identity.duplicate(true) if value.identity is Dictionary else null
@@ -550,6 +561,7 @@ func _adopt(value: Dictionary) -> void:
 
 
 func _clear() -> void:
+	_active_board_token = null
 	_difficulty = ""
 	_phase = ""
 	_identity = null

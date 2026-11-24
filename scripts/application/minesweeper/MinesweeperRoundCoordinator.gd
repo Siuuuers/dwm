@@ -764,6 +764,10 @@ func resume(request: Dictionary) -> Dictionary:
 	return _visibility_command(request, true)
 
 
+func get_active_board_token() -> RefCounted:
+	return _board_state.active_board_token if _ensure_ready().is_empty() else null
+
+
 func get_state() -> Dictionary:
 	var ready := _ensure_ready()
 	if not ready.is_empty():
@@ -1324,15 +1328,7 @@ func _guard(operation_id: StringName) -> Dictionary:
 
 
 func _ledger_lookup(request: Dictionary, transaction_id: String) -> Dictionary:
-	var fingerprint := _fingerprint(request)
-	var ledger: Dictionary = _board_state.capture()["command_receipts"]
-	if not ledger.has(transaction_id):
-		return {"fingerprint": fingerprint}
-	var entry: Dictionary = ledger[transaction_id]
-	if str(entry["request_fingerprint"]) != fingerprint:
-		return {"fingerprint": fingerprint,
-			"result": _fail(&"transaction_conflict", "", {"transaction_id": transaction_id})}
-	return {"fingerprint": fingerprint, "result": (entry["result"] as Dictionary).duplicate(true)}
+	return _board_state.lookup_command_receipt(transaction_id, _fingerprint(request))
 
 
 func _verify_transaction(transaction_id: String, transaction_issuer_receipt: Dictionary) -> Dictionary:
