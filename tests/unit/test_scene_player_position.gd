@@ -58,8 +58,7 @@ func test_compact_position_preserves_current_caption_and_continues_without_id_re
 	assert_true(expanded.ok, str(expanded))
 	if not expanded.ok: return
 	var restored: RefCounted = expanded.session
-	assert_eq(restored.project(FIXTURE.frontier(restored)).value.captions.size(), 1)
-	assert_eq(restored.project_scene_caption_memory(FIXTURE.frontier(restored)).value.captions.size(), 1)
+	assert_eq(restored.ledger.snapshot().captions, live.reading_session.ledger.captions)
 	assert_eq(SESSION.project_player_checkpoint(expanded.value), player)
 	assert_true(FIXTURE.advance_detached(restored).ok, "fresh live traversal works after bounded restoration")
 	assert_eq(FIXTURE.frontier(restored).publication_id, "caption:10")

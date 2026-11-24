@@ -14,3 +14,7 @@ The prior implementations are available at `cf188a1`. This pass traced code, sce
 | Save and route helpers, timeline lookups, extra snapshot builder and profile flag | The Title starts a prepared scene run. SaveManager still restores the selected checkpoint, and ProfileManager initializes the persisted profile. |
 
 The ordinary Day 7 passage completes at its registered final caption on the scene route. The retained completed-scene remap test covers saved completion, and the connected passage tests cover save, restart and Gallery replay. The retired test expected a separate ending host for a scene snapshot.
+
+## Scene scrollback
+
+At `2aa1712`, only tests called the reading session’s raw-ledger caption-memory projection. It filtered publications by occurrence and reconstructed their text. The displayed scrollback and History already follow the encountered checkpoint sections through the authored programme. Scene playback keeps the current publication for exact Load and continuation. Both removed projection functions produced transient display rows.

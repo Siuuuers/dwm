@@ -303,9 +303,6 @@ func test_compact_later_caption_restores_current_publication_without_replay() ->
 	var frontier: Dictionary = _adapter.capture_reading_frontier().value
 	assert_eq(frontier, fixture.live.reading_session.frontier)
 	assert_eq(restored.ledger.snapshot().captions, fixture.live.reading_session.ledger.captions)
-	var memory: Dictionary = restored.project_scene_caption_memory(frontier)
-	assert_true(memory.ok)
-	assert_eq(memory.value.captions.size(), 1)
 	assert_eq(restored.next_operation, {}, "old traversal retry is not restored")
 	assert_eq(_bridge.get_reading_history().value.captions.map(func(row: Dictionary) -> String: return row.line_id),
 		["line.scene.test.a.one", "line.scene.test.a.two"], "encountered History retains the opening and deduplicates the loop")
