@@ -47,6 +47,7 @@ func _owner(port: SpeechPort, duck: DuckPort = null) -> Node:
 
 func test_compatible_voice_and_rate_preserve_primary_text_without_speaker_prefix() -> void:
 	var port := SpeechPort.new()
+	port.voices.push_front({"id": "second", "language": "zh_HK", "name": "Second Cantonese voice"})
 	var owner := _owner(port)
 	if owner == null: return
 	assert_true(owner.refresh_capability("zh_HK").value.available)

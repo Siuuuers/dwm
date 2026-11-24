@@ -27,19 +27,9 @@ func _ready() -> void:
 func get_voices() -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	if not _speech_available(): return result
-	var reported: Variant = _display.tts_get_voices()
-	if typeof(reported) != TYPE_ARRAY: return result
-	for candidate: Variant in reported:
-		if typeof(candidate) != TYPE_DICTIONARY: continue
-		var voice: Dictionary = candidate
-		if not voice.has("id") or not voice.has("language") or not voice.has("name"): continue
-		if typeof(voice.id) != TYPE_STRING or typeof(voice.language) != TYPE_STRING \
-				or typeof(voice.name) != TYPE_STRING: continue
-		if String(voice.id).strip_edges().is_empty() \
-				or String(voice.language).strip_edges().is_empty() \
-				or String(voice.name).strip_edges().is_empty(): continue
-		result.append({"id": String(voice.id), "language": String(voice.language),
-			"name": String(voice.name)})
+	for voice: Variant in _reported_voices():
+		if _valid_voice(voice):
+			result.append({"id": voice.id, "language": voice.language, "name": voice.name})
 	return result
 
 
@@ -95,9 +85,20 @@ func _finish_active(token: int, outcome: StringName) -> void:
 
 
 func _voice_exists(voice_id: String) -> bool:
-	for voice: Dictionary in get_voices():
-		if voice.id == voice_id: return true
+	for voice: Variant in _reported_voices():
+		if _valid_voice(voice) and voice.id == voice_id: return true
 	return false
+
+
+func _reported_voices() -> Array:
+	var reported: Variant = _display.tts_get_voices()
+	return reported if reported is Array else []
+
+
+func _valid_voice(voice: Variant) -> bool:
+	return voice is Dictionary and voice.get("id") is String and not voice.id.strip_edges().is_empty() \
+		and voice.get("language") is String and not voice.language.strip_edges().is_empty() \
+		and voice.get("name") is String and not voice.name.strip_edges().is_empty()
 
 
 func _speech_available() -> bool:
