@@ -887,7 +887,6 @@ jobs:
       - uses: actions/checkout@v7
         if: ${{ !contains(fromJSON('["scene_current_frames","scene_current_creation","current_title","current_quick_load"]'), matrix.suite) }}
         with:
-          fetch-depth: ${{ matrix.suite == 'desktop' && '0' || '1' }}
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
