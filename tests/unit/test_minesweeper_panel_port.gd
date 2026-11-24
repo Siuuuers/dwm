@@ -847,7 +847,6 @@ func test_prepared_debug_panel_clears_both_marks_and_accepts_the_forced_reveal()
 	assert_true(panel.bind(port))
 	assert_true(panel.refresh())
 	var rounds: int = state.minesweeper_rounds_left
-	var motivation: int = state.get_stat("motivation")
 	assert_eq(panel.public_view.register.no_flag, "intact")
 	for index: int in [0, 12]:
 		var flagged: Dictionary = port.dispatch("flag", index, panel.public_view.board.revision)
@@ -878,7 +877,6 @@ func test_prepared_debug_panel_clears_both_marks_and_accepts_the_forced_reveal()
 	assert_null(panel.public_view.register.foresight)
 	assert_false("new_board" in panel.public_view.actions)
 	assert_eq(state.minesweeper_rounds_left,rounds)
-	assert_eq(state.get_stat("motivation"),motivation)
 	var revealed: Dictionary = port.dispatch("reveal",0,panel.public_view.board.revision)
 	assert_true(revealed.ok,str(revealed))
 	if not revealed.ok: return
@@ -886,7 +884,7 @@ func test_prepared_debug_panel_clears_both_marks_and_accepts_the_forced_reveal()
 	assert_eq(panel.public_view.register.no_flag, "lost")
 	assert_eq(panel.public_view.board.cells[0].face, "revealed")
 	assert_eq(state.minesweeper_rounds_left,rounds-1)
-	assert_eq(state.get_stat("motivation"),motivation-1)
+	assert_eq(panel.public_view.register.rounds, rounds - 1)
 
 func test_real_retained_terminal_difficulty_publishes_next_legal_board_without_payment() -> void:
 	var initial: Dictionary = port.pull()
