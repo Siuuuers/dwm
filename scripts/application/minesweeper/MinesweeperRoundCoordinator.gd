@@ -1589,12 +1589,8 @@ func _shell_flag(request: Dictionary) -> Dictionary:
 	if int(request.expected_revision) != int(state.revision): return _fail(&"stale_revision", "", {})
 	if request.expected_identity != state.identity: return _fail(&"identity_mismatch", "", {})
 	if typeof(request.cell_index) != TYPE_INT or typeof(request.flagged) != TYPE_BOOL: return _fail(&"invalid_request", "", {})
-	var shell := _board_state.shell_state()
 	if state.phase == "PREPARED_UNSTARTED":
-		if request.cell_index != state.candidate.forced_cell:
-			return _fail(&"forced_cell_mismatch", "", {})
-		if request.flagged or not shell.flagged_indices.has(request.cell_index):
-			return _fail(&"minesweeper_action_not_available", "", {})
+		return _fail(&"minesweeper_action_not_available", "", {})
 	var context := get_configuration_context()
 	if not context.ok: return context
 	if context.value.difficulty_enabled.is_empty(): return _fail(&"board_configuration_unavailable", "", {})
@@ -1602,7 +1598,7 @@ func _shell_flag(request: Dictionary) -> Dictionary:
 	if not dimensions.ok: return dimensions
 	var width: int = int(state.candidate.spec.width) if state.candidate is Dictionary and state.candidate.has("spec") else int(dimensions.value.width)
 	var height: int = int(state.candidate.spec.height) if state.candidate is Dictionary and state.candidate.has("spec") else int(dimensions.value.height)
-	var reduced := _REDUCER.set_shell_flag(shell, width, height, int(request.cell_index), bool(request.flagged), str(request.transaction_id))
+	var reduced := _REDUCER.set_shell_flag(_board_state.shell_state(), width, height, int(request.cell_index), bool(request.flagged), str(request.transaction_id))
 	if not reduced.ok: return reduced
 	var input := {"transaction_id": str(request.transaction_id), "identity": state.identity,
 		"expected_revision": int(request.expected_revision), "request_fingerprint": str(prior.fingerprint)}

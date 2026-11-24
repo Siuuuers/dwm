@@ -1,7 +1,14 @@
 extends RefCounted
 
+const SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
+
 static func click_count(board: Dictionary) -> int:
-	return board.actions.size() + 1
+	var clicks: int = board.actions.size() + 1
+	for action: Dictionary in board.actions:
+		if action.get("kind") != "set_flag": break
+		if str(action.get("transaction_id", "")).begins_with(SCHEMA.DEBUG_CLEAR_PREFIX):
+			clicks -= 1
+	return clicks
 
 static func foresight_percent(board: Dictionary) -> float:
 	return float(three_bv(board)) / float(click_count(board)) * 100.0

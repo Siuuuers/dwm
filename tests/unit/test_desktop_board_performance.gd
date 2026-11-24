@@ -27,6 +27,16 @@ func _chord_clear(extra_flag_pair: bool = false) -> Dictionary:
 	assert_eq(str(board.outcome), "cleared")
 	return board
 
+func test_debug_opening_preserves_player_clicks_and_no_flag_status() -> void:
+	var shell: Dictionary = REDUCER.set_shell_flag({"flagged_indices": [], "actions": []}, 3, 3, 0, true, "flag").value.shell
+	var clean := MinesweeperBoardSchema.clear_debug_flags(shell)
+	assert_eq(shell.flagged_indices, [0])
+	assert_eq(MinesweeperBoardSchema.clear_debug_flags(clean), clean)
+	var board: Dictionary = REDUCER.first_reveal(LAYOUT, 0, clean).value.board
+	assert_eq(board.flagged_indices, [])
+	assert_eq(PERFORMANCE.click_count(board), 2)
+	assert_eq(QUERY.retained_metrics({"board": {"board": board}}).value.no_flag, "lost")
+
 func test_current_exact_one_hundred_qualifies_and_legacy_threshold_remains_strict() -> void:
 	var board := _chord_clear()
 	assert_eq(PERFORMANCE.three_bv(board), 8)

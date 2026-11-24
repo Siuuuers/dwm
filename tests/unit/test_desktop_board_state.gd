@@ -158,6 +158,40 @@ func test_prepare_debug_slice_certified_transitions_to_prepared_unstarted() -> v
 	assert_true(candidate.has("layout"))
 
 
+func test_certification_and_legacy_restore_clear_marks_preserving_payment_and_no_flag_history() -> void:
+	_begin_debug(_state, "begin", IDENTITY_A, _spec_a())
+	var preparing := _state.capture()
+	var history := {"flagged_indices": [], "actions": []}
+	for index: int in [0, 2]:
+		history = REDUCER.set_shell_flag(history, _spec_a().width, _spec_a().height, index, true, "flag-%d" % index).value.shell
+	preparing.candidate.merge(history)
+	preparing.candidate.paid_start_receipt = {"checkpoint_id": "old-paid-replacement"}
+	var restored := _state.prepare_restore(preparing)
+	assert_true(restored.ok, str(restored))
+	assert_true(_state.commit(restored.value.candidate).ok)
+	assert_eq(_state.shell_state(), history)
+	assert_true(_certify_debug(_state, "certify", IDENTITY_A, 1).ok)
+	var clean := _state.capture()
+	assert_eq(clean.candidate.flagged_indices, [])
+	assert_eq(clean.candidate.actions.slice(0, 2), history.actions)
+	assert_eq(clean.candidate.actions.size(), 4)
+	assert_eq(clean.candidate.paid_start_receipt, preparing.candidate.paid_start_receipt)
+	assert_eq(MinesweeperRegisterQuery.retained_metrics(clean).value.no_flag, "lost")
+	var first := REDUCER.first_reveal(clean.candidate.layout, clean.candidate.forced_cell, _state.shell_state())
+	assert_true(first.ok, str(first))
+	assert_eq(first.value.board.flagged_indices, [])
+	assert_eq(first.value.board.actions, clean.candidate.actions)
+	assert_eq(preload("res://scripts/domain/minesweeper/BoardPerformance.gd").click_count(first.value.board), 3)
+	var old_save := clean.duplicate(true)
+	old_save.candidate.merge(history, true)
+	restored = STATE.new().prepare_restore(old_save)
+	assert_true(restored.ok, str(restored))
+	assert_eq(restored.value.candidate.snapshot_after, clean)
+	assert_eq(old_save.candidate.flagged_indices, [0, 2], "Reading a save leaves its input detached.")
+	old_save.candidate.actions.pop_back()
+	assert_false(STATE.new().prepare_restore(old_save).ok)
+
+
 func test_debug_is_cost_free_through_prepared_unstarted() -> void:
 	# No board/settlement exists and no motivation-relevant field is touched anywhere in
 	# DesktopBoardState through PREPARED_UNSTARTED -- only identity/candidate/phase/revision.
@@ -833,6 +867,25 @@ func test_scene_paid_replacement_and_debug_restore_current_facts_without_receipt
 	if not sliced.ok: return
 	assert_true(fixture.state.commit(sliced.value.candidate).ok)
 	var certified: Dictionary = fixture.state.capture()
+	var old_save := certified.duplicate(true)
+	var old_shell: Dictionary = REDUCER.set_shell_flag({"flagged_indices": [], "actions": []},
+		spec.width, spec.height, 0, true, "old-flag").value.shell
+	old_save.candidate.merge(old_shell, true)
+	var old_restore := STATE.new().prepare_restore_scene(old_save, fixture.issuer)
+	assert_true(old_restore.ok, str(old_restore))
+	var normalized: Dictionary = old_restore.value.candidate.snapshot_after
+	assert_eq(normalized.candidate.flagged_indices, [])
+	assert_eq(normalized.candidate.actions.size(), 2)
+	assert_eq(normalized.command_receipts, certified.command_receipts)
+	assert_eq(normalized.round_paid, true)
+	assert_eq(normalized.identity, certified.identity)
+	var player_save := STATE.project_player_state(old_save)
+	var player_restore := STATE.new().prepare_player_restore_scene(player_save.value.snapshot, fixture.issuer)
+	assert_true(player_restore.ok, str(player_restore))
+	assert_eq(player_restore.value.candidate.snapshot_after.candidate, normalized.candidate)
+	old_save.candidate.actions.clear()
+	assert_false(STATE.new().prepare_restore_scene(old_save, fixture.issuer).ok)
+
 	certified.command_receipts.clear()
 	var restored := STATE.new()
 	var restore := restored.prepare_restore_scene(certified, fixture.issuer)

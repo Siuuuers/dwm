@@ -670,6 +670,7 @@ func _advance_preparation() -> Dictionary:
 		if not plain.get("ok", false): return plain
 		_record.envelope.preparation = plain.value
 		return _ok({})
+	_record.envelope.shell = SCHEMA.clear_debug_flags(_record.envelope.shell)
 	_record.envelope.prepared_layout = advanced.value.layout.duplicate(true)
 	_record.envelope.forced_cell = int(advanced.value.forced_cell)
 	_record.envelope.special_cell = ENVELOPE.special_cell(_record.spec, advanced.value.layout)
@@ -696,6 +697,7 @@ func _board_action(action: String, index: int) -> Dictionary:
 		var generated: Dictionary
 		if _record.schema_version in [3, 4] and _record.envelope.prepared_layout != null:
 			if index != int(_record.envelope.forced_cell): return _fail(&"dating_forced_cell_mismatch")
+			_record.envelope.shell = SCHEMA.clear_debug_flags(_record.envelope.shell)
 			generated = _ok({"layout": _record.envelope.prepared_layout})
 		else: generated = _generation.materialize(_record.spec, index)
 		if not generated.get("ok", false): return generated
@@ -1251,7 +1253,7 @@ func _project_board() -> Variant:
 		var cells: Array = []
 		for index in int(_record.spec.width) * int(_record.spec.height):
 			var legal: bool = _record.phase in ["challenge", "ready", "active"] and (forced < 0 or index == forced)
-			var flagged: bool = shell.flagged_indices.has(index)
+			var flagged: bool = forced < 0 and shell.flagged_indices.has(index)
 			var actions: Array = []
 			if legal:
 				if flagged: actions = ["unflag"]
@@ -1261,7 +1263,7 @@ func _project_board() -> Variant:
 				"bracketed": index == forced, "inspectable": legal, "pressable": not actions.is_empty(), "actions": actions})
 		var estimate: Variant = null
 		if _record.schema_version in [3, 4] and _record.envelope.prepared_layout != null:
-			estimate = int(_record.envelope.prepared_layout.mine_count) - shell.flagged_indices.size()
+			estimate = int(_record.envelope.prepared_layout.mine_count)
 		return {"width": _record.spec.width, "height": _record.spec.height, "revision": _revision(),
 			"mine_estimate": estimate, "terminal": false, "custody": _record.phase not in ["challenge", "ready", "active"], "cells": cells}
 	var checked: Dictionary=SCHEMA.validate_board(_record.board)

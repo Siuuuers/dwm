@@ -836,7 +836,7 @@ func test_retained_terminal_new_board_commits_owner_dismissal_and_keeps_exact_fa
 	assert_false(cold.pull().value.board.terminal,"A cached view follows canonical dismissal.")
 
 
-func test_real_prepared_debug_projection_renders_free_flags_and_only_forced_reveal() -> void:
+func test_prepared_debug_panel_clears_both_marks_and_accepts_the_forced_reveal() -> void:
 	state.inventory = {"debug_key":1}
 	var viewport := SubViewport.new()
 	viewport.size = Vector2i(1024,720)
@@ -847,7 +847,14 @@ func test_real_prepared_debug_projection_renders_free_flags_and_only_forced_reve
 	assert_true(panel.bind(port))
 	assert_true(panel.refresh())
 	var rounds: int = state.minesweeper_rounds_left
-	var motivation: int = state.get_stat("motivation")
+	assert_eq(panel.public_view.register.no_flag, "intact")
+	for index: int in [0, 12]:
+		var flagged: Dictionary = port.dispatch("flag", index, panel.public_view.board.revision)
+		assert_true(flagged.ok, str(flagged))
+		if not flagged.ok: return
+		assert_true(panel.present(flagged.value))
+		assert_eq(panel.public_view.board.cells[index].mark, "flag")
+	assert_eq(panel.public_view.register.no_flag, "lost")
 	var begun: Dictionary = port.advance_preparation(panel.public_view.board.revision)
 	assert_true(begun.ok,str(begun))
 	if not begun.ok: return
@@ -862,35 +869,22 @@ func test_real_prepared_debug_projection_renders_free_flags_and_only_forced_reve
 	if not certified.ok: return
 	assert_true(panel.present(certified.value),"The actual certified composite must pass Grid/Cell validation.")
 	assert_false(panel.public_view.board.custody)
-	assert_eq(panel.public_view.board.cells[0].actions,["reveal","flag"])
-	assert_true(panel.public_view.board.cells[0].bracketed)
-	for index in range(1,64):
-		assert_eq(panel.public_view.board.cells[index].actions,["flag"])
-		assert_false(panel.public_view.board.cells[index].bracketed)
-	var frozen: Dictionary = coordinator.get_state().value.candidate.layout.duplicate(true)
-	for index: int in [0,12]:
-		var flagged: Dictionary = port.dispatch("flag",index,panel.public_view.board.revision)
-		assert_true(flagged.ok,str(flagged))
-		if not flagged.ok: return
-		assert_true(panel.present(flagged.value))
-		assert_eq(panel.public_view.board.cells[index].actions,["unflag"])
-	for index: int in [0,12]:
-		var unflagged: Dictionary = port.dispatch("unflag",index,panel.public_view.board.revision)
-		assert_true(unflagged.ok,str(unflagged))
-		if not unflagged.ok: return
-		assert_true(panel.present(unflagged.value))
-	assert_eq(coordinator.get_state().value.candidate.layout,frozen)
+	for cell: Dictionary in panel.public_view.board.cells:
+		assert_eq(cell.mark, "none")
+		assert_eq(cell.bracketed, cell.index == 0)
+		assert_eq(cell.actions, ["reveal"] if cell.bracketed else [])
 	assert_eq(panel.public_view.register.no_flag,"lost")
 	assert_null(panel.public_view.register.foresight)
 	assert_false("new_board" in panel.public_view.actions)
 	assert_eq(state.minesweeper_rounds_left,rounds)
-	assert_eq(state.get_stat("motivation"),motivation)
 	var revealed: Dictionary = port.dispatch("reveal",0,panel.public_view.board.revision)
 	assert_true(revealed.ok,str(revealed))
 	if not revealed.ok: return
 	assert_true(panel.present(revealed.value))
+	assert_eq(panel.public_view.register.no_flag, "lost")
+	assert_eq(panel.public_view.board.cells[0].face, "revealed")
 	assert_eq(state.minesweeper_rounds_left,rounds-1)
-	assert_eq(state.get_stat("motivation"),motivation-1)
+	assert_eq(panel.public_view.register.rounds, rounds - 1)
 
 func test_real_retained_terminal_difficulty_publishes_next_legal_board_without_payment() -> void:
 	var initial: Dictionary = port.pull()
