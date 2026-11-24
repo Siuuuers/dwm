@@ -143,6 +143,9 @@ func _advance_source() -> void:
 	assert_true(_manager._journal.commit_prepared(prepared["value"]["candidate"]).get("ok", false))
 
 func test_empty_quick_save_uses_single_use_token_and_real_atomic_write() -> void:
+	var backup: Dictionary = _manager._journal.capture_state().value.backup
+	assert_eq(_manager._journal.state_hash(), CANONICAL.stringify(backup).value.sha256_text())
+	assert_eq(_manager._journal.current_bundle_hash(), CANONICAL.stringify(backup.current).value.sha256_text())
 	var before: Dictionary = files.snapshot_persisted()
 	var capability: Dictionary = port.get_quick_capability("save")
 	assert_true(capability.value.enabled)
