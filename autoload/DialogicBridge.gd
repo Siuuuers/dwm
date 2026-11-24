@@ -2024,7 +2024,7 @@ func configure_skip_context(profile: Object, mode: StringName) -> Dictionary:
 	if _skip_line_owners.is_empty():
 		var entries := _ensure_entry_document()
 		if not entries.get("ok", false): return entries
-		var ids := _ENTRY_MANIFEST.load_ids_default()
+		var ids := _ENTRY_MANIFEST.load_ids_default(false)
 		if not ids.get("ok", false): return ids
 		var owners := {}
 		var scene_registry: bool = ids.value.get("kind") == "scene_ids_registry"
@@ -2585,6 +2585,9 @@ func restore_captured_state(backup: Dictionary) -> Dictionary:
 static func _ensure_entry_document() -> Dictionary:
 	if not _entry_document_cache.is_empty():
 		return {"ok": true, "value": _entry_document_cache}
+	var selected := _ENTRY_MANIFEST.scene_contract_tables()
+	if selected.ok: return {"ok": true, "value": selected.bundle.entry_manifest}
+	if selected.code != &"scene_registration_absent": return selected
 	var loaded: Dictionary = _ENTRY_MANIFEST.load_default()
 	if not loaded.get("ok", false):
 		return loaded

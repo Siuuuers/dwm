@@ -350,7 +350,7 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 		&"initialize_profile":
 			var manager := _target(&"ProfileManager")
 			if manager == null or not manager.has_method("initialize"): return _failure(&"missing_profile_manager", "ProfileManager initializer is unavailable")
-			var ids: Dictionary = DIALOGIC_ENTRY_MANIFEST.load_ids_default()
+			var ids: Dictionary = DIALOGIC_ENTRY_MANIFEST.load_ids_default(false)
 			if not ids.get("ok", false): return ids
 			if not manager.has_method("configure_line_registry"):
 				return _failure(&"missing_line_registry_seam", "ProfileManager line registry is unavailable")
