@@ -99,13 +99,15 @@ func reset(run_id: String, branch_id: String, desktop_timeline_generation: int,
 	_condition_hospital_history = {}
 	_terminal_intent_handoff = null
 
-func get_desktop_identity_context() -> Dictionary:
-	return {
+func get_desktop_identity_context(include_receipt: bool = true) -> Dictionary:
+	var identity := {
 		"run_id": _run_id, "branch_id": _branch_id,
 		"desktop_timeline_generation": _desktop_timeline_generation,
 		"causal_day_instance": _causal_day_instance,
-		"causal_day_instance_issuer_receipt": _causal_day_instance_issuer_receipt.duplicate(true),
 	}
+	if include_receipt:
+		identity["causal_day_instance_issuer_receipt"] = _causal_day_instance_issuer_receipt.duplicate(true)
+	return identity
 
 const _IDENTITY_ALLOCATION_BUNDLE_KEYS: Array[String] = [
 	"allocation_receipt_id", "branch_id", "causal_day_instance", "causal_day_instance_issuer_receipt",
