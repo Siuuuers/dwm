@@ -90,7 +90,7 @@ func test_wording_and_insertion_keep_saved_moment_and_only_encountered_history()
 	var session := SESSION.new()
 	assert_true(session.configure_scene().ok)
 	assert_true(session.restore_player(normalized.value.checkpoint.reading_session, FIXTURE.B).ok)
-	var projected := session.project_scene_day_history(FIXTURE.frontier(session), {}, {})
+	var projected := session.project_scene_day_history(FIXTURE.frontier(session))
 	assert_true(projected.ok, str(projected))
 	assert_eq(projected.value.captions.map(func(row: Dictionary) -> String: return row.line_id),
 		["line.scene.test.b.one", "line.scene.test.b.two"])
@@ -155,7 +155,7 @@ func test_file_only_wording_edit_preserves_id_and_uses_current_text() -> void:
 	assert_true(restored.ok, str(restored))
 	if not restored.ok: return
 	assert_eq(MANIFEST.scene_registration_fingerprint(), fingerprint, "the shipped registry was not rebuilt")
-	var projected: Dictionary = session.project_scene_day_history(FIXTURE.frontier(session), {}, {})
+	var projected: Dictionary = session.project_scene_day_history(FIXTURE.frontier(session))
 	assert_true(projected.ok, str(projected))
 	assert_eq(projected.value.captions.back().text, "Manually revised second.")
 	assert_eq(projected.value.captions.back().line_id, "line.scene.test.b.two")

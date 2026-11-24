@@ -30,7 +30,7 @@ func test_reconstructed_day_passage_does_not_create_historical_publications() ->
 	if session == null: return
 	var frontier := _frontier(session)
 	var before: Dictionary = session.capture(frontier).value
-	var history: Dictionary = session.project_scene_day_history(frontier, {}, {})
+	var history: Dictionary = session.project_scene_day_history(frontier)
 	assert_true(history.ok, str(history))
 	if not history.ok: return
 	assert_eq(history.value.captions.size(), 1)
@@ -41,13 +41,13 @@ func test_reconstructed_day_passage_does_not_create_historical_publications() ->
 	assert_eq(session.ledger.snapshot().captions.size(), 1, "unencountered earlier text is never backfilled")
 	assert_eq(session.capture(frontier).value, before, "projection has no live publication or cursor effects")
 	history.value.captions.clear()
-	assert_eq(session.project_scene_day_history(frontier, {}, {}).value.captions.size(), 1)
+	assert_eq(session.project_scene_day_history(frontier).value.captions.size(), 1)
 
 func test_day_two_passage_starts_at_day_two() -> void:
 	var session := _position("Day2", 0)
 	if session == null: return
 	session.capture(_frontier(session))
-	var history: Dictionary = session.project_scene_day_history(_frontier(session), {}, {})
+	var history: Dictionary = session.project_scene_day_history(_frontier(session))
 	assert_true(history.ok, str(history))
 	if history.ok:
 		assert_eq(history.value.captions.size(), 1)
@@ -75,7 +75,7 @@ func test_fresh_capture_records_encounters_once_and_returns_detached_checkpoint(
 	captured.value.player_progress.recovery_anchor.line_id = "TEST.changed-copy"
 	assert_eq(session.capture(first).value, expected, "returned nested state is detached from all live owners")
 	for repeat: int in 2:
-		var history: Dictionary = session.project_scene_day_history(first, {}, {})
+		var history: Dictionary = session.project_scene_day_history(first)
 		assert_true(history.ok, str(history))
 		if not history.ok: return
 		assert_eq(history.value.captions.size(), 1)
@@ -99,7 +99,7 @@ func test_fresh_capture_records_encounters_once_and_returns_detached_checkpoint(
 	assert_eq(following.value.player_progress.recovery_anchor, expected.player_progress.recovery_anchor)
 	assert_eq(following.value.frontier, next)
 	assert_eq(following.value.program_index, 1)
-	var history: Dictionary = session.project_scene_day_history(next, {}, {})
+	var history: Dictionary = session.project_scene_day_history(next)
 	assert_true(history.ok, str(history))
 	if not history.ok: return
 	assert_eq(history.value.captions.map(func(row: Dictionary) -> String: return row.line_id), [first.line_id, next.line_id])

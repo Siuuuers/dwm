@@ -2899,7 +2899,7 @@ func get_scene_caption_memory(expected_presentation: Dictionary) -> Dictionary:
 	var projected: Dictionary = _scene_day_history(current.value.caption_publication)
 	if not projected.ok: return projected
 	projected.value.captions = projected.value.captions.filter(func(row: Dictionary) -> bool: return not row.get("self_talk", false))
-	projected.value["presentation"] = current.duplicate(true)
+	projected.value["presentation"] = current
 	return _STORY_LOCALE.project(projected, _current_locale(), _secondary_reading_locale())
 
 
@@ -2948,9 +2948,7 @@ func get_reading_history() -> Dictionary:
 
 
 func _scene_day_history(frontier: Dictionary) -> Dictionary:
-	var game := get_node_or_null("/root/GameState") if is_inside_tree() else null
-	return _reading_session.project_scene_day_history(frontier,
-		game.scene_choices if game != null else {}, game.scene_challenge_outcomes if game != null else {})
+	return _reading_session.project_scene_day_history(frontier)
 
 
 func validate_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Dictionary = {}) -> Dictionary:
