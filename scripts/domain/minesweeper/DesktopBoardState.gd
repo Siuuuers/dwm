@@ -39,6 +39,7 @@ const _CAPTURE_KEYS: Array[String] = [
 	"command_receipts", "terminal_receipts",
 ]
 
+var active_board_token: RefCounted
 var _phase: String = _PHASE_NONE
 var _revision: int = 0
 var _identity: Variant = null
@@ -91,6 +92,7 @@ func prepare_player_restore_scene(snapshot: Dictionary, issuer: Object) -> Dicti
 
 
 func reset() -> void:
+	active_board_token = null
 	_phase = _PHASE_NONE
 	_revision = 0
 	_identity = null
@@ -450,7 +452,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 		_scene_snapshot_format = snapshot.has("settled_inspection")
 		_settled_inspection = is_settled_inspection(snapshot)
 		_round_paid = bool(snapshot.get("round_paid", false))
-		return _state_view()
+		return _committed_state_view()
 
 	var transaction_id := str(candidate.get("transaction_id", ""))
 	var request_fingerprint := str(candidate.get("request_fingerprint", ""))
@@ -484,7 +486,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 	_settled_inspection = bool(projected.settled_inspection) if _scene_snapshot_format else is_settled_inspection(capture())
 	if _scene_snapshot_format: _round_paid = projected.round_paid
 
-	var result: Dictionary = _state_view()
+	var result: Dictionary = _committed_state_view()
 	if candidate.has("result_override"):
 		result = (candidate["result_override"] as Dictionary).duplicate(true)
 
@@ -497,6 +499,17 @@ func commit(candidate: Dictionary) -> Dictionary:
 			"command_kind": String(kind), "result": result.duplicate(true),
 		}
 	return result.duplicate(true)
+
+
+func lookup_command_receipt(transaction_id: String, fingerprint: String) -> Dictionary:
+	var lookup := {"fingerprint": fingerprint}
+	if _command_receipts.has(transaction_id):
+		var entry: Dictionary = _command_receipts[transaction_id]
+		if str(entry.request_fingerprint) == fingerprint:
+			lookup["result"] = entry.result.duplicate(true)
+		else:
+			lookup["result"] = _fail(&"transaction_conflict", "", {"transaction_id": transaction_id})
+	return lookup
 
 
 func _compact_prior_command_results() -> void:
@@ -562,7 +575,8 @@ func _envelope(input: Dictionary, kind: StringName, phase_after: String, identit
 	return prepared
 
 
-func _state_view() -> Dictionary:
+func _committed_state_view() -> Dictionary:
+	active_board_token = RefCounted.new() if _phase == _PHASE_ACTIVE_VISIBLE else null
 	return {"ok": true, "code": &"ok", "value": {
 		"phase": _phase, "revision": _revision, "identity": _dup_or_null(_identity),
 		"candidate": _dup_or_null(_candidate), "board": _dup_or_null(_board),

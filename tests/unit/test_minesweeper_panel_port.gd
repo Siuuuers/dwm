@@ -97,6 +97,12 @@ class CountingOwner extends RefCounted:
 		state_reads = 0
 		configuration_reads = 0
 
+class VersionedCountingOwner extends CountingOwner:
+	func get_active_board_token() -> RefCounted:
+		return owner.get_active_board_token()
+	func set_flag(request: Dictionary) -> Dictionary:
+		return owner.set_flag(request)
+
 class TerminalClearingOwner extends RefCounted:
 	const REDUCER := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")
 	var completion_calls: Array = []
@@ -262,6 +268,34 @@ func test_real_first_reveal_and_flag_unflag_refresh_the_whole_panel() -> void:
 	assert_eq(unflagged.value.board.mine_estimate, unflagged.value.register.mine_estimate)
 	assert_eq(unflagged.value.board.custody, unflagged.value.register.custody)
 	assert_eq(unflagged.value.actions, ACTIONS + ["new_board"])
+
+
+func test_current_active_cell_uses_one_public_read_and_a_same_revision_load_invalidates_it() -> void:
+	var counted := VersionedCountingOwner.new()
+	counted.owner = coordinator
+	var panel := PORT.new()
+	assert_true(panel.configure(counted, issuer, state, catalog).ok)
+	var initial := panel.pull()
+	var active := panel.dispatch("reveal", 0, initial.value.board.revision)
+	assert_true(active.ok, str(active))
+	var saved: Dictionary = coordinator.get_state().value
+	counted.reset_counts()
+	var flagged := panel.dispatch("flag", 2, active.value.board.revision)
+	assert_true(flagged.ok, str(flagged))
+	assert_eq(counted.state_reads, 1, "The post-command read supplies the complete new projection.")
+	assert_eq(counted.configuration_reads, 1)
+	assert_eq(flagged.value, panel.pull().value)
+
+	saved.revision = flagged.value.board.revision
+	var board_state: Object = coordinator.get("_board_state")
+	var restored: Dictionary = board_state.prepare_restore(saved)
+	assert_true(restored.ok, str(restored))
+	assert_true(board_state.commit(restored.value.candidate).ok)
+	var before: int = root_store.next_counter
+	var refused := panel.dispatch("unflag", 2, saved.revision)
+	assert_false(refused.ok)
+	assert_eq(root_store.next_counter, before, "The stale cell action cannot allocate a transaction.")
+	assert_eq(refused.value.board.cells[2].mark, "none")
 
 
 func test_routine_command_reuses_its_exact_postcommit_read_and_matches_explicit_pull() -> void:

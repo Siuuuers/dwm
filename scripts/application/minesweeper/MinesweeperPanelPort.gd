@@ -108,7 +108,7 @@ func dispatch(action: String, index: int, revision: int) -> Dictionary:
 			if not dismissed.get("ok", false): return _refused()
 		_clear_held_terminal()
 		return pull()
-	if not _has_fresh_difficulty(): return _refused()
+	if not _has_fresh_difficulty(action in ["reveal", "flag", "unflag", "chord"]): return _refused()
 	var result: Dictionary
 	if action == "new_board":
 		result = _board_port.replace_board(revision)
@@ -328,10 +328,11 @@ func _on_game_state_day_changed(_day: int = -1) -> void:
 	_presented_view = {}
 
 
-func _has_fresh_difficulty() -> bool:
+func _has_fresh_difficulty(active_cell_command: bool = false) -> bool:
 	if not _presented or not is_instance_valid(_owner) or not is_instance_valid(_issuer) \
 			or _presented_session.is_empty() or _session_marker() != _presented_session:
 		return false
+	if active_cell_command and _board_port.has_current_active_board(_presented_difficulty): return true
 	var current: Variant = _owner.call(&"get_state")
 	if not current is Dictionary or not current.get("ok", false) \
 			or not current.get("value") is Dictionary:
