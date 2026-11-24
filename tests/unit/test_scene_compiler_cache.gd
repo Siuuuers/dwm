@@ -299,6 +299,8 @@ func test_prepared_configuration_shares_frozen_data_but_not_reading_progress() -
 		assert_true(is_same(first.get(field), second.get(field)), field + " has one immutable owner")
 		assert_true(first.get(field).is_read_only(), field)
 	assert_true(SESSION._prepared_scene_configuration.is_read_only())
+	for entry: Dictionary in first._scene_bundle.caption_registry.entries:
+		assert_true(is_same(first.catalogue[entry.entry_id].lines, entry.lines))
 	assert_true(first.catalogue[READING.A].is_read_only())
 	assert_true(first.catalogue[READING.A].lines.is_read_only())
 	assert_true(first.catalogue[READING.A].lines[0].is_read_only())
