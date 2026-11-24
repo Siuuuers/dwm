@@ -11,9 +11,7 @@ var _bridge: Object
 var _admission: Callable
 var _completion_barrier: Callable
 var _auto_enabled := false
-var _delay := 2.0
 var _delay_key := "normal"
-var _frontier: Dictionary = {}
 var _last_frontier: Dictionary = {}
 var _remaining := 0.0
 var _armed := false
@@ -42,7 +40,6 @@ func configure(profile: Object, bridge: Object, admission: Callable) -> bool:
 		return false
 	_configuration_generation += 1
 	retire_current()
-	_last_frontier.clear()
 	_disconnect_profile()
 	_profile = profile
 	_bridge = bridge
@@ -54,7 +51,6 @@ func configure(profile: Object, bridge: Object, admission: Callable) -> bool:
 		_admission = Callable()
 		return false
 	_delay_key = str(configured_delay)
-	_delay = float(DELAYS[_delay_key])
 	_auto_enabled = bool(_profile.call("get_preference", AUTO_ENABLED, false))
 	if _profile.has_signal("preference_changed"):
 		_profile.connect("preference_changed", _on_preference_changed)
@@ -82,7 +78,7 @@ func set_auto_enabled(target: bool) -> Dictionary:
 		return committed if committed is Dictionary else _failure(&"auto_commit_failed")
 	if command_generation != _configuration_generation or not _is_configured():
 		return _failure(&"auto_set_retired")
-	_sync_preferences(true)
+	_sync_preferences()
 	if _auto_enabled != target:
 		return _failure(&"auto_not_committed")
 	return _success()
@@ -107,9 +103,8 @@ func arm_after_reveal(frontier: Dictionary) -> void:
 		_retire_without_rearm()
 		return
 	_generation += 1
-	_frontier = frontier.duplicate(true)
 	_last_frontier = frontier.duplicate(true)
-	_remaining = _delay
+	_remaining = DELAYS[_delay_key]
 	_armed = true
 	_eligible_last_tick = false
 	set_process(true)
@@ -126,7 +121,6 @@ func suspend_current() -> void:
 
 func _retire_without_rearm() -> void:
 	_generation += 1
-	_frontier.clear()
 	_remaining = 0.0
 	_armed = false
 	_eligible_last_tick = false
@@ -146,19 +140,18 @@ func _process(delta: float) -> void:
 		_eligible_last_tick = true
 		return
 	var current: Variant = _bridge.call("capture_current_line_presentation_frontier")
-	if not current is Dictionary or current != _frontier \
+	if not current is Dictionary or current != _last_frontier \
 			or not bool(_bridge.call("can_auto_advance_current_line")):
 		_retire_without_rearm()
 		return
 	_remaining = maxf(0.0, _remaining - maxf(delta, 0.0))
 	if _remaining > 0.0:
 		return
-	if _completion_barrier.is_valid() and not bool(_completion_barrier.call(_frontier.duplicate(true))):
+	if _completion_barrier.is_valid() and not bool(_completion_barrier.call(_last_frontier.duplicate(true))):
 		return
-	var expected := _frontier.duplicate(true)
+	var expected := _last_frontier.duplicate(true)
 	var request_generation := _generation
 	_armed = false
-	_frontier.clear()
 	_remaining = 0.0
 	set_process(false)
 	_request_in_progress = true
@@ -170,14 +163,14 @@ func _process(delta: float) -> void:
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
 	if path == AUTO_ENABLED or path == AUTO_DELAY:
-		_sync_preferences(true)
+		_sync_preferences()
 
 
 func _on_profile_restored(_restored_profile: Dictionary) -> void:
-	_sync_preferences(true, true)
+	_sync_preferences(true)
 
 
-func _sync_preferences(allow_arm: bool, force_reset: bool = false) -> void:
+func _sync_preferences(force_reset: bool = false) -> void:
 	if not _is_configured():
 		return
 	var next_enabled := bool(_profile.call("get_preference", AUTO_ENABLED, false))
@@ -187,16 +180,14 @@ func _sync_preferences(allow_arm: bool, force_reset: bool = false) -> void:
 	var delay_changed: bool = valid_delay and str(next_delay) != _delay_key
 	if changed or delay_changed or force_reset:
 		retire_current()
-		_last_frontier.clear()
 	_auto_enabled = next_enabled
 	if valid_delay:
 		_delay_key = str(next_delay)
-		_delay = float(DELAYS[_delay_key])
 	else:
 		retire_current()
 	if changed or delay_changed or force_reset:
 		state_changed.emit()
-	if allow_arm and _auto_enabled and valid_delay and (changed or delay_changed or force_reset):
+	if _auto_enabled and valid_delay and (changed or delay_changed or force_reset):
 		_try_arm_current()
 
 
