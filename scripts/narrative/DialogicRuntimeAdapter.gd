@@ -80,7 +80,7 @@ func reconcile_scene_publication(session: RefCounted) -> Dictionary:
 	var programme: Dictionary = programmes.get(_caption_entry, {})
 	var path := owner.scene_timeline_path(selected.bundle.entry_manifest, _caption_entry)
 	if programme.is_empty() or path != _requested_path: return _fail(&"scene_source_unavailable", "")
-	var compiled := compile_runtime_scene_programme(path, _caption_entry, programmes.keys(), programme.markers)
+	var compiled := compile_runtime_scene_programme(path, _caption_entry, programme.markers)
 	if not compiled.ok: return compiled
 	var index: int = compiled.value.native_indices.find(int(_dialogic.current_event_idx))
 	if index < 0: return _fail(&"scene_source_boundary_invalid", "")
@@ -114,7 +114,7 @@ func _scene_source_boundary(session: RefCounted, allow_suspended_read: bool = fa
 	var programme: Dictionary = selected.value.entries.get(_caption_entry, {})
 	var path := owner.scene_timeline_path(selected.bundle.entry_manifest, _caption_entry)
 	if programme.is_empty() or path != _requested_path: return _fail(&"scene_source_unavailable", "")
-	var compiled := compile_runtime_scene_programme(path, _caption_entry, selected.value.entries.keys(), programme.markers)
+	var compiled := compile_runtime_scene_programme(path, _caption_entry, programme.markers)
 	if not compiled.ok: return compiled
 	var index: int = session.scene_index
 	if session.boundary == "control":
@@ -185,7 +185,7 @@ func install_scene_target(session: RefCounted, checkpoint: Dictionary, target: D
 	var programme: Dictionary = programmes.get(checkpoint.entry_id, {})
 	var path := owner.scene_timeline_path(bundle.entry_manifest, checkpoint.entry_id)
 	var markers: Array = programme.get("markers", [])
-	var compiled := compile_runtime_scene_programme(path, checkpoint.entry_id, programmes.keys(), markers)
+	var compiled := compile_runtime_scene_programme(path, checkpoint.entry_id, markers)
 	if not compiled.ok: return compiled
 	if not compiled.value.label_nodes.has(target.label) \
 			or compiled.value.label_nodes[target.label] != checkpoint.reading_session.program_index:
@@ -316,7 +316,7 @@ func _install_scene_frontier(session: RefCounted, checkpoint: Dictionary, source
 	var programme: Dictionary = programmes.get(checkpoint.entry_id, {})
 	var path := DialogicEntryManifest.scene_timeline_path(selected.bundle.entry_manifest, checkpoint.entry_id)
 	if programme.is_empty(): return _fail(&"scene_restore_native_invalid", "programme unavailable")
-	var compiled := compile_runtime_scene_programme(path, checkpoint.entry_id, programmes.keys(), programme.markers)
+	var compiled := compile_runtime_scene_programme(path, checkpoint.entry_id, programme.markers)
 	if not compiled.ok: return compiled
 	if saved.program_index >= compiled.value.nodes.size():
 		return _fail(&"scene_restore_native_invalid", "installed programme changed")
@@ -460,7 +460,7 @@ static var _scene_runtime_bundle: Dictionary = {}
 static var _scene_runtime_parsed_sources: Dictionary = {}
 
 static func compile_runtime_scene_programme(path: String, entry_label: String,
-		callable_labels: Array, markers: Array = [], parsed_sources: Dictionary = {}) -> Dictionary:
+		markers: Array = [], parsed_sources: Dictionary = {}) -> Dictionary:
 	var owner := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 	var selected := owner.scene_contract_tables()
 	if not selected.ok: return selected
@@ -473,7 +473,7 @@ static func compile_runtime_scene_programme(path: String, entry_label: String,
 		return _scene_runtime_programmes[entry_label]
 	if cacheable and not parsed_sources.has(path) and _scene_runtime_parsed_sources.has(path):
 		parsed_sources[path] = _scene_runtime_parsed_sources[path]
-	var result := _compile_scene_programme_in_registration(path, entry_label, callable_labels, markers, parsed_sources)
+	var result := _compile_scene_programme_in_registration(path, entry_label, selected.value.entries.keys(), markers, parsed_sources)
 	if cacheable and parsed_sources.has(path):
 		_scene_runtime_parsed_sources[path] = parsed_sources[path]
 	if cacheable and result.ok:
@@ -873,7 +873,7 @@ func _prepare_scene_native_mappings() -> void:
 	var programmes: Dictionary = registered.value.entries
 	var programme: Dictionary = programmes.get(_caption_entry, {})
 	if programme.is_empty(): return
-	var compiled := compile_runtime_scene_programme(_requested_path, _caption_entry, programmes.keys(), programme.markers)
+	var compiled := compile_runtime_scene_programme(_requested_path, _caption_entry, programme.markers)
 	if not compiled.ok: return
 	for index: int in compiled.value.nodes.size():
 		var node: Dictionary = compiled.value.nodes[index]

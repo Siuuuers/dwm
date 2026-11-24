@@ -4201,16 +4201,12 @@ func scene_entry_staging_context(entry_id: String, frame: Dictionary) -> Diction
 var _scene_presentation_checkpoint_pending := false
 
 func _scene_entry_presentation_commands(scene: Dictionary, bundle: Dictionary, label: String) -> Dictionary:
-	var labels: Array = []
-	var path := ""
+	var path := _SCENE_MANIFEST.scene_timeline_path(bundle.entry_manifest, scene.entry_id)
 	var markers: Array = []
-	for entry: Dictionary in bundle.entry_manifest.entries:
-		labels.append(entry.entry_id)
-		if entry.entry_id == scene.entry_id: path = entry.locators.en.path
 	for programme: Dictionary in bundle.scene_programme.entries:
 		if programme.entry_id == scene.entry_id: markers = programme.markers
 	if label.is_empty(): label = scene.entry_id
-	var compiled := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd").compile_runtime_scene_programme(path, scene.entry_id, labels, markers)
+	var compiled := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd").compile_runtime_scene_programme(path, scene.entry_id, markers)
 	if not compiled.ok: return compiled
 	if not compiled.value.label_nodes.has(label): return _transaction_failure(&"scene_native_target_invalid", label)
 	return {"ok": true, "value": compiled.value.nodes[compiled.value.label_nodes[label]].get("presentation_commands", [])}
@@ -4260,16 +4256,12 @@ func prepare_scene_audio_arrival(scene: Dictionary, bundle: Dictionary, label: S
 	else:
 		context = audio_owner.make_scene_context(bundle, scene.entry_id, scene.active_occurrence_id)
 	if not context.ok: return context
-	var labels: Array = []
-	var path := ""
+	var path := _SCENE_MANIFEST.scene_timeline_path(bundle.entry_manifest, scene.entry_id)
 	var markers: Array = []
-	for entry: Dictionary in bundle.entry_manifest.entries:
-		labels.append(entry.entry_id)
-		if entry.entry_id == scene.entry_id: path = entry.locators.en.path
 	for programme: Dictionary in bundle.scene_programme.entries:
 		if programme.entry_id == scene.entry_id: markers = programme.markers
 	if label.is_empty(): label = scene.entry_id
-	var compiled := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd").compile_runtime_scene_programme(path, scene.entry_id, labels, markers)
+	var compiled := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd").compile_runtime_scene_programme(path, scene.entry_id, markers)
 	if not compiled.ok: return compiled
 	if not compiled.value.label_nodes.has(label): return _transaction_failure(&"scene_native_target_invalid", label)
 	var cues: Array = compiled.value.nodes[compiled.value.label_nodes[label]].get("audio_cues", [])

@@ -201,15 +201,11 @@ static func _build_current_scene_initial_checkpoint(scene: Dictionary, bundle: D
 		if row.target.entry_id == entry_id and row.target.kind == "scene": target = row.target
 	if target.is_empty():
 		return {"ok": false, "code": &"scene_initial_target_invalid"}
-	var labels: Array = []
-	var path := ""
+	var path := _ENTRY_MANIFEST.scene_timeline_path(bundle.entry_manifest, entry_id)
 	var markers: Array = []
-	for entry: Dictionary in bundle.entry_manifest.entries:
-		labels.append(entry.entry_id)
-		if entry.entry_id == entry_id: path = entry.locators.en.path
 	for programme: Dictionary in bundle.scene_programme.entries:
 		if programme.entry_id == entry_id: markers = programme.markers
-	var compiled := DialogicRuntimeAdapter.compile_runtime_scene_programme(path, entry_id, labels, markers)
+	var compiled := DialogicRuntimeAdapter.compile_runtime_scene_programme(path, entry_id, markers)
 	if not compiled.ok: return compiled
 	if not compiled.value.label_nodes.has(target.label):
 		return _READING_SESSION._content_error("Missing dialogue target: " + target.label,
@@ -305,15 +301,11 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 		if not configured.ok: return configured
 		var begun: Dictionary = candidate.begin_scene(str(binding.operation_id))
 		if not begun.ok: return begun
-	var labels: Array = []
-	var path := ""
+	var path := _ENTRY_MANIFEST.scene_timeline_path(bundle.entry_manifest, entry_id)
 	var markers: Array = []
-	for entry: Dictionary in bundle.entry_manifest.entries:
-		labels.append(entry.entry_id)
-		if entry.entry_id == entry_id: path = entry.locators.en.path
 	for programme: Dictionary in bundle.scene_programme.entries:
 		if programme.entry_id == entry_id: markers = programme.markers
-	var compiled := DialogicRuntimeAdapter.compile_runtime_scene_programme(path, entry_id, labels, markers)
+	var compiled := DialogicRuntimeAdapter.compile_runtime_scene_programme(path, entry_id, markers)
 	if not compiled.ok: return compiled
 	if not compiled.value.label_nodes.has(target.label):
 		return _READING_SESSION._content_error("Missing dialogue target: " + target.label,
@@ -3049,7 +3041,7 @@ func _prepare_scene_reading_candidate(checkpoint: Dictionary, entry_contexts: Di
 	if path.is_empty(): return _command_failure(&"reading_entry_mismatch")
 	if saved.boundary == "control":
 		var markers: Array = programme.markers
-		var compiled := DialogicRuntimeAdapter.compile_runtime_scene_programme(path, checkpoint.entry_id, programmes.keys(), markers)
+		var compiled := DialogicRuntimeAdapter.compile_runtime_scene_programme(path, checkpoint.entry_id, markers)
 		if not compiled.ok: return compiled
 		var predecessor := DialogicRuntimeAdapter._scene_control_predecessor(saved, compiled.value, markers)
 		if not predecessor.ok: return predecessor
