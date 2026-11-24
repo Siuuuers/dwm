@@ -37,11 +37,13 @@ class MemoryLocalization extends RefCounted:
 		return [{"id": "en", "native_name": "English", "release_status": "complete"}]
 
 class MemoryVolume extends RefCounted:
+	var availability_reads := 0
 	var previews: Array[Dictionary] = []
 	var commits: Array[Dictionary] = []
 	var cancellations: Array = []
 
 	func get_settings_audio_capability() -> Dictionary:
+		availability_reads += 1
 		return {"ok": true, "value": {"volume": true}}
 
 	func preview_settings_volume(holder: StringName, path: StringName, value: float,
@@ -170,6 +172,21 @@ func test_live_resize_preserves_category_focus_and_uncommitted_volume_preview() 
 	assert_eq(_profile.commits, [], "layout changes do not publish held settings")
 
 	await controller.cancel_volume_drag()
+
+func test_label_refresh_shares_locale_and_audio_queries_across_rows() -> void:
+	var localization: MemoryLocalization = _content._services.localization
+	localization.availability_reads = 0
+	_volume.availability_reads = 0
+	_content.refresh_labels()
+	assert_eq(localization.availability_reads, 2, "One query labels both pickers and one checks availability.")
+	assert_eq(_volume.availability_reads, 1, "All audio rows share a capability query.")
+	var primary: OptionButton = _content.control_for(&"preferences.language.primary_locale_id")
+	var secondary: OptionButton = _content.control_for(&"preferences.language.secondary_locale_id")
+	assert_eq(primary.get_item_text(0), "English")
+	assert_eq(secondary.get_item_text(1), str(secondary.get_item_metadata(1)))
+	assert_false(primary.disabled)
+	assert_true(secondary.disabled)
+
 
 func test_hidden_departure_skips_refresh_and_reopen_restores_committed_controls() -> void:
 	_app.show_window()

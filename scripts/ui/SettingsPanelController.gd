@@ -93,18 +93,21 @@ func refresh() -> void:
 	if _tts != null and _tts.has_method("refresh_capability"):
 		var capability: Dictionary = _tts.refresh_capability(_content.current_locale())
 		_tts_available = capability.get("ok", false) and capability.get("value", {}).get("available", false)
+	var audio_available := _has_audio_sink()
+	var window_available := _has_window_sink()
+	var multiple_locales: bool = _localization.get_selectable_locales().size() >= 2
 	for path: StringName in _controls:
 		var control: Control = _controls[path]
 		var value: Variant = _value(path)
 		var disabled: bool = _busy or not REGISTRY.is_player_writable(path)
 		var reason := ""
-		if String(path).begins_with("preferences.audio.") and not _has_audio_sink():
+		if String(path).begins_with("preferences.audio.") and not audio_available:
 			disabled = true
 			reason = "settings.status.unavailable"
 		elif path == FONT_STYLE and not _localization.has_method("set_font_style"):
 			disabled = true
 			reason = "settings.status.unavailable"
-		elif path in [WINDOW_MODE, WINDOW_SIZE] and not _has_window_sink():
+		elif path in [WINDOW_MODE, WINDOW_SIZE] and not window_available:
 			disabled = true
 			reason = "settings.status.unavailable"
 		elif path == WINDOW_SIZE and _value(WINDOW_MODE) != "windowed":
@@ -122,13 +125,12 @@ func refresh() -> void:
 		elif path in [&"preferences.reading.read_aloud_enabled", &"preferences.reading.read_aloud_rate"] and not _tts_available:
 			disabled = true
 			reason = "settings.status.unavailable" if _tts == null else "settings.status.no_compatible_voice"
-		if path in [PRIMARY, &"preferences.language.secondary_locale_id", &"preferences.language.dual_enabled"]:
-			if _localization.get_selectable_locales().size() < 2 and path != PRIMARY:
-				disabled = true
-				reason = "settings.status.locales_unavailable"
+		if not multiple_locales and path in [&"preferences.language.secondary_locale_id", &"preferences.language.dual_enabled"]:
+			disabled = true
+			reason = "settings.status.locales_unavailable"
 		if control is OptionButton:
 			if path == WINDOW_SIZE:
-				var sizes: Array = _window.get_available_window_sizes() if _has_window_sink() and _window.has_method("get_available_window_sizes") else []
+				var sizes: Array = _window.get_available_window_sizes() if window_available and _window.has_method("get_available_window_sizes") else []
 				for index: int in range(control.item_count):
 					control.set_item_disabled(index, control.get_item_metadata(index) not in sizes)
 				if sizes.is_empty():
