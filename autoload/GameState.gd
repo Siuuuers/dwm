@@ -2658,13 +2658,12 @@ func capture_live_session() -> Dictionary:
 
 
 func capture_desktop_identity_context() -> Dictionary:
-	if not _live_session_active or not _run_configuration_installed:
+	return _capture_live_identity(false)
+
+func _capture_live_identity(include_receipt: bool) -> Dictionary:
+	if not _live_session_active or not _run_configuration_installed or _run_lifecycle.get_run_id() != _live_session_run_id:
 		return _session_failure(&"stale_live_session")
-	var identity: Dictionary = _run_lifecycle.get_desktop_identity_context()
-	if str(identity.run_id) != _live_session_run_id:
-		return _session_failure(&"stale_live_session")
-	identity.erase("causal_day_instance_issuer_receipt")
-	return {"ok": true, "value": identity.duplicate(true)}
+	return {"ok": true, "value": _run_lifecycle.get_desktop_identity_context(include_receipt)}
 
 func validate_live_session(handle: Variant) -> Dictionary:
 	if not is_instance_valid(_mutation_gate): return _session_failure(&"session_gate_unconfigured")
@@ -4660,14 +4659,13 @@ var _scene_contact_operation: Dictionary = {}
 func capture_scene_contact_context() -> Dictionary:
 	if not _run_lifecycle.is_scene_run() or not _live_session_active:
 		return _transaction_failure(&"scene_contact_unavailable", "")
-	var identity := capture_desktop_identity_context()
+	var identity := _capture_live_identity(true)
 	if not identity.ok: return identity
-	identity.value = _run_lifecycle.get_desktop_identity_context()
 	var registration := _SCENE_MANIFEST.scene_contract_tables()
 	if not registration.ok: return registration
-	if _scene_snapshot_references.get("registration_sha256") != _SCENE_MANIFEST.scene_registration_fingerprint():
+	if _scene_snapshot_references.get("registration_sha256") != registration.value.fingerprint:
 		return _transaction_failure(&"scene_registration_mismatch", "")
-	return {"ok": true, "value": {"identity": identity.value.duplicate(true),
+	return {"ok": true, "value": {"identity": identity.value,
 		"scene_occurrence": _scene_snapshot_references.active_occurrence_id,
 		"registration_sha256": _scene_snapshot_references.registration_sha256,
 		"contacts_sha256": _CONTACT_INVITATION_STATE._s_hash(contacts)}}
