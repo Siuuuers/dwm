@@ -52,7 +52,7 @@ At `a1679544`, SaveManager's private `_commit_prepared_new_run` started the conf
 
 ## Initial reading checkpoint
 
-At `2c3b208`, DialogicBridge passed a null reading session through its private `_build_scene_initial_checkpoint` wrapper. Every caller built a fresh session. The public builder now reconstructs the scene directly, and the current-scene builder creates that session.
+At `2c3b208`, DialogicBridge passed a null reading session through its private `_build_scene_initial_checkpoint` wrapper. Every caller built a fresh session. At that point the public builder reconstructed the scene directly. By `86c50e5`, New Game supplied the current scene to `_build_current_scene_initial_checkpoint`, leaving the receipt-based public builder without callers. It was removed.
 
 ## Save recovery dispatch
 
@@ -69,3 +69,7 @@ At `a0d2a0e6`, Title supplied five fixed fields to prepare New Game consent. Sav
 ## Window startup, Load audio and Title confirmation
 
 At `c1d72301`, window initialization and Load audio copied the entire Global profile to read one preferences group each. Each now receives its own detached group. Window application uses the selected size directly, and its physical output target comes from a fresh capture. New Game consent had identical live-run and autosave messages in all five languages, so Title uses one body per language.
+
+## Starting a Challenge absent from the selected save
+
+The October 26 Load decision assigns Challenge boards and attempt progress to the selected Run. It supersedes the October 9 proposal to reconstruct an absent board from a prior Global attempt. The unbound Profile validator and its transient `start_from_absence` command were removed. Version 5 Profile migration still initializes an empty Dating ledger. Version 6 migration retains recorded attempt progress and receipts. [October 26 decision and implemented behavior](../../../handoff/ai-direct-load-and-settings-back-20261026.md)

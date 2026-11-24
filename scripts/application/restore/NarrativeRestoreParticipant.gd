@@ -346,12 +346,7 @@ static func _entry_document_fingerprint() -> String:
 	return _document_fingerprint
 
 static func _exact_keys(target: Dictionary, keys: Array) -> bool:
-	if target.size() != keys.size():
-		return false
-	for key in keys:
-		if not target.has(key):
-			return false
-	return true
+	return target.size() == keys.size() and target.has_all(keys)
 
 static func _has_nonempty_playhead(checkpoint: Dictionary) -> bool:
 	if checkpoint.is_empty():

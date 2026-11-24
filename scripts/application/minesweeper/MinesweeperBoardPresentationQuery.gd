@@ -85,7 +85,7 @@ static func _candidate(snapshot: Dictionary) -> Dictionary:
 	if spec.board_kind != "desktop": return _fail()
 	if not prepared:
 		if not candidate.frontier is Dictionary: return _fail()
-		return _covered(spec.width, spec.height, snapshot.revision, false, -1, null, true)
+		return _shell(spec.width, spec.height, snapshot.revision, [], false, true)
 	if not candidate.layout is Dictionary: return _fail()
 	var validated_layout := SCHEMA.validate_layout(candidate.layout, spec)
 	if not validated_layout.get("ok", false): return _fail()
@@ -103,21 +103,6 @@ static func _candidate(snapshot: Dictionary) -> Dictionary:
 		if cell.index != candidate.forced_cell: cell.actions.erase("reveal")
 	return result
 
-
-static func _covered(width: int, height: int, revision: int, actionable: bool, forced: int, estimate: Variant, custody: bool) -> Dictionary:
-	var cells: Array[Dictionary] = []
-	for index in width * height:
-		var cell := _cell(index, actionable and (forced < 0 or forced == index))
-		cell.bracketed = index == forced
-		cell.actions = ["reveal"] if cell.inspectable else []
-		cell.pressable = not cell.actions.is_empty()
-		cells.append(cell)
-	return _ok({"width": width, "height": height, "revision": revision, "mine_estimate": estimate,
-		"terminal": false, "custody": custody, "cells": cells})
-
-static func _cell(index: int, inspectable: bool) -> Dictionary:
-	return {"index": index, "face": "covered", "mark": "none", "number": 0,
-		"bracketed": false, "inspectable": inspectable, "pressable": false, "actions": []}
 
 static func _adjacent_flag_counts(board: Dictionary, flagged_set: Dictionary) -> Dictionary:
 	var width: int = int(board.width)
@@ -140,10 +125,7 @@ static func _index_set(indices: Variant) -> Dictionary:
 	return members
 
 static func _keys(value: Dictionary, expected: Array) -> bool:
-	if value.size() != expected.size(): return false
-	for key: String in expected:
-		if not value.has(key): return false
-	return true
+	return value.size() == expected.size() and value.has_all(expected)
 
 static func _ok(value: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": value}
@@ -152,13 +134,17 @@ static func _fail() -> Dictionary:
 	return {"ok": false, "code": &"invalid_minesweeper_presentation_source"}
 
 
-static func _shell(width: int, height: int, revision: int, flags: Array, reveal_eligible: bool) -> Dictionary:
-	var result := _covered(width, height, revision, true, -1, null, false)
-	for cell: Dictionary in result.value.cells:
-		if flags.has(cell.index):
-			cell.mark = "flag"
-			cell.actions = ["unflag"]
-		else:
-			cell.actions = ["reveal", "flag"] if reveal_eligible else ["flag"]
-		cell.pressable = true
-	return result
+static func _shell(width: int, height: int, revision: int, flags: Array, reveal_eligible: bool, custody: bool = false) -> Dictionary:
+	var cells: Array[Dictionary] = []
+	for index in width * height:
+		var cell := {"index": index, "face": "covered", "mark": "none", "number": 0,
+			"bracketed": false, "inspectable": not custody, "pressable": not custody, "actions": []}
+		if not custody:
+			if flags.has(index):
+				cell.mark = "flag"
+				cell.actions = ["unflag"]
+			else:
+				cell.actions = ["reveal", "flag"] if reveal_eligible else ["flag"]
+		cells.append(cell)
+	return _ok({"width": width, "height": height, "revision": revision, "mine_estimate": null,
+		"terminal": false, "custody": custody, "cells": cells})

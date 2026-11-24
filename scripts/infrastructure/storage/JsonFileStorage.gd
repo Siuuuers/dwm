@@ -748,12 +748,7 @@ func _set_absent_lease(relative_path: String) -> void:
 	_leases[relative_path] = {"absent": true}
 
 func _has_exact_keys(value: Dictionary, expected: Array) -> bool:
-	if value.size() != expected.size():
-		return false
-	for key in expected:
-		if not value.has(key):
-			return false
-	return true
+	return value.size() == expected.size() and value.has_all(expected)
 
 func _is_hash(value: Variant) -> bool:
 	if typeof(value) != TYPE_STRING or (value as String).length() != 64:

@@ -391,9 +391,8 @@ func _select_record(tile: Button, refresh_selected: bool = true, reveal: bool = 
 	if _replay_owner != null and _replay_owner.is_playing(): return
 	var changed := _selected_id != str(tile.get_meta(&"gallery_record_id"))
 	if not changed and not refresh_selected: return
-	if changed or refresh_selected:
-		_history_status = ""
-		_replay_return_context = {}
+	_history_status = ""
+	_replay_return_context = {}
 	if changed: _retry_signature_id = ""
 	_selected_id = tile.get_meta(&"gallery_record_id")
 	for row: Button in _ending_tile_grid.get_children(): row.selected = row == tile
@@ -440,12 +439,12 @@ func _refresh_replay_selection() -> void:
 	_selected_version = 0
 	_version_selector.clear()
 	var unavailable := _replay_owner == null
-	if _replay_owner != null and not _selected_id.is_empty():
+	if _replay_owner != null:
 		var available: Dictionary = _replay_owner.get_reached_entry_variants(_selected_id) if _selected_id.begins_with("dating.") \
 			else _replay_owner.get_variants(_selected_id)
 		unavailable = not available.get("ok", false) or _trusted_record_title(_selected_id).is_empty()
 		if not unavailable:
-			for record: Dictionary in available.value.records: _versions.append(record.duplicate(true))
+			_versions.assign(available.value.records)
 	for index: int in range(_versions.size()):
 		var locale := str(_localization.get_locale()) if _localization != null else "en"
 		_version_selector.add_item(("版本 %d" if locale.begins_with("zh") else {"ja": "バージョン %d", "ko": "버전 %d"}.get(locale, "Version %d")) % (index + 1))

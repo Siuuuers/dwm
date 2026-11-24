@@ -360,10 +360,7 @@ static func _valid_proof(command_id: String, proof: Dictionary) -> bool:
 	return proof == ROOT._mint_receipt(proof.namespace, proof.counter, "transaction_id", null)
 
 static func _exact(value: Dictionary, keys: Array) -> bool:
-	if value.size() != keys.size(): return false
-	for key: String in keys:
-		if not value.has(key): return false
-	return true
+	return value.size() == keys.size() and value.has_all(keys)
 
 static func _candidate(state: Dictionary, batch: Array, receipt: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"candidate": state, "message_batch": batch}, "receipt": receipt}

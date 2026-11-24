@@ -155,6 +155,7 @@ func refresh() -> void:
 			if _drag.get("path") != path:
 				control.set_value_no_signal(float(value))
 			control.editable = not disabled
+		control.set_meta("settings_unavailable", reason in ["settings.status.unavailable", "settings.status.no_compatible_voice", "settings.status.locales_unavailable"])
 		var status: Label = _content.statuses[path]
 		status.text = _content.text(reason) if not reason.is_empty() else ""
 		if control is HSlider:

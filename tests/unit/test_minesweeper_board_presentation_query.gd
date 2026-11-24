@@ -61,8 +61,9 @@ func test_unpaid_shell_uses_catalog_without_estimated_or_generated_mines() -> vo
 		for cell: Dictionary in result.value.cells:
 			assert_eq(cell.mark,"none")
 			assert_eq(cell.number,0)
-	var inert := QUERY.desktop(state.capture(),"beginner")
-	assert_false(inert.value.cells[0].pressable)
+	var unpaid := QUERY.desktop(state.capture(),"beginner")
+	assert_true(unpaid.value.cells[0].pressable)
+	assert_eq(unpaid.value.cells[0].actions, ["flag"])
 	assert_eq(state.capture().revision,0,"Projection never creates a shell or consumes a round.")
 
 func test_retained_dimensions_and_top_level_revision_are_literal() -> void:

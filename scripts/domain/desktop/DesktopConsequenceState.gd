@@ -74,22 +74,6 @@ var _shop_ledger: Dictionary = _empty_shop_ledger()
 var _proven_pending_payload_sha256: String = ""
 
 
-func _init() -> void:
-	_reset_defaults()
-
-
-func _reset_defaults() -> void:
-	_run_revision = 0
-	_causal_sequence = 0
-	_causal_day_instance = ""
-	_causal_day_instance_issuer_receipt = {}
-	_pending = null
-	_outbox = {}
-	_command_receipts = {}
-	_shop_ledger = _empty_shop_ledger()
-	_proven_pending_payload_sha256 = ""
-
-
 static func _empty_shop_ledger() -> Dictionary:
 	return {
 		"supportz_branch_purchase_count": 0, "supportz_last_purchase_causal_day_instance": "",

@@ -563,10 +563,6 @@ func apply_text_size(percent: int, large_targets: bool) -> void:
 			var profile: Variant = _services.get("profile")
 			control.set_meta("settings_committed_value", float(profile.get_preference(path, control.value)) if profile != null else control.value)
 			PRESENTATION.apply_volume_value(statuses[path], bool(statuses[path].get_meta("settings_volume_preview", false)))
-		var unavailable := false
-		for key: String in ["settings.status.unavailable", "settings.status.no_compatible_voice", "settings.status.locales_unavailable"]:
-			unavailable = unavailable or statuses[path].text == text(key)
-		control.set_meta("settings_unavailable", unavailable)
 	for button: Button in _rails.values():
 		var label := button.get_child(0) as Label
 		var advance := theme.default_font.get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x

@@ -90,10 +90,6 @@ func prepare_player_restore_scene(snapshot: Dictionary, issuer: Object) -> Dicti
 	return prepare_restore_scene(current, issuer)
 
 
-func _init() -> void:
-	reset()
-
-
 func reset() -> void:
 	_phase = _PHASE_NONE
 	_revision = 0

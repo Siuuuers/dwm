@@ -901,12 +901,7 @@ func _configured_result(already: bool) -> Dictionary:
 
 
 func _exact_keys(target: Dictionary, keys: Array) -> bool:
-	if target.size() != keys.size():
-		return false
-	for key in keys:
-		if not target.has(key):
-			return false
-	return true
+	return target.size() == keys.size() and target.has_all(keys)
 
 
 func _copy(value: Variant) -> Variant:

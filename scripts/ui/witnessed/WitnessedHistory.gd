@@ -143,7 +143,6 @@ func configure(presentation: Theme, localization: Object, input_owner: Node, adm
 	_heading.add_theme_color_override(&"font_color", _roles[&"text"])
 	for row: Node in _rows.get_children():
 		if row is RichTextLabel:
-			if not row.has_meta("content_locale"): row.language = locale
 			row.add_theme_color_override(&"default_color", _roles[&"text"])
 	if _active: set_interactive(_interactive)
 	var plane := _plate(_roles[&"current"], Color.TRANSPARENT)
@@ -211,7 +210,6 @@ func _add_caption(text: String, locale: String, node_name: String) -> void:
 	label.add_theme_color_override(&"font_outline_color", Color.TRANSPARENT)
 	label.add_theme_constant_override(&"outline_size", 0)
 	label.language = locale.replace("_", "-")
-	label.set_meta("content_locale", locale)
 	var font := TYPOGRAPHY.story_font(locale, _text_percent, _font_style)
 	for role: StringName in [&"normal_font", &"bold_font", &"italics_font", &"bold_italics_font", &"mono_font"]:
 		label.add_theme_font_override(role, font)

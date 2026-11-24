@@ -88,10 +88,7 @@ static func fingerprint_records(records: Array[Dictionary]) -> String:
 	return context.finish().hex_encode()
 
 static func _exact_keys(value: Dictionary, keys: Array) -> bool:
-	if value.size() != keys.size(): return false
-	for key in keys:
-		if not value.has(key): return false
-	return true
+	return value.size() == keys.size() and value.has_all(keys)
 static func _safe_relative(path: Variant) -> bool:
 	if typeof(path) != TYPE_STRING or path.is_empty() or path.is_absolute_path() or ":" in path or "\\" in path: return false
 	var parts: PackedStringArray = (path as String).split("/", true)
