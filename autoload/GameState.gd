@@ -951,15 +951,9 @@ func _schedule_action_record(action_id: String) -> Dictionary:
 	var loaded: Dictionary = _SCHEDULE_ACTION_REGISTRY.load_current()
 	if not loaded.get("ok", false):
 		return {}
-	var registry: Object = loaded.get("value", {}).get("registry")
-	if registry == null:
-		return {}
-	if str(registry.call(&"fingerprint")).strip_edges().is_empty():
-		return {}
-	var found: Variant = registry.call(&"find_record", action_id)
-	if typeof(found) != TYPE_DICTIONARY or not (found as Dictionary).get("ok", false):
-		return {}
-	return ((found as Dictionary).get("value", {}) as Dictionary).get("record", {}).duplicate(true)
+	var registry: ScheduleActionRegistry = loaded.value.registry
+	var found := registry.find_record(action_id)
+	return found.value.record if found.ok else {}
 
 
 func resolve_invitations_for_day(attendance: Dictionary, command_id: String) -> Dictionary:

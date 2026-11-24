@@ -108,6 +108,9 @@ func test_returned_records_are_deeply_detached() -> void:
 	var first: Dictionary = (registry.find_record("training")["value"] as Dictionary)["record"]
 	(first["effect_ids"] as Array).append("tamper:+1")
 	first["motivation_cost"] = 99
+	var snapshot: Dictionary = registry.snapshot(registry.fingerprint()).value.records
+	assert_eq(snapshot.training.motivation_cost, 1)
+	snapshot.training.effect_ids.clear()
 	var second: Dictionary = (registry.find_record("training")["value"] as Dictionary)["record"]
 	assert_eq(second["effect_ids"], ["pressure:+1", "health:+2"],
 		"mutating a returned record cannot reach the retained snapshot")
