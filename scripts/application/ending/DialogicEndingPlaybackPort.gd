@@ -34,7 +34,6 @@ func configure_reached_presentations(profile: Object, reader: Callable, frozen_r
 var _bridge: Object = null
 var _initialized := false
 var _active: Dictionary = {}
-var _completed: Dictionary = {}
 var _starting := false
 var _early_events: Array[Dictionary] = []
 
@@ -81,7 +80,7 @@ func start_ending_id(ending_id: String, context: Dictionary = {}) -> Dictionary:
 		if not captured.get("ok", false): return captured
 		var checked := SIGNATURE.validate(captured.value)
 		if not checked.ok: return checked
-		signature = checked.value.signature.duplicate(true)
+		signature = checked.value.signature
 	if _frozen_presentation_reader.is_valid():
 		var frozen: Dictionary = _frozen_presentation_reader.call(ending_id, context.duplicate(true))
 		if not frozen.get("ok", false): return frozen
@@ -115,7 +114,7 @@ func start_ending_id(ending_id: String, context: Dictionary = {}) -> Dictionary:
 	_starting = false
 	if typeof(started) != TYPE_DICTIONARY or not (started as Dictionary).get("ok", false):
 		_early_events.clear()
-		return _copy(started) if started is Dictionary else _fail(&"invalid_bridge_receipt", "invalid result")
+		return started.duplicate(true) if started is Dictionary else _fail(&"invalid_bridge_receipt", "invalid result")
 	var token := str(((started as Dictionary).get("receipt", {}) as Dictionary).get("playback_token", ""))
 	if token.is_empty():
 		return _fail(&"invalid_bridge_receipt", "bridge did not return a playback_token")
@@ -131,7 +130,7 @@ func start_ending_id(ending_id: String, context: Dictionary = {}) -> Dictionary:
 	_active = {"token": token, "playback_id": str(context["playback_id"]), "ending_id": ending_id, "context": context.duplicate(true), "start_result": start_result.duplicate(true), "signature": signature}
 	if not _early_events.is_empty():
 		_drain_early_events.call_deferred()
-	return start_result.duplicate(true)
+	return start_result
 
 
 func _on_finished(playback_token: String, ending_id: String, receipt: Dictionary) -> void:
@@ -157,7 +156,6 @@ func _on_finished(playback_token: String, ending_id: String, receipt: Dictionary
 		"timeline_completion_receipt_id": str(receipt.get("receipt_id", "")),
 		"outcome": &"completed",
 	}
-	_completed[playback_token] = completion.duplicate(true)
 	_active = {}
 	playback_completed.emit(completion)
 
@@ -189,8 +187,8 @@ func _on_retired(playback_token: String, ending_id: String) -> void:
 
 
 func _drain_early_events() -> void:
-	var events := _early_events.duplicate(true)
-	_early_events.clear()
+	var events := _early_events
+	_early_events = []
 	for event: Dictionary in events:
 		if str(event.kind) == "finished":
 			_on_finished(str(event.token), str(event.ending_id), event.receipt)
@@ -230,12 +228,6 @@ func _same_request(ending_id: String, context: Dictionary) -> bool:
 
 func _exact_keys(target: Dictionary, keys: Array) -> bool:
 	return target.size() == keys.size() and target.has_all(keys)
-
-
-func _copy(value: Variant) -> Variant:
-	if typeof(value) == TYPE_DICTIONARY or typeof(value) == TYPE_ARRAY:
-		return value.duplicate(true)
-	return value
 
 
 func _fail(code: StringName, message: String) -> Dictionary:
