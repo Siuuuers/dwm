@@ -281,7 +281,7 @@ func publish_deferred_profile_signals(publication_id: String) -> Dictionary:
 		return _failure(&"unknown_publication", "Publication ID is unknown or already consumed")
 	var publication: Dictionary = _deferred_publications[publication_id]
 	_deferred_publications.erase(publication_id)
-	_publish(publication.duplicate(true))
+	_publish(publication)
 	for transaction_id in _pending_gallery_publications.keys():
 		if _pending_gallery_publications[transaction_id] == publication_id:
 			_pending_gallery_publications.erase(transaction_id)
@@ -1181,9 +1181,7 @@ func _commit_prepared_reset(candidate: Dictionary, section: StringName, expected
 	if not result.get("ok", false):
 		return result
 	var publication_id: String = result["value"]["publication_id"]
-	var record: Dictionary = _deferred_publications[publication_id]
-	record["reset_section"] = section
-	_deferred_publications[publication_id] = record
+	_deferred_publications[publication_id]["reset_section"] = section
 	return result
 
 
@@ -1304,21 +1302,27 @@ func _build_publication(old: Dictionary, current: Dictionary) -> Dictionary:
 		var after: bool = ending_id in current["gallery_unlocks"]
 		if before != after:
 			changes.append({"kind": &"gallery", "id": ending_id, "value": after})
-	for line_id in _union_sorted(old["visited_line_ids"], current["visited_line_ids"]):
-		var before: bool = line_id in old["visited_line_ids"]
-		var after: bool = line_id in current["visited_line_ids"]
-		if before != after:
-			changes.append({"kind": &"visited", "id": line_id, "value": after})
-	for witness_id in _union_sorted(old.witnessed_caption_variants.keys(), current.witnessed_caption_variants.keys()):
-		var before: bool = old.witnessed_caption_variants.has(witness_id)
-		var after: bool = current.witnessed_caption_variants.has(witness_id)
-		if before != after:
-			changes.append({"kind": &"caption_witness", "id": witness_id, "value": after})
+	_append_membership_changes(changes, &"visited", old.visited_line_ids, current.visited_line_ids)
+	_append_membership_changes(changes, &"caption_witness", old.witnessed_caption_variants.keys(), current.witnessed_caption_variants.keys())
 	if old.displayed_artwork_ids != current.displayed_artwork_ids:
 		changes.append({"kind": &"artwork"})
 	if old.dialogue_library != current.dialogue_library:
 		changes.append({"kind": &"dialogue_library"})
 	return {"changes": changes}
+
+
+func _append_membership_changes(changes: Array[Dictionary], kind: StringName, before: Array, after: Array) -> void:
+	if before == after: return
+	var changed := {}
+	for id: String in before:
+		changed[id] = false
+	for id: String in after:
+		if not changed.erase(id):
+			changed[id] = true
+	var ids := changed.keys()
+	ids.sort_custom(_utf8_less)
+	for id: String in ids:
+		changes.append({"kind": kind, "id": id, "value": changed[id]})
 
 
 func _publish(publication: Dictionary) -> void:

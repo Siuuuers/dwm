@@ -99,6 +99,7 @@ func _historical_source(version: int) -> Dictionary:
 	var source := SCHEMA.make_defaults()
 	source.schema_version = version
 	source.erase("dialogue_library")
+	source.erase("displayed_artwork_ids")
 	source.preferences.accessibility.erase("steady_interface")
 	if version < 10: source.erase("witnessed_caption_variants")
 	if version < 9: source.erase("reached_presentation_chronology")

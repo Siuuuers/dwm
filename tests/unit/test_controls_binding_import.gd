@@ -24,6 +24,7 @@ func _v2() -> Dictionary:
 	profile.erase("legacy_preferences_v1")
 	profile.schema_version = 2
 	profile.erase("dialogue_library")
+	profile.erase("displayed_artwork_ids")
 	profile.erase("observer_evidence")
 	profile.erase("pair_deck_draws")
 	profile.erase("reached_presentations")
@@ -40,7 +41,7 @@ func _v2() -> Dictionary:
 func test_fresh_profile_is_v10_without_manufactured_legacy_provenance() -> void:
 	var profile := SCHEMA.make_defaults()
 	assert_eq(profile.schema_version, 10)
-	assert_eq(profile.keys().size(), 18)
+	assert_eq(profile.displayed_artwork_ids, [])
 	assert_eq(profile.input_mappings, {})
 	assert_false(profile.controls_import_pending)
 	assert_eq(profile.controls_bindings, RULES.defaults())
@@ -63,6 +64,7 @@ func test_default_v2_keeps_n_and_every_original_field() -> void:
 	expected["reached_presentation_chronology"] = {"first_witnessed": [], "legacy_unordered": []}
 	expected["witnessed_caption_variants"] = {}
 	expected["dialogue_library"] = {"checkpoints": [], "witnesses": {}}
+	expected["displayed_artwork_ids"] = []
 	expected.pair_form_witness_receipts = {}
 	expected["dating_attempts"] = {}
 	expected.migration_receipts = {"legacy_game_state_profile_v1":true,
