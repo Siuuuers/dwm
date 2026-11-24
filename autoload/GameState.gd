@@ -4412,13 +4412,15 @@ func _prepare_scene_day_renewal(trigger: Dictionary, target_id: String, registra
 	if not is_instance_valid(_scene_day_allocator) or not is_instance_valid(_scene_day_board) \
 			or not is_instance_valid(_scene_day_consequence):
 		return _transaction_failure(&"scene_day_dependencies_required", "")
-	var before := capture_run_snapshot_input().duplicate(true)
-	if before.desktop.consequence.get("pending") != null or before.desktop.board.get("phase") == "SETTLING":
+	var desktop := _capture_desktop_snapshot()
+	if desktop.consequence.get("pending") != null or desktop.board.get("phase") == "SETTLING":
 		return _transaction_failure(&"scene_day_pending_settlement", "")
-	var board_wrapper: Variant = before.desktop.board.get("board")
+	var board_wrapper: Variant = desktop.board.get("board")
 	if board_wrapper is Dictionary and board_wrapper.get("board") is Dictionary \
 			and board_wrapper.board.get("terminal", false) and not _scene_day_board.has_settled_inspection():
 		return _transaction_failure(&"scene_day_pending_settlement", "")
+	var lifecycle: Dictionary = capture_run_lifecycle()
+	var gameplay := _capture_scene_gameplay()
 	var derived: Dictionary = _identity_issuer.derive_child(_SCENE_EVENT.scene_day_renewal_request(trigger, identity))
 	if not derived.get("ok", false): return derived
 	var request := {"resolution_kind": "scene_day_complete", "run_id": identity.run_id,
@@ -4434,10 +4436,8 @@ func _prepare_scene_day_renewal(trigger: Dictionary, target_id: String, registra
 	var next_identity := identity.duplicate(true)
 	next_identity.causal_day_instance = receipt.target_causal_day_instance
 	next_identity.causal_day_instance_issuer_receipt = receipt.target_causal_day_instance_issuer_receipt.duplicate(true)
-	var lifecycle: Dictionary = before.lifecycle.duplicate(true)
 	lifecycle.causal_day_instance = next_identity.causal_day_instance
 	lifecycle.causal_day_instance_issuer_receipt = next_identity.causal_day_instance_issuer_receipt.duplicate(true)
-	var desktop: Dictionary = before.desktop.duplicate(true)
 	desktop.board.phase = "NONE"
 	desktop.board.settled_inspection = false
 	desktop.board.round_paid = false
@@ -4451,7 +4451,7 @@ func _prepare_scene_day_renewal(trigger: Dictionary, target_id: String, registra
 	var consequence_candidate: Dictionary = _scene_day_consequence.prepare_restore(desktop.consequence)
 	if not consequence_candidate.get("ok", false): return consequence_candidate
 	return {"ok": true, "value": {"identity": next_identity, "lifecycle": lifecycle,
-		"gameplay": renewed_scene_day_gameplay(before.gameplay), "desktop": desktop,
+		"gameplay": renewed_scene_day_gameplay(gameplay), "desktop": desktop,
 		"board_candidate": board_candidate.value.candidate, "consequence_candidate": consequence_candidate.value.candidate}}
 
 func _admit_scene_target_owned(target_id: String, trigger_command_id: String, lease: String,
