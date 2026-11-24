@@ -251,12 +251,7 @@ static func _is_sha256(value: Variant) -> bool:
 
 
 static func _has_exact_keys(value: Dictionary, expected: Array[String]) -> bool:
-	if value.size() != expected.size():
-		return false
-	for key: String in expected:
-		if not value.has(key):
-			return false
-	return true
+	return value.size() == expected.size() and value.has_all(expected)
 
 
 static func _fail(code: StringName, message: String) -> Dictionary:

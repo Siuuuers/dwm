@@ -140,10 +140,7 @@ static func _index_set(indices: Variant) -> Dictionary:
 	return members
 
 static func _keys(value: Dictionary, expected: Array) -> bool:
-	if value.size() != expected.size(): return false
-	for key: String in expected:
-		if not value.has(key): return false
-	return true
+	return value.size() == expected.size() and value.has_all(expected)
 
 static func _ok(value: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": value}

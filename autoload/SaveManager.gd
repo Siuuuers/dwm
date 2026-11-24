@@ -1317,14 +1317,6 @@ func _find_bundle_by_checkpoint_id(document: Dictionary, checkpoint_id: String) 
 	return {}
 
 
-static func _is_sha256(value: String) -> bool:
-	if value.length() != 64:
-		return false
-	for character: String in value:
-		if character not in "0123456789abcdef":
-			return false
-	return true
-
 static func _canonical_sha256(value: Variant) -> String:
 	var emitted: Dictionary = CANONICAL_JSON.stringify(value)
 	if not emitted.get("ok", false):

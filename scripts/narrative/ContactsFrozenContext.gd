@@ -348,10 +348,7 @@ static func _constants(entry_id: String) -> Dictionary:
 	return fields
 
 static func _exact(value: Dictionary, keys: Array) -> bool:
-	if value.size() != keys.size(): return false
-	for key: String in keys:
-		if not value.has(key): return false
-	return true
+	return value.size() == keys.size() and value.has_all(keys)
 
 static func _ok(value: Dictionary) -> Dictionary:
 	return {"ok": true, "value": value}

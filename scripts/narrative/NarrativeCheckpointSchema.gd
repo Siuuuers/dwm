@@ -196,12 +196,7 @@ static func _all_null_event(event: Dictionary) -> bool:
 
 
 static func _exact_keys(target: Dictionary, keys: Array) -> bool:
-	if target.size() != keys.size():
-		return false
-	for key in keys:
-		if not target.has(key):
-			return false
-	return true
+	return target.size() == keys.size() and target.has_all(keys)
 
 
 static func _copy(value: Variant) -> Variant:

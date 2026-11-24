@@ -191,19 +191,6 @@ func prepare_day_entry(entry_id: String, context: Dictionary) -> Dictionary:
 	_scene_stage_busy = false
 	return result
 
-static func build_scene_initial_checkpoint(receipt: Dictionary, bundle: Dictionary) -> Dictionary:
-	var result: Dictionary = receipt.scene_admission.result
-	var matched := false
-	for row: Dictionary in bundle.targets:
-		if row.target_id == result.target_id and row.target.kind == "scene" and row.target.entry_id == result.entry_id:
-			matched = true
-			break
-	if not matched: return {"ok": false, "code": &"scene_initial_target_invalid"}
-	var scene := {"registration_sha256": _ENTRY_MANIFEST.scene_registration_fingerprint(),
-		"active_occurrence_id": receipt.transaction_id, "entry_id": result.entry_id,
-		"notification": {}, "active_challenge": {}, "return_to": null}
-	return _build_current_scene_initial_checkpoint(scene, bundle)
-
 static func _build_current_scene_initial_checkpoint(scene: Dictionary, bundle: Dictionary) -> Dictionary:
 	var entry_id: String = str(scene.get("entry_id", ""))
 	var occurrence: String = str(scene.get("active_occurrence_id", ""))
@@ -2621,12 +2608,7 @@ static func _entry_record(entry_id: String) -> Dictionary:
 
 
 static func _exact_keys(target: Dictionary, keys: Array) -> bool:
-	if target.size() != keys.size():
-		return false
-	for key in keys:
-		if not target.has(key):
-			return false
-	return true
+	return target.size() == keys.size() and target.has_all(keys)
 
 
 func configure_signal_command_port(port: Object) -> Dictionary:
