@@ -353,11 +353,12 @@ func prepare_semantic_restore(snapshot: Dictionary, prepared_profile: Dictionary
 	if not _valid_prepared_audio(audio):
 		return _failure(&"invalid_restore_plan")
 	if not _supports_output_mode(audio.output_mode): return _failure(&"unsupported_audio_output_mode")
+	var plan := {"snapshot": validated.value, "audio": audio.duplicate(true)}
 	if snapshot.get("kind") == "scene_audio":
-		var prepared: Dictionary = _prepare_scene_output(snapshot)
+		var prepared: Dictionary = _prepare_scene_output(validated.value)
 		if not prepared.get("ok", false): return prepared
-	var plan := {"snapshot": snapshot.duplicate(true), "audio": audio.duplicate(true)}
-	if snapshot.get("kind") == "scene_audio": plan["scene_audio_mode"] = scene_audio_mode
+		plan["snapshot"] = prepared.value.snapshot
+		plan["scene_audio_mode"] = scene_audio_mode
 	return {"ok": true, "code": &"ok", "value": plan, "receipt": {}}
 
 
@@ -373,12 +374,9 @@ func _resolve_scene_snapshot(snapshot: Dictionary) -> Dictionary:
 	return AudioManifest.resolve_scene_context(snapshot, installed.value)
 
 
-func _prepare_scene_output(snapshot: Dictionary) -> Dictionary:
+func _prepare_scene_output(prepared: Dictionary) -> Dictionary:
 	if not _initialized: return _failure(&"not_initialized")
 	if _fatal: return _failure(&"audio_runtime_indeterminate")
-	var resolved: Dictionary = _resolve_scene_snapshot(snapshot)
-	if not resolved.get("ok", false): return resolved
-	var prepared: Dictionary = resolved.value
 	prepared["stream"] = null
 	prepared["missing_media"] = false
 	if prepared.record == null: return {"ok": true, "value": prepared}
@@ -426,9 +424,11 @@ func prepare_scene_admission(context: Dictionary, fade_seconds: float = 0.0) -> 
 	if not is_finite(fade_seconds) or fade_seconds < 0.0: return _failure(&"invalid_scene_audio_fade")
 	if not _initialized: return _failure(&"not_initialized")
 	if _fatal: return _failure(&"audio_runtime_indeterminate")
-	var prepared: Dictionary = _prepare_scene_output(context)
+	var resolved := _resolve_scene_snapshot(context)
+	if not resolved.ok: return resolved
+	var prepared: Dictionary = _prepare_scene_output(resolved.value)
 	if not prepared.get("ok", false): return prepared
-	return {"ok": true, "code": &"ok", "value": {"snapshot": context.duplicate(true), "fade_seconds": fade_seconds}}
+	return {"ok": true, "code": &"ok", "value": {"snapshot": prepared.value.snapshot, "fade_seconds": fade_seconds}}
 
 
 func apply_scene_admission(plan: Dictionary) -> Dictionary:
@@ -442,9 +442,9 @@ func apply_scene_admission(plan: Dictionary) -> Dictionary:
 	if _semantic == plan.snapshot or (resolved.value.inline_audio and _semantic.get("kind") == "scene_audio" \
 			and _semantic.get("registration_sha256") == plan.snapshot.registration_sha256 \
 			and _semantic.get("selection") == plan.snapshot.selection):
-		_semantic = plan.snapshot.duplicate(true)
+		_semantic = resolved.value.snapshot
 		return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true), "unchanged": true}
-	var prepared: Dictionary = _prepare_scene_output(plan.snapshot)
+	var prepared: Dictionary = _prepare_scene_output(resolved.value)
 	if not prepared.get("ok", false): return prepared
 	var captured: Dictionary = capture_restore_state()
 	if not captured.get("ok", false): return captured
@@ -477,9 +477,9 @@ func _install_scene_output(prepared: Dictionary, restoring: bool, fade_seconds: 
 	for operation: Array in operations:
 		var result: Dictionary = _playback_port.callv(operation[0], operation[1])
 		if not result.get("ok", false): return result
-	_semantic = prepared.snapshot.duplicate(true)
+	_semantic = prepared.snapshot
 	_records = {&"music": {}, &"ambience": {}}
-	if prepared.record != null: _records[channel] = prepared.record.duplicate(true)
+	if prepared.record != null: _records[channel] = prepared.record
 	_active_players = {&"music": MUSIC_PLAYERS[0], &"ambience": AMBIENCE_PLAYERS[0]}
 	if prepared.missing_media:
 		_warn_missing(str(prepared.record.asset.asset_id))
@@ -511,9 +511,9 @@ func _transition_scene_music(prepared: Dictionary, fade_seconds: float) -> Dicti
 	for operation: Array in operations:
 		var result: Dictionary = _playback_port.callv(operation[0], operation[1])
 		if not result.ok: return result
-	_semantic = prepared.snapshot.duplicate(true)
+	_semantic = prepared.snapshot
 	_records = {&"music": {}, &"ambience": {}}
-	if prepared.record != null: _records[&"music"] = prepared.record.duplicate(true)
+	if prepared.record != null: _records[&"music"] = prepared.record
 	if prepared.stream != null: _active_players[&"music"] = new_player
 	if prepared.missing_media: _warn_missing(str(prepared.record.asset.asset_id))
 	return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true)}
@@ -556,7 +556,7 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 		if not _supports_output_mode(audio.output_mode): return _failure(&"unsupported_audio_output_mode")
 	var scene_output: Dictionary = {}
 	if snapshot.get("kind") == "scene_audio":
-		var prepared: Dictionary = _prepare_scene_output(snapshot)
+		var prepared: Dictionary = _prepare_scene_output(validated.value)
 		if not prepared.get("ok", false): return prepared
 		scene_output = prepared.value
 	var captured := capture_restore_state()
