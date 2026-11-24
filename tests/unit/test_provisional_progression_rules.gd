@@ -9,6 +9,16 @@ func before_each() -> void:
 	rules = RULES.new()
 
 
+func test_perfect_reasons_preserve_order_and_are_detached_from_the_board() -> void:
+	var reasons := ["efficiency_gte_100", "no_flag"]
+	var result: Dictionary = rules.resolve_scene_response("dating.solo.priscilla.day4", "perfect", "foresight", reasons)
+	assert_true(result.ok)
+	reasons.reverse()
+	assert_eq(result.value.perfect_reasons, ["efficiency_gte_100", "no_flag"])
+	assert_eq(rules.resolve_scene_response("dating.solo.priscilla.day4", "perfect", "foresight", reasons).code,
+		&"invalid_dating_perfect_reasons")
+
+
 func test_pair_form_uses_unwitnessed_pool_then_all_four_without_mutating_profile_input() -> void:
 	var witnessed: Array[String] = ["ambiguous_sweet"]
 	var result: Dictionary = rules.select_pair_form(witnessed, 0)
