@@ -186,6 +186,8 @@ func test_locale_candidate_commits_deferred_and_publishes_exactly_once() -> void
 	assert_true(prepared.get("ok", false), str(prepared))
 	var committed: Dictionary = manager.call(&"commit_prepared_profile", prepared["value"], true)
 	assert_true(committed.get("ok", false), str(committed))
+	prepared.value.preferences.language.primary_locale_id = "en"
+	assert_eq(manager.get_preference(&"preferences.language.primary_locale_id"), "zh_HK")
 	assert_eq(events, [])
 	var publication_id: String = committed["value"]["publication_id"]
 	assert_true(manager.call(&"publish_deferred_profile_signals", publication_id).get("ok", false))

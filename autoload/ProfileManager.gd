@@ -261,7 +261,7 @@ func _commit_profile_candidate(candidate: Dictionary, defer_signals: bool = fals
 			_mutation_blocked = true
 		profile_write_failed.emit(persisted.duplicate(true))
 		return persisted
-	_profile = detached.duplicate(true)
+	_profile = detached
 	_profile_revision += 1
 	var publication := _build_publication(old, _profile)
 	if defer_signals:
@@ -1014,17 +1014,13 @@ func reset_preferences(expected_revision: int = -1) -> Dictionary:
 
 
 func _prepare_preferences_reset() -> Dictionary:
-	var candidate := _profile.duplicate(true)
+	var candidate := _profile.duplicate()
 	var defaults: Dictionary = SCHEMA.make_defaults()["preferences"]
-	var retained_language: Dictionary = candidate["preferences"]["language"].duplicate(true)
-	var retained_exceptional_available: bool = bool(candidate["preferences"]["exceptional_replay"]["available"])
-	var retained_dark_available: bool = bool(candidate["preferences"]["dark_mode"]["available"])
-	var retained_pending_dark: bool = bool(candidate["preferences"]["dark_mode"]["next_run_enabled"])
-	candidate["preferences"] = defaults.duplicate(true)
-	candidate["preferences"]["language"] = retained_language
-	candidate["preferences"]["exceptional_replay"]["available"] = retained_exceptional_available
-	candidate["preferences"]["dark_mode"]["available"] = retained_dark_available
-	candidate["preferences"]["dark_mode"]["next_run_enabled"] = retained_pending_dark
+	defaults.language = _profile.preferences.language
+	defaults.exceptional_replay.available = _profile.preferences.exceptional_replay.available
+	defaults.dark_mode.available = _profile.preferences.dark_mode.available
+	defaults.dark_mode.next_run_enabled = _profile.preferences.dark_mode.next_run_enabled
+	candidate.preferences = defaults
 	candidate["legacy_preferences_v1"] = {}
 	return SCHEMA.validate(candidate)
 
@@ -1039,7 +1035,7 @@ func reset_controls(expected_revision: int = -1) -> Dictionary:
 
 
 func _prepare_controls_reset() -> Dictionary:
-	var candidate := _profile.duplicate(true)
+	var candidate := _profile.duplicate()
 	candidate.controls_bindings = CONTROLS_RULES.defaults()
 	candidate.controls_import_pending = false
 	return SCHEMA.validate(candidate)
@@ -1103,8 +1099,8 @@ func reset_entire_profile(expected_revision: int = -1) -> Dictionary:
 
 func _prepare_entire_profile_reset() -> Dictionary:
 	var candidate := SCHEMA.make_defaults()
-	candidate["gallery_transaction_receipts"] = _profile["gallery_transaction_receipts"].duplicate(true)
-	candidate["migration_receipts"] = _profile["migration_receipts"].duplicate(true)
+	candidate["gallery_transaction_receipts"] = _profile["gallery_transaction_receipts"].duplicate()
+	candidate["migration_receipts"] = _profile["migration_receipts"]
 	for transaction_id: String in candidate.gallery_transaction_receipts.keys():
 		var receipt: Dictionary = candidate.gallery_transaction_receipts[transaction_id]
 		if transaction_id == "profile:legacy-ending-milestone" or (transaction_id.begins_with("ending:")
@@ -1227,7 +1223,7 @@ func _profile_text_validator(text: String) -> Dictionary:
 		_profile_parsed_document = {}
 		if text.to_utf8_buffer().size() <= _PROFILE_PARSE_MAX_BYTES:
 			_profile_parsed_text = text
-			_profile_parsed_document = parsed.duplicate(true)
+			_profile_parsed_document = parsed
 	return SCHEMA.validate(parsed["value"])
 
 
@@ -1264,7 +1260,7 @@ func _import_legacy_input_mappings() -> Dictionary:
 	var persisted := _persist_candidate(validation["value"])
 	if not persisted.get("ok", false):
 		return persisted
-	_profile = (validation["value"] as Dictionary).duplicate(true)
+	_profile = validation["value"]
 	_profile_revision += 1
 	return {"ok": true, "code": &"ok", "imported": true}
 
@@ -1472,5 +1468,5 @@ func _line_registry_admits(line_id: String) -> bool:
 static func _scene_assignment_records(ledger: Dictionary) -> Dictionary:
 	var records := {}
 	for run_id: String in ledger:
-		if ledger[run_id].ruleset_id == PAIR_DECK.SCENE_RULESET_ID: records[run_id] = ledger[run_id].duplicate(true)
+		if ledger[run_id].ruleset_id == PAIR_DECK.SCENE_RULESET_ID: records[run_id] = ledger[run_id]
 	return records
