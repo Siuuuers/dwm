@@ -133,7 +133,10 @@ func test_composite_prepare_apply_capture_rollback_and_finalize_use_one_profile_
 	assert_eq(applied.get("value"), {}, "the durable participant receipt remains primitive and empty")
 	assert_eq(profile.get_preference(WINDOW_PATH), "borderless")
 	assert_eq(window.mode, "borderless")
+	target.profile.preferences.display.window_mode = "windowed"
+	assert_eq(profile.get_preference(WINDOW_PATH), "borderless")
 	assert_true(participant.rollback_silent(captured.value).get("ok", false))
+	captured.value.profile.preferences.display.window_mode = "borderless"
 	assert_eq(profile.get_profile_snapshot(), profile_before)
 	assert_eq(window.mode, "windowed")
 	assert_true(participant.finalize().get("ok", false))

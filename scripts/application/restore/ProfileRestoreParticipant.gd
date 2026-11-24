@@ -58,13 +58,13 @@ func _prepare_profile_plan(candidate: Dictionary) -> Dictionary:
 		var preferences: Variant = candidate.get("preferences")
 		if typeof(preferences) != TYPE_DICTIONARY:
 			return _fail(&"invalid_profile_plan", "prepared profile requires preferences")
-		var window_prepared: Dictionary = _window_output.prepare_restore((preferences as Dictionary).duplicate(true))
+		var window_prepared: Dictionary = _window_output.prepare_restore(preferences)
 		if not window_prepared.get("ok", false):
 			return window_prepared
 		var window_plan: Variant = window_prepared.get("value")
 		if typeof(window_plan) != TYPE_DICTIONARY:
 			return _fail(&"invalid_window_restore_plan", "window preparation returned no plan")
-		profile_plan["window_plan"] = (window_plan as Dictionary).duplicate(true)
+		profile_plan["window_plan"] = window_plan
 	return {"ok": true, "code": &"ok", "value": {
 		"profile_plan": profile_plan,
 		"locale_id": str(((candidate.get("preferences", {}) as Dictionary).get("language", {}) as Dictionary).get("primary_locale_id", "")),
@@ -84,8 +84,8 @@ func capture() -> Dictionary:
 		return window_captured
 	if typeof(captured.get("value")) != TYPE_DICTIONARY or typeof(window_captured.get("value")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_restore_backup", "restore owners returned no backup")
-	var value: Dictionary = (captured["value"] as Dictionary).duplicate(true)
-	value["window_backup"] = (window_captured["value"] as Dictionary).duplicate(true)
+	var value: Dictionary = captured["value"]
+	value["window_backup"] = window_captured["value"]
 	return {"ok": true, "code": &"ok", "value": value}
 
 func apply_silent(plan: Dictionary) -> Dictionary:
@@ -96,23 +96,23 @@ func apply_silent(plan: Dictionary) -> Dictionary:
 		return available
 	if typeof(plan.get("profile")) != TYPE_DICTIONARY or typeof(plan.get("window_plan")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_profile_window_restore_plan", "composite restore requires profile and window plans")
-	var before := capture()
+	var before: Dictionary = _window_output.capture_restore_state()
 	if not before.get("ok", false):
 		return before
-	var backup: Dictionary = before["value"]
-	var window_applied: Dictionary = _window_output.apply_restore_silent((plan["window_plan"] as Dictionary).duplicate(true))
+	if typeof(before.get("value")) != TYPE_DICTIONARY:
+		return _fail(&"invalid_restore_backup", "window output returned no backup")
+	var window_backup: Dictionary = before["value"]
+	var window_applied: Dictionary = _window_output.apply_restore_silent(plan["window_plan"])
 	if not window_applied.get("ok", false):
-		var restored_window: Dictionary = _window_output.rollback_restore_silent(backup["window_backup"])
+		var restored_window: Dictionary = _window_output.rollback_restore_silent(window_backup)
 		if not restored_window.get("ok", false):
 			return _fatal_recovery(&"profile_window_apply_rollback", window_applied, restored_window)
 		return window_applied
-	var profile_applied: Dictionary = _owner.apply_restore_silent({"profile": (plan["profile"] as Dictionary).duplicate(true)})
+	var profile_applied: Dictionary = _owner.apply_restore_silent({"profile": plan["profile"]})
 	if not profile_applied.get("ok", false):
-		var restored_window: Dictionary = _window_output.rollback_restore_silent(backup["window_backup"])
-		var restored_profile := _restore_profile_if_changed(backup)
-		if not restored_window.get("ok", false) or not restored_profile.get("ok", false):
-			return _fatal_recovery(&"profile_apply_rollback", profile_applied,
-				restored_window if not restored_window.get("ok", false) else restored_profile)
+		var restored_window: Dictionary = _window_output.rollback_restore_silent(window_backup)
+		if not restored_window.get("ok", false):
+			return _fatal_recovery(&"profile_apply_rollback", profile_applied, restored_window)
 		return profile_applied
 	return {"ok": true, "code": &"ok", "value": {}}
 
@@ -124,8 +124,8 @@ func rollback_silent(backup: Dictionary) -> Dictionary:
 		return available
 	if typeof(backup.get("profile")) != TYPE_DICTIONARY or typeof(backup.get("window_backup")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_profile_window_restore_backup", "composite restore requires profile and window backups")
-	var restored_window: Dictionary = _window_output.rollback_restore_silent((backup["window_backup"] as Dictionary).duplicate(true))
-	var restored_profile: Dictionary = _owner.rollback_restore_silent({"profile": (backup["profile"] as Dictionary).duplicate(true)})
+	var restored_window: Dictionary = _window_output.rollback_restore_silent(backup["window_backup"])
+	var restored_profile: Dictionary = _owner.rollback_restore_silent({"profile": backup["profile"]})
 	if not restored_window.get("ok", false) or not restored_profile.get("ok", false):
 		return _fatal_recovery(&"profile_window_rollback", restored_window,
 			restored_window if not restored_window.get("ok", false) else restored_profile)
@@ -140,14 +140,6 @@ func finalize() -> Dictionary:
 		if not window_finalized.get("ok", false):
 			return window_finalized
 	return _owner.finalize_restore()
-
-func _restore_profile_if_changed(backup: Dictionary) -> Dictionary:
-	var current: Dictionary = _owner.capture_restore_state()
-	if not current.get("ok", false):
-		return _owner.rollback_restore_silent({"profile": (backup["profile"] as Dictionary).duplicate(true)})
-	if current.get("value") == {"profile": backup["profile"]}:
-		return {"ok": true, "code": &"ok"}
-	return _owner.rollback_restore_silent({"profile": (backup["profile"] as Dictionary).duplicate(true)})
 
 func _require_window_output() -> Dictionary:
 	if is_instance_valid(_window_output):
