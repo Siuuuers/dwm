@@ -28,8 +28,8 @@ func configure(id: String) -> void:
 	get_ok_button().queue_redraw()
 
 
-func set_presentation(source_theme: Theme, font_size: int, large_targets: bool) -> void:
-	theme = PRESENTATION.confirmation_theme(source_theme, font_size, large_targets)
+func set_presentation(dialog_theme: Theme, font_size: int) -> void:
+	theme = dialog_theme
 	var roles := PRESENTATION.roles_from_theme(theme)
 	get_label().add_theme_font_override("font", theme.default_font)
 	get_label().add_theme_font_size_override("font_size", font_size)
@@ -37,10 +37,10 @@ func set_presentation(source_theme: Theme, font_size: int, large_targets: bool) 
 		button.add_theme_font_override("font", theme.default_font)
 		button.add_theme_font_size_override("font_size", font_size)
 		button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	var final_style := PRESENTATION.box(roles.face)
+	final_style.content_margin_left = 40 if risk_class == "danger" else 16
+	final_style.content_margin_right = 16
 	for state: String in ["normal", "hover", "pressed", "hover_pressed", "disabled"]:
-		var final_style := PRESENTATION.box(roles.face)
-		final_style.content_margin_left = 40 if risk_class == "danger" else 16
-		final_style.content_margin_right = 16
 		get_ok_button().add_theme_stylebox_override(state, final_style)
 	get_ok_button().queue_redraw()
 

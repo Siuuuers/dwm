@@ -294,6 +294,7 @@ func test_original_records_and_complete_apply_table_fit_nine_presentations() -> 
 			assert_eq(assigned.size(), 4)
 			for record: Dictionary in RULES.REGISTRY.records():
 				var label: Label = assigned[String(record.id)]
+				assert_eq(label.text.get_slice("\n", 0), record.labels[locale.replace("_", "-")])
 				assert_true(label.text.contains(f.content.text("settings.controls.keyboard")))
 				assert_true(label.text.contains(f.content.text("settings.controls.controller")))
 			await _press(f.sheet.import_dialog, KEY_ESCAPE)

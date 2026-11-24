@@ -283,14 +283,14 @@ func refresh() -> void:
 		_render_original(_original_source)
 
 
-func set_presentation(source_theme: Theme, font_size: int, large_targets: bool) -> void:
+func set_presentation(source_theme: Theme, dialog_theme: Theme, font_size: int, large_targets: bool) -> void:
 	theme = source_theme
 	_font_size = font_size
 	_large_targets = large_targets
 	if _status == null or capture_dialog == null:
 		return
 	for dialog: ConfirmationDialog in [capture_dialog, conflict_dialog, original_dialog, import_dialog]:
-		dialog.theme = PRESENTATION.confirmation_theme(source_theme, font_size, large_targets)
+		dialog.theme = dialog_theme
 		dialog.get_label().add_theme_font_size_override("font_size", font_size)
 		dialog.get_label().add_theme_font_override("font", dialog.theme.default_font)
 	PRESENTATION.apply_scroll(_conflict_scroll, true)
@@ -441,9 +441,7 @@ func _propose(binding: Dictionary) -> void:
 
 
 func _render_proposal() -> void:
-	for child: Node in _conflict_rows.get_children():
-		_conflict_rows.remove_child(child)
-		child.queue_free()
+	_clear_rows(_conflict_rows)
 	var hint := _label()
 	hint.text = _text("settings.controls.review_scroll")
 	_conflict_rows.add_child(hint)
@@ -749,8 +747,7 @@ func _render_import() -> void:
 	var intro := _label()
 	intro.text = _text("settings.controls.review_apply_body") + "\n" + _text("settings.controls.review_scroll")
 	_import_rows.add_child(intro)
-	for record: Dictionary in REGISTRY.records():
-		var action := String(record.id)
+	for action: String in _headers:
 		var label := _label()
 		label.set_meta("controls_review_action", action)
 		label.text = "%s\n%s: %s\n%s: %s" % [
@@ -799,11 +796,7 @@ func _identity(event: InputEvent) -> String:
 
 
 func _action_label(action: String) -> String:
-	var locale: String = _content.current_locale().replace("_", "-")
-	for record: Dictionary in REGISTRY.records():
-		if String(record.id) == action:
-			return record.labels.get(locale, record.labels.en)
-	return _text("settings.status.unavailable")
+	return _headers[action].text if _headers.has(action) else _text("settings.status.unavailable")
 
 
 func _binding_label(binding: Dictionary) -> String:

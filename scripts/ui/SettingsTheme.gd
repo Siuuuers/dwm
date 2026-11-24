@@ -126,8 +126,9 @@ static func confirmation_theme(source: Theme, font_size: int, large_targets: boo
 	result.set_constant("buttons_min_height", "AcceptDialog", maxi(64 if large_targets else 48, font_size * 2))
 	result.set_constant("buttons_min_width", "AcceptDialog", 96)
 	result.set_constant("separation", "HBoxContainer", 24)
+	var button_face := box(roles.face)
 	for state: String in ["normal", "hover", "pressed", "hover_pressed", "disabled"]:
-		result.set_stylebox(state, "Button", box(roles.face))
+		result.set_stylebox(state, "Button", button_face)
 	for state: String in ["font_color", "font_hover_color", "font_pressed_color", "font_hover_pressed_color", "font_focus_color", "font_disabled_color"]:
 		result.set_color(state, "Button", roles.ink)
 	var border := box(roles.paper, roles.paper_ink, 2)
@@ -148,8 +149,9 @@ static func confirmation_theme(source: Theme, font_size: int, large_targets: boo
 	for point: int in range(3, 13):
 		close_image.fill_rect(Rect2i(point, point, 2, 2), roles.paper_ink)
 		close_image.fill_rect(Rect2i(15 - point, point, 2, 2), roles.paper_ink)
+	var close_icon := ImageTexture.create_from_image(close_image)
 	for icon: String in ["close", "close_pressed"]:
-		result.set_icon(icon, "Window", ImageTexture.create_from_image(close_image))
+		result.set_icon(icon, "Window", close_icon)
 	return result
 
 
