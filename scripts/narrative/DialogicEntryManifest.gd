@@ -818,12 +818,12 @@ static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message}
 
 
-static func load_ids_default() -> Dictionary:
+static func load_ids_default(detach_selected: bool = true) -> Dictionary:
 	var startup := _select_startup_fixture()
 	if not startup.ok: return startup
 	_registration_used = true
 	if not _scene_bundle.is_empty():
-		return {"ok": true, "value": _scene_bundle.ids_registry.duplicate(true)}
+		return {"ok": true, "value": _scene_bundle.ids_registry.duplicate(true) if detach_selected else _scene_bundle.ids_registry}
 	if not FileAccess.file_exists(IDS_MANIFEST_PATH):
 		return _fail(&"IDS_MANIFEST_FILE_MISSING", IDS_MANIFEST_PATH + " is absent")
 	var parsed: Dictionary = STRICT_JSON.parse_object(
@@ -1007,7 +1007,7 @@ static func validate_line_id(document: Dictionary, entry_id: String, line_id: St
 			if row.line_id == line_id and row.owning_entry_id == entry_id:
 				return {"ok": true, "value": row.duplicate(true)}
 		return _fail(&"LINE_ID_UNREGISTERED", line_id)
-	var registry := load_ids_default()
+	var registry := load_ids_default(false)
 	if not registry.get("ok", false):
 		return registry
 	var entries := _entry_index(document)
@@ -1035,7 +1035,7 @@ static func validate_caption_registry(document: Dictionary, registry: Dictionary
 
 
 static func validate_atom_id(document: Dictionary, entry_id: String, atom_id: String) -> Dictionary:
-	var registry := load_ids_default()
+	var registry := load_ids_default(false)
 	if not registry.get("ok", false):
 		return registry
 	if not _entry_index(document).has(entry_id):
@@ -1061,7 +1061,7 @@ static func validate_signal(document: Dictionary, entry_id: String, stage: Strin
 	var index := _entry_index(document)
 	if not index.has(entry_id):
 		return _fail(&"SIGNAL_UNKNOWN_ENTRY", "%s is not a registered semantic entry" % entry_id)
-	var registry := load_ids_default()
+	var registry := load_ids_default(false)
 	if not registry.get("ok", false):
 		return registry
 	var record: Dictionary = _signal_record(registry["value"], signal_id)
@@ -1183,7 +1183,7 @@ static func _atom_resolved(record: Dictionary, match_kind: String) -> Dictionary
 static func _is_retired_label(entry_id: String, retired_registry: Variant = null) -> bool:
 	var registry: Dictionary = {}
 	if retired_registry == null:
-		var loaded := load_ids_default()
+		var loaded := load_ids_default(false)
 		if not loaded.get("ok", false):
 			return false
 		registry = loaded["value"]

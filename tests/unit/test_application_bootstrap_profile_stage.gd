@@ -47,7 +47,7 @@ class RecordingProfile:
 
 	func configure_line_registry(value: Dictionary) -> Dictionary:
 		calls.append("configure")
-		registry = value.duplicate(true)
+		registry = value
 		if refuse_registry:
 			return {"ok": false, "code": &"line_registry_refused", "details": {}, "receipt": {}}
 		return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
@@ -66,6 +66,10 @@ func test_profile_stage_validates_and_binds_shipped_visited_registry_before_init
 		"registry binding precedes initialize, which emits profile_restored")
 	assert_eq(profile.registry.get("kind"), "scene_ids_registry")
 	assert_has(profile.registry.get("lines", []), {"line_id": "line.Day1.002", "owning_entry_id": "Day1"})
+	var editable := preload("res://scripts/narrative/DialogicEntryManifest.gd").load_ids_default()
+	editable.value.lines.clear()
+	assert_false(profile.registry.lines.is_empty())
+	assert_true(profile.registry.lines.is_read_only())
 
 
 func test_profile_stage_stops_before_initialize_when_registry_binding_fails() -> void:

@@ -311,7 +311,7 @@ static func safe_snapshot(text: String) -> Dictionary:
 
 static func _load_registry() -> Dictionary:
 	if not _definitions.is_empty(): return _ok({})
-	var loaded: Dictionary = MANIFEST.load_ids_default()
+	var loaded: Dictionary = MANIFEST.load_ids_default(false)
 	if not loaded.get("ok", false): return loaded
 	var registry_check: Dictionary = MANIFEST.validate_ids_document(loaded.value)
 	if not registry_check.ok: return registry_check
