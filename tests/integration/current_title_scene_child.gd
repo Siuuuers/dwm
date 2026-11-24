@@ -120,6 +120,7 @@ func _current_art_proof() -> Dictionary:
 func _current_proof() -> Dictionary:
 	var reading: Dictionary = bridge.capture_reading_checkpoint(false)
 	if not _ok(reading): return {}
+	assert_eq(reading.value.manifest_fingerprint, CURRENT_MANIFEST.scene_registration_fingerprint())
 	var snapshot: Dictionary = game.capture_run_snapshot_input()
 	for key: String in ["affection", "friend_attitude", "friends", "inter_friend_affection"]:
 		assert_false(snapshot.gameplay.has(key), "current creation and fresh Load omit " + key)
