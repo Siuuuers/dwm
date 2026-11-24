@@ -54,11 +54,8 @@ var _error: StringName = &""
 var _records: Dictionary = {}
 var _presentations: Dictionary = {}
 
-func _init(details: Dictionary = RECORD_DETAILS, overrides: Array = PRESENTATION_DETAILS) -> void:
-	_build(details.duplicate(true), overrides.duplicate(true))
-
 static func title(ending_id: String, locale: String) -> String:
-	ending_id = preload("res://scripts/domain/narrative/PresentationSignature.gd").semantic_ending_id(ending_id)
+	ending_id = SIGNATURE.semantic_ending_id(ending_id)
 	if not TITLES.has(ending_id): return ""
 	var language := locale.replace("_", "-")
 	return TITLES[ending_id][2 if language == "zh-HK" else (1 if language.begins_with("zh") else 0)]
@@ -71,7 +68,7 @@ func projection(record_id: String, signature_id: String, locale: String) -> Dict
 	var override: Variant = _presentations.get(signature_id)
 	if override is Dictionary and override.record_id == identity:
 		_apply(result, override, locale)
-	return result.duplicate(true)
+	return result
 
 func version_cue(record_id: String, signature_id: String, locale: String) -> String:
 	if not valid: return ""
@@ -82,9 +79,8 @@ func version_cue(record_id: String, signature_id: String, locale: String) -> Str
 	var language := locale.replace("_", "-")
 	return override.version_cue[2 if language == "zh-HK" else (1 if language.begins_with("zh") else 0)]
 
-func _build(details: Dictionary, overrides: Array) -> void:
-	var ids: Array = details.keys()
-	for raw_id: Variant in ids:
+func _init(details: Dictionary = RECORD_DETAILS, overrides: Array = PRESENTATION_DETAILS) -> void:
+	for raw_id: Variant in details:
 		if not raw_id is String or raw_id.is_empty():
 			_invalidate(&"invalid_record_id")
 			return

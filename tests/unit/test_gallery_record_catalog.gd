@@ -84,6 +84,7 @@ func test_constructor_detaches_source_definitions_and_projection_results() -> vo
 	details["ending.alone"].sentence[0] = "mutated"
 	signature.fields.ending_form = "alone_dark_mode"
 	overrides[0].sentence[0] = "mutated"
+	assert_eq(catalog.projection("ending.alone", "", "en").sentence, "Base")
 	var result: Dictionary = catalog.projection("ending.alone", _id(_alone()), "en")
 	assert_eq(result, {"sentence": "Exact", "media_asset_id": "archive.ending.alone.media"})
 	result.sentence = "changed"
