@@ -37,7 +37,7 @@ static func build(entry_id: String, fields: Dictionary) -> Dictionary:
 	var schema := schema_for_entry(entry_id)
 	if not schema.ok: return schema
 	return validate(entry_id, {"schema_id": schema.value.schema_id, "schema_version": 1,
-		"fields": fields.duplicate(true)})
+		"fields": fields})
 
 static func validate(entry_id: String, presentation: Variant) -> Dictionary:
 	var schema := schema_for_entry(entry_id)

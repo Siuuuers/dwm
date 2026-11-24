@@ -146,10 +146,16 @@ func test_ordinary_after_selection_and_echo_use_exact_saved_reply_and_original_t
 		"A registered echo ID is insufficient without the actual witnessed-reply proof")
 	var card := {"receipt": {"entry_id": "echo.fallback.day7", "view_token": "fixture:view",
 		"echo_id": choice.echo_id, "presentation_atom_id": choice.presentation_atom_id},
-		"title": "Reply", "body": choice.text, "presentation": echo.value}
+		"title": "Reply", "body": choice.text, "presentation": echo.value.duplicate(true)}
 	assert_true(SURFACE._validate_card(card).ok)
+	var surface := SURFACE.new()
+	assert_true(surface.configure(card, func(_receipt): return {"ok": true}).ok)
 	card.receipt.echo_id = "invented"
 	assert_false(SURFACE._validate_card(card).ok)
+	card.presentation.fields.due_echoes.clear()
+	assert_eq(surface._card.presentation, echo.value)
+	assert_true(surface._card.presentation.fields.due_echoes.is_read_only())
+	surface.free()
 	cache.entries.erase(choice.entry_id + "|awaiting_reply")
 	assert_false(FROZEN.validate_cache(cache, replied.value.candidate, true, [], 1).ok)
 
@@ -250,6 +256,16 @@ func test_current_ordinary_freeze_is_durable_before_native_projection_and_failed
 	var frozen: Dictionary = projected.value.entries[0].presentation
 	assert_true(frozen.fields.is_read_only())
 	assert_eq(frozen.fields.phase, "awaiting_reply")
+	var panel := preload("res://scripts/ui/contacts/ContactsPanel.gd").new()
+	add_child_autofree(panel)
+	var font := ThemeDB.fallback_font
+	assert_true(panel.configure(font, font, font))
+	var entries: Array = projected.value.entries.duplicate(true)
+	assert_true(panel.set_projection(friend, entries, projected.value.unread))
+	entries[0].presentation.fields.phase = "changed by caller"
+	var displayed: Dictionary = panel.messages.get_child(0).get_meta("frozen_presentation")
+	assert_eq(displayed, frozen)
+	assert_true(displayed.fields.is_read_only())
 	game.dating_route_state[friend].relationship_state = "love"
 	game.friend_attitude[friend] = "hostile"
 	var restored := port.get_projection(friend)

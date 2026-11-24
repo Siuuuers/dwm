@@ -6,6 +6,7 @@ signal pending_reply_drawn(rendered_line: Dictionary)
 
 const Row = preload("res://scripts/ui/contacts/ContactsRow.gd")
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
+const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const CONTACTS_THEME := preload("res://scripts/ui/contacts/ContactsTheme.gd")
 const FRIENDS := ["priscilla", "lavinia", "sylvia"]
@@ -126,7 +127,7 @@ func set_projection(friend_id: String, entries: Array, unread: Dictionary, prima
 	_entries = entries.duplicate(true)
 	for entry: Dictionary in _entries:
 		if entry.has("presentation"):
-			entry.presentation = preload("res://scripts/narrative/ContactsFrozenContext.gd").immutable_snapshot(entry.presentation)
+			FROZEN._freeze(entry.presentation)
 	_unread = unread.duplicate(true)
 	_primary = primary_locale
 	_secondary = secondary_locale
@@ -163,7 +164,7 @@ func _valid_projection(friend_id: String, entries: Array, unread: Dictionary, pr
 			var presentation: Variant = entry.presentation
 			if not presentation is Dictionary: return false
 			var fields: Dictionary = presentation.get("fields", {})
-			var checked := preload("res://scripts/narrative/FrozenPresentationContext.gd").validate(str(fields.get("entry_id", "")), presentation)
+			var checked := FROZEN.validate(str(fields.get("entry_id", "")), presentation)
 			if not checked.ok or fields.get("friend_id", friend_id) != friend_id \
 					or fields.get("target_participant_id", friend_id) != friend_id: return false
 		ids[entry.id] = true
