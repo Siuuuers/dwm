@@ -56,14 +56,12 @@ func resolve_scene_response(scene_id: String, outcome: String, relationship_outc
 		"cleared": ["loved", "dark"], "perfect": ["foresight", "dark"]}
 	if not allowed.has(outcome) or relationship_outcome not in allowed[outcome]:
 		return _fail(&"invalid_dating_outcome", relationship_outcome)
-	var reasons: Array = perfect_reasons.duplicate()
-	reasons.sort()
-	if reasons != perfect_reasons or reasons not in [[], ["efficiency_gt_100"], ["efficiency_gte_100"], ["no_flag"], ["efficiency_gt_100", "no_flag"], ["efficiency_gte_100", "no_flag"]] \
-			or (outcome == "perfect") != not reasons.is_empty():
+	if perfect_reasons not in [[], ["efficiency_gt_100"], ["efficiency_gte_100"], ["no_flag"], ["efficiency_gt_100", "no_flag"], ["efficiency_gte_100", "no_flag"]] \
+			or (outcome == "perfect") != not perfect_reasons.is_empty():
 		return _fail(&"invalid_dating_perfect_reasons", str(perfect_reasons))
 	var values: Array = deltas[relationship_outcome]
 	return _ok({"scene_id": scene_id, "outcome": outcome, "relationship_outcome": relationship_outcome,
-		"perfect_reasons": reasons, "momentum_delta": values[0], "tone_delta": values[1],
+		"perfect_reasons": perfect_reasons.duplicate(), "momentum_delta": values[0], "tone_delta": values[1],
 		"attitude": values[2], "progression_qualifies": outcome != "exploded"})
 
 
@@ -265,10 +263,9 @@ static func _step(ending_id: String, role: String) -> Dictionary:
 
 
 static func _ok(value: Dictionary) -> Dictionary:
-	var detached := value.duplicate(true)
-	detached["ruleset_id"] = RULESET_ID
-	detached["ruleset_status"] = RULESET_STATUS
-	return {"ok": true, "code": &"ok", "value": detached}
+	value["ruleset_id"] = RULESET_ID
+	value["ruleset_status"] = RULESET_STATUS
+	return {"ok": true, "code": &"ok", "value": value}
 
 
 static func _fail(code: StringName, message: String) -> Dictionary:
