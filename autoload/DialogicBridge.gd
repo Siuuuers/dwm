@@ -520,7 +520,6 @@ var _initialized := false
 var _active_transaction: Dictionary = {}
 
 static var _entry_document_cache: Dictionary = {}
-static var _entry_document_ready := false
 var _signal_command_port: Object = null
 var _playback_completion_port: Object = null
 var _active_entry: Dictionary = {}
@@ -2584,7 +2583,7 @@ func restore_captured_state(backup: Dictionary) -> Dictionary:
 
 
 static func _ensure_entry_document() -> Dictionary:
-	if _entry_document_ready:
+	if not _entry_document_cache.is_empty():
 		return {"ok": true, "value": _entry_document_cache}
 	var loaded: Dictionary = _ENTRY_MANIFEST.load_default()
 	if not loaded.get("ok", false):
@@ -2593,7 +2592,6 @@ static func _ensure_entry_document() -> Dictionary:
 	if not validated.get("ok", false):
 		return validated
 	_entry_document_cache = loaded["value"]
-	_entry_document_ready = true
 	return {"ok": true, "value": _entry_document_cache}
 
 
@@ -2843,19 +2841,21 @@ func capture_reading_checkpoint(complete_reveal: bool = false) -> Dictionary:
 		if _reading_session.family == "scene" and _reading_session.boundary == "control" else _reading_session.capture(frontier)
 	if not session_snapshot.ok: return session_snapshot
 	var entry_id: String = _reading_session.latest_entry
-	var context: Dictionary = {}
+	var context: Dictionary
+	var manifest_fingerprint: String
 	if _reading_session.family == "scene":
 		var frame := preload("res://scripts/narrative/NarrativeCaptionLedger.gd").resolve_scene_frame(
 			session_snapshot.value.ledger.entry_contexts, session_snapshot.value.occurrence_id, entry_id)
 		if not frame.ok: return frame
 		context = frame.value
+		manifest_fingerprint = session_snapshot.value.registration_sha256
 	else:
-		context = session_snapshot.value.ledger.entry_contexts[entry_id]
-	var document := _ensure_entry_document()
-	if not document.ok: return document
+		var document := _ensure_entry_document()
+		if not document.ok: return document
+		context = session_snapshot.value.ledger.entry_contexts[entry_id].duplicate(true)
+		manifest_fingerprint = _ENTRY_MANIFEST.fingerprint(document.value)
 	return {"ok": true, "value": {"content_version": int(_reading_session.catalogue[entry_id].content_version),
-		"entry_id": entry_id, "frozen_context": context.duplicate(true),
-		"manifest_fingerprint": _ENTRY_MANIFEST.scene_registration_fingerprint() if _reading_session.family == "scene" else _ENTRY_MANIFEST.fingerprint(document.value),
+		"entry_id": entry_id, "frozen_context": context, "manifest_fingerprint": manifest_fingerprint,
 		"stage": str(context.expected_stage), "transaction_id": str(context.transaction_id),
 		"reading_session": session_snapshot.value}}
 

@@ -309,7 +309,7 @@ func before_all() -> void:
 	var configured := FIXTURE.configure()
 	assert_true(configured.ok, str(configured))
 
-func test_reentry_loop_snapshot_restore_and_history_keep_all_publications() -> void:
+func test_reentry_loop_snapshot_restores_current_publication_and_history_sections() -> void:
 	var created := FIXTURE.create_session()
 	assert_true(created.ok, str(created))
 	if not created.ok: return
@@ -324,10 +324,10 @@ func test_reentry_loop_snapshot_restore_and_history_keep_all_publications() -> v
 	var loop := FIXTURE.advance_detached(session, true)
 	assert_true(loop.ok, str(loop))
 	if not loop.ok: return
-	assert_eq(loop.value.ledger.captions.size(), 5)
-	assert_eq(loop.value.ledger.entry_contexts.size(), 3)
+	assert_eq(loop.value.ledger.captions.size(), 1)
+	assert_eq(loop.value.ledger.entry_contexts.keys(), [LEDGER.scene_frame_key("a:2", FIXTURE.A)])
 	assert_eq(loop.value.frontier.line_id, "line.scene.test.a.two")
-	assert_ne(loop.value.ledger.captions[3].publication_id, loop.value.ledger.captions[4].publication_id)
+	assert_ne(next.value.frontier.publication_id, loop.value.frontier.publication_id)
 	var encoded := JSON_WRITER.stringify(loop.value)
 	assert_true(encoded.ok, str(encoded))
 	if not encoded.ok: return
@@ -342,11 +342,12 @@ func test_reentry_loop_snapshot_restore_and_history_keep_all_publications() -> v
 	if not projected.ok: return
 	var text_rows: Array = []
 	for row: Dictionary in projected.value.captions: text_rows.append(row.text)
-	assert_eq(text_rows, ["A first.", "B first.", "A first.", "A loop.", "A loop."])
+	assert_eq(text_rows, ["A loop."])
+	assert_eq(restored.player_progress.history_sections, loop.value.player_progress.history_sections)
 	assert_eq(restored.ledger.snapshot(), session.ledger.snapshot())
 	var after_restore := FIXTURE.advance_detached(restored, true)
 	assert_true(after_restore.ok, str(after_restore))
-	if after_restore.ok: assert_eq(after_restore.value.ledger.captions.size(), 6)
+	if after_restore.ok: assert_ne(after_restore.value.frontier.publication_id, loop.value.frontier.publication_id)
 
 
 func test_fully_witnessed_next_stops_at_revisited_backward_caption() -> void:

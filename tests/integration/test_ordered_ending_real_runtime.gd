@@ -50,7 +50,6 @@ var _retained_entries := false
 var _prior_catalog_document: Dictionary
 var _prior_catalog_ready := false
 var _prior_bridge_document: Dictionary
-var _prior_bridge_ready := false
 
 func before_each() -> void:
 	_native_starts = 0
@@ -153,7 +152,6 @@ func after_each() -> void:
 		CATALOG._entry_document = _prior_catalog_document
 		CATALOG._entries_initialized = _prior_catalog_ready
 		BRIDGE._entry_document_cache = _prior_bridge_document
-		BRIDGE._entry_document_ready = _prior_bridge_ready
 		_retained_entries = false
 
 func _ordered_plan() -> Dictionary:
@@ -286,12 +284,10 @@ func _install_retained_ending_entries() -> bool:
 	_prior_catalog_document = CATALOG._entry_document
 	_prior_catalog_ready = CATALOG._entries_initialized
 	_prior_bridge_document = BRIDGE._entry_document_cache
-	_prior_bridge_ready = BRIDGE._entry_document_ready
 	var fixture := {"default_locale": "en", "entries": selected}
 	CATALOG._entry_document = fixture
 	CATALOG._entries_initialized = true
 	BRIDGE._entry_document_cache = fixture
-	BRIDGE._entry_document_ready = true
 	_retained_entries = true
 	return true
 

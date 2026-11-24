@@ -405,13 +405,14 @@ static func expand_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 	return {"ok": true, "value": result, "session": session}
 
 func _project_player_reading(saved: Dictionary) -> Dictionary:
-	var captions: Array[Dictionary] = []
-	for row: Dictionary in saved.ledger.captions:
+	var caption := {}
+	for index: int in range(saved.ledger.captions.size() - 1, -1, -1):
+		var row: Dictionary = saved.ledger.captions[index]
 		if row.occurrence_id == saved.occurrence_id and row.beat.owning_entry_id == saved.entry_id:
-			captions.append({"line_id": row.beat.line_id, "publication_id": row.publication_id})
-	if captions.is_empty(): return _fail(&"reading_frontier_invalid")
-	captions = [captions.back()]
-	var position: String = captions.back().line_id
+			caption = {"line_id": row.beat.line_id, "publication_id": row.publication_id}
+			break
+	if caption.is_empty(): return _fail(&"reading_frontier_invalid")
+	var position: String = caption.line_id
 	if saved.boundary == "control":
 		var nodes: Array = _scene_nodes[saved.entry_id]
 		if saved.program_index < 0 or saved.program_index >= nodes.size() or nodes[saved.program_index].kind != "control":
@@ -421,10 +422,10 @@ func _project_player_reading(saved: Dictionary) -> Dictionary:
 		"entry_id": saved.entry_id, "occurrence_id": saved.occurrence_id,
 		"boundary": saved.boundary, "position_id": position,
 		"session_token": saved.ledger.session_token,
-		"publication_serial": _scene_publication_high_water(saved.ledger.captions), "captions": captions}
+		"publication_serial": _scene_publication_high_water(saved.ledger.captions), "captions": [caption]}
 	var progress: Dictionary = saved.get("player_progress", {}).duplicate(true)
 	if progress.is_empty():
-		TRAVERSAL.append_player_caption(progress, saved.entry_id, captions.back().line_id, _story_day(saved.entry_id))
+		TRAVERSAL.append_player_caption(progress, saved.entry_id, caption.line_id, _story_day(saved.entry_id))
 	compact.merge(progress)
 	return {"ok": true, "value": compact}
 
