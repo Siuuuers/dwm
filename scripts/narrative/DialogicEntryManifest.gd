@@ -1010,7 +1010,8 @@ static func validate_line_id(document: Dictionary, entry_id: String, line_id: St
 	var registry := load_ids_default()
 	if not registry.get("ok", false):
 		return registry
-	if not _entry_index(document).has(entry_id):
+	var entries := _entry_index(document)
+	if not entries.has(entry_id):
 		return _fail(&"LINE_ID_UNKNOWN_ENTRY", "%s is not a registered semantic entry" % entry_id)
 	for record: Dictionary in _registry_block(registry["value"], "reply_lines"):
 		if str(record.get("line_id", "")) != line_id:
@@ -1020,8 +1021,8 @@ static func validate_line_id(document: Dictionary, entry_id: String, line_id: St
 			return _fail(&"LINE_ID_NOT_OWNED",
 				"%s: the line is registered, but its declared home is %s" % [line_id, owner])
 		return {"ok": true, "value": {"line_id": line_id, "owning_entry_id": owner}}
-	for owner: String in _entry_index(document):
-		for observer: Dictionary in _entry_index(document)[owner].get("observer_atoms", []):
+	for owner: String in entries:
+		for observer: Dictionary in entries[owner].get("observer_atoms", []):
 			if str(observer.line_id) != line_id: continue
 			if owner != entry_id: return _fail(&"LINE_ID_NOT_OWNED", line_id)
 			return {"ok": true, "value": {"line_id": line_id, "owning_entry_id": owner}}
