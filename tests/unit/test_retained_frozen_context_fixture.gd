@@ -66,6 +66,10 @@ func test_populated_cache_identity_and_contents_restored() -> void:
 	_assert_current_scene_build()
 	var schemas := FROZEN._schemas
 	var ids := FROZEN._ids
+	var entry_id: String = schemas.keys()[0]
+	var exposed := FROZEN.schema_for_entry(entry_id)
+	exposed.value.fields.clear()
+	assert_false(FROZEN.schema_for_entry(entry_id).value.fields.is_empty())
 	var before_schemas := schemas.duplicate(true)
 	var before_ids := ids.duplicate(true)
 	assert_true(_fixture.install([ENTRY]).get("ok", false))
@@ -110,6 +114,7 @@ func test_dating_early_return_uses_real_suite_teardown() -> void:
 	var ids := FROZEN._ids
 	var suite: Node = autofree(RefusedDatingBuild.new())
 	suite.gut = gut
+	suite.before_each()
 	assert_true(suite._dating().is_empty(), "refused field build returns early")
 	assert_false(is_same(FROZEN._schemas, schemas), "fixture was installed before early return")
 	suite.after_each()
@@ -125,6 +130,7 @@ func test_historical_run_suite_restores_before_current_scene_in_same_process() -
 	var ids := FROZEN._ids
 	var suite: Node = autofree(RUN_TEST.new())
 	suite.gut = gut
+	suite.before_each()
 	suite.test_saved_dating_binds_run_board_and_effect_but_keeps_original_branch_and_tier()
 	suite.after_each()
 	assert_null(suite._retained_contexts)
