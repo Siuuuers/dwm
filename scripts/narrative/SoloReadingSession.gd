@@ -51,13 +51,13 @@ func _configure_scene_observed_body() -> Dictionary:
 	var selected := owner.scene_contract_tables()
 	if not selected.ok: return selected
 	var bundle: Dictionary = selected.bundle
-	var entries := {}
-	for entry: Dictionary in bundle.entry_manifest.entries: entries[entry.entry_id] = entry
 	var cacheable: bool = not ProjectSettings.get_setting("dialogic/translation/enabled", false)
 	var prepared := {}
 	if cacheable and is_same(_prepared_scene_configuration.get("bundle"), bundle):
 		prepared = _prepared_scene_configuration
 	else:
+		var entries := {}
+		for entry: Dictionary in bundle.entry_manifest.entries: entries[entry.entry_id] = entry
 		var compiled_catalogue := {}
 		var beats: Array = []
 		var variants := {}
@@ -83,7 +83,7 @@ func _configure_scene_observed_body() -> Dictionary:
 		if cacheable: _prepared_scene_configuration = prepared
 	family = "scene"
 	catalogue_schema_version = 5
-	fingerprint = owner.scene_registration_fingerprint()
+	fingerprint = selected.value.fingerprint
 	manifest = prepared.manifest
 	catalogue = prepared.catalogue
 	registry = prepared.registry
