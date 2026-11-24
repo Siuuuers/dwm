@@ -52,7 +52,7 @@ class SettingsSink:
 class AutoSink:
 	extends RefCounted
 	var delay_modifier := 1.0
-	var enabled_until_user_input := false
+	var enabled_until_user_input := true
 
 class InputsSink:
 	extends Node
@@ -108,7 +108,7 @@ func test_instant_and_skip_plan_survive_native_cache_capture_and_rollback() -> v
 	assert_true(adapter.apply_silent(plan).get("ok", false))
 	assert_eq(text_sink.calls, [[-1.0, false, 1.0, 0.0]])
 	assert_eq(inputs.auto_advance.delay_modifier, 1.5)
-	assert_true(inputs.auto_advance.enabled_until_user_input)
+	assert_false(inputs.auto_advance.enabled_until_user_input, "Witnessed captions own Auto progression")
 	var backup: Dictionary = adapter.capture_state()["value"]
 	assert_eq(backup["plan"], plan)
 	assert_true(adapter.apply_silent(adapter.prepare(_reading())["value"]).get("ok", false))

@@ -15,7 +15,7 @@ func prepare(input: Dictionary) -> Dictionary:
 	if typeof(font_style) != TYPE_STRING or font_style not in ["pixel", "readable"] \
 			or typeof(text_size) != TYPE_INT or text_size not in [100, 125, 150]:
 		return _fail(&"invalid_localization_input", "localization participant requires valid typography")
-	var prepared: Dictionary = _owner.prepare_locale(str(input["locale_id"]), font_style, text_size)
+	var prepared: Dictionary = _owner.prepare_locale_presentation(str(input["locale_id"]), font_style, text_size)
 	if not prepared.get("ok", false):
 		return prepared
 	return {"ok": true, "code": &"ok", "value": {"localization_plan": prepared.get("value", {})}}

@@ -49,9 +49,9 @@ class FakeOwner extends RefCounted:
 		var g := _guard("prepare_legacy_profile_patch")
 		if not g.is_empty(): return g
 		return {"ok": true, "value": preload("res://scripts/profile/ProfileSchema.gd").make_defaults()}
-	func prepare_locale(locale_id: String, _font_style: String = "pixel", _text_size: int = 100) -> Dictionary:
-		_r("prepare_locale")
-		var g := _guard("prepare_locale")
+	func prepare_locale_presentation(locale_id: String, _font_style: String = "pixel", _text_size: int = 100) -> Dictionary:
+		_r("prepare_locale_presentation")
+		var g := _guard("prepare_locale_presentation")
 		if not g.is_empty(): return g
 		return {"ok": true, "value": {"canonical_locale_id": locale_id}}
 	func prepare_semantic_restore(context: Dictionary, _profile: Dictionary) -> Dictionary:
