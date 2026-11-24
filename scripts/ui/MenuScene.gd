@@ -133,17 +133,16 @@ func _title_request_is_current(source_id: int) -> bool:
 	if scene == null: return source_id == 0
 	return scene.get_instance_id() == source_id and not scene.is_queued_for_deletion()
 
-func _destination_runtime_ready(destination: String) -> bool:
-	if destination == "settings": return true
-	if startup_owner == null: return true
-	var state: Dictionary = startup_owner.get_startup_state()
-	return not state.get("title_ready", false) or state.get("ready", false)
+func _destination_runtime_ready(destination: String, startup: Dictionary) -> bool:
+	return destination == "settings" or not startup.get("title_ready", false) or startup.get("ready", false)
 
 func _prepare_title_destination(destination: String) -> bool:
 	if not _title_source_alive() or not _can_leave_login(): return false
 	var loader := get_node("/root/StartupLoader")
 	var paths: Array = TITLE_DESTINATIONS[destination]
-	if loader.resources_ready(paths) and _destination_runtime_ready(destination): return true
+	if loader.resources_ready(paths):
+		var startup: Dictionary = startup_owner.get_startup_state() if startup_owner != null and destination != "settings" else {}
+		if _destination_runtime_ready(destination, startup): return true
 	if not _begin_title_transition(): return false
 	_pending_destination = destination
 	var source_id := _current_scene_id()
@@ -163,8 +162,9 @@ func _prepare_title_destination(destination: String) -> bool:
 	_title_welcome.set_busy("loading")
 	loader.prioritize_destination(destination)
 	loader.queue_resources(paths, true)
-	while not loader.resources_ready(paths) or not _destination_runtime_ready(destination):
+	while true:
 		var startup: Dictionary = startup_owner.get_startup_state() if startup_owner != null else {}
+		if loader.resources_ready(paths) and _destination_runtime_ready(destination, startup): break
 		if not startup.get("fatal_result", {}).is_empty() or loader.resources_failed(paths):
 			_pending_destination = ""
 			_end_title_transition()
