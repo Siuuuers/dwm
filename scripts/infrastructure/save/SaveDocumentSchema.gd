@@ -75,9 +75,6 @@ static func build(
 	if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
 	var display_time := normalize_optional_saved_time(saved_time)
 	if not display_time.is_empty(): document["saved_time"] = display_time
-	if document.has("saved_time") and not validate_saved_time(document["saved_time"]):
-		_profile_phase(profile, "document_schema_metadata_us", tick)
-		return _fail(&"invalid_saved_time", "saved_time must bind a UTC instant, original offset, and frozen HH:MM")
 	_profile_phase(profile, "document_schema_metadata_us", tick)
 	return {"ok": true, "code": &"ok", "value": document}
 
@@ -156,8 +153,6 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 	expected.sort()
 	if keys != Array(expected):
 		return _fail(&"invalid_document_shape", "unexpected document keys: " + str(keys))
-	if candidate.has("saved_time") and not validate_saved_time(candidate["saved_time"]):
-		return _fail(&"invalid_saved_time", "saved_time must bind a UTC instant, original offset, and frozen HH:MM")
 	if typeof(candidate["schema_version"]) != TYPE_INT:
 		return _fail(&"invalid_document_shape", "schema_version must be an integer")
 	if int(candidate["schema_version"]) > SCENE_DOCUMENT_VERSION:
