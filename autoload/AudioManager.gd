@@ -337,7 +337,7 @@ func apply_profile_preferences(changed_path: StringName = &"") -> Dictionary:
 	var applied := _apply_settings_silent(candidate)
 	if not applied.get("ok", false):
 		return applied
-	_settings = candidate.duplicate(true)
+	_settings = candidate
 	audio_settings_applied.emit(_settings.duplicate(true))
 	return {"ok": true, "code": &"ok", "value": _settings.duplicate(true), "receipt": {}}
 
@@ -531,7 +531,7 @@ func capture_restore_state() -> Dictionary:
 		return captured
 	return {"ok": true, "code": &"ok", "value": {
 		"snapshot": _semantic.duplicate(true), "settings": _settings.duplicate(true),
-		"runtime": captured["value"].duplicate(true),
+		"runtime": captured["value"],
 		"records": _records.duplicate(true), "active_players": _active_players.duplicate(true),
 	}, "receipt": {}}
 
@@ -661,7 +661,7 @@ func _set_context(channel_id: StringName, context_id: String, context: Dictionar
 	if not captured.get("ok", false):
 		return captured
 	var prior_semantic := _semantic.duplicate(true)
-	var prior_record: Dictionary = _records[channel_id].duplicate(true)
+	var prior_record: Dictionary = _records[channel_id]
 	var old_player: StringName = _active_players[channel_id]
 	var players := MUSIC_PLAYERS if channel_id == &"music" else AMBIENCE_PLAYERS
 	var new_player: StringName = players[1] if old_player == players[0] else players[0]
@@ -796,7 +796,7 @@ func _apply_settings_silent(candidate: Dictionary) -> Dictionary:
 			var ui_applied: Dictionary = _playback_port.call(&"set_bus_state", &"UI", db, muted)
 			if not ui_applied.get("ok", false):
 				return _rollback_settings(captured["value"], ui_applied)
-	return {"ok": true, "code": &"ok", "value": candidate.duplicate(true), "receipt": {}}
+	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
 
 
 func _apply_settings_output(candidate: Dictionary) -> Dictionary:
@@ -833,7 +833,7 @@ func _apply_settings_output(candidate: Dictionary) -> Dictionary:
 			_latch_consumer_fatal(&"settings_output_rollback", restored)
 			return _failure(&"audio_runtime_indeterminate")
 		return applied
-	return {"ok": true, "code": &"ok", "value": candidate.duplicate(true), "receipt": {}}
+	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
 
 
 func _rollback_settings(backup: Dictionary, cause: Dictionary) -> Dictionary:
