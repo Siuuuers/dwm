@@ -51,7 +51,7 @@ func get_variants(ending_id: String) -> Dictionary:
 		if not checked.ok or checked.value.signature_id != record.signature_id:
 			return _fail(&"gallery_record_unavailable")
 		if not _entry_available(located.value): return _fail(&"gallery_record_unavailable")
-		variants.append(record.duplicate(true))
+		variants.append(record)
 	return {"ok":true, "value":{"records":variants, "chronology": _variant_chronology(reached.value, variants)}}
 
 func passage_title(passage_id: String, locale: String) -> String:
@@ -70,7 +70,7 @@ func get_reached_entry_variants(entry_id: String = "") -> Dictionary:
 	if not _profile.has_method("has_completed_ending") or not _profile.has_completed_ending():
 		return {"ok": true, "value": {"records": [], "entry_ids": [],
 			"chronology": {"first_witnessed": [], "legacy_unordered": []}}}
-	var reached: Dictionary = _profile.get_reached_presentations()
+	var reached: Dictionary = _profile.get_reached_presentations(entry_id)
 	if not reached.get("ok", false): return reached
 	var variants: Array[Dictionary] = []
 	var entry_ids: Array[String] = []
@@ -84,7 +84,7 @@ func get_reached_entry_variants(entry_id: String = "") -> Dictionary:
 		if not checked.ok or checked.value.signature_id != record.signature_id:
 			if not entry_id.is_empty(): return _fail(&"gallery_record_unavailable")
 			continue
-		variants.append(record.duplicate(true))
+		variants.append(record)
 	entry_ids.sort()
 	return {"ok": true, "value": {"records": variants, "entry_ids": entry_ids,
 		"chronology": _variant_chronology(reached.value, variants)}}
