@@ -689,10 +689,7 @@ func _commit_ordinary_candidate(prepared: Dictionary, friend_id: String, command
 	return prepared
 
 static func _ordinary_command_has_keys(command: Dictionary, keys: Array) -> bool:
-	if command.size() != keys.size(): return false
-	for key: String in keys:
-		if not command.has(key): return false
-	return true
+	return command.size() == keys.size() and command.has_all(keys)
 
 
 func get_pending_day7_followups() -> Array[Dictionary]:
@@ -2507,10 +2504,12 @@ func capture_restore_state() -> Dictionary:
 		var captured: Dictionary = _dating_restore_owner.capture_reconciliation_state()
 		if not captured.get("ok", false): return captured
 		dating_backup = captured.value.duplicate(true)
-	var gameplay := to_save_dict().duplicate(true)
+	var gameplay: Dictionary
 	if _run_lifecycle.is_scene_run():
-		gameplay = capture_run_snapshot_input().gameplay
-	gameplay["narrative_variables"] = _narrative_variables.duplicate(true)
+		gameplay = _capture_scene_gameplay()
+	else:
+		gameplay = to_save_dict().duplicate(true)
+		gameplay["narrative_variables"] = _narrative_variables.duplicate(true)
 	return {"ok": true, "code": &"ok", "value": {"backup": {
 		"gameplay": gameplay,
 		"dating_reconciliation": dating_backup,
@@ -2781,13 +2780,17 @@ func capture_run_lifecycle() -> Dictionary:
 	return _run_lifecycle.to_dict()
 
 
+func _capture_scene_gameplay() -> Dictionary:
+	var gameplay := {}
+	for key: String in SCENE_GAMEPLAY_KEYS:
+		var value: Variant = _narrative_variables if key == "narrative_variables" else get(key)
+		gameplay[key] = value.duplicate(true) if value is Dictionary or value is Array else value
+	return gameplay
+
+
 func capture_run_snapshot_input() -> Dictionary:
 	if _run_lifecycle.is_scene_run():
-		var scene_gameplay := {}
-		for key: String in SCENE_GAMEPLAY_KEYS:
-			var value: Variant = _narrative_variables if key == "narrative_variables" else get(key)
-			scene_gameplay[key] = value.duplicate(true) if value is Dictionary or value is Array else value
-		return {"lifecycle": _run_lifecycle.to_dict(), "gameplay": scene_gameplay,
+		return {"lifecycle": _run_lifecycle.to_dict(), "gameplay": _capture_scene_gameplay(),
 			"contacts": contacts.duplicate(true), "desktop": _capture_desktop_snapshot(),
 			"scene": _scene_snapshot_references.duplicate(true),
 			"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(true),

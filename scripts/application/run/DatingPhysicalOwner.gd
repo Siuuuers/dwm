@@ -559,8 +559,8 @@ func _commit_attempt() -> Dictionary:
 		if not current.get("ok", false): return current
 		retained_record["context"] = current.value.record.context.duplicate(true)
 		selection = {"mode": "branch"}
-	else:
-		if selection.get("mode") not in ["fresh", "start_from_absence"]: return _fail(&"dating_attempt_selection_required")
+	elif selection.get("mode") != "fresh":
+		return _fail(&"dating_attempt_selection_required")
 	var effect: Dictionary = _record.applied_result.get("receipt", {}) if _record.host == "canonical_solo" else {}
 	var prepared: Dictionary
 	var committed: Dictionary
