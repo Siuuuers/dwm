@@ -54,7 +54,7 @@ func prepare_condition(install_for_presentation: bool = false) -> Dictionary:
 	return result
 
 func _prepare_owned() -> Dictionary:
-	var run_id: String = str(_game._run_lifecycle.to_dict().run_id)
+	var run_id: String = _game._run_lifecycle.get_run_id()
 	if run_id.is_empty(): return _fail(&"pair_deck_run_unavailable")
 	var checked: Dictionary = CONTACTS.validate_state(_game.contacts)
 	if not checked.get("ok", false): return checked
@@ -120,7 +120,7 @@ func _established_form(pair: Dictionary, inspect_legacy_history: bool) -> Dictio
 		established = portrayed
 		reached = true
 	if inspect_legacy_history:
-		var run_id: String = str(_game._run_lifecycle.to_dict().run_id)
+		var run_id: String = _game._run_lifecycle.get_run_id()
 		for day: int in [2, 6]:
 			var prior: Dictionary = _profile.get_dating_attempt(run_id, "dating.pair.priscilla_lavinia.day%d" % day)
 			if not prior.get("ok", false): return prior

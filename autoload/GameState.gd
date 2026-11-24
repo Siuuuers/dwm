@@ -1034,7 +1034,7 @@ func _prepare_day7_ending_plan(condition_source: Dictionary, attempt_reader: Cal
 			daily_opened_contacts.get("day:7:friend:%s" % friend_id, false))
 	var pair: Dictionary = inter_friend_route_state.get("priscilla_lavinia", {})
 	const MASTERY := preload("res://scripts/domain/ending/CanonicalDatingMastery.gd")
-	var run_id := str(_run_lifecycle.to_dict().get("run_id", ""))
+	var run_id: String = _run_lifecycle.get_run_id()
 	var raw_heads: Variant = route_context.get("dating_canonical_heads", {})
 	var heads: Dictionary = raw_heads if raw_heads is Dictionary else {}
 	var selected_attempts := {}
@@ -1157,7 +1157,7 @@ func _capture_ending_frozen_seed(provisional: Dictionary) -> Dictionary:
 	var evidence := {"priscilla": [], "lavinia": [], "sylvia": [], "priscilla_lavinia": []}
 	var profile: Node = get_node_or_null("/root/ProfileManager") if is_inside_tree() else null
 	if profile != null and profile.has_method("get_dating_attempt"):
-		var run_id := str(_run_lifecycle.to_dict().run_id)
+		var run_id: String = _run_lifecycle.get_run_id()
 		for slot: String in route_context.get("dating_canonical_heads", {}):
 			var head: Dictionary = route_context.dating_canonical_heads[slot]
 			var found: Dictionary = profile.get_dating_attempt(run_id, slot, str(head.attempt_id), str(head.branch_id))
@@ -1919,7 +1919,7 @@ func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_t
 		return {"ok": false, "code": &"invalid_run_configuration", "message": "dark_mode must be a Boolean"}
 	if run_id.is_empty():
 		return {"ok": false, "code": &"invalid_run_id", "message": "run_id must be nonempty"}
-	if str(_run_lifecycle.to_dict()["run_id"]) == run_id:
+	if _run_lifecycle.get_run_id() == run_id:
 		return {"ok": false, "code": &"run_id_reused", "message": run_id}
 	var template: Node = load("res://autoload/GameState.gd").new()
 	template.reset_game()
@@ -2416,7 +2416,7 @@ func _complete_play_ending(stage: String, transaction_id: String, receipt: Dicti
 func _complete_record_gallery(stage: String, lifecycle_plan: Dictionary) -> Dictionary:
 	var profile: Node = get_node_or_null("/root/ProfileManager")
 	if profile == null: return {"ok": false, "code": &"profile_unavailable"}
-	var run_id: String = str(_run_lifecycle.to_dict().run_id)
+	var run_id: String = _run_lifecycle.get_run_id()
 	var gallery_receipts: Dictionary = {}
 	if lifecycle_plan.has("steps"):
 		for index in range((lifecycle_plan.steps as Array).size()):
@@ -2670,7 +2670,7 @@ func validate_live_session(handle: Variant) -> Dictionary:
 	if not is_instance_valid(_mutation_gate): return _session_failure(&"session_gate_unconfigured")
 	var admitted: Dictionary = _mutation_gate.guard_external(&"live_session")
 	if not admitted.get("ok", false): return admitted
-	if not handle is Dictionary or not _live_session_active or handle != _live_session_fact() 			or not _run_configuration_installed or str(_run_lifecycle.to_dict().run_id) != _live_session_run_id:
+	if not handle is Dictionary or not _live_session_active or handle != _live_session_fact() 			or not _run_configuration_installed or _run_lifecycle.get_run_id() != _live_session_run_id:
 		return _session_failure(&"stale_live_session")
 	return {"ok": true, "code": &"ok", "value": {"valid": true}}
 
@@ -2685,7 +2685,7 @@ func validate_live_session_activation(ticket: Variant) -> Dictionary:
 		return _session_failure(&"session_activation_custody_required")
 	if not ticket is Dictionary or ticket.size() != 4 			or typeof(ticket.get("expected_generation")) != TYPE_INT or ticket.expected_generation < 0 			or typeof(ticket.get("owner_id")) != TYPE_INT or ticket.owner_id != get_instance_id() 			or typeof(ticket.get("operation_id")) != TYPE_STRING or ticket.operation_id.strip_edges().is_empty() 			or typeof(ticket.get("run_id")) != TYPE_STRING or ticket.run_id.strip_edges().is_empty():
 		return _session_failure(&"invalid_session_activation")
-	if not _run_configuration_installed or str(_run_lifecycle.to_dict().run_id) != ticket.run_id:
+	if not _run_configuration_installed or _run_lifecycle.get_run_id() != ticket.run_id:
 		return _session_failure(&"session_candidate_mismatch")
 	if not _live_session_activation_ticket.is_empty() 			and ticket.operation_id == _live_session_activation_ticket.operation_id:
 		if ticket == _live_session_activation_ticket and _live_session_active 				and _live_session_generation == ticket.expected_generation + 1 and _live_session_run_id == ticket.run_id:
@@ -2720,7 +2720,7 @@ func retire_live_session(handle: Variant) -> Dictionary:
 		if not _retired_live_session_handle.is_empty() and handle == _retired_live_session_handle 				and _live_session_generation == _retired_live_session_generation:
 			return {"ok": true, "code": &"ok", "value": {"retired": true}}
 		return _session_failure(&"stale_live_session")
-	if handle != _live_session_fact() or not _run_configuration_installed 			or str(_run_lifecycle.to_dict().run_id) != _live_session_run_id:
+	if handle != _live_session_fact() or not _run_configuration_installed 			or _run_lifecycle.get_run_id() != _live_session_run_id:
 		return _session_failure(&"stale_live_session")
 	_invalidate_live_session()
 	_run_configuration_installed = false

@@ -168,6 +168,9 @@ func prepare_continuation_remap(restore_transaction_id: String, identity_allocat
 func commit_continuation_remap(candidate: Dictionary) -> Dictionary:
 	return commit_restore(candidate)
 
+func get_run_id() -> String:
+	return _run_id
+
 func get_day() -> int:
 	return _day
 
