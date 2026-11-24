@@ -168,9 +168,9 @@ func prepare_locale(locale_input: String, font_style: String = "", text_size: in
 	return _success({
 		"canonical_locale_id": canonical,
 		"bundle": _bundle_for_locale(_catalog_store, canonical),
-		"presentation_profile": presentation.duplicate(true),
+		"presentation_profile": presentation,
 		"root_plans": root_plans["value"],
-		"profile_candidate": (profile_candidate["value"] as Dictionary).duplicate(true),
+		"profile_candidate": profile_candidate["value"],
 	})
 
 
@@ -192,10 +192,16 @@ func set_font_style(font_style: String) -> Dictionary:
 	if _readiness != &"ready": return _fail(&"localization_not_ready")
 	var candidate: Dictionary = _profile.prepare_font_style_preference(font_style)
 	if not candidate.get("ok", false): return candidate
-	var prepared := prepare_locale(_locale_id, font_style)
-	if not prepared.get("ok", false): return prepared
-	prepared["value"]["profile_candidate"] = candidate["value"]
-	return _commit_presentation(prepared["value"], false)
+	var presentation := _make_presentation_in_bundle(_bundle, _locale_id, font_style)
+	var root_plans := _prepare_root_plans(presentation)
+	if not root_plans.get("ok", false): return root_plans
+	return _commit_presentation({
+		"canonical_locale_id": _locale_id,
+		"bundle": _bundle,
+		"presentation_profile": presentation,
+		"root_plans": root_plans["value"],
+		"profile_candidate": candidate["value"],
+	}, false)
 
 
 func _commit_presentation(plan: Dictionary, publish_locale: bool) -> Dictionary:
@@ -207,9 +213,9 @@ func _commit_presentation(plan: Dictionary, publish_locale: bool) -> Dictionary:
 		_rollback_applied_roots(applied.get("applied", []))
 		return committed
 
-	_bundle = (plan["bundle"] as Dictionary).duplicate(true)
+	_bundle = plan["bundle"]
 	_locale_id = plan["canonical_locale_id"]
-	_presentation_profile = (plan["presentation_profile"] as Dictionary).duplicate(true)
+	_presentation_profile = plan["presentation_profile"]
 	_publishing_own_presentation = true
 	_profile.publish_deferred_profile_signals(committed["value"]["publication_id"])
 	_publishing_own_presentation = false
@@ -297,7 +303,7 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 	var applied := _apply_root_plans(plan["root_plans"])
 	if not applied.get("ok", false):
 		return applied
-	_restore_applied = applied.get("applied", []).duplicate()
+	_restore_applied = applied["applied"]
 	_locale_id = plan["canonical_locale_id"]
 	_bundle = (plan["bundle"] as Dictionary).duplicate(true)
 	_presentation_profile = (plan["presentation_profile"] as Dictionary).duplicate(true)
