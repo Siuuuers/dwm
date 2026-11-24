@@ -553,7 +553,7 @@ func test_lazy_runtime_entries_share_parse_until_registration_changes_and_bypass
 	assert_eq(ADAPTER._scene_runtime_programmes.keys(), [first.entry_id])
 	inner.restore()
 
-func test_context_registry_detaches_only_its_owned_schemas_and_ids() -> void:
+func test_context_registry_shares_frozen_records_and_detaches_public_schemas() -> void:
 	_install_reading_source()
 	var context := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 	var selected := MANIFEST.scene_contract_tables()
@@ -563,10 +563,9 @@ func test_context_registry_detaches_only_its_owned_schemas_and_ids() -> void:
 	if not schema.ok: return
 	var canonical: Dictionary = selected.bundle.context_registry.schemas.filter(
 		func(row: Dictionary) -> bool: return row.entry_id == READING.A)[0]
-	assert_eq(context._schemas[READING.A], canonical)
-	assert_false(is_same(context._schemas[READING.A], canonical))
-	assert_eq(context._ids, selected.bundle.ids_registry)
-	assert_false(is_same(context._ids, selected.bundle.ids_registry))
+	assert_true(is_same(context._schemas[READING.A], canonical))
+	assert_true(is_same(context._ids, selected.bundle.ids_registry))
+	assert_true(context._ids.is_read_only())
 	schema.value.clear()
 	assert_eq(context.schema_for_entry(READING.A).value, canonical)
 	assert_true(canonical.is_read_only())
