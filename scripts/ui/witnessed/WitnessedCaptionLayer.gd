@@ -56,7 +56,7 @@ var _timed_hold_frontier: Dictionary = {}
 var _transport_bridge: Object
 var _transport_configured := false
 var _transport_input_bound := false
-var _rail_focus_key := ""
+var _rail_focus_ring: Array[Control] = []
 var _presented_line: Dictionary = {}
 var _line_waiting_for_text := false
 var _auto_configured := false
@@ -740,28 +740,22 @@ func _sync_transport() -> void:
 			_save_admitted(), current and _next_input_bound and _can_request_next_on_current_line(), _settings_admitted())
 	var ring: Array[Control] = []
 	if not _ending_caption_handoff and _timed_hold_frontier.is_empty(): ring.append(review_current if _review_offset > 0 else caption_text)
-	var names: PackedStringArray = []
 	if is_instance_valid(self_talk) and self_talk.visible and self_talk.focus_mode != Control.FOCUS_NONE:
 		ring.append(self_talk)
-		names.append("SelfTalk")
 		var host := get_tree().current_scene
 		if host != null and host.has_method("get_thought_controls"):
 			for choice: Control in host.get_thought_controls():
 				ring.append(choice)
-				names.append("Thought:%d" % choice.get_instance_id())
 	if is_instance_valid(_dating_split_surface) and is_dating_split_input_admitted():
 		var handle: Control = _dating_split_surface.get_split_handle()
 		if is_instance_valid(handle) and handle.is_visible_in_tree() and handle.focus_mode != Control.FOCUS_NONE:
 			ring.append(handle)
-			names.append("Split:%d" % handle.get_instance_id())
 	for name: String in ["History", "Save", "Load", "Skip", "Auto", "Next", "Settings"]:
 		var command: Control = transport_rail.get_node(name)
 		if command.focus_mode != Control.FOCUS_NONE:
 			ring.append(command)
-			names.append(name)
-	var focus_key := ("hold:" if not _timed_hold_frontier.is_empty() else ("review:" if _review_offset > 0 else "live:")) + ",".join(names)
-	if focus_key == _rail_focus_key: return
-	_rail_focus_key = focus_key
+	if ring == _rail_focus_ring: return
+	_rail_focus_ring = ring
 	for index: int in ring.size():
 		ring[index].focus_next = ring[index].get_path_to(ring[(index + 1) % ring.size()]) if ring.size() > 1 else NodePath()
 		ring[index].focus_previous = ring[index].get_path_to(ring[posmod(index - 1, ring.size())]) if ring.size() > 1 else NodePath()
@@ -1074,13 +1068,13 @@ func _capture_timed_hold_frontier() -> Dictionary:
 	var captured: Dictionary = _transport_bridge.capture_pause_frontier()
 	if not captured.get("ok", false) or not captured.get("value") is Dictionary \
 			or captured.value.get("kind", "") != "timed_hold": return {}
-	return captured.value.duplicate(true)
+	return captured.value
 
 func _sync_timed_hold_projection() -> void:
 	if _pause_covered: return
 	var frontier := _capture_timed_hold_frontier()
 	if frontier == _timed_hold_frontier: return
-	_timed_hold_frontier = frontier
+	_timed_hold_frontier = frontier.duplicate(true)
 	var holding := not frontier.is_empty()
 	if holding:
 		_retire_transport()
