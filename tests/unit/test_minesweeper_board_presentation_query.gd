@@ -118,8 +118,29 @@ func test_preparation_publishes_only_the_bracket_locus_after_certification() -> 
 	for cell: Dictionary in certified.cells:
 		assert_eq(cell.bracketed,cell.index == 0)
 		assert_eq(cell.pressable,cell.index == 0)
+		assert_eq(cell.inspectable,cell.index == 0)
+		assert_eq(cell.actions,["reveal"] if cell.bracketed else [])
 		assert_eq(cell.mark,"none")
 		assert_eq(cell.number,0)
+
+func test_certified_board_keeps_preparation_flags_and_only_allows_the_forced_unflag() -> void:
+	var prepared := _prepared()
+	prepared.candidate.forced_cell = 5
+	prepared.candidate.flagged_indices = [0, 5]
+	prepared.candidate.actions = [
+		{"transaction_id": "flag-0", "kind": "set_flag", "cell_index": 0, "flagged": true, "revision": 1},
+		{"transaction_id": "flag-5", "kind": "set_flag", "cell_index": 5, "flagged": true, "revision": 2},
+	]
+	var projected := QUERY.desktop(prepared, "beginner")
+	assert_true(projected.ok, str(projected))
+	assert_eq(projected.value.mine_estimate, -1)
+	for cell: Dictionary in projected.value.cells:
+		assert_eq(cell.bracketed, cell.index == 5)
+		assert_eq(cell.mark, "flag" if cell.index in [0, 5] else "none")
+		assert_eq(cell.inspectable, cell.bracketed)
+		assert_eq(cell.pressable, cell.bracketed)
+		assert_eq(cell.actions, ["unflag"] if cell.bracketed else [])
+		assert_true(CELL.validate(cell))
 
 func test_suspended_custody_preserves_content_and_removes_all_contact() -> void:
 	var snapshot := _snapshot()

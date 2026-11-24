@@ -537,15 +537,35 @@ func test_default_and_lucky_remain_none_until_reveal() -> void:
 # ---- first Reveal: Debug-adopted path from PREPARED_UNSTARTED ----
 
 func test_first_reveal_adopts_a_certified_debug_candidate() -> void:
-	var identity: Dictionary = _coordinator.get_entry_context("beginner")["value"]["identity"]
-	_coordinator.begin_debug_preparation(_debug_request(_next_tx(), identity, 0, "beginner"))
+	var mark := _cell_request_with_real_transaction(null, 0, 0)
+	mark.flagged = true
+	assert_true(_coordinator.set_flag(mark).ok)
+	var identity: Dictionary = _coordinator.get_entry_context("beginner").value.identity
+	assert_true(_coordinator.begin_debug_preparation(_debug_request(_next_tx(), identity, 1, "beginner")).ok)
 	_generation_port.arm_search_slices([
 		{"done": true, "layout": _layout(), "forced_cell": 0, "proof_sha256": "proof-xyz"},
 	])
-	_coordinator.run_debug_preparation_slice(_generic_request(_next_tx(), identity, 1))
-	assert_eq(_coordinator.get_state()["value"]["phase"], "PREPARED_UNSTARTED")
+	assert_true(_coordinator.run_debug_preparation_slice(_generic_request(_next_tx(), identity, 2)).ok)
+	var prepared: Dictionary = _coordinator.get_state().value
+	assert_eq(prepared.phase, "PREPARED_UNSTARTED")
+	for flagged: bool in [true, false]:
+		var wrong := _cell_request_with_real_transaction(identity, prepared.revision, 1)
+		wrong.flagged = flagged
+		assert_eq(_coordinator.set_flag(wrong).code, &"forced_cell_mismatch")
+	assert_eq(_coordinator.get_state().value, prepared)
 
-	var request := _first_reveal_request(_next_tx(), identity, 2, "beginner", 0)
+	var unmark := _cell_request_with_real_transaction(identity, prepared.revision, 0)
+	unmark.flagged = false
+	assert_true(_coordinator.set_flag(unmark).ok)
+	var cleared: Dictionary = _coordinator.get_state().value
+	assert_eq(cleared.candidate.flagged_indices, [])
+	for flagged: bool in [true, false]:
+		var forced := _cell_request_with_real_transaction(identity, cleared.revision, 0)
+		forced.flagged = flagged
+		assert_eq(_coordinator.set_flag(forced).code, &"minesweeper_action_not_available")
+	assert_eq(_coordinator.get_state().value, cleared)
+
+	var request := _first_reveal_request(_next_tx(), identity, cleared.revision, "beginner", 0)
 	var result := _coordinator.reveal(request)
 	assert_true(result.get("ok", false), JSON.stringify(result))
 	assert_eq(result["value"]["receipt"]["proof_sha256"], "proof-xyz")
@@ -1023,7 +1043,7 @@ func _first_reveal_request(transaction_id: String, identity: Dictionary, expecte
 	}
 
 
-func _cell_request_with_real_transaction(identity: Dictionary, expected_revision: int, cell_index: int) -> Dictionary:
+func _cell_request_with_real_transaction(identity: Variant, expected_revision: int, cell_index: int) -> Dictionary:
 	var tx := _next_tx()
 	return {
 		"transaction_id": tx, "transaction_issuer_receipt": _issue_transaction_receipt_for(tx),
