@@ -539,10 +539,11 @@ func apply_text_size(percent: int, large_targets: bool) -> void:
 	$Heading/CategoryHeading.add_theme_font_size_override("font_size", font_size)
 	if theme_changed or _presentation_large_targets != large_targets:
 		_presentation_large_targets = large_targets
+		var dialog_theme := PRESENTATION.confirmation_theme(theme, font_size, large_targets)
 		if _controls_sheet != null:
-			_controls_sheet.set_presentation(theme, font_size, large_targets)
+			_controls_sheet.set_presentation(theme, dialog_theme, font_size, large_targets)
 		for dialog: ConfirmationDialog in confirmations.values():
-			dialog.set_presentation(theme, font_size, large_targets)
+			dialog.set_presentation(dialog_theme, font_size)
 			for button: Button in [dialog.get_ok_button(), dialog.get_cancel_button()]:
 				button.custom_minimum_size.y = maxf(64.0 if large_targets else 48.0, float(font_size) * 2.0)
 	elif _controls_sheet != null:
