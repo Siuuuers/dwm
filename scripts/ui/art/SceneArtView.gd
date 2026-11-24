@@ -134,7 +134,8 @@ func configure_textures(background: Texture2D, portraits: Array[Texture2D], cg: 
 	for index: int in range(2):
 		var portrait: TextureRect = _portraits[index]
 		var texture: Texture2D = portraits[index] if index < _portrait_count else null
-		if portrait.texture != texture:
+		if _dating_split and _portrait_count == 2 \
+				and (not previous_split or previous_count != 2 or portrait.texture != texture):
 			_opaque_portraits[index] = false
 			if texture != null:
 				var source: Image = texture.get_image()
