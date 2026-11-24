@@ -146,7 +146,7 @@ func _commit(candidate: Dictionary, baseline: Dictionary, revision: int, section
 	else:
 		committed = _owner._profile._commit_prepared_reset(candidate, section, revision)
 	if not committed.get("ok", false): return _recover(committed)
-	_owner._settings = settings.duplicate(true)
+	_owner._settings = settings
 	invalidate_preview()
 	var published: Dictionary = _owner._profile.publish_deferred_profile_signals(committed.value.publication_id)
 	var settled := _settle_latest()
@@ -171,7 +171,7 @@ func _settle_latest(restore_original_window: bool = false) -> Dictionary:
 			var window_result := _apply_window(snapshot)
 			if not window_result.ok: return window_result
 		if _generation == generation and _revision() == revision and _snapshot() == snapshot:
-			_owner._settings = settings.duplicate(true)
+			_owner._settings = settings
 			return _success({})
 	return _failure(&"settings_audio_settlement_conflict")
 

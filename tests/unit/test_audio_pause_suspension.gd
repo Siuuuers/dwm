@@ -125,6 +125,9 @@ func test_real_players_and_native_crossfade_suspend_and_resume_in_place() -> voi
 		"player_id": &"MusicA", "from_db": -30.0, "to_db": 0.0,
 	}]
 	assert_true(_port.create_parallel_tween(&"music", tracks, 1.0).get("ok", false))
+	var capture: Dictionary = _manager.capture_restore_state().value
+	capture.runtime.transitions[&"music"].tracks[0].to_db = -60.0
+	assert_eq(_manager.capture_restore_state().value.runtime.transitions[&"music"].tracks[0].to_db, 0.0)
 	await get_tree().create_timer(0.05).timeout
 	var music: AudioStreamPlayer = players[&"MusicA"]
 	var ambience: AudioStreamPlayer = players[&"AmbienceA"]
