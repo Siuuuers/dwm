@@ -64,6 +64,13 @@ func test_both_owners_share_the_selected_complete_bundle_fingerprint() -> void:
 	assert_true(selected.ok, "fixture must be selected at process startup")
 	if not selected.ok: return
 	assert_eq(selected.value, bundle)
+	var line: Dictionary = bundle.ids_registry.lines[0]
+	var resolved := A.validate_line_id(bundle.entry_manifest, line.owning_entry_id, line.line_id)
+	assert_true(resolved.ok, str(resolved))
+	if not resolved.ok: return
+	assert_eq(resolved.value, line)
+	resolved.value.clear()
+	assert_eq(A.validate_line_id(bundle.entry_manifest, line.owning_entry_id, line.line_id).value, line)
 	assert_eq(A.scene_registration_fingerprint(), expected)
 	# A structural-only change still changes B; hashing only entry identities
 	# would miss this sibling-table mutation.
