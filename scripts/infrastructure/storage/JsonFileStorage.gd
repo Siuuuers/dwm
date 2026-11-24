@@ -617,7 +617,7 @@ func _classify_marker(path: String, relative_path: String) -> Dictionary:
 	var validation := _validate_marker(parsed["value"], relative_path)
 	if not validation.get("ok", false):
 		return {"state": &"invalid", "reason": validation}
-	return {"state": &"valid", "value": (parsed["value"] as Dictionary).duplicate(true)}
+	return {"state": &"valid", "value": parsed["value"]}
 
 func _validate_marker(marker: Dictionary, relative_path: String) -> Dictionary:
 	if marker.get("schema_version") == 2:
