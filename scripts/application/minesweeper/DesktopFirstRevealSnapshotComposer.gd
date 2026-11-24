@@ -68,7 +68,7 @@ static func compose(base_snapshot_input: Dictionary, game_state_candidate: Dicti
 		return projected_board
 
 	var composed: Dictionary = base_snapshot_input.duplicate(true)
-	var gameplay: Dictionary = (composed["gameplay"] as Dictionary).duplicate(true)
+	var gameplay: Dictionary = composed.gameplay
 	if typeof(gameplay.get("stats")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_base_snapshot_input", "base_snapshot_input.gameplay.stats is required")
 	if not _exact_keys(gameplay.stats, ["pressure"], &"invalid_base_snapshot_input").ok \
@@ -78,10 +78,7 @@ static func compose(base_snapshot_input: Dictionary, game_state_candidate: Dicti
 			or gameplay.minesweeper_rounds_left - 1 != game_state_candidate.rounds_left:
 		return _fail(&"invalid_game_state_candidate", "first Reveal must debit exactly one round")
 	gameplay["minesweeper_rounds_left"] = int(game_state_candidate["rounds_left"])
-	composed["gameplay"] = gameplay
-	var desktop: Dictionary = base_desktop.duplicate(true)
-	desktop["board"] = (projected_board["value"] as Dictionary)["board"]
-	composed["desktop"] = desktop
+	composed.desktop.board = projected_board.value.board
 	return {"ok": true, "code": &"ok", "value": {"snapshot_input": composed}}
 
 
