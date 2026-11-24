@@ -195,7 +195,6 @@ $suites = @{
         'tests/unit/test_dialogic_ending_playback_port.gd'
         'tests/unit/test_run_lifecycle.gd'
         'tests/unit/test_dating_ending_rules.gd'
-        'tests/unit/test_dating_ending_rules_migration.gd'
         'tests/integration/test_ordered_ending_playback.gd'
         'tests/integration/test_ending_dialogic_wiring.gd'
         'tests/scenario/test_day7_endings.gd'

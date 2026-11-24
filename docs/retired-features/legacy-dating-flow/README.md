@@ -22,6 +22,10 @@ compiler, create another flow manager, or change authored story text.
 - Tests that required the retired production composition. Current startup,
   shared board identity, restore, Gallery reading, and DTL checks remain.
 
+The old friend/affection and synchronized-pair ending selectors only served
+their migration test. DTL owns current ending choice. The selectors read no
+saved fields during Load and had no gameplay or migration caller.
+
 ## Retained deliberately
 
 `DatingPhysicalOwner` and `DatingPresentationPort` still execute DTL scene
