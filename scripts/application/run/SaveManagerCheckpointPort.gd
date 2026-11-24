@@ -37,8 +37,7 @@ var _prepared_text_validations: Dictionary = {}
 var _prepared_validation_checkpoint := ""
 var _prepared_validation_frame := -1
 const PROVEN_DOCUMENT_LIMIT := 3
-var _proven_document_validations: Dictionary = {}
-var _proven_document_order: Array[String] = []
+var _proven_document_texts: Array[String] = []
 var _transient_consequence_document := {"records": {}, "abandoned": {}}
 var _issued_transient_records: Dictionary = {}
 var _issued_transient_order: Array[String] = []
@@ -260,7 +259,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 			if not profile.is_empty(): profile["outgoing_validation_ok"] = bool(checked.get("ok", false))
 			if checked.get("ok", false):
 				outgoing_proven = true
-				validated_texts[outgoing_text] = {"ok": true, "code": &"ok", "value": checked["value"]["candidate"]}
+				validated_texts[outgoing_text] = true
 				var checked_current: Dictionary = checked["value"]["candidate"]["current_snapshot"]
 				if CANONICAL_JSON._deep_same(normalized["current_snapshot"], checked_current):
 					proven_current_document = checked_current
@@ -273,7 +272,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 			if not checked_text.get("ok", false) or not checked_text.get("value") is Dictionary:
 				return _profile_result(profile, {"ok": false, "code": &"outgoing_validation_failed",
 					"message": str(checked_text.get("message", "Outgoing document rejected")), "fatal": false})
-			validated_texts[outgoing_text] = checked_text
+			validated_texts[outgoing_text] = true
 		tick = _profile_phase(profile, "outgoing_schema_us", tick)
 		var witness := _witness_document_text_validator.bind(validated_texts)
 		var written: Dictionary = _storage().write_atomic(
@@ -810,16 +809,14 @@ func _on_validation_capability_changed(_capability: Dictionary) -> void:
 	_forget_proven_documents()
 
 func _forget_proven_documents() -> void:
-	_proven_document_validations = {}
-	_proven_document_order = []
+	_proven_document_texts = []
 
 func _remember_proven_documents(validated_texts: Dictionary) -> void:
-	for text: String in validated_texts.keys():
-		if _proven_document_validations.has(text): continue
-		_proven_document_validations[text] = (validated_texts[text] as Dictionary).duplicate(true)
-		_proven_document_order.append(text)
-		while _proven_document_order.size() > PROVEN_DOCUMENT_LIMIT:
-			_proven_document_validations.erase(_proven_document_order.pop_front())
+	for text: String in validated_texts:
+		if _proven_document_texts.has(text): continue
+		_proven_document_texts.append(text)
+		if _proven_document_texts.size() > PROVEN_DOCUMENT_LIMIT:
+			_proven_document_texts.pop_front()
 
 func _take_prepared_text_validation(candidate: Dictionary) -> Dictionary:
 	var cache := {}
@@ -829,31 +826,21 @@ func _take_prepared_text_validation(candidate: Dictionary) -> Dictionary:
 	_clear_prepared_text_validation()
 	return cache
 
-func _cached_document_text_validator(text: String, cache: Dictionary) -> Dictionary:
-	if cache.has(text):
-		return (cache[text] as Dictionary).duplicate(true)
-	if _proven_document_validations.has(text):
-		return (_proven_document_validations[text] as Dictionary).duplicate(true)
-	var result := _document_text_validator(text)
-	if result.get("ok", false):
-		cache[text] = result.duplicate(true)
-	return result
-
 func _cached_document_text_proof(text: String, cache: Dictionary) -> Dictionary:
-	if cache.has(text) or _proven_document_validations.has(text):
+	if cache.has(text) or _proven_document_texts.has(text):
 		return {"ok": true, "code": &"ok"}
 	var result := _document_text_validator(text, true)
 	if not result.get("ok", false):
 		return result
-	cache[text] = result
+	cache[text] = true
 	return {"ok": true, "code": &"ok"}
 
 func _witness_document_text_validator(text: String, cache: Dictionary, existing_source: bool = false) -> Dictionary:
-	if cache.has(text) or _proven_document_validations.has(text):
+	if cache.has(text) or _proven_document_texts.has(text):
 		return {"ok": true, "code": &"ok", "value": {}}
 	var result := _document_text_validator(text, existing_source)
 	if result.get("ok", false):
-		cache[text] = result.duplicate(true)
+		cache[text] = true
 	return result
 
 func _document_text_validator(text: String, existing_source: bool = false) -> Dictionary:

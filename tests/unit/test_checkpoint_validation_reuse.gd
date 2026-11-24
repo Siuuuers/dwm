@@ -36,19 +36,11 @@ class CountingPort extends "res://scripts/application/run/SaveManagerCheckpointP
 	func _validate_document_text(text: String, existing_source: bool = false) -> Dictionary:
 		validations[text] = int(validations.get(text, 0)) + 1
 		return super._validate_document_text(text, existing_source)
-	func _cached_document_text_validator(text: String, cache: Dictionary) -> Dictionary:
-		if not reuse: return _document_text_validator(text)
-		return super._cached_document_text_validator(text, cache)
 	func _cached_document_text_proof(text: String, cache: Dictionary) -> Dictionary:
 		if not reuse: return _document_text_validator(text, true)
 		return super._cached_document_text_proof(text, cache)
 
-# dwm-634.3: the storage witness is the third reader of the exact-text proofs, and commit() seeds the
-# outgoing text into the cache it binds, so suppressing the proven-document memo is not enough to
-# keep a reference port cold. This is the ONLY double that declares the witness, so that `_wired()`'s
-# reuse=true port -- the one the witness rows below interrogate -- still answers has_method() and
-# dispatches from the production port itself. Nothing here calls `super` on the witness: that would
-# not compile against a port which does not declare one yet.
+# Keep the reference port cold even after commit proves the outgoing text.
 class UncachedPort extends CountingPort:
 	func _witness_document_text_validator(text: String, _cache: Dictionary, existing_source: bool = false) -> Dictionary:
 		return _document_text_validator(text, existing_source)
@@ -57,6 +49,8 @@ class Manager extends RefCounted:
 	var _journal := JOURNAL.new()
 	var _storage: RefCounted
 	var _restore_participants := {}
+	func flush_profile_reading_history() -> Dictionary:
+		return {"ok": true}
 
 class CorruptFiles extends "res://tests/support/FakeFileOps.gd":
 	var corrupt_suffix := ""
@@ -214,25 +208,24 @@ func test_schema_invalid_and_canonical_invalid_candidates_preserve_reference_pre
 				"canonical failure must happen before any text validation")
 			assert_eq(_validation_count(uncached.port), 0)
 
-func test_cache_is_exact_text_success_only_and_detaches_nested_results() -> void:
+func test_proof_cache_accepts_only_exact_successful_text() -> void:
 	var wired := _wired()
 	var candidate := _prepare(wired, 200)
 	var text: String = WRITER.stringify(candidate.autosave_document).value + "\n"
 	var cache := {}
 	wired.port.validations.clear()
-	var first: Dictionary = wired.port._cached_document_text_validator(text, cache)
+	var first: Dictionary = wired.port._cached_document_text_proof(text, cache)
 	assert_true(first.get("ok", false), str(first))
-	first["value"]["current_snapshot"]["snapshot"]["gameplay"]["money"] = 999
-	var repeated: Dictionary = wired.port._cached_document_text_validator(text, cache)
-	assert_eq(repeated.value.current_snapshot.snapshot.gameplay.money, 200)
+	var repeated: Dictionary = wired.port._cached_document_text_proof(text, cache)
+	assert_true(repeated.ok)
 	assert_eq(wired.port.validations[text], 1)
-	var spaced: Dictionary = wired.port._cached_document_text_validator(text + " ", cache)
+	var spaced: Dictionary = wired.port._cached_document_text_proof(text + " ", cache)
 	assert_true(spaced.get("ok", false), str(spaced))
 	assert_eq(wired.port.validations[text + " "], 1, "no JSON normalization in cache keys")
 	var broken := "{\"schema_version\":1,\"schema_version\":1}"
-	var rejected: Dictionary = wired.port._cached_document_text_validator(broken, cache)
+	var rejected: Dictionary = wired.port._cached_document_text_proof(broken, cache)
 	assert_false(rejected.get("ok", true))
-	assert_eq(wired.port._cached_document_text_validator(broken, cache), rejected)
+	assert_eq(wired.port._cached_document_text_proof(broken, cache), rejected)
 	assert_eq(wired.port.validations[broken], 2, "failed validation never becomes a cached result")
 	assert_false(cache.has(broken))
 
@@ -344,13 +337,13 @@ func test_committed_documents_are_remembered_bounded_and_forgotten_on_capability
 	var cache := {}
 	wired.port.validations.clear()
 	for text: String in texts.slice(1):
-		assert_true(wired.port._cached_document_text_validator(text, cache).get("ok", false))
+		assert_true(wired.port._cached_document_text_proof(text, cache).get("ok", false))
 	assert_eq(_validation_count(wired.port), 0, "the last three committed documents are proven")
-	assert_true(wired.port._cached_document_text_validator(texts[0], cache).get("ok", false))
+	assert_true(wired.port._cached_document_text_proof(texts[0], cache).get("ok", false))
 	assert_eq(wired.port.validations.get(texts[0], 0), 1, "the memo is bounded to the last three documents")
 	wired.port.validations.clear()
 	wired.gate.capability_changed.emit({})
-	assert_true(wired.port._cached_document_text_validator(texts[3], {}).get("ok", false))
+	assert_true(wired.port._cached_document_text_proof(texts[3], {}).get("ok", false))
 	assert_eq(wired.port.validations.get(texts[3], 0), 1, "a capability change forgets every proven document")
 
 func test_a_failed_commit_proves_nothing() -> void:
@@ -362,7 +355,7 @@ func test_a_failed_commit_proves_nothing() -> void:
 	assert_eq(wired.port.commit(candidate).get("code"), &"reread_mismatch")
 	wired.storage.alter_reread = false
 	wired.port.validations.clear()
-	assert_true(wired.port._cached_document_text_validator(outgoing, {}).get("ok", false))
+	assert_true(wired.port._cached_document_text_proof(outgoing, {}).get("ok", false))
 	assert_eq(wired.port.validations.get(outgoing, 0), 1, "a document whose commit failed is validated again")
 
 func test_mutated_outgoing_document_fails_and_retry_revalidates_preimage() -> void:
@@ -399,15 +392,6 @@ func test_mutated_outgoing_document_fails_and_retry_revalidates_preimage() -> vo
 			assert_eq(wired.port.validations.get(old_text, 0), 0,
 				"a proven previous document survives a failed commit")
 
-
-# -------------------------------------------------------------------------------------------------
-# A6: _capture_storage_backup() reads nothing but `ok` from the validation of the document already on
-# disk, yet _cached_document_text_validator() hands it a 450 KB deep copy of the whole proven
-# candidate to do it. A proof variant answers the question without the copy. Everything else must be
-# untouched: the same physical operations, the same bytes, the same refusals returned verbatim, and
-# the cold-miss seed still written into the prepare-side cache -- that seed is what keeps
-# write_atomic()'s reconcile from parsing the existing document a second time.
-# -------------------------------------------------------------------------------------------------
 
 func _commit_round(cached: Dictionary, uncached: Dictionary, money: int) -> void:
 	cached.port.validations.clear()
@@ -453,18 +437,11 @@ func test_storage_backup_proof_keeps_every_validation_and_disk_operation_without
 	assert_true(cached.port.has_method("_cached_document_text_proof"),
 		"the backup proof path exists: _capture_storage_backup needs only ok, never a 450 KB value")
 
-	# A cold proof still seeds the prepare-side cache with the FULL validation, because that seed is
-	# what write_atomic()'s reconcile reuses instead of parsing the existing document again.
 	cached.port._forget_proven_documents()
 	var seed_cache := {}
 	var cold: Dictionary = cached.port._cached_document_text_proof(text, seed_cache)
 	assert_true(cold.get("ok", false), str(cold))
-	assert_true(seed_cache.has(text), "a cold proof seeds the cache it was given")
-	assert_true((seed_cache[text] as Dictionary).has("value"),
-		"the seed is the whole validation, so a later validator call can answer from it")
-	assert_true(WRITER._deep_same((seed_cache[text] as Dictionary).get("value"),
-		cached.port._cached_document_text_validator(text, {}).get("value")),
-		"the seeded value is the one the validator itself would have produced")
+	assert_eq(seed_cache, {text: true})
 
 	# A hit answers the only question _capture_storage_backup asks, and carries no copy of the proof.
 	var hit: Dictionary = cached.port._cached_document_text_proof(text, seed_cache)
@@ -601,9 +578,7 @@ func test_witness_validates_an_unknown_document_exactly_like_the_validator() -> 
 	assert_true(witnessed_canonical.get("ok", false), str(witnessed_canonical))
 	assert_eq(str(witnessed_canonical.get("value")), str(reference_canonical.get("value")),
 		"the cold value is the validator's own candidate, compared by canonical text")
-	assert_true(cache.has(unknown), "a cold witness seeds the cache it was given")
-	assert_true((cache[unknown] as Dictionary).has("value"),
-		"the seed is the whole validation, so this call's later classifications answer from it")
+	assert_eq(cache, {unknown: true})
 	wired.port.validations.clear()
 	var repeated := _witness_call(wired.port, unknown, cache)
 	assert_true(repeated.get("ok", false), str(repeated))
