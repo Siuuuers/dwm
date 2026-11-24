@@ -565,9 +565,7 @@ func apply_text_size(percent: int, large_targets: bool) -> void:
 			control.get_popup().theme = theme
 		if control is CheckBox:
 			control.text = text("settings.value.on" if control.button_pressed else "settings.value.off")
-		if control is HSlider:
-			var profile: Variant = _services.get("profile")
-			control.set_meta("settings_committed_value", float(profile.get_preference(path, control.value)) if profile != null else control.value)
+		if theme_changed and control is HSlider:
 			PRESENTATION.apply_volume_value(statuses[path], bool(statuses[path].get_meta("settings_volume_preview", false)))
 	for button: Button in _rails.values():
 		var label := button.get_child(0) as Label
@@ -588,9 +586,10 @@ func set_volume_value_presentation(path: StringName, value: float, preview: bool
 		return
 	var label: Label = statuses[path]
 	var active := preview and interaction_enabled and reason.is_empty()
-	label.set_meta("settings_volume_preview", active)
+	if label.get_meta("settings_volume_preview", not active) != active:
+		label.set_meta("settings_volume_preview", active)
+		PRESENTATION.apply_volume_value(label, active)
 	label.text = text(reason) if not reason.is_empty() else (text("settings.value.preview") + " " if active else "") + "%d%%" % roundi(value * 100.0)
-	PRESENTATION.apply_volume_value(label, active)
 
 
 func text(key: String, parameters: Dictionary = {}) -> String:
