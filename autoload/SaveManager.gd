@@ -1254,13 +1254,15 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary) -> Dictionary:
 	var diagnostics: Array[Dictionary] = []
 	var seed: Dictionary = _journal._prepare_seed_from_valid_bundles([bundle], bundle, diagnostics)
 	if not seed.ok: return seed
-	var prepared := {"bundle": bundle.duplicate(true), "journal_seed": seed.value.candidate,
+	var prepared := {"journal_seed": seed.value.candidate,
 		"participant_plans": plans, "route_id": snapshot.route_id, "checkpoint_id": snapshot.checkpoint_id}
 	_scene_restore_preparation_counter += 1
 	var token := "scene_restore_preparation:%d" % _scene_restore_preparation_counter
 	prepared.scene_preparation_token = token
 	_scene_restore_preparations[token] = {"prepared": prepared}
-	return {"ok": true, "code": &"ok", "value": prepared.duplicate(true)}
+	var public_plan := prepared.duplicate(true)
+	public_plan["bundle"] = bundle.duplicate(true)
+	return {"ok": true, "code": &"ok", "value": public_plan}
 
 
 func load_context(locator: Dictionary) -> Dictionary:

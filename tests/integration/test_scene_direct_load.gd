@@ -45,6 +45,8 @@ func test_selected_load_preserves_identity_disk_and_current_settings_then_allows
 	if not prepared.ok: return
 	assert_false(prepared.value.prepared.has("source_locator"))
 	assert_false(prepared.value.prepared.has("remap_source_transaction_ids"))
+	prepared.value.prepared.bundle.snapshot.gameplay.money = selected.gameplay.money + 1
+	assert_eq(prepared.value.prepared.journal_seed.current.snapshot.gameplay.money, selected.gameplay.money)
 	var loaded: Dictionary = fixture.manager.commit_prepared_restore(prepared.value.prepared)
 	assert_eq(loaded.get("code"), &"scene_activation_pending", str(loaded))
 	if loaded.get("code") != &"scene_activation_pending": return
