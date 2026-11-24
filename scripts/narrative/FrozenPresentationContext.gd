@@ -154,8 +154,8 @@ static func _load_registry() -> Dictionary:
 	var selected := DialogicEntryManifest.scene_contract_tables()
 	if selected.ok:
 		for row: Dictionary in selected.bundle.context_registry.schemas:
-			_schemas[row.entry_id] = row.duplicate(true)
-		_ids = selected.bundle.ids_registry.duplicate(true)
+			_schemas[row.entry_id] = row
+		_ids = selected.bundle.ids_registry
 		return _ok({})
 	if selected.get("code") != &"scene_registration_absent": return selected
 	var registry: Variant = JSON.parse_string(FileAccess.get_file_as_string(REGISTRY_PATH))
