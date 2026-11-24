@@ -12,14 +12,16 @@ func observe() -> void:
 	var deadline := Time.get_ticks_msec() + 120000
 	while Time.get_ticks_msec() < deadline:
 		var bootstrap: Node = root.get_node_or_null("ApplicationBootstrap")
-		if bootstrap != null and bootstrap.get_startup_state().get("title_ready", bootstrap.get_startup_state().get("ready", false)) and is_instance_valid(current_scene) and current_scene.is_node_ready():
+		var state: Dictionary = bootstrap.get_startup_state() if bootstrap != null else {}
+		if state.get("title_ready", state.get("ready", false)) and is_instance_valid(current_scene) and current_scene.is_node_ready():
 			var button: Button = current_scene.get_node_or_null("%NewAccButton")
 			if button != null and button.is_visible_in_tree() and not button.disabled:
 				if title_tick == 0:
 					if DisplayServer.get_name() != "headless": await RenderingServer.frame_post_draw
 					title_tick = Time.get_ticks_usec()
 					print("PLAYER_TITLE " + JSON.stringify({"engine_ticks_us": title_tick}))
-				if not bootstrap.get_startup_state().get("ready", false):
+					state = bootstrap.get_startup_state()
+				if not state.get("ready", false):
 					await process_frame
 					continue
 				print("PLAYER_STARTUP " + JSON.stringify({"engine_ticks_us": Time.get_ticks_usec(), "title_ticks_us": title_tick, "display": DisplayServer.get_name(), "revision": OS.get_environment("DWM_BENCHMARK_REVISION")}))
