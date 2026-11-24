@@ -33,6 +33,12 @@ func test_first_reveal_publishes_the_clicked_cell_once() -> void:
 	var board: Dictionary = f.record()
 	assert_eq(board.phase, "active")
 	assert_has(board.board.revealed_indices, 323)
+	var panel: Dictionary = f.owner.pull_scene_panel(f.token).value
+	panel.board.cells[323].face = "covered"
+	panel.actions.clear()
+	var fresh: Dictionary = f.owner.pull_scene_panel(f.token).value
+	assert_eq(fresh.board.cells[323].face, "revealed")
+	assert_has(fresh.actions, "reveal")
 	assert_true(_reveal(323).ok)
 	assert_eq(f.authority.checkpoints, [board])
 	assert_eq(f.record(), board)

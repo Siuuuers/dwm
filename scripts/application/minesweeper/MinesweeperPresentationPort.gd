@@ -45,9 +45,7 @@ func pull(difficulty: String) -> Dictionary:
 		_clear()
 		return _failure(&"minesweeper_presentation_unavailable")
 	if not _pending_settlement_view.is_empty():
-		var deferred := settle_pending()
-		if not deferred.get("ok", false): return deferred
-		return _success(_projection.duplicate(true))
+		return settle_pending()
 	if not _pending_settlement_request.is_empty():
 		var retried: Dictionary = _owner.call(&"complete_round", _pending_settlement_request.duplicate(true))
 		if not retried.get("ok", false):
@@ -55,7 +53,7 @@ func pull(difficulty: String) -> Dictionary:
 		_pending_settlement_request = {}
 		if not _adopt_after_settlement().get("ok", false):
 			return _failure(&"minesweeper_presentation_unavailable")
-		return _success(_projection.duplicate(true))
+		return _published_projection()
 	var refreshed := _read_owner(difficulty)
 	if not refreshed.ok:
 		_clear()
@@ -64,7 +62,7 @@ func pull(difficulty: String) -> Dictionary:
 	var settled := _settle_terminal(refreshed.value)
 	if not settled.get("ok", false):
 		return _failure(&"minesweeper_settlement_refused", _projection)
-	return _success(_projection.duplicate(true))
+	return _published_projection()
 
 
 func dispatch(action: String, cell_index: int, expected_revision: int) -> Dictionary:
@@ -144,7 +142,7 @@ func dispatch(action: String, cell_index: int, expected_revision: int) -> Dictio
 	var settled := _settle_terminal(after_commit.value)
 	if not settled.get("ok", false):
 		return _failure(&"minesweeper_settlement_refused", _projection)
-	return _success(_projection.duplicate(true))
+	return _published_projection()
 
 
 func has_pending_settlement() -> bool:
@@ -155,13 +153,13 @@ func settle_pending() -> Dictionary:
 	_accepted_routine_context = {}
 	_accepted_routine_snapshot = {}
 	if _owner == null: return _failure(&"minesweeper_presentation_unavailable")
-	if _pending_settlement_view.is_empty(): return _success(_projection.duplicate(true))
+	if _pending_settlement_view.is_empty(): return _published_projection()
 	var view := _pending_settlement_view
 	_pending_settlement_view = {}
 	var settled := _settle_terminal(view)
 	if not settled.get("ok", false):
 		return _failure(&"minesweeper_settlement_refused", _projection)
-	return _success(_projection.duplicate(true))
+	return _published_projection()
 
 
 func _settle_if_pending() -> Dictionary:
@@ -293,9 +291,9 @@ func _configure_board(method: StringName, difficulty: String, expected_revision:
 		else: _clear()
 		return _failure(&"stale_minesweeper_presentation", _projection)
 	if method == &"select_difficulty" and difficulty == _difficulty:
-		return _success(_projection.duplicate(true))
+		return _published_projection()
 	if method == &"replace_board" and _phase in ["NONE", "UNPAID_UNSTARTED", "PAID_UNSTARTED", "PREPARED_UNSTARTED"]:
-		return _success(_projection.duplicate(true))
+		return _published_projection()
 	if (method == &"select_difficulty" and difficulty not in _configuration.difficulty_enabled) \
 			or (method == &"replace_board" and not _configuration.new_board_enabled):
 		return _failure(&"minesweeper_action_not_available", _projection)
@@ -326,7 +324,7 @@ func _configure_board(method: StringName, difficulty: String, expected_revision:
 		return _failure(&"minesweeper_presentation_unavailable")
 	_adopt(after.value)
 	if not result.get("ok", false): return _failure(&"minesweeper_command_refused", _projection)
-	return _success(_projection.duplicate(true))
+	return _published_projection()
 
 
 func _read_configuration(snapshot: Dictionary, difficulty: String) -> Dictionary:
@@ -432,18 +430,18 @@ func set_foreground(foreground: bool, expected_revision: int) -> Dictionary:
 		return _failure(&"stale_minesweeper_presentation", _projection)
 	if _projection.terminal:
 		if _configuration.get("settled_inspection", false):
-			return _success(_projection.duplicate(true))
+			return _published_projection()
 		return _failure(&"minesweeper_action_not_available", _projection)
 	if _phase == "SETTLING":
 		return _failure(&"minesweeper_action_not_available", _projection)
 	if _phase == "PREPARING":
 		if not _preparation_frontier_available():
 			return _failure(&"minesweeper_action_not_available", _projection)
-		return _success(_projection.duplicate(true))
+		return _published_projection()
 	if _phase in ["NONE", "UNPAID_UNSTARTED", "PAID_UNSTARTED", "PREPARED_UNSTARTED"] \
 			or foreground and _phase == "ACTIVE_VISIBLE" \
 			or not foreground and _phase == "ACTIVE_SUSPENDED":
-		return _success(_projection.duplicate(true))
+		return _published_projection()
 	var method: StringName = &"resume" if foreground else &"suspend"
 	if not _owner.has_method(method): return _failure(&"minesweeper_action_not_available", _projection)
 	var issued: Dictionary = _issuer.call(&"issue", &"transaction_id")
@@ -461,7 +459,7 @@ func set_foreground(foreground: bool, expected_revision: int) -> Dictionary:
 		return _failure(&"minesweeper_presentation_unavailable")
 	_adopt(after.value)
 	if not result.get("ok", false): return _failure(&"minesweeper_command_refused", _projection)
-	return _success(_projection.duplicate(true))
+	return _published_projection()
 
 
 func get_terminal_foresight(projection: Dictionary) -> Dictionary:
@@ -516,7 +514,7 @@ func _read_owner(difficulty: String, include_routine_context: bool = false) -> D
 	return {"ok": true, "value": {
 		"difficulty": difficulty, "phase": str(snapshot.phase),
 		"identity": identity.duplicate(true) if identity is Dictionary else null,
-		"revision": int(snapshot.revision), "projection": projected.value.duplicate(true),
+		"revision": int(snapshot.revision), "projection": projected.value,
 		"terminal_foresight": terminal_foresight, "configuration": configuration.value,
 		"routine_context": routine_context,
 		"routine_snapshot": snapshot.duplicate(true) if not routine_context.is_empty() else {},
@@ -546,7 +544,7 @@ func _adopt(value: Dictionary) -> void:
 	_phase = value.phase
 	_identity = value.identity.duplicate(true) if value.identity is Dictionary else null
 	_revision = value.revision
-	_projection = value.projection.duplicate(true)
+	_projection = value.projection
 	_configuration = value.configuration.duplicate(true)
 	_terminal_foresight = value.terminal_foresight
 
@@ -561,6 +559,10 @@ func _clear() -> void:
 	_terminal_foresight = null
 	_accepted_routine_context = {}
 	_accepted_routine_snapshot = {}
+
+
+func _published_projection() -> Dictionary:
+	return _success(_projection.duplicate(true))
 
 
 func _success(value: Dictionary) -> Dictionary:
