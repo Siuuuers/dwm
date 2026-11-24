@@ -580,7 +580,7 @@ func get_backup_save_capability() -> Dictionary:
 	var allowed := _backup_guard()
 	if not allowed.get("ok", false):
 		return {"enabled": false, "reason": str(allowed.get("code", "unavailable"))}
-	if not get_latest_stable_checkpoint().get("ok", false):
+	if not _journal.has_current_bundle():
 		return {"enabled": false, "reason": "no_stable_checkpoint"}
 	if _backup_capture_configured:
 		if not _backup_capture_provider.is_valid():
@@ -600,9 +600,9 @@ func get_backup_quick_capability(action: String) -> Dictionary:
 	var enabled := false
 	var status := _quick_guard_status(action)
 	if status == "":
-		var stable := get_latest_stable_checkpoint()
+		var has_stable: bool = _journal.has_current_bundle()
 		var inspected := _inspect_backup("quick")
-		if stable.get("ok", false) and inspected.get("ok", false):
+		if has_stable and inspected.get("ok", false):
 			var record: Dictionary = inspected["value"]
 			if action == "load":
 				enabled = record.get("loadable", false)
@@ -766,10 +766,9 @@ func _prepare_backup_action_profiled(action: String, locator_id: String, profile
 	if action == "save":
 		if locator_id == "autosave":
 			return _fail(&"automatic_save_only", "")
-		var stable := get_latest_stable_checkpoint()
-		if not stable.get("ok", false):
+		if not _journal.has_current_bundle():
 			return _fail(&"no_stable_checkpoint", "")
-		var bundle: Dictionary = stable["value"]["bundle"]
+		var bundle: Dictionary
 		var earlier: Array
 		var proven_snapshot: Dictionary = {}
 		if _backup_capture_configured:
@@ -781,6 +780,7 @@ func _prepare_backup_action_profiled(action: String, locator_id: String, profile
 			earlier = candidate["journal_candidate"]["earlier"]
 			proven_snapshot = bundle.snapshot
 		else:
+			bundle = get_latest_stable_checkpoint()["value"]["bundle"]
 			earlier = _journal.get_bundles_for_disk()
 		_save_load_profile_phase(profile, "capture_us")
 		var built := SAVE_DOCUMENT_SCHEMA.build(StringName(locator["kind"]), locator["slot_id"],
@@ -790,7 +790,7 @@ func _prepare_backup_action_profiled(action: String, locator_id: String, profile
 			return built
 		candidate["document"] = built["value"]
 		if not candidate.has("journal_candidate"):
-			candidate["stable_hash"] = _canonical_sha256(stable["value"]["bundle"])
+			candidate["stable_hash"] = _canonical_sha256(bundle)
 		_save_load_profile_phase(profile, "stable_hash_us")
 	elif action == "load":
 		if not record["loadable"]:
@@ -806,8 +806,7 @@ func _prepare_backup_action_profiled(action: String, locator_id: String, profile
 		return _fail(&"save_absent", "")
 	_backup_action_sequence += 1
 	var token := "backup-%d" % _backup_action_sequence
-	_backup_actions[token] = candidate.duplicate(true)
-	_save_load_profile_phase(profile, "candidate_copy_us")
+	_backup_actions[token] = candidate
 	return {"ok": true, "value": {"token": token, "record": record}}
 
 func cancel_backup_action(token: String) -> void:

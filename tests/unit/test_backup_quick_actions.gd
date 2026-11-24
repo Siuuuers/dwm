@@ -410,11 +410,8 @@ func _commit_quick_with_proof(prepared: Dictionary) -> Dictionary:
 	var helper_delta: int = _manager.helper_calls - helper_before
 	var strict_delta: int = _manager.validation_texts.size() - strict_before
 	assert_gte(helper_delta, 2, "modern F5 validates outgoing and promoted text through the write helper")
-	assert_eq(strict_delta, 1, "one fresh write memo must strictly admit its exact outgoing text")
-	assert_eq(_manager.validation_texts[strict_before], expected_text)
-	assert_eq(_manager.compact_successes,
-		_manager.helper_calls if _manager.write_variant == "production" else 0,
-		"production executes its compact helper; the frozen baseline returns the full document")
+	assert_eq(strict_delta, 0, "the prepared document already owns the exact outgoing text")
+	assert_eq(_manager.compact_successes, _manager.helper_calls, "every matching write uses its prepared proof")
 	var persisted: Dictionary = files.snapshot_persisted()
 	assert_eq(persisted["memory/quick-actions/quicksave.json"], expected_text.to_utf8_buffer())
 	assert_eq(persisted.size(), 1, "successful Quick leaves only the complete final document")

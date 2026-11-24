@@ -184,6 +184,9 @@ func _forget_unretained_bundle_proofs() -> void:
 		if not retained.has(checkpoint_id):
 			_bundle_proofs.erase(checkpoint_id)
 
+func has_current_bundle() -> bool:
+	return not _current.is_empty()
+
 func get_current_bundle() -> Dictionary:
 	if _current.is_empty():
 		return _fail(&"empty_journal", _run_id)
