@@ -286,9 +286,7 @@ static func project_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 	if not prepared.ok: return prepared
 	var projected: Dictionary = session._project_player_reading(reading)
 	if not projected.ok: return projected
-	var result := checkpoint.duplicate(true)
-	result.reading_session = projected.value
-	return {"ok": true, "value": result}
+	return {"ok": true, "value": with_reading_session(checkpoint, projected.value)}
 
 static func normalize_player_checkpoint(checkpoint: Dictionary, _choices: Dictionary,
 		_outcomes: Dictionary) -> Dictionary:
@@ -417,9 +415,14 @@ static func expand_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 		frontier = {"line_id": tail.line_id, "publication_id": tail.publication_id}
 	var captured: Dictionary = session.capture(frontier)
 	if not captured.ok: return captured
-	var result := checkpoint.duplicate(true)
-	result.reading_session = captured.value
-	return {"ok": true, "value": result, "session": session}
+	return {"ok": true, "value": with_reading_session(checkpoint, captured.value), "session": session}
+
+static func with_reading_session(checkpoint: Dictionary, reading: Dictionary) -> Dictionary:
+	var envelope := checkpoint.duplicate()
+	envelope.reading_session = null
+	var result := envelope.duplicate(true)
+	result.reading_session = reading
+	return result
 
 func _project_player_reading(saved: Dictionary) -> Dictionary:
 	var caption := {}

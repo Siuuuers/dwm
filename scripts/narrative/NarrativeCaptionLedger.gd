@@ -252,6 +252,11 @@ func is_current_occurrence(session_token: String, entry_id: String, frontier: Di
 	return last.publication_id == frontier.publication_id and last.beat.line_id == frontier.line_id \
 		and last.beat.owning_entry_id == entry_id and str(last.get("occurrence_id", "")) == occurrence_id
 
+func latest_frontier() -> Dictionary:
+	if _sequence.is_empty(): return {}
+	var tail: Dictionary = _sequence.back()
+	return {"line_id": tail.beat.line_id, "publication_id": tail.publication_id}
+
 func snapshot() -> Dictionary:
 	return _snapshot_fields().duplicate(true)
 

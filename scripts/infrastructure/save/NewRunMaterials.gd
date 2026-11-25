@@ -291,6 +291,4 @@ static func _project_acknowledged_initial_checkpoint(checkpoint: Dictionary, ver
 	if not live.has("player_progress"):
 		return _fail(&"new_run_autosave_invalid", "reading7 creation must retain its player progress")
 	compact.merge(live.player_progress)
-	var projected := checkpoint.duplicate(true)
-	projected.reading_session = compact
-	return {"ok": true, "value": projected}
+	return {"ok": true, "value": READING.with_reading_session(checkpoint, compact)}

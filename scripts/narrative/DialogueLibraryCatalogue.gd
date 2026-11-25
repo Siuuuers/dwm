@@ -62,9 +62,9 @@ static func prepare(passages: Array, registered_beats: Array, checkpoints: Dicti
 				return {"ok": false, "code": &"library_thought_unpaired"}
 			membership[id] = true
 			entries.append({"witness_id": id, "line_id": entry.beat.line_id, "kind": entry.kind,
-				"text": entry.text.duplicate(true), "requirements": entry.get("requirements", {}).duplicate(true)})
+				"text": entry.text.duplicate(), "requirements": entry.get("requirements", {}).duplicate(true)})
 		index[passage.id] = membership
-		prepared.append({"id": passage.id, "title": passage.title.duplicate(true), "entries": entries})
+		prepared.append({"id": passage.id, "title": passage.title.duplicate(), "entries": entries})
 	return {"ok": true, "value": {"passages": prepared, "index": index,
 		"conditions": condition_labels.duplicate(true)}}
 

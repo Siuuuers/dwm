@@ -799,7 +799,7 @@ func _execute_reading_command(request: Dictionary, retry: bool = false) -> Dicti
 	_next_pending = true
 	_sync_next_presentation()
 	_sync_transport()
-	_transport_bridge.call("request_next", request.frontier.duplicate(true))
+	_transport_bridge.call("request_next", request.frontier)
 	return {"pending": true}
 
 func _retire_next_request() -> void:

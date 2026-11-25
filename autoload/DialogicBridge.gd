@@ -2089,7 +2089,7 @@ func _perform_next(expected_frontier: Dictionary) -> Dictionary:
 	if _progression_phase != ProgressionPhase.IDLE:
 		return _command_failure(&"reading_next_unavailable")
 	_progression_phase = ProgressionPhase.NEXT_ADMITTING
-	_admitting_frontier = expected_frontier.duplicate(true)
+	_admitting_frontier = expected_frontier
 	var result: Dictionary
 	if has_reading_session() and _reading_session.family == "scene" and _reading_session.boundary == "control":
 		var current := capture_scene_optional_frontier()
@@ -2157,15 +2157,13 @@ func _perform_caption_next(expected_frontier: Dictionary) -> Dictionary:
 	_next_runtime_result = {}
 	next_traversal_changed.emit()
 	var operation_id: String = source_reading.value.next_operation.operation_id
-	var source_checkpoint: Dictionary = source.value.duplicate(true)
-	source_checkpoint.reading_session = source_reading.value
+	var source_checkpoint := _READING_SESSION.with_reading_session(source.value, source_reading.value)
 	var saved_source: Dictionary = _narrative_checkpoint_port.commit_reading_next(source_checkpoint, operation_id, "source")
 	if not saved_source.get("ok", false): return _finish_next(lease, saved_source)
 	if not _next_source_matches(expected_frontier, revision):
 		return _finish_next(lease, _next_fatal(&"reading_next_source_replaced", false))
 	_reading_session.next_operation = source_reading.value.next_operation.duplicate(true)
-	var destination_checkpoint: Dictionary = source.value.duplicate(true)
-	destination_checkpoint.reading_session = target_reading.value
+	var destination_checkpoint := _READING_SESSION.with_reading_session(source.value, target_reading.value)
 	var saved_target: Dictionary = _narrative_checkpoint_port.commit_reading_next(destination_checkpoint, operation_id, "destination")
 	if not saved_target.get("ok", false): return _finish_next(lease, saved_target)
 	if not _next_source_matches(expected_frontier, revision):
@@ -2873,11 +2871,9 @@ func complete_paused_reading_reveal(handle: Dictionary, text_node: DialogicNode_
 func get_ending_caption_memory() -> Dictionary:
 	if not has_reading_session() or _reading_session.family != "ending":
 		return _command_failure(&"reading_frontier_unavailable")
-	var rows: Array = _reading_session.ledger.snapshot().captions
-	if rows.is_empty(): return _command_failure(&"reading_frontier_unavailable")
-	var frontier := {}
-	if _reading_session.boundary == "line":
-		frontier = {"line_id": rows.back().beat.line_id, "publication_id": rows.back().publication_id}
+	var frontier: Dictionary = _reading_session.ledger.latest_frontier()
+	if frontier.is_empty(): return _command_failure(&"reading_frontier_unavailable")
+	if _reading_session.boundary != "line": frontier = {}
 	return _STORY_LOCALE.project(_reading_session.project(frontier), _current_locale(), _secondary_reading_locale())
 
 
@@ -2949,7 +2945,7 @@ func validate_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Diction
 	if checkpoint.get("reading_session") is Dictionary and typeof(checkpoint.reading_session.get("schema_version")) == TYPE_INT and checkpoint.reading_session.schema_version == 5:
 		var scene := _prepare_scene_reading_candidate(checkpoint, entry_contexts)
 		if not scene.ok: return scene
-		return {"ok": true, "value": {"entry_contexts": checkpoint.reading_session.ledger.entry_contexts.duplicate(true)}}
+		return {"ok": true, "value": {"entry_contexts": checkpoint.reading_session.ledger.entry_contexts}}
 	if _reading_catalogue_for_entry(str(checkpoint.get("entry_id", ""))).is_empty(): return _command_failure(&"reading_catalogue_unavailable")
 	var keys := _RESUME_CHECKPOINT_KEYS.duplicate()
 	keys.append("manifest_fingerprint")
@@ -2983,7 +2979,7 @@ func validate_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Diction
 		if not _exact_context_keys(context): return _command_failure(&"reading_context_invalid")
 		var validated := _validate_reading_entry(candidate, entry_id)
 		if not validated.ok: return validated
-	return {"ok": true, "value": {"entry_contexts": frames.duplicate(true)}}
+	return {"ok": true, "value": {"entry_contexts": frames}}
 
 
 func _validate_reading_entry(session: RefCounted, entry_id: String, context: Dictionary = {}) -> Dictionary:
@@ -4242,8 +4238,7 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 			return _command_failure(&"scene_playable_edge_invalid")
 		var candidate: Dictionary = _reading_session._fork_scene_transition(plan)
 		if not candidate.ok: return candidate
-		var target_checkpoint := source.duplicate(true)
-		target_checkpoint.reading_session = candidate.value.reading
+		var target_checkpoint := _READING_SESSION.with_reading_session(source, candidate.value.reading)
 		var snapshot_input: Dictionary = prepared.snapshot_input.duplicate(true)
 		var presentation_autosave := false
 		if departing:
