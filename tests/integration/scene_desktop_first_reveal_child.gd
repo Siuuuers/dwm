@@ -49,11 +49,16 @@ func _desktop_port() -> RefCounted:
 	return port
 
 func _settlement_request() -> Dictionary:
+	var board: Dictionary = bootstrap._desktop_board_state.capture()
+	return {"expected_identity": board.identity, "expected_revision": int(board.revision)}
+
+func _board_command() -> Dictionary:
 	var issued: Dictionary = bootstrap._desktop_identity_nonce_issuer.issue(&"transaction_id")
 	if not _ok(issued): return {}
-	var board: Dictionary = bootstrap._desktop_board_state.capture()
-	return {"transaction_id": issued.value.token, "transaction_issuer_receipt": issued.value.issuer_receipt,
-		"expected_identity": board.identity.duplicate(true), "expected_revision": int(board.revision)}
+	var request := _settlement_request()
+	request.transaction_id = issued.value.token
+	request.transaction_issuer_receipt = issued.value.issuer_receipt
+	return request
 
 func _line_ready() -> bool:
 	var deadline := Time.get_ticks_msec() + 20000
@@ -316,13 +321,13 @@ func load_scene_desktop_first_reveal() -> void:
 	proof.ready_count = ready_count
 	# Finish the board restored by this fresh process, then save its paid result for a third process.
 	var owner: Object = bootstrap._retained_minesweeper_round_coordinator_app
-	var terminal_request := _settlement_request()
+	var terminal_request := _board_command()
 	if terminal_request.is_empty(): return
 	terminal_request.cell_index = int(current_raw.desktop.board.board.board.mine_indices[0])
 	if not _ok(owner.reveal(terminal_request)): return
 	assert_false(bootstrap._desktop_board_state.capture().settled_inspection)
 	var completion := _settlement_request()
-	if completion.is_empty() or not _ok(owner.complete_round(completion)): return
+	if not _ok(owner.complete_round(completion)): return
 	var settled: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	assert_true(settled.desktop.board.settled_inspection)
 	assert_true(settled.desktop.board.board.board.terminal)
@@ -364,7 +369,6 @@ func load_scene_desktop_settled_result() -> void:
 	assert_false(settled.desktop.board.has("terminal_receipts"))
 	assert_eq(settled.desktop.board.identity.branch_id, witness.settled.desktop.board.identity.branch_id)
 	var request := _settlement_request()
-	if request.is_empty(): return
 	var owner: Object = bootstrap._retained_minesweeper_round_coordinator_app
 	for retry: int in 2:
 		var completed: Dictionary = owner.complete_round(request)
@@ -374,7 +378,7 @@ func load_scene_desktop_settled_result() -> void:
 	assert_eq(FileAccess.get_sha256("user://saves/slot_2.json"), witness.settled_slot_sha256)
 	_same_files(witness.file_hashes)
 	# Changing the next board after Load is also a live action, even if storage refuses.
-	var configuration := _settlement_request()
+	var configuration := _board_command()
 	if configuration.is_empty(): return
 	configuration["difficulty_id"] = "intermediate"
 	var checkpoints := UnexpectedCheckpointCalls.new()
