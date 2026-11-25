@@ -36,6 +36,10 @@ func test_scene_restore_keeps_gameplay_context_owned_by_run() -> void:
 	assert_true(applied.ok, str(applied))
 	assert_eq(state.route_context, gameplay, "host metadata is not persisted gameplay")
 	assert_eq(prepared.value.route_context, host, "the host plan remains complete and detached")
+	host.contacts.TEST.append("later")
+	host.scene.active_occurrence_id = "changed"
+	assert_eq(prepared.value.route_context.contacts.TEST, [])
+	assert_eq(prepared.value.route_context.scene.active_occurrence_id, "TEST.occurrence")
 	if applied.ok: assert_eq(applied.value.route_ready_token, prepared.value.route_ready_token)
 
 func test_legacy_restore_still_merges_safe_context_without_losing_gameplay() -> void:

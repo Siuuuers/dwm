@@ -52,8 +52,8 @@ func get_desktop_ready_result() -> Dictionary:
 	var services: Dictionary = settings_content.get("_services")
 	var profile: Variant = services.get("profile")
 	var localization: Variant = services.get("localization")
-	if not is_instance_valid(profile) or not profile.has_method("get_profile_snapshot") \
-			or profile.get_profile_snapshot().is_empty() \
+	if not is_instance_valid(profile) or not profile.has_method("has_profile") \
+			or not profile.has_profile() \
 			or not is_instance_valid(localization) or not localization.has_method("get_readiness") \
 			or localization.get_readiness() != &"ready":
 		return {"ok": false, "code": &"settings_dependencies_not_ready"}

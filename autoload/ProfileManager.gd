@@ -288,6 +288,10 @@ func publish_deferred_profile_signals(publication_id: String) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"publication_id": publication_id}}
 
 
+func has_profile() -> bool:
+	return not _profile.is_empty()
+
+
 func get_profile_snapshot() -> Dictionary:
 	return _profile.duplicate(true)
 

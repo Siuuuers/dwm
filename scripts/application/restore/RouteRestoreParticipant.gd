@@ -83,7 +83,7 @@ func prepare(input: Dictionary) -> Dictionary:
 func capture() -> Dictionary:
 	var captured: Dictionary = _owner.capture_restore_state()
 	if captured.get("ok", false) and _desktop_host != null:
-		captured["value"]["desktop_backup"] = _desktop_host.get_state().duplicate(true)
+		captured["value"]["desktop_backup"] = _desktop_host.get_state()
 	return captured
 
 func apply_silent(plan: Dictionary) -> Dictionary:
@@ -91,7 +91,7 @@ func apply_silent(plan: Dictionary) -> Dictionary:
 	if _desktop_host != null and plan.has("desktop"):
 		if typeof(plan["desktop"]) != TYPE_DICTIONARY:
 			return _fail(&"invalid_route_input", "desktop restore plan must be an object")
-		desktop_backup = _desktop_host.get_state().duplicate(true)
+		desktop_backup = _desktop_host.get_state()
 		var committed: Dictionary = _desktop_host.commit_restore(plan["desktop"])
 		if not committed.get("ok", false):
 			return committed
