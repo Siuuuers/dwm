@@ -103,9 +103,9 @@ static func validate_scene_new_run_candidate(document: Dictionary, allocation_ca
 	var checked := RUN_SNAPSHOT_SCHEMA.validate_scene_new_run_candidate(current.snapshot,
 		allocation_candidate, profile_material, bundle, issuer, acknowledged_checkpoint)
 	if not checked.ok: return checked
-	var candidate := document.duplicate(true)
-	candidate.current_snapshot.snapshot = checked.value.candidate
-	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
+	document.current_snapshot = {"checkpoint_kind": current.checkpoint_kind, "snapshot": checked.value.candidate}
+	document.recovery_journal = []
+	return {"ok": true, "code": &"ok", "value": {"candidate": document}}
 
 static func validate(document: Dictionary, profile: Dictionary = {},
 		scene_seed_receiver: Callable = Callable()) -> Dictionary:
