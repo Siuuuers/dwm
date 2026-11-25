@@ -1235,13 +1235,15 @@ func _validate_marker_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 	if saved.next_operation != null:
 		var checked := TRAVERSAL.validate(saved, entry_id)
 		if not checked.ok: return checked
-		for phase: String in ["source", "destination"]:
-			var projected := TRAVERSAL.project(checked.value.plan, phase)
-			if not projected.ok: return projected
-			var endpoint := _validate_marker_base(projected.value, entry_id)
-			if not endpoint.ok: return endpoint
-		var route := _validate_marker_route(checked.value.plan)
+		var plan: Dictionary = checked.value.plan
+		var destination := TRAVERSAL._marker_projection_view(plan, "destination")
+		var source := _validate_marker_base(plan.source_reading, entry_id)
+		if not source.ok: return source
+		var target := _validate_marker_base(destination, entry_id)
+		if not target.ok: return target
+		var route := _validate_marker_route(plan, destination)
 		if not route.ok: return route
+		return source if checked.value.phase == "source" else target
 	return _validate_marker_base(saved, entry_id)
 
 func _validate_marker_base(saved: Dictionary, entry_id: String) -> Dictionary:
@@ -1263,9 +1265,8 @@ func _marker_crossed(reading: Dictionary, entry_id: String) -> bool:
 	return reading.ledger.captions.back().beat.owning_entry_id == entry_id \
 		and reading.boundary in ["notification", "between_entries"]
 
-func _validate_marker_route(plan: Dictionary) -> Dictionary:
+func _validate_marker_route(plan: Dictionary, destination: Dictionary) -> Dictionary:
 	var source: Dictionary = plan.source_reading
-	var destination := TRAVERSAL._marker_projection_view(plan, "destination")
 	var crossed_before := _marker_crossed(source, plan.entry_id)
 	var crossed_after := _marker_crossed(destination, plan.entry_id)
 	if not crossed_before and crossed_after and plan.destination.kind != "notification": return _fail(&"reading_marker_bypassed")
@@ -1324,7 +1325,7 @@ func prepare_marker_next(frontier: Dictionary, is_witnessed: Callable, semantic:
 		"traversed_captions": traversed, "destination": destination}
 	var checked := TRAVERSAL.encode_plan(plan, 2)
 	if not checked.ok: return checked
-	var route := _validate_marker_route(plan)
+	var route := _validate_marker_route(plan, TRAVERSAL._marker_projection_view(plan, "destination"))
 	return {"ok": true, "value": plan} if route.ok else route
 
 func validate_marker_receipts(saved: Dictionary, entry_id: String, receipts: Dictionary, run_id: String) -> Dictionary:

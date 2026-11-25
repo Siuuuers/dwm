@@ -82,10 +82,10 @@ func commit_current_boundary(request: Dictionary) -> Dictionary:
 		return _fail(&"fingerprint_failed", "")
 	if _committed.has(boundary_id):
 		var stored: Dictionary = _committed[boundary_id]
-		if str(stored["fingerprint"]) == fingerprint:
+		if str(stored["narrative_fingerprint"]) == fingerprint:
 			return {"ok": true, "code": &"ok",
 				"value": {"checkpoint_id": str(stored["checkpoint_id"]), "duplicate": true},
-				"receipt": (stored["receipt"] as Dictionary).duplicate(true)}
+				"receipt": stored.duplicate()}
 		return _fail(&"duplicate_transaction_conflict", boundary_id)
 	var snapshot := _call_provider("snapshot_input", [])
 	if not snapshot.get("ok", false):
@@ -106,7 +106,7 @@ func commit_current_boundary(request: Dictionary) -> Dictionary:
 	var captured: Dictionary = _real_port.capture()
 	if not captured.get("ok", false):
 		return captured
-	var prepared: Dictionary = _real_port.prepare(inputs, StringName(kind), STAGE_DISK_WRITE.duplicate(true))
+	var prepared: Dictionary = _real_port.prepare(inputs, StringName(kind), STAGE_DISK_WRITE)
 	if not prepared.get("ok", false):
 		return prepared
 	var committed: Dictionary = _real_port.commit((prepared["value"] as Dictionary)["candidate"])
@@ -118,7 +118,7 @@ func commit_current_boundary(request: Dictionary) -> Dictionary:
 		return committed
 	var checkpoint_id := str((committed["value"] as Dictionary)["checkpoint_id"])
 	var receipt := {"boundary_id": boundary_id, "checkpoint_id": checkpoint_id, "checkpoint_kind": StringName(kind), "narrative_fingerprint": fingerprint}
-	_committed[boundary_id] = {"fingerprint": fingerprint, "checkpoint_id": checkpoint_id, "receipt": receipt.duplicate(true)}
+	_committed[boundary_id] = receipt.duplicate()
 	return {"ok": true, "code": &"ok", "value": {"checkpoint_id": checkpoint_id, "duplicate": false}, "receipt": receipt}
 
 
@@ -786,7 +786,7 @@ func prepare_candidate(owner_id: StringName, snapshot_input: Dictionary, transac
 	if not content.get("ok", false):
 		return content
 	var inputs := _checkpoint_inputs(active["value"], audio["value"], content["value"], checkpoint, route["value"], snapshot_input.duplicate(true))
-	var prepared: Dictionary = _real_port.prepare(inputs, checkpoint_kind, STAGE_DISK_WRITE.duplicate(true))
+	var prepared: Dictionary = _real_port.prepare(inputs, checkpoint_kind, STAGE_DISK_WRITE)
 	if not prepared.get("ok", false):
 		return prepared
 	var checkpoint_id := str((prepared["value"] as Dictionary)["checkpoint_id"])
