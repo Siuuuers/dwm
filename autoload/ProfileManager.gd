@@ -344,8 +344,9 @@ func mark_line_visited(line_id: String) -> Dictionary:
 		return _failure(&"unregistered_line_id", "Line ID is absent from the configured registry")
 	if is_line_visited(line_id):
 		return {"ok": true, "code": &"ok", "value": {"visited": true}, "unchanged": true}
-	var candidate := _profile.duplicate(true)
-	candidate["visited_line_ids"].append(line_id)
+	var candidate := _profile.duplicate()
+	candidate.visited_line_ids = _profile.visited_line_ids.duplicate()
+	candidate.visited_line_ids.append(line_id)
 	return commit_prepared_profile(candidate)
 
 
@@ -361,13 +362,13 @@ func mark_caption_variant_witnessed(beat: Dictionary, registry: Dictionary, chec
 	var admitted := CAPTION_WITNESSES.admit(beat, registry)
 	if not admitted.ok: return admitted
 	var witness_id: String = admitted.value.witness_id
-	var discovery: Dictionary = DIALOGUE_LIBRARY.discovery_for_beat(admitted.value.beat, checkpoint_id) if not checkpoint_id.is_empty() else {}
+	var discovery: Dictionary = DIALOGUE_LIBRARY.discovery_for_witness(witness_id, checkpoint_id) if not checkpoint_id.is_empty() else {}
 	var library: Dictionary = _profile.dialogue_library
 	var discovered: bool = not discovery.is_empty() and (discovery.checkpoint_id not in library.checkpoints \
 		or (not discovery.witness_id.is_empty() and not library.witnesses.has(discovery.witness_id)))
 	if not discovered and _profile.witnessed_caption_variants.has(witness_id):
 		return {"ok": true, "code": &"ok", "value": {"witness_id": witness_id}, "unchanged": true}
-	var candidate := _profile.duplicate(true)
+	var candidate := _caption_history_candidate()
 	_discover_dialogue(candidate.dialogue_library, discovery)
 	candidate.witnessed_caption_variants[witness_id] = admitted.value.beat
 	if beat.line_id not in candidate.visited_line_ids:
@@ -380,20 +381,20 @@ func stage_caption_history(beats: Array[Dictionary], checkpoint_id: String) -> D
 	if not guarded.ok: return guarded
 	if not _initialized: return _failure(&"not_initialized", "ProfileManager is not initialized")
 	if _mutation_blocked: return _failure(&"indeterminate_commit", "Profile mutation is blocked", true)
-	var descriptions: Array[Dictionary] = []
+	var witness_ids: Array[String] = []
 	for beat: Dictionary in beats:
 		var described := CAPTION_WITNESSES.describe(beat)
 		if not described.ok: return described
-		descriptions.append(described.value)
+		witness_ids.append(described.value.witness_id)
 	var changes: Array[Dictionary] = []
 	var library_changed := false
-	for described: Dictionary in descriptions:
-		var beat: Dictionary = described.beat
-		var witness_id: String = described.witness_id
-		var discovery := DIALOGUE_LIBRARY.discovery_for_beat(beat, checkpoint_id)
+	for index in beats.size():
+		var beat: Dictionary = beats[index]
+		var witness_id := witness_ids[index]
+		var discovery := DIALOGUE_LIBRARY.discovery_for_witness(witness_id, checkpoint_id)
 		library_changed = _discover_dialogue(_profile.dialogue_library, discovery) or library_changed
 		if _profile.witnessed_caption_variants.has(witness_id): continue
-		_profile.witnessed_caption_variants[witness_id] = beat
+		_profile.witnessed_caption_variants[witness_id] = beat.duplicate(true)
 		changes.append({"kind": &"caption_witness", "id": witness_id, "value": true})
 		if beat.line_id not in _profile.visited_line_ids:
 			_profile.visited_line_ids.append(beat.line_id)
@@ -425,12 +426,12 @@ func merge_caption_history(beats: Array[Dictionary], registry: Dictionary, expec
 		var admitted := CAPTION_WITNESSES.admit(beat, registry)
 		if not admitted.ok: return admitted
 		admitted_beats[admitted.value.witness_id] = admitted.value.beat
-	var candidate := _profile.duplicate(true)
+	var candidate := _caption_history_candidate()
 	var changed := false
 	var history_added := false
 	for witness_id: String in admitted_beats:
 		var beat: Dictionary = admitted_beats[witness_id]
-		var discovery: Dictionary = DIALOGUE_LIBRARY.discovery_for_beat(beat, checkpoint_id) if not checkpoint_id.is_empty() else {}
+		var discovery: Dictionary = DIALOGUE_LIBRARY.discovery_for_witness(witness_id, checkpoint_id) if not checkpoint_id.is_empty() else {}
 		if _discover_dialogue(candidate.dialogue_library, discovery): changed = true
 		if candidate.witnessed_caption_variants.has(witness_id): continue
 		candidate.witnessed_caption_variants[witness_id] = beat
@@ -443,6 +444,14 @@ func merge_caption_history(beats: Array[Dictionary], registry: Dictionary, expec
 	var committed := _commit_profile_candidate(candidate, false, expected_revision)
 	if not committed.ok: return committed
 	return {"ok": true, "code": &"ok", "value": {"history_added": history_added}}
+
+
+func _caption_history_candidate() -> Dictionary:
+	var candidate := _profile.duplicate()
+	candidate.dialogue_library = _profile.dialogue_library.duplicate(true)
+	candidate.witnessed_caption_variants = _profile.witnessed_caption_variants.duplicate()
+	candidate.visited_line_ids = _profile.visited_line_ids.duplicate()
+	return candidate
 
 
 static func _discover_dialogue(library: Dictionary, discovery: Dictionary) -> bool:
@@ -1050,7 +1059,7 @@ func reset_visited_history(expected_revision: int = -1) -> Dictionary:
 		return _failure(&"not_initialized", "ProfileManager is not initialized")
 	var checked := _check_profile_revision(expected_revision)
 	if not checked.get("ok", false): return checked
-	var candidate := _profile.duplicate(true)
+	var candidate := _profile.duplicate()
 	candidate["visited_line_ids"] = []
 	candidate["witnessed_caption_variants"] = {}
 	return _commit_reset(candidate, &"visited_history", expected_revision)
@@ -1065,7 +1074,7 @@ func reset_dialogue_library(expected_revision: int = -1) -> Dictionary:
 		return _failure(&"not_initialized", "ProfileManager is not initialized")
 	var checked := _check_profile_revision(expected_revision)
 	if not checked.ok: return checked
-	var candidate := _profile.duplicate(true)
+	var candidate := _profile.duplicate()
 	candidate.dialogue_library = {"checkpoints": [], "witnesses": {}}
 	return _commit_reset(candidate, &"dialogue_library", expected_revision)
 

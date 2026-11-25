@@ -9,7 +9,7 @@ static func describe(beat: Dictionary) -> Dictionary:
 	var encoded := WRITER.stringify(beat)
 	if not encoded.ok: return _fail(&"invalid_caption_witness")
 	return {"ok": true, "value": {"witness_id": str(encoded.value).sha256_text(),
-		"canonical_text": encoded.value, "beat": beat.duplicate(true)}}
+		"canonical_text": encoded.value}}
 
 
 static func admit(beat: Dictionary, registry: Dictionary) -> Dictionary:
@@ -27,6 +27,7 @@ static func admit(beat: Dictionary, registry: Dictionary) -> Dictionary:
 		var registered := describe(row)
 		if not registered.ok: return _fail(&"invalid_caption_witness_registry")
 		if registered.value.canonical_text == described.value.canonical_text:
+			described.value.beat = beat.duplicate(true)
 			return described
 	return _fail(&"unregistered_caption_variant")
 
@@ -39,7 +40,7 @@ static func validate(value: Variant) -> Dictionary:
 		var described := describe(value[key])
 		if not described.ok or described.value.witness_id != key:
 			return _fail(&"invalid_caption_witness_ledger")
-	return {"ok": true, "value": value.duplicate(true)}
+	return {"ok": true}
 
 
 static func contains(ledger: Dictionary, beat: Dictionary) -> bool:

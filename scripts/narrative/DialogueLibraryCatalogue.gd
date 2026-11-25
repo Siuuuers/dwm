@@ -99,13 +99,10 @@ static func configure_generated(document: Dictionary, registration: Dictionary) 
 	return configure(document.passages, beats, checkpoints, document.condition_labels)
 
 
-static func discovery_for_beat(beat: Dictionary, checkpoint_id: String) -> Dictionary:
+static func discovery_for_witness(witness_id: String, checkpoint_id: String) -> Dictionary:
 	if not ensure_loaded().ok: return {}
 	if not _witnesses_by_checkpoint.has(checkpoint_id): return {}
-	var described := WITNESSES.describe(beat)
-	var witness_id := ""
-	if described.ok and _witnesses_by_checkpoint[checkpoint_id].has(described.value.witness_id):
-		witness_id = described.value.witness_id
+	if not _witnesses_by_checkpoint[checkpoint_id].has(witness_id): witness_id = ""
 	return {"checkpoint_id": checkpoint_id, "witness_id": witness_id}
 
 

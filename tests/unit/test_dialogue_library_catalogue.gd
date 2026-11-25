@@ -41,12 +41,12 @@ func test_requirements_keep_all_choices_and_alternatives_visible_when_unread() -
 	assert_string_contains(localized[0].entries[2].requirements, "選擇幫忙")
 
 func test_discovery_requires_actual_checkpoint_and_exact_variant() -> void:
-	assert_eq(CATALOGUE.discovery_for_beat(FIXTURE.beat(), ""), {})
-	assert_eq(CATALOGUE.discovery_for_beat(FIXTURE.beat(), "TEST.absent"), {})
-	var actual: Dictionary = CATALOGUE.discovery_for_beat(FIXTURE.beat(), FIXTURE.CHECKPOINT)
+	assert_eq(CATALOGUE.discovery_for_witness(FIXTURE.key(FIXTURE.beat()), ""), {})
+	assert_eq(CATALOGUE.discovery_for_witness(FIXTURE.key(FIXTURE.beat()), "TEST.absent"), {})
+	var actual: Dictionary = CATALOGUE.discovery_for_witness(FIXTURE.key(FIXTURE.beat()), FIXTURE.CHECKPOINT)
 	assert_eq(actual.checkpoint_id, FIXTURE.CHECKPOINT)
 	assert_eq(actual.witness_id, FIXTURE.key(FIXTURE.beat()))
-	var other: Dictionary = CATALOGUE.discovery_for_beat(FIXTURE.beat("not-catalogued"), FIXTURE.CHECKPOINT)
+	var other: Dictionary = CATALOGUE.discovery_for_witness(FIXTURE.key(FIXTURE.beat("not-catalogued")), FIXTURE.CHECKPOINT)
 	assert_eq(other.get("witness_id", ""), "")
 	assert_true(CATALOGUE.configure([], [], {}).ok)
 	assert_eq(CATALOGUE.reached_passages(FIXTURE.discovery()), [], "empty production catalogue never invents passages")
