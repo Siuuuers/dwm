@@ -53,18 +53,19 @@ static func completed(run_id: String, scope: String, day: int, branch: String = 
 	elif outcome == "exploded":
 		board = REDUCER.reveal(board, 0, transaction + ":explode").value.board
 	board.outcome = str(board.outcome)
-	for action: Dictionary in board.actions: action.kind = str(action.kind)
 	var context := {"kind": ("group" if day == 2 else "twofriends_if_deferred") if pair else "solo",
 		"participants": ["priscilla", "lavinia"] if pair else [scope], "day": day}
 	var slot: String = LEDGER.semantic_slot(context)
 	var dispositions: Array = [] if pair else RULES.dispositions(made.value, 36)
-	var relationship: Variant = null if pair else (dispositions[0] if outcome == "exploded" else "dark")
-	var record := {"schema_version": 2, "completion_transaction_id": transaction,
+	var relationship: Variant = null if pair else (dispositions[0] if outcome == "exploded" else ("foresight" if outcome == "perfect" else "dark"))
+	var envelope: Dictionary = OWNER.ENVELOPE.make()
+	envelope.special_cell = OWNER.ENVELOPE.special_cell(made.value, board)
+	var record := {"schema_version": 3, "envelope": envelope, "completion_transaction_id": transaction,
 		"command_sha256": "a".repeat(64), "physical_token": owner._token(transaction, "a".repeat(64)),
 		"context": context, "host": host, "spec": made.value, "board": board, "phase": "completed",
 		"outcome": outcome, "applied_result": {"board_only": true} if pair else {},
 		"pair_form": "love_sweet" if pair else "", "mine_dispositions": dispositions,
-		"relationship_outcome": relationship, "perfect_reasons": RULES.perfect_reasons(board, 2)}
+		"relationship_outcome": relationship, "perfect_reasons": RULES.perfect_reasons(board)}
 	var effect := {}
 	if not pair:
 		effect = {"terminal_fact": {"transaction_id": transaction, "outcome": outcome,

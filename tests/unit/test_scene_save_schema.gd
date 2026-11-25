@@ -2,7 +2,6 @@ extends "res://addons/gut/test.gd"
 
 const RUN := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const SAVE := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
-const MIGRATIONS := preload("res://scripts/infrastructure/save/SaveMigrations.gd")
 
 # These are wire-boundary unit checks, not substitutes for real owner-backed
 # Run9 admission. Full integration supplies the actual issuer, Profile and B2.
@@ -12,12 +11,12 @@ func test_current_versions_do_not_migrate_legacy_saves() -> void:
 	assert_eq(RUN.SCENE_SCHEMA_VERSION, 9)
 	assert_eq(SAVE.SCENE_DOCUMENT_VERSION, 9)
 	var locator := {"kind": "quick", "slot_id": null}
-	assert_eq(MIGRATIONS.migrate_document({"schema_version": 7}, locator).code,
+	assert_eq(SAVE.admit_document({"schema_version": 7}, locator).code,
 		&"unsupported_run_configuration_schema")
-	assert_eq(MIGRATIONS.migrate_document({"schema_version": 10}, locator).code,
+	assert_eq(SAVE.admit_document({"schema_version": 10}, locator).code,
 		&"unsupported_future_schema")
 	var malformed := {"schema_version": 9}
-	assert_false(MIGRATIONS.migrate_document(malformed, locator).ok)
+	assert_false(SAVE.admit_document(malformed, locator).ok)
 	assert_eq(malformed, {"schema_version": 9}, "validation must not synthesize missing Run9 owners")
 
 func test_scene_recovery_requires_the_exact_proof_family() -> void:
@@ -72,8 +71,8 @@ func test_scene_progress_distinguishes_no_closure_from_never_started_and_keeps_o
 	var first := "a".repeat(64)
 	var second := "b".repeat(64)
 	gameplay.scene_challenge_outcomes = {
-		first: {"challenge_id": "Day1.challenge", "outcome": "never_started"},
-		second: {"challenge_id": "Day1.challenge", "outcome": "perfect"}}
+		first: {"challenge_id": "Day1.challenge", "outcome": "never_started", "physical_slot": ""},
+		second: {"challenge_id": "Day1.challenge", "outcome": "perfect", "physical_slot": "scene.challenge." + second}}
 	var before := gameplay.duplicate(true)
 	assert_eq(RUN._validate_scene_gameplay(gameplay), "", "separate occurrences retain separate outcomes")
 	assert_eq(gameplay, before, "shape validation does not collapse or synthesize progress")

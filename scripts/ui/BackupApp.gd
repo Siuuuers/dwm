@@ -23,11 +23,11 @@ const COMPACT_COPY := {
 	"ko": {"load": "로드", "autosave": "자동", "quick": "퀵 저장"},
 }
 const COPY := {
-	"ja": {"save": "セーブ","load": "ロード","delete": "削除","cancel": "キャンセル","retry": "再試行","overwrite": "上書き","autosave": "オートセーブ","quick": "クイックセーブ","slot": "セーブ {n}","empty": "空き","unavailable": "利用不可","day": "{day}日目 · {time}","automatic": "オートセーブは自動で作成されます。","unreadable": "このセーブは読み取れません。","save_unavailable": "現在はセーブできません。","saved": "セーブしました","failed": "処理に失敗しました。","stale": "セーブが変更されました。","failure_details": "処理が完了しませんでした。キャンセルするか、現在のセーブ情報を確認して再試行してください。","overwrite_title": "{record}を上書きしますか？","delete_title": "{record}を削除しますか？","load_title": "{record}をロードしますか？","replace_progress": "現在の未保存の進行状況は置き換えられます。","delete_body": "このセーブは削除されます。","replaceable": "「セーブ」で現在のゲームをこのセーブに上書きできます。"},
-	"ko": {"save": "저장","load": "불러오기","delete": "삭제","cancel": "취소","retry": "다시 시도","overwrite": "덮어쓰기","autosave": "자동 저장","quick": "빠른 저장","slot": "저장 {n}","empty": "비어 있음","unavailable": "사용 불가","day": "{day}일째 · {time}","automatic": "자동 저장은 자동으로 생성됩니다.","unreadable": "이 저장을 읽을 수 없습니다.","save_unavailable": "지금은 저장할 수 없습니다.","saved": "저장 완료","failed": "작업에 실패했습니다.","stale": "저장이 변경되었습니다.","failure_details": "작업이 완료되지 않았습니다. 취소하거나 현재 저장 정보를 확인한 뒤 다시 시도하세요.","overwrite_title": "{record}을(를) 덮어쓸까요?","delete_title": "{record}을(를) 삭제할까요?","load_title": "{record}을(를) 불러올까요?","replace_progress": "현재 게임의 저장하지 않은 진행 상황이 대체됩니다.","delete_body": "이 저장이 삭제됩니다.","replaceable": "저장을 선택하면 현재 게임으로 이 저장을 덮어쓸 수 있습니다."},
-	"en": {"save":"Save","load":"Load","delete":"Delete","cancel":"Cancel","retry":"Retry","overwrite":"Overwrite","autosave":"Autosave","quick":"Quick","slot":"Slot {n}","empty":"Empty","unavailable":"Unavailable","day":"Day {day} · {time}","automatic":"Autosave is created automatically.","unreadable":"Can't read this save.","replaceable":"Choose Save to replace it with your current game.","save_unavailable":"Saving is currently unavailable.","saved":"Saved","failed":"Operation failed.","stale":"Save changed.","failure_details":"The operation did not complete. Cancel or try again using current record details.","overwrite_title":"Overwrite {record}?","delete_title":"Delete {record}?","load_title":"Load {record}?","replace_progress":"Unsaved progress in the current game will be replaced.","delete_body":"This save will be deleted."},
-	"zh-CN": {"save":"保存","load":"载入","delete":"删除","cancel":"取消","retry":"重试","overwrite":"覆盖","autosave":"自动存档","quick":"快速存档","slot":"存档 {n}","empty":"空","unavailable":"不可用","day":"第 {day} 天 · {time}","automatic":"自动存档由系统自动创建。","unreadable":"无法读取此存档。","save_unavailable":"当前无法保存。","saved":"已保存","failed":"操作失败。","stale":"存档已变更。","failure_details":"操作未完成。请取消，或根据当前存档信息重试。","overwrite_title":"覆盖{record}？","delete_title":"删除{record}？","load_title":"载入{record}？","replace_progress":"当前游戏中未保存的进度将被替换。","delete_body":"此存档将被删除。","replaceable":"选择保存，即可用当前游戏覆盖此存档。"},
-	"zh-HK": {"save":"儲存","load":"載入","delete":"刪除","cancel":"取消","retry":"重試","overwrite":"覆寫","autosave":"自動存檔","quick":"快速存檔","slot":"存檔 {n}","empty":"空","unavailable":"不可用","day":"第 {day} 天 · {time}","automatic":"自動存檔由系統自動建立。","unreadable":"無法讀取此存檔。","save_unavailable":"目前無法儲存。","saved":"已儲存","failed":"操作失敗。","stale":"存檔已變更。","failure_details":"操作未完成。請取消，或根據目前存檔資訊重試。","overwrite_title":"覆寫{record}？","delete_title":"刪除{record}？","load_title":"載入{record}？","replace_progress":"目前遊戲中未儲存的進度將被取代。","delete_body":"此存檔將被刪除。","replaceable":"選擇儲存，即可用目前遊戲覆寫此存檔。"},
+	"ja": {"save": "セーブ","load": "ロード","delete": "削除","cancel": "キャンセル","retry": "再試行","overwrite": "上書き","autosave": "オートセーブ","quick": "クイックセーブ","slot": "セーブ {n}","empty": "空き","unavailable": "利用不可","automatic": "オートセーブは自動で作成されます。","unreadable": "このセーブは読み取れません。","save_unavailable": "現在はセーブできません。","saved": "セーブしました","failed": "処理に失敗しました。","stale": "セーブが変更されました。","failure_details": "処理が完了しませんでした。キャンセルするか、現在のセーブ情報を確認して再試行してください。","overwrite_title": "{record}を上書きしますか？","delete_title": "{record}を削除しますか？","load_title": "{record}をロードしますか？","replace_progress": "現在の未保存の進行状況は置き換えられます。","delete_body": "このセーブは削除されます。","replaceable": "「セーブ」で現在のゲームをこのセーブに上書きできます。"},
+	"ko": {"save": "저장","load": "불러오기","delete": "삭제","cancel": "취소","retry": "다시 시도","overwrite": "덮어쓰기","autosave": "자동 저장","quick": "빠른 저장","slot": "저장 {n}","empty": "비어 있음","unavailable": "사용 불가","automatic": "자동 저장은 자동으로 생성됩니다.","unreadable": "이 저장을 읽을 수 없습니다.","save_unavailable": "지금은 저장할 수 없습니다.","saved": "저장 완료","failed": "작업에 실패했습니다.","stale": "저장이 변경되었습니다.","failure_details": "작업이 완료되지 않았습니다. 취소하거나 현재 저장 정보를 확인한 뒤 다시 시도하세요.","overwrite_title": "{record}을(를) 덮어쓸까요?","delete_title": "{record}을(를) 삭제할까요?","load_title": "{record}을(를) 불러올까요?","replace_progress": "현재 게임의 저장하지 않은 진행 상황이 대체됩니다.","delete_body": "이 저장이 삭제됩니다.","replaceable": "저장을 선택하면 현재 게임으로 이 저장을 덮어쓸 수 있습니다."},
+	"en": {"save":"Save","load":"Load","delete":"Delete","cancel":"Cancel","retry":"Retry","overwrite":"Overwrite","autosave":"Autosave","quick":"Quick","slot":"Slot {n}","empty":"Empty","unavailable":"Unavailable","automatic":"Autosave is created automatically.","unreadable":"Can't read this save.","replaceable":"Choose Save to replace it with your current game.","save_unavailable":"Saving is currently unavailable.","saved":"Saved","failed":"Operation failed.","stale":"Save changed.","failure_details":"The operation did not complete. Cancel or try again using current record details.","overwrite_title":"Overwrite {record}?","delete_title":"Delete {record}?","load_title":"Load {record}?","replace_progress":"Unsaved progress in the current game will be replaced.","delete_body":"This save will be deleted."},
+	"zh-CN": {"save":"保存","load":"载入","delete":"删除","cancel":"取消","retry":"重试","overwrite":"覆盖","autosave":"自动存档","quick":"快速存档","slot":"存档 {n}","empty":"空","unavailable":"不可用","automatic":"自动存档由系统自动创建。","unreadable":"无法读取此存档。","save_unavailable":"当前无法保存。","saved":"已保存","failed":"操作失败。","stale":"存档已变更。","failure_details":"操作未完成。请取消，或根据当前存档信息重试。","overwrite_title":"覆盖{record}？","delete_title":"删除{record}？","load_title":"载入{record}？","replace_progress":"当前游戏中未保存的进度将被替换。","delete_body":"此存档将被删除。","replaceable":"选择保存，即可用当前游戏覆盖此存档。"},
+	"zh-HK": {"save":"儲存","load":"載入","delete":"刪除","cancel":"取消","retry":"重試","overwrite":"覆寫","autosave":"自動存檔","quick":"快速存檔","slot":"存檔 {n}","empty":"空","unavailable":"不可用","automatic":"自動存檔由系統自動建立。","unreadable":"無法讀取此存檔。","save_unavailable":"目前無法儲存。","saved":"已儲存","failed":"操作失敗。","stale":"存檔已變更。","failure_details":"操作未完成。請取消，或根據目前存檔資訊重試。","overwrite_title":"覆寫{record}？","delete_title":"刪除{record}？","load_title":"載入{record}？","replace_progress":"目前遊戲中未儲存的進度將被取代。","delete_body":"此存檔將被刪除。","replaceable":"選擇儲存，即可用目前遊戲覆寫此存檔。"},
 }
 
 var mode_buttons: Dictionary = {}
@@ -359,7 +359,7 @@ func _scene_record_valid(record: Variant, locator: String) -> bool:
 		return false
 	if record.locator != locator or record.state not in ["empty", "occupied", "unavailable"]:
 		return false
-	if record.family not in [null, "scene", "legacy_day"] or record.load_family not in [null, "scene", "legacy_day"]:
+	if record.family not in [null, "scene"] or record.load_family not in [null, "scene"]:
 		return false
 	if typeof(record.fallback) != TYPE_BOOL or not record.reason is String:
 		return false
@@ -587,7 +587,7 @@ func _action_pressed(action: String) -> void:
 func _confirmation_copy(record: Dictionary) -> Dictionary:
 	var kind := _confirmation_kind
 	var title_key := "overwrite_title" if kind == "overwrite" else ("delete_title" if kind == "delete" else "load_title")
-	var body := _record_time(record, true) if _source_action == "load" else _record_state(record)
+	var body := _record_time(record) if _source_action == "load" else _record_state(record)
 	if kind == "replace_progress":
 		body += "\n\n" + _t("replace_progress")
 	elif kind == "delete":
@@ -821,14 +821,9 @@ func _identity(locator: String) -> String:
 func _record_state(record: Dictionary) -> String:
 	return _record_time(record) if record.get("state") == "occupied" else _t("empty" if record.get("state") == "empty" else "unavailable")
 
-func _record_time(record: Dictionary, _selected: bool = false) -> String:
+func _record_time(record: Dictionary) -> String:
 	var saved_time: Variant = record.get("saved_time")
-	if record.get("family") == "legacy_day":
-		return _day_time(record.get("day"), saved_time)
 	return str(saved_time) if saved_time != null else "--:--"
-
-func _day_time(day: Variant, saved_time: Variant) -> String:
-	return _t("day", {"day": str(day) if day != null else "—", "time": str(saved_time) if saved_time != null else "--:--"})
 
 func _reason_text(_reason: String) -> String:
 	return _t("unreadable")

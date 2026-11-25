@@ -825,10 +825,10 @@ func _validate_document_text(text: String, existing_source: bool = false) -> Dic
 	if not parsed.get("ok", false):
 		return {"ok": false, "code": &"invalid_json", "message": "strict parse failed"}
 	if existing_source and parsed.value.get("schema_version") == SAVE_DOCUMENT_SCHEMA.SCENE_DOCUMENT_VERSION:
-		var admitted: Dictionary = preload("res://scripts/infrastructure/save/SaveMigrations.gd").migrate_document(
+		var admitted: Dictionary = SAVE_DOCUMENT_SCHEMA.admit_document(
 			parsed.value, {"kind": "autosave", "slot_id": null})
 		if not admitted.ok: return admitted
-		return {"ok": true, "code": &"ok", "value": admitted.value.document}
+		return {"ok": true, "code": &"ok", "value": admitted.value}
 	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(parsed["value"])
 	if not validated.get("ok", false):
 		return validated

@@ -24,24 +24,7 @@ func configure_window_output(window_output: Node) -> Dictionary:
 		"window_output_instance_id": window_output.get_instance_id(),
 	}, "receipt": {}}
 
-func prepare(input: Dictionary) -> Dictionary:
-	if typeof(input.get("legacy_profile_patch_input")) != TYPE_DICTIONARY:
-		return _fail(&"invalid_profile_input", "profile participant requires legacy_profile_patch_input")
-	var patch_input: Dictionary = input["legacy_profile_patch_input"]
-	if patch_input.is_empty():
-		if not is_instance_valid(_owner) or not _owner.has_method("get_profile_snapshot"):
-			return _fail(&"invalid_profile_owner", "current profile snapshot is unavailable")
-		return prepare_frozen_profile(_owner.get_profile_snapshot())
-	var legacy_run_state: Dictionary = patch_input.get("legacy_run_state", {}) \
-		if typeof(patch_input.get("legacy_run_state")) == TYPE_DICTIONARY else {}
-	var legacy_input_mappings: Dictionary = patch_input.get("legacy_input_mappings", {}) \
-		if typeof(patch_input.get("legacy_input_mappings")) == TYPE_DICTIONARY else {}
-	var prepared: Dictionary = _owner.prepare_legacy_profile_patch(legacy_run_state, legacy_input_mappings)
-	if not prepared.get("ok", false):
-		return prepared
-	return _prepare_profile_plan(prepared.get("value", {}))
-
-func prepare_frozen_profile(candidate: Dictionary) -> Dictionary:
+func prepare(candidate: Dictionary) -> Dictionary:
 	if not is_instance_valid(_owner) or not _owner.has_method("prepare_profile_document"):
 		return _fail(&"invalid_profile_owner", "profile document validation is unavailable")
 	var prepared: Dictionary = _owner.prepare_profile_document(candidate)

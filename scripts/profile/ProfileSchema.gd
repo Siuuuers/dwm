@@ -3,7 +3,6 @@ extends RefCounted
 
 const PREFERENCE_REGISTRY := preload("res://scripts/settings/SettingsPreferenceRegistry.gd")
 const CONTROLS_RULES := preload("res://scripts/settings/ControlsBindingRules.gd")
-const CONTROLS_IMPORT := preload("res://scripts/settings/ControlsBindingImport.gd")
 
 const DATING_ATTEMPTS := preload("res://scripts/profile/DatingAttemptLedger.gd")
 
@@ -13,25 +12,10 @@ const PRESENTATION_SIGNATURE := preload("res://scripts/domain/narrative/Presenta
 const CAPTION_WITNESSES := preload("res://scripts/profile/CaptionWitnessLedger.gd")
 
 const SCHEMA_VERSION := 10
-const V1_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "migration_receipts"]
-const V2_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings"]
-const V3_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending"]
-const V4_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1"]
-const V5_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts"]
-const V7_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts"]
-const V8_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts", "observer_evidence", "pair_deck_draws", "reached_presentations"]
-const V9_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts", "observer_evidence", "pair_deck_draws", "reached_presentations", "reached_presentation_chronology"]
 const ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts", "observer_evidence", "pair_deck_draws", "reached_presentations", "reached_presentation_chronology", "witnessed_caption_variants", "dialogue_library", "displayed_artwork_ids"]
 const PAIR_FORMS := ["ambiguous_sweet", "ambiguous_dark", "love_sweet", "love_dark"]
 const MIGRATION_RECEIPT_KEYS := ["legacy_game_state_profile_v1", "legacy_input_bindings_v1", "invalid_persisted_skip_mode_v1"]
 const PREFERENCE_GROUPS := ["language", "reading", "audio", "display", "accessibility", "exceptional_replay", "dark_mode"]
-const _PANEL_WIDTH_LEAVES := ["angela_panel_width", "dating_solo_portrait_width", "dating_group_portrait_width"]
-const _MINESWEEPER_VIEW_LEAVES := [
-	"minesweeper_app_beginner_cell_size", "minesweeper_app_beginner_always_fit",
-	"minesweeper_app_intermediate_cell_size", "minesweeper_app_intermediate_always_fit",
-	"minesweeper_app_expert_cell_size", "minesweeper_app_expert_always_fit",
-	"minesweeper_challenge_cell_size", "minesweeper_challenge_always_fit",
-]
 
 const ENDING_IDS := [
 	"ending.alone", "ending.priscilla.sweet", "ending.priscilla.dark", "ending.priscilla.observation",
@@ -127,234 +111,66 @@ static func make_defaults() -> Dictionary:
 	}
 
 
-static func validate(profile: Dictionary) -> Dictionary:
-	return _validate_modern_document(profile, SCHEMA_VERSION, ROOT_KEYS, true)
-
-static func validate_v2_source(profile: Dictionary) -> Dictionary:
-	return _validate_modern_document(profile, 2, V2_ROOT_KEYS, false)
-
-static func validate_v4_source(profile: Dictionary) -> Dictionary:
-	return _validate_modern_document(profile, 4, V4_ROOT_KEYS, true)
-
-static func validate_v3_source(profile: Dictionary) -> Dictionary:
-	return _validate_modern_document(profile, 3, V3_ROOT_KEYS, true)
-
-static func validate_v1_source(profile: Dictionary) -> Dictionary:
-	if typeof(profile.get("schema_version")) != TYPE_INT or profile.get("schema_version") != 1:
-		return _failure(&"unsupported_profile_schema", "schema_version", "profile schema version is unsupported")
-	var exact := _require_keys(profile, V1_ROOT_KEYS, "profile")
-	if not exact.get("ok", false): return exact
-	var gallery := _validate_unique_strings(profile["gallery_unlocks"], "gallery_unlocks", ENDING_IDS)
-	if not gallery.get("ok", false): return gallery
-	var receipts := _validate_gallery_receipts(profile["gallery_transaction_receipts"])
-	if not receipts.get("ok", false): return receipts
-	var visited := _validate_unique_strings(profile["visited_line_ids"], "visited_line_ids")
-	if not visited.get("ok", false): return visited
-	var preferences := _validate_v1_preferences(profile["preferences"])
-	if not preferences.get("ok", false): return preferences
-	var mappings := _validate_input_mappings(profile["input_mappings"])
-	if not mappings.get("ok", false): return mappings
-	var migrations := _validate_migration_receipts(profile["migration_receipts"])
-	if not migrations.get("ok", false): return migrations
-	return {"ok": true, "code": &"ok", "value": profile.duplicate(true)}
-
-static func validate_v1_preferences(preferences: Dictionary) -> Dictionary:
-	return _validate_v1_preferences(preferences)
-
-
-static func prepare_v2_upgrade(raw: Dictionary) -> Dictionary:
-	var checked := validate_v2_source(raw)
-	if not checked.get("ok", false):
-		return checked
-	var candidate: Dictionary = checked["value"]
-	var imported := CONTROLS_IMPORT.prepare(candidate["input_mappings"])
-	candidate["schema_version"] = SCHEMA_VERSION
-	candidate["controls_bindings"] = imported["bindings"]
-	candidate["controls_import_pending"] = imported["pending"]
-	_add_closed_legacy_fields(candidate)
-	candidate["pair_form_witness_receipts"] = {}
-	candidate["dating_attempts"] = {}
-	_add_v8_fields(candidate)
-	_add_presentation_chronology(candidate)
-	return validate(candidate)
-
-static func prepare_v3_upgrade(raw: Dictionary) -> Dictionary:
-	var checked := validate_v3_source(raw)
-	if not checked.get("ok", false): return checked
-	var candidate: Dictionary = checked["value"]
-	candidate["schema_version"] = SCHEMA_VERSION
-	_add_closed_legacy_fields(candidate)
-	candidate["pair_form_witness_receipts"] = {}
-	candidate["dating_attempts"] = {}
-	_add_v8_fields(candidate)
-	_add_presentation_chronology(candidate)
-	return validate(candidate)
-
-
-static func prepare_v9_upgrade(raw: Dictionary) -> Dictionary:
-	var checked := _validate_modern_document(raw, 9, V9_ROOT_KEYS, true)
-	if not checked.ok: return checked
-	var candidate: Dictionary = checked.value
-	candidate.schema_version = SCHEMA_VERSION
-	candidate["witnessed_caption_variants"] = {}
-	return validate(candidate)
-
-
-static func prepare_v8_upgrade(raw: Dictionary) -> Dictionary:
-	var checked := _validate_modern_document(raw, 8, V8_ROOT_KEYS, true)
-	if not checked.get("ok", false): return checked
-	var candidate: Dictionary = checked.value
-	candidate["schema_version"] = SCHEMA_VERSION
-	_add_presentation_chronology(candidate)
-	return validate(candidate)
-
-static func _add_presentation_chronology(candidate: Dictionary) -> void:
-	var legacy: Array = candidate.reached_presentations.keys()
-	legacy.sort()
-	candidate["reached_presentation_chronology"] = {
-		"first_witnessed": [], "legacy_unordered": legacy}
-	candidate["witnessed_caption_variants"] = {}
-
-static func prepare_v7_upgrade(raw: Dictionary) -> Dictionary:
-	var checked := _validate_modern_document(raw, 7, V7_ROOT_KEYS, true)
-	if not checked.ok: return checked
-	var candidate: Dictionary = checked.value
-	candidate["schema_version"] = SCHEMA_VERSION
-	_add_v8_fields(candidate)
-	_add_presentation_chronology(candidate)
-	return validate(candidate)
-
-static func _add_v8_fields(candidate: Dictionary) -> void:
-	for key: String in ["observer_evidence", "pair_deck_draws", "reached_presentations"]:
-		candidate[key] = {}
-
-static func prepare_v6_upgrade(raw: Dictionary) -> Dictionary:
-	var checked := _validate_modern_document(raw, 6, V7_ROOT_KEYS, true)
-	if not checked.get("ok", false): return checked
-	var upgraded := DATING_ATTEMPTS.upgrade_v6(checked.value.dating_attempts)
-	if not upgraded.ok: return upgraded
-	var candidate: Dictionary = checked.value
-	candidate["schema_version"] = SCHEMA_VERSION
-	candidate["dating_attempts"] = upgraded.value
-	_add_v8_fields(candidate)
-	_add_presentation_chronology(candidate)
-	return validate(candidate)
-
-
-static func prepare_v5_upgrade(raw: Dictionary) -> Dictionary:
-	var checked := _validate_modern_document(raw, 5, V5_ROOT_KEYS, true)
-	if not checked.get("ok", false): return checked
-	var candidate: Dictionary = checked.value
-	candidate["schema_version"] = SCHEMA_VERSION
-	candidate["dating_attempts"] = {}
-	_add_v8_fields(candidate)
-	_add_presentation_chronology(candidate)
-	return validate(candidate)
-
-
-static func prepare_v4_upgrade(raw: Dictionary) -> Dictionary:
-	var checked := validate_v4_source(raw)
-	if not checked.get("ok", false): return checked
-	var candidate: Dictionary = checked.value
-	candidate.schema_version = SCHEMA_VERSION
-	candidate["pair_form_witness_receipts"] = {}
-	candidate["dating_attempts"] = {}
-	_add_v8_fields(candidate)
-	_add_presentation_chronology(candidate)
-	return validate(candidate)
-
-
-static func _add_closed_legacy_fields(candidate: Dictionary) -> void:
-	candidate["migration_receipts"] = {
-		"legacy_game_state_profile_v1": true,
-		"legacy_input_bindings_v1": true,
-		"invalid_persisted_skip_mode_v1": false,
-	}
-	candidate["legacy_preferences_v1"] = {}
-
-
-static func _validate_modern_document(source: Dictionary, version: int, root_keys: Array,
-		has_controls: bool) -> Dictionary:
+static func validate(source: Dictionary) -> Dictionary:
 	var profile := source.duplicate(true)
 	if not profile.has("schema_version") or typeof(profile["schema_version"]) != TYPE_INT:
 		return _invalid("schema_version", "schema_version must be an integer")
-	if profile["schema_version"] != version:
+	if profile["schema_version"] != SCHEMA_VERSION:
 		return _failure(&"unsupported_profile_schema", "schema_version", "profile schema version is unsupported")
-	var admitted_library_default := version >= 10 and not profile.has("dialogue_library")
-	if admitted_library_default:
-		profile["dialogue_library"] = {"checkpoints": [], "witnesses": {}}
-	var admitted_artwork_default := version >= 10 and not profile.has("displayed_artwork_ids")
-	if version >= 10:
-		if admitted_artwork_default: profile.displayed_artwork_ids = []
-		var artwork := _validate_unique_strings(profile.displayed_artwork_ids, "displayed_artwork_ids", preload("res://scripts/data/ArtManifest.gd").GALLERY_IDS)
-		if not artwork.ok: return artwork
-	var exact := _require_keys(profile, root_keys, "profile")
-	if not exact.get("ok", false): return exact
+	var exact := _require_keys(profile, ROOT_KEYS, "profile")
+	if not exact.ok: return exact
+	var artwork := _validate_unique_strings(profile.displayed_artwork_ids, "displayed_artwork_ids", preload("res://scripts/data/ArtManifest.gd").GALLERY_IDS)
+	if not artwork.ok: return artwork
 	var gallery := _validate_unique_strings(profile["gallery_unlocks"], "gallery_unlocks", ENDING_IDS)
 	if not gallery.get("ok", false): return gallery
 	var receipts := _validate_gallery_receipts(profile["gallery_transaction_receipts"])
 	if not receipts.get("ok", false): return receipts
 	var visited := _validate_unique_strings(profile["visited_line_ids"], "visited_line_ids")
 	if not visited.get("ok", false): return visited
-	var admitted_view_defaults := _admit_legacy_minesweeper_view_defaults(profile)
-	var admitted_steady_default := _admit_legacy_steady_interface_default(profile)
-	var admitted_window_default := _admit_legacy_window_size_default(profile)
-	var admitted_font_default := _admit_legacy_font_style_default(profile)
-	var admitted_panel_widths := _admit_legacy_panel_width_defaults(profile)
 	var preferences := _validate_preferences(profile["preferences"])
 	if not preferences.get("ok", false): return preferences
-	var mappings := _validate_input_mappings(profile["input_mappings"], version == 2)
+	var mappings := _validate_input_mappings(profile["input_mappings"])
 	if not mappings.get("ok", false): return mappings
-	if has_controls:
-		if typeof(profile["controls_import_pending"]) != TYPE_BOOL:
-			return _invalid("controls_import_pending", "import status must be a boolean")
-		var bindings := CONTROLS_RULES.validate(profile["controls_bindings"])
-		if not bindings.get("ok", false):
-			return _invalid("controls_bindings", "invalid Controls map: " + str(bindings.get("code")))
-	if version >= 4:
-		var migrations := _validate_migration_receipts(profile["migration_receipts"])
-		if not migrations.get("ok", false): return migrations
-		var archive: Variant = profile["legacy_preferences_v1"]
-		if typeof(archive) != TYPE_DICTIONARY:
-			return _invalid("legacy_preferences_v1", "legacy preferences archive must be an object")
-		if not archive.is_empty():
-			var archived := _validate_v1_preferences(archive)
-			if not archived.get("ok", false):
-				return _invalid("legacy_preferences_v1", "legacy preferences archive is invalid")
-	if version >= 5:
-		var witnessed: Variant = profile["pair_form_witness_receipts"]
-		if not witnessed is Dictionary:
-			return _invalid("pair_form_witness_receipts", "witness receipts must be an object")
-		for receipt_id: Variant in witnessed:
-			if not receipt_id is String or receipt_id.strip_edges().is_empty() \
-					or not witnessed[receipt_id] is String or witnessed[receipt_id] not in PAIR_FORMS:
-				return _invalid("pair_form_witness_receipts", "each presentation receipt names a registered form")
-	if version >= 6:
-		var attempts: Dictionary = DATING_ATTEMPTS.validate_v6(profile["dating_attempts"]) if version == 6 else DATING_ATTEMPTS.validate(profile["dating_attempts"])
-		if not attempts.get("ok", false): return attempts
-	if version >= 8:
-		var observer := OBSERVER_EVIDENCE.validate(profile["observer_evidence"])
-		if not observer.ok: return observer
-		if not profile["reached_presentations"] is Dictionary: return _invalid("reached_presentations", "Reached presentations must be an object")
-		var reached := PRESENTATION_SIGNATURE.validate_ledger(profile["reached_presentations"])
-		if not reached.ok: return reached
-		var draws: Dictionary = PAIR_DECK.validate_ledger(profile["pair_deck_draws"])
-		if not draws.ok: return draws
-	if version >= 9:
-		var chronology := _validate_presentation_chronology(profile)
-		if not chronology.ok: return chronology
-	if version >= 10:
-		var library := _validate_dialogue_library(profile.dialogue_library)
-		if not library.ok: return library
-		var captions := CAPTION_WITNESSES.validate(profile["witnessed_caption_variants"])
-		if not captions.ok: return captions
-		for beat: Dictionary in profile.witnessed_caption_variants.values():
-			if beat.line_id not in profile.visited_line_ids:
-				return _invalid("witnessed_caption_variants", "An exact caption witness also retains its base-line visit")
-	var result := {"ok": true, "code": &"ok", "value": profile}
-	if admitted_view_defaults or admitted_steady_default or admitted_window_default or admitted_font_default or admitted_panel_widths or admitted_library_default or admitted_artwork_default:
-		result["migrated"] = true
-	return result
+	if typeof(profile["controls_import_pending"]) != TYPE_BOOL:
+		return _invalid("controls_import_pending", "import status must be a boolean")
+	var bindings := CONTROLS_RULES.validate(profile["controls_bindings"])
+	if not bindings.get("ok", false):
+		return _invalid("controls_bindings", "invalid Controls map: " + str(bindings.get("code")))
+	var migrations := _validate_migration_receipts(profile["migration_receipts"])
+	if not migrations.get("ok", false): return migrations
+	var archive: Variant = profile["legacy_preferences_v1"]
+	if typeof(archive) != TYPE_DICTIONARY:
+		return _invalid("legacy_preferences_v1", "legacy preferences archive must be an object")
+	if not archive.is_empty():
+		var archived := _validate_v1_preferences(archive)
+		if not archived.get("ok", false):
+			return _invalid("legacy_preferences_v1", "legacy preferences archive is invalid")
+	var witnessed: Variant = profile["pair_form_witness_receipts"]
+	if not witnessed is Dictionary:
+		return _invalid("pair_form_witness_receipts", "witness receipts must be an object")
+	for receipt_id: Variant in witnessed:
+		if not receipt_id is String or receipt_id.strip_edges().is_empty() \
+				or not witnessed[receipt_id] is String or witnessed[receipt_id] not in PAIR_FORMS:
+			return _invalid("pair_form_witness_receipts", "each presentation receipt names a registered form")
+	var attempts: Dictionary = DATING_ATTEMPTS.validate(profile["dating_attempts"])
+	if not attempts.get("ok", false): return attempts
+	var observer := OBSERVER_EVIDENCE.validate(profile["observer_evidence"])
+	if not observer.ok: return observer
+	if not profile["reached_presentations"] is Dictionary: return _invalid("reached_presentations", "Reached presentations must be an object")
+	var reached := PRESENTATION_SIGNATURE.validate_ledger(profile["reached_presentations"])
+	if not reached.ok: return reached
+	var draws: Dictionary = PAIR_DECK.validate_ledger(profile["pair_deck_draws"])
+	if not draws.ok: return draws
+	var chronology := _validate_presentation_chronology(profile)
+	if not chronology.ok: return chronology
+	var library := _validate_dialogue_library(profile.dialogue_library)
+	if not library.ok: return library
+	var captions := CAPTION_WITNESSES.validate(profile["witnessed_caption_variants"])
+	if not captions.ok: return captions
+	for beat: Dictionary in profile.witnessed_caption_variants.values():
+		if beat.line_id not in profile.visited_line_ids:
+			return _invalid("witnessed_caption_variants", "An exact caption witness also retains its base-line visit")
+	return {"ok": true, "code": &"ok", "value": profile}
 
 
 static func _validate_dialogue_library(value: Variant) -> Dictionary:
@@ -395,62 +211,6 @@ static func _validate_presentation_chronology(profile: Dictionary) -> Dictionary
 	if sorted_legacy != chronology.legacy_unordered:
 		return _invalid(path, "Legacy membership must use canonical identity order, not witness order")
 	return {"ok": true}
-
-
-static func _admit_legacy_minesweeper_view_defaults(profile: Dictionary) -> bool:
-	var preferences: Variant = profile.get("preferences")
-	if typeof(preferences) != TYPE_DICTIONARY:
-		return false
-	var display: Variant = preferences.get("display")
-	if typeof(display) != TYPE_DICTIONARY:
-		return false
-	for leaf: String in _MINESWEEPER_VIEW_LEAVES:
-		if display.has(leaf):
-			return false
-	for leaf: String in _MINESWEEPER_VIEW_LEAVES:
-		display[leaf] = PREFERENCE_REGISTRY.default_value(StringName("preferences.display." + leaf))
-	return true
-
-
-static func _admit_legacy_panel_width_defaults(profile: Dictionary) -> bool:
-	var preferences: Variant = profile.get("preferences")
-	if typeof(preferences) != TYPE_DICTIONARY: return false
-	var display: Variant = preferences.get("display")
-	if typeof(display) != TYPE_DICTIONARY: return false
-	for leaf: String in _PANEL_WIDTH_LEAVES:
-		if display.has(leaf): return false
-	for leaf: String in _PANEL_WIDTH_LEAVES:
-		display[leaf] = PREFERENCE_REGISTRY.default_value(StringName("preferences.display." + leaf))
-	return true
-
-
-static func _admit_legacy_window_size_default(profile: Dictionary) -> bool:
-	var preferences: Variant = profile.get("preferences")
-	if typeof(preferences) != TYPE_DICTIONARY: return false
-	var display: Variant = preferences.get("display")
-	if typeof(display) != TYPE_DICTIONARY or display.has("window_size"): return false
-	display["window_size"] = PREFERENCE_REGISTRY.default_value(&"preferences.display.window_size")
-	return true
-
-
-static func _admit_legacy_steady_interface_default(profile: Dictionary) -> bool:
-	var preferences: Variant = profile.get("preferences")
-	if typeof(preferences) != TYPE_DICTIONARY:
-		return false
-	var accessibility: Variant = preferences.get("accessibility")
-	if typeof(accessibility) != TYPE_DICTIONARY or accessibility.has("steady_interface"):
-		return false
-	accessibility["steady_interface"] = false
-	return true
-
-
-static func _admit_legacy_font_style_default(profile: Dictionary) -> bool:
-	var preferences: Variant = profile.get("preferences")
-	if typeof(preferences) != TYPE_DICTIONARY: return false
-	var accessibility: Variant = preferences.get("accessibility")
-	if typeof(accessibility) != TYPE_DICTIONARY or accessibility.has("font_style"): return false
-	accessibility["font_style"] = PREFERENCE_REGISTRY.default_value(&"preferences.accessibility.font_style")
-	return true
 
 
 static func validate_preference(path: StringName, value: Variant) -> Dictionary:
@@ -558,12 +318,9 @@ static func _validate_gallery_receipts(value: Variant) -> Dictionary:
 	return {"ok": true}
 
 
-static func _validate_input_mappings(value: Variant, require_inventory: bool = false) -> Dictionary:
+static func _validate_input_mappings(value: Variant) -> Dictionary:
 	if typeof(value) != TYPE_DICTIONARY:
 		return _invalid("input_mappings", "input_mappings must be an object")
-	if require_inventory:
-		var exact := _require_keys(value, _DEFAULT_INPUT_KEYCODES.keys(), "input_mappings")
-		if not exact.get("ok", false): return exact
 	for action_id in value:
 		if typeof(action_id) != TYPE_STRING or action_id.is_empty():
 			return _invalid("input_mappings", "action IDs must be nonempty Strings")

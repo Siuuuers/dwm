@@ -88,13 +88,6 @@ func test_read_history_without_checkpoint_is_not_backfilled_and_restore_cannot_r
 	assert_true(_read(f.profile).ok)
 	assert_false(f.profile.apply_restore_silent({"profile": older}).ok)
 	assert_eq(f.profile.get_dialogue_library(), FIXTURE.discovery())
-	var legacy := SCHEMA.make_defaults()
-	legacy.erase("dialogue_library")
-	legacy.visited_line_ids = [beat.line_id]
-	legacy.witnessed_caption_variants[FIXTURE.key(beat)] = beat
-	var normalized: Dictionary = SCHEMA.validate(legacy)
-	assert_true(normalized.ok)
-	if normalized.ok: assert_eq(normalized.value.dialogue_library, {"checkpoints": [], "witnesses": {}})
 
 func test_write_real_profile_for_fresh_process() -> void:
 	assert_false(OS.get_environment("DWM_TEST_ROOT").is_empty(), "isolated cloud root required")
@@ -105,14 +98,12 @@ func test_write_real_profile_for_fresh_process() -> void:
 	assert_true(_read(profile).ok)
 	assert_eq(profile.get_dialogue_library(), FIXTURE.discovery())
 
-func test_machine_schema_accepts_current_discovery_and_omitted_v10_library() -> void:
+func test_machine_schema_requires_current_library_discovery() -> void:
 	var machine: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://schemas/profile.schema.json"))
 	var profile := SCHEMA.make_defaults()
 	profile.dialogue_library = FIXTURE.discovery()
 	assert_true(JSON_RULES.validate(profile, machine).ok)
 	assert_true(SCHEMA.validate(profile).ok, "library remains independent from Skip history")
 	profile.erase("dialogue_library")
-	assert_true(JSON_RULES.validate(profile, machine).ok, "pre-library v10 documents remain admitted")
-	var normalized: Dictionary = SCHEMA.validate(profile)
-	assert_true(normalized.ok)
-	if normalized.ok: assert_eq(normalized.value.dialogue_library, {"checkpoints": [], "witnesses": {}})
+	assert_false(JSON_RULES.validate(profile, machine).ok)
+	assert_false(SCHEMA.validate(profile).ok)

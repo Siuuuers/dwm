@@ -234,11 +234,17 @@ static var _scene_authority: Object
 static var _scene_creation_owner: Object
 static var _scene_semantic_busy := false
 
+static func _current_lifecycle_shape(lifecycle: Variant) -> bool:
+	if not lifecycle is Dictionary: return false
+	return _scene_keys(lifecycle, SCENE_LIFECYCLE_KEYS + ["completed_registration_sha256"] if lifecycle.has("completed_registration_sha256") else SCENE_LIFECYCLE_KEYS)
+
 static func normalize_scene_content(snapshot: Dictionary, trusted: bool = false) -> Dictionary:
 	if not trusted:
 		var primitive := validate_primitive_tree(snapshot)
 		if not primitive.ok: return primitive
 	var candidate: Dictionary = _normalize_integral_floats(snapshot)
+	if not _current_lifecycle_shape(candidate.get("lifecycle")):
+		return _fail(&"invalid_lifecycle", "current Run9 lifecycle is required")
 	if not trusted and (candidate.get("schema_version") != SCENE_SCHEMA_VERSION \
 			or not candidate.get("scene") is Dictionary or not candidate.get("gameplay") is Dictionary \
 			or not candidate.get("narrative_checkpoint") is Dictionary):
@@ -270,10 +276,10 @@ static func normalize_scene_content(snapshot: Dictionary, trusted: bool = false)
 		if not gameplay.get("scene_choices") is Dictionary or not gameplay.get("scene_challenge_outcomes") is Dictionary \
 				or not gameplay.get("route_context") is Dictionary:
 			return _fail(&"invalid_gameplay", "scene progress owners are required")
-		var progress_error := _validate_scene_progress(gameplay.scene_choices, gameplay.scene_challenge_outcomes)
-		if not progress_error.is_empty(): return _fail(&"invalid_gameplay", progress_error)
 		var route_error := _validate_scene_route_context(gameplay.route_context)
 		if not route_error.is_empty(): return _fail(&"invalid_gameplay", route_error)
+	var progress_error := _validate_scene_progress(gameplay.scene_choices, gameplay.scene_challenge_outcomes)
+	if not progress_error.is_empty(): return _fail(&"invalid_gameplay", progress_error)
 	var selected := SCENE_MANIFEST.scene_contract_tables()
 	if not selected.ok: return selected
 	if not trusted and candidate.scene.registration_sha256 == SCENE_MANIFEST.scene_registration_fingerprint():
@@ -299,14 +305,6 @@ static func normalize_scene_content(snapshot: Dictionary, trusted: bool = false)
 		if normalized.value.fallback:
 			candidate.scene.notification = {}
 	var record: Dictionary = gameplay.route_context.get("active_dating_challenge", {})
-	for occurrence: String in gameplay.scene_challenge_outcomes:
-		var outcome: Dictionary = gameplay.scene_challenge_outcomes[occurrence]
-		if outcome.has("physical_slot"): continue
-		outcome["physical_slot"] = ""
-		if not record.is_empty() and outcome.outcome != "never_started" \
-				and outcome.challenge_id == record.context.challenge_id:
-			var slot: String = SCENE_ATTEMPTS.semantic_slot(record.context)
-			if slot == "scene.challenge." + occurrence: outcome.physical_slot = slot
 	if record.is_empty() and candidate.scene.get("active_challenge") is Dictionary \
 			and not candidate.scene.active_challenge.is_empty():
 		var still_registered := false
@@ -370,17 +368,14 @@ static func build_scene(snapshot_input: Dictionary, dialogic_checkpoint: Diction
 static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_candidate: Dictionary,
 		profile_material: Dictionary, bundle: Dictionary, issuer: Object,
 		acknowledged_checkpoint: Dictionary) -> Dictionary:
-	var retained := snapshot.duplicate()
-	retained.erase("audio_context")
-	retained.erase("active_app_id")
-	var primitive := validate_primitive_tree(retained)
+	var primitive := validate_primitive_tree(snapshot)
 	if not primitive.ok: return primitive
 	var selected: Dictionary = SCENE_MANIFEST.scene_contract_tables()
 	if not selected.ok: return selected
 	if not is_same(bundle, selected.bundle) and not _scene_exact_value(bundle, selected.bundle):
 		return _fail(&"scene_registration_mismatch", "initial candidate must use the installed registration")
 	bundle = selected.bundle
-	var candidate: Dictionary = retained.duplicate(true)
+	var candidate: Dictionary = snapshot.duplicate(true)
 	if not _scene_keys(candidate, SCENE_TOP_KEYS) or typeof(candidate.schema_version) != TYPE_INT \
 			or candidate.schema_version != SCENE_SCHEMA_VERSION or candidate.route_id != "scene" \
 			or not _scene_id(candidate.run_id) or not _scene_int(candidate.content_version, 1) \
@@ -482,10 +477,7 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 	if not is_same(bundle, selected.bundle) and not _scene_exact_value(selected.bundle, bundle):
 		return _fail(&"scene_registration_mismatch", "saved data cannot select a registration")
 	bundle = selected.bundle
-	var retained := snapshot.duplicate()
-	retained.erase("audio_context")
-	retained.erase("active_app_id")
-	var candidate: Dictionary = _normalize_integral_floats(retained)
+	var candidate: Dictionary = _normalize_integral_floats(snapshot)
 	var primitive := validate_primitive_tree(candidate)
 	if not primitive.ok: return primitive
 	if not _scene_keys(candidate, SCENE_TOP_KEYS) or typeof(candidate.schema_version) != TYPE_INT \
@@ -496,10 +488,7 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 		return _fail(&"invalid_snapshot_shape", "invalid Run9 header or member set")
 	if not candidate.lifecycle is Dictionary or candidate.lifecycle.get("run_id") != candidate.run_id:
 		return _fail(&"invalid_lifecycle", "scene lifecycle must belong to its Run")
-	candidate.lifecycle.erase("scene_assignment")
-	var lifecycle_keys := SCENE_LIFECYCLE_KEYS.duplicate()
-	if candidate.lifecycle.has("completed_registration_sha256"): lifecycle_keys.append("completed_registration_sha256")
-	if not _scene_keys(candidate.lifecycle, lifecycle_keys) or candidate.lifecycle.state not in ["PLAYING", "COMPLETED"]:
+	if not _current_lifecycle_shape(candidate.lifecycle) or candidate.lifecycle.state not in ["PLAYING", "COMPLETED"]:
 		return _fail(&"invalid_lifecycle", "current Scene uses ordinary passage lifecycle")
 	var lifecycle: Dictionary = RUN_LIFECYCLE.validate_scene(candidate.lifecycle, _scene_issuer)
 	if not lifecycle.ok: return lifecycle
@@ -815,8 +804,7 @@ static func _validate_scene_progress(choices: Variant, outcomes: Variant) -> Str
 		var outcome: Variant = outcomes[occurrence]
 		if not _scene_digest(occurrence) or not outcome is Dictionary:
 			return "invalid scene challenge outcome"
-		if not _scene_keys(outcome, ["challenge_id", "outcome"]) \
-				and not _scene_keys(outcome, ["challenge_id", "outcome", "physical_slot"]):
+		if not _scene_keys(outcome, ["challenge_id", "outcome", "physical_slot"]):
 			return "invalid scene challenge outcome"
 		if not _scene_id(outcome.challenge_id) \
 				or outcome.outcome not in ["never_started", "unfinished", "lost", "won", "perfect"]:

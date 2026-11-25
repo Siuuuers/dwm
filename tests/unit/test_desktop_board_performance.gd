@@ -38,19 +38,17 @@ func test_debug_opening_preserves_player_clicks_and_no_flag_status() -> void:
 	assert_eq(PERFORMANCE.click_count(board), 2)
 	assert_eq(QUERY.retained_metrics({"board": {"board": board}}).value.no_flag, "lost")
 
-func test_current_exact_one_hundred_qualifies_and_legacy_threshold_remains_strict() -> void:
+func test_exact_one_hundred_qualifies() -> void:
 	var board := _chord_clear()
 	assert_eq(PERFORMANCE.three_bv(board), 8)
 	assert_eq(PERFORMANCE.click_count(board), 6)
 	assert_almost_eq(PERFORMANCE.foresight_percent(board), 133.333333, 0.0001)
 	assert_eq(PERFORMANCE.perfect_reasons(board), ["efficiency_gte_100"])
-	assert_eq(PERFORMANCE.perfect_reasons(board, 1), ["efficiency_gt_100"])
 	assert_eq(DATING.perfect_reasons(board), PERFORMANCE.perfect_reasons(board))
 	var exact := _chord_clear(true)
 	assert_eq(PERFORMANCE.click_count(exact), 8)
 	assert_eq(PERFORMANCE.foresight_percent(exact), 100.0)
 	assert_eq(PERFORMANCE.perfect_reasons(exact), ["efficiency_gte_100"])
-	assert_eq(PERFORMANCE.perfect_reasons(exact, 1), [])
 
 func test_flag_then_unflag_cannot_recover_no_flag_and_individual_reveals_count_first_click() -> void:
 	for used_flag: bool in [false, true]:
@@ -172,10 +170,9 @@ func test_retained_and_restored_board_derive_same_register_without_adding_saved_
 	assert_false(snapshot.board.board.has("click_count"))
 	assert_false(snapshot.board.board.has("foresight"))
 
-func test_current_display_floors_without_changing_raw_ratio_or_legacy_rounding() -> void:
+func test_display_floors_without_changing_raw_ratio() -> void:
 	var board: Dictionary = REDUCER.set_flag(_first(), 4, true, "flag-display").value.board
 	board = REDUCER.chord(board, 0, "chord-display").value.board
 	assert_eq(PERFORMANCE.click_count(board), 3)
 	assert_almost_eq(PERFORMANCE.foresight_percent(board), 266.666666, 0.0001)
 	assert_eq(PERFORMANCE.display_percent(board), 266)
-	assert_eq(PERFORMANCE.display_percent(board, 1), 267)

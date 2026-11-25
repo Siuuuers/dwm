@@ -725,7 +725,7 @@ func measure_layout_budget() -> void:
 				var points: int = typography.font_size(language, percent, 20, style)
 				var copy: Dictionary = BackupApp.COPY[language]
 				var texts: Array[String] = [copy.autosave, copy.quick, str(copy.slot).format({"n": 7}),
-					str(copy.day).format({"day": 7, "time": "09:07"}), copy.empty, copy.unavailable]
+					"09:07", copy.empty, copy.unavailable]
 				for key: String in ["autosave", "quick", "slot"]:
 					if BackupApp.COMPACT_COPY.get(language, {}).has(key):
 						texts.append(str(BackupApp.COMPACT_COPY[language][key]).format({"n": 7}))

@@ -151,7 +151,7 @@ func setup(scene_tree: SceneTree) -> Dictionary:
 	var receipt: Dictionary = rebuild_event(anchor)
 	if not receipt.ok: return receipt
 	var lifecycle: Dictionary = identity.duplicate(true)
-	lifecycle.merge({"restore_provenance": null, "state": "PLAYING", "scene_assignment": retained.value})
+	lifecycle.merge({"restore_provenance": null, "state": "PLAYING"})
 	var gameplay := {"coins": 0, "inventory": {}, "minesweeper_app_rounds_finished_today": 0,
 		"minesweeper_money_earned_today": 0, "minesweeper_rng_seed": 0, "minesweeper_round_floor": 0,
 		"minesweeper_rounds_left": 2, "minesweeper_selected_difficulty": "beginner",

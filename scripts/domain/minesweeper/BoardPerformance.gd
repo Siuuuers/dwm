@@ -13,16 +13,13 @@ static func click_count(board: Dictionary) -> int:
 static func foresight_percent(board: Dictionary) -> float:
 	return float(three_bv(board)) / float(click_count(board)) * 100.0
 
-static func display_percent(board: Dictionary, rule_version: int = 2) -> int:
-	var percentage := foresight_percent(board)
-	return roundi(percentage) if rule_version == 1 else floori(percentage)
+static func display_percent(board: Dictionary) -> int:
+	return floori(foresight_percent(board))
 
-static func perfect_reasons(board: Dictionary, rule_version: int = 2) -> Array:
+static func perfect_reasons(board: Dictionary) -> Array:
 	if not bool(board.terminal) or str(board.outcome) != "cleared": return []
 	var reasons: Array = []
-	if rule_version == 1:
-		if three_bv(board) > click_count(board): reasons.append("efficiency_gt_100")
-	elif three_bv(board) >= click_count(board):
+	if three_bv(board) >= click_count(board):
 		reasons.append("efficiency_gte_100")
 	var flagged: bool = false
 	for action: Dictionary in board.actions:

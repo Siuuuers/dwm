@@ -311,6 +311,23 @@ func test_set_flag_flags_and_unflags() -> void:
 	assert_eq(unflagged_result["value"]["board"]["flagged_indices"], [])
 
 
+func test_next_move_shares_owned_action_history_and_detaches_loaded_records() -> void:
+	var flagged: Dictionary = REDUCER.set_flag(_first_reveal_board(), 10, true, "flag").value.board
+	var advanced: Dictionary = REDUCER.reveal(flagged, 14, "reveal").value.board
+	assert_true(is_same(flagged.actions[0], advanced.actions[0]))
+	assert_true(advanced.actions.is_read_only())
+	assert_true(advanced.actions[0].is_read_only())
+	assert_true(advanced.actions[1].is_read_only())
+	assert_typeof(advanced.actions[1].kind, TYPE_STRING)
+	assert_eq(flagged.actions.size(), 1)
+	var loaded: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(JSON.stringify(flagged)).value
+	var continued: Dictionary = REDUCER.reveal(loaded, 14, "reveal").value.board
+	assert_eq(continued, advanced)
+	assert_false(loaded.actions[0].is_read_only())
+	loaded.actions[0].flagged = false
+	assert_true(continued.actions[0].flagged)
+
+
 func test_set_flag_rejects_a_revealed_cell() -> void:
 	var board: Dictionary = _first_reveal_board()
 	var result: Dictionary = REDUCER.set_flag(board, 0, true, "tx-flag-revealed")
@@ -329,6 +346,9 @@ func test_chord_with_matching_flags_reveals_the_remaining_hidden_neighbors() -> 
 	assert_true(updated["revealed_indices"].has(6))
 	assert_true(updated["revealed_indices"].has(14))
 	assert_false(updated["terminal"])
+	var repeated: Dictionary = REDUCER.chord(updated, 9, "second-chord").value.board
+	assert_eq(repeated.revealed_indices, updated.revealed_indices)
+	assert_eq(repeated.revision, updated.revision + 1)
 
 
 func test_chord_rejects_a_flag_count_mismatch() -> void:

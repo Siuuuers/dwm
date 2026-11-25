@@ -2,6 +2,7 @@ class_name MinesweeperBoardReducer
 extends RefCounted
 
 
+const _READ_ONLY := preload("res://scripts/domain/ReadOnlyData.gd")
 const _SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
 
 const _ACTIVE := &"active"
@@ -35,11 +36,13 @@ static func first_reveal(layout: Dictionary, cell_index: int, shell: Dictionary 
 	flagged.assign(retained_shell.flagged_indices)
 	for index: int in flagged: blocked[index] = true
 	var adjacency := _recompute_adjacency(mine_set, width, height)
-	var revealed_set := _flood_reveal([cell_index], {}, mine_set, adjacency, width, height, blocked)
+	var revealed_set := {}
+	_flood_reveal([cell_index], revealed_set, mine_set, adjacency, width, height, blocked)
 	var revealed: Array[int] = []
 	revealed.assign(revealed_set.keys())
 	revealed.sort()
 
+	_READ_ONLY.freeze(retained_shell.actions)
 	var board := _build_board(width, height, mine_indices, revealed, flagged, adjacency, -1, retained_shell.actions)
 	return {"ok": true, "code": &"ok", "value": {"board": board}, "receipt": {}}
 
@@ -73,21 +76,18 @@ static func reveal(board: Dictionary, cell_index: int, transaction_id: String) -
 	flagged.assign(flagged_set.keys())
 	flagged.sort()
 
-	var new_revealed_set: Dictionary
 	var exploded_index: int = -1
 	if mine_set.has(cell_index):
-		new_revealed_set = revealed_set.duplicate()
-		new_revealed_set[cell_index] = true
+		revealed_set[cell_index] = true
 		exploded_index = cell_index
 	else:
-		new_revealed_set = _flood_reveal([cell_index], revealed_set, mine_set, adjacency, width, height, flagged_set)
+		_flood_reveal([cell_index], revealed_set, mine_set, adjacency, width, height, flagged_set)
 
 	var revealed: Array[int] = []
-	revealed.assign(new_revealed_set.keys())
+	revealed.assign(revealed_set.keys())
 	revealed.sort()
-	var actions: Array = (parsed["actions"] as Array).duplicate(true)
-	actions.append({"transaction_id": transaction_id, "kind": &"reveal", "cell_index": cell_index,
-		"revision": actions.size() + 1})
+	var actions := _append_action(parsed.actions, {"transaction_id": transaction_id, "kind": "reveal", "cell_index": cell_index,
+		"revision": parsed.actions.size() + 1})
 
 	var board_out := _build_board(width, height, mine_indices, revealed, flagged, adjacency,
 		exploded_index, actions)
@@ -108,7 +108,7 @@ static func set_flag(board: Dictionary, cell_index: int, flagged: bool,
 	var total_cells: int = width * height
 	var mine_indices: Array[int] = parsed["mine_indices"]
 	var revealed_set: Dictionary = parsed["revealed_set"]
-	var flagged_set: Dictionary = (parsed["flagged_set"] as Dictionary).duplicate()
+	var flagged_set: Dictionary = parsed["flagged_set"]
 	var adjacency: Array[int] = parsed["adjacency"]
 
 	if cell_index < 0 or cell_index >= total_cells:
@@ -127,9 +127,8 @@ static func set_flag(board: Dictionary, cell_index: int, flagged: bool,
 	var flagged_list: Array[int] = []
 	flagged_list.assign(flagged_set.keys())
 	flagged_list.sort()
-	var actions: Array = (parsed["actions"] as Array).duplicate(true)
-	actions.append({"transaction_id": transaction_id, "kind": &"set_flag", "cell_index": cell_index,
-		"flagged": flagged, "revision": actions.size() + 1})
+	var actions := _append_action(parsed.actions, {"transaction_id": transaction_id, "kind": "set_flag", "cell_index": cell_index,
+		"flagged": flagged, "revision": parsed.actions.size() + 1})
 
 	var board_out := _build_board(width, height, mine_indices, revealed, flagged_list, adjacency,
 		int(parsed["exploded_index"]), actions)
@@ -178,41 +177,20 @@ static func chord(board: Dictionary, cell_index: int, transaction_id: String) ->
 	var flagged: Array[int] = []
 	flagged.assign(flagged_set.keys())
 	flagged.sort()
-	var actions: Array = (parsed["actions"] as Array).duplicate(true)
-	actions.append({"transaction_id": transaction_id, "kind": &"chord", "cell_index": cell_index,
-		"revision": actions.size() + 1})
+	var actions := _append_action(parsed.actions, {"transaction_id": transaction_id, "kind": "chord", "cell_index": cell_index,
+		"revision": parsed.actions.size() + 1})
 
-	if hidden_unflagged.is_empty():
-		var unchanged_revealed: Array[int] = []
-		unchanged_revealed.assign(revealed_set.keys())
-		unchanged_revealed.sort()
-		var board_noop := _build_board(width, height, mine_indices, unchanged_revealed, flagged,
-			adjacency, int(parsed["exploded_index"]), actions)
-		return {"ok": true, "code": &"ok", "value": {"board": board_noop}, "receipt": {}}
-
-	var hit_mines: Array[int] = []
-	var safe_seeds: Array[int] = []
+	var exploded_index := -1
 	for neighbor: int in hidden_unflagged:
-		if mine_set.has(neighbor):
-			hit_mines.append(neighbor)
-		else:
-			safe_seeds.append(neighbor)
-
-	var new_revealed_set: Dictionary
-	var exploded_index: int = -1
-	if not hit_mines.is_empty():
-		hit_mines.sort()
-		exploded_index = hit_mines[0]
-		new_revealed_set = revealed_set.duplicate()
-		for m: int in hidden_unflagged:
-			new_revealed_set[m] = true
-	elif not safe_seeds.is_empty():
-		new_revealed_set = _flood_reveal(safe_seeds, revealed_set, mine_set, adjacency, width, height, flagged_set)
+		if mine_set.has(neighbor) and (exploded_index == -1 or neighbor < exploded_index):
+			exploded_index = neighbor
+	if exploded_index == -1:
+		_flood_reveal(hidden_unflagged, revealed_set, mine_set, adjacency, width, height, flagged_set)
 	else:
-		new_revealed_set = revealed_set.duplicate()
+		for neighbor: int in hidden_unflagged: revealed_set[neighbor] = true
 
 	var revealed: Array[int] = []
-	revealed.assign(new_revealed_set.keys())
+	revealed.assign(revealed_set.keys())
 	revealed.sort()
 	var board_out := _build_board(width, height, mine_indices, revealed, flagged, adjacency,
 		exploded_index, actions)
@@ -336,6 +314,19 @@ static func _check_transaction(parsed: Dictionary, transaction_id: String, kind:
 	return {"terminate": false}
 
 
+static func _append_action(history: Array, entry: Dictionary) -> Array:
+	var mutable_history := not history.is_read_only()
+	var actions := history.duplicate(mutable_history)
+	if mutable_history:
+		for prior: Dictionary in actions:
+			prior.kind = str(prior.kind)
+			_READ_ONLY.freeze(prior)
+	entry.make_read_only()
+	actions.append(entry)
+	actions.make_read_only()
+	return actions
+
+
 static func _build_board(width: int, height: int, mine_indices: Array[int], revealed: Array[int],
 		flagged: Array[int], adjacency: Array[int], exploded_index: int, actions: Array) -> Dictionary:
 	var total_cells: int = width * height
@@ -362,20 +353,17 @@ static func _build_board(width: int, height: int, mine_indices: Array[int], reve
 	}
 
 
-static func _flood_reveal(seeds: Array[int], already_revealed: Dictionary, mine_set: Dictionary,
-		adjacency: Array[int], width: int, height: int, blocked: Dictionary = {}) -> Dictionary:
-	var revealed: Dictionary = already_revealed.duplicate()
-	var queue: Array[int] = seeds.duplicate()
-	while not queue.is_empty():
-		var idx: int = queue.pop_front()
+static func _flood_reveal(pending: Array[int], revealed: Dictionary, mine_set: Dictionary,
+		adjacency: Array[int], width: int, height: int, blocked: Dictionary) -> void:
+	while not pending.is_empty():
+		var idx: int = pending.pop_back()
 		if revealed.has(idx) or mine_set.has(idx) or blocked.has(idx):
 			continue
 		revealed[idx] = true
 		if adjacency[idx] == 0:
 			for neighbor: int in _neighbors(idx, width, height):
 				if not revealed.has(neighbor) and not mine_set.has(neighbor):
-					queue.append(neighbor)
-	return revealed
+					pending.append(neighbor)
 
 
 static func _index_array(value: Variant, total_cells: int) -> Dictionary:

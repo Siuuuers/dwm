@@ -1,8 +1,6 @@
 extends "res://addons/gut/test.gd"
 
 const LEDGER := preload("res://scripts/profile/DatingAttemptLedger.gd")
-const PROFILE := preload("res://scripts/profile/ProfileSchema.gd")
-const MIGRATION := preload("res://scripts/profile/ProfileMigration.gd")
 const MANAGER := preload("res://autoload/ProfileManager.gd")
 const OWNER := preload("res://scripts/application/run/DatingPhysicalOwner.gd")
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
@@ -14,8 +12,7 @@ const OPS := preload("res://tests/support/FakeFileOps.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const SLOT := "dating.solo.priscilla.day1"
 
-# These records intentionally exercise persisted v2 history with its original fixed spec.
-class LegacySpecState extends RefCounted:
+class SpecState extends RefCounted:
 	var inventory: Dictionary = {}
 	var penalty_points_today := 0
 	func get_stat(_id: String) -> int: return 0
@@ -33,9 +30,9 @@ func _record() -> Dictionary:
 	assert_true(issuer.configure(ROOT_STORE.new("86".repeat(32), 1)).ok)
 	var owner := OWNER.new()
 	owner._issuer = issuer
-	owner._game_state = LegacySpecState.new()
+	owner._game_state = SpecState.new()
 	var spec: Dictionary = owner._make_spec("canonical_solo").value
-	return {"schema_version": 2, "completion_transaction_id": "date-completion",
+	return {"schema_version": 3, "envelope": owner.ENVELOPE.make(), "completion_transaction_id": "date-completion",
 		"command_sha256": "a".repeat(64), "physical_token": owner._token("date-completion", "a".repeat(64)),
 		"context": {"kind": "solo", "participants": ["priscilla"], "day": 1},
 		"host": "canonical_solo", "spec": spec, "board": null, "phase": "challenge",
@@ -50,11 +47,22 @@ func _materialize(record: Dictionary, index: int = 36) -> Dictionary:
 		"height": 18, "mine_indices": mines, "mine_count": 36}, index)
 	next.board = reduced.value.board.duplicate(true)
 	next.board.outcome = str(next.board.outcome)
+	next.envelope.special_cell = OWNER.ENVELOPE.special_cell(next.spec, next.board)
 	next.mine_dispositions = RULES.dispositions(next.spec, 36)
 	if next.board.terminal:
-		next.perfect_reasons = RULES.perfect_reasons(next.board, 2)
+		next.perfect_reasons = RULES.perfect_reasons(next.board)
 		next.outcome = "perfect" if not next.perfect_reasons.is_empty() else "cleared"
-		next.phase = "cleared_awaiting_terminal_choice"
+		next.phase = "settlement_retry"
+		next.relationship_outcome = "foresight"
+	return next
+
+func _cleared(record: Dictionary) -> Dictionary:
+	var next := _materialize(record)
+	var flagged := REDUCER.set_flag(next.board, 0, true, "flag").value as Dictionary
+	next.board = REDUCER.reveal(flagged.board, 323, "clear").value.board
+	next.board.outcome = str(next.board.outcome)
+	next.phase = "cleared_awaiting_terminal_choice"
+	next.outcome = "cleared"
 	return next
 
 func test_entry_is_detached_idempotent_and_cannot_be_replaced_or_rewound() -> void:
@@ -89,7 +97,6 @@ func test_first_cell_layout_and_action_prefix_survive_only_monotonic_progress() 
 	var flagged := board.duplicate(true)
 	flagged.board = REDUCER.set_flag(board.board, 0, true, "flag-one").value.board
 	flagged.board.outcome = str(flagged.board.outcome)
-	for action: Dictionary in flagged.board.actions: action.kind = str(action.kind)
 	var progressed: Dictionary = LEDGER.prepare_update(ledger, "run-a", SLOT, "branch-a", flagged, 2)
 	assert_true(progressed.ok, str(progressed))
 	if not progressed.ok: return
@@ -109,6 +116,7 @@ func test_painted_terminal_board_awaiting_settlement_is_valid_monotonic_progress
 	var unsettled := settled.duplicate(true)
 	unsettled.phase = "challenge"
 	unsettled.outcome = null
+	unsettled.relationship_outcome = null
 	unsettled.perfect_reasons = []
 	var painted: Dictionary = LEDGER.prepare_update(ledger, "run-a", SLOT, "branch-a", unsettled, 1, 323)
 	assert_true(painted.ok, str(painted))
@@ -124,8 +132,8 @@ func test_painted_terminal_board_awaiting_settlement_is_valid_monotonic_progress
 func test_clear_and_terminal_choices_are_write_once_without_full_snapshot_history() -> void:
 	var record := _record()
 	var ledger: Dictionary = LEDGER.prepare_update({}, "run-a", SLOT, "branch-a", record, 0).value.ledger
-	var cleared := _materialize(record, 323)
-	var clear: Dictionary = LEDGER.prepare_update(ledger, "run-a", SLOT, "branch-a", cleared, 1, 323)
+	var cleared := _cleared(record)
+	var clear: Dictionary = LEDGER.prepare_update(ledger, "run-a", SLOT, "branch-a", cleared, 1, 36)
 	assert_true(clear.ok, str(clear))
 	if not clear.ok: return
 	var chosen := cleared.duplicate(true)
@@ -135,34 +143,13 @@ func test_clear_and_terminal_choices_are_write_once_without_full_snapshot_histor
 	assert_true(terminal.ok, str(terminal))
 	if not terminal.ok: return
 	assert_eq(terminal.value.attempt.clear_receipt, clear.value.attempt.clear_receipt)
-	chosen.relationship_outcome = "foresight"
+	chosen.relationship_outcome = "loved"
 	assert_false(LEDGER.prepare_update(terminal.value.ledger, "run-a", SLOT, "branch-a", chosen, 3).ok)
 	assert_false(LEDGER.prepare_update(terminal.value.ledger, "run-a", SLOT, "branch-a", cleared, 3).ok)
 	assert_false(terminal.value.attempt.has("revision_history"))
 
-func test_v5_upgrade_adds_empty_ledger_and_preserves_other_profile_facts() -> void:
-	var old: Dictionary = PROFILE.make_defaults()
-	old.erase("dating_attempts")
-	old.schema_version = 5
-	old.erase("displayed_artwork_ids")
-	old.erase("dialogue_library")
-	old.erase("observer_evidence")
-	old.erase("pair_deck_draws")
-	old.erase("reached_presentations")
-	old.erase("reached_presentation_chronology")
-	old.erase("witnessed_caption_variants")
-	old.pair_form_witness_receipts = {"pair-presented": "love_dark"}
-	var upgraded: Dictionary = MIGRATION.prepare_document(old)
-	assert_true(upgraded.ok, str(upgraded))
-	if not upgraded.ok: return
-	assert_eq(upgraded.value.schema_version, PROFILE.SCHEMA_VERSION)
-	assert_eq(upgraded.value.dating_attempts, {})
-	assert_eq(upgraded.value.pair_form_witness_receipts, old.pair_form_witness_receipts)
-	assert_false(old.has("dating_attempts"))
-	old.dating_attempts = {}
-	assert_false(MIGRATION.prepare_document(old).ok, "v5 remains a strict source schema")
 
-func test_profile_ahead_record_survives_restart_gallery_clear_and_old_run_patch() -> void:
+func test_profile_ahead_record_survives_restart_gallery_clear() -> void:
 	var storage := STORAGE.new("profile-dating-attempts", OPS.new())
 	var manager := MANAGER.new()
 	autofree(manager)
@@ -178,18 +165,16 @@ func test_profile_ahead_record_survives_restart_gallery_clear_and_old_run_patch(
 		"the Profile commitment survives even when the run Autosave was never written")
 	assert_true(restarted.reset_gallery().ok)
 	assert_eq(restarted.get_dating_attempt("run-a", SLOT).value.revision, 1)
-	assert_eq(restarted.prepare_legacy_profile_patch({}).value.dating_attempts,
-		restarted.get_profile_snapshot().dating_attempts)
 	assert_true(restarted.reset_entire_profile().ok)
 	assert_eq(restarted.get_dating_attempt("run-a", SLOT).value, {})
 
 func test_frozen_effect_and_completion_survive_retry_without_recalculation() -> void:
 	var record := _materialize(_record(), 323)
 	record.phase = "settlement_retry"
-	record.relationship_outcome = "dark"
+	record.relationship_outcome = "foresight"
 	var effect := {"terminal_fact": {"transaction_id": "date-completion", "outcome": record.outcome,
-		"relationship_outcome": "dark", "perfect_reasons": record.perfect_reasons.duplicate()},
-		"relationship_outcome": "dark", "perfect_reasons": record.perfect_reasons.duplicate(),
+		"relationship_outcome": "foresight", "perfect_reasons": record.perfect_reasons.duplicate()},
+		"relationship_outcome": "foresight", "perfect_reasons": record.perfect_reasons.duplicate(),
 		"attitude": "close", "outcome": record.outcome, "scene_id": SLOT,
 		"momentum_delta": 2, "tone_delta": 1, "progression_evaluated": true,
 		"relationship_state": "ambiguous", "ruleset_id": "provisional", "ruleset_status": "provisional"}
@@ -282,7 +267,7 @@ const SCENE_HASH := preload("res://scripts/domain/schedule/ScheduleStateSchema.g
 func _scene_record(debug: bool = false) -> Dictionary:
 	var source: Dictionary = _record()
 	if debug:
-		var state := LegacySpecState.new()
+		var state := SpecState.new()
 		state.inventory = {"debug_key": 1}
 		var issuer := ISSUER.new()
 		assert_true(issuer.configure(ROOT_STORE.new("86".repeat(32), 1)).ok)

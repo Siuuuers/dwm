@@ -1,6 +1,5 @@
 extends "res://addons/gut/test.gd"
 const SCHEMA := preload("res://scripts/profile/ProfileSchema.gd")
-const MIGRATION := preload("res://scripts/profile/ProfileMigration.gd")
 const MANAGER := preload("res://autoload/ProfileManager.gd")
 const OBSERVER := preload("res://scripts/profile/ObserverEvidence.gd")
 const RULES := preload("res://scripts/domain/relationship/ProvisionalProgressionRules.gd")
@@ -35,23 +34,6 @@ func _manager(storage: RefCounted = null) -> Node:
 	assert_true(manager.initialize(storage if storage != null else STORAGE.new("evidence-v8", OPS.new())).ok)
 	return manager
 
-func test_v7_upgrade_adds_empty_evidence_without_inventing_proofs() -> void:
-	var old := SCHEMA.make_defaults()
-	old["schema_version"] = 7
-	old.erase("dialogue_library")
-	old.erase("displayed_artwork_ids")
-	old.erase("reached_presentation_chronology")
-	old.erase("witnessed_caption_variants")
-	for key: String in ["observer_evidence", "pair_deck_draws", "reached_presentations"]: old.erase(key)
-	var before := old.duplicate(true)
-	var migrated := MIGRATION.prepare_document(old)
-	assert_true(migrated.ok, str(migrated))
-	if not migrated.ok: return
-	assert_eq(migrated.value.schema_version, SCHEMA.SCHEMA_VERSION)
-	for key: String in ["observer_evidence", "pair_deck_draws", "reached_presentations"]: assert_eq(migrated.value[key], {})
-	assert_eq(old, before)
-	old["observer_evidence"] = {}
-	assert_false(MIGRATION.prepare_document(old).ok, "historical source shape remains exact")
 
 func test_verification_requires_registered_capture_from_another_run() -> void:
 	var captured := OBSERVER.prepare({}, _receipt("capture"))

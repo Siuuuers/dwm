@@ -19,7 +19,32 @@ BINDINGS = 'scripts/ui/SettingsControlsSheet.gd'
 CAPTION = 'scripts/ui/witnessed/WitnessedCaptionLayer.gd'
 STRICT_JSON = 'scripts/validation/StrictJson.gd'
 BOARD_PRESENTATION = 'scripts/application/minesweeper/MinesweeperPresentationPort.gd'
+DATING = 'scripts/application/run/DatingPhysicalOwner.gd'
+BOARD_STATE = 'scripts/domain/minesweeper/DesktopBoardState.gd'
+REDUCER = 'scripts/domain/minesweeper/MinesweeperBoardReducer.gd'
+RUN_SNAPSHOT = 'scripts/domain/run/RunSnapshotSchema.gd'
+ROUND = 'scripts/application/minesweeper/MinesweeperRoundCoordinator.gd'
+REWARDS = (
+    (GAME, '_commit_scene_round_owned', '_scene_round_board', '_scene_round_reward.prepare_scene_complete'),
+    (ROUND, 'complete_round', '_board_state', '_reward_port.prepare_complete'),
+)
 RULES = (
+    (REDUCER, ('reveal', 'set_flag', 'chord', '_append_action'),
+     r'\bvar\s+actions\s*(?::\s*Array\s*)?:?=\s*[^\n]*\.duplicate\s*\(\s*true\s*\)',
+     'Append the next action without deep-copying the entire move history'),
+    (RUN_SNAPSHOT, ('normalize_scene_content',),
+     r'\b(?:outcome\s*\.\s*physical_slot\s*=(?!=)|SCENE_ATTEMPTS\s*\.\s*semantic_slot\s*\()',
+     'Use the saved Challenge outcome without reconstructing its physical slot'),
+    (PROFILE, ('initialize', 'prepare_profile_document', '_profile_text_validator'),
+     r'\b(?:MIGRATION\s*\.\s*prepare_document\s*\(|_profile_migration_text_validator\b|'
+     r'_import_legacy_input_mappings\s*\()',
+     'Admit the current profile at startup without importing obsolete development data'),
+    (DATING, ('_board_action',), r'\bfor\s+\w+(?:\s*:\s*Dictionary)?\s+in\s+_record\.board\.actions\s*:',
+     'Record the current board action at the reducer instead of revisiting the history'),
+    (DATING, ('_board_action',), r'\bclear_debug_flags\s*\(',
+     'Clear flags when certifying the forced opening'),
+    (BOARD_STATE, ('prepare_restore',), r'\bclear_debug_flags\s*\(',
+     'Restore the certified board as saved'),
     (STRICT_JSON, ('parse_object',), r'\.\s*duplicate\s*\(\s*true\s*\)',
      'Return the document already owned by the parser'),
     (SESSION, ('_configure_scene_observed_body',), r'\bentry\s*\.\s*duplicate\s*\(\s*true\s*\)',
@@ -105,11 +130,21 @@ def violations(sources):
                 errors.append(f'{path}::{name}: guarded function missing; update its lint scope')
             elif re.search(pattern, body):
                 errors.append(f'{path}::{name}: {message}')
+    for path, name, board, reward in REWARDS:
+        body = function_body(code_by_path[path], name)
+        if not body:
+            errors.append(f'{path}::{name}: guarded function missing; update its lint scope')
+            continue
+        preparation = re.search(r'\b' + reward.replace('.', r'\s*\.\s*') + r'\s*\(', body)
+        if preparation:
+            guard = rf'(?m)^\s*if\s+{board}\s*\.\s*has_settled_inspection\s*\(\s*\)[^\n:]*:\s*return\b'
+            if not re.search(guard, body[:preparation.start()]):
+                errors.append(f'{path}::{name}: return a settled round before preparing rewards')
     return errors
 
 
 if __name__ == '__main__':
-    errors = violations({path: source(path) for path in dict.fromkeys(rule[0] for rule in RULES)})
+    errors = violations({path: source(path) for path in dict.fromkeys(rule[0] for rule in (*RULES, *REWARDS))})
     for error in errors:
         print(error)
     print(f'Live transition lint: {len(errors)} violation(s)')

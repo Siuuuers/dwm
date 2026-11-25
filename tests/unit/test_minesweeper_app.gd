@@ -271,23 +271,20 @@ func test_locale_and_profile_signals_apply_real_font_preferences_without_resetti
 	_app.panel.dock.buttons.rules.grab_focus()
 	var before: Dictionary = _app.panel.public_view.duplicate(true)
 	var lifecycle_before: int = _port.lifecycle.size()
-	_profile.change("preferences.accessibility.font_scale",1.25)
+	_profile.change("preferences.accessibility.text_size",125)
 	assert_eq(_app.panel.dock.buttons.rules.theme.default_font_size,30)
-	_profile.change("preferences.accessibility.large_click_targets",true)
+	_profile.change("preferences.accessibility.large_targets",true)
 	assert_eq(_app.panel.worksheet.grid.cell_nodes[0].size,Vector2(64,64))
 	_locale.change("zh-HK")
 	assert_eq(_app.panel.dock.buttons.rules.public_copy,"規則")
 	_profile.change("preferences.accessibility.text_size",150)
-	_profile.change("preferences.accessibility.large_targets",true)
-	_profile.change("preferences.accessibility.font_scale",1.0)
-	_profile.change("preferences.accessibility.large_click_targets",false)
-	assert_eq(_app.panel.dock.buttons.rules.theme.default_font_size,36,"Canonical text size wins over legacy font scale.")
+	assert_eq(_app.panel.dock.buttons.rules.theme.default_font_size,36)
 	_profile.change("preferences.accessibility.font_style","readable")
 	assert_eq(_app.panel.dock.buttons.rules.theme.default_font_size,30)
 	assert_same(_app.panel.worksheet.theme.default_font,preload("res://scripts/ui/UiTypography.gd").font("zh-HK",150,"readable"))
 	_profile.change("preferences.accessibility.font_style","pixel")
 	assert_eq(_app.panel.dock.buttons.rules.theme.default_font_size,36)
-	assert_eq(_app.panel.worksheet.grid.cell_nodes[0].size,Vector2(64,64),"Canonical targets win over the legacy preference.")
+	assert_eq(_app.panel.worksheet.grid.cell_nodes[0].size,Vector2(64,64))
 	assert_eq(_app.panel.worksheet.grid.mode,&"flag")
 	assert_eq(_app.panel.worksheet.grid.focused_index,200)
 	assert_eq(_app.panel.worksheet.get_scroll(),retained_scroll)
@@ -329,16 +326,12 @@ func test_accessibility_preferences_retheme_without_owner_commands_or_navigation
 	assert_eq(_port.lifecycle.size(),lifecycle_before)
 	assert_true(_port.commands.is_empty())
 
-func test_legacy_colour_preference_is_read_only_compatibility_with_canonical_precedence() -> void:
+func test_colour_differentiation_publishes_each_registered_palette() -> void:
 	_show()
-	var pairs := {"none":"789083","protanopia":"7d94ae","deuteranopia":"869aaa","tritanopia":"a59289"}
-	for legacy: String in pairs:
-		_profile.change("preferences.accessibility.colorblind_mode",legacy)
-		assert_eq(_app.panel.dock.buttons.flag.get_theme_color("selected_plane","Minesweeper"),Color(pairs[legacy]))
-	_profile.change("preferences.accessibility.colour_differentiation","protan")
-	_profile.change("preferences.accessibility.colorblind_mode","tritanopia")
-	assert_eq(_app.panel.dock.buttons.flag.get_theme_color("selected_plane","Minesweeper"),Color("7d94ae"))
-	assert_eq(_profile.values.size(),2,"Reading compatibility does not write defaults or migrate saves.")
+	var colours := {"standard":"789083","protan":"7d94ae","deutan":"869aaa","tritan":"a59289"}
+	for preset: String in colours:
+		_profile.change("preferences.accessibility.colour_differentiation",preset)
+		assert_eq(_app.panel.dock.buttons.flag.get_theme_color("selected_plane","Minesweeper"),Color(colours[preset]))
 	assert_true(_port.commands.is_empty())
 
 func test_invalid_accessibility_preference_keeps_last_valid_theme_and_public_facts() -> void:

@@ -2,7 +2,6 @@ extends "res://addons/gut/test.gd"
 
 const LEDGER := preload("res://scripts/profile/CaptionWitnessLedger.gd")
 const SCHEMA := preload("res://scripts/profile/ProfileSchema.gd")
-const MIGRATION := preload("res://scripts/profile/ProfileMigration.gd")
 const MANAGER := preload("res://autoload/ProfileManager.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const OPS := preload("res://tests/support/FakeFileOps.gd")
@@ -142,31 +141,6 @@ func test_schema_checks_keys_descriptors_and_base_line_consistency() -> void:
 	missing_field.erase("witnessed_caption_variants")
 	assert_false(SCHEMA.validate(missing_field).ok, "v10 never silently fills a missing exact ledger")
 
-func test_v9_upgrade_preserves_old_facts_and_grants_no_exact_credit() -> void:
-	var old := SCHEMA.make_defaults()
-	old.schema_version = 9
-	old.erase("witnessed_caption_variants")
-	old.erase("dialogue_library")
-	old.erase("displayed_artwork_ids")
-	old.visited_line_ids = [_beat().line_id]
-	old.preferences.audio.music_volume = 0.37
-	var before := old.duplicate(true)
-	var upgraded := MIGRATION.prepare_document(old)
-	assert_true(upgraded.ok, str(upgraded))
-	if not upgraded.ok: return
-	assert_eq(upgraded.value.schema_version, 10)
-	assert_eq(upgraded.migration_id, &"profile_v9_to_v10")
-	assert_eq(upgraded.value.witnessed_caption_variants, {})
-	assert_eq(upgraded.value.visited_line_ids, old.visited_line_ids)
-	assert_eq(upgraded.value.preferences, old.preferences)
-	assert_eq(old, before)
-	var extra := old.duplicate(true)
-	extra.witnessed_caption_variants = {}
-	assert_false(MIGRATION.prepare_document(extra).ok, "v9 remains an exact source format")
-	var f := _fixture({STORE_ROOT + "/profile.json": WRITER.stringify(old).value})
-	assert_eq(f.manager.get_profile_snapshot(), upgraded.value)
-	assert_false(f.manager.is_caption_variant_witnessed(_beat()))
-	assert_eq(_manager(STORAGE.new(STORE_ROOT, OPS.new(f.ops.snapshot_persisted()))).get_profile_snapshot(), upgraded.value)
 
 func test_generic_commits_and_restore_cannot_erase_exact_history() -> void:
 	var f := _fixture()

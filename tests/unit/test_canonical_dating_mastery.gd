@@ -28,7 +28,7 @@ func _scope(scope: String) -> Dictionary:
 	assert_true(made.ok, str(made))
 	return made.get("value", {})
 
-func test_all_required_solo_boards_are_perfect_even_after_dark_and_inputs_stay_detached() -> void:
+func test_all_required_solo_boards_are_perfect_and_inputs_stay_detached() -> void:
 	var priscilla := _scope("priscilla")
 	var lavinia := _scope("lavinia")
 	if priscilla.is_empty() or lavinia.is_empty(): return
@@ -39,7 +39,7 @@ func test_all_required_solo_boards_are_perfect_even_after_dark_and_inputs_stay_d
 	assert_eq(result, {"priscilla": true, "lavinia": true, "priscilla_lavinia": false})
 	for attempt: Dictionary in priscilla.attempts.values():
 		assert_eq(attempt.record.outcome, "perfect")
-		assert_eq(attempt.record.relationship_outcome, "dark")
+		assert_eq(attempt.record.relationship_outcome, "foresight")
 	assert_eq(priscilla, before)
 	result.priscilla = false
 	assert_true(MASTERY.evaluate("mastery-run", priscilla.heads, priscilla.attempts).priscilla)

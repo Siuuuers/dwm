@@ -5,9 +5,9 @@ const FONTS := {
 	"zh-CN": preload("res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf"),
 	"zh-HK": preload("res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf")}
 const WORDS := {
-	"en": {"names": ["Autosave", "Quick", "Slot 1"], "states": ["Day 7 · 09:07", "Empty", "Unavailable"], "modes": ["Save", "Load"]},
-	"zh-CN": {"names": ["自动存档", "快速存档", "存档 1"], "states": ["第7天 · 09:07", "空", "不可用"], "modes": ["保存", "读取"]},
-	"zh-HK": {"names": ["自動存檔", "快速存檔", "存檔 1"], "states": ["第7天 · 09:07", "空", "無法使用"], "modes": ["儲存", "載入"]}}
+	"en": {"names": ["Autosave", "Quick", "Slot 1"], "states": ["09:07", "Empty", "Unavailable"], "modes": ["Save", "Load"]},
+	"zh-CN": {"names": ["自动存档", "快速存档", "存档 1"], "states": ["09:07", "空", "不可用"], "modes": ["保存", "读取"]},
+	"zh-HK": {"names": ["自動存檔", "快速存檔", "存檔 1"], "states": ["09:07", "空", "無法使用"], "modes": ["儲存", "載入"]}}
 
 func _initialize() -> void:
 	run.call_deferred()

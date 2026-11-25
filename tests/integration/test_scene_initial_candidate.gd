@@ -43,8 +43,7 @@ func _validate(value: Dictionary) -> Dictionary:
 func test_registration_without_authored_audio_derives_valid_silence() -> void:
 	if not _prepare(): return
 	assert_ne(bundle.schema_version, 3)
-	var snapshot: Dictionary = document.current_snapshot.snapshot.duplicate(true)
-	snapshot["audio_context"] = {"music_context_id": "obsolete-track"}
+	var snapshot: Dictionary = document.current_snapshot.snapshot
 	var derived: Dictionary = RUN.derive_scene_audio_context(snapshot, bundle)
 	assert_true(derived.ok, str(derived))
 	if not derived.ok: return
@@ -125,21 +124,9 @@ func test_current_frame_must_agree_with_saved_position() -> void:
 	assert_false(_validate(changed).ok)
 	assert_true(_validate(document).ok)
 
-func test_old_assignment_is_ignored_without_changing_saved_progress() -> void:
-	if not _prepare(): return
-	var historical: Dictionary = document.duplicate(true)
-	historical.current_snapshot.snapshot.lifecycle["scene_assignment"] = {"form": "dark", "retired": true}
-	historical.current_snapshot.snapshot.gameplay.money = 23
-	var admitted: Dictionary = _validate(historical)
-	assert_true(admitted.ok, str(admitted))
-	if not admitted.ok: return
-	assert_eq(admitted.value.candidate.current_snapshot.snapshot.gameplay.money, 23)
-	assert_false(admitted.value.candidate.current_snapshot.snapshot.lifecycle.has("scene_assignment"))
-	assert_true(historical.current_snapshot.snapshot.lifecycle.has("scene_assignment"), "admission does not mutate input")
-
 func test_save_metadata_is_optional_and_does_not_change_progress() -> void:
 	if not _prepare(): return
-	for metadata: Dictionary in [{}, {"saved_time": null}, {"saved_time": "obsolete"}, {"save_reason": "day_start"}]:
+	for metadata: Dictionary in [{}, {"saved_time": document.saved_time}]:
 		var changed: Dictionary = document.duplicate(true)
 		changed.erase("saved_time")
 		changed.merge(metadata)

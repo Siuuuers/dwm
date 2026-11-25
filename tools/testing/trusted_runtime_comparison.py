@@ -345,7 +345,7 @@ def prepare(root, harness):
     attribution_paths = {}
     participants = {
         "Run": ("prepare_scene_new_run_snapshot_input", "prepare_scene_new_run"),
-        "Profile": ("prepare_frozen_profile",),
+        "Profile": (),
         "Narrative": ("prepare_scene_new_run", "begin_scene_activation"),
         "Route": ("begin_scene_activation",),
         "DesktopConsequence": (), "DesktopBoard": (), "Localization": (), "Audio": (),
@@ -354,6 +354,8 @@ def prepare(root, harness):
         relative = f"scripts/application/restore/{owner}RestoreParticipant.gd"
         path = root / relative
         before = path.read_bytes()
+        if owner == "Profile" and b"func prepare_frozen_profile(" in before:
+            extra = ("prepare_frozen_profile",)
         path.write_text(attribute_methods(path.read_text(), owner + "RestoreParticipant",
             ("prepare", "capture", "apply_silent", "finalize") + extra))
         attribution_paths[relative] = {"before": hashlib.sha256(before).hexdigest(),

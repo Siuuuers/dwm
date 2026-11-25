@@ -2,7 +2,6 @@ extends "res://addons/gut/test.gd"
 
 const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const ROOT := "localization-tests/root"
-const PROFILE_SCHEMA := preload("res://scripts/profile/ProfileSchema.gd")
 
 class FakePresentationRoot:
 	extends Node
@@ -62,26 +61,6 @@ func _require(path: String) -> Script:
 func _initialize() -> Dictionary:
 	return _manager.initialize(_profile)
 
-func _legacy_v1_profile(locale_id: String) -> Dictionary:
-	# Explicit persisted v1 fixture: aliases/removed locales are migration input,
-	# never values smuggled through the canonical Profile preference validator.
-	var preferences := {}
-	for path in PROFILE_SCHEMA.LEGACY_PREFERENCE_DEFAULTS:
-		var parts: PackedStringArray = String(path).split(".")
-		if parts.size() == 2:
-			preferences[parts[1]] = PROFILE_SCHEMA.LEGACY_PREFERENCE_DEFAULTS[path]
-		else:
-			if not preferences.has(parts[1]): preferences[parts[1]] = {}
-			preferences[parts[1]][parts[2]] = PROFILE_SCHEMA.LEGACY_PREFERENCE_DEFAULTS[path]
-	preferences["language"] = locale_id
-	return {
-		"schema_version": 1, "gallery_unlocks": [], "gallery_transaction_receipts": {},
-		"visited_line_ids": [], "preferences": preferences, "input_mappings": {},
-		"migration_receipts": {
-			"legacy_game_state_profile_v1": false, "legacy_input_bindings_v1": false,
-			"invalid_persisted_skip_mode_v1": false,
-		},
-	}
 
 func test_initialization_loads_manifest_and_returns_detached_selectable_records() -> void:
 	assert_eq(_manager.get_readiness(), &"uninitialized")
@@ -194,25 +173,6 @@ func test_profile_write_failure_rolls_back_all_roots_and_manager() -> void:
 	assert_eq(_manager.get_locale(), "en")
 	assert_eq(_profile.get_profile_snapshot(), before_profile)
 
-func test_initialization_canonicalizes_alias_and_removed_locale_to_durable_values() -> void:
-	for case in [["zh_hk", "zh_HK"], ["fr_removed", "en"]]:
-		var root_path := "localization-tests/legacy-" + str(case[0])
-		var legacy := _legacy_v1_profile(case[0])
-		assert_true(PROFILE_SCHEMA.validate_v1_source(legacy).get("ok", false))
-		var legacy_ops: RefCounted = _fake_ops_script.new({root_path + "/profile.json": JSON.stringify(legacy)})
-		var migrated_profile: Node = autofree(_profile_script.new())
-		assert_true(migrated_profile.initialize(_storage_script.new(root_path, legacy_ops)).get("ok", false))
-		var manager: Node = autofree(_localization_script.new())
-		assert_true(manager.initialize(migrated_profile).get("ok", false))
-		assert_eq(manager.get_locale(), case[1])
-		assert_eq(migrated_profile.get_preference(&"preferences.language.primary_locale_id"), case[1])
-		var snapshot: Dictionary = migrated_profile.get_profile_snapshot()
-		assert_eq(snapshot["schema_version"], PROFILE_SCHEMA.SCHEMA_VERSION)
-		assert_eq(snapshot["legacy_preferences_v1"]["language"], case[0])
-		# The canonical result survives another real Profile load from the same storage.
-		var restarted: Node = autofree(_profile_script.new())
-		assert_true(restarted.initialize(_storage_script.new(root_path, legacy_ops)).get("ok", false))
-		assert_eq(restarted.get_preference(&"preferences.language.primary_locale_id"), case[1])
 
 func test_prepared_bundle_contains_only_candidate_fallback_chain() -> void:
 	assert_true(_initialize().get("ok", false))
@@ -359,7 +319,7 @@ func test_restore_uses_candidate_font_and_size_with_silent_apply_rollback_and_pr
 	candidate.preferences.accessibility.font_style = "readable"
 	candidate.preferences.accessibility.text_size = 150
 	var participant := preload("res://scripts/application/restore/ProfileRestoreParticipant.gd").new(_profile)
-	var profile_plan: Dictionary = participant.prepare_frozen_profile(candidate)
+	var profile_plan: Dictionary = participant.prepare(candidate)
 	assert_true(profile_plan.get("ok", false))
 	var locale_participant := preload("res://scripts/application/restore/LocalizationRestoreParticipant.gd").new(_manager)
 	var prepared: Dictionary = locale_participant.prepare(profile_plan.value)

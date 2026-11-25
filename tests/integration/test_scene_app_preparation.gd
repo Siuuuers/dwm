@@ -233,7 +233,7 @@ func test_backup_scene_records_keep_explicit_families_and_current_times() -> voi
 	assert_true(app.get_desktop_ready_result().ok)
 	assert_null(app._day)
 	assert_eq(app.drawer_buttons.autosave.state_label.text, "09:10")
-	assert_eq(app.drawer_buttons.quick.state_label.text, "Day 2 · 11:05")
+	assert_eq(app.drawer_buttons.quick.state_label.text, "11:05")
 	assert_eq(app.drawer_buttons["slot:1"].state_label.text, "13:57")
 	assert_eq(app.drawer_buttons["slot:5"].state_label.text, "12:34")
 	assert_eq(app.drawer_buttons["slot:6"].state_label.text, "Empty")
@@ -241,8 +241,7 @@ func test_backup_scene_records_keep_explicit_families_and_current_times() -> voi
 	app.show_window()
 	app._set_mode("load")
 	app._select_drawer("slot:2")
-	assert_true(app._info_text.text.contains("Day 6 · 14:30"))
-	assert_false(app._info_text.text.contains("Day 3 · --:--"))
+	assert_eq(app._info_text.text, "Slot 2\n\n14:30")
 	app._select_drawer("slot:3")
 	assert_true(app._info_text.text.contains(app._t("unreadable")))
 	assert_true(app.action_buttons.load.disabled)
@@ -260,7 +259,7 @@ func test_backup_scene_records_keep_explicit_families_and_current_times() -> voi
 	assert_eq(app.calendar_calls, 0)
 	var legacy := backup_fixture()
 	assert_true(legacy.app.configure_backup(legacy.port, locale, profile, &"after_hours", 2).ok)
-	assert_eq(legacy.app.drawer_buttons.quick.state_label.text, "Day 2 · 11:05")
+	assert_eq(legacy.app.drawer_buttons.quick.state_label.text, "11:05")
 	assert_eq(legacy.app.drawer_buttons.autosave.state_label.text, "09:10")
 
 func test_backup_scene_invalid_setup_is_nonmutating_and_valid_rebind_detaches_old_sources() -> void:
@@ -321,8 +320,8 @@ func test_backup_scene_current_confirmation_preserves_pending_custody() -> void:
 	app.show_window()
 	app._set_mode("load")
 	# Retired selected-bundle metadata cannot replace the current record.
-	for family in ["scene", "legacy_day", null]:
-		f.port.prepared_patch = {"load_family": family, "load_day": 4 if family == "legacy_day" else null}
+	for family in ["scene", null]:
+		f.port.prepared_patch = {"load_family": family, "load_day": null}
 		app.action_buttons.load.pressed.emit()
 		assert_not_null(app.confirmation)
 		if app.confirmation == null: return
