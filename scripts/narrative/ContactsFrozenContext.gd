@@ -49,11 +49,11 @@ static func ordinary_awaiting(entry_id: String, relationship: Dictionary, attitu
 
 static func ordinary_selected(awaiting: Dictionary, receipt: Dictionary) -> Dictionary:
 	var entry_id := str(receipt.get("entry_id", ""))
-	var checked := FROZEN.validate(entry_id, awaiting)
+	var checked := FROZEN.validated_view(entry_id, awaiting)
 	if not checked.ok or awaiting.fields.get("phase") != "awaiting_reply": return _fail(&"contacts_frozen_awaiting_missing")
 	var receipt_checked := ORDINARY.validate_receipt(receipt)
 	if not receipt_checked.ok or receipt.get("kind") != "ordinary_reply": return _fail(&"contacts_frozen_reply_source_invalid")
-	var fields: Dictionary = awaiting.fields.duplicate(true)
+	var fields: Dictionary = awaiting.fields.duplicate()
 	fields.merge({"phase": "after_selection", "selected_reply_id": receipt.reply_id,
 		"witnessed_line_id": receipt.witnessed_line_id}, true)
 	return FROZEN.build(entry_id, fields)
@@ -199,7 +199,7 @@ static func validate_cache(cache: Variant, contacts: Dictionary, require_complet
 		if not key is String or not presentation is Dictionary: return _fail(&"contacts_frozen_cache_invalid")
 		var fields: Variant = presentation.get("fields")
 		if not fields is Dictionary or fields.get("entry_role") not in ROLES: return _fail(&"contacts_frozen_cache_invalid")
-		var checked := FROZEN.validate(str(fields.get("entry_id", "")), presentation)
+		var checked := FROZEN.validated_view(str(fields.get("entry_id", "")), presentation)
 		if not checked.ok or key != key_for(presentation): return _fail(&"contacts_frozen_cache_invalid")
 		if not _source_matches(contacts, cache, presentation, missed, saved_day): return _fail(&"contacts_frozen_source_mismatch")
 	if require_complete:
@@ -330,7 +330,7 @@ static func _relationship(relationship: Dictionary, attitude: String) -> Diction
 	return _ok({"tier": tier, "tone": "dark" if dark_points >= RELATIONSHIP.DARK_TONE_THRESHOLD else "sweet", "attitude": attitude})
 
 static func _constants(entry_id: String) -> Dictionary:
-	var schema := FROZEN.schema_for_entry(entry_id)
+	var schema := FROZEN.schema_view(entry_id)
 	if not schema.ok: return {}
 	var fields := {}
 	for key: String in schema.value.fields:

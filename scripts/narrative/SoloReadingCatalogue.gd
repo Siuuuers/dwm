@@ -31,7 +31,7 @@ static func compile(document: Dictionary) -> Dictionary:
 				or not _same_fields(row.get("selector_fields"),
 					PRE_SELECTORS if index == 0 else POST_SELECTORS):
 			return _fail(&"reading_catalogue_invalid")
-		var schema := FROZEN.schema_for_entry(expected)
+		var schema := FROZEN.schema_view(expected)
 		if not schema.ok: return schema
 		var projections := {}
 		var labels := {}
@@ -93,7 +93,7 @@ static func select(entry: Dictionary, presentation: Dictionary) -> Dictionary:
 			or not _same_fields(entry.get("selector_fields"),
 				PRE_SELECTORS if entry_id == PRE_ENTRY else POST_SELECTORS):
 		return _fail(&"reading_catalogue_invalid")
-	var validated := FROZEN.validate(entry_id, presentation)
+	var validated := FROZEN.validated_view(entry_id, presentation)
 	if not validated.ok: return validated
 	var selectors := _project(validated.value.fields, entry.selector_fields)
 	var chosen := {}

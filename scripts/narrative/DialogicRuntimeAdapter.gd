@@ -1507,7 +1507,7 @@ func install_frozen_presentation(presentation: Dictionary) -> Dictionary:
 		return _fail(&"frozen_context_runtime_busy", "no idle presentation slot")
 	if not presentation.get("fields") is Dictionary:
 		return _fail(&"frozen_context_schema_mismatch", "fields must be a dictionary")
-	var checked := preload("res://scripts/narrative/FrozenPresentationContext.gd").validate(
+	var checked := preload("res://scripts/narrative/FrozenPresentationContext.gd").validated_view(
 		str(presentation.get("fields", {}).get("entry_id", "")), presentation)
 	if not checked.ok: return checked
 	return _install_frozen_projection(checked.value)

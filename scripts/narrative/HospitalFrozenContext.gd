@@ -103,7 +103,7 @@ static func validate(context: Variant) -> Dictionary:
 	for key: String in ["source_entry_ids", "miss_receipt_ids"]:
 		if not _sorted_ids(context[key]): return _fail(&"hospital_frozen_context_invalid")
 	var entry_id := "hospital.faint.day%d" % int(context.day)
-	var checked := FROZEN.validate(entry_id, context.presentation)
+	var checked := FROZEN.validated_view(entry_id, context.presentation)
 	if not checked.ok: return checked
 	var fields: Dictionary = checked.value.fields
 	if not _sorted_ids(fields.accepted_record_ids) or not _sorted_ids(fields.unfulfilled_record_ids):

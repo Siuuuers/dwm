@@ -242,7 +242,9 @@ func test_phase_admission_freezes_only_available_facts_and_restores_one_ordered_
 	assert_false(restored.admit(POST, missing_row).ok, "canonical facts without an authored row cannot choose a default")
 	assert_eq(restored.capture({}).value, board.value)
 	assert_false(restored.entry_program(POST).ok)
+	var previous_ledger: NarrativeCaptionLedger = restored.ledger
 	assert_true(restored.admit(POST, post_context).ok)
+	assert_eq(previous_ledger.snapshot(), board.value.ledger)
 	var post_frontier := _publish(restored, POST, POST_A)
 	var original_post_text := _text(restored, post_frontier)
 	post_context.presentation.fields.tone = "sweet"

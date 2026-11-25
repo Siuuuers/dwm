@@ -896,7 +896,7 @@ func _bind_frozen_pre_to_entered_attempt() -> Dictionary:
 	if saved.get("board_token") == _record.spec.board_token: return _ok({})
 	if saved.entries.is_empty(): return _fail(&"frozen_context_snapshot_required")
 	for entry_id: String in saved.entries:
-		var checked := FROZEN_CONTEXT.validate(entry_id, saved.entries[entry_id])
+		var checked := FROZEN_CONTEXT.validated_view(entry_id, saved.entries[entry_id])
 		if not checked.ok: return checked
 		if checked.value.fields.get("phase") != "pre_challenge" \
 				or checked.value.fields.get("day") != _record.context.day \
@@ -939,9 +939,9 @@ func _freeze_narrative_projection(phase: String, signature_fields: Dictionary) -
 		var prior_kind := "twofriends" if _record.context.kind == "group" else "group"
 		var prior_id := "dating.%s.priscilla_lavinia.day%d.%s" % [prior_kind, int(_record.context.day), phase]
 		if existing.entries.has(prior_id):
-			var prior := FROZEN_CONTEXT.validate(prior_id, existing.entries[prior_id])
+			var prior := FROZEN_CONTEXT.validated_view(prior_id, existing.entries[prior_id])
 			if not prior.ok: return prior
-			var remapped: Dictionary = prior.value.fields.duplicate(true)
+			var remapped: Dictionary = prior.value.fields.duplicate()
 			remapped.entry_id = entry_id
 			remapped.encounter_presentation = _record.context.kind
 			var built := FROZEN_CONTEXT.build(entry_id, remapped)
@@ -951,7 +951,7 @@ func _freeze_narrative_projection(phase: String, signature_fields: Dictionary) -
 			_game_state.route_context["dating_frozen_contexts_v1"] = remapped_cache
 			return _read_frozen_narrative(phase)
 	var identity: Dictionary = _attempt_identity()
-	var schema := FROZEN_CONTEXT.schema_for_entry(entry_id)
+	var schema := FROZEN_CONTEXT.schema_view(entry_id)
 	if not schema.ok: return schema
 	var fields := {"entry_id": entry_id, "entry_role": schema.value.fields.entry_role["const"],
 		"day": int(_record.context.day), "phase": phase, "run_id": str(identity.get("run_id", "")),
