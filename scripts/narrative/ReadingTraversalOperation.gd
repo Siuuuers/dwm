@@ -445,7 +445,8 @@ static func _validate_scene_operation(reading: Dictionary, entry_id: String) -> 
 	var made := _create_operation(operation.plan, operation.phase, 3)
 	if not made.ok: return made
 	if not _same(operation, made.value) or operation.plan.entry_id != entry_id: return _fail(&"reading_next_operation_mismatch")
-	if not _same(without_operation_view(reading), _scene_projection(operation.plan, operation.phase)): return _fail(&"reading_next_projection_mismatch")
+	var expected: Dictionary = operation.plan.source_reading if operation.phase == "source" else _scene_projection(operation.plan, "destination")
+	if not _same(without_operation_view(reading), expected): return _fail(&"reading_next_projection_mismatch")
 	return made
 
 static func validate_scene_operation_path(reading: Dictionary, entry_id: String, nodes: Array) -> Dictionary:

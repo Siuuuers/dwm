@@ -204,7 +204,7 @@ func install_scene_target(session: RefCounted, checkpoint: Dictionary, target: D
 	if not bound.ok: return bound
 	var frozen := install_frozen_presentation(presentation.value)
 	if not frozen.ok: return frozen
-	_caption_restore_frontier = checkpoint.reading_session.frontier.duplicate(true)
+	_caption_restore_frontier = checkpoint.reading_session.frontier.duplicate()
 	_caption_restore_queued = false
 	var native_index: int = compiled.value.native_indices[checkpoint.reading_session.program_index]
 	var started := _start_held_scene_target(path, native_index) if source_token != null else start_timeline(path, native_index)
@@ -351,7 +351,7 @@ func _install_scene_frontier(session: RefCounted, checkpoint: Dictionary, source
 		FrozenPresentationContext._freeze(retained)
 		_scene_control_restore = {"session": session, "state": control_state, "reading": retained,
 			"marker": control_marker, "native_index": int(compiled.value.native_indices[saved.program_index])}
-	_caption_restore_frontier = restore_frontier.duplicate(true)
+	_caption_restore_frontier = restore_frontier.duplicate()
 	_caption_restore_queued = false
 	var started := _start_held_scene_target(path, int(compiled.value.native_indices[native_program_index])) if source_token != null \
 		else start_timeline(path, int(compiled.value.native_indices[native_program_index]))
@@ -1158,16 +1158,15 @@ func prepare_reading_seek(source_frontier: Dictionary, entry_label: String,
 	var intent := {"source": source.value, "entry_id": _caption_entry,
 		"destination_line_id": destination_line_id, "terminal": destination_line_id.is_empty()}
 	if not _prepared_reading_seek.is_empty():
-		var previous: Dictionary = _prepared_reading_seek.plan.duplicate()
-		previous.erase("seek_id")
-		if previous == intent and _reading_seek_source_matches(_prepared_reading_seek) \
+		intent["seek_id"] = _prepared_reading_seek.plan.seek_id
+		if _prepared_reading_seek.plan == intent and _reading_seek_source_matches(_prepared_reading_seek) \
 				and _prepared_reading_seek.lines == ordered_lines and _prepared_reading_seek.entry_label == entry_label:
-			return {"ok": true, "value": _prepared_reading_seek.plan.duplicate(true)}
+			return {"ok": true, "value": intent}
 	_reading_seek_serial += 1
 	intent["seek_id"] = "reading-seek:%d:%d" % [get_instance_id(), _reading_seek_serial]
 	_prepared_reading_seek = {"plan": intent.duplicate(true), "lines": ordered_lines.duplicate(true),
 		"entry_label": entry_label, "indices": indices.value, "event": _caption_event,
-		"ledger": _caption_ledger, "snapshot": _caption_ledger.snapshot(),
+		"ledger": _caption_ledger, "snapshot": _caption_ledger.fork_live().snapshot_view(),
 		"request_id": _request_id, "generation": _runtime_generation}
 	return {"ok": true, "value": intent}
 
@@ -1850,7 +1849,7 @@ func dispatch_scene_event_acknowledged(envelope: Dictionary, dispatch: Callable)
 	var identity := {"frontier": frontier.value, "session": _caption_token, "entry": _caption_entry}
 	if _scene_event_hold.is_empty():
 		if _dialogic.paused: return _fail(&"event_presentation_held", "")
-		_scene_event_hold = identity.duplicate(true)
+		_scene_event_hold = identity
 	elif _scene_event_hold != identity:
 		return _fail(&"event_handoff_source_changed", "")
 	var held := set_paused(true)
