@@ -2,6 +2,7 @@ class_name DesktopBoardState
 extends RefCounted
 
 
+const _READ_ONLY := preload("res://scripts/domain/ReadOnlyData.gd")
 const _IDENTITY := preload("res://scripts/domain/desktop/DesktopIdentity.gd")
 const _INSPECTION_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const _BOARD_SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
@@ -46,6 +47,7 @@ var _identity: Variant = null
 var _candidate: Variant = null
 var _board: Variant = null
 var _settlement: Variant = null
+var _read_view: Dictionary = {}
 var _command_receipts: Dictionary = {}
 var _terminal_receipts: Dictionary = {}
 var _settled_inspection := false
@@ -65,14 +67,16 @@ func configure_scene_payments(issuer: Object) -> Dictionary:
 			or not _command_receipts.is_empty() or not _terminal_receipts.is_empty()):
 		return _fail(&"scene_payment_configuration_requires_empty_state", "", {})
 	_scene_payment_issuer = issuer
-	_scene_snapshot_format = true
+	if not _scene_snapshot_format:
+		_scene_snapshot_format = true
+		_read_view = {}
 	return {"ok": true}
 
 
-func prepare_restore_scene(snapshot: Dictionary, issuer: Object) -> Dictionary:
+func prepare_restore_scene(snapshot: Dictionary, issuer: Object, check_only: bool = false) -> Dictionary:
 	var configured := configure_scene_payments(issuer)
 	if not configured.ok: return configured
-	return prepare_restore(snapshot)
+	return check_snapshot(snapshot) if check_only else prepare_restore(snapshot)
 
 
 static func project_player_state(snapshot: Dictionary) -> Dictionary:
@@ -80,18 +84,19 @@ static func project_player_state(snapshot: Dictionary) -> Dictionary:
 		return {"ok": false, "code": &"current_scene_board_required"}
 	var projected := snapshot.duplicate()
 	projected.erase("command_receipts")
-	return {"ok": true, "value": {"snapshot": projected.duplicate(true)}}
+	return {"ok": true, "value": {"snapshot": projected}}
 
 
-func prepare_player_restore_scene(snapshot: Dictionary, issuer: Object) -> Dictionary:
+func prepare_player_restore_scene(snapshot: Dictionary, issuer: Object, check_only: bool = false) -> Dictionary:
 	if snapshot.has("command_receipts"):
 		return _fail(&"player_board_contains_retry_state", "", {})
 	var current := snapshot.duplicate()
 	current["command_receipts"] = {}
-	return prepare_restore_scene(current, issuer)
+	return prepare_restore_scene(current, issuer, check_only)
 
 
 func reset() -> void:
+	_read_view = {}
 	active_board_token = null
 	_phase = _PHASE_NONE
 	_revision = 0
@@ -111,25 +116,35 @@ func preparation_header() -> Dictionary:
 		header["difficulty_id"] = _candidate.difficulty_id
 	elif _phase == _PHASE_PAID or _phase == _PHASE_PREPARING:
 		header["difficulty_id"] = _candidate.spec.difficulty_id
-		header["identity"] = _dup_or_null(_identity)
+		_READ_ONLY.freeze(_identity)
+		header["identity"] = _identity
 		if _phase == _PHASE_PAID:
 			header["forced_no_guess"] = _candidate.spec.capability_ids.has("forced_no_guess")
 	return header
 
 
 func capture() -> Dictionary:
+	return _state_fields().duplicate(true)
+
+
+func read_state() -> Dictionary:
+	if _read_view.is_empty():
+		_read_view = _state_fields()
+		_READ_ONLY.freeze(_read_view)
+	return _read_view
+
+
+func _state_fields() -> Dictionary:
 	var snapshot := {
 		"schema_version": 1, "phase": _phase, "revision": _revision,
-		"identity": _dup_or_null(_identity), "candidate": _dup_or_null(_candidate),
-		"board": _dup_or_null(_board), "settlement": _dup_or_null(_settlement),
-		"command_receipts": _command_receipts.duplicate(true),
+		"identity": _identity, "candidate": _candidate,
+		"board": _board, "settlement": _settlement, "command_receipts": _command_receipts,
 	}
 	if _scene_snapshot_format:
 		snapshot["settled_inspection"] = _settled_inspection
 		snapshot["round_paid"] = _round_paid
-	else: snapshot["terminal_receipts"] = _terminal_receipts.duplicate(true)
+	else: snapshot["terminal_receipts"] = _terminal_receipts
 	return snapshot
-
 
 
 func check_snapshot(snapshot: Dictionary) -> Dictionary:
@@ -447,6 +462,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 			snapshot = checked.value.candidate.snapshot_after
 		else:
 			snapshot = snapshot.duplicate(true)
+		_read_view = {}
 		_phase = String(snapshot["phase"])
 		_revision = int(snapshot["revision"])
 		_identity = snapshot["identity"]
@@ -483,6 +499,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 		var checked := _validate_current_scene_board(projected)
 		if not checked.ok: return checked
 
+	_read_view = {}
 	_phase = String(candidate["phase_after"])
 	_identity = _dup_or_null(candidate.get("identity_after"))
 	_candidate = _dup_or_null(candidate.get("candidate_after"))
@@ -498,6 +515,8 @@ func commit(candidate: Dictionary) -> Dictionary:
 
 	var result := _committed_state_view(candidate)
 
+	if _command_receipts.is_read_only():
+		_command_receipts = _command_receipts.duplicate()
 	_compact_prior_command_results()
 	if transaction_id != "":
 		_command_receipts[transaction_id] = {
@@ -521,9 +540,13 @@ func lookup_command_receipt(transaction_id: String, fingerprint: String) -> Dict
 
 
 func _compact_prior_command_results() -> void:
-	for entry: Variant in _command_receipts.values():
+	for key: Variant in _command_receipts:
+		var entry: Variant = _command_receipts[key]
 		if not entry is Dictionary or str(entry.get("command_kind", "")) not in ["board_command", "visibility"]: continue
 		if not entry.get("result") is Dictionary or not entry.get("post_revision") is int: continue
+		if entry.is_read_only():
+			entry = entry.duplicate()
+			_command_receipts[key] = entry
 		var prior: Dictionary = entry.result
 		if str(prior.get("code", "")) != "board_command_already_applied":
 			entry["result"] = {"ok": true, "code": &"board_command_already_applied",
@@ -630,11 +653,11 @@ func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary
 	return {"ok": false, "code": code, "message": message, "details": details}
 
 
-func shell_state() -> Dictionary:
-	if _candidate is Dictionary:
-		return {"flagged_indices": _candidate.get("flagged_indices", []).duplicate(),
-			"actions": _candidate.get("actions", []).duplicate(true)}
-	return {"flagged_indices": [], "actions": []}
+func read_shell() -> Dictionary:
+	var shell: Dictionary = _candidate if _candidate is Dictionary else {}
+	var fields := {"flagged_indices": shell.get("flagged_indices", []), "actions": shell.get("actions", [])}
+	_READ_ONLY.freeze(fields)
+	return fields
 
 
 func prepare_unpaid_shell(input: Dictionary, difficulty: String, shell: Dictionary) -> Dictionary:

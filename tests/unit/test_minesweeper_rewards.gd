@@ -216,3 +216,18 @@ func test_preparing_a_dating_completion_never_mutates_live_state() -> void:
 	assert_eq(game.money, money_before, "preparation is free of live mutation")
 	assert_eq(game.minesweeper_app_rounds_finished_today, rounds_before)
 	assert_eq(game.get_stat("motivation"), motivation_before)
+
+
+func test_abort_prepares_only_the_app_round_refund_and_keeps_contacts_detached() -> void:
+	var port: RefCounted = STATE_PORT.new(game)
+	for context: String in ["app", "dating"]:
+		var before := game.to_save_dict()
+		var expected := before.duplicate()
+		if context == "app": expected.minesweeper_rounds_left += 1
+		var prepared: Dictionary = port.prepare_abort({"context": context, "round_id": "round"}, &"user_abort", "tx")
+		assert_true(prepared.ok)
+		assert_eq(prepared.value.candidate.save, expected)
+		assert_eq(game.to_save_dict(), before)
+		assert_eq(prepared.value.candidate.contacts, game.contacts)
+		prepared.value.candidate.contacts.clear()
+		assert_false(game.contacts.is_empty())

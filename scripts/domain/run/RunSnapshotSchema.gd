@@ -519,7 +519,7 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 	if not _scene_keys(candidate.desktop, DESKTOP_KEYS) or not candidate.desktop.board is Dictionary \
 			or not candidate.desktop.consequence is Dictionary:
 		return _fail(&"invalid_desktop_aggregate", "desktop requires its exact owners")
-	var board: Dictionary = DESKTOP_BOARD_STATE.new().prepare_player_restore_scene(candidate.desktop.board, _scene_issuer)
+	var board: Dictionary = DESKTOP_BOARD_STATE.new().prepare_player_restore_scene(candidate.desktop.board, _scene_issuer, true)
 	if not board.ok: return board
 	var board_identity := _validate_scene_board_identity(candidate.desktop.board, candidate.lifecycle)
 	if not board_identity.ok: return board_identity
@@ -657,7 +657,7 @@ static func validate_scene_input_fields(input: Dictionary, bundle: Dictionary) -
 			return _fail(&"scene_contact_run_changed", "Contacts receipt belongs to another run")
 	if not _scene_keys(input.desktop, DESKTOP_KEYS) or not input.desktop.board is Dictionary \
 			or not input.desktop.consequence is Dictionary: return _fail(&"invalid_desktop_aggregate", "invalid desktop owners")
-	var board: Dictionary = DESKTOP_BOARD_STATE.new().prepare_restore_scene(input.desktop.board, _scene_issuer)
+	var board: Dictionary = DESKTOP_BOARD_STATE.new().prepare_restore_scene(input.desktop.board, _scene_issuer, true)
 	if not board.ok: return board
 	var board_identity := _validate_scene_board_identity(input.desktop.board, input.lifecycle)
 	if not board_identity.ok: return board_identity

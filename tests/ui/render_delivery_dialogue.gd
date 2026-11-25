@@ -132,16 +132,23 @@ func _desktop_samples() -> void:
 	check(opened.get("ok", false), "Minesweeper opened")
 	if not opened.get("ok", false): return
 	var app: Control = opened.value.app
+	port.view.board.terminal = true
+	port.view.board.custody = true
+	port.view.register.custody = true
+	for cell: Dictionary in port.view.board.cells:
+		cell.inspectable = false
+		cell.pressable = false
+		cell.actions = []
 	await settle()
 	for tuple: Array in [[800, 100], [960, 100], [960, 150]]:
 		main.get_node("RootHBox").set_angela_width(1280 - tuple[0])
 		profile.present(tuple[1], tuple[1] == 150)
 		await settle()
 		check(app.panel._percent == tuple[1], "Minesweeper requested text size applied")
+		port.view.settled = false
+		port.view.actions = []
+		check(app.panel.refresh(), "terminal board published")
 		var focus: Control = viewport.gui_get_focus_owner()
-		app.panel.public_view.board.terminal = true
-		app.panel.public_view.settled = false
-		app.panel.presentation_changed.emit()
 		desktop.set_process(false)
 		desktop._process(0.85)
 		await _delivery_capture("delivering-%d-%d" % tuple, tuple, "delivering...", focus)
@@ -149,8 +156,9 @@ func _desktop_samples() -> void:
 		desktop.set_process(false)
 		check(desktop.message_notification.visible, "matching corner notification appears")
 		await _delivery_capture("delivered-%d-%d" % tuple, tuple, "delivered :)", focus)
-		app.panel.public_view.settled = true
-		app.panel.presentation_changed.emit()
+		port.view.settled = true
+		port.view.actions = ["new_board", "assignments", "rules"]
+		check(app.panel.refresh(), "settled board published")
 		desktop._dismiss_message_notification()
 		desktop._process(2.51)
 		check(not desktop.delivery_notice.visible, "success fades without dismissal input")

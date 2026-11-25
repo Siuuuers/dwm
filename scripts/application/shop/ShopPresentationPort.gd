@@ -261,7 +261,8 @@ func _prepare_purchase(item_id: String, quantity: int, issue_value: Dictionary) 
 	var consequence: Variant = (participant_capture as Dictionary).get("value", {}).get("state")
 	if typeof(consequence) != TYPE_DICTIONARY:
 		return _fail(&"shop_participant_capture_malformed")
-	var board_result: Variant = _round_coordinator.call(&"get_state")
+	var board_result: Variant = _round_coordinator.call(
+		&"read_state" if _round_coordinator.has_method(&"read_state") else &"get_state")
 	if typeof(board_result) != TYPE_DICTIONARY or not (board_result as Dictionary).get("ok", false) \
 			or typeof((board_result as Dictionary).get("value")) != TYPE_DICTIONARY:
 		return board_result if typeof(board_result) == TYPE_DICTIONARY \

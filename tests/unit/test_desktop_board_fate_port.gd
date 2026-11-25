@@ -437,6 +437,12 @@ func test_prepare_projected_departure_minesweeper_round_none_projection_yields_f
 	var receipt: Dictionary = result["value"]["board_fate_receipt"]
 	assert_eq(receipt["fate"], "none")
 	assert_eq(receipt["source_action_commit_receipt_id"], action_receipt["commit_receipt_id"])
+	var original := request.duplicate(true)
+	request.projected_board_candidate.command_receipts["caller edit"] = {}
+	result.value.board_candidate.command_receipts["result edit"] = {}
+	var replay: Dictionary = port.prepare_projected_causal_departure(original)
+	assert_true(replay.ok)
+	assert_eq(replay.value.board_candidate, original.projected_board_candidate)
 
 
 func test_prepare_projected_departure_rejects_a_nonterminal_minesweeper_round_projection() -> void:
@@ -555,9 +561,11 @@ func test_commit_adopts_the_fate_none_candidate_and_publish_records_once() -> vo
 	assert_eq(published["value"]["published"], true)
 	assert_eq(published["receipt"], board_fate_receipt)
 	assert_eq(ledger.record_calls, 1)
+	published.receipt.command_issuer_receipt.clear()
 
 	var republish: Dictionary = port.publish({"board_candidate": board_candidate, "board_fate_receipt": board_fate_receipt})
 	assert_true(republish.get("ok", false), JSON.stringify(republish))
+	assert_eq(republish.receipt, board_fate_receipt)
 	assert_eq(ledger.record_calls, 2, "record_before_emit is still called, but its own replay stays a no-op")
 	assert_eq(_ledger_records(ledger).size(), 1, "no second distinct ledger record is created")
 

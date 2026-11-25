@@ -176,8 +176,8 @@ func _measure(value: Dictionary, locale: String, percent: int, large: bool, pale
 	var facts: Dictionary = value.get("register",{"difficulty":"beginner","rounds":2,"mine_estimate":null,
 		"foresight":null,"no_flag":"intact","custody":false,"difficulty_enabled":[]})
 	var claimed: Array = value.get("assignments",[false,false,false,false,false,false,false,false,false])
-	var key: Array = [locale,percent,large,palette,high_contrast,colour_preset,font_style,day,scene,facts,claimed,worksheet.view_controls_external,layout_height]
-	if key == _measured_key: return _measured
+	var settings := [locale,percent,large,palette,high_contrast,colour_preset,font_style,day,scene,worksheet.view_controls_external,layout_height]
+	if [settings,facts,claimed] == _measured_key: return _measured
 	var probe_register: Control = REGISTER.new()
 	var probe_dock: Control = DOCK.new()
 	var probe_sheet: Control = SHEET.new()
@@ -192,10 +192,14 @@ func _measure(value: Dictionary, locale: String, percent: int, large: bool, pale
 		if valid: valid = probe_sheet._configure_context("desktop_app",locale,percent,large,palette,sheet_band,high_contrast,colour_preset,font_style,day, scene)
 		if valid: valid = probe_sheet.present_assignments(claimed)
 		if valid: result = {"band":band,"register_height":probe_register.size.y}
+	if valid:
+		var claims_key := claimed if claimed.is_read_only() else claimed.duplicate()
+		_measured_key = [settings,probe_register.public_view,claims_key]
+	else:
+		_measured_key = []
 	probe_register.free()
 	probe_dock.free()
 	probe_sheet.free()
-	_measured_key = key.duplicate(true)
 	_measured = result
 	return result
 
@@ -214,7 +218,7 @@ func _apply_availability() -> void:
 			and key in register.public_view.difficulty_enabled,key == register.public_view.difficulty)
 	var document_open: bool = worksheet.information_sheet != null
 	var dock_blocked: bool = _failed or (public_view.get("board",{}).get("custody",true) and not settled)
-	var actions: Array = public_view.get("actions",[]).duplicate()
+	var actions: Array = public_view.get("actions",[])
 	if document_open: actions = actions.filter(func(action: String): return action in ["rules", "assignments", "new_board"])
 	dock.present(worksheet.grid.mode,actions,dock_blocked,
 		worksheet.information_sheet.kind if document_open else "board")

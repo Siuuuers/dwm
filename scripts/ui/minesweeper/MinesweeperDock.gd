@@ -96,7 +96,7 @@ func present(next_mode: StringName, enabled_actions: Array, custody: bool = fals
 		seen.append(action)
 	mode = next_mode
 	_view = active_view
-	_enabled = enabled_actions.duplicate()
+	_enabled = enabled_actions if enabled_actions.is_read_only() else enabled_actions.duplicate()
 	_custody = custody
 	_apply_state()
 	return true

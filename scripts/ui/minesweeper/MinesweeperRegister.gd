@@ -106,8 +106,11 @@ func present(view: Dictionary) -> bool:
 	if theme == null or not _valid(view): return false
 	var measured := _compose(view,theme,_host,_locale,_large)
 	if measured.is_empty(): return false
-	public_view = view.duplicate()
-	if _host == "desktop_app": public_view.difficulty_enabled = view.difficulty_enabled.duplicate()
+	if view.is_read_only() and (_host != "desktop_app" or view.difficulty_enabled.is_read_only()):
+		public_view = view
+	else:
+		public_view = view.duplicate()
+		if _host == "desktop_app": public_view.difficulty_enabled = view.difficulty_enabled.duplicate()
 	_install(measured)
 	return true
 

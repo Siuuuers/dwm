@@ -119,6 +119,11 @@ class RoundCoordinator extends RefCounted:
 		}, "receipt": {}}
 
 
+class ReadableRoundCoordinator extends RoundCoordinator:
+	func read_state() -> Dictionary:
+		return {"ok": true, "value": {"identity": {"run_id": "preview"}, "revision": 7}}
+
+
 var _gate: RefCounted
 var _game_state: GameStatePort
 var _participant: PurchaseParticipant
@@ -315,6 +320,15 @@ func test_supportz_real_admission_requires_both_current_day_ordinals_and_honors_
 	second.causal_day_instance = "causal-day-2"
 	assert_eq(_port.can_purchase("supportz").code, &"supportz_not_eligible", "yesterday's second round does not qualify")
 	assert_eq(_issuer.next, 0, "eligibility queries never issue purchase identities")
+
+
+func test_purchase_reads_board_identity_and_revision_from_the_projection() -> void:
+	var port := PORT.new()
+	assert_true(port.configure(_game_state, DATA_CATALOG.new(), _participant, _consequence,
+		ReadableRoundCoordinator.new(), _issuer, _gate).ok)
+	assert_true(port.purchase("crystal_stutters", 1).ok)
+	assert_eq(_consequence.requests[0].expected_board_identity, {"run_id": "preview"})
+	assert_eq(_consequence.requests[0].expected_board_revision, 7)
 
 
 func test_pending_purchase_reports_real_retained_recovery_until_retry_finishes() -> void:

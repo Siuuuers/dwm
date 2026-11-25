@@ -46,3 +46,7 @@ Only the rules sheet called MinesweeperSheetCopy.get_copy. It now reads its loca
 ## Minesweeper schema results
 
 Board and spec callers now use check_board and check_spec to validate the values they already hold. The former validate_board and validate_spec wrappers returned whole copies after the same checks. The generator kernel has a separate validate_spec method covered by its hardware calibration.
+
+## Editable Minesweeper shell query
+
+First reveal and flag commands read shared shell flags and action history through `DesktopBoardState.read_shell()`. The former `shell_state()` copied that history for each lookup. Callers that need to edit a board still own the result of `capture()`.

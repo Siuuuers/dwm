@@ -84,6 +84,7 @@ static func initialize(path: String = MANIFEST_PATH) -> Dictionary:
 		return semantics
 	var by_id: Dictionary[String, Dictionary] = {}
 	for record: Dictionary in records:
+		preload("res://scripts/domain/ReadOnlyData.gd").freeze(record)
 		by_id[record.item_id] = record
 	_records = by_id
 	return _ok({"registry_version": REGISTRY_VERSION, "record_count": _records.size()})
@@ -97,7 +98,7 @@ static func get_record(item_id: String) -> Dictionary:
 	if not _records.has(item_id):
 		return _fail(&"unregistered_shop_item", "the item is not in the registry",
 			{"item_id": item_id})
-	return _ok({"record": (_records[item_id] as Dictionary).duplicate(true)})
+	return _ok({"record": _records[item_id]})
 
 
 static func get_ids() -> Array[String]:

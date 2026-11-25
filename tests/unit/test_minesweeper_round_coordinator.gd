@@ -630,6 +630,8 @@ func test_duplicate_first_reveal_replays_the_original_receipt_without_recharging
 	first.value.receipt.receipt_provenance.clear()
 	assert_ne(replay.value.receipt, first.value.receipt)
 	assert_eq(_coordinator.reveal(request).value.receipt, replay.value.receipt, "first reveal keeps its own replay receipt")
+	replay.value.receipt.receipt_provenance.clear()
+	assert_false(_coordinator.reveal(request).value.receipt.receipt_provenance.is_empty())
 
 
 func test_changed_payload_on_the_same_transaction_id_conflicts() -> void:
@@ -964,7 +966,7 @@ func test_complete_round_safe_marker_substitutes_the_matching_pre_terminal_board
 
 func test_complete_round_without_a_matching_pre_input_board_never_captures_an_unsettled_autosave() -> void:
 	_explode_a_fresh_round()
-	_coordinator._terminal_pre_input_board.clear()
+	_coordinator._terminal_pre_input_board = {}
 	_source_capture_calls = 0
 	assert_true(_coordinator.configure_source_checkpoint_capture(Callable(self, "_capture_source_inputs")).get("ok", false))
 	var result: Dictionary = _coordinator.complete_round(_complete_round_request(_next_tx()))
@@ -978,10 +980,17 @@ func _capture_source_inputs(_completed: Dictionary) -> Dictionary:
 
 # ---- get_state() ----
 
-func test_get_state_returns_the_board_state_capture() -> void:
-	var state := _coordinator.get_state()
-	assert_true(state.get("ok", false))
-	assert_eq(state["value"]["phase"], "NONE")
+func test_read_state_shares_a_view_while_get_state_remains_editable() -> void:
+	var before := _coordinator.read_state()
+	assert_true(is_same(before.value, _coordinator.read_state().value))
+	_reveal_first(_next_tx(), "beginner", 0)
+	var current := _coordinator.read_state()
+	assert_eq(before.value.phase, "NONE")
+	assert_eq(current.value.phase, "ACTIVE_VISIBLE")
+	assert_true(current.value.board.board.is_read_only())
+	var editable := _coordinator.get_state()
+	editable.value.board.board.clear()
+	assert_false(current.value.board.board.is_empty())
 
 
 ## The permanent DWM_CONSEQUENCE_PROFILE record for the first-Reveal frame (dwm-634.1 cost slice),

@@ -40,7 +40,7 @@ class ChangingOwner extends RefCounted:
 	var owner: Object
 	var reads := 0
 	var change_on_read := 0
-	func get_state() -> Dictionary:
+	func read_state() -> Dictionary:
 		reads += 1
 		var result: Dictionary = owner.get_state()
 		if reads == change_on_read:
@@ -64,7 +64,7 @@ class CountingOwner extends RefCounted:
 	var restore_on_configuration_read := 0
 	var restored := false
 	var restored_state: Dictionary = {}
-	func get_state() -> Dictionary:
+	func read_state() -> Dictionary:
 		state_reads += 1
 		if restored and not restored_state.is_empty(): return restored_state.duplicate(true)
 		return owner.get_state()
@@ -122,7 +122,7 @@ class TerminalClearingOwner extends RefCounted:
 			"settlement":null,"command_receipts":{},"terminal_receipts":{},
 		}
 
-	func get_state() -> Dictionary:
+	func read_state() -> Dictionary:
 		return {"ok":true,"code":&"ok","value":snapshot.duplicate(true),"receipt":{}}
 	func get_entry_context(difficulty: String) -> Dictionary:
 		return {"ok":true,"code":&"ok","value":{"identity":snapshot.identity,
@@ -216,7 +216,7 @@ func after_each() -> void:
 	state.free()
 
 
-func test_pull_composes_only_detached_public_facts_without_spending_or_allocating() -> void:
+func test_pull_composes_read_only_public_facts_without_spending_or_allocating() -> void:
 	state.check_and_claim_minesweeper_task_rewards({"task_ids": ["complete_beginner"]})
 	var before: Dictionary = state.to_save_dict().duplicate(true)
 	var board_before: Dictionary = coordinator.get_state().value
@@ -234,9 +234,11 @@ func test_pull_composes_only_detached_public_facts_without_spending_or_allocatin
 	assert_eq(result.value.board.cells.size(), 64)
 	assert_false(JSON.stringify(result).contains("private"))
 	assert_false(JSON.stringify(result).contains("mine_indices"))
-	result.value.board.cells[0].face = "private-edit"
-	result.value.assignments[0] = false
-	result.value.actions.append("new_board")
+	for part: Variant in [result.value, result.value.board, result.value.board.cells,
+			result.value.board.cells[0], result.value.board.cells[0].actions, result.value.register,
+			result.value.register.difficulty_enabled, result.value.assignments, result.value.actions]:
+		assert_true(part.is_read_only())
+	assert_false(state.minesweeper_task_rewards_claimed.is_read_only())
 	assert_eq(state.to_save_dict(), before)
 	assert_eq(coordinator.get_state().value, board_before)
 	assert_eq(root_store.next_counter, counter_before)
@@ -324,12 +326,10 @@ func test_routine_command_reuses_its_exact_postcommit_read_and_matches_explicit_
 		"The accepted Flag is included in the retained click metric.")
 	assert_eq(flagged.value.register.mine_estimate, 9)
 	assert_eq(flagged.value.actions, ACTIONS + ["new_board"])
-	var expected: Dictionary = flagged.value.duplicate(true)
-
-	# Every layer returns detached values even though the fast publication reuses an internal read.
-	flagged.value.board.cells[2].mark = "forged"
-	flagged.value.register.no_flag = "intact"
-	flagged.value.assignments[0] = not bool(flagged.value.assignments[0])
+	var expected: Dictionary = flagged.value
+	assert_true(expected.board.cells[2].is_read_only())
+	assert_true(expected.register.is_read_only())
+	assert_true(expected.assignments.is_read_only())
 	counted.reset_counts()
 	var refreshed: Dictionary = isolated.pull()
 	assert_true(refreshed.ok, str(refreshed))
@@ -555,6 +555,8 @@ func test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only(
 	assert_eq(coordinator.get_state().value.phase, "ACTIVE_VISIBLE")
 	assert_eq(state.minesweeper_rounds_left, 1)
 	assert_eq(grid.projection.revision, 1)
+	assert_same(panel.register.public_view, panel.public_view.register)
+	assert_same(grid.projection, panel.public_view.board)
 	assert_eq(panel.register.public_view.rounds, 1)
 	assert_eq(panel.register.public_view.mine_estimate, 10)
 	assert_same(grid.cell_nodes[2], retained_cell)
@@ -974,12 +976,24 @@ func test_terminal_dispatch_holds_the_unsettled_board_and_the_pump_settles_it_ne
 	assert_eq(published.value.actions,[])
 	assert_eq(owner.completion_calls.size(),1,"only the seeded call exists: nothing settled inside the click")
 	assert_true(isolated.has_pending_settlement())
+	assert_same(isolated.pull().value, published.value)
+	assert_same(isolated.dispatch("flag", 0, 0).value, published.value)
+	assert_same(isolated.set_foreground(false, -1).value, published.value)
+	assert_same(isolated.select_difficulty("expert", -1).value, published.value)
+	assert_true(published.value.board.cells[1].actions.is_read_only())
+	assert_false(owner.snapshot.is_read_only())
 	var settled: Dictionary = isolated.advance_preparation(published.value.board.revision)
 	assert_true(settled.ok,str(settled))
 	assert_true(settled.get("advanced",false),"the pump reports the settled view as a change")
 	assert_true(settled.value.settled)
+	assert_false(published.value.settled, "Settling publishes a new view and keeps the old click result.")
 	assert_eq(settled.value.board,published.value.board,"settlement keeps the exact painted board")
 	assert_eq(settled.value.actions,["new_board","assignments","rules"])
 	assert_eq(owner.completion_calls.size(),2)
 	assert_false(isolated.has_pending_settlement())
 	assert_eq(isolated.advance_preparation(settled.value.board.revision),{"ok":true,"advanced":false})
+	state.day_changed.emit(state.day + 1)
+	var fresh: Dictionary = isolated.pull()
+	assert_true(fresh.ok)
+	assert_false(fresh.value.board.terminal)
+	assert_true(settled.value.board.terminal)

@@ -79,13 +79,15 @@ func capture() -> Dictionary:
 	if _game_state == null:
 		return _fail(&"invalid_minesweeper_state_port", "port requires a GameState")
 	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
-	return {"ok": true, "code": &"ok", "value": {"backup": {
-		"save": _game_state.to_save_dict(),
-		"contacts": (_game_state.get("contacts") as Dictionary).duplicate(true),
-		"run_id": str(lifecycle.get("run_id", "")),
-		"day": int(lifecycle.get("day", 1)),
-		"next_ordinal": int(_game_state.get("minesweeper_app_rounds_finished_today")) + 1,
-	}}}
+	var backup := _capture_save_and_contacts()
+	backup["run_id"] = str(lifecycle.get("run_id", ""))
+	backup["day"] = int(lifecycle.get("day", 1))
+	backup["next_ordinal"] = int(_game_state.get("minesweeper_app_rounds_finished_today")) + 1
+	return {"ok": true, "code": &"ok", "value": {"backup": backup}}
+
+
+func _capture_save_and_contacts() -> Dictionary:
+	return {"save": _game_state.to_save_dict(), "contacts": (_game_state.contacts as Dictionary).duplicate(true)}
 
 
 func prepare_begin(request: Dictionary, round_id: String) -> Dictionary:
@@ -259,18 +261,9 @@ func finalize_complete(prepared_completion: Dictionary, checkpoint_id: String) -
 func prepare_abort(active_round: Dictionary, reason: StringName, transaction_id: String) -> Dictionary:
 	if _game_state == null:
 		return _fail(&"invalid_minesweeper_state_port", "port requires a GameState")
-	var clone: Object = _detached_clone()
-	if clone == null:
-		return _fail(&"invalid_minesweeper_state_port", "could not build a detached candidate")
-	clone.call(&"clear_unfinished_minesweeper_round")
-	var restored: Dictionary = clone.call(&"to_save_dict")
+	var abort_candidate := _capture_save_and_contacts()
 	if str(active_round.get("context", "")) == "app":
-		restored["minesweeper_rounds_left"] = int(restored.get("minesweeper_rounds_left", 0)) + 1
-	var abort_candidate := {
-		"save": restored,
-		"contacts": clone.get("contacts"),
-	}
-	clone.free()
+		abort_candidate.save.minesweeper_rounds_left += 1
 	return {"ok": true, "code": &"ok", "value": {
 		"candidate": abort_candidate,
 		"abort_receipt": {

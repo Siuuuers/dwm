@@ -1,6 +1,7 @@
 class_name MinesweeperPanelPort
 extends RefCounted
 
+const READ_ONLY := preload("res://scripts/domain/ReadOnlyData.gd")
 const BOARD_PORT := preload("res://scripts/application/minesweeper/MinesweeperPresentationPort.gd")
 const REGISTER := preload("res://scripts/application/minesweeper/MinesweeperRegisterQuery.gd")
 const ASSIGNMENTS := preload("res://scripts/application/minesweeper/MinesweeperAssignmentsQuery.gd")
@@ -54,7 +55,7 @@ func pull() -> Dictionary:
 		if not _owner.has_method("get_configuration_context"):
 			return _present_success(_held_terminal)
 		_clear_held_terminal()
-	var initial: Variant = _owner.call(&"get_state")
+	var initial: Variant = _owner.call(&"read_state")
 	if not initial is Dictionary or not initial.get("ok", false) \
 			or not initial.get("value") is Dictionary:
 		return _unavailable()
@@ -76,7 +77,7 @@ func pull() -> Dictionary:
 	if board.value.revision != snapshot.revision or board.value.custody != register.value.custody \
 			or board.value.mine_estimate != register.value.mine_estimate:
 		return _unavailable()
-	var final_state: Variant = _owner.call(&"get_state")
+	var final_state: Variant = _owner.call(&"read_state")
 	if not final_state is Dictionary or not final_state.get("ok", false) \
 			or final_state.get("value") != snapshot:
 		return _unavailable()
@@ -98,7 +99,7 @@ func dispatch(action: String, index: int, revision: int) -> Dictionary:
 	if not _held_terminal.is_empty():
 		if action != "new_board" or revision != int(_held_terminal.board.revision):
 			return {"ok": false, "code": &"minesweeper_panel_command_refused",
-				"value": _held_terminal.duplicate(true)}
+				"value": _held_terminal}
 		if _owner.has_method("get_configuration_context"):
 			if not _has_fresh_difficulty(): return _refused()
 			var dismissed: Dictionary = _board_port.replace_board(revision)
@@ -191,7 +192,7 @@ func set_foreground(foreground: bool, expected_revision: int) -> Dictionary:
 	if not _held_terminal.is_empty():
 		if expected_revision != int(_held_terminal.board.revision):
 			return {"ok": false, "code": &"minesweeper_panel_command_refused",
-				"value": _held_terminal.duplicate(true)}
+				"value": _held_terminal}
 		if _owner.has_method("get_configuration_context"):
 			var retained: Dictionary = _board_port.set_foreground(foreground, expected_revision)
 			if not retained.get("ok", false): return _refused()
@@ -285,10 +286,10 @@ func _present_success(value: Dictionary) -> Dictionary:
 
 func _record_view(value: Dictionary, marker: Dictionary) -> Dictionary:
 	_presented_revision = value.board.revision
-	_presented_register = {"difficulty": value.register.difficulty, "foresight": value.register.foresight,
-		"no_flag": value.register.no_flag}
+	_presented_register = value.register
 	_presented_session = marker
-	return value.duplicate(true) if is_same(value, _held_terminal) else value
+	READ_ONLY.freeze(value)
+	return value
 
 
 func _session_marker() -> Dictionary:
@@ -323,7 +324,7 @@ func _has_fresh_difficulty(active_cell_command: bool = false) -> bool:
 			or _presented_session.is_empty() or _session_marker() != _presented_session:
 		return false
 	if active_cell_command and _board_port.has_current_active_board(_presented_register.difficulty): return true
-	var current: Variant = _owner.call(&"get_state")
+	var current: Variant = _owner.call(&"read_state")
 	if not current is Dictionary or not current.get("ok", false) \
 			or not current.get("value") is Dictionary:
 		return false
@@ -341,7 +342,7 @@ func _refused() -> Dictionary:
 
 func _refused_without_refresh() -> Dictionary:
 	var result := {"ok": false, "code": &"minesweeper_panel_command_refused"}
-	if not _presented_register.is_empty(): result["value"] = _held_terminal.duplicate(true)
+	if not _presented_register.is_empty(): result["value"] = _held_terminal
 	return result
 
 
