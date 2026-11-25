@@ -121,10 +121,9 @@ func prepare_profile_document(raw: Dictionary) -> Dictionary:
 func prepare_preferences(changes: Dictionary) -> Dictionary:
 	if not _initialized:
 		return _failure(&"not_initialized", "ProfileManager is not initialized")
-	var candidate := _profile.duplicate(true)
 	if changes.is_empty():
-		return {"ok": true, "code": &"ok", "value": candidate, "changed_paths": []}
-	var normalized: Dictionary = {}
+		return {"ok": true, "code": &"ok", "value": get_profile_snapshot(), "changed_paths": []}
+	var groups := {}
 	for path_value in changes:
 		if typeof(path_value) != TYPE_STRING_NAME:
 			return _failure(&"invalid_preference_path", "Preference batch keys must be StringName")
@@ -136,15 +135,15 @@ func prepare_preferences(changes: Dictionary) -> Dictionary:
 			return _failure(&"managed_preference", "Language and font style are managed by presentation preparation")
 		if not PREFERENCE_REGISTRY.is_player_writable(path):
 			return _failure(&"managed_preference", "Preference is capability-owned")
-		normalized[path] = validated["value"]
-	var paths: Array = normalized.keys()
-	paths.sort_custom(_utf8_name_less)
-	for path: StringName in paths:
-		_set_profile_path(candidate, path, normalized[path])
-	var document_validation := SCHEMA.validate(candidate)
-	if not document_validation.get("ok", false):
-		return document_validation
-	return {"ok": true, "code": &"ok", "value": document_validation["value"], "changed_paths": paths.duplicate()}
+		var parts := String(path).split(".")
+		if not groups.has(parts[1]): groups[parts[1]] = _profile.preferences[parts[1]].duplicate()
+		groups[parts[1]][parts[2]] = validated.value
+	var prepared := _validate_preference_groups(groups)
+	if prepared.ok:
+		var paths := changes.keys()
+		paths.sort_custom(_utf8_name_less)
+		prepared.changed_paths = paths
+	return prepared
 
 
 func prepare_locale_preference(locale_id: String) -> Dictionary:
@@ -154,16 +153,14 @@ func prepare_locale_preference(locale_id: String) -> Dictionary:
 	var validated := SCHEMA.validate_preference(PRIMARY_LOCALE_PATH, canonical_locale)
 	if not validated.get("ok", false):
 		return validated
-	var candidate := _profile.duplicate(true)
-	var language: Dictionary = candidate["preferences"]["language"]
-	var previous_primary := str(language["primary_locale_id"])
-	_set_profile_path(candidate, PRIMARY_LOCALE_PATH, canonical_locale)
-	if str(language["secondary_locale_id"]) == canonical_locale:
-		language["secondary_locale_id"] = _fallback_secondary_locale(canonical_locale, previous_primary)
-	var document_validation := SCHEMA.validate(candidate)
-	if not document_validation.get("ok", false):
-		return document_validation
-	return {"ok": true, "code": &"ok", "value": document_validation["value"], "changed_paths": [PRIMARY_LOCALE_PATH]}
+	var language: Dictionary = _profile.preferences.language.duplicate()
+	var previous_primary := str(language.primary_locale_id)
+	language.primary_locale_id = canonical_locale
+	if language.secondary_locale_id == canonical_locale:
+		language.secondary_locale_id = _fallback_secondary_locale(canonical_locale, previous_primary)
+	var prepared := _validate_preference_groups({"language": language})
+	if prepared.ok: prepared.changed_paths = [PRIMARY_LOCALE_PATH]
+	return prepared
 
 
 func prepare_font_style_preference(font_style: String) -> Dictionary:
@@ -171,9 +168,13 @@ func prepare_font_style_preference(font_style: String) -> Dictionary:
 		return _failure(&"not_initialized", "ProfileManager is not initialized")
 	var validated := SCHEMA.validate_preference(FONT_STYLE_PATH, font_style)
 	if not validated.get("ok", false): return validated
-	var candidate := _profile.duplicate(true)
-	_set_profile_path(candidate, FONT_STYLE_PATH, font_style)
-	return SCHEMA.validate(candidate)
+	var accessibility: Dictionary = _profile.preferences.accessibility.merged({"font_style": font_style}, true)
+	return _validate_preference_groups({"accessibility": accessibility})
+
+
+func _validate_preference_groups(groups: Dictionary) -> Dictionary:
+	var preferences: Dictionary = _profile.preferences.merged(groups, true)
+	return SCHEMA.validate(_profile.merged({"preferences": preferences}, true))
 
 
 func commit_prepared_profile(candidate: Dictionary, defer_signals: bool = false, expected_revision: int = -1) -> Dictionary:
@@ -266,7 +267,7 @@ func get_profile_snapshot() -> Dictionary:
 
 
 func get_preference_group(group: StringName) -> Dictionary:
-	return _profile.preferences[group].duplicate(true)
+	return _profile.preferences[group].duplicate()
 
 
 func get_profile_revision() -> int:
@@ -294,7 +295,7 @@ func set_preferences(changes: Dictionary) -> Dictionary:
 	if not prepared.get("ok", false):
 		return prepared
 	if prepared["changed_paths"].is_empty():
-		return {"ok": true, "code": &"ok", "value": _profile.duplicate(true), "unchanged": true}
+		return {"ok": true, "code": &"ok", "value": prepared.value, "unchanged": true}
 	return commit_prepared_profile(prepared["value"])
 
 
@@ -1232,7 +1233,7 @@ func _publish(publication: Dictionary) -> void:
 	for change: Dictionary in publication.get("changes", []):
 		match change["kind"]:
 			&"preference":
-				preference_changed.emit(change["id"], _duplicate_variant(change["value"]))
+				preference_changed.emit(change["id"], change["value"])
 			&"input":
 				input_mappings_changed.emit(change["id"])
 			&"controls":
@@ -1262,11 +1263,6 @@ func _get_profile_path(profile: Dictionary, path: StringName, default_value: Var
 	if segments.size() != 3 or segments[0] != "preferences":
 		return default_value
 	return profile.get("preferences", {}).get(segments[1], {}).get(segments[2], default_value)
-
-
-func _set_profile_path(profile: Dictionary, path: StringName, value: Variant) -> void:
-	var segments := String(path).split(".")
-	profile["preferences"][segments[1]][segments[2]] = _duplicate_variant(value)
 
 
 func _canonical_locale_id(locale_id: String) -> String:
@@ -1309,12 +1305,6 @@ func _utf8_less(left: String, right: String) -> bool:
 		if left_bytes[index] != right_bytes[index]:
 			return left_bytes[index] < right_bytes[index]
 	return left_bytes.size() < right_bytes.size()
-
-
-func _duplicate_variant(value: Variant) -> Variant:
-	if value is Dictionary or value is Array:
-		return value.duplicate(true)
-	return value
 
 
 func _failure(code: StringName, message: String, fatal: bool = false) -> Dictionary:
