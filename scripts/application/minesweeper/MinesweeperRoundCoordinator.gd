@@ -489,7 +489,7 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 	if _round_recovery_committed.has(transaction_id):
 		var recorded: Dictionary = _round_recovery_committed[transaction_id]
 		if recorded.candidate_sha256 == candidate_sha256 and recorded.receipt == receipt:
-			return _recovery_result(receipt)
+			return {"ok": true}
 		return _fail(&"action_receipt_conflict", "this transaction was already committed with different bytes", {})
 
 	if not _consequence_gate.is_internal_owner_active(_GATE_OWNER):
@@ -535,7 +535,7 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 		if not ledger_committed.get("ok", false):
 			return ledger_committed
 
-	var committed := {"candidate_sha256": candidate_sha256, "receipt": receipt.duplicate(true)}
+	var committed := {"candidate_sha256": candidate_sha256, "receipt": receipt}
 	if action_candidate.has("reward"):
 		committed.reward_receipt = _ROUND_CONTRACT.copy_completion_receipt(action_candidate.reward.prepared_domain_receipt)
 		var events: Array[Dictionary] = []
@@ -544,11 +544,7 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 		committed.reward_events = events
 	_round_recovery_committed[transaction_id] = committed
 	_consequence_profile_phase(profile, "receipt_and_cache_us", profile_tick)
-	return _consequence_profile_result(profile, _recovery_result(receipt))
-
-
-func _recovery_result(receipt: Dictionary) -> Dictionary:
-	return {"ok": true, "code": &"ok", "value": {"action_receipt": receipt.duplicate(true)}, "receipt": receipt}
+	return _consequence_profile_result(profile, {"ok": true})
 
 
 func publish_recovery_action(publication: Dictionary) -> Dictionary:
