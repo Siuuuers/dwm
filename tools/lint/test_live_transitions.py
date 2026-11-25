@@ -1,6 +1,6 @@
 import unittest
 
-from check_live_transitions import ADAPTER, BINDINGS, BOOTSTRAP, BRIDGE, CAPTION, CONTACTS, EVENT_PORT, GAME, PAUSE, PROFILE, RULES, SAVE, SESSION, violations
+from check_live_transitions import ADAPTER, BINDINGS, BOARD_PRESENTATION, BOOTSTRAP, BRIDGE, CAPTION, CONTACTS, EVENT_PORT, GAME, PAUSE, PROFILE, RULES, SAVE, SESSION, STRICT_JSON, violations
 
 
 class LiveTransitionDependencies(unittest.TestCase):
@@ -14,6 +14,12 @@ class LiveTransitionDependencies(unittest.TestCase):
         self.sources[path] = self.sources[path].replace(f'func {name}():\n', f'func {name}():\n\t{code}\n')
 
     def test_allowed_live_operations(self):
+        self.insert(STRICT_JSON, 'parse_object', 'return result')
+        self.insert(SESSION, '_configure_scene_observed_body', 'row = entry.duplicate()')
+        self.insert(ADAPTER, '_check_reading_seek_target', 'headers = old.duplicate()')
+        self.insert(BOARD_PRESENTATION, '_published_projection', 'return _success(_projection)')
+        self.insert(BOOTSTRAP, '_scene_desktop_dispatch', 'board = _desktop_board_state.read_state()')
+        self.sources[BOOTSTRAP] += 'func prepare_editable_board():\n\treturn _desktop_board_state.capture()\n'
         self.insert(BOOTSTRAP, '_run_stage', 'ids = MANIFEST.load_ids_default(false)')
         self.insert(GAME, '_prepare_scene_day_renewal', 'desktop = _capture_desktop_snapshot()')
         self.insert(GAME, 'validate_live_session', 'return _run_lifecycle.get_run_id()')
@@ -29,6 +35,13 @@ class LiveTransitionDependencies(unittest.TestCase):
 
     def test_rejects_each_regression(self):
         cases = [
+            (STRICT_JSON, 'parse_object', 'return (result["value"] as Dictionary).duplicate(true)'),
+            (SESSION, '_configure_scene_observed_body', 'row = entry.duplicate(true)'),
+            (ADAPTER, '_check_reading_seek_target', 'headers = snapshot.duplicate(true)'),
+            (BOARD_PRESENTATION, '_published_projection', 'return _success(_projection.duplicate(true))'),
+            (BOARD_PRESENTATION, '_failure', 'result.value = projection.duplicate(true)'),
+            (BOOTSTRAP, '_scene_desktop_phase', 'return _desktop_board_state.capture().phase'),
+            (BOOTSTRAP, '_scene_desktop_dispatch', 'board = _desktop_board_state.capture()'),
             (BOOTSTRAP, '_run_stage', 'MANIFEST.load_ids_default()'),
             (BOOTSTRAP, '_run_stage', 'MANIFEST.load_ids_default(true)'),
             (GAME, '_prepare_scene_day_renewal', 'before = capture_run_snapshot_input().duplicate(true)'),

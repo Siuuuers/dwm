@@ -17,7 +17,19 @@ CONTACTS = 'scripts/domain/contact/ContactInvitationState.gd'
 PAUSE = 'scripts/application/lifecycle/ProductionPauseController.gd'
 BINDINGS = 'scripts/ui/SettingsControlsSheet.gd'
 CAPTION = 'scripts/ui/witnessed/WitnessedCaptionLayer.gd'
+STRICT_JSON = 'scripts/validation/StrictJson.gd'
+BOARD_PRESENTATION = 'scripts/application/minesweeper/MinesweeperPresentationPort.gd'
 RULES = (
+    (STRICT_JSON, ('parse_object',), r'\.\s*duplicate\s*\(\s*true\s*\)',
+     'Return the document already owned by the parser'),
+    (SESSION, ('_configure_scene_observed_body',), r'\bentry\s*\.\s*duplicate\s*\(\s*true\s*\)',
+     'Copy the catalogue row shallowly to reuse its frozen caption lines'),
+    (ADAPTER, ('_check_reading_seek_target',), r'\b(?:old|snapshot)\s*\.\s*duplicate\s*\(\s*true\s*\)',
+     'Copy only the headers when comparing reading seek targets'),
+    (BOARD_PRESENTATION, ('_published_projection', '_failure'), r'\b_?projection\s*\.\s*duplicate\s*\(\s*true\s*\)',
+     'Return the read-only board projection already published by the owner'),
+    (BOOTSTRAP, ('_scene_desktop_phase', '_scene_desktop_dispatch'), r'\b_desktop_board_state\s*\.\s*capture\s*\(',
+     'Read phase and revision from the shared board view'),
     (BOOTSTRAP, ('_run_stage',),
      r'\bload_ids_default\s*\(\s*(?:true\s*)?\)',
      'Bootstrap reads registered story IDs; use the shared read-only registry'),
@@ -84,10 +96,11 @@ NON_CODE = re.compile(r'"""[\s\S]*?"""|\x27\x27\x27[\s\S]*?\x27\x27\x27|"(?:\\.|
 
 def violations(sources):
     errors = []
+    code_by_path = {path: NON_CODE.sub(lambda match: re.sub(r'[^\n]', ' ', match.group()), content)
+                    for path, content in sources.items()}
     for path, functions, pattern, message in RULES:
-        code = NON_CODE.sub(lambda match: re.sub(r'[^\n]', ' ', match.group()), sources[path])
         for name in functions:
-            body = function_body(code, name)
+            body = function_body(code_by_path[path], name)
             if not body:
                 errors.append(f'{path}::{name}: guarded function missing; update its lint scope')
             elif re.search(pattern, body):
