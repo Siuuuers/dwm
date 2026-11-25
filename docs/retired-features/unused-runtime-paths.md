@@ -61,3 +61,7 @@ The checked-in Windows benchmark records the reducer, generator kernel and verif
 ## Dismissed Minesweeper inspection
 
 The board-fate port uses `project_dismissed_inspection()` to clear the board slots and retain the existing receipt history. Its public command result already owns a separate editable copy. This replaces the extra detached `dismissed_inspection_snapshot()` between those two steps.
+
+## Round recovery success receipts
+
+Desktop consequence recovery already holds the action receipt when it commits a Minesweeper round. The commit now reports success directly and retains the validator-owned receipt for retry comparisons. The former success envelope returned two editable receipts that the game discarded.

@@ -344,14 +344,14 @@ func test_commit_recovery_action_adopts_the_board_projection_and_rejects_without
 	var acquired: Dictionary = _consequence_gate.acquire(&"causal_transaction")
 	assert_true(acquired.get("ok", false))
 	var committed: Dictionary = _coordinator.commit_recovery_action(action_candidate, action_receipt)
-	assert_true(committed.get("ok", false), JSON.stringify(committed))
+	assert_eq(committed, {"ok": true})
 	assert_eq(_coordinator.get_state()["value"]["phase"], "NONE")
-	committed.value.action_receipt.condition_before.clear()
-	assert_eq(committed.receipt, action_receipt)
-	committed.receipt.condition_before.clear()
-	var replay: Dictionary = _coordinator.commit_recovery_action(action_candidate, action_receipt)
-	assert_eq(replay.value.action_receipt, action_receipt, "the cached recovery result owns its receipt")
-	assert_eq(replay.receipt, action_receipt)
+	assert_eq(_coordinator.commit_recovery_action(action_candidate, action_receipt), {"ok": true})
+	var original_health: int = action_receipt.condition_before.health
+	action_receipt.condition_before.health = original_health + 1
+	assert_eq(_coordinator.commit_recovery_action(action_candidate, action_receipt).code, &"action_receipt_conflict")
+	action_receipt.condition_before.health = original_health
+	assert_eq(_coordinator.commit_recovery_action(action_candidate, action_receipt), {"ok": true})
 	action_candidate.board_projection.revision += 1
 	assert_eq(_coordinator.commit_recovery_action(action_candidate, action_receipt).code, &"action_receipt_conflict")
 
