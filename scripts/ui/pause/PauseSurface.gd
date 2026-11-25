@@ -311,19 +311,7 @@ func present_confirmation(request: Dictionary, accept: Callable, cancel: Callabl
 	if not _opened or not _interactive or entered_action != &"backup" \
 		or is_instance_valid(_host_confirmation) or not accept.is_valid() or not cancel.is_valid():
 		return {"ok": false, "code": &"pause_confirmation_unavailable"}
-	var sheet := HOST_CONFIRMATION.new()
-	sheet.request = request.duplicate(true)
-	sheet.theme = request.get("theme", theme)
-	_host_confirmation = sheet
-	_sync_custody()
-	sheet.finished.connect(func(accepted: bool):
-		if _host_confirmation != sheet: return
-		_host_confirmation = null
-		_sync_custody()
-		var callback := accept if accepted else cancel
-		if callback.is_valid(): callback.call())
-	workfield.add_child(sheet)
-	return {"ok": true, "value": {"confirmation": sheet}}
+	return _show_backup_confirmation(request, accept, cancel, false)
 
 func quick_input_admitted(action: String) -> bool:
 	if action not in ["save", "load"] or not _opened or not _interactive or _return_retry or not is_visible_in_tree() \
@@ -340,11 +328,14 @@ func quick_input_admitted(action: String) -> bool:
 func present_quick_confirmation(request: Dictionary, accept: Callable, cancel: Callable) -> Dictionary:
 	if not quick_input_admitted("load") or not accept.is_valid() or not cancel.is_valid():
 		return {"ok": false, "code": &"pause_confirmation_unavailable"}
+	return _show_backup_confirmation(request, accept, cancel, true)
+
+func _show_backup_confirmation(request: Dictionary, accept: Callable, cancel: Callable, quick: bool) -> Dictionary:
 	var sheet := HOST_CONFIRMATION.new()
-	sheet.request = request.duplicate(true)
+	sheet.request = request.duplicate()
 	sheet.theme = request.get("theme", theme)
 	_host_confirmation = sheet
-	_quick_confirmation = true
+	_quick_confirmation = quick
 	_sync_custody()
 	sheet.finished.connect(func(accepted: bool):
 		if _host_confirmation != sheet: return
