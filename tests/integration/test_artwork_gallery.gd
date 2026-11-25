@@ -35,6 +35,8 @@ func test_only_displayed_artwork_persists_and_gallery_owns_its_reset() -> void:
 		return
 	var storage := STORAGE.new("artwork-gallery.memory", FILES.new())
 	var profile := _profile(storage)
+	var invalid_batch: Array[String] = ["picture1", "unknown"]
+	assert_false(profile.record_displayed_artwork(invalid_batch).ok)
 	for id: String in ART.GALLERY_IDS: assert_false(ARTWORK.unlocked(profile, id))
 	var container := Control.new()
 	container.hide()

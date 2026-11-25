@@ -47,8 +47,8 @@ func get_variants(ending_id: String) -> Dictionary:
 		var entry_id := str(record.signature.get("entry_id", ""))
 		var located := SIGNATURE.entry_record_view(entry_id)
 		if not located.ok or located.value.ending_id != canonical_id or entry_id.ends_with(".residue"): continue
-		var checked := SIGNATURE.validate(record.signature)
-		if not checked.ok or checked.value.signature_id != record.signature_id:
+		var checked := SIGNATURE.signature_id(record.signature)
+		if not checked.ok or checked.value != record.signature_id:
 			return _fail(&"gallery_record_unavailable")
 		if not _entry_available(located.value): return _fail(&"gallery_record_unavailable")
 		variants.append(record)
@@ -80,8 +80,8 @@ func get_reached_entry_variants(entry_id: String = "") -> Dictionary:
 		var located := SIGNATURE.entry_record_view(candidate_id)
 		if not located.ok or not _is_date_record(located.value): continue
 		if candidate_id not in entry_ids: entry_ids.append(candidate_id)
-		var checked := SIGNATURE.validate(record.signature)
-		if not checked.ok or checked.value.signature_id != record.signature_id:
+		var checked := SIGNATURE.signature_id(record.signature)
+		if not checked.ok or checked.value != record.signature_id:
 			if not entry_id.is_empty(): return _fail(&"gallery_record_unavailable")
 			continue
 		variants.append(record)

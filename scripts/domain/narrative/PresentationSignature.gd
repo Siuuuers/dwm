@@ -123,6 +123,11 @@ static func entry_record_view(entry_id: String) -> Dictionary:
 	return _ok(_entries[entry_id])
 
 static func validate(signature: Dictionary) -> Dictionary:
+	var identity := signature_id(signature)
+	if not identity.ok: return identity
+	return _ok({"signature": signature.duplicate(true), "signature_id": identity.value})
+
+static func signature_id(signature: Dictionary) -> Dictionary:
 	if not _exact(signature, ["entry_id", "fields", "schema_version"]) \
 			or not signature.entry_id is String or not signature.fields is Dictionary \
 			or typeof(signature.schema_version) != TYPE_INT or signature.schema_version != 1:
@@ -162,16 +167,14 @@ static func validate(signature: Dictionary) -> Dictionary:
 		return _fail("invalid_presentation_form")
 	var encoded := JSON_WRITER.stringify(signature)
 	if not encoded.ok: return _fail("invalid_presentation_signature")
-	return _ok({"signature": signature.duplicate(true), "signature_id": str(encoded.value).sha256_text()})
+	return {"ok": true, "code": &"ok", "value": str(encoded.value).sha256_text()}
 
 static func validate_ledger(records: Dictionary) -> Dictionary:
-	var ledger := records.duplicate()
 	for identity: Variant in records:
 		if not identity is String or not records[identity] is Dictionary: return _fail("invalid_reached_presentations")
-		var checked := validate(records[identity])
-		if not checked.ok or checked.value.signature_id != identity: return _fail("invalid_reached_presentations")
-		ledger[identity] = checked.value.signature
-	return _ok(ledger)
+		var checked := signature_id(records[identity])
+		if not checked.ok or checked.value != identity: return _fail("invalid_reached_presentations")
+	return _ok({})
 
 static func _exact(value: Dictionary, keys: Array) -> bool:
 	if value.size() != keys.size(): return false

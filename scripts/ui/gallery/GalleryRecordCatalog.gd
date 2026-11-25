@@ -102,11 +102,11 @@ func _init(details: Dictionary = RECORD_DETAILS, overrides: Array = PRESENTATION
 		if not _valid_details(details_only, true):
 			_invalidate(&"invalid_presentation_details")
 			return
-		var checked: Dictionary = SIGNATURE.validate(signature)
+		var checked: Dictionary = SIGNATURE.signature_id(signature)
 		if not checked.get("ok", false):
 			_invalidate(&"invalid_presentation_signature")
 			return
-		var signature_id := str(checked.value.signature_id)
+		var signature_id := str(checked.value)
 		if _presentations.has(signature_id):
 			_invalidate(&"duplicate_presentation_signature")
 			return
@@ -184,7 +184,7 @@ static func presentation_copy(context: Dictionary, phase: String, locale: String
 		"body": str(copy[1 if phase == "pre_challenge" else 2])}}
 
 static func reached_presentation_copy(signature: Dictionary, locale: String = "en") -> Dictionary:
-	var checked: Dictionary = SIGNATURE.validate(signature)
+	var checked: Dictionary = SIGNATURE.signature_id(signature)
 	if not checked.ok: return checked
 	var entry: Dictionary = SIGNATURE.entry_record_view(str(signature.entry_id))
 	if not entry.ok: return entry
