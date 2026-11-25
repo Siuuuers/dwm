@@ -3023,7 +3023,7 @@ func _prepare_restore_bookkeeping(source: Dictionary, live_backup: bool = false)
 			candidate[field] = source[field].duplicate(true)
 	var gameplay: Variant = source.get("gameplay")
 	if typeof(gameplay) == TYPE_DICTIONARY and gameplay.has("narrative_variables"):
-		var variables_error := _NARRATIVE_VARIABLE_SCHEMA._validate_gameplay({"narrative_variables": gameplay["narrative_variables"]})
+		var variables_error := _NARRATIVE_VARIABLE_SCHEMA._validate_narrative_variables(gameplay["narrative_variables"])
 		if variables_error != "":
 			return _transaction_failure(&"invalid_run_bookkeeping", variables_error)
 		candidate["narrative_variables"] = gameplay["narrative_variables"].duplicate(true)
