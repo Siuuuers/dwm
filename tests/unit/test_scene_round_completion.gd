@@ -19,12 +19,16 @@ func test_scene_rewards_are_detached_pressure_only_and_retain_daily_cap() -> voi
 	game.reset_game()
 	game.stats = {"pressure": 3}
 	game.minesweeper_money_earned_today = 107
+	game.scene_choices = {"earlier_choice": "accepted"}
+	game.scene_challenge_outcomes = {"earlier_round": {"outcome": "perfect"}}
 	var before: Dictionary = game.to_save_dict().duplicate(true)
 	var contacts: Dictionary = game.contacts.duplicate(true)
 	var port := REWARD.new(game)
 	var result: Dictionary = port.prepare_scene_complete("expert", _terminal(false))
 	assert_true(result.ok, str(result))
 	if result.ok:
+		assert_eq(result.value.gameplay.scene_choices, game.scene_choices)
+		assert_eq(result.value.gameplay.scene_challenge_outcomes, game.scene_challenge_outcomes)
 		assert_eq(result.value.gameplay.money, before.money + 1)
 		assert_eq(result.value.gameplay.minesweeper_money_earned_today, 108)
 		assert_eq(result.value.gameplay.stats.pressure, before.stats.pressure + 2)
