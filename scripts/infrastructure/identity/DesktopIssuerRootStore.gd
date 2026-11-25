@@ -136,10 +136,15 @@ func configure(storage: Object, namespace_source: Object) -> Dictionary:
 
 
 func load_or_create() -> Dictionary:
+	var ready := ensure_loaded()
+	return capture() if ready.ok else ready
+
+
+func ensure_loaded() -> Dictionary:
 	if _storage == null or _namespace_source == null:
 		return _failed(&"root_not_configured", "load_or_create before configure")
 	if _loaded:
-		return {"ok": true, "value": _document.duplicate(true)}
+		return {"ok": true}
 	var reconciled: Dictionary = _storage.call(&"reconcile", ROOT_DOCUMENT_PATH, Callable(self, "_parse_document"))
 	if not reconciled.get("ok", false):
 		return _storage_failure(reconciled, &"root_reconcile_failed")
@@ -151,7 +156,7 @@ func load_or_create() -> Dictionary:
 		_document = existing.duplicate(true)
 		_rebuild_issue_canonical_cache(_document)
 		_loaded = true
-		return {"ok": true, "value": _document.duplicate(true)}
+		return {"ok": true}
 	var generated: Dictionary = _namespace_source.call(&"generate_namespace")
 	if not generated.get("ok", false):
 		return _failed(&"namespace_source_failed", str(generated.get("message", "no namespace available")))
@@ -170,7 +175,7 @@ func load_or_create() -> Dictionary:
 	if not written.get("ok", false):
 		return written
 	_loaded = true
-	return {"ok": true, "value": _document.duplicate(true)}
+	return {"ok": true}
 
 
 func issue(purpose: StringName) -> Dictionary:
@@ -179,11 +184,15 @@ func issue(purpose: StringName) -> Dictionary:
 		return ready
 	if not PURPOSE_UNION.has(String(purpose)):
 		return _failed(&"unknown_purpose", String(purpose))
-	var minted := _minted_document([{"purpose": String(purpose), "numeric_value": null}])
-	var written := _write_issued_document(minted["document"], (minted["receipts"] as Array)[0])
+	var counter := int(_document["next_counter"])
+	var receipt := _mint_receipt(str(_document["namespace"]), counter, String(purpose), null)
+	var document := _document.duplicate()
+	document.receipts = _document.receipts.duplicate()
+	document.receipts[receipt.receipt_id] = receipt
+	document.next_counter = counter + 1
+	var written := _write_issued_document(document, receipt)
 	if not written.get("ok", false):
 		return written
-	var receipt: Dictionary = (minted["receipts"] as Array)[0]
 	return {
 		"ok": true,
 		"value": {"token": str(receipt["token"]), "issuer_receipt": receipt.duplicate(true)},
@@ -200,7 +209,7 @@ func issue_deferred(purpose: StringName) -> Dictionary:
 	var counter := int(_document["next_counter"])
 	var receipt := _mint_receipt(str(_document["namespace"]), counter, String(purpose), null)
 	var receipts: Dictionary = _document["receipts"]
-	receipts[str(receipt["receipt_id"])] = receipt.duplicate(true)
+	receipts[str(receipt["receipt_id"])] = receipt
 	_document["next_counter"] = counter + 1
 	_adopt_deferred(receipt)
 	return {
@@ -226,7 +235,9 @@ func verify_receipt(receipt: Dictionary, expected_purpose: StringName) -> Dictio
 	var ready := _require_loaded("verify_receipt")
 	if not ready.get("ok", false):
 		return ready
-	return _verify_receipt_in_document(receipt, expected_purpose, _document)
+	var verified := _verify_receipt_in_document(receipt, expected_purpose, _document)
+	if not verified.ok: return verified
+	return {"ok": true, "value": {"receipt": receipt.duplicate(true)}}
 
 
 func prepare_allocation(request: Dictionary) -> Dictionary:
@@ -243,7 +254,8 @@ func prepare_allocation(request: Dictionary) -> Dictionary:
 		if recorded.get("request") != request:
 			return _failed(&"allocation_transaction_conflict", transaction_id)
 		return {"ok": true, "value": recorded.duplicate(true)}
-	return {"ok": true, "value": _continuation_candidate(request)}
+	return {"ok": true, "value": _continuation_candidate_from(
+		request, str(_document["namespace"]), int(_document["next_counter"]))}
 
 
 func commit_allocation(candidate: Dictionary) -> Dictionary:
@@ -267,7 +279,21 @@ func commit_allocation(candidate: Dictionary) -> Dictionary:
 		if occupied[transaction_id] != candidate:
 			return _failed(&"allocation_transaction_conflict", transaction_id)
 		return {"ok": true, "value": candidate.duplicate(true)}
-	return _commit_candidate(candidate, "allocation_receipts", transaction_id)
+	if str(candidate["root_namespace"]) != str(_document["namespace"]):
+		return _failed(&"allocation_root_namespace_mismatch", transaction_id)
+	if int(candidate["root_next_counter"]) != int(_document["next_counter"]):
+		return _failed(&"allocation_counter_superseded", transaction_id)
+	var document := _document.duplicate()
+	document.receipts = _document.receipts.duplicate()
+	document.allocation_receipts = occupied.duplicate()
+	var receipts := _candidate_receipts(reproducible)
+	for receipt: Dictionary in receipts:
+		document.receipts[receipt.receipt_id] = receipt
+	document.next_counter += receipts.size()
+	document.allocation_receipts[transaction_id] = candidate.duplicate(true)
+	var written := _write_document(document)
+	if not written.ok: return written
+	return {"ok": true, "value": candidate.duplicate(true)}
 
 
 func prepare_causal_day_advance(request: Dictionary) -> Dictionary:
@@ -309,9 +335,12 @@ func commit_causal_day_advance(candidate: Dictionary) -> Dictionary:
 	if str(candidate["root_before_fingerprint"]) != _root_fingerprint(_document):
 		return _failed(&"allocation_candidate_not_reproducible", key)
 	var target: Dictionary = candidate["target_causal_day_instance_issuer_receipt"]
-	var document := _document.duplicate(true)
-	(document["receipts"] as Dictionary)[str(target["receipt_id"])] = target.duplicate(true)
-	(document["day_advance_allocation_receipts"] as Dictionary)[key] = candidate.duplicate(true)
+	var document := _document.duplicate()
+	document.receipts = _document.receipts.duplicate()
+	document.day_advance_allocation_receipts = occupied.duplicate()
+	var stored := candidate.duplicate(true)
+	document.receipts[target.receipt_id] = stored.target_causal_day_instance_issuer_receipt
+	document.day_advance_allocation_receipts[key] = stored
 	document["next_counter"] = int(candidate["counter_end"])
 	var written := _write_document(document)
 	if not written.get("ok", false):
@@ -344,7 +373,7 @@ func _write_document(document: Dictionary) -> Dictionary:
 	)
 	if not written.get("ok", false):
 		return _storage_failure(written, &"root_write_failed")
-	_document = document.duplicate(true)
+	_document = document
 	_rebuild_issue_canonical_cache(_document)
 	_pending_flush = false
 	return {"ok": true}
@@ -369,7 +398,7 @@ func _write_issued_document(document: Dictionary, receipt: Dictionary) -> Dictio
 	)
 	if not written.get("ok", false):
 		return _storage_failure(written, &"root_write_failed")
-	_document = document.duplicate(true)
+	_document = document
 	_canonical_receipt_entries = receipt_entries
 	_canonical_field_values["next_counter"] = str(int(document["next_counter"]))
 	_pending_flush = false
@@ -479,22 +508,6 @@ func _storage_failure(result: Dictionary, fallback: StringName) -> Dictionary:
 
 
 
-func _minted_document(specs: Array) -> Dictionary:
-	var document := _document.duplicate(true)
-	var receipts: Dictionary = document["receipts"]
-	var namespace_value := str(document["namespace"])
-	var counter := int(document["next_counter"])
-	var minted: Array[Dictionary] = []
-	for spec in specs:
-		var entry: Dictionary = spec
-		var receipt := _mint_receipt(namespace_value, counter, str(entry["purpose"]), entry.get("numeric_value"))
-		receipts[str(receipt["receipt_id"])] = receipt.duplicate(true)
-		minted.append(receipt)
-		counter += 1
-	document["next_counter"] = counter
-	return {"document": document, "receipts": minted}
-
-
 static func _mint_receipt(namespace_value: String, counter: int, purpose: String,
 		numeric_value: Variant) -> Dictionary:
 	var token := _token_for(namespace_value, counter, purpose)
@@ -527,56 +540,8 @@ static func _sha256_hex(text: String) -> String:
 
 
 
-func _continuation_candidate(request: Dictionary) -> Dictionary:
-	var kind := str(request["kind"])
-	var specs: Array = []
-	if kind == "new_run":
-		specs.append({"purpose": "run_id", "numeric_value": null})
-	specs.append({"purpose": "branch_id", "numeric_value": null})
-	var generation := 0
-	if kind == "restore":
-		generation = int(request["source_desktop_timeline_generation"]) + 1
-	specs.append({"purpose": NUMERIC_PURPOSE, "numeric_value": generation})
-	specs.append({"purpose": "causal_day_instance", "numeric_value": null})
-	var remap_sources: Array = request["remap_source_transaction_ids"]
-	for _source in remap_sources:
-		specs.append({"purpose": "transaction_id", "numeric_value": null})
-	var minted := _minted_document(specs)
-	var receipts: Array = minted["receipts"]
-	var cursor := 0
-	var run_receipt: Variant = null
-	if kind == "new_run":
-		run_receipt = receipts[cursor]
-		cursor += 1
-	var branch_receipt: Dictionary = receipts[cursor]
-	var generation_receipt: Dictionary = receipts[cursor + 1]
-	var causal_day_receipt: Dictionary = receipts[cursor + 2]
-	var remap_receipts := {}
-	for index in range(remap_sources.size()):
-		remap_receipts[str(remap_sources[index])] = (receipts[cursor + 3 + index] as Dictionary).duplicate(true)
-	var transaction_remap := _transaction_remap(remap_sources, remap_receipts)
-	return {
-		"schema_version": SCHEMA_VERSION,
-		"kind": kind,
-		"request": request.duplicate(true),
-		"root_namespace": str(_document["namespace"]),
-		"root_next_counter": int(_document["next_counter"]),
-		"run_id": str(request["existing_run_id"]) if kind == "restore" else str((run_receipt as Dictionary)["token"]),
-		"run_id_issuer_receipt": null if kind == "restore" else (run_receipt as Dictionary).duplicate(true),
-		"branch_id": str(branch_receipt["token"]),
-		"branch_id_issuer_receipt": branch_receipt.duplicate(true),
-		"desktop_timeline_generation": generation,
-		"desktop_timeline_generation_issuer_receipt": generation_receipt.duplicate(true),
-		"causal_day_instance": str(causal_day_receipt["token"]),
-		"causal_day_instance_issuer_receipt": causal_day_receipt.duplicate(true),
-		"remap_transaction_issuer_receipts": remap_receipts,
-		"transaction_remap": transaction_remap,
-	}
-
-
 func _day_advance_candidate(request: Dictionary, key: String) -> Dictionary:
-	var minted := _minted_document([{"purpose": "causal_day_instance", "numeric_value": null}])
-	var target: Dictionary = (minted["receipts"] as Array)[0]
+	var target := _mint_receipt(str(_document.namespace), int(_document.next_counter), "causal_day_instance", null)
 	return {
 		"schema_version": SCHEMA_VERSION,
 		"allocation_key": key,
@@ -586,38 +551,12 @@ func _day_advance_candidate(request: Dictionary, key: String) -> Dictionary:
 		"resolution_kind": str(request["resolution_kind"]),
 		"source_resolution_receipt_id": str(request["source_resolution_receipt_id"]),
 		"source_causal_day_instance_issuer_receipt": (request["source_causal_day_instance_issuer_receipt"] as Dictionary).duplicate(true),
-		"target_causal_day_instance_issuer_receipt": target.duplicate(true),
+		"target_causal_day_instance_issuer_receipt": target,
 	}
-
-
-func _commit_candidate(candidate: Dictionary, map_name: String, key: String) -> Dictionary:
-	if str(candidate["root_namespace"]) != str(_document["namespace"]):
-		return _failed(&"allocation_root_namespace_mismatch", key)
-	if int(candidate["root_next_counter"]) != int(_document["next_counter"]):
-		return _failed(&"allocation_counter_superseded", key)
-	var specs: Array = []
-	for receipt in _candidate_receipts(candidate):
-		var entry: Dictionary = receipt
-		specs.append({"purpose": str(entry["purpose"]), "numeric_value": entry["numeric_value"]})
-	var minted := _minted_document(specs)
-	var replayed: Array = minted["receipts"]
-	var expected: Array = _candidate_receipts(candidate)
-	for index in range(expected.size()):
-		if replayed[index] != expected[index]:
-			return _failed(&"allocation_candidate_not_reproducible", key)
-	var document: Dictionary = minted["document"]
-	(document[map_name] as Dictionary)[key] = candidate.duplicate(true)
-	var written := _write_document(document)
-	if not written.get("ok", false):
-		return written
-	return {"ok": true, "value": candidate.duplicate(true)}
 
 
 func _candidate_receipts(candidate: Dictionary) -> Array:
 	var ordered: Array = []
-	if candidate.has("target_causal_day_instance_issuer_receipt"):
-		ordered.append(candidate["target_causal_day_instance_issuer_receipt"])
-		return ordered
 	if candidate.get("run_id_issuer_receipt") != null:
 		ordered.append(candidate["run_id_issuer_receipt"])
 	ordered.append(candidate["branch_id_issuer_receipt"])
@@ -722,7 +661,7 @@ func _verify_receipt_in_document(receipt: Dictionary, expected_purpose: StringNa
 		return _failed(&"receipt_not_byte_equal", receipt_id)
 	if str(receipt["purpose"]) != String(expected_purpose):
 		return _failed(&"receipt_wrong_purpose", str(receipt["purpose"]))
-	return {"ok": true, "value": {"receipt": receipt.duplicate(true)}}
+	return {"ok": true}
 
 
 func _validate_day_advance_receipt(receipt: Dictionary, document: Dictionary,
@@ -772,7 +711,7 @@ func _validate_day_advance_receipt(receipt: Dictionary, document: Dictionary,
 		return _failed(&"root_day_advance_record_malformed", "source resolution child identity")
 	var source_resolution := {
 		"receipt_id": str(receipt["source_resolution_receipt_id"]),
-		"provenance": provenance.duplicate(true),
+		"provenance": provenance,
 	}
 	if _sha256_value(source_resolution) != str(receipt["source_resolution_receipt_sha256"]):
 		return _failed(&"root_day_advance_record_malformed", "source resolution hash")
@@ -1007,38 +946,21 @@ func _collect_embedded_receipts(value: Variant, out: Array[Dictionary]) -> void:
 
 func _continuation_candidate_from(request: Dictionary, namespace_value: String, root_next_counter: int) -> Dictionary:
 	var kind := str(request["kind"])
-	var specs: Array = []
-	if kind == "new_run":
-		specs.append({"purpose": "run_id", "numeric_value": null})
-	specs.append({"purpose": "branch_id", "numeric_value": null})
-	var generation := 0
-	if kind == "restore":
-		generation = int(request["source_desktop_timeline_generation"]) + 1
-	specs.append({"purpose": String(NUMERIC_PURPOSE), "numeric_value": generation})
-	specs.append({"purpose": "causal_day_instance", "numeric_value": null})
-	var remap_sources: Array = request["remap_source_transaction_ids"]
-	for _source in remap_sources:
-		specs.append({"purpose": "transaction_id", "numeric_value": null})
-	var minted: Dictionary = _receipts_from_specs(namespace_value, root_next_counter, specs)
-	var cursor := 0
+	var counter := root_next_counter
 	var run_receipt: Variant = null
-	var branch_receipt: Dictionary = {}
-	var generation_receipt: Dictionary = {}
-	var causal_day_receipt: Dictionary = {}
 	if kind == "new_run":
-		run_receipt = minted["receipts"][0]
-		cursor = 1
-	branch_receipt = minted["receipts"][cursor]
-	cursor += 1
-	generation_receipt = minted["receipts"][cursor]
-	cursor += 1
-	causal_day_receipt = minted["receipts"][cursor]
-	cursor += 1
+		run_receipt = _mint_receipt(namespace_value, counter, "run_id", null)
+		counter += 1
+	var generation := 0 if kind == "new_run" else int(request["source_desktop_timeline_generation"]) + 1
+	var branch_receipt := _mint_receipt(namespace_value, counter, "branch_id", null)
+	var generation_receipt := _mint_receipt(namespace_value, counter + 1, NUMERIC_PURPOSE, generation)
+	var causal_day_receipt := _mint_receipt(namespace_value, counter + 2, "causal_day_instance", null)
+	counter += 3
+	var remap_sources: Array = request["remap_source_transaction_ids"]
 	var remap_receipts := {}
 	for source in remap_sources:
-		var source_id := str(source)
-		remap_receipts[source_id] = (minted["receipts"][cursor] as Dictionary).duplicate(true)
-		cursor += 1
+		remap_receipts[str(source)] = _mint_receipt(namespace_value, counter, "transaction_id", null)
+		counter += 1
 	var transaction_remap := _transaction_remap(remap_sources, remap_receipts)
 	return {
 		"schema_version": SCHEMA_VERSION,
@@ -1047,13 +969,13 @@ func _continuation_candidate_from(request: Dictionary, namespace_value: String, 
 		"root_namespace": namespace_value,
 		"root_next_counter": root_next_counter,
 		"run_id": str(request["existing_run_id"]) if kind == "restore" else str((run_receipt as Dictionary)["token"]),
-		"run_id_issuer_receipt": null if kind == "restore" else (run_receipt as Dictionary).duplicate(true),
+		"run_id_issuer_receipt": run_receipt,
 		"branch_id": str(branch_receipt["token"]),
-		"branch_id_issuer_receipt": branch_receipt.duplicate(true),
+		"branch_id_issuer_receipt": branch_receipt,
 		"desktop_timeline_generation": generation,
-		"desktop_timeline_generation_issuer_receipt": generation_receipt.duplicate(true),
+		"desktop_timeline_generation_issuer_receipt": generation_receipt,
 		"causal_day_instance": str(causal_day_receipt["token"]),
-		"causal_day_instance_issuer_receipt": causal_day_receipt.duplicate(true),
+		"causal_day_instance_issuer_receipt": causal_day_receipt,
 		"remap_transaction_issuer_receipts": remap_receipts,
 		"transaction_remap": transaction_remap,
 	}
@@ -1071,17 +993,6 @@ func _transaction_remap(remap_sources: Array, remap_receipts: Dictionary) -> Dic
 		}
 	return transaction_remap
 
-
-
-func _receipts_from_specs(namespace_value: String, start_counter: int, specs: Array) -> Dictionary:
-	var next_counter := start_counter
-	var issued_receipts: Array[Dictionary] = []
-	for spec in specs:
-		var receipt_spec: Dictionary = spec
-		var receipt := _mint_receipt(namespace_value, next_counter, str(receipt_spec["purpose"]), receipt_spec.get("numeric_value"))
-		issued_receipts.append(receipt)
-		next_counter += 1
-	return {"next_counter": next_counter, "receipts": issued_receipts}
 
 
 func _minimum_root_next_counter(allocation_receipts: Dictionary, day_advance_receipts: Dictionary) -> int:
@@ -1104,7 +1015,9 @@ func _minimum_root_next_counter(allocation_receipts: Dictionary, day_advance_rec
 
 
 func _document_before_counter(document: Dictionary, counter_start: int) -> Dictionary:
-	var prior := document.duplicate(true)
+	var prior := document.duplicate()
+	for field in ["receipts", "allocation_receipts", "day_advance_allocation_receipts"]:
+		prior[field] = document[field].duplicate()
 	var receipts: Dictionary = prior.get("receipts", {})
 	for receipt_id in receipts.keys():
 		var receipt: Dictionary = receipts[receipt_id]

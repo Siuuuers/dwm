@@ -380,7 +380,8 @@ func test_fully_witnessed_next_stops_at_revisited_backward_caption() -> void:
 	var admitted: Dictionary = restored.restore(projected.value, FIXTURE.A)
 	assert_true(admitted.ok, str(admitted))
 	if not admitted.ok: return
-	assert_eq(restored.ledger.snapshot().captions.size(), 3)
+	assert_eq(restored.ledger.snapshot().captions, [plan.destination.caption],
+		"the scene retains the publication reached by the backward edge")
 	assert_eq(restored.capture(projected.value.frontier).value, projected.value)
 	assert_eq(session.capture(FIXTURE.frontier(session)).value, before)
 	# Keep the forged operation structurally valid and programme-adjacent:
@@ -478,7 +479,8 @@ func test_scene_validation_leaves_live_ledger_and_restore_installs_detached_sele
 		assert_eq(restored.ledger.snapshot(), installed, "restore owns its detached history")
 		var allocated := restored.ledger.allocate_publication(FIXTURE.TOKEN, FIXTURE.A, "a:1")
 		assert_true(allocated.ok, str(allocated))
-		assert_eq(allocated.get("value"), "caption:%d" % (installed.captions.size() + 1))
+		var tail: String = installed.captions.back().publication_id
+		assert_eq(allocated.get("value"), "caption:%d" % (int(tail.trim_prefix("caption:")) + 1))
 
 func test_scene_shape_rechecks_frames_and_keeps_source_suffix_publications_unique() -> void:
 	var created := FIXTURE.create_session()

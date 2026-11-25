@@ -68,9 +68,9 @@ func start_ending_id(ending_id: String, context: Dictionary = {}) -> Dictionary:
 	if not validated.get("ok", false):
 		return validated
 	if not _active.is_empty():
-		if str(context["playback_id"]) == str(_active["playback_id"]):
+		if str(context["playback_id"]) == str(_active.receipt.playback_id):
 			if _same_request(ending_id, context):
-				return (_active["start_result"] as Dictionary).duplicate(true)
+				return _started_result()
 			return _fail(&"playback_context_conflict", "active playback id reused with a different ending/stage/role")
 		return _fail(&"playback_in_progress", "another ending playback is in flight")
 	var signature: Dictionary = {}
@@ -118,7 +118,7 @@ func start_ending_id(ending_id: String, context: Dictionary = {}) -> Dictionary:
 	var token := str(((started as Dictionary).get("receipt", {}) as Dictionary).get("playback_token", ""))
 	if token.is_empty():
 		return _fail(&"invalid_bridge_receipt", "bridge did not return a playback_token")
-	var start_result := {"ok": true, "code": &"started", "value": {}, "receipt": {
+	var receipt := {
 		"playback_id": str(context["playback_id"]),
 		"transaction_id": str(context["transaction_id"]),
 		"expected_stage": StringName(String(context["expected_stage"])),
@@ -126,28 +126,32 @@ func start_ending_id(ending_id: String, context: Dictionary = {}) -> Dictionary:
 		"ending_id": ending_id,
 		"playback_token": token,
 		"started": true,
-	}}
-	_active = {"token": token, "playback_id": str(context["playback_id"]), "ending_id": ending_id, "context": context.duplicate(true), "start_result": start_result.duplicate(true), "signature": signature}
+	}
+	_active = {"receipt": receipt, "signature": signature}
 	if not _early_events.is_empty():
 		_drain_early_events.call_deferred()
-	return start_result
+	return _started_result()
+
+
+func _started_result() -> Dictionary:
+	return {"ok": true, "code": &"started", "value": {}, "receipt": _active.receipt.duplicate()}
 
 
 func _on_finished(playback_token: String, ending_id: String, receipt: Dictionary) -> void:
 	if _starting:
 		_early_events.append({"kind": "finished", "token": playback_token, "ending_id": ending_id, "receipt": receipt.duplicate(true)})
 		return
-	if _active.is_empty() or str(_active["token"]) != playback_token:
+	if _active.is_empty() or str(_active.receipt.playback_token) != playback_token:
 		return
-	if str(_active["ending_id"]) != ending_id or str(receipt.get("receipt_id", "")).is_empty():
-		_on_failed(playback_token, str(_active["ending_id"]), _fail(&"invalid_ending_completion", "completion identity differs"))
+	if str(_active.receipt.ending_id) != ending_id or str(receipt.get("receipt_id", "")).is_empty():
+		_on_failed(playback_token, str(_active.receipt.ending_id), _fail(&"invalid_ending_completion", "completion identity differs"))
 		return
 	if _reached_profile != null and not (_active.get("signature", {}) as Dictionary).is_empty():
 		var recorded: Dictionary = _reached_profile.record_reached_presentation(_active.signature.duplicate(true))
 		if not recorded.get("ok", false):
 			_on_failed(playback_token, ending_id, recorded)
 			return
-	var context: Dictionary = _active["context"]
+	var context: Dictionary = _active.receipt
 	var completion := {
 		"playback_id": str(context["playback_id"]),
 		"ending_id": ending_id,
@@ -164,9 +168,9 @@ func _on_failed(playback_token: String, ending_id: String, result: Dictionary) -
 	if _starting:
 		_early_events.append({"kind": "failed", "token": playback_token, "ending_id": ending_id, "receipt": result.duplicate(true)})
 		return
-	if _active.is_empty() or str(_active["token"]) != playback_token:
+	if _active.is_empty() or str(_active.receipt.playback_token) != playback_token:
 		return
-	var context: Dictionary = _active["context"]
+	var context: Dictionary = _active.receipt
 	var failure := {
 		"playback_id": str(context["playback_id"]),
 		"ending_id": ending_id,
@@ -180,8 +184,8 @@ func _on_failed(playback_token: String, ending_id: String, result: Dictionary) -
 
 
 func _on_retired(playback_token: String, ending_id: String) -> void:
-	if str(_active.get("token", "")) != playback_token \
-			or str(_active.get("ending_id", "")) != ending_id:
+	if _active.is_empty() or _active.receipt.playback_token != playback_token \
+			or _active.receipt.ending_id != ending_id:
 		return
 	_active = {}
 
@@ -219,8 +223,8 @@ func _validate_context(ending_id: String, context: Dictionary) -> Dictionary:
 
 
 func _same_request(ending_id: String, context: Dictionary) -> bool:
-	var active_context: Dictionary = _active["context"]
-	return str(_active["ending_id"]) == ending_id \
+	var active_context: Dictionary = _active.receipt
+	return str(_active.receipt.ending_id) == ending_id \
 		and String(active_context["expected_stage"]) == String(context["expected_stage"]) \
 		and String(active_context["role"]) == String(context["role"]) \
 		and str(active_context["transaction_id"]) == str(context["transaction_id"])

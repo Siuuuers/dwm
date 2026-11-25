@@ -87,7 +87,7 @@ func prepare(input: Dictionary) -> Dictionary:
 		return _fail(&"invalid_narrative_checkpoint", str(validated.get("message", "")))
 	var post_event: Dictionary = checkpoint["post_event"]
 	var plan := {
-		"narrative_checkpoint": checkpoint.duplicate(true),
+		"narrative_checkpoint": validated.value,
 		"position": str(post_event["position"]),
 		"resume_event_index": post_event.get("event_index"),
 		"timeline_id": timeline_id,
@@ -322,7 +322,8 @@ func _prepare_reading(checkpoint: Dictionary, snapshot: Variant) -> Dictionary:
 		if checked.get("code") in _READING_CONTENT_CODES or checked.get("code") in _SEMANTIC_CONTENT_CODES:
 			return _content_unavailable("the saved reading catalogue is unavailable or incompatible")
 		return _fail(&"invalid_narrative_checkpoint", str(checked.get("code", "")))
-	return {"ok": true, "code": &"ok", "value": {"narrative_plan": checkpoint.duplicate(true)}}
+	base.value.narrative_plan["reading_session"] = checkpoint.reading_session.duplicate(true)
+	return base
 
 static func _projected(source: Dictionary) -> Dictionary:
 	if source.has("reading_session"):

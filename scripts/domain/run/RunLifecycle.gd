@@ -173,6 +173,9 @@ func commit_continuation_remap(candidate: Dictionary) -> Dictionary:
 func get_run_id() -> String:
 	return _run_id
 
+func is_dark_mode() -> bool:
+	return not _scene_runtime and _dark_mode
+
 func get_day() -> int:
 	return _day
 

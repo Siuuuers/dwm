@@ -184,7 +184,7 @@ func _prepare_pair_candidate(candidate: Dictionary) -> Dictionary:
 	var drawn: Dictionary = _pair_deck.prepare_condition()
 	if not drawn.get("ok", false): return drawn
 	var detached := candidate.duplicate(true)
-	detached.gameplay.inter_friend_route_state["priscilla_lavinia"] = drawn.value.pair_state.duplicate(true)
+	detached.gameplay.inter_friend_route_state["priscilla_lavinia"] = drawn.value.pair_state
 	return _ok(detached)
 
 static func _pair_window_counts(window: Variant) -> bool:
@@ -252,7 +252,7 @@ func _prepare_day(plan: Dictionary) -> Dictionary:
 	var target_day := int(allocation.target_day)
 	var causal := str(allocation.target_causal_day_instance)
 	var view: Dictionary = VIEW.make_empty(target_day, causal).value.view
-	view.condition_departure_receipts = _view.snapshot().value.view.condition_departure_receipts.duplicate(true)
+	view.condition_departure_receipts = _view.snapshot().value.view.condition_departure_receipts
 	var consequence: Dictionary = CONSEQUENCE.make_empty({"causal_day_instance": causal,
 		"causal_day_instance_issuer_receipt": allocation.target_causal_day_instance_issuer_receipt}).value.state
 	var owner := {"gameplay": gameplay,

@@ -6,7 +6,6 @@ static var _placeholder := RegEx.create_from_string("\\{([A-Za-z_][A-Za-z0-9_]*)
 static func validate_manifest(manifest: Dictionary, base_path: String) -> Dictionary:
 	if not _exact_keys(manifest, ["schema_version", "source_locale", "aliases", "font_profiles", "locales"]): return _fail("invalid_manifest_keys")
 	if manifest["schema_version"] != 1 or typeof(manifest["source_locale"]) != TYPE_STRING: return _fail("invalid_manifest_header")
-	var locale_ids := {}
 	var records := {}
 	var source_count := 0
 	for record_value in manifest["locales"]:
@@ -14,16 +13,16 @@ static func validate_manifest(manifest: Dictionary, base_path: String) -> Dictio
 		var record: Dictionary = record_value
 		if not _exact_keys(record, ["id", "native_name", "fallback_locale", "release_status", "selectable", "ui_file", "font_profile", "layout_direction"]): return _fail("invalid_locale_record")
 		var id: String = record["id"]
-		if id.is_empty() or locale_ids.has(id): return _fail("duplicate_locale_id")
+		if id.is_empty() or records.has(id): return _fail("duplicate_locale_id")
 		if not _safe_relative(record["ui_file"]): return _fail("invalid_locale_path")
 		if record["layout_direction"] not in ["ltr", "rtl"] or record["release_status"] not in ["source", "draft", "released"]: return _fail("invalid_locale_record")
-		locale_ids[id] = true; records[id] = record.duplicate(true)
+		records[id] = record
 		if record["release_status"] == "source": source_count += 1
 	if source_count != 1 or not records.has(manifest["source_locale"]) or records[manifest["source_locale"]]["release_status"] != "source" or records[manifest["source_locale"]]["fallback_locale"] != null: return _fail("invalid_source_locale")
 	var aliases := {}
 	for alias_value in manifest["aliases"]:
 		if typeof(alias_value) != TYPE_DICTIONARY or not _exact_keys(alias_value, ["input", "locale"]): return _fail("invalid_alias")
-		if aliases.has(alias_value["input"]) or not locale_ids.has(alias_value["locale"]): return _fail("duplicate_or_unknown_alias")
+		if aliases.has(alias_value["input"]) or not records.has(alias_value["locale"]): return _fail("duplicate_or_unknown_alias")
 		aliases[alias_value["input"]] = alias_value["locale"]
 	var fonts := {}
 	for font_value in manifest["font_profiles"]:
@@ -31,7 +30,7 @@ static func validate_manifest(manifest: Dictionary, base_path: String) -> Dictio
 		if fonts.has(font_value["id"]): return _fail("duplicate_font_profile")
 		for path in font_value["font_files"]:
 			if not _safe_relative(path): return _fail("invalid_font_path")
-		fonts[font_value["id"]] = font_value.duplicate(true)
+		fonts[font_value["id"]] = font_value
 	for id in records:
 		if not fonts.has(records[id]["font_profile"]): return _fail("unknown_font_profile")
 		if not _chain_terminates(id, records, "fallback_locale", manifest["source_locale"]): return _fail("locale_fallback_cycle")
@@ -60,6 +59,11 @@ static func extract_named_placeholders(text: String) -> PackedStringArray:
 static func validate_bundle(manifest: Dictionary, catalogs: Dictionary) -> Dictionary:
 	var manifest_result := validate_manifest(manifest, "res://localization/")
 	if not manifest_result.get("ok", false): return manifest_result
+	var checked := check_catalogs(manifest, catalogs)
+	if not checked.ok: return checked
+	return {"ok": true, "value": {"manifest": manifest_result.value, "catalogs": catalogs.duplicate(true)}}
+
+static func check_catalogs(manifest: Dictionary, catalogs: Dictionary) -> Dictionary:
 	var source_id: String = manifest["source_locale"]
 	if not catalogs.has(source_id): return _fail("missing_source_catalog")
 	var source := _message_placeholders(catalogs[source_id], source_id)
@@ -72,7 +76,7 @@ static func validate_bundle(manifest: Dictionary, catalogs: Dictionary) -> Dicti
 		if not translated.ok: return translated
 		for key in translated.value:
 			if source.value.get(key) != translated.value[key]: return _fail("placeholder_mismatch")
-	return {"ok": true, "value": {"manifest": manifest.duplicate(true), "catalogs": catalogs.duplicate(true)}}
+	return {"ok": true}
 
 static func build_legacy_subset_records(tables: Dictionary) -> Dictionary:
 	var records: Array[Dictionary] = []

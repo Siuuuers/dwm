@@ -153,7 +153,7 @@ static func _validate_reading_checkpoint_body(checkpoint: Dictionary, snapshot: 
 			if not operation.ok: return operation
 		if reading.ledger.captions.back().beat.owning_entry_id != checkpoint.entry_id:
 			return _fail(&"reading_physical_owner_mismatch")
-		var frontier: Dictionary = reading.frontier.duplicate(true)
+		var frontier: Dictionary = reading.frontier
 		var boundary: String = reading.boundary
 		if boundary == "notification":
 			var anchor: Dictionary = frontier.anchor
@@ -284,7 +284,7 @@ static func _validate_scene_envelope(checkpoint: Dictionary) -> Dictionary:
 	if reading.ledger.frozen_context != {"family": "scene", "session_token": reading.ledger.session_token,
 			"registration_sha256": selected}:
 		return _fail(&"reading_scene_context_mismatch")
-	var current := SCENE_LEDGER.resolve_scene_frame(reading.ledger.entry_contexts,
+	var current := SCENE_LEDGER._scene_frame_view(reading.ledger.entry_contexts,
 		reading.occurrence_id, reading.entry_id)
 	if not current.ok: return current
 	if checkpoint.entry_id != reading.entry_id or checkpoint.frozen_context != current.value \
@@ -572,7 +572,7 @@ static func _dating(route: Dictionary, lifecycle: Dictionary, contacts: Dictiona
 			return _fail(&"frozen_context_attempt_mismatch")
 		var allowed: Array = [_dating_entry(context, phase)]
 		if not solo:
-			var other := context.duplicate(true)
+			var other := context.duplicate()
 			other.kind = "twofriends_if_deferred" if context.kind == "group" else "group"
 			allowed.append(_dating_entry(other, phase))
 		if entry_id not in allowed: return _fail(&"frozen_context_attempt_mismatch")
@@ -584,7 +584,7 @@ static func _dating(route: Dictionary, lifecycle: Dictionary, contacts: Dictiona
 			if fields.pair_count_receipt != null:
 				var count: Dictionary = fields.pair_count_receipt
 				var source: Variant = contacts.get("transaction_receipts", {}).get(count.transaction_id)
-				var expected := count.duplicate(true)
+				var expected := count.duplicate()
 				expected.erase("transaction_id")
 				var window: Dictionary = _dictionary(source.get("pl_window")) if source is Dictionary else {}
 				if not source is Dictionary or source.get("kind") != "resolve_day_end" or source.get("day") != context.day \
@@ -897,7 +897,8 @@ static func _validate_scene_terminal(snapshot: Dictionary) -> Dictionary:
 	if plan.admission.source_occurrence_id != snapshot.scene.get("active_occurrence_id") \
 			or plan.admission.source_admission_receipt_id != snapshot.scene.get("active_admission_receipt_id"):
 		return _fail(&"reading_scene_admission_invalid")
-	var source: Dictionary = snapshot.duplicate(true)
+	var source: Dictionary = snapshot.duplicate()
+	source.lifecycle = snapshot.lifecycle.duplicate()
 	source.route_id = "scene"
 	source.lifecycle.ending_plan = null
 	return _validate_reading_checkpoint_body(plan.source_reading_checkpoint, source, authenticated.value)

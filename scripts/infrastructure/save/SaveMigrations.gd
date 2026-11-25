@@ -28,17 +28,22 @@ static func migrate_document(raw: Dictionary, expected_locator: Dictionary,
 		return _fail(&"unsupported_run_configuration_schema", "Current scene state is required")
 	if version > SAVE_DOCUMENT_SCHEMA.SCENE_DOCUMENT_VERSION:
 		return _fail(&"unsupported_future_schema", str(version))
-	var admitted := raw.duplicate(true)
-	if not admitted.get("current_snapshot") is Dictionary or not admitted.get("recovery_journal") is Array:
+	if not raw.get("current_snapshot") is Dictionary or not raw.get("recovery_journal") is Array:
 		return _fail(&"invalid_document_shape", "Save9 requires current snapshot and journal")
-	var bundles: Array = [admitted.current_snapshot]
-	bundles.append_array(admitted.recovery_journal)
-	for bundle: Variant in bundles:
+	var bundles: Array = [raw.current_snapshot]
+	bundles.append_array(raw.recovery_journal)
+	for index in bundles.size():
+		var bundle: Variant = bundles[index]
 		if not bundle is Dictionary or not bundle.get("snapshot") is Dictionary:
 			return _fail(&"invalid_document_shape", "snapshot bundle must contain a snapshot")
 		var normalized := RUN_SNAPSHOT_SCHEMA.normalize_scene_content(bundle.snapshot)
 		if not normalized.ok: return normalized
-		bundle.snapshot = normalized.value
+		var result: Dictionary = bundle.duplicate()
+		result.snapshot = normalized.value
+		bundles[index] = result
+	var admitted := raw.duplicate()
+	admitted.current_snapshot = bundles.pop_front()
+	admitted.recovery_journal = bundles
 	var validated := SAVE_DOCUMENT_SCHEMA.validate(admitted, {}, scene_seed_receiver)
 	if not validated.get("ok", false): return validated
 	var document: Dictionary = validated["value"]["candidate"]

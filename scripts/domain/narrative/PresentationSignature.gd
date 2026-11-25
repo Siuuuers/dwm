@@ -17,9 +17,9 @@ static func semantic_ending_id(ending_id: String) -> String:
 static func schema_for_role(role: String) -> Dictionary:
 	var fields: Dictionary
 	match role:
-		"solo_ending_step": fields = ENDING_SOLO.duplicate(true)
-		"pair_ending_step": fields = ENDING_PAIR.duplicate(true)
-		"alone_step": fields = ENDING_ALONE.duplicate(true)
+		"solo_ending_step": fields = ENDING_SOLO.duplicate()
+		"pair_ending_step": fields = ENDING_PAIR.duplicate()
+		"alone_step": fields = ENDING_ALONE.duplicate()
 		"pair_pre_challenge_scene", "group_contact_offer":
 			fields = {"pair_mode":"string", "pair_form":"string"}
 		"pair_post_challenge_scene":
@@ -27,13 +27,13 @@ static func schema_for_role(role: String) -> Dictionary:
 		"hospital": fields = {"miss_reason":"string"}
 		"echo_fallback": fields = {"echo_ids":"strings"}
 		"solo_post_challenge":
-			fields = SOLO.duplicate(true)
+			fields = SOLO.duplicate()
 			fields.merge({"board_result":"string", "relationship_outcome":"string", "perfect_reasons":"strings", "special_mine_phase":"string", "promotion_result":"string"})
 		"consequence_followup":
-			fields = SOLO.duplicate(true)
+			fields = SOLO.duplicate()
 			fields["miss_reason"] = "string"
 		"ordinary_message", "solo_invitation_offer", "solo_pre_challenge", "ending_invitation_offer":
-			fields = SOLO.duplicate(true)
+			fields = SOLO.duplicate()
 		_: return {}
 	return {"schema_version": 1, "fields": fields}
 
@@ -87,7 +87,7 @@ static func _dating_signature(record: Dictionary, fields: Dictionary, post: bool
 				return _fail("invalid_dating_presentation_result")
 			previous = reason
 		projected["board_result"] = outcome
-		projected["perfect_reasons"] = reasons.duplicate()
+		projected["perfect_reasons"] = reasons
 		if kind == "solo":
 			var relationship: Variant = record.get("relationship_outcome")
 			if relationship not in ["hatred", "upset", "amused", "loved", "foresight", "dark"]:
@@ -118,7 +118,7 @@ static func entry_record(entry_id: String) -> Dictionary:
 		for row: Variant in parsed.entries:
 			if not row is Dictionary or not row.get("entry_id") is String:
 				return _fail("presentation_manifest_unavailable")
-			_entries[row.entry_id] = row.duplicate(true)
+			_entries[row.entry_id] = row
 	if not _entries.has(entry_id): return _fail("unknown_presentation_entry")
 	return _ok(_entries[entry_id].duplicate(true))
 
@@ -165,11 +165,13 @@ static func validate(signature: Dictionary) -> Dictionary:
 	return _ok({"signature": signature.duplicate(true), "signature_id": str(encoded.value).sha256_text()})
 
 static func validate_ledger(records: Dictionary) -> Dictionary:
+	var ledger := records.duplicate()
 	for identity: Variant in records:
 		if not identity is String or not records[identity] is Dictionary: return _fail("invalid_reached_presentations")
 		var checked := validate(records[identity])
 		if not checked.ok or checked.value.signature_id != identity: return _fail("invalid_reached_presentations")
-	return _ok(records.duplicate(true))
+		ledger[identity] = checked.value.signature
+	return _ok(ledger)
 
 static func _exact(value: Dictionary, keys: Array) -> bool:
 	if value.size() != keys.size(): return false

@@ -76,7 +76,7 @@ func _prepare_owned() -> Dictionary:
 		receipt = validated.value
 		if saved != null and saved != receipt: return _fail(&"pair_deck_saved_receipt_conflict")
 	elif saved != null:
-		receipt = saved.duplicate(true)
+		receipt = saved
 	elif not str(legacy.value).is_empty():
 		receipt = DRAW.build_legacy(str(legacy.value)).value
 	else:
@@ -99,7 +99,7 @@ func _prepare_owned() -> Dictionary:
 	pair["form_ruleset_id"] = str(receipt.ruleset_id)
 	pair["form_selection_source"] = "profile_run_draw"
 	pair["pair_deck_draw"] = receipt.duplicate(true)
-	return _ok({"pair_state": pair, "draw_receipt": receipt.duplicate(true)})
+	return _ok({"pair_state": pair, "draw_receipt": receipt})
 
 func _established_form(pair: Dictionary, inspect_legacy_history: bool) -> Dictionary:
 	var reached: bool = int(pair.get("date_count", 0)) > 0 or bool(pair.get("ending_eligible", false))

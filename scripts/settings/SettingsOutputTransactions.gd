@@ -130,7 +130,7 @@ func _commit(candidate: Dictionary, baseline: Dictionary, revision: int, section
 			if not _window_available(): return _finish(_failure(&"settings_window_unavailable"))
 			var captured: Dictionary = _window.capture_restore_state()
 			if not captured.get("ok", false): return _finish(captured)
-			_window_backup = captured.value.duplicate(true)
+			_window_backup = captured.value
 			_window_baseline = _window_plan(baseline)
 			if not _unchanged(revision, baseline, generation): return _recover(_failure(&"settings_audio_commit_conflict"))
 	var settings := _candidate(candidate)
@@ -188,7 +188,7 @@ func _apply_window(profile: Dictionary, restore_original: bool = false) -> Dicti
 	if not _window_identity_valid(): return _failure(&"settings_window_unavailable")
 	var plan := _window_plan(profile)
 	if restore_original and not _window_backup.is_empty() and plan == _window_baseline:
-		return _window.rollback_restore_silent(_window_backup.duplicate(true))
+		return _window.rollback_restore_silent(_window_backup)
 	if _window._fatal: return _failure(&"settings_window_unavailable")
 	if plan == _applied_window_plan(): return _success({})
 	if not _window_available(): return _failure(&"settings_window_unavailable")

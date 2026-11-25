@@ -7,9 +7,9 @@ var _terminal_record: Dictionary = {}
 
 func _observe_second() -> void:
 	if bridge == null or not bridge.has_reading_session(): return
-	for row: Dictionary in bridge._reading_session.ledger.snapshot().captions:
-		if row.beat.line_id == "line.scene.test.b.two":
-			_second_publications[row.publication_id] = true
+	var frontier: Dictionary = bridge._reading_session.ledger.latest_frontier()
+	if frontier.get("line_id") == "line.scene.test.b.two":
+		_second_publications[frontier.publication_id] = true
 	var caption: Node = _caption()
 	if caption != null and bridge._runtime_adapter.current_line_id() == "line.scene.test.b.two" \
 			and caption.caption_text.is_visible_in_tree() and "B second." in caption.caption_text.text:
@@ -31,13 +31,31 @@ func _closure() -> Dictionary:
 	assert_eq(result.target_id, "target_a")
 	assert_true(result.attempt_proof is Dictionary)
 	if not result.attempt_proof is Dictionary: return {}
-	var proof: Dictionary = result.attempt_proof
-	var retained: Dictionary = profile.get_dating_attempt(proof.run_id, proof.slot_id, proof.attempt_id, proof.branch_id)
-	if not _ok(retained): return {}
-	if not _ok(ATTEMPTS.validate_attempt_proof(retained.value, proof)): return {}
-	assert_eq(retained.value.record.state, _expected_outcome())
-	assert_true(retained.value.record.board.terminal)
 	return result
+
+func _check_completed_run(closure: Dictionary, observed_board: Dictionary) -> Dictionary:
+	var snapshot: Dictionary = game.capture_run_snapshot_input()
+	var record: Dictionary = snapshot.gameplay.route_context.active_dating_challenge
+	var reference: Dictionary = snapshot.gameplay.route_context.dating_active_attempt_ref
+	var proof: Dictionary = closure.attempt_proof
+	var hashed: Dictionary = preload("res://scripts/domain/schedule/ScheduleStateSchema.gd").canonical_sha256(record)
+	if not _ok(hashed): return {}
+	assert_true(ATTEMPTS.validate_record(record))
+	assert_eq(hashed.value.sha256, proof.record_sha256)
+	assert_eq(snapshot.lifecycle.run_id, proof.run_id)
+	assert_eq(record.board.revision + 1, proof.revision)
+	assert_eq(proof.publication.kind, "live")
+	assert_eq(proof.publication.state_sha256.length(), 64)
+	assert_true(proof.publication.state_sha256.is_valid_hex_number(false))
+	assert_eq(record.board, observed_board)
+	assert_true(record.board.terminal)
+	assert_eq(record.state, _expected_outcome())
+	assert_eq(ATTEMPTS.semantic_slot(record.context), proof.slot_id)
+	assert_eq(record.spec.board_token, proof.attempt_id)
+	assert_eq(reference, {"attempt_id": proof.attempt_id, "branch_id": proof.branch_id, "generation": proof.generation})
+	assert_eq(snapshot.gameplay.scene_challenge_outcomes, {closure.challenge_occurrence: {
+		"outcome": _expected_outcome(), "challenge_id": record.context.challenge_id, "physical_slot": proof.slot_id}})
+	return record
 
 func create_completed_scene() -> void:
 	if not await _start_playable(): return
@@ -107,6 +125,8 @@ func create_completed_scene() -> void:
 	assert_true(profile.get_preference(&"preferences.reading.auto_enabled", false))
 	var closure: Dictionary = _closure()
 	if closure.is_empty(): return
+	var completed := _check_completed_run(closure, _terminal_record.board)
+	if completed.is_empty(): return
 	await _screenshot(_capture_label("completed-target"))
 	# Use the ordinary direct Save surface; its API is the existing backup owner.
 	await _click(_controls(get_tree().current_scene, "Save"))
@@ -119,7 +139,7 @@ func create_completed_scene() -> void:
 	sheet.surface.leave_host()
 	for frame: int in 5: await get_tree().process_frame
 	var proof := {"process_id": OS.get_process_id(), "closure": closure,
-		"terminal_record": _terminal_record, "second_publications": _second_publications.size(),
+		"terminal_record": completed, "second_publications": _second_publications.size(),
 		"second_visible": _second_visible, "slot_sha256": FileAccess.get_sha256("user://saves/slot_1.json"),
 		"auto": profile.get_preference(&"preferences.reading.auto_enabled", false)}
 	assert_eq(str(proof.slot_sha256).length(), 64)
@@ -143,13 +163,16 @@ func load_completed_scene() -> void:
 	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
 	if not _ok(checkpoint): return
 	assert_eq(checkpoint.value.entry_id, "scene.test.a")
-	var closure: Dictionary = _closure()
-	if closure.is_empty(): return
-	assert_eq(closure.attempt_proof, proof.closure.attempt_proof, "Terminal board proof survives fresh-process Load.")
-	var terminal: Dictionary = closure.attempt_proof
-	var retained: Dictionary = profile.get_dating_attempt(terminal.run_id, terminal.slot_id, terminal.attempt_id, terminal.branch_id)
-	if not _ok(retained): return
-	assert_eq(retained.value.record, proof.terminal_record)
+	var slot := PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_1.json"))
+	if not _ok(slot): return
+	var saved_caption: Dictionary = slot.value.current_snapshot.snapshot.narrative_checkpoint.reading_session.captions.back()
+	assert_eq(checkpoint.value.reading_session.frontier, saved_caption)
+	assert_eq(bridge._runtime_adapter.current_line_id(), saved_caption.line_id)
+	assert_true(bridge._runtime_adapter.is_current_line_complete())
+	var closure: Dictionary = proof.closure
+	var retained := _check_completed_run(closure, proof.terminal_record.board)
+	assert_eq(retained, proof.terminal_record, "Load restores the complete terminal record.")
+	assert_true(game.capture_run_snapshot_input().command_receipts.is_empty(), "Load begins a fresh command session.")
 	assert_eq(profile.get_preference(&"preferences.reading.auto_enabled", false), proof.auto)
 	assert_true(proof.auto)
 	assert_false(get_tree().paused)
@@ -165,16 +188,14 @@ func load_completed_scene() -> void:
 	if not _ok(await sheet._backup_port.commit_action(second_save.value.token)): return
 	sheet.surface.leave_host()
 	for frame: int in 5: await get_tree().process_frame
-	assert_eq(_closure(), closure, "Saving completed Load creates no second closure or changed proof.")
+	assert_eq(_check_completed_run(closure, proof.terminal_record.board), retained)
+	assert_true(game.capture_run_snapshot_input().command_receipts.is_empty(), "Saving creates no second closure.")
 	assert_eq(profile.get_profile_snapshot(), before_profile, "Saving cannot create another attempt.")
-	var after_attempt: Dictionary = profile.get_dating_attempt(terminal.run_id, terminal.slot_id,
-		terminal.attempt_id, terminal.branch_id)
-	assert_eq(after_attempt, retained)
 	var second_hash := FileAccess.get_sha256("user://saves/slot_2.json")
 	assert_eq(second_hash.length(), 64)
 	proof["second_save_sha256"] = second_hash
 	proof["loader_process_id"] = OS.get_process_id()
-	proof["loaded_closure"] = closure
+	proof["loaded_outcomes"] = game.scene_challenge_outcomes
 	_write_json("res://.godot/ci/" + _proof_prefix() + "-load-proof.json", proof)
 
 # The loss journey shares completion/Save assertions and changes only its board input.

@@ -304,10 +304,10 @@ func _acknowledge_scene_reply_owned(command: Dictionary, rendered_line: Dictiona
 		return _fail(&"ordinary_render_identity_mismatch", "")
 	if _ordinary_pending.is_empty() or not _scene_command_equal(command, _ordinary_pending.command):
 		return _fail(&"ordinary_render_identity_mismatch", "")
-	var result: Variant = _game_state.call(&"commit_scene_contact_reply", command.duplicate(true), rendered_line.duplicate(true))
+	var result: Variant = _game_state.call(&"commit_scene_contact_reply", command.duplicate(true), rendered_line)
 	if not result is Dictionary: return _fail(&"contact_command_result_malformed", "")
 	if result.get("ok", false):
-		_ordinary_completed = {"command": command.duplicate(true), "result": result.duplicate(true)}
+		_ordinary_completed = {"command": command, "result": result.duplicate(true)}
 		_ordinary_pending = {}
 	return result.duplicate(true)
 

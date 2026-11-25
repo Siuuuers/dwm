@@ -593,12 +593,12 @@ func _classify_document(path: String, validator: Callable) -> Dictionary:
 	var bytes: PackedByteArray = read_result["value"]
 	var decoded := _decode_utf8(bytes)
 	if not decoded.get("ok", false):
-		return {"state": &"invalid", "reason": decoded, "bytes": bytes}
+		return {"state": &"invalid", "reason": decoded}
 	var validation := _call_validator(validator, decoded["value"]).duplicate(true)
 	if not validation.get("ok", false) or typeof(validation.get("value")) != TYPE_DICTIONARY:
-		return {"state": &"invalid", "reason": validation, "bytes": bytes}
+		return {"state": &"invalid", "reason": validation}
 	return {
-		"state": &"valid", "bytes": bytes.duplicate(), "text": decoded["value"],
+		"state": &"valid", "bytes": bytes, "text": decoded["value"],
 		"value": validation["value"], "hash": _file_ops.call(&"sha256", bytes),
 	}
 

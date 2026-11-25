@@ -949,7 +949,7 @@ func _capture_backup_inputs() -> Dictionary:
 			or inputs["snapshot_input"]["lifecycle"].get("state") != ("ENDING" if ending else "PLAYING"):
 		return _fail(&"backup_capture_unavailable", "A qualified desktop or admitted reading capture is required")
 	if not narrative.is_empty() and not inputs.snapshot_input.has("scene"):
-		var snapshot: Dictionary = inputs["snapshot_input"].duplicate(true)
+		var snapshot: Dictionary = inputs["snapshot_input"].duplicate()
 		snapshot["route_id"] = inputs["route_id"]
 		snapshot["narrative_checkpoint"] = narrative
 		var reading: Dictionary = preload("res://scripts/narrative/FrozenRunContext.gd").validate_reading_checkpoint(narrative, snapshot)

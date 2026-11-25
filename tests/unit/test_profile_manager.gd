@@ -83,6 +83,16 @@ func test_defaults_are_schema_valid_and_exact() -> void:
 	assert_eq(fresh.dialogue_library.checkpoints, [])
 	assert_eq(fresh.controls_bindings.game_quick_save.keyboard.physical_keycode, KEY_F5)
 
+func test_silent_rollback_restores_profile_retained_before_adoption() -> void:
+	var manager: Node = _new_manager().manager
+	var before: Dictionary = manager.get_profile_snapshot()
+	var candidate: Dictionary = manager.get_profile_snapshot()
+	candidate.preferences.reading.skip_mode = "all_text"
+	assert_true(manager.apply_restore_silent({"profile": candidate}).ok)
+	assert_eq(manager.get_preference(&"preferences.reading.skip_mode"), "all_text")
+	assert_true(manager.rollback_restore_silent({}).ok)
+	assert_eq(manager.get_profile_snapshot(), before)
+
 func test_display_default_preserves_saved_choices_until_explicit_reset() -> void:
 	var fixture := _new_manager()
 	var manager: Node = fixture.manager

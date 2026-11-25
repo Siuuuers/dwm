@@ -69,7 +69,8 @@ func _flag(record: Dictionary, index: int, event_id: String) -> Dictionary:
 
 func test_v6_migration_retains_original_attempt_progress_and_receipts() -> void:
 	var record := _materialize(_record(), 323)
-	var flat: Dictionary = LEDGER._prepare_flat({}, "run-a", SLOT, "branch-a", record, 0, 323).value.ledger
+	var attempt: Dictionary = LEDGER._prepare_attempt({}, "run-a", SLOT, "branch-a", record, 0, 323).value.attempt
+	var flat := {"run-a": {SLOT: attempt}}
 	var old := PROFILE.make_defaults()
 	old.schema_version = 6
 	old.erase("displayed_artwork_ids")

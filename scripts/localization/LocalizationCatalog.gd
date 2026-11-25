@@ -16,7 +16,9 @@ static func load_bundle(manifest_path: String) -> Dictionary:
 		var catalog_read := _read_object(base_path + String(record["ui_file"]))
 		if not catalog_read.get("ok", false): return catalog_read
 		catalogs[record["id"]] = catalog_read["value"]
-	return SCHEMA.validate_bundle(manifest, catalogs)
+	var checked := SCHEMA.check_catalogs(manifest, catalogs)
+	if not checked.ok: return checked
+	return {"ok": true, "value": {"manifest": manifest_validation.value, "catalogs": catalogs}}
 
 static func _read_object(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path): return {"ok": false, "code": &"localization_file_missing", "message": path}

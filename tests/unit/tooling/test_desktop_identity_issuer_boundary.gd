@@ -69,11 +69,11 @@ const ROOT_STORE_PATH := "res://scripts/infrastructure/identity/DesktopIssuerRoo
 const PORT_PATH := "res://scripts/application/run/CausalDayAdvanceIdentityPort.gd"
 
 const ISSUER_PREIMAGE := "configure(root_store)\nissue(purpose)\nissue_deferred(purpose)\nflush()\nverify_issued(receipt,expected_purpose)\nderive_child(request)\nvalidate_child(provenance,expected_kind)\nprepare_continuation_allocation(request)\ncommit_continuation_allocation(candidate)\nprepare_causal_day_advance(request)\ncommit_causal_day_advance(candidate)\ncapture_root()\n"
-const ROOT_STORE_PREIMAGE := "configure(storage,namespace_source)\nload_or_create()\nissue(purpose)\nissue_deferred(purpose)\nflush()\nverify_receipt(receipt,expected_purpose)\nprepare_allocation(request)\ncommit_allocation(candidate)\nprepare_causal_day_advance(request)\ncommit_causal_day_advance(candidate)\ncapture()\n"
+const ROOT_STORE_PREIMAGE := "configure(storage,namespace_source)\nload_or_create()\nensure_loaded()\nissue(purpose)\nissue_deferred(purpose)\nflush()\nverify_receipt(receipt,expected_purpose)\nprepare_allocation(request)\ncommit_allocation(candidate)\nprepare_causal_day_advance(request)\ncommit_causal_day_advance(candidate)\ncapture()\n"
 const PORT_PREIMAGE := "configure(identity_issuer)\nprepare_advance(request)\ncommit_advance(candidate)\n"
 
 const ISSUER_SURFACE_SHA256 := "9458e0160c7bab05e4d2f0916d51b8441d5fec522a83e45bb2c85c27f67bb69a"
-const ROOT_STORE_SURFACE_SHA256 := "487b1384b266635ffc4d8f8bcbf0d082a3918cf1639dacdc279779d3c99d749b"
+const ROOT_STORE_SURFACE_SHA256 := "29d1a116291211c6ffe9001c27ac5ea96b3b036e81d9c828f99e376f5b7fc00c"
 const PORT_SURFACE_SHA256 := "c1208b4304842ef05998656f8d62de20307b5ae66cd79a9eef9fbef293ffc214"
 
 const SURFACE_EXPECTATIONS := [

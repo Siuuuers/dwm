@@ -102,7 +102,7 @@ func commit_current_boundary(request: Dictionary) -> Dictionary:
 	var content := _call_provider("content_version", [])
 	if not content.get("ok", false):
 		return content
-	var inputs := _checkpoint_inputs(active["value"], audio["value"], content["value"], checkpoint, route["value"], snapshot["value"])
+	var inputs := _checkpoint_inputs(active["value"], audio["value"], content["value"], checkpoint.duplicate(true), route["value"], snapshot["value"])
 	var captured: Dictionary = _real_port.capture()
 	if not captured.get("ok", false):
 		return captured
@@ -154,7 +154,7 @@ func _commit_reading_next_autosave(checkpoint: Dictionary, operation_id: String,
 	if not audio.ok: return audio
 	var content := _call_provider("content_version", [])
 	if not content.ok: return content
-	var inputs := _checkpoint_inputs(active.value, audio.value, content.value, checkpoint, route.value, snapshot.value)
+	var inputs := _checkpoint_inputs(active.value, audio.value, content.value, checkpoint.duplicate(true), route.value, snapshot.value)
 	var captured: Dictionary = _real_port.capture()
 	if not captured.get("ok", false): return captured
 	if phase == "destination":
@@ -429,7 +429,7 @@ func _save_named_presentation(snapshot_input: Dictionary, checkpoint: Dictionary
 	if not content.ok: return content
 	var captured: Dictionary = _real_port.capture()
 	if not captured.get("ok", false): return captured
-	var inputs := _checkpoint_inputs(active.value, audio.value, content.value, checkpoint, "scene", snapshot_input)
+	var inputs := _checkpoint_inputs(active.value, audio.value, content.value, checkpoint.duplicate(true), "scene", snapshot_input.duplicate(true))
 	var prepared: Dictionary = _real_port.prepare(inputs, &"safe_marker", {"kind": &"autosave", "reason": &"automatic"})
 	if not prepared.get("ok", false): return prepared
 	var candidate: Dictionary = prepared.value.candidate
@@ -482,7 +482,7 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 		if not audio.ok: return audio
 	var content := _call_provider("content_version", [])
 	if not content.ok: return content
-	var inputs := _checkpoint_inputs(active.value, audio.value, content.value, checkpoint, route.value, snapshot_input)
+	var inputs := _checkpoint_inputs(active.value, audio.value, content.value, checkpoint.duplicate(true), route.value, snapshot_input.duplicate(true))
 	var captured: Dictionary = _real_port.capture()
 	if not captured.get("ok", false): return captured
 	if not _scene_mutation.is_empty() and not _scene_mutation_source_matches(captured):
@@ -781,7 +781,7 @@ func prepare_candidate(owner_id: StringName, snapshot_input: Dictionary, transac
 	var content := _call_provider("content_version", [])
 	if not content.get("ok", false):
 		return content
-	var inputs := _checkpoint_inputs(active["value"], audio["value"], content["value"], checkpoint, route["value"], snapshot_input)
+	var inputs := _checkpoint_inputs(active["value"], audio["value"], content["value"], checkpoint, route["value"], snapshot_input.duplicate(true))
 	var prepared: Dictionary = _real_port.prepare(inputs, checkpoint_kind, STAGE_DISK_WRITE.duplicate(true))
 	if not prepared.get("ok", false):
 		return prepared
@@ -825,11 +825,11 @@ func rollback(owner_id: StringName, backup: Dictionary) -> Dictionary:
 func _checkpoint_inputs(active_app_id: Variant, audio_context: Variant, content_version: Variant, dialogic_checkpoint: Dictionary, route_id: Variant, snapshot_input: Dictionary) -> Dictionary:
 	return {
 		"active_app_id": active_app_id,
-		"audio_context": _copy(audio_context),
+		"audio_context": audio_context,
 		"content_version": content_version,
-		"dialogic_checkpoint": dialogic_checkpoint.duplicate(true),
+		"dialogic_checkpoint": dialogic_checkpoint,
 		"route_id": route_id,
-		"snapshot_input": snapshot_input.duplicate(true),
+		"snapshot_input": snapshot_input,
 	}
 
 
@@ -916,6 +916,7 @@ func _fail(code: StringName, message: String) -> Dictionary:
 
 func _player_checkpoint_same(left: Variant, right: Variant) -> bool:
 	if not left is Dictionary or not right is Dictionary: return false
+	if left.get("stage") != "scene" and right.get("stage") != "scene": return READING_NEXT._same(left, right)
 	var owner := preload("res://scripts/narrative/SoloReadingSession.gd")
 	var a: Dictionary = owner.project_player_checkpoint(left)
 	var b: Dictionary = owner.project_player_checkpoint(right)

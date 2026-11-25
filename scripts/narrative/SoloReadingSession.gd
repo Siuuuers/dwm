@@ -995,16 +995,14 @@ func prepare_next(frontier: Dictionary, is_witnessed: Callable) -> Dictionary:
 	if family != "solo" or not is_witnessed.is_valid() or boundary != "line": return _fail(&"reading_next_unavailable")
 	var source := capture(frontier)
 	if not source.ok: return source
-	var lines: Array = entry_program(latest_entry).value.lines
+	var entries := catalogue if catalogue_schema_version == 1 else _selected_entries
+	var lines: Array = entries[latest_entry].lines
 	var index := -1
 	for ordinal: int in lines.size():
 		if lines[ordinal].line_id == frontier.line_id: index = ordinal
 	if index < 0: return _fail(&"reading_frontier_invalid")
 	var retained: Dictionary = source.value.ledger
-	var candidate := LEDGER.new()
-	var copied := candidate.restore_snapshot(command_id, retained.frozen_context, manifest,
-		registry, retained, retained.entry_contexts, true)
-	if not copied.ok: return copied
+	var candidate := ledger.fork_legacy_checkpoint()
 	var traversed: Array = []
 	var destination := {"kind": "completion", "caption": null}
 	for ordinal: int in range(index + 1, lines.size()):
@@ -1023,7 +1021,7 @@ func prepare_next(frontier: Dictionary, is_witnessed: Callable) -> Dictionary:
 	var plan := {"entry_id": latest_entry, "catalogue_fingerprint": fingerprint,
 		"source_ledger": retained, "source_frontier": source.value.frontier,
 		"traversed_captions": traversed, "destination": destination}
-	var checked := TRAVERSAL.create(plan, "source")
+	var checked := TRAVERSAL.encode_plan(plan, 1)
 	return {"ok": true, "value": plan} if checked.ok else checked
 
 func project(frontier: Dictionary) -> Dictionary:
@@ -1031,8 +1029,9 @@ func project(frontier: Dictionary) -> Dictionary:
 	var captured := capture(frontier)
 	if not captured.ok: return captured
 	var rows: Array[Dictionary] = []
+	var entries := catalogue if catalogue_schema_version == 1 else _selected_entries
 	for row: Dictionary in captured.value.ledger.captions:
-		for line: Dictionary in entry_program(row.beat.owning_entry_id).value.lines:
+		for line: Dictionary in entries[row.beat.owning_entry_id].lines:
 			if line.line_id == row.beat.line_id:
 				rows.append({"publication_id": row.publication_id, "beat_id": row.beat.beat_id,
 					"line_id": line.line_id, "entry_id": row.beat.owning_entry_id, "text": line.text})
@@ -1193,7 +1192,8 @@ func configure_markers(document: Dictionary) -> Dictionary:
 			or not document.get("entries") is Array or document.entries.is_empty(): return _fail(&"reading_markers_invalid")
 	var selected := {}
 	var ids := {}
-	for raw: Variant in document.entries:
+	var owned := document.duplicate(true)
+	for raw: Variant in owned.entries:
 		if not raw is Dictionary or not FROZEN._exact(raw, ["entry_id", "content_version", "catalogue_fingerprint", "marker"]) \
 				or not raw.entry_id is String or not catalogue.has(raw.entry_id) or selected.has(raw.entry_id) \
 				or typeof(raw.content_version) != TYPE_INT or raw.content_version != catalogue[raw.entry_id].content_version \
@@ -1215,15 +1215,15 @@ func configure_markers(document: Dictionary) -> Dictionary:
 		for index: int in range(lines.size() - 1):
 			if lines[index].line_id == marker.after_line_id and lines[index + 1].line_id == marker.before_line_id: gap = index
 		if gap < 0: return _fail(&"reading_marker_position_invalid")
-		selected[raw.entry_id] = marker.duplicate(true)
+		selected[raw.entry_id] = marker
 		ids[marker.event_id] = true
 	var encoded := JSON_WRITER.stringify(document)
 	if not encoded.ok: return encoded
-	marker_document = document.duplicate(true)
+	marker_document = owned
 	marker_entries = selected
 	marker_fingerprint = str(encoded.value).sha256_text()
 	FROZEN._freeze(marker_document)
-	FROZEN._freeze(marker_entries)
+	marker_entries.make_read_only()
 	return {"ok": true}
 
 func _capture_marker(frontier: Dictionary) -> Dictionary:
@@ -1301,10 +1301,7 @@ func prepare_marker_next(frontier: Dictionary, is_witnessed: Callable, semantic:
 	for ordinal: int in lines.size():
 		if lines[ordinal].line_id == tail.beat.line_id: index = ordinal
 	if index < 0: return _fail(&"reading_frontier_invalid")
-	var candidate := LEDGER.new()
-	var copied := candidate.restore_snapshot(command_id, source.ledger.frozen_context, manifest,
-		registry, source.ledger, source.ledger.entry_contexts, true)
-	if not copied.ok: return copied
+	var candidate := ledger.fork_legacy_checkpoint()
 	var traversed: Array = []
 	var destination := {"kind": "completion"}
 	var crossed := _marker_crossed(source, latest_entry)
@@ -1331,8 +1328,8 @@ func prepare_marker_next(frontier: Dictionary, is_witnessed: Callable, semantic:
 		traversed.append(row)
 	var plan := {"schema_version": 2, "entry_id": latest_entry, "source_reading": source,
 		"traversed_captions": traversed, "destination": destination}
-	var made := TRAVERSAL.create(plan, "source")
-	if not made.ok: return made
+	var checked := TRAVERSAL.encode_plan(plan, 2)
+	if not checked.ok: return checked
 	var route := _validate_marker_route(plan)
 	return {"ok": true, "value": plan} if route.ok else route
 

@@ -98,7 +98,7 @@ func _capture(binding: Dictionary) -> Dictionary:
 	_active = false
 	_held.clear()
 	var result := _result(&"captured", &"ok")
-	result["binding"] = binding.duplicate(true)
+	result["binding"] = binding
 	return result
 
 

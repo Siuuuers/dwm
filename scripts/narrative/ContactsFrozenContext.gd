@@ -67,7 +67,7 @@ static func capture_generation(before: Dictionary, candidate: Dictionary, source
 		relationships: Dictionary, attitudes: Dictionary, cache: Dictionary, missed: Array = []) -> Dictionary:
 	var checked := validate_cache(cache, before, false, missed, source_day)
 	if not checked.ok: return checked
-	var detached := cache.duplicate(true)
+	var detached: Dictionary = checked.value
 	for friend: String in CONTACTS.FRIEND_IDS:
 		for message: Dictionary in candidate.get("messages", {}).get(friend, []):
 			if _message_existed(before.get("messages", {}).get(friend, []), message): continue
@@ -75,9 +75,8 @@ static func capture_generation(before: Dictionary, candidate: Dictionary, source
 			if not built.ok: return built
 			if built.value.fields.entry_role in ["solo_invitation_offer", "ending_invitation_offer"] \
 					and int(message.target_day) != source_day: return _fail(&"contacts_frozen_historical_offer_missing")
-			var retained := retain(detached, built.value)
+			var retained := _retain_in(detached, built.value)
 			if not retained.ok: return retained
-			detached = retained.value
 	for transaction_id: String in candidate.get("transaction_receipts", {}):
 		if before.get("transaction_receipts", {}).has(transaction_id): continue
 		var receipt: Dictionary = candidate.transaction_receipts[transaction_id]
@@ -88,33 +87,32 @@ static func capture_generation(before: Dictionary, candidate: Dictionary, source
 			"opened_ids": [] if variation == "offer" else [receipt.friend_id], "replied_ids": []}
 		var built := _group_context("contact.invitation.group.priscilla_lavinia.day%d.%s" % [int(receipt.day), variation], variation, null, group)
 		if not built.ok: return built
-		var retained := retain(detached, built.value)
+		var retained := _retain_in(detached, built.value)
 		if not retained.ok: return retained
-		detached = retained.value
 	for witness_id: String in candidate.get("sylvia_hospital_witness_receipts", {}):
 		if before.get("sylvia_hospital_witness_receipts", {}).has(witness_id): continue
 		var message := _care_message(witness_id, candidate.sylvia_hospital_witness_receipts[witness_id])
 		var built := _followup(candidate, "sylvia", message, entry_id_for_message(candidate, "sylvia", message), missed)
 		if not built.ok: return built
-		var retained := retain(detached, built.value)
+		var retained := _retain_in(detached, built.value)
 		if not retained.ok: return retained
-		detached = retained.value
 	return _ok(detached)
 
 static func capture_candidate(before: Dictionary, candidate: Dictionary, gameplay: Dictionary, source_day: int) -> Dictionary:
-	var route: Dictionary = gameplay.get("route_context", {}).duplicate(true)
+	var detached := gameplay.duplicate(true)
+	var route: Dictionary = detached.get("route_context", {})
 	var captured := capture_generation(before, candidate, source_day,
 		gameplay.get("dating_route_state", {}), gameplay.get("friend_attitude", {}),
 		route.get(CACHE_KEY, empty_cache()), gameplay.get("missed_invitations", []))
 	if not captured.ok: return captured
 	route[CACHE_KEY] = captured.value
-	var detached := gameplay.duplicate(true)
 	detached["route_context"] = route
 	return _ok(detached)
 
 static func prepare_projection(contacts: Dictionary, gameplay: Dictionary, day: int, friend: String = "") -> Dictionary:
-	var route: Dictionary = gameplay.get("route_context", {}).duplicate(true)
-	var cache: Dictionary = route.get(CACHE_KEY, empty_cache()).duplicate(true)
+	var detached := gameplay.duplicate(true)
+	var route: Dictionary = detached.get("route_context", {})
+	var cache: Dictionary = route.get(CACHE_KEY, empty_cache())
 	var checked := validate_cache(cache, contacts, false, gameplay.get("missed_invitations", []), day)
 	if not checked.ok: return checked
 	if day < 7 and not friend.is_empty():
@@ -126,32 +124,31 @@ static func prepare_projection(contacts: Dictionary, gameplay: Dictionary, day: 
 				var built := ordinary_awaiting(available.value.entry_id, gameplay.get("dating_route_state", {}).get(friend, {}),
 					str(gameplay.get("friend_attitude", {}).get(friend, "")))
 				if not built.ok: return built
-				var retained := retain(cache, built.value)
+				var retained := _retain_in(cache, built.value)
 				if not retained.ok: return retained
-				cache = retained.value
 	if day == 7:
 		for echo: Dictionary in ORDINARY.pending_echoes_oldest_first(contacts):
 			var built := echo_card(echo)
 			if not built.ok: return built
-			var retained := retain(cache, built.value)
+			var retained := _retain_in(cache, built.value)
 			if not retained.ok: return retained
-			cache = retained.value
 	route[CACHE_KEY] = cache
-	var detached := gameplay.duplicate(true)
 	detached["route_context"] = route
 	return _ok(detached)
 
 static func retain(cache: Dictionary, presentation: Dictionary) -> Dictionary:
+	return _retain_in(cache.duplicate(true), presentation)
+
+static func _retain_in(cache: Dictionary, presentation: Dictionary) -> Dictionary:
 	var entry_id := str(presentation.get("fields", {}).get("entry_id", ""))
 	var checked := FROZEN.validate(entry_id, presentation)
 	if not checked.ok: return checked
 	var key := key_for(presentation)
 	if key.is_empty() or presentation.fields.entry_role not in ROLES: return _fail(&"contacts_frozen_entry_unavailable")
-	var candidate := cache.duplicate(true)
-	if candidate.entries.has(key):
-		return _ok(candidate) if candidate.entries[key] == presentation else _fail(&"contacts_frozen_context_changed")
-	candidate.entries[key] = presentation.duplicate(true)
-	return _ok(candidate)
+	if cache.entries.has(key):
+		return _ok(cache) if cache.entries[key] == presentation else _fail(&"contacts_frozen_context_changed")
+	cache.entries[key] = checked.value
+	return _ok(cache)
 
 static func for_message(state: Dictionary, friend: String, message: Dictionary, relationships: Dictionary,
 		attitudes: Dictionary, cache: Dictionary, missed: Array = []) -> Dictionary:

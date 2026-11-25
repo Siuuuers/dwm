@@ -752,7 +752,7 @@ func open_contact(friend_id: String, command_id: String, command_issuer_receipt:
 	if not frozen.ok: return frozen
 	var lease := {}
 	var backup := {}
-	var care_route: Dictionary = dating_route_state.get("sylvia", {}).duplicate(true)
+	var care_route := {}
 	var care_affection := int(affection.get("sylvia", 0))
 	if needs_checkpoint:
 		if _run_lifecycle.get_state() != &"PLAYING" or _mutation_gate == null:
@@ -760,6 +760,7 @@ func open_contact(friend_id: String, command_id: String, command_issuer_receipt:
 		if not _contact_checkpoint_writer.is_valid():
 			return _transaction_failure(&"contact_checkpoint_writer_unconfigured", "Contacts must be saved before publication")
 		if has_care:
+			care_route = dating_route_state.get("sylvia", {}).duplicate(true)
 			var tier: String = str(care_route.get("relationship_state", "friend"))
 			if tier not in ["friend", "ambiguous", "love"]:
 				return _transaction_failure(&"invalid_care_relationship_state", tier)
@@ -1125,7 +1126,7 @@ func _capture_ending_presentation_inputs() -> Dictionary:
 		result[friend_id] = {"tier": str(state.get("relationship_state", "friend")),
 			"tone": "dark" if int(state.get("dark_points", 0)) >= _PROVISIONAL_RELATIONSHIP_RULES.DARK_TONE_THRESHOLD else "sweet",
 			"attitude": str(friend_attitude.get(friend_id, "")), "echo_ids": [], "miss_reasons": missed}
-	result["dark_mode"] = bool(_run_lifecycle.to_dict().get("dark_mode", false))
+	result["dark_mode"] = _run_lifecycle.is_dark_mode()
 	result["pair_form"] = str(inter_friend_route_state.get("priscilla_lavinia", {}).get("frozen_form", ""))
 	result["special_variant"] = "full"
 	if is_inside_tree():
@@ -1541,7 +1542,11 @@ func advance_day_or_end() -> bool:
 
 
 func capture_new_day_gameplay() -> Dictionary:
-	var gameplay: Dictionary = capture_run_snapshot_input()["gameplay"].duplicate(true)
+	var gameplay: Dictionary
+	if _run_lifecycle.is_scene_run():
+		gameplay = _capture_scene_gameplay()
+	else:
+		gameplay = capture_run_snapshot_input()["gameplay"].duplicate(true)
 	gameplay.merge({
 		"minesweeper_rounds_left": 2,
 		"minesweeper_app_rounds_finished_today": 0,
@@ -1627,7 +1632,7 @@ func apply_dating_challenge_effect_receipt(entry: Dictionary, receipt: Dictionar
 	var friend_id := str(entry.friend_id)
 	var event_id := str(receipt.terminal_fact.transaction_id)
 	var state: Dictionary = dating_route_state.get(friend_id, {}).duplicate(true)
-	var receipts: Dictionary = state.get("provisional_receipts", {}).duplicate(true)
+	var receipts: Dictionary = state.get("provisional_receipts", {})
 	if receipts.has(event_id):
 		if receipts[event_id] != receipt:
 			return _transaction_failure(&"dating_terminal_receipt_conflict", "committed effect cannot change")
@@ -1638,7 +1643,7 @@ func apply_dating_challenge_effect_receipt(entry: Dictionary, receipt: Dictionar
 	state["relationship_state"] = current_state
 	if receipt.promotion_applied and ["friend", "ambiguous", "love"].find(str(receipt.relationship_state)) > ["friend", "ambiguous", "love"].find(current_state):
 		state["relationship_state"] = str(receipt.relationship_state)
-	var events: Array = state.get("progression_event_ids", []).duplicate()
+	var events: Array = state.get("progression_event_ids", [])
 	if receipt.progression_evaluated and event_id not in events: events.append(event_id)
 	state["progression_event_ids"] = events
 	receipts[event_id] = receipt.duplicate(true)
@@ -1693,8 +1698,8 @@ func apply_dating_challenge_result(entry: Dictionary, terminal_fact: Dictionary)
 		state["date_count"] = int(state.get("date_count", 0)) + 1
 		state["dark_points"] = mini(4, int(state.get("dark_points", 0)) + int(response["tone_delta"]))
 		state["relationship_state"] = str(state.get("relationship_state", "friend"))
-		state["progression_event_ids"] = (state.get("progression_event_ids", []) as Array).duplicate()
-		state["provisional_receipts"] = (state.get("provisional_receipts", {}) as Dictionary).duplicate(true)
+		state["progression_event_ids"] = state.get("progression_event_ids", [])
+		state["provisional_receipts"] = state.get("provisional_receipts", {})
 		affection[participant] = clampi(int(affection.get(participant, 0))
 			+ int(response["momentum_delta"]), AFFECTION_MIN, AFFECTION_MAX)
 		var progression: Dictionary = rules.evaluate_progression({
@@ -1719,7 +1724,7 @@ func apply_dating_challenge_result(entry: Dictionary, terminal_fact: Dictionary)
 		pair_state["date_count"] = int(pair_state.get("date_count", 0)) + 1
 		pair_state["dark_points"] = int(pair_state.get("dark_points", 0)) + int(response["tone_delta"])
 		pair_state["ending_eligible"] = int(pair_state["date_count"]) >= 2
-		pair_state["provisional_receipts"] = (pair_state.get("provisional_receipts", {}) as Dictionary).duplicate(true)
+		pair_state["provisional_receipts"] = pair_state.get("provisional_receipts", {})
 		pair_state["provisional_receipts"][event_id] = _provisional_dating_receipt(response, {}, terminal_fact)
 		inter_friend_route_state["priscilla_lavinia"] = pair_state
 		if entry_type == "twofriends":
@@ -2741,9 +2746,7 @@ static func _session_failure(code: StringName) -> Dictionary:
 func get_run_configuration() -> Dictionary:
 	if not _run_configuration_installed:
 		return {"ok": false, "code": &"run_configuration_unavailable"}
-	if _run_lifecycle.is_scene_run():
-		return {"ok": true, "value": {"dark_mode": false}}
-	return {"ok": true, "value": {"dark_mode": _run_lifecycle.to_dict()["dark_mode"]}}
+	return {"ok": true, "value": {"dark_mode": _run_lifecycle.is_dark_mode()}}
 
 
 func has_new_run_replacement() -> bool:
@@ -2994,7 +2997,7 @@ func _prepare_restore_bookkeeping(source: Dictionary, live_backup: bool = false)
 			var ids: Variant = source[field]
 			if typeof(ids) != TYPE_ARRAY:
 				return _transaction_failure(&"invalid_run_bookkeeping", field + " must be an array")
-			var checked: Array = ids.duplicate(true)
+			var checked: Array = ids.duplicate() if live_backup else ids
 			for id: Variant in checked:
 				if typeof(id) != TYPE_STRING or str(id).is_empty():
 					return _transaction_failure(&"invalid_run_bookkeeping", "invalid transaction ID")
@@ -3007,8 +3010,9 @@ func _prepare_restore_bookkeeping(source: Dictionary, live_backup: bool = false)
 			source["applied_effect_transaction_ids"], source["applied_variable_transaction_ids"])
 		if receipt_error != "":
 			return _transaction_failure(&"invalid_run_bookkeeping", receipt_error)
-		var checked_receipts: Dictionary = source["command_receipts"].duplicate(true)
+		var checked_receipts: Dictionary = source["command_receipts"]
 		if live_backup:
+			checked_receipts = checked_receipts.duplicate(true)
 			for receipt: Dictionary in checked_receipts.values():
 				if typeof(receipt["kind"]) == TYPE_STRING_NAME:
 					receipt["kind"] = str(receipt["kind"])
@@ -3027,14 +3031,14 @@ func _prepare_restore_bookkeeping(source: Dictionary, live_backup: bool = false)
 
 
 func _apply_restore_bookkeeping(candidate: Dictionary) -> void:
-	scene_choices = candidate.scene_choices.duplicate(true)
-	scene_challenge_outcomes = candidate.scene_challenge_outcomes.duplicate(true)
+	scene_choices = candidate.scene_choices
+	scene_challenge_outcomes = candidate.scene_challenge_outcomes
 	if candidate.has("command_receipts"):
-		_command_receipts = candidate["command_receipts"].duplicate(true)
-		_applied_effect_transaction_ids = candidate["applied_effect_transaction_ids"].duplicate(true)
-		_applied_variable_transaction_ids = candidate["applied_variable_transaction_ids"].duplicate(true)
+		_command_receipts = candidate["command_receipts"]
+		_applied_effect_transaction_ids = candidate["applied_effect_transaction_ids"]
+		_applied_variable_transaction_ids = candidate["applied_variable_transaction_ids"]
 	if candidate.has("narrative_variables"):
-		_narrative_variables = candidate["narrative_variables"].duplicate(true)
+		_narrative_variables = candidate["narrative_variables"]
 
 
 
@@ -3671,7 +3675,7 @@ func continue_optional_scene_challenge() -> Dictionary:
 func continue_completed_scene_challenge() -> Dictionary:
 	var guarded: Dictionary = _mutation_gate.guard_external(&"scene_challenge_continuation")
 	if not guarded.get("ok", false): return guarded
-	var record: Dictionary = capture_run_snapshot_input().gameplay.route_context.get("active_dating_challenge", {})
+	var record: Dictionary = route_context.get("active_dating_challenge", {})
 	if record.get("phase") != "terminal" or record.get("state") not in ["won", "lost"]:
 		return _transaction_failure(&"scene_challenge_not_complete", "")
 	return continue_optional_scene_challenge()
@@ -3680,7 +3684,7 @@ func _continue_completed_scene_challenge_owned(lease: String) -> Dictionary:
 	if not _scene_playable_operation.is_empty(): return _transaction_failure(&"event_in_progress", "")
 	var admitted := capture_scene_challenge_command()
 	if not admitted.ok: return admitted
-	var source_input := capture_run_snapshot_input().duplicate(true)
+	var source_input := capture_run_snapshot_input()
 	var route: Dictionary = source_input.gameplay.route_context
 	var record: Dictionary = route.get("active_dating_challenge", {})
 	if not record.is_empty() and (record.get("context") != admitted.value.command.context \
@@ -4578,7 +4582,7 @@ func _commit_scene_target_owned() -> Dictionary:
 	if not source.ok: return source
 	var candidate: Dictionary = _scene_entry_operation.candidate.duplicate(true)
 	var staged: Dictionary = _scene_entry_operation.staged.duplicate(true)
-	var admitted: Dictionary = _scene_entry_operation.admitted.duplicate(true)
+	var admitted: Dictionary = _scene_entry_operation.admitted.duplicate()
 	var committed: Dictionary = _narrative_checkpoint_port.commit_scene_event(candidate, staged.narrative_checkpoint, true) if _scene_entry_operation.get("named_autosave", false) else _narrative_checkpoint_port.commit_scene_event(candidate, staged.narrative_checkpoint)
 	if not committed.get("ok", false):
 		if committed.get("committed", false): return _scene_event_fatal(&"scene_entry_commit_uncertain")
@@ -4618,7 +4622,7 @@ func _commit_scene_target_owned() -> Dictionary:
 		daily_state_reset.emit()
 		minesweeper_rounds_changed.emit(get_minesweeper_display_rounds_left(), get_minesweeper_display_rounds_max())
 		save_relevant_state_changed.emit()
-	return {"ok": true, "committed": true, "value": admitted.duplicate(true)}
+	return {"ok": true, "committed": true, "value": admitted}
 
 func _validate_scene_physical_record(snapshot: Dictionary) -> Dictionary:
 	var route: Dictionary = snapshot.gameplay.route_context
@@ -4688,7 +4692,7 @@ func _commit_scene_contact_owned(kind: String, subject: String, id: String, proo
 	if not context.ok: return context
 	var session := capture_live_session()
 	if not session.ok: return session
-	var before := capture_run_snapshot_input().duplicate(true)
+	var before := capture_run_snapshot_input()
 	var boundary: Dictionary = _scene_event_bridge.capture_scene_event_boundary()
 	if not boundary.get("ok", false): return boundary
 	var prepared: Dictionary
@@ -4826,7 +4830,7 @@ func _commit_scene_shop_owned(item_id: String, quantity: int, id: String, proof:
 	if not context.ok: return context
 	if not _SCENE_EVENT._equal(context.value, source_context):
 		return _transaction_failure(&"scene_shop_source_changed", "")
-	var before := capture_run_snapshot_input().duplicate(true)
+	var before := capture_run_snapshot_input()
 	var boundary: Dictionary = _scene_event_bridge.capture_scene_event_boundary()
 	if not boundary.get("ok", false): return boundary
 	var prepared := _prepare_scene_shop_gameplay(item_id, quantity, id, context.value.identity)
@@ -4951,7 +4955,7 @@ func _commit_scene_round_owned(request: Dictionary, lease: String) -> Dictionary
 	var ordinal: int = int(captured.identity.app_round_ordinal)
 	if ordinal != minesweeper_app_rounds_finished_today + 1:
 		return _transaction_failure(&"scene_round_ordinal_changed", "")
-	var before := capture_run_snapshot_input().duplicate(true)
+	var before := capture_run_snapshot_input()
 	if not _SCENE_EVENT._equal(before.desktop.board, captured):
 		return _transaction_failure(&"scene_round_board_changed", "")
 	var boundary: Dictionary = _scene_event_bridge.capture_scene_event_boundary()

@@ -109,7 +109,7 @@ func begin(request: Dictionary) -> Dictionary:
 		return _fail(&"physical_presentation_unavailable",
 			"the owner returned no nonblank token bound to these command bytes", {})
 	command["physical_token"] = physical_token
-	_commands[completion_id] = command.duplicate(true)
+	_commands[completion_id] = command
 	return _ok({"presentation_command": command.duplicate(true)})
 
 
@@ -178,7 +178,7 @@ func complete(request: Dictionary) -> Dictionary:
 			return _fail(&"physical_completion_conflict",
 				"this completion transaction already settled with different bytes", {})
 		return _completion_result(receipt)
-	_settled[completion_id] = receipt.duplicate(true)
+	_settled[completion_id] = receipt
 	return _completion_result(receipt)
 
 

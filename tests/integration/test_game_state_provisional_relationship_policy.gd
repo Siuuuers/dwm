@@ -159,29 +159,29 @@ func test_all_six_promised_relationship_outcomes_apply_exact_stats_and_attitudes
 
 func test_pair_ending_counts_distinct_contacts_windows_including_offscreen_meetings() -> void:
 	var contacts_owner := preload("res://scripts/domain/contact/ContactInvitationState.gd")
-	GameState.reset_game()
+	var owner := _owner()
 	for pair: Array in [[2, "window-two"], [2, "window-two-replay"], [6, "window-six"]]:
-		var resolved: Dictionary = contacts_owner.prepare_resolve_day_end(GameState.contacts,
+		var resolved: Dictionary = contacts_owner.prepare_resolve_day_end(owner.contacts,
 			int(pair[0]), {}, str(pair[1]))
 		assert_true(resolved.get("ok", false), str(resolved))
-		GameState.contacts = resolved.value.candidate
-		assert_eq(GameState.get_counted_pair_window_count(), 2 if int(pair[0]) == 6 else 1)
-	assert_true(GameState.should_route_priscilla_lavinia_post_ending())
-	assert_false(GameState.inter_friend_route_state.get("priscilla_lavinia", {}).get("ending_eligible", false),
+		owner.contacts = resolved.value.candidate
+		assert_eq(owner.get_counted_pair_window_count(), 2 if int(pair[0]) == 6 else 1)
+	assert_true(owner.should_route_priscilla_lavinia_post_ending())
+	assert_false(owner.inter_friend_route_state.get("priscilla_lavinia", {}).get("ending_eligible", false),
 		"eligibility reads existing receipts without a duplicate mutable counter")
 
 
 func test_attended_solo_window_does_not_count_toward_pair_ending() -> void:
 	var contacts_owner := preload("res://scripts/domain/contact/ContactInvitationState.gd")
-	GameState.reset_game()
+	var owner := _owner()
 	for source_day: int in [2, 6]:
 		var attendance := {"solo_attended_action_ids": ["solo:priscilla:day2"]} if source_day == 2 else {}
-		var resolved: Dictionary = contacts_owner.prepare_resolve_day_end(GameState.contacts,
+		var resolved: Dictionary = contacts_owner.prepare_resolve_day_end(owner.contacts,
 			source_day, attendance, "window-%d" % source_day)
 		assert_true(resolved.get("ok", false), str(resolved))
-		GameState.contacts = resolved.value.candidate
-	assert_eq(GameState.get_counted_pair_window_count(), 1)
-	assert_false(GameState.should_route_priscilla_lavinia_post_ending())
+		owner.contacts = resolved.value.candidate
+	assert_eq(owner.get_counted_pair_window_count(), 1)
+	assert_false(owner.should_route_priscilla_lavinia_post_ending())
 
 
 func test_frozen_held_promotion_does_not_recompute_against_a_different_loaded_branch() -> void:

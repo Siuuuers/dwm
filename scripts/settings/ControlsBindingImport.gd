@@ -26,14 +26,14 @@ static func prepare(legacy: Dictionary) -> Dictionary:
 				continue
 			var record: Dictionary = slots[slot][0]
 			var probe := RULES.defaults()
-			probe[action][slot] = record.duplicate(true)
+			probe[action][slot] = record
 			var supported := RULES.validate(probe)
 			if not supported.ok and supported.code != &"binding_conflict":
-				issues.append(supported.duplicate(true))
+				issues.append(supported)
 				continue
-			candidate[action][slot] = record.duplicate(true)
+			candidate[action][slot] = record.duplicate()
 	var complete := RULES.validate(candidate)
 	if not complete.ok:
-		issues.append(complete.duplicate(true))
+		issues.append(complete)
 	var pending := not issues.is_empty()
 	return {"bindings": RULES.defaults() if pending else candidate, "pending": pending, "issues": issues}

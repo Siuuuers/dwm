@@ -5,7 +5,7 @@ static func validate(value: Variant, schema: Dictionary) -> Dictionary:
 	var errors: Array[Dictionary] = []
 	_validate_at(value, schema, "$", errors, schema, {})
 	if errors.is_empty(): return {"ok": true, "value": _detach(value)}
-	return {"ok": false, "code": &"schema_validation_failed", "message": errors[0]["message"], "errors": errors.duplicate(true)}
+	return {"ok": false, "code": &"schema_validation_failed", "message": errors[0]["message"], "errors": errors}
 
 static func _validate_at(
 		value: Variant,

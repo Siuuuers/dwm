@@ -1062,9 +1062,9 @@ func _connect_speech_runtime() -> void:
 func _on_speech_about_to_show_text(info: Dictionary) -> void:
 	var append_value: Variant = info.get("append", false)
 	_speech_append_requested = append_value is bool and bool(append_value)
-	_speech_append_base = _speech_publication.duplicate(true) if _speech_append_requested else {}
+	_speech_append_base = _speech_publication if _speech_append_requested else {}
 	_speech_publication_generation += 1
-	_speech_publication.clear()
+	_speech_publication = {}
 
 
 func _on_speech_text_started(_info: Dictionary) -> void:
@@ -1622,8 +1622,8 @@ func _bind_ending_reading(ending_id: String, frame: Dictionary) -> void:
 
 func _complete_ending_reading(token: String) -> void:
 	if _ending_reading.get("token") != token: return
-	var ending := _ending_reading.duplicate(true)
-	_ending_reading.clear()
+	var ending := _ending_reading
+	_ending_reading = {}
 	_reading_restore_adoption = false
 	ending_playback_finished.emit(token, str(ending.ending_id), {
 		"receipt_id": str(ending.frame.playback_id) + ":complete",
@@ -2267,7 +2267,7 @@ func request_auto_step(expected_frontier: Dictionary) -> Dictionary:
 	var result: Dictionary
 	var marker := capture_scene_pending_marker()
 	if marker.get("ok", false):
-		result = _scene_event_context_provider.get_object().advance_scene_registered_marker(_scene_playable.get("material", {}).get("event", {}))
+		result = _scene_event_context_provider.get_object().advance_scene_registered_marker(_scene_playable.get("event", {}))
 	else:
 		result = _runtime_adapter.advance_one_event()
 	_progression_phase = ProgressionPhase.IDLE
@@ -3019,7 +3019,7 @@ func _prepare_scene_reading_candidate(checkpoint: Dictionary, entry_contexts: Di
 	if not restored.ok: return restored
 	var saved: Dictionary = checkpoint.reading_session
 	if saved.boundary not in ["line", "control"]: return _command_failure(&"scene_restore_boundary_unsupported")
-	var frame := NarrativeCaptionLedger.resolve_scene_frame(saved.ledger.entry_contexts, saved.occurrence_id, checkpoint.entry_id)
+	var frame := NarrativeCaptionLedger._scene_frame_view(saved.ledger.entry_contexts, saved.occurrence_id, checkpoint.entry_id)
 	if not frame.ok or not _READING_TRAVERSAL._same(frame.value, checkpoint.frozen_context) \
 			or checkpoint.transaction_id != frame.value.transaction_id \
 			or (not entry_contexts.is_empty() and not _READING_TRAVERSAL._same(entry_contexts, saved.ledger.entry_contexts)):
@@ -3994,8 +3994,8 @@ func abort_current_entry(code: StringName) -> Dictionary:
 	_active_entry = {}
 	_clear_scene_transition()
 	if not _ending_reading.is_empty() and entry.get("frozen_context") == _ending_reading.frame:
-		var ending := _ending_reading.duplicate(true)
-		_ending_reading.clear()
+		var ending := _ending_reading
+		_ending_reading = {}
 		ending_playback_retired.emit(str(ending.token), str(ending.ending_id))
 	if not _hospital_reading_command.is_empty() and entry.get("token") == _hospital_reading_token:
 		retire_reading_session()
@@ -4238,32 +4238,32 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 		var candidate: Dictionary = _reading_session._fork_scene_transition(plan)
 		if not candidate.ok: return candidate
 		var target_checkpoint := _READING_SESSION.with_reading_session(source, candidate.value.reading)
-		var snapshot_input: Dictionary = prepared.snapshot_input.duplicate(true)
+		var scene: Dictionary = {}
 		var presentation_autosave := false
 		if departing:
+			scene = prepared.snapshot_input.scene.duplicate(true)
 			var art_owner := preload("res://scripts/data/ArtManifest.gd")
-			var previous: Dictionary = snapshot_input.scene.get("presentation", {})
+			var previous: Dictionary = scene.get("presentation", {})
 			if previous.is_empty() and not node.get("presentation_commands", []).is_empty():
-				previous = art_owner.make_scene_presentation(snapshot_input.scene.entry_id)
+				previous = art_owner.make_scene_presentation(scene.entry_id)
 			var visual := art_owner.apply_presentation_commands(node.get("presentation_commands", []), previous)
 			if not visual.ok: return visual
-			if not visual.value.state.is_empty(): snapshot_input.scene["presentation"] = visual.value.state
+			if not visual.value.state.is_empty(): scene["presentation"] = visual.value.state
 			presentation_autosave = visual.value.autosave
 			for cue: Dictionary in node.get("audio_cues", []):
-				if cue.kind == "music": snapshot_input.scene["music_plan_id"] = cue.id
-		var material := {"snapshot_input": snapshot_input, "checkpoint": target_checkpoint, "event": event}
-		_scene_playable = {"native_token": native.value, "material": material,
-			"prepared": prepared.duplicate(true), "source_session": _reading_session,
+				if cue.kind == "music": scene["music_plan_id"] = cue.id
+		_scene_playable = {"native_token": native.value, "scene": scene, "checkpoint": target_checkpoint,
+			"event": event, "prepared": prepared, "source_session": _reading_session,
 			"source_entry": _active_entry.duplicate(true), "runtime": _runtime_adapter,
 			"candidate": candidate.value.candidate, "lease": lease, "owner": owner,
 			"presentation_autosave": presentation_autosave}
 	else:
-		if not _READING_TRAVERSAL._same(_scene_playable.material.event, event) \
+		if not _READING_TRAVERSAL._same(_scene_playable.event, event) \
 				or not _READING_TRAVERSAL._same(_scene_playable.prepared, prepared) or _scene_playable.owner != owner:
 			return _command_failure(&"scene_playable_retry_mismatch")
 		_scene_playable.lease = lease
 	if not _scene_playable_current(): return _command_failure(&"scene_playable_source_changed")
-	var checkpoint: Dictionary = _scene_playable.material.checkpoint.duplicate(true)
+	var checkpoint: Dictionary = _scene_playable.checkpoint.duplicate(true)
 	if departing:
 		var candidate: RefCounted = _scene_playable.candidate
 		var source_token: RefCounted = _scene_playable.native_token
@@ -4274,7 +4274,7 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 		var continued: Dictionary = _runtime_adapter.install_scene_continuation(candidate, checkpoint, source_token)
 		if not continued.get("ok", false):
 			return {"ok": false, "code": continued.get("code", &"scene_continuation_native_refused"), "committed": true}
-		var scene: Dictionary = _scene_playable.material.snapshot_input.scene.duplicate(true)
+		var scene: Dictionary = _scene_playable.scene
 		var presentation_autosave: bool = _scene_playable.presentation_autosave
 		_scene_playable = {}
 		return {"ok": true, "value": {"checkpoint": checkpoint, "scene": scene, "presentation_autosave": presentation_autosave}}
@@ -4297,9 +4297,9 @@ func _scene_playable_current() -> bool:
 	if not owner.get("ok", false): return false
 	var native: Dictionary = _runtime_adapter.validate_scene_source(_scene_playable.native_token, _reading_session)
 	if not native.ok: return false
-	var candidate: Dictionary = _scene_playable.candidate.capture(_scene_playable.material.checkpoint.reading_session.frontier)
+	var candidate: Dictionary = _scene_playable.candidate.capture(_scene_playable.checkpoint.reading_session.frontier)
 	return candidate.ok \
-		and _READING_TRAVERSAL._same(candidate.value, _scene_playable.material.checkpoint.reading_session)
+		and _READING_TRAVERSAL._same(candidate.value, _scene_playable.checkpoint.reading_session)
 
 
 var _scene_event_port: RefCounted
@@ -4357,7 +4357,7 @@ func request_scene_marker_step(expected: Dictionary) -> Dictionary:
 	var game: Object = _scene_event_context_provider.get_object()
 	var resolved: Dictionary = game.capture_resolved_scene_marker()
 	if not resolved.get("ok", false): return resolved
-	var admitted: Dictionary = game.advance_scene_registered_marker(_scene_playable.get("material", {}).get("event", {}))
+	var admitted: Dictionary = game.advance_scene_registered_marker(_scene_playable.get("event", {}))
 	if not admitted.get("ok", false) or not caption_scoped or not resolved.value.is_empty(): return admitted
 	return game.continue_optional_scene_challenge()
 
@@ -4375,7 +4375,7 @@ func _admit_caption_challenge_on_open() -> Dictionary:
 	if not _line_presentation_context(current).get("ok", false): return _command_failure(&"presentation_frontier_changed")
 	var acknowledged := _acknowledge_next_source(current)
 	if not acknowledged.ok: return acknowledged
-	return _scene_event_context_provider.get_object().advance_scene_registered_marker(_scene_playable.get("material", {}).get("event", {}))
+	return _scene_event_context_provider.get_object().advance_scene_registered_marker(_scene_playable.get("event", {}))
 
 func _scene_caption_challenge_end() -> Dictionary:
 	if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary not in ["line", "control"]:
@@ -4461,7 +4461,7 @@ func capture_scene_challenge_control() -> Dictionary:
 	if index < 0 or index >= nodes.size() or not nodes[index].get("marker_id") is String:
 		return _command_failure(&"scene_challenge_control_required")
 	return {"ok": true, "value": {"marker_id": nodes[index].marker_id,
-		"checkpoint": boundary.value.checkpoint.duplicate(true)}}
+		"checkpoint": boundary.value.checkpoint}}
 
 func capture_scene_event_boundary() -> Dictionary:
 	if not _computer_hold_frontier.is_empty() and (_computer_hold_changing or not _computer_frontier_matches(true)):

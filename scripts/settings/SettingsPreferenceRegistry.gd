@@ -113,14 +113,14 @@ static func validate(path: StringName, value: Variant) -> Dictionary:
 				return _invalid(key, "value must be a finite float from 0.0 through 1.0")
 		_:
 			return _invalid(key, "registry record type is invalid")
-	return {"ok": true, "code": &"ok", "value": _duplicate_value(value)}
+	return {"ok": true, "code": &"ok", "value": value}
 
 
 static func default_value(path: StringName) -> Variant:
 	var record := _record_for(path)
 	if record.is_empty():
 		return null
-	return _duplicate_value(record["default_value"])
+	return record["default_value"]
 
 
 static func visible_records(section_id: StringName) -> Array[Dictionary]:
@@ -145,12 +145,6 @@ static func _record_for(path: StringName) -> Dictionary:
 		if record["path"] == path:
 			return record
 	return {}
-
-
-static func _duplicate_value(value: Variant) -> Variant:
-	if typeof(value) == TYPE_DICTIONARY or typeof(value) == TYPE_ARRAY:
-		return value.duplicate(true)
-	return value
 
 
 static func _invalid(path: String, message: String) -> Dictionary:

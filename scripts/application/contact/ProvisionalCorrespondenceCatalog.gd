@@ -73,7 +73,7 @@ static func build() -> Dictionary:
 			catalog[id]["hospital_followup"] = {
 				"explanation": {"outgoing": true, "texts": _texts("hospital_explanation")},
 				"reaction": {"outgoing": false, "texts": _texts("hospital_" + friend)}}
-	return catalog.duplicate(true)
+	return catalog
 
 
 static func _put(catalog: Dictionary, message_id: String, kind: String) -> void:
@@ -84,6 +84,6 @@ static func _put(catalog: Dictionary, message_id: String, kind: String) -> void:
 
 
 static func _texts(kind: String) -> Dictionary:
-	var texts: Dictionary = (_COPY[kind] as Dictionary).duplicate(true)
+	var texts: Dictionary = (_COPY[kind] as Dictionary).duplicate()
 	for locale: String in ["ja", "ko"]: texts[locale] = texts.en
 	return texts

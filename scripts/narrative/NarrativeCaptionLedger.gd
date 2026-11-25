@@ -35,6 +35,12 @@ func fork_live() -> NarrativeCaptionLedger:
 	candidate._publication_serial = _publication_serial
 	return candidate
 
+func fork_legacy_checkpoint() -> NarrativeCaptionLedger:
+	var candidate := fork_live()
+	# Legacy saves derive the next serial from published rows on restore.
+	candidate._publication_serial = _sequence.size()
+	return candidate
+
 func matches_live_history(retained: NarrativeCaptionLedger) -> bool:
 	if retained == null or _scene != retained._scene or _session_token != retained._session_token \
 			or _entry_contexts_required != retained._entry_contexts_required \
@@ -310,12 +316,17 @@ static func valid_scene_frame(frame: Dictionary, occurrence_id: String, entry_id
 		and not fields.admission_receipt_id.strip_edges().is_empty() and FROZEN._primitive(frame)
 
 static func resolve_scene_frame(frames: Dictionary, occurrence_id: String, entry_id: String) -> Dictionary:
+	var frame := _scene_frame_view(frames, occurrence_id, entry_id)
+	if frame.ok: frame.value = frame.value.duplicate(true)
+	return frame
+
+static func _scene_frame_view(frames: Dictionary, occurrence_id: String, entry_id: String) -> Dictionary:
 	var key := scene_frame_key(occurrence_id, entry_id)
 	if key.is_empty() or not frames.has(key):
 		return {"ok": false, "code": &"caption_entry_context_missing"}
 	if not frames[key] is Dictionary or not valid_scene_frame(frames[key], occurrence_id, entry_id):
 		return {"ok": false, "code": &"caption_entry_context_invalid"}
-	return {"ok": true, "value": frames[key].duplicate(true)}
+	return {"ok": true, "value": frames[key]}
 
 func _restore_scene_snapshot(session_token: String, frozen_context: Dictionary,
 		entry_manifest: Dictionary, registry: Dictionary, saved: Dictionary,

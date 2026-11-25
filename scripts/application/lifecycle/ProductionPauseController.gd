@@ -703,7 +703,7 @@ func _capture_ending_reading_backup_inputs() -> Dictionary:
 			or not _backup_admission().get("ok", false):
 		return _failure(&"pause_source_changed")
 	if not inputs.snapshot_input.has("scene"):
-		var snapshot: Dictionary = inputs.snapshot_input.duplicate(true)
+		var snapshot: Dictionary = inputs.snapshot_input.duplicate()
 		snapshot["route_id"] = "ending"
 		var authority := preload("res://scripts/narrative/FrozenRunContext.gd").validate_reading_checkpoint(checkpoint.value, snapshot)
 		if not authority.get("ok", false): return authority

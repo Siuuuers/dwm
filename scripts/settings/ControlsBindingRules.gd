@@ -58,8 +58,8 @@ static func propose(bindings: Variant, action: String, slot: String, binding: Va
 		var other := String(record.id)
 		if other != action and _contexts_overlap(source.contexts, record.contexts) and before[other][slot] == binding:
 			conflicts.append(other)
-			after[other][slot] = before[action][slot].duplicate(true)
-	after[action][slot] = binding.duplicate(true)
+			after[other][slot] = after[action][slot]
+	after[action][slot] = binding.duplicate()
 	checked = validate(after)
 	return {"ok": true, "code": &"ok", "value": {
 		"action": action, "slot": slot, "revision": revision,

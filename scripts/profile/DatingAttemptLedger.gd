@@ -33,7 +33,7 @@ static func read(ledger: Dictionary, run_id: String, slot_id: String,
 	var history: Dictionary = slot.attempts[selected]
 	var branch: String = str(history.origin_branch_id) if branch_id.is_empty() else branch_id
 	if not history.progress_by_branch.has(branch): return _fail(&"dating_branch_missing")
-	return _ok(_flatten(run_id, slot_id, selected, branch, history))
+	return _ok(_flatten(run_id, slot_id, selected, branch, history).duplicate(true))
 
 static func prepare_update(ledger: Dictionary, run_id: String, slot_id: String, branch_id: String,
 		record: Dictionary, expected_revision: int, first_cell_index: int = -1,
@@ -93,16 +93,14 @@ static func prepare_update(ledger: Dictionary, run_id: String, slot_id: String, 
 			previous = restored.value
 			copied = true
 	if copied and expected_revision != 0: return _fail(&"dating_revision_conflict")
-	var flat := {}
-	if not previous.is_empty(): flat = {run_id: {slot_id: previous}}
-	var prepared := _prepare_flat(flat, run_id, slot_id, effective_branch, record,
+	var prepared := _prepare_attempt(previous, run_id, slot_id, effective_branch, record,
 		1 if copied else expected_revision, first_cell_index, frozen_effect)
 	if not prepared.ok: return prepared
 	var attempt: Dictionary = prepared.value.attempt
 	attempt["generation"] = generation
 	if copied: attempt.revision = 1
 	if not copied and not prepared.value.changed:
-		return _ok({"ledger": ledger.duplicate(true), "attempt": attempt.duplicate(true), "changed": false})
+		return _ok({"ledger": ledger.duplicate(true), "attempt": attempt, "changed": false})
 	var candidate := ledger.duplicate(true)
 	if not candidate.has(run_id): candidate[run_id] = {}
 	if slot.is_empty():
@@ -114,7 +112,7 @@ static func prepare_update(ledger: Dictionary, run_id: String, slot_id: String, 
 	attempts[attempt_id].progress_by_branch[effective_branch] = _progress(attempt)
 	var checked := validate(candidate)
 	if not checked.ok: return checked
-	return _ok({"ledger": candidate, "attempt": attempt.duplicate(true), "changed": true})
+	return _ok({"ledger": candidate, "attempt": attempt, "changed": true})
 
 static func prepare_continuation(ledger: Dictionary, run_id: String, slot_id: String,
 		attempt_id: String, source_branch_id: String, branch_id: String, saved_record: Dictionary) -> Dictionary:
@@ -135,12 +133,12 @@ static func _copy_saved(source: Dictionary, saved_record: Dictionary, branch_id:
 		if source.materialization_receipt == null: return _fail(&"dating_materialization_conflict")
 		first_cell = int(source.materialization_receipt.first_cell_index)
 	var saved_effect: Dictionary = saved_record.applied_result.get("receipt", {})
-	var copied := _prepare_flat({}, source.run_id, source.slot_id, branch_id, saved_record, 0, first_cell, saved_effect)
+	var copied := _prepare_attempt({}, source.run_id, source.slot_id, branch_id, saved_record, 0, first_cell, saved_effect)
 	if not copied.ok: return copied
 	var attempt: Dictionary = copied.value.attempt
 	var source_first: int = int(source.materialization_receipt.first_cell_index) if source.materialization_receipt != null else -1
 	var source_effect: Dictionary = source.effect_receipt.value if source.effect_receipt != null else {}
-	var checked := _prepare_flat({source.run_id: {source.slot_id: attempt}}, source.run_id,
+	var checked := _prepare_attempt(attempt, source.run_id,
 		source.slot_id, branch_id, source.record, 1, source_first, source_effect)
 	if not checked.ok: return _fail(&"dating_saved_progress_conflict")
 	attempt["generation"] = source.generation
@@ -148,9 +146,9 @@ static func _copy_saved(source: Dictionary, saved_record: Dictionary, branch_id:
 
 static func _flatten(run_id: String, slot_id: String, attempt_id: String, branch_id: String,
 		history: Dictionary) -> Dictionary:
-	var attempt: Dictionary = history.progress_by_branch[branch_id].duplicate(true)
+	var attempt: Dictionary = history.progress_by_branch[branch_id].duplicate()
 	attempt.merge({"run_id": run_id, "slot_id": slot_id, "attempt_id": attempt_id, "branch_id": branch_id,
-		"entry_receipt": history.entry_receipt.duplicate(true), "generation": history.generation})
+		"entry_receipt": history.entry_receipt, "generation": history.generation})
 	return attempt
 
 static func _progress(attempt: Dictionary) -> Dictionary:
@@ -186,7 +184,7 @@ static func validate(ledger: Variant) -> Dictionary:
 					var checked := validate_attempt(_flatten(run_id, slot_id, attempt_id, branch_id, history))
 					if not checked.ok: return checked
 					if progress.record.schema_version == 4 and slot.attempts.size() != 1: return _fail(&"scene_challenge_attempt_already_started")
-	return _ok(ledger.duplicate(true))
+	return {"ok": true, "code": &"ok"}
 
 static func preserves(previous: Dictionary, candidate: Dictionary) -> bool:
 	for run_id: String in previous:
@@ -204,8 +202,7 @@ static func preserves(previous: Dictionary, candidate: Dictionary) -> bool:
 					if before[key] != after[key]: return false
 				for branch_id: String in before.progress_by_branch:
 					if not after.progress_by_branch.has(branch_id): return false
-					if not _preserves_flat({run_id: {slot_id: _flatten(run_id, slot_id, attempt_id, branch_id, before)}},
-							{run_id: {slot_id: _flatten(run_id, slot_id, attempt_id, branch_id, after)}}): return false
+					if not _preserves_progress(before.progress_by_branch[branch_id], after.progress_by_branch[branch_id]): return false
 	return true
 
 static func upgrade_v6(ledger: Dictionary) -> Dictionary:
@@ -220,23 +217,23 @@ static func upgrade_v6(ledger: Dictionary) -> Dictionary:
 				old.attempt_id: {"generation": 1, "origin_branch_id": old.branch_id,
 					"entry_receipt": old.entry_receipt.duplicate(true),
 					"progress_by_branch": {old.branch_id: _progress(old)}}}}
-	return validate(candidate)
+	var validated := validate(candidate)
+	return _ok(candidate) if validated.ok else validated
 
-static func _prepare_flat(ledger: Dictionary, run_id: String, slot_id: String, branch_id: String,
+static func _prepare_attempt(previous: Dictionary, run_id: String, slot_id: String, branch_id: String,
 		record: Dictionary, expected_revision: int, first_cell_index: int = -1,
 		frozen_effect: Dictionary = {}) -> Dictionary:
 	if run_id.strip_edges().is_empty() or branch_id.strip_edges().is_empty() or expected_revision < 0 \
 			or not _valid_record(record) or slot_id != semantic_slot(record.context):
 		return _fail(&"invalid_dating_attempt")
 	if record.schema_version == 4:
-		return _prepare_scene_flat(ledger, run_id, slot_id, branch_id, record, expected_revision, first_cell_index, frozen_effect)
-	var previous: Dictionary = ledger.get(run_id, {}).get(slot_id, {})
+		return _prepare_scene_attempt(previous, run_id, slot_id, branch_id, record, expected_revision, first_cell_index, frozen_effect)
 	if not previous.is_empty() and not validate_attempt(previous).ok: return _fail(&"invalid_dating_attempt")
 	var attempt: Dictionary
 	if previous.is_empty():
 		attempt = {"run_id": run_id, "slot_id": slot_id, "attempt_id": record.spec.board_token,
 			"branch_id": branch_id, "revision": 1, "record": record.duplicate(true),
-			"entry_receipt": _entry(record), "materialization_receipt": null, "clear_receipt": null,
+			"entry_receipt": _entry(record).duplicate(true), "materialization_receipt": null, "clear_receipt": null,
 			"terminal_receipt": null, "effect_receipt": null, "completion_receipt": null}
 	else:
 		attempt = previous.duplicate(true)
@@ -248,7 +245,7 @@ static func _prepare_flat(ledger: Dictionary, run_id: String, slot_id: String, b
 		if attempt.materialization_receipt == null:
 			if first_cell_index < 0: return _fail(&"dating_first_cell_required")
 			attempt.materialization_receipt = {"first_cell_index": first_cell_index,
-				"layout": _layout(record.board), "mine_dispositions": record.mine_dispositions.duplicate()}
+				"layout": _layout(record.board).duplicate(true), "mine_dispositions": record.mine_dispositions.duplicate()}
 			if record.schema_version == 3: attempt.materialization_receipt["shell"] = record.envelope.shell.duplicate(true)
 		elif first_cell_index != -1 and first_cell_index != attempt.materialization_receipt.first_cell_index:
 			return _fail(&"dating_materialization_conflict")
@@ -266,15 +263,12 @@ static func _prepare_flat(ledger: Dictionary, run_id: String, slot_id: String, b
 	if not previous.is_empty():
 		for key: String in RECEIPTS:
 			if previous[key] != null and attempt[key] != previous[key]: return _fail(&"dating_receipt_conflict")
-		if attempt == previous: return _ok({"ledger": ledger.duplicate(true), "attempt": attempt, "changed": false})
+		if attempt == previous: return _ok({"attempt": attempt, "changed": false})
 		attempt.revision = int(previous.revision) + 1
 	if expected_revision != int(previous.get("revision", 0)): return _fail(&"dating_revision_conflict")
 	var checked := validate_attempt(attempt)
 	if not checked.ok: return checked
-	var candidate := ledger.duplicate(true)
-	if not candidate.has(run_id): candidate[run_id] = {}
-	candidate[run_id][slot_id] = attempt.duplicate(true)
-	return _ok({"ledger": candidate, "attempt": attempt.duplicate(true), "changed": true})
+	return _ok({"attempt": attempt, "changed": true})
 
 static func validate_v6(ledger: Variant) -> Dictionary:
 	if not ledger is Dictionary: return _fail(&"invalid_dating_ledger")
@@ -287,23 +281,15 @@ static func validate_v6(ledger: Variant) -> Dictionary:
 			var checked := validate_attempt(attempt)
 			if not checked.ok: return checked
 			if attempt.run_id != run_id or attempt.slot_id != slot_id: return _fail(&"invalid_dating_ledger")
-	return _ok(ledger.duplicate(true))
+	return {"ok": true, "code": &"ok"}
 
-static func _preserves_flat(previous: Dictionary, candidate: Dictionary) -> bool:
-	for run_id: String in previous:
-		if not candidate.has(run_id): return false
-		for slot_id: String in previous[run_id]:
-			if not candidate[run_id].has(slot_id): return false
-			var before: Dictionary = previous[run_id][slot_id]
-			var after: Dictionary = candidate[run_id][slot_id]
-			if before == after: continue
-			if after.revision <= before.revision or after.attempt_id != before.attempt_id \
-					or after.branch_id != before.branch_id or after.entry_receipt != before.entry_receipt \
-					or PHASES.find(after.record.phase) < PHASES.find(before.record.phase) \
-					or not ENVELOPE.advances(before.record, after.record) \
-					or not _board_advances(before.record.board, after.record.board): return false
-			for key: String in RECEIPTS:
-				if before[key] != null and after[key] != before[key]: return false
+static func _preserves_progress(before: Dictionary, after: Dictionary) -> bool:
+	if before == after: return true
+	if after.revision <= before.revision or PHASES.find(after.record.phase) < PHASES.find(before.record.phase) \
+			or not ENVELOPE.advances(before.record, after.record) \
+			or not _board_advances(before.record.board, after.record.board): return false
+	for key: String in RECEIPTS:
+		if before[key] != null and after[key] != before[key]: return false
 	return true
 
 static func validate_attempt(attempt: Dictionary) -> Dictionary:
@@ -333,7 +319,7 @@ static func validate_attempt(attempt: Dictionary) -> Dictionary:
 		for cell: int in initial.value.board.revealed_indices:
 			if not record.board.revealed_indices.has(cell): return _fail(&"invalid_dating_materialization")
 		if record.board.actions.size() == (material.shell.actions.size() if record.schema_version == 3 else 0):
-			var initial_board: Dictionary = initial.value.board.duplicate(true)
+			var initial_board: Dictionary = initial.value.board
 			initial_board.outcome = str(initial_board.outcome)
 			if initial_board != record.board: return _fail(&"invalid_dating_materialization")
 	var clear: Variant = {"outcome": record.outcome, "perfect_reasons": record.perfect_reasons} \
@@ -358,7 +344,7 @@ static func validate_attempt(attempt: Dictionary) -> Dictionary:
 	var completion: Variant = {"receipt_id": str(attempt.attempt_id) + ":complete", "outcome": record.outcome} \
 		if record.phase == "completed" else null
 	if attempt.completion_receipt != completion: return _fail(&"invalid_dating_receipt")
-	return _ok(attempt.duplicate(true))
+	return {"ok": true, "code": &"ok"}
 
 static func _valid_effect(effect: Dictionary, record: Dictionary, slot_id: String) -> bool:
 	if not (_keys(effect, EFFECT_KEYS) or _keys(effect, EFFECT_KEYS + ["promotion_applied"])) \
@@ -395,18 +381,18 @@ static func semantic_slot(context: Dictionary) -> String:
 
 static func _entry(record: Dictionary) -> Dictionary:
 	if record.schema_version == 4:
-		return {"record_version": 4, "context": record.context.duplicate(true), "host": record.host, "spec": record.spec.duplicate(true)}
-	var entry := {"spec": record.spec.duplicate(true), "context": record.context.duplicate(true),
+		return {"record_version": 4, "context": record.context, "host": record.host, "spec": record.spec}
+	var entry := {"spec": record.spec, "context": record.context,
 		"host": record.host, "pair_form": record.pair_form}
 	if record.schema_version == 3:
 		entry["record_version"] = 3
-		entry["prepared_layout"] = record.envelope.prepared_layout.duplicate(true) if record.envelope.prepared_layout != null else null
+		entry["prepared_layout"] = record.envelope.prepared_layout
 		entry["forced_cell"] = record.envelope.forced_cell
 	return entry
 
 static func _layout(board: Dictionary) -> Dictionary:
 	return {"schema_version": 1, "width": board.width, "height": board.height,
-		"mine_count": board.mine_count, "mine_indices": board.mine_indices.duplicate()}
+		"mine_count": board.mine_count, "mine_indices": board.mine_indices}
 
 static func _board_advances(before: Variant, after: Variant) -> bool:
 	if before == null: return true
@@ -493,7 +479,8 @@ static func resolve_attempt_proof(ledger: Dictionary, proof: Dictionary) -> Dict
 	if not _valid_proof_shape(proof): return _fail(&"invalid_scene_attempt_proof")
 	var found: Dictionary = read(ledger, proof.run_id, proof.slot_id, proof.attempt_id, proof.branch_id)
 	if not found.ok: return found
-	return validate_attempt_proof(found.value, proof)
+	var checked := validate_attempt_proof(found.value, proof)
+	return found if checked.ok else checked
 
 static func validate_attempt_proof(attempt: Dictionary, proof: Dictionary) -> Dictionary:
 	if not _valid_proof_shape(proof): return _fail(&"invalid_scene_attempt_proof")
@@ -504,7 +491,7 @@ static func validate_attempt_proof(attempt: Dictionary, proof: Dictionary) -> Di
 	var hashed: Dictionary = CANONICAL.canonical_sha256(attempt.record)
 	if not hashed.ok or hashed.value.sha256 != proof.get("record_sha256"):
 		return _fail(&"scene_attempt_proof_conflict")
-	return _ok(attempt.duplicate(true))
+	return {"ok": true, "code": &"ok"}
 
 static func _valid_scene_record(record: Dictionary) -> bool:
 	if not _keys(record, SCENE_RECORD_KEYS) or not _scene_json(record) \
@@ -549,16 +536,17 @@ static func _valid_fresh_scene_entry(record: Dictionary, first_cell: int) -> boo
 	var plain: Dictionary = ENVELOPE.plain_frontier(initial.value.board)
 	return plain.get("ok", false) and plain.value == record.board
 
-static func _prepare_scene_flat(ledger: Dictionary, run_id: String, slot_id: String, branch_id: String,
+static func _prepare_scene_attempt(previous: Dictionary, run_id: String, slot_id: String, branch_id: String,
 		record: Dictionary, expected_revision: int, first_cell: int, effect: Dictionary) -> Dictionary:
 	if not effect.is_empty(): return _fail(&"invalid_dating_effect_receipt")
-	var previous: Dictionary = ledger.get(run_id, {}).get(slot_id, {})
 	if not previous.is_empty() and not validate_attempt(previous).ok: return _fail(&"invalid_dating_attempt")
-	var attempt := {"run_id": run_id, "slot_id": slot_id, "attempt_id": record.spec.board_token,
-		"branch_id": branch_id, "revision": 1, "record": record.duplicate(true), "entry_receipt": _entry(record),
-		"materialization_receipt": null, "clear_receipt": null, "terminal_receipt": null,
-		"effect_receipt": null, "completion_receipt": null}
-	if not previous.is_empty():
+	var attempt: Dictionary
+	if previous.is_empty():
+		attempt = {"run_id": run_id, "slot_id": slot_id, "attempt_id": record.spec.board_token,
+			"branch_id": branch_id, "revision": 1, "record": record.duplicate(true), "entry_receipt": _entry(record).duplicate(true),
+			"materialization_receipt": null, "clear_receipt": null, "terminal_receipt": null,
+			"effect_receipt": null, "completion_receipt": null}
+	else:
 		if previous.entry_receipt != _entry(record): return _fail(&"dating_entry_conflict")
 		if not ENVELOPE.advances(previous.record, record) or not _board_advances(previous.record.board, record.board):
 			return _fail(&"dating_attempt_rewind")
@@ -568,7 +556,7 @@ static func _prepare_scene_flat(ledger: Dictionary, run_id: String, slot_id: Str
 		if attempt.materialization_receipt == null:
 			if first_cell < 0: return _fail(&"dating_first_cell_required")
 			attempt.materialization_receipt = {"first_cell_index": first_cell,
-				"layout": _layout(record.board), "shell": record.envelope.shell.duplicate(true)}
+				"layout": _layout(record.board).duplicate(true), "shell": record.envelope.shell.duplicate(true)}
 		elif first_cell != -1 and first_cell != attempt.materialization_receipt.first_cell_index:
 			return _fail(&"dating_materialization_conflict")
 	elif first_cell != -1: return _fail(&"dating_materialization_conflict")
@@ -577,14 +565,11 @@ static func _prepare_scene_flat(ledger: Dictionary, run_id: String, slot_id: Str
 	if not previous.is_empty():
 		for key: String in RECEIPTS:
 			if previous[key] != null and attempt[key] != previous[key]: return _fail(&"dating_receipt_conflict")
-		if attempt == previous: return _ok({"ledger": ledger.duplicate(true), "attempt": attempt, "changed": false})
+		if attempt == previous: return _ok({"attempt": attempt, "changed": false})
 		attempt.revision = int(previous.revision) + 1
 	if expected_revision != int(previous.get("revision", 0)): return _fail(&"dating_revision_conflict")
 	if not validate_attempt(attempt).ok: return _fail(&"invalid_dating_attempt")
-	var candidate: Dictionary = ledger.duplicate(true)
-	if not candidate.has(run_id): candidate[run_id] = {}
-	candidate[run_id][slot_id] = attempt.duplicate(true)
-	return _ok({"ledger": candidate, "attempt": attempt, "changed": true})
+	return _ok({"attempt": attempt, "changed": true})
 
 static func _validate_scene_attempt(attempt: Dictionary) -> Dictionary:
 	if not _scene_json(attempt): return _fail(&"invalid_dating_attempt")
@@ -594,7 +579,7 @@ static func _validate_scene_attempt(attempt: Dictionary) -> Dictionary:
 			or attempt.effect_receipt != null or attempt.completion_receipt != null: return _fail(&"invalid_dating_receipt")
 	var material: Variant = attempt.materialization_receipt
 	if record.board == null:
-		return _ok(attempt.duplicate(true)) if material == null else _fail(&"invalid_dating_materialization")
+		return {"ok": true, "code": &"ok"} if material == null else _fail(&"invalid_dating_materialization")
 	if not material is Dictionary or not _keys(material, ["first_cell_index", "layout", "shell"]) \
 			or typeof(material.first_cell_index) != TYPE_INT or material.layout != _layout(record.board) \
 			or material.shell != record.envelope.shell: return _fail(&"invalid_dating_materialization")
@@ -607,7 +592,7 @@ static func _validate_scene_attempt(attempt: Dictionary) -> Dictionary:
 	if record.board.actions.size() == material.shell.actions.size():
 		var plain: Dictionary = ENVELOPE.plain_frontier(initial.value.board)
 		if not plain.ok or plain.value != record.board: return _fail(&"invalid_dating_materialization")
-	return _ok(attempt.duplicate(true))
+	return {"ok": true, "code": &"ok"}
 
 static func _id(value: Variant) -> bool:
 	return value is String and not value.strip_edges().is_empty()

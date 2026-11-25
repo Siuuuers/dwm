@@ -11,7 +11,7 @@ static func build(signature: Dictionary, mode: String = "gallery_replay") -> Dic
 	var entry: Dictionary = SIGNATURE.entry_record(signature.entry_id).value
 	if mode == "date_rehearsal" and entry.role not in ["solo_pre_challenge", "solo_post_challenge", "pair_pre_challenge_scene", "pair_post_challenge_scene"]:
 		return _fail(&"frozen_replay_mode_invalid")
-	var fields: Dictionary = signature.fields.duplicate(true)
+	var fields: Dictionary = checked.value.signature.fields
 	fields.merge({"entry_id": signature.entry_id, "entry_role": entry.role,
 		"context_source": "reached_signature", "execution_mode": mode})
 	if entry.day != null: fields["day"] = int(entry.day)
@@ -36,7 +36,9 @@ static func validate(presentation: Variant, signature: Dictionary, mode: String 
 static func immutable_fields(signature: Dictionary, mode: String = "gallery_replay") -> Dictionary:
 	var built := build(signature, mode)
 	if not built.ok: return built
-	return {"ok": true, "value": FROZEN.immutable_fields(built.value)}
+	var fields: Dictionary = built.value.fields
+	FROZEN._freeze(fields)
+	return {"ok": true, "value": fields}
 
 static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code}

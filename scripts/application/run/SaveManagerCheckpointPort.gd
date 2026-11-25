@@ -652,41 +652,7 @@ static func _normalize_outgoing_document(value: Variant, spliced: bool) -> Varia
 
 
 static func _normalize_json_string_types(value: Variant) -> Variant:
-	match typeof(value):
-		TYPE_STRING_NAME:
-			return String(value)
-		TYPE_ARRAY:
-			var source_array: Array = value
-			var normalized_array: Variant = null
-			for index: int in source_array.size():
-				var item: Variant = source_array[index]
-				var normalized_item: Variant = _normalize_json_string_types(item)
-				if normalized_array == null and not is_same(normalized_item, item):
-					normalized_array = []
-					for prior: int in index:
-						normalized_array.append(source_array[prior])
-				if normalized_array != null: normalized_array.append(normalized_item)
-			return source_array if normalized_array == null else normalized_array
-		TYPE_DICTIONARY:
-			var source_dictionary: Dictionary = value
-			var normalized_dictionary: Variant = null
-			var visited := 0
-			for raw_key: Variant in source_dictionary:
-				var key: Variant = String(raw_key) if typeof(raw_key) == TYPE_STRING_NAME else raw_key
-				var member: Variant = source_dictionary[raw_key]
-				var normalized_member: Variant = _normalize_json_string_types(member)
-				if normalized_dictionary == null and (not is_same(key, raw_key) or not is_same(normalized_member, member)):
-					normalized_dictionary = {}
-					var copied := 0
-					for prior_key: Variant in source_dictionary:
-						if copied == visited: break
-						normalized_dictionary[prior_key] = source_dictionary[prior_key]
-						copied += 1
-				if normalized_dictionary != null: normalized_dictionary[key] = normalized_member
-				visited += 1
-			return source_dictionary if normalized_dictionary == null else normalized_dictionary
-		_:
-			return value
+	return CANONICAL_JSON.normalize_engine_text(value)
 
 
 func _remember_issued_transient_record(receipt_id: String, record: Dictionary) -> void:

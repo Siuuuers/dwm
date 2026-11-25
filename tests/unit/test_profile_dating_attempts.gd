@@ -266,7 +266,11 @@ func test_failed_profile_write_keeps_live_history_and_allows_exact_retry() -> vo
 	assert_eq(manager.get_profile_snapshot(), before)
 	assert_eq(manager.get_profile_revision(), revision)
 	storage.reject_write = false
-	assert_true(manager.commit_dating_attempt(prepared.value).ok)
+	var committed: Dictionary = manager.commit_dating_attempt(prepared.value)
+	assert_true(committed.ok)
+	if not committed.ok: return
+	committed.value.attempt.record.phase = "completed"
+	assert_eq(manager.get_dating_attempt("run-a", SLOT).value.record.phase, "challenge")
 	assert_eq(manager.get_dating_attempt("run-a", SLOT).value.revision, 1)
 	assert_false(manager.commit_prepared_profile(before).ok, "ordinary Profile writes cannot erase committed attempts")
 	assert_false(manager.apply_restore_silent({"profile": before}).ok, "old restore material cannot erase committed attempts")
