@@ -238,6 +238,9 @@ func test_backup_scene_records_keep_explicit_families_and_current_times() -> voi
 	assert_eq(app.drawer_buttons["slot:5"].state_label.text, "12:34")
 	assert_eq(app.drawer_buttons["slot:6"].state_label.text, "Empty")
 	assert_eq(app._info_text.text, "Slot 1\n\n13:57")
+	var projection: Dictionary = app.refresh_view()
+	projection.value.records[0].actions.load = false
+	assert_true(app._records.autosave.actions.load, "Editing a returned projection preserves displayed actions")
 	app.show_window()
 	app._set_mode("load")
 	app._select_drawer("slot:2")

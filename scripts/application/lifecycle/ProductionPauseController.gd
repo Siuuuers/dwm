@@ -459,7 +459,7 @@ func capture_pause_view(source: Dictionary) -> Dictionary:
 				or _prelude.get_pause_projection() != prelude_projection: return _failure(&"pause_source_changed")
 		var captured: Dictionary = _prelude.capture_pause_view(source)
 		if not captured.get("ok", false): return captured
-		_prelude_anchor = captured.value.duplicate(true)
+		_prelude_anchor = captured.value
 	if not source.frontier.is_empty():
 		var bridge: Object = _services.get("bridge")
 		_caption = bridge.get_art_hold_view() if bridge != null and bridge.has_method("get_art_hold_view") else null
@@ -469,7 +469,7 @@ func capture_pause_view(source: Dictionary) -> Dictionary:
 			return _failure(&"pause_source_changed")
 		var captured: Dictionary = _caption.capture_pause_view(source)
 		if not captured.get("ok", false): return captured
-		_caption_anchor = captured.value.duplicate(true)
+		_caption_anchor = captured.value
 	elif _requested_caption != null:
 		return _failure(&"pause_source_changed")
 	return {"ok": true, "value": _view_anchor.duplicate(true)}
