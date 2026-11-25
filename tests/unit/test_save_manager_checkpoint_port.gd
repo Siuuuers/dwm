@@ -208,6 +208,8 @@ func test_commit_consequence_checkpoint_retains_and_rereads_in_same_process() ->
 	assert_true(read.value.found)
 	assert_eq(_canonical_text(read.value.stage_candidate),
 		_canonical_text(prepared.value.candidate.document.stage_candidate))
+	prepared.value.candidate.document.stage_candidate.pending.clear()
+	assert_eq(port.read_pending_consequence_checkpoint().value.stage_candidate, read.value.stage_candidate)
 	assert_false(FileAccess.file_exists(str(wired["root"]).path_join("desktop-consequence-checkpoint.json")),
 		"transient recovery never creates the legacy sidecar")
 
