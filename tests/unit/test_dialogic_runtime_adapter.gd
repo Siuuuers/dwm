@@ -189,9 +189,7 @@ func test_held_control_authored_predecessor_needs_no_saved_history() -> void:
 	assert_true(result.ok)
 	assert_eq(result.value.index, fixture.index - 1)
 	assert_eq(result.value.line_id, "line.scene.test.b.two")
-	assert_eq(result.value.marker, fixture.markers[0])
-	result.value.marker.after_line_id = "changed"
-	assert_eq(fixture.markers[0].after_line_id, "line.scene.test.b.two", "detached authored marker")
+	assert_true(is_same(result.value.marker, fixture.markers[0]), "the registration owns the authored marker")
 
 
 func test_held_control_authored_predecessor_refuses_wrong_position_and_marker() -> void:

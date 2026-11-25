@@ -164,7 +164,7 @@ func _valid_projection(friend_id: String, entries: Array, unread: Dictionary, pr
 			var presentation: Variant = entry.presentation
 			if not presentation is Dictionary: return false
 			var fields: Dictionary = presentation.get("fields", {})
-			var checked := FROZEN.validate(str(fields.get("entry_id", "")), presentation)
+			var checked := FROZEN.validated_view(str(fields.get("entry_id", "")), presentation)
 			if not checked.ok or fields.get("friend_id", friend_id) != friend_id \
 					or fields.get("target_participant_id", friend_id) != friend_id: return false
 		ids[entry.id] = true

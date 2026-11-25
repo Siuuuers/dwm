@@ -668,7 +668,7 @@ static func _validate_card(card: Dictionary) -> Dictionary:
 	if not receipt.get("entry_id") is String or not receipt.get("view_token") is String \
 		or receipt.entry_id.is_empty() or receipt.view_token.is_empty(): return _fail("invalid_prelude_receipt")
 	if card.has("presentation"):
-		var checked := FROZEN.validate(receipt.entry_id, card.presentation)
+		var checked := FROZEN.validated_view(receipt.entry_id, card.presentation)
 		if not checked.ok: return checked
 		var fields: Dictionary = card.presentation.fields
 		if fields.entry_role == "echo_fallback" and fields.due_echoes != [{"echo_id": receipt.get("echo_id"),
