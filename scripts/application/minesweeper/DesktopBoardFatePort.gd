@@ -177,13 +177,6 @@ func _prepare_projected_causal_departure(request: Dictionary) -> Dictionary:
 	return _finish_prepare(request, command_id, projected_board_candidate, fate, source_action_receipt)
 
 
-func prepare_recovery_departure(action_receipt: Dictionary, projected_board: Dictionary,
-		board_candidate: Dictionary, board_fate_receipt: Dictionary) -> Dictionary:
-	var restored := ensure_recovery_departure(action_receipt, projected_board, board_candidate, board_fate_receipt)
-	if not restored.ok: return restored
-	return (_prepared[restored.command_id].result as Dictionary).duplicate(true)
-
-
 func ensure_recovery_departure(action_receipt: Dictionary, projected_board: Dictionary,
 		board_candidate: Dictionary, board_fate_receipt: Dictionary) -> Dictionary:
 	var ready := _require_configured()
