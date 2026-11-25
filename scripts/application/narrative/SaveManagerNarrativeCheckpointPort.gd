@@ -128,7 +128,7 @@ func commit_reading_next(checkpoint: Dictionary, operation_id: String, phase: St
 		return _fail(&"transaction_in_progress", "another checkpoint command owns publication")
 	if not checkpoint.get("reading_session") is Dictionary or not checkpoint.get("entry_id") is String:
 		return _fail(&"reading_next_operation_invalid", "an exact semantic reading checkpoint is required")
-	var checked := READING_NEXT.validate(checkpoint.reading_session, checkpoint.entry_id)
+	var checked := READING_NEXT.validated_operation_view(checkpoint.reading_session, checkpoint.entry_id)
 	if not checked.ok: return checked
 	if checked.value.operation_id != operation_id or checked.value.phase != phase:
 		return _fail(&"reading_next_operation_mismatch", "the request differs from its frozen operation")

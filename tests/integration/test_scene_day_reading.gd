@@ -434,6 +434,10 @@ func test_scene_operation_path_returns_exact_detached_opposite_for_both_phases()
 		assert_true(selected.ok, str(selected))
 		if not selected.ok: return
 		var before: Dictionary = selected.value.duplicate(true)
+		var view := OP.validated_operation_view(selected.value, FIXTURE.A)
+		assert_true(view.ok)
+		if not view.ok: return
+		assert_true(is_same(view.value.plan, selected.value.next_operation.plan))
 		var expected := OP.project(planned.value, "destination" if phase == "source" else "source")
 		assert_true(expected.ok, str(expected))
 		var checked := OP.validate_scene_operation_path(selected.value, FIXTURE.A, session._scene_nodes[FIXTURE.A])
