@@ -765,7 +765,7 @@ func get_current_scene_art() -> Dictionary:
 	if entry_id == "hospital.faint" or entry_id.begins_with("hospital.faint."):
 		show_portraits = false
 		if not _active_entry.is_empty() and context.has("presentation"):
-			var frozen := preload("res://scripts/narrative/FrozenPresentationContext.gd").validate(entry_id, context.presentation)
+			var frozen := preload("res://scripts/narrative/FrozenPresentationContext.gd").validated_view(entry_id, context.presentation)
 			show_portraits = frozen.get("ok", false) and bool(frozen.value.fields.sylvia_eligible)
 		elif context.has("presentation"):
 			show_portraits = _HOSPITAL_ART.art_participants({}, context) == ["sylvia"]
@@ -1480,7 +1480,7 @@ func start_ending_presentation(ending_id: String, context: Dictionary, signature
 	if not _exact_context_keys(context): return _command_failure(&"invalid_playback_context")
 	var checked := _PRESENTATION_SIGNATURE.validate(signature)
 	if not checked.ok: return checked
-	var entry: Dictionary = _PRESENTATION_SIGNATURE.entry_record(signature.entry_id).value
+	var entry: Dictionary = _PRESENTATION_SIGNATURE.entry_record_view(signature.entry_id).value
 	var semantic_id := ending_id.trim_suffix(".full").trim_suffix(".residue").replace(".observation", ".observer")
 	if entry.ending_id != semantic_id or str(signature.fields.ending_role) != str(context.role):
 		return _command_failure(&"ending_presentation_mismatch")
@@ -1659,7 +1659,7 @@ func configure_reached_caption_collection(document: Dictionary, admissions: Arra
 		if not checked.ok: return checked
 		var signature_id: String = checked.value.signature_id
 		var entry_id: String = row.signature.entry_id
-		var entry: Dictionary = _PRESENTATION_SIGNATURE.entry_record(entry_id).value
+		var entry: Dictionary = _PRESENTATION_SIGNATURE.entry_record_view(entry_id).value
 		if admitted.has(signature_id) or not candidate.catalogue.has(entry_id) \
 				or entry.role in ["solo_pre_challenge", "solo_post_challenge", "pair_pre_challenge_scene", "pair_post_challenge_scene"] \
 				or entry_id.ends_with(".residue"):
@@ -1839,11 +1839,12 @@ func replay_reached_signature(signature_id: String) -> Dictionary:
 	if not records.get("ok", false): return records
 	var signature: Dictionary = {}
 	for record: Dictionary in records.value.records:
-		if str(record.signature_id) == signature_id: signature = record.signature.duplicate(true)
+		if str(record.signature_id) == signature_id: signature = record.signature
 	if signature.is_empty(): return _command_failure(&"presentation_not_reached")
 	var checked := _PRESENTATION_SIGNATURE.validate(signature)
 	if not checked.ok or checked.value.signature_id != signature_id: return _command_failure(&"invalid_presentation_signature")
-	var entry: Dictionary = _PRESENTATION_SIGNATURE.entry_record(signature.entry_id).value
+	signature = checked.value.signature
+	var entry: Dictionary = _PRESENTATION_SIGNATURE.entry_record_view(signature.entry_id).value
 	if entry.ending_id != null:
 		var discovered: Dictionary = _replay_profile.get_gallery_discovery_snapshot()
 		if not discovered.get("ok", false): return discovered
@@ -1868,7 +1869,7 @@ func replay_reached_signature(signature_id: String) -> Dictionary:
 		return card_started
 	var context := {"expected_stage":"gallery_replay", "playback_id":"gallery-%d" % _replay_counter,
 		"role":"gallery", "transaction_id":"gallery-%d" % _replay_counter,
-		"presentation_signature":signature.duplicate(true)}
+		"presentation_signature":signature}
 	var started := _begin_entry_playback(signature.entry_id, context, &"rehearsal", "gallery")
 	if not started.get("ok", false):
 		return _reached_start_failure(started, signature_id)
@@ -1962,7 +1963,7 @@ func _finish_reached_replay(outcome: String, code: String = "", restore_variable
 			replay.surface.hide()
 			replay.surface.queue_free()
 		var dialogic := get_node_or_null("/root/Dialogic")
-		if dialogic != null and restore_variables: dialogic.current_state_info["variables"] = replay.variables.duplicate(true)
+		if dialogic != null and restore_variables: dialogic.current_state_info["variables"] = replay.variables
 	var merged := {"ok": true, "value": {"history_added": false}}
 	if outcome in ["completed", "cancelled"] and replay.has("caption_ledger"):
 		_reached_replay["merge_busy"] = true
@@ -3103,7 +3104,7 @@ func _start_terminal_restore_native() -> void:
 		_scene_restore.proof = true
 		_confirm_scene_activation()
 		return
-	var entry: Dictionary = _PRESENTATION_SIGNATURE.entry_record(checkpoint.entry_id).value
+	var entry: Dictionary = _PRESENTATION_SIGNATURE.entry_record_view(checkpoint.entry_id).value
 	var ending_id := str(entry.ending_id)
 	if ".observer." in str(checkpoint.entry_id): ending_id = str(checkpoint.entry_id)
 	_bind_ending_reading(ending_id, checkpoint.frozen_context)
@@ -3343,7 +3344,7 @@ func _resume_reading_checkpoint(checkpoint: Dictionary, execution_mode: StringNa
 		reading_session_changed.emit()
 		return {"ok": true, "value": {}, "receipt": {}}
 	if candidate.family == "ending" and _ending_reading.is_empty():
-		var entry: Dictionary = _PRESENTATION_SIGNATURE.entry_record(checkpoint.entry_id).value
+		var entry: Dictionary = _PRESENTATION_SIGNATURE.entry_record_view(checkpoint.entry_id).value
 		var ending_id := str(entry.ending_id)
 		if ".observer." in str(checkpoint.entry_id): ending_id = str(checkpoint.entry_id)
 		_bind_ending_reading(ending_id, checkpoint.frozen_context)
@@ -3459,7 +3460,7 @@ func validate_resume_checkpoint(checkpoint: Dictionary,
 		return fingerprinted
 	return {"ok": true, "code": &"validated", "value": {
 		"content_version": int((resolved["value"] as Dictionary)["content_version"]),
-		"context_fingerprint": str((fingerprinted["value"] as Dictionary)["fingerprint"]),
+		"context_fingerprint": str(fingerprinted.value),
 		"entry_id": str(checkpoint["entry_id"]),
 		"stage": str(checkpoint["stage"]),
 		"transaction_id": str(checkpoint["transaction_id"]),
@@ -3774,12 +3775,10 @@ func _resolve_entry_for_playback(entry_id: String, expected_version: int) -> Dic
 
 
 func _context_fingerprint(context: Dictionary) -> Dictionary:
-	var frozen := context.duplicate(true)
-	var emitted: Dictionary = _CANONICAL_JSON.stringify(frozen)
+	var emitted: Dictionary = _CANONICAL_JSON.stringify(context)
 	if not emitted.get("ok", false):
 		return _playback_failure(&"context_not_canonical", str(emitted.get("message", "")))
-	return {"ok": true, "value": {
-		"fingerprint": str(emitted["value"]).sha256_text(), "frozen": frozen}}
+	return {"ok": true, "value": str(emitted.value).sha256_text()}
 
 
 func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode: StringName,
@@ -3812,8 +3811,8 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 	var fingerprinted := _context_fingerprint(context)
 	if not fingerprinted.get("ok", false):
 		return fingerprinted
-	var frozen: Dictionary = (fingerprinted["value"] as Dictionary)["frozen"]
-	var fingerprint := str((fingerprinted["value"] as Dictionary)["fingerprint"])
+	var frozen := context.duplicate(true)
+	var fingerprint := str(fingerprinted.value)
 	var reading: bool = execution_mode == &"canonical" and has_reading_session() \
 		and (token_kind != "resume" or not _reading_resume_frontier.is_empty()) \
 		and _reading_session.catalogue.has(entry_id)
@@ -4169,7 +4168,7 @@ func _validate_frozen_projection(entry_id: String, context: Dictionary) -> Dicti
 	for key: String in _PLAYBACK_CONTEXT_KEYS:
 		if not context.get(key) is String or str(context[key]).strip_edges().is_empty():
 			return _playback_failure(&"invalid_playback_context", key)
-	var checked := preload("res://scripts/narrative/FrozenPresentationContext.gd").validate(entry_id, context.presentation)
+	var checked := preload("res://scripts/narrative/FrozenPresentationContext.gd").validated_view(entry_id, context.presentation)
 	if not checked.ok: return checked
 	var fields: Dictionary = checked.value.fields
 	if str(fields.entry_role) in ["solo_pre_challenge", "solo_post_challenge", "pair_pre_challenge_scene", "pair_post_challenge_scene"] \

@@ -108,7 +108,7 @@ static func _dating_signature(record: Dictionary, fields: Dictionary, post: bool
 	return validate({"entry_id": base + (".post_challenge" if post else ".pre_challenge"),
 		"schema_version": 1, "fields": projected})
 
-static func entry_record(entry_id: String) -> Dictionary:
+static func entry_record_view(entry_id: String) -> Dictionary:
 	if _entries.is_empty():
 		var file := FileAccess.open(MANIFEST_PATH, FileAccess.READ)
 		if file == null: return _fail("presentation_manifest_unavailable")
@@ -120,14 +120,14 @@ static func entry_record(entry_id: String) -> Dictionary:
 				return _fail("presentation_manifest_unavailable")
 			_entries[row.entry_id] = row
 	if not _entries.has(entry_id): return _fail("unknown_presentation_entry")
-	return _ok(_entries[entry_id].duplicate(true))
+	return _ok(_entries[entry_id])
 
 static func validate(signature: Dictionary) -> Dictionary:
 	if not _exact(signature, ["entry_id", "fields", "schema_version"]) \
 			or not signature.entry_id is String or not signature.fields is Dictionary \
 			or typeof(signature.schema_version) != TYPE_INT or signature.schema_version != 1:
 		return _fail("invalid_presentation_signature")
-	var located := entry_record(signature.entry_id)
+	var located := entry_record_view(signature.entry_id)
 	if not located.ok: return located
 	var row: Dictionary = located.value
 	var schema := schema_for_role(str(row.role))

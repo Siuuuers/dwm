@@ -8,7 +8,7 @@ static func build(signature: Dictionary, mode: String = "gallery_replay") -> Dic
 	if mode not in ["gallery_replay", "date_rehearsal"]: return _fail(&"frozen_replay_mode_invalid")
 	var checked := SIGNATURE.validate(signature)
 	if not checked.ok: return checked
-	var entry: Dictionary = SIGNATURE.entry_record(signature.entry_id).value
+	var entry: Dictionary = SIGNATURE.entry_record_view(signature.entry_id).value
 	if mode == "date_rehearsal" and entry.role not in ["solo_pre_challenge", "solo_post_challenge", "pair_pre_challenge_scene", "pair_post_challenge_scene"]:
 		return _fail(&"frozen_replay_mode_invalid")
 	var fields: Dictionary = checked.value.signature.fields

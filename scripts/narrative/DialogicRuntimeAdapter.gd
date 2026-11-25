@@ -1510,19 +1510,18 @@ func install_frozen_presentation(presentation: Dictionary) -> Dictionary:
 	var checked := preload("res://scripts/narrative/FrozenPresentationContext.gd").validated_view(
 		str(presentation.get("fields", {}).get("entry_id", "")), presentation)
 	if not checked.ok: return checked
-	return _install_frozen_projection(checked.value)
+	return _install_frozen_fields(FrozenPresentationContext.immutable_fields(checked.value))
 
 func install_frozen_replay(signature: Dictionary, mode: String = "gallery_replay") -> Dictionary:
 	if not _bound or has_active_playback() or _frozen_variables_installed:
 		return _fail(&"frozen_context_runtime_busy", "no idle presentation slot")
-	var checked := preload("res://scripts/narrative/FrozenReplayContext.gd").build(signature, mode)
+	var checked := preload("res://scripts/narrative/FrozenReplayContext.gd").immutable_fields(signature, mode)
 	if not checked.ok: return checked
-	return _install_frozen_projection(checked.value)
+	return _install_frozen_fields(checked.value)
 
-func _install_frozen_projection(presentation: Dictionary) -> Dictionary:
+func _install_frozen_fields(fields: Dictionary) -> Dictionary:
 	var prior: Variant = _dialogic.current_state_info.get("variables", {})
 	if not prior is Dictionary: return _fail(&"frozen_context_variables_invalid", "variables must be a dictionary")
-	var fields: Dictionary = preload("res://scripts/narrative/FrozenPresentationContext.gd").immutable_fields(presentation)
 	var projected: Dictionary = prior.duplicate(true)
 	_frozen_variables_before = prior.duplicate(true)
 	projected["Frozen"] = fields
