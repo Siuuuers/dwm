@@ -328,7 +328,7 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, _choices: Dictio
 	if saved.boundary != "control" and saved.position_id != tail.line_id:
 		return _fail(&"reading_frontier_invalid")
 	var progress := {"story_day": saved.story_day, "recovery_anchor": saved.recovery_anchor,
-		"history_sections": saved.history_sections}.duplicate(true)
+		"history_sections": saved.history_sections}
 	if not TRAVERSAL.valid_player_progress(progress): return _fail(&"reading_checkpoint_invalid")
 	var session: RefCounted = load("res://scripts/narrative/SoloReadingSession.gd").new()
 	var configured: Dictionary = session.configure_scene()
@@ -385,11 +385,11 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, _choices: Dictio
 		current.boundary = "line"
 		restored = session.restore_player(current, current.entry_id)
 	if not restored.ok: return restored
-	var result := checkpoint.duplicate(true)
+	var result := checkpoint.duplicate()
 	result.entry_id = current.entry_id
 	result.content_version = session.catalogue[current.entry_id].content_version
 	result.manifest_fingerprint = session.fingerprint
-	result.frozen_context = session.ledger.snapshot().entry_contexts[LEDGER.scene_frame_key(current.occurrence_id, current.entry_id)].duplicate(true)
+	result.frozen_context = session.ledger.check_session(current.session_token, current.entry_id, current.occurrence_id).value
 	result.reading_session = current
 	return {"ok": true, "value": {"checkpoint": result, "story_day": current.story_day, "fallback": fallback}}
 
@@ -487,7 +487,7 @@ func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 				{"entry_id": entry_id, "line_id": value.line_id})
 		publications[value.publication_id] = true
 		rows.append({"publication_id": value.publication_id, "occurrence_id": saved.occurrence_id,
-			"beat": beat.duplicate(true)})
+			"beat": beat})
 	if saved.publication_serial != _scene_publication_high_water(rows):
 		return _fail(&"reading_frontier_invalid")
 	var nodes: Array = _scene_nodes[entry_id]
@@ -536,7 +536,7 @@ func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 			"entry_contexts": {LEDGER.scene_frame_key(saved.occurrence_id, entry_id): frame}, "captions": rows},
 		"frontier": {"line_id": tail.beat.line_id, "publication_id": tail.publication_id} if saved.boundary == "line" else {},
 		"next_operation": null}
-	live["player_progress"] = progress.duplicate(true)
+	live["player_progress"] = progress
 	return restore(live, entry_id)
 
 static func _scene_publication_high_water(captions: Array) -> int:
@@ -1100,11 +1100,10 @@ func _admit_authored(entry_id: String, context: Dictionary) -> Dictionary:
 	else:
 		var completed_source := capture({})
 		if not completed_source.ok: return completed_source
-	var frames: Dictionary = source.entry_contexts.duplicate(true)
-	frames[entry_id] = context.duplicate(true)
+	var frames: Dictionary = source.entry_contexts
+	frames[entry_id] = context
 	var programs := _programs_for_frames(frames, command_id)
 	if not programs.ok: return programs
-	source.entry_contexts = frames
 	var candidate := LEDGER.new()
 	var copied := candidate.restore_snapshot(command_id, source.frozen_context, manifest,
 		programs.value.registry, source, frames, true)

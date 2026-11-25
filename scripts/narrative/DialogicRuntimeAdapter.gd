@@ -1234,7 +1234,7 @@ func _reading_seek_source_matches(prepared: Dictionary) -> bool:
 		and not _dialogic.Inputs.auto_skip.enabled and not _dialogic.Inputs.auto_advance.is_enabled() \
 		and _caption_seek_result.is_empty() and prepared.ledger == _caption_ledger \
 		and prepared.event == _current_skip_text() and prepared.request_id == _request_id \
-		and prepared.generation == _runtime_generation and prepared.snapshot == _caption_ledger.snapshot()
+		and prepared.generation == _runtime_generation and _caption_ledger.matches_snapshot(prepared.snapshot)
 
 
 func _check_reading_seek_target(prepared: Dictionary, candidate: NarrativeCaptionLedger,
@@ -1935,7 +1935,7 @@ func hold_marker_source(source: Dictionary) -> Dictionary:
 	var completed := complete_reading_frontier()
 	if not completed.ok: return completed
 	var after := marker_source_identity()
-	if not after.ok or after.value != identity.value or ledger != _caption_ledger or snapshot != ledger.snapshot():
+	if not after.ok or after.value != identity.value or ledger != _caption_ledger or not ledger.matches_snapshot(snapshot):
 		return _fail(&"reading_marker_source_changed", "")
 	var event := _caption_event
 	var continuation := Callable(_dialogic, "handle_next_event")
@@ -1948,7 +1948,7 @@ func hold_marker_source(source: Dictionary) -> Dictionary:
 	if event.event_finished.is_connected(callback): event.event_finished.disconnect(callback)
 	after = marker_source_identity()
 	if not observed.finished or not after.ok or after.value != identity.value \
-			or ledger != _caption_ledger or snapshot != ledger.snapshot():
+			or ledger != _caption_ledger or not ledger.matches_snapshot(snapshot):
 		var failed := _fail(&"reading_marker_source_changed", "source retirement could not be proved")
 		halt_with_error(failed)
 		return failed
@@ -1957,15 +1957,15 @@ func hold_marker_source(source: Dictionary) -> Dictionary:
 	if not _scene_caption_occurrence.is_empty() and _scene_activation_event == event \
 			and _scene_activation_generation == cleanup_generation and _caption_event == event \
 			and event._execution_generation == cleanup_generation + 1 \
-			and _caption_source_is_current() and ledger == _caption_ledger and snapshot == ledger.snapshot():
+			and _caption_source_is_current() and ledger == _caption_ledger and ledger.matches_snapshot(snapshot):
 		_scene_activation_generation = event._execution_generation
 	after = marker_source_identity()
-	if not after.ok or after.value != identity.value or ledger != _caption_ledger or snapshot != ledger.snapshot():
+	if not after.ok or after.value != identity.value or ledger != _caption_ledger or not ledger.matches_snapshot(snapshot):
 		var failed := _fail(&"reading_marker_source_changed", "source cleanup changed the admitted occurrence")
 		halt_with_error(failed)
 		return failed
 	_marker_hold = {"identity": identity.value.duplicate(true), "source_line": source.line_id,
-		"frontier": {}, "ledger": _caption_ledger, "snapshot": _caption_ledger.snapshot(),
+		"frontier": {}, "ledger": ledger, "snapshot": snapshot,
 		"live_history": _caption_ledger.fork_live(),
 		"event": event, "execution_generation": event._execution_generation}
 	return {"ok": true}

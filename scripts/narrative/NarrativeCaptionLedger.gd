@@ -253,9 +253,15 @@ func is_current_occurrence(session_token: String, entry_id: String, frontier: Di
 		and last.beat.owning_entry_id == entry_id and str(last.get("occurrence_id", "")) == occurrence_id
 
 func snapshot() -> Dictionary:
-	var result := {"session_token": _session_token, "frozen_context": _frozen_context.duplicate(true),
-		"captions": _sequence.duplicate(true)}
-	if _entry_contexts_required: result["entry_contexts"] = _entry_contexts.duplicate(true)
+	return _snapshot_fields().duplicate(true)
+
+func matches_snapshot(saved: Dictionary) -> bool:
+	return _snapshot_fields() == saved
+
+func _snapshot_fields() -> Dictionary:
+	var result := {"session_token": _session_token, "frozen_context": _frozen_context,
+		"captions": _sequence}
+	if _entry_contexts_required: result["entry_contexts"] = _entry_contexts
 	if _scene: result["schema_version"] = 2
 	return result
 

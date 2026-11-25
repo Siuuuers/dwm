@@ -254,7 +254,9 @@ func test_inputs_and_returned_snapshots_are_recursively_detached() -> void:
 	exposed.frozen_context.selectors.inputs.clear()
 	exposed.captions[0].beat.presentation_signature.selectors.append("snapshot mutation")
 	exposed.captions[0].beat.line_id = "changed-in-snapshot"
+	assert_false(ledger.matches_snapshot(exposed))
 	exposed.captions.clear()
+	assert_true(ledger.matches_snapshot(expected))
 	assert_eq(ledger.snapshot(), expected)
 
 func test_initialized_session_cannot_be_rebound_or_recaptured() -> void:
