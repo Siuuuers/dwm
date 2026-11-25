@@ -419,7 +419,8 @@ func test_read_state_shares_one_board_and_keeps_old_receipts_across_commands() -
 	assert_eq(_state.read_state().command_receipts.hide.result.code, &"board_command_already_applied")
 	var restore := _state.prepare_restore(hidden)
 	assert_true(_state.commit(restore.value.candidate).ok)
-	restore.value.candidate.snapshot_after.command_receipts.clear()
+	assert_true(is_same(restore.value.candidate.snapshot_after, hidden))
+	assert_true(restore.value.candidate.snapshot_after.command_receipts.is_read_only())
 	assert_eq(_state.read_state(), hidden)
 	_state.reset()
 	assert_eq(_state.read_state().phase, "NONE")
@@ -616,6 +617,9 @@ func test_prepare_restore_round_trips_a_captured_snapshot() -> void:
 	var fresh := STATE.new()
 	var prepared := fresh.prepare_restore(snapshot)
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	assert_true(prepared.value.candidate.is_read_only())
+	var prepared_board: Dictionary = prepared.value.candidate.snapshot_after.board
+	assert_true(prepared_board.board.revealed_indices.is_read_only())
 	snapshot.board.board.revealed_indices.clear()
 	var committed := fresh.commit(prepared["value"]["candidate"])
 	assert_true(committed.get("ok", false), JSON.stringify(committed))
@@ -624,8 +628,25 @@ func test_prepare_restore_round_trips_a_captured_snapshot() -> void:
 	assert_true(committed["value"].has("phase"), "restore's result must not double-wrap its value")
 	assert_eq(committed["value"]["phase"], "ACTIVE_VISIBLE")
 	assert_true(committed.is_read_only() and committed.value.board.board.revealed_indices.is_read_only())
+	assert_true(is_same(committed.value.board, prepared_board))
 	assert_true(is_same(committed.value.board, fresh.read_state().board))
 	assert_eq(fresh.capture(), _state.capture(), "editing the source cannot change a prepared restore")
+
+	assert_true(_suspend(fresh, "hide", IDENTITY_A, 1).ok)
+	assert_false(prepared.value.candidate.snapshot_after.command_receipts.has("hide"))
+
+
+func test_raw_restore_detaches_mutable_children_of_read_only_snapshot() -> void:
+	_first_reveal_from_none(_state, "start", IDENTITY_A, _spec_a(), 0)
+	var snapshot := _state.capture()
+	snapshot.make_read_only()
+	snapshot.board.make_read_only()
+	var fresh := STATE.new()
+	var committed := fresh.commit({"kind": &"restore", "snapshot_after": snapshot})
+	assert_true(committed.ok, str(committed))
+	snapshot.board.board.revealed_indices.clear()
+	snapshot.command_receipts.clear()
+	assert_eq(fresh.read_state(), _state.read_state())
 
 
 func test_prepare_restore_rejects_bad_member_set() -> void:
@@ -834,7 +855,7 @@ func test_scene_first_board_preserves_frozen_spec_without_payment_proof_or_histo
 	assert_true(restored.capture().round_paid)
 	var before := restored.capture()
 	saved.board.spec.pressure += 1
-	prepared.value.candidate.snapshot_after.board.board.revealed_indices.clear()
+	assert_true(prepared.value.candidate.snapshot_after.board.board.revealed_indices.is_read_only())
 	assert_eq(restored.capture(), before, "the committed board owns its spec and cells")
 
 
@@ -949,8 +970,9 @@ func test_scene_commit_rechecks_mutated_detached_restore_and_live_candidates() -
 	var restore := target.prepare_restore_scene(snapshot, fixture.issuer)
 	assert_true(restore.ok)
 	if not restore.ok: return
-	restore.value.candidate.snapshot_after.board.erase("spec")
-	assert_false(target.commit(restore.value.candidate).ok)
+	var changed: Dictionary = restore.value.candidate.duplicate(true)
+	changed.snapshot_after.board.erase("spec")
+	assert_false(target.commit(changed).ok)
 	assert_eq(target.capture().phase, "NONE")
 
 
@@ -1166,6 +1188,23 @@ func test_scene_board_command_and_visibility_preserve_frozen_spec() -> void:
 	assert_eq(suspended.board, flagged.board)
 	assert_true(suspended.round_paid)
 	assert_true(STATE.new().prepare_restore_scene(suspended, fixture.issuer).ok)
+
+
+func test_atomic_move_adopts_the_fresh_reducer_board() -> void:
+	var fixture := _scene_fixture()
+	if _scene_start(fixture).is_empty(): return
+	var previous: Dictionary = fixture.state.read_state()
+	var next_board: Dictionary = REDUCER.set_flag(previous.board.board, 63, true, "flag").value.board
+	var applied: Dictionary = fixture.state.apply_board_command({"transaction_id": "flag",
+		"request_fingerprint": "flag", "identity": previous.identity, "expected_revision": previous.revision,
+		"kind": &"set_flag"}, next_board, true)
+	assert_true(applied.ok, str(applied))
+	if not applied.ok: return
+	assert_true(is_same(fixture.state.read_state().board.board, next_board))
+	assert_true(is_same(applied.value.board.board, next_board))
+	assert_true(next_board.flagged_indices.is_read_only())
+	assert_eq(previous.board.board.flagged_indices, [])
+	assert_eq(fixture.state.capture().board.board.flagged_indices, [63])
 
 
 func test_scene_first_reveal_rejects_a_board_from_a_different_materialized_layout() -> void:

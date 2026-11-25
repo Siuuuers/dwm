@@ -237,7 +237,7 @@ func capture() -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
-	var backup: Dictionary = _board_state.call(&"capture")
+	var backup := _read_board()
 	return {"ok": true, "code": &"ok", "value": {"backup": backup}, "receipt": {}}
 
 

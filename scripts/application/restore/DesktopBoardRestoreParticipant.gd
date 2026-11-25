@@ -27,7 +27,7 @@ func prepare(input: Dictionary) -> Dictionary:
 	}}
 
 func capture() -> Dictionary:
-	return {"ok": true, "code": &"ok", "value": {"snapshot": _state.capture()}}
+	return {"ok": true, "code": &"ok", "value": {"snapshot": _state.read_state()}}
 
 func apply_silent(plan: Dictionary) -> Dictionary:
 	if typeof(plan.get("candidate")) != TYPE_DICTIONARY:
