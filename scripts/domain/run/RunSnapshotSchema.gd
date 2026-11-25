@@ -19,22 +19,6 @@ const DESKTOP_KEYS: Array[String] = ["board", "consequence"]
 const LIFECYCLE_KEYS := SCENE_LIFECYCLE_KEYS
 const LIFECYCLE_STATES: Array[String] = ["PLAYING", "ENDING", "COMPLETED", "TERMINAL_PENDING"]
 const PLAYBACK_SEQUENCE: Array[String] = ["PRIMARY_PENDING", "PRIMARY_PLAYED", "EPILOGUE_PLAYED", "GALLERY_RECORDED"]
-const GAMEPLAY_FIELDS: Array[String] = [
-	"affection", "chat_state", "coins", "condition_effects_today", "condition_resolved_day",
-	"condition_streak_days", "contact_choice_state", "contact_message_unlocks",
-	"daily_group_invitation_generated", "daily_group_invitation_pair", "daily_opened_contacts",
-	"date_unlocks", "dating_route_state", "friend_attitude", "friends",
-	"hospital_skipped_sylvia_solo_count", "inter_friend_affection", "inter_friend_route_state",
-	"inventory", "last_condition_day", "minesweeper_app_rounds_finished_today",
-	"minesweeper_money_earned_today", "minesweeper_rng_seed", "minesweeper_round_floor",
-	"minesweeper_rounds_left", "minesweeper_selected_difficulty", "minesweeper_task_rewards_claimed",
-	"missed_group_date_counts", "missed_invitations", "money",
-	"penalty_points_today", "penalty_points_total", "pending_date_advance_day_after_finish",
-	"pending_date_entries", "pending_date_entry_index", "pending_date_friend_id",
-	"pending_group_date_friend_ids", "pending_group_date_inviter_id", "pending_hospital",
-	"post_ending_queue", "route_context", "shop_purchase_counts",
-	"stats", "story_flags",
-]
 
 static func build(
 		snapshot_input: Dictionary,
@@ -166,28 +150,15 @@ static func _validate_desktop(desktop: Variant) -> String:
 		return str(consequence_check.get("message", consequence_check.get("code", "invalid desktop.consequence")))
 	return ""
 
-static func _validate_gameplay(gameplay: Variant) -> String:
-	if typeof(gameplay) != TYPE_DICTIONARY:
-		return "gameplay must be an object"
-	if not (gameplay as Dictionary).has("narrative_variables"):
-		return "gameplay.narrative_variables is mandatory"
-	if typeof(gameplay["narrative_variables"]) != TYPE_DICTIONARY:
+static func _validate_narrative_variables(variables: Variant) -> String:
+	if not variables is Dictionary:
 		return "narrative_variables must be an object"
 	var registered := _registered_narrative_variables()
-	for variable_id: Variant in (gameplay["narrative_variables"] as Dictionary):
+	for variable_id: Variant in variables:
 		if typeof(variable_id) != TYPE_STRING or str(variable_id) not in registered:
 			return "unregistered narrative variable: " + str(variable_id)
-	for key: Variant in (gameplay as Dictionary):
-		if typeof(key) != TYPE_STRING:
-			return "non-string gameplay key"
-		if str(key) == "narrative_variables":
-			continue
-		if str(key) not in GAMEPLAY_FIELDS:
-			return "unregistered gameplay key: " + str(key)
-	var primitive := validate_primitive_tree(gameplay, "$.gameplay")
-	if not primitive.get("ok", false):
-		return str(primitive.get("message", "gameplay must be primitive"))
-	return ""
+	var primitive := validate_primitive_tree(variables, "$.gameplay.narrative_variables")
+	return "" if primitive.ok else str(primitive.message)
 
 static func _validate_transaction_ids(value: Variant, member: String) -> String:
 	if typeof(value) != TYPE_ARRAY:
