@@ -25,6 +25,12 @@ const PROGRESS_KEYS := ["revision", "record", "materialization_receipt", "clear_
 
 static func read(ledger: Dictionary, run_id: String, slot_id: String,
 		attempt_id: String = "", branch_id: String = "") -> Dictionary:
+	var found := _read_view(ledger, run_id, slot_id, attempt_id, branch_id)
+	if found.ok: found.value = found.value.duplicate(true)
+	return found
+
+static func _read_view(ledger: Dictionary, run_id: String, slot_id: String,
+		attempt_id: String = "", branch_id: String = "") -> Dictionary:
 	var slot: Dictionary = ledger.get(run_id, {}).get(slot_id, {})
 	if slot.is_empty():
 		return _ok({}) if attempt_id.is_empty() and branch_id.is_empty() else _fail(&"dating_attempt_missing")
@@ -33,7 +39,7 @@ static func read(ledger: Dictionary, run_id: String, slot_id: String,
 	var history: Dictionary = slot.attempts[selected]
 	var branch: String = str(history.origin_branch_id) if branch_id.is_empty() else branch_id
 	if not history.progress_by_branch.has(branch): return _fail(&"dating_branch_missing")
-	return _ok(_flatten(run_id, slot_id, selected, branch, history).duplicate(true))
+	return _ok(_flatten(run_id, slot_id, selected, branch, history))
 
 static func prepare_update(ledger: Dictionary, run_id: String, slot_id: String, branch_id: String,
 		record: Dictionary, expected_revision: int, first_cell_index: int = -1,
@@ -86,7 +92,7 @@ static func prepare_update(ledger: Dictionary, run_id: String, slot_id: String, 
 		else:
 			if not selection.source_branch_id is String or not selection.saved_record is Dictionary \
 					or selection.source_branch_id == branch_id: return _fail(&"invalid_dating_selection")
-			var source := read(ledger, run_id, slot_id, attempt_id, selection.source_branch_id)
+			var source := _read_view(ledger, run_id, slot_id, attempt_id, selection.source_branch_id)
 			if not source.ok: return source
 			var restored := _copy_saved(source.value, selection.saved_record, branch_id)
 			if not restored.ok: return restored
@@ -117,9 +123,9 @@ static func prepare_update(ledger: Dictionary, run_id: String, slot_id: String, 
 static func prepare_continuation(ledger: Dictionary, run_id: String, slot_id: String,
 		attempt_id: String, source_branch_id: String, branch_id: String, saved_record: Dictionary) -> Dictionary:
 	if branch_id.strip_edges().is_empty() or branch_id == source_branch_id: return _fail(&"invalid_dating_selection")
-	var source := read(ledger, run_id, slot_id, attempt_id, source_branch_id)
+	var source := _read_view(ledger, run_id, slot_id, attempt_id, source_branch_id)
 	if not source.ok: return source
-	if read(ledger, run_id, slot_id, attempt_id, branch_id).ok: return _fail(&"dating_branch_exists")
+	if _read_view(ledger, run_id, slot_id, attempt_id, branch_id).ok: return _fail(&"dating_branch_exists")
 	var copied := _copy_saved(source.value, saved_record, branch_id)
 	if not copied.ok: return copied
 	return _ok({"attempt": copied.value, "expected_revision": 0,
@@ -245,7 +251,7 @@ static func _prepare_attempt(previous: Dictionary, run_id: String, slot_id: Stri
 		if attempt.materialization_receipt == null:
 			if first_cell_index < 0: return _fail(&"dating_first_cell_required")
 			attempt.materialization_receipt = {"first_cell_index": first_cell_index,
-				"layout": _layout(record.board).duplicate(true), "mine_dispositions": record.mine_dispositions.duplicate(),
+				"layout": _materialized_layout(record.board), "mine_dispositions": record.mine_dispositions.duplicate(),
 				"shell": record.envelope.shell.duplicate(true)}
 		elif first_cell_index != -1 and first_cell_index != attempt.materialization_receipt.first_cell_index:
 			return _fail(&"dating_materialization_conflict")
@@ -388,6 +394,11 @@ static func _entry(record: Dictionary) -> Dictionary:
 static func _layout(board: Dictionary) -> Dictionary:
 	return {"schema_version": 1, "width": board.width, "height": board.height,
 		"mine_count": board.mine_count, "mine_indices": board.mine_indices}
+
+static func _materialized_layout(board: Dictionary) -> Dictionary:
+	var layout := _layout(board)
+	layout.mine_indices = board.mine_indices.duplicate()
+	return layout
 
 static func _board_advances(before: Variant, after: Variant) -> bool:
 	if before == null: return true
@@ -546,7 +557,7 @@ static func _prepare_scene_attempt(previous: Dictionary, run_id: String, slot_id
 		if attempt.materialization_receipt == null:
 			if first_cell < 0: return _fail(&"dating_first_cell_required")
 			attempt.materialization_receipt = {"first_cell_index": first_cell,
-				"layout": _layout(record.board).duplicate(true), "shell": record.envelope.shell.duplicate(true)}
+				"layout": _materialized_layout(record.board), "shell": record.envelope.shell.duplicate(true)}
 		elif first_cell != -1 and first_cell != attempt.materialization_receipt.first_cell_index:
 			return _fail(&"dating_materialization_conflict")
 	elif first_cell != -1: return _fail(&"dating_materialization_conflict")
