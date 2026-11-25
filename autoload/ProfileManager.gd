@@ -223,7 +223,7 @@ func _commit_profile_candidate(candidate: Dictionary, defer_signals: bool = fals
 				return _failure(&"presentation_history_rewind", "Only Clear Gallery or full reset may remove reached presentations")
 			if not _preserves_presentation_chronology(_profile, detached):
 				return _failure(&"presentation_chronology_rewrite", "First-witness order and unknown legacy provenance cannot be rewritten")
-	var old := _profile.duplicate(true)
+	var old := _profile
 	var persisted := _persist_candidate(detached)
 	if not persisted.get("ok", false):
 		if persisted.get("fatal", false) or persisted.get("code") == &"indeterminate_commit":
@@ -339,7 +339,7 @@ func mark_caption_variant_witnessed(beat: Dictionary, registry: Dictionary, chec
 		return {"ok": true, "code": &"ok", "value": {"witness_id": witness_id}, "unchanged": true}
 	var candidate := _caption_history_candidate()
 	_discover_dialogue(candidate.dialogue_library, discovery)
-	candidate.witnessed_caption_variants[witness_id] = admitted.value.beat
+	candidate.witnessed_caption_variants[witness_id] = beat
 	if beat.line_id not in candidate.visited_line_ids:
 		candidate.visited_line_ids.append(beat.line_id)
 	return _commit_profile_candidate(candidate)
@@ -394,7 +394,7 @@ func merge_caption_history(beats: Array[Dictionary], registry: Dictionary, expec
 	for beat: Dictionary in beats:
 		var admitted := CAPTION_WITNESSES.admit(beat, registry)
 		if not admitted.ok: return admitted
-		admitted_beats[admitted.value.witness_id] = admitted.value.beat
+		admitted_beats[admitted.value.witness_id] = beat
 	var candidate := _caption_history_candidate()
 	var changed := false
 	var history_added := false
@@ -417,7 +417,8 @@ func merge_caption_history(beats: Array[Dictionary], registry: Dictionary, expec
 
 func _caption_history_candidate() -> Dictionary:
 	var candidate := _profile.duplicate()
-	candidate.dialogue_library = _profile.dialogue_library.duplicate(true)
+	candidate.dialogue_library = {"checkpoints": _profile.dialogue_library.checkpoints.duplicate(),
+		"witnesses": _profile.dialogue_library.witnesses.duplicate()}
 	candidate.witnessed_caption_variants = _profile.witnessed_caption_variants.duplicate()
 	candidate.visited_line_ids = _profile.visited_line_ids.duplicate()
 	return candidate

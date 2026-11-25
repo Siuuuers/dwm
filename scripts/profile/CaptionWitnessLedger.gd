@@ -20,9 +20,7 @@ static func admit(beat: Dictionary, registry: Dictionary) -> Dictionary:
 	for row: Dictionary in registry.beats:
 		var encoded := WRITER.stringify(row)
 		if not encoded.ok: return _fail(&"invalid_caption_witness_registry")
-		if encoded.value == described.value.canonical_text:
-			described.value.beat = beat.duplicate(true)
-			return described
+		if encoded.value == described.value.canonical_text: return described
 	return _fail(&"unregistered_caption_variant")
 
 
