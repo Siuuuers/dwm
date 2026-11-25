@@ -636,7 +636,7 @@ func record_reached_presentation(signature: Dictionary) -> Dictionary:
 			return _failure(&"presentation_signature_conflict", "A signature digest has conflicting fields")
 		return {"ok": true, "value": {"signature_id": id, "already_reached": true}}
 	var candidate := _profile.duplicate()
-	candidate.reached_presentations = _profile.reached_presentations.merged({id: signature.duplicate(true)})
+	candidate.reached_presentations = _profile.reached_presentations.merged({id: signature})
 	candidate.reached_presentation_chronology = _profile.reached_presentation_chronology.duplicate()
 	candidate.reached_presentation_chronology.first_witnessed = _profile.reached_presentation_chronology.first_witnessed + [id]
 	var committed: Dictionary
@@ -738,11 +738,11 @@ func _prepare_gallery_unlock(ending_id: String, transaction_id: String) -> Dicti
 		var prior: Dictionary = ledger[transaction_id]
 		if prior["ending_id"] != ending_id:
 			return _failure(&"gallery_transaction_conflict", "Transaction ID belongs to another ending")
-		return {"ok": true, "code": &"ok", "value": {"candidate": _profile.duplicate(true), "transaction_id": transaction_id, "gallery_receipt": prior.duplicate(true), "requires_commit": false, "pending_publication_id": _pending_gallery_publications.get(transaction_id, "")}}
+		return {"ok": true, "code": &"ok", "value": {"candidate": _profile.duplicate(true), "transaction_id": transaction_id, "gallery_receipt": prior.duplicate(), "requires_commit": false, "pending_publication_id": _pending_gallery_publications.get(transaction_id, "")}}
 	var candidate := _profile.duplicate(true)
 	var unlocked := not has_gallery_unlock(ending_id)
 	var receipt := {"ending_id": ending_id, "unlocked": unlocked}
-	candidate["gallery_transaction_receipts"][transaction_id] = receipt.duplicate(true)
+	candidate["gallery_transaction_receipts"][transaction_id] = receipt.duplicate()
 	if unlocked:
 		candidate["gallery_unlocks"].append(ending_id)
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate, "transaction_id": transaction_id, "gallery_receipt": receipt, "requires_commit": true, "pending_publication_id": ""}}
@@ -757,7 +757,7 @@ func unlock_ending(ending_id: String, transaction_id: String) -> Dictionary:
 		var committed := commit_prepared_profile(value["candidate"])
 		if not committed.get("ok", false):
 			return committed
-	return {"ok": true, "code": &"ok", "value": (value["gallery_receipt"] as Dictionary).duplicate(true)}
+	return {"ok": true, "code": &"ok", "value": value["gallery_receipt"]}
 
 
 func record_scene_passage_completion(passage_id: String, transaction_id: String) -> Dictionary:
@@ -772,7 +772,7 @@ func record_scene_passage_completion(passage_id: String, transaction_id: String)
 	if prepared.value.requires_commit:
 		var committed := _commit_profile_candidate(prepared.value.candidate)
 		if not committed.get("ok", false): return committed
-	return {"ok": true, "value": prepared.value.gallery_receipt.duplicate(true)}
+	return {"ok": true, "value": prepared.value.gallery_receipt}
 
 
 func record_ending_completion(ending_id: String, transaction_id: String, pair_form: String = "") -> Dictionary:
@@ -807,7 +807,7 @@ func record_ending_completion(ending_id: String, transaction_id: String, pair_fo
 	if requires_commit:
 		var committed := _commit_profile_candidate(candidate)
 		if not committed.get("ok", false): return committed
-	return {"ok": true, "code": &"ok", "value": prepared.value.gallery_receipt.duplicate(true)}
+	return {"ok": true, "code": &"ok", "value": prepared.value.gallery_receipt}
 
 
 static func _grant_discovered_dark_mode(candidate: Dictionary) -> bool:
@@ -835,12 +835,6 @@ static func _has_ending_completion_evidence(profile: Dictionary) -> bool:
 				and transaction_id.ends_with(":gallery:" + str(receipt.ending_id)):
 			return true
 	return false
-
-
-func _preserve_legacy_ending_milestone(candidate: Dictionary) -> void:
-	if _has_ending_completion_evidence(_profile) or (_profile.gallery_unlocks as Array).is_empty(): return
-	candidate.gallery_transaction_receipts["profile:legacy-ending-milestone"] = {
-		"ending_id": str(_profile.gallery_unlocks[0]), "unlocked": false}
 
 
 func get_eligible_audio_memory_ids(surface_id: StringName) -> Array:
@@ -1049,14 +1043,17 @@ func reset_gallery(expected_revision: int = -1) -> Dictionary:
 		return _failure(&"not_initialized", "ProfileManager is not initialized")
 	var checked := _check_profile_revision(expected_revision)
 	if not checked.get("ok", false): return checked
-	var candidate := _profile.duplicate(true)
-	_preserve_legacy_ending_milestone(candidate)
+	var candidate := _profile.duplicate()
+	if not _has_ending_completion_evidence(_profile) and not _profile.gallery_unlocks.is_empty():
+		candidate.gallery_transaction_receipts = _profile.gallery_transaction_receipts.merged({
+			"profile:legacy-ending-milestone": {"ending_id": str(_profile.gallery_unlocks[0]), "unlocked": false}})
 	candidate["gallery_unlocks"] = []
 	candidate["displayed_artwork_ids"] = []
 	candidate["reached_presentations"] = {}
 	candidate["reached_presentation_chronology"] = {"first_witnessed": [], "legacy_unordered": []}
-	candidate["preferences"]["exceptional_replay"]["available"] = false
-	candidate["preferences"]["exceptional_replay"]["replay_full"] = false
+	candidate.preferences = _profile.preferences.duplicate()
+	candidate.preferences.exceptional_replay = _profile.preferences.exceptional_replay.merged({
+		"available": false, "replay_full": false}, true)
 	return _commit_reset(candidate, &"gallery", expected_revision)
 
 

@@ -2368,7 +2368,7 @@ func _retain_line_presentation(identity: Dictionary) -> void:
 	var visited := _is_presentation_witnessed(identity)
 	if _line_presentation.get("identity") != identity \
 			or (_line_presentation.get("acknowledged", false) and not visited and not _line_presentation.get("restored", false)):
-		_line_presentation = {"identity": identity.duplicate(true),
+		_line_presentation = {"identity": identity,
 			"was_visited": visited, "acknowledged": false, "unseen_stop_delivered": false,
 			"restored": identity.has("caption_publication") and _scene_restore.get("restored_caption", {}) == {
 				"token": identity.token, "caption_publication": identity.caption_publication}}
@@ -2410,7 +2410,7 @@ func _line_presentation_context(expected_frontier: Dictionary = {}, guard_mutati
 		var registered: Dictionary = _reading_session.current_caption_variant(_active_entry.entry_id, publication.value)
 		if not registered.get("ok", false): return registered
 		caption_variant = registered.value
-		caption_publication = publication.value.duplicate()
+		caption_publication = publication.value
 	else:
 		if not _skip_line_owners.has(line_id): return _command_failure(&"unregistered_line_id")
 		if _skip_line_owners[line_id] != _active_entry.get("entry_id"):
@@ -2485,7 +2485,7 @@ func _perform_skip_step() -> Dictionary:
 		if not advanced.get("ok", false):
 			_skip_audio_pending = false
 			return advanced
-	return {"ok": true, "code": &"ok", "value": decision.duplicate(true), "receipt": {
+	return {"ok": true, "code": &"ok", "value": decision, "receipt": {
 		"line_id": line_id,
 		"was_visited_before_reveal": was_visited_before_reveal,
 		"next_boundary": next_boundary,
