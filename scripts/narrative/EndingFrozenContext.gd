@@ -10,7 +10,8 @@ static func make_seed(inputs: Dictionary, evidence: Dictionary, pair_counts: Arr
 	var seed := {"schema_version": 1, "presentation_by_scope": inputs,
 		"evidence_receipt_ids_by_scope": evidence,
 		"pair_count_receipt_ids": pair_counts, "alone_cause": alone_cause}
-	return validate_seed(seed)
+	var checked := validate_seed(seed)
+	return _ok(seed.duplicate(true)) if checked.ok else checked
 
 static func validate_seed(seed: Variant) -> Dictionary:
 	if not seed is Dictionary or not _exact(seed, ["schema_version", "presentation_by_scope", "evidence_receipt_ids_by_scope", "pair_count_receipt_ids", "alone_cause"]) \
@@ -36,7 +37,7 @@ static func validate_seed(seed: Variant) -> Dictionary:
 			return _fail(&"ending_frozen_seed_invalid")
 		for reason: String in value.miss_reasons:
 			if reason not in ["nevermind", "missed_question", "busy", "judge"]: return _fail(&"ending_frozen_seed_invalid")
-	return _ok(seed.duplicate(true))
+	return {"ok": true}
 
 static func playback_ending_id(step: Dictionary) -> String:
 	var ending_id := str(step.get("ending_id", ""))
@@ -78,7 +79,7 @@ static func signature_for_step(plan: Dictionary, index: int, seed: Dictionary) -
 		else:
 			var friend := ending_id.get_slice(".", 1)
 			if friend not in FRIENDS: return _fail(&"ending_frozen_step_invalid")
-			fields = inputs[friend].duplicate(true)
+			fields = inputs[friend].duplicate()
 			fields.merge({"ending_role": role, "ending_form": form, "residue": form.ends_with("_residue")})
 	var validated := SIGNATURE.validate({"entry_id": entry_id, "schema_version": 1, "fields": fields})
 	return _ok(validated.value.signature) if validated.ok else validated
@@ -105,10 +106,10 @@ static func build(plan: Dictionary, index: int, seed: Dictionary, playback_id: S
 		"solo_ending_step":
 			var friend: String = schema.value.fields.friend_id["const"]
 			fields.merge({"friend_id": friend, "tier": projected.fields.tier, "stored_tone": projected.fields.tone,
-				"attitude": projected.fields.attitude, "evidence_receipt_ids": seed.evidence_receipt_ids_by_scope[friend].duplicate(),
+				"attitude": projected.fields.attitude, "evidence_receipt_ids": seed.evidence_receipt_ids_by_scope[friend],
 				"due_echoes": [], "residue_variant": fields.playback_mode})
 		"pair_ending_step":
-			fields.merge({"pair_id": "priscilla_lavinia", "pair_count_receipt_ids": seed.pair_count_receipt_ids.duplicate(),
+			fields.merge({"pair_id": "priscilla_lavinia", "pair_count_receipt_ids": seed.pair_count_receipt_ids,
 				"deck_tone": "dark" if projected.fields.pair_form.ends_with("_dark") else "sweet",
 				"stable_combination": projected.fields.pair_form, "residue_variant": fields.playback_mode})
 		"alone_step": fields["alone_cause"] = seed.alone_cause
@@ -161,7 +162,7 @@ static func validate_cache(cache: Variant, lifecycle: Dictionary) -> Dictionary:
 			if cache.presentations[key] != expected.value: return _fail(&"ending_frozen_cache_conflict")
 			found = true
 		if not found: return _fail(&"ending_frozen_step_invalid")
-	return _ok(cache.duplicate(true))
+	return {"ok": true}
 
 static func _exact(value: Dictionary, expected: Array) -> bool:
 	var keys := value.keys()

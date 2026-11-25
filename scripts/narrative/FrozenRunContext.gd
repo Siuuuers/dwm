@@ -864,7 +864,7 @@ static func _ending(route: Dictionary, lifecycle: Dictionary, required: bool) ->
 		return _fail(&"ending_frozen_seed_required") if required and lifecycle.get("state") in ["ENDING", "COMPLETED"] else _ok()
 	var checked := ENDING.validate_cache(route[ENDING_KEY], lifecycle)
 	if not checked.ok: return checked
-	var seed: Dictionary = checked.value.seed
+	var seed: Dictionary = route[ENDING_KEY].seed
 	var provisional: Variant = route.get("provisional_ending_plan")
 	var eligibility: Variant = provisional.get("eligibility_snapshot") if provisional is Dictionary else null
 	if not eligibility is Dictionary or seed.presentation_by_scope != eligibility.get("presentation_by_scope") \
