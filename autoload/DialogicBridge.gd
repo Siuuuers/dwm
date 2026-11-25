@@ -3052,7 +3052,7 @@ func stage_scene_reading_restore(checkpoint: Dictionary, operation_id: String, r
 		"path": checked.value.path, "runtime": _runtime_adapter, "started": false,
 		"in_call": false, "native_started": false, "proof": false, "confirmed": false}
 	if is_pause_restore_pending():
-		_scene_restore["pause_handle"] = _pause_restore.handle.duplicate(true)
+		_scene_restore["pause_handle"] = _pause_restore.handle.duplicate()
 	_reading_restore_pending = checkpoint.duplicate(true)
 	return {"ok": true}
 
@@ -3493,7 +3493,7 @@ func capture_pause_frontier(timeline_id: String = "") -> Dictionary:
 		if not guarded.get("ok", false): return guarded
 	var captured: Dictionary = _capture_presentation_frontier()
 	if not captured.get("ok", false): return captured
-	var frontier: Dictionary = captured.value.duplicate(true)
+	var frontier: Dictionary = captured.value.duplicate()
 	frontier.erase("paused")
 	return {"ok": true, "code": &"ok", "value": frontier}
 
@@ -3516,8 +3516,8 @@ func begin_suspend(handle: Dictionary) -> Dictionary:
 	if not captured.get("ok", false): return _pause_failure(captured.get("code", &"pause_frontier_unavailable"))
 	var runtime_before: Dictionary = _capture_presentation_frontier()
 	if not runtime_before.get("ok", false): return _pause_failure(&"pause_frontier_unavailable")
-	_pause_handle = handle.duplicate(true)
-	_pause_frontier = runtime_before.value.duplicate(true)
+	_pause_handle = handle.duplicate()
+	_pause_frontier = runtime_before.value.duplicate()
 	_pause_changing = true
 	var paused: Dictionary = _set_presentation_paused(true)
 	var after := capture_pause_frontier()
@@ -3586,7 +3586,7 @@ func _retire_suspended_playback(handle: Dictionary) -> Dictionary:
 		scene_art_changed.emit()
 		_current_timeline_id = ""
 		_current_timeline_context = {}
-		_retired_pause_handle = handle.duplicate(true)
+		_retired_pause_handle = handle.duplicate()
 		_close_art_hold()
 		_runtime_adapter.halt_with_error({"code": &"session_abandoned"})
 		if had_hospital:
@@ -3611,7 +3611,7 @@ func begin_pause_restore(handle: Dictionary) -> Dictionary:
 		return _pause_failure(&"pause_source_changed")
 	if not _pause_restore.is_empty() and not _pause_restore.get("applied", false):
 		return _pause_failure(&"pause_restore_busy")
-	_pause_restore = {"handle": handle.duplicate(true), "plan": {}, "semantic": false,
+	_pause_restore = {"handle": handle.duplicate(), "plan": {}, "semantic": false,
 		"staged": false, "finalized": false, "cancelled": false, "applied": false}
 	return _pause_success({"staged": true})
 
@@ -4569,7 +4569,7 @@ func is_computer_caption_held() -> bool:
 
 func _computer_frontier_matches(paused: bool) -> bool:
 	if _computer_hold_frontier.is_empty() or not is_computer_caption_held(): return false
-	var expected := _computer_hold_frontier.duplicate(true)
+	var expected := _computer_hold_frontier.duplicate()
 	expected.paused = paused
 	var current: Dictionary = _capture_presentation_frontier()
 	return current.get("ok", false) and current.value == expected
@@ -4597,7 +4597,7 @@ func hold_computer_captions(host: Node) -> Dictionary:
 	if not before.get("ok", false): return before
 	_computer_hold_host = weakref(host)
 	_computer_hold_session = _reading_session
-	_computer_hold_frontier = before.value.duplicate(true)
+	_computer_hold_frontier = before.value.duplicate()
 	_computer_hold_changing = true
 	var held: Dictionary = _set_presentation_paused(true)
 	var exact := _computer_frontier_matches(true)
