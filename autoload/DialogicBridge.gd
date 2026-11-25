@@ -1775,10 +1775,9 @@ func configure_reached_replay(profile: Object) -> Dictionary:
 func get_scene_passage(passage_id: String) -> Dictionary:
 	var registered: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_contract_tables()
 	if not registered.ok: return registered
-	var catalogue: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(registered.bundle)
-	if not catalogue.ok: return catalogue
-	if not catalogue.value.records.has(passage_id): return _command_failure(&"scene_passage_unavailable")
-	return {"ok": true, "value": catalogue.value.records[passage_id].duplicate(true)}
+	var passages: Dictionary = registered.value.passages
+	if not passages.has(passage_id): return _command_failure(&"scene_passage_unavailable")
+	return {"ok": true, "value": passages[passage_id].duplicate(true)}
 
 func replay_scene_passage(passage_id: String) -> Dictionary:
 	if not _initialized or _replay_profile == null or not is_inside_tree(): return _command_failure(&"replay_unconfigured")

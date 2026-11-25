@@ -1128,5 +1128,5 @@ func test_the_witness_index_only_accepts_the_schedule_done_resolution_kind() -> 
 func test_the_friend_roster_has_one_owner_and_two_aliases() -> void:
 	assert_eq(DATA_CATALOG.FRIEND_IDS, CONTACT_STATE.FRIEND_IDS,
 		"DataCatalog serves exactly the domain-owned roster")
-	assert_eq(GameState.FRIEND_IDS, CONTACT_STATE.FRIEND_IDS,
+	assert_eq(preload("res://autoload/GameState.gd").FRIEND_IDS, CONTACT_STATE.FRIEND_IDS,
 		"and so does the GameState autoload")

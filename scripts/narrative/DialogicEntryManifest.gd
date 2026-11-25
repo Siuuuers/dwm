@@ -82,7 +82,7 @@ static func configure_test_scene_registration(bundle: Dictionary) -> Dictionary:
 	if not passages.ok: return passages
 	var structural := SCENE_EVENTS.validate_bundle_structure(bundle)
 	if not structural.ok: return structural
-	return _configure_scene_registration(bundle, passages.value, structural.value.fingerprint)
+	return _configure_scene_registration(checked.value, passages.value, structural.value.fingerprint, true)
 
 static func _configure_scene_registration(bundle: Dictionary, passages: Dictionary, fingerprint: String, owns_inputs: bool = false) -> Dictionary:
 	if _registration_used or not _scene_bundle.is_empty():

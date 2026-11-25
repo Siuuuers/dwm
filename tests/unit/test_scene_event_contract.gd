@@ -674,7 +674,7 @@ func test_shipped_structure_keeps_passage_compilation_in_authoring() -> void:
 	OS.set_environment("DWM_SCENE_VALIDATION_PROFILE", previous_profile)
 	assert_true(selected.ok, str(selected))
 	if selected.ok:
-		var tables: Dictionary = selected.value.duplicate(true)
+		var tables: Dictionary = selected.value.duplicate()
 		tables.erase("passages")
 		assert_true(WRITER._deep_same(tables, structured.value), "Direct indexes, marker bindings and fingerprint match validated tables")
 		assert_true(selected.bundle.is_read_only())
@@ -682,6 +682,13 @@ func test_shipped_structure_keeps_passage_compilation_in_authoring() -> void:
 		assert_true(adapter._scene_compile_cache.is_empty(), "Shipped startup consumes generated passage data")
 		var first: Dictionary = passages.inspect(selected.bundle)
 		assert_eq(first.value, generated)
+		var bridge: Node = autofree(preload("res://autoload/DialogicBridge.gd").new())
+		var passage: Dictionary = bridge.get_scene_passage("passage.umbrella")
+		assert_true(passage.ok, str(passage))
+		if passage.ok:
+			assert_eq(passage.value, generated.records["passage.umbrella"])
+			passage.value.captions[0].text = "edited"
+			assert_eq(bridge.get_scene_passage("passage.umbrella").value, generated.records["passage.umbrella"])
 		first.value.records["passage.umbrella"].captions[0].text = "changed caller copy"
 		assert_eq(passages.inspect(selected.bundle).value, generated, "Gallery cannot mutate shared passage data")
 		assert_true(adapter._scene_compile_cache.is_empty(), "Gallery lookup does not compile later passages")

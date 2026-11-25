@@ -19,7 +19,7 @@ func before_all() -> void:
 	var setup: Dictionary = _scene_fixture.setup(get_tree())
 	assert_true(setup.ok, str(setup))
 	if not setup.ok: return
-	_scene_snapshot = _scene_fixture.snapshot.duplicate(true)
+	_scene_snapshot = _scene_fixture.snapshot
 
 func after_all() -> void:
 	if _scene_fixture != null: _scene_fixture.close()
@@ -37,6 +37,8 @@ class Manager extends RefCounted:
 	var _journal := JOURNAL.new()
 	var _storage: RefCounted
 	var _restore_participants := {}
+	func flush_profile_reading_history() -> Dictionary:
+		return {"ok": true}
 
 var _had_profile_env := false
 var _previous_profile_env := ""
@@ -66,7 +68,7 @@ func _prepare(wired: Dictionary, money: int, durable: bool = true,
 	snapshot["gameplay"]["money"] = money # The absent key must be a JSON String, not StringName.
 	var input := {}
 	for key: String in ["lifecycle", "gameplay", "contacts", "desktop", "scene"]:
-		input[key] = snapshot[key].duplicate(true)
+		input[key] = snapshot[key]
 	input.merge({"command_receipts": {}, "applied_effect_transaction_ids": [], "applied_variable_transaction_ids": []})
 	var board := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd").new()
 	var restored: Dictionary = board.prepare_player_restore_scene(snapshot.desktop.board, _scene_fixture.issuer)

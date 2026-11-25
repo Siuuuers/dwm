@@ -24,6 +24,7 @@ var _style_directory: Dictionary = {}
 var _native_starts := 0
 var _native_ends := 0
 var _finished: Array[Dictionary] = []
+var _game_state: Node
 var _original_contacts: Dictionary = {}
 
 func before_each() -> void:
@@ -31,7 +32,8 @@ func before_each() -> void:
 	_native_starts = 0
 	_native_ends = 0
 	_finished.clear()
-	_original_contacts = GameState.contacts.duplicate(true)
+	_game_state = get_node("/root/GameState")
+	_original_contacts = _game_state.contacts.duplicate(true)
 	_had_persistent = Engine.has_meta("dialogic_persistent_style_info")
 	_persistent = Engine.get_meta("dialogic_persistent_style_info",{})
 	_style_directory = DialogicStylesUtil.style_directory.duplicate(true)
@@ -88,7 +90,7 @@ func after_each() -> void:
 	if _had_persistent: Engine.set_meta("dialogic_persistent_style_info",_persistent)
 	else: Engine.remove_meta("dialogic_persistent_style_info")
 	DialogicStylesUtil.style_directory = _style_directory
-	GameState.contacts = _original_contacts.duplicate(true)
+	_game_state.contacts = _original_contacts
 	_original_layout_parent = null
 	_scene_validation_scope.restore()
 
@@ -130,14 +132,14 @@ func _sylvia_hospital_command() -> Dictionary:
 	var command: Dictionary = _hospital_command()
 	command.context.source_entry_ids = ["accepted.3"]
 	command.context.miss_receipt_ids = ["miss.3"]
-	var contacts: Dictionary = GameState.contacts.duplicate(true)
+	var contacts: Dictionary = _game_state.contacts.duplicate(true)
 	var witnesses: Dictionary = contacts.get("sylvia_hospital_witness_receipts", {}).duplicate(true)
 	witnesses["hospital-live-admission.3"] = {"kind":"sylvia_hospital_witness",
 		"resolution_kind":"condition_hospital","care_followup_day":4,
 		"source_receipt_id":"accepted.3","hospital_miss_receipt_id":"miss.3"}
 	contacts["sylvia_hospital_witness_receipts"] = witnesses
-	GameState.contacts = contacts
-	assert_eq(HospitalScene.art_participants(GameState.contacts, command.context), ["sylvia"])
+	_game_state.contacts = contacts
+	assert_eq(HospitalScene.art_participants(_game_state.contacts, command.context), ["sylvia"])
 	return command
 
 func _continue_art_hold_if_present() -> bool:
@@ -160,8 +162,8 @@ func test_normal_faint_uses_native_playback_without_applying_gameplay_effects() 
 	assert_true(owner.configure(bridge).get("ok",false))
 	var receipts: Array[Dictionary] = []
 	owner.physical_completion_ready.connect(func(receipt: Dictionary): receipts.append(receipt.duplicate(true)))
-	var before := {"day":GameState._run_lifecycle.get_day(),"health":GameState.get_stat("health"),
-		"pressure":GameState.get_stat("pressure"),"contacts":GameState.contacts.duplicate(true)}
+	var before := {"day":_game_state._run_lifecycle.get_day(),"health":_game_state.get_stat("health"),
+		"pressure":_game_state.get_stat("pressure"),"contacts":_game_state.contacts.duplicate(true)}
 	var command: Dictionary = _hospital_command()
 	var begun: Dictionary = owner.begin_physical(command)
 	assert_true(begun.get("ok",false),str(begun))
@@ -175,8 +177,8 @@ func test_normal_faint_uses_native_playback_without_applying_gameplay_effects() 
 		assert_eq(receipts[0].physical_token,begun.value.physical_token)
 	assert_eq(_native_starts,1)
 	assert_eq(_finished.size(),1)
-	assert_eq({"day":GameState._run_lifecycle.get_day(),"health":GameState.get_stat("health"),
-		"pressure":GameState.get_stat("pressure"),"contacts":GameState.contacts.duplicate(true)},before,
+	assert_eq({"day":_game_state._run_lifecycle.get_day(),"health":_game_state.get_stat("health"),
+		"pressure":_game_state.get_stat("pressure"),"contacts":_game_state.contacts.duplicate(true)},before,
 		"the presentation owner neither applies recovery nor advances the day")
 
 func _snapshot() -> Dictionary:

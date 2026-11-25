@@ -37,7 +37,7 @@ func _native_observation(retained_native: Node = null) -> Dictionary:
 		"text": native.get_parsed_text() if is_instance_valid(native) else "",
 		"visible": is_instance_valid(native) and native.is_visible_in_tree(),
 		"event_done": event != null and event.state == DialogicTextEvent.States.DONE,
-		"ledger": bridge._reading_session.ledger.snapshot().duplicate(true)}
+		"ledger": bridge._reading_session.ledger.snapshot()}
 
 func _accept(wait_for_input: bool = true) -> void:
 	_ending_phase("accept.begin")
@@ -207,9 +207,13 @@ func load_later_caption() -> void:
 	assert_eq(continued.value.reading_session.frontier.line_id, LOOP_LINE)
 	assert_eq(continued.value.reading_session.program_index, expected_checkpoint.reading_session.program_index)
 	assert_eq(continued.value.reading_session.occurrence_id, proof.checkpoint.reading_session.occurrence_id)
-	assert_ne(continued.value.reading_session.frontier.publication_id, expected_checkpoint.reading_session.frontier.publication_id)
-	assert_eq(continued.value.reading_session.ledger.captions.size(), expected_checkpoint.reading_session.ledger.captions.size() + 1)
-	var ledger: Dictionary = bridge._reading_session.ledger.snapshot().duplicate(true)
+	var previous_id: String = expected_checkpoint.reading_session.frontier.publication_id
+	var next_id := "caption:%d" % (previous_id.trim_prefix("caption:").to_int() + 1)
+	assert_eq(continued.value.reading_session.frontier.publication_id, next_id, "one Accept publishes once")
+	var captions: Array = continued.value.reading_session.ledger.captions
+	assert_eq(captions.size(), 1, "the scene ledger retains the current caption")
+	if captions.size() == 1: assert_eq(captions[0].publication_id, next_id)
+	var ledger: Dictionary = bridge._reading_session.ledger.snapshot()
 	bridge._runtime_adapter._on_caption_about_to_show({})
 	bridge._runtime_adapter._on_caption_text_started({})
 	bridge._runtime_adapter._on_caption_about_to_show({})
