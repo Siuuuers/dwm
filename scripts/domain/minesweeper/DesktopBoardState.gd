@@ -201,9 +201,24 @@ func check_snapshot(snapshot: Dictionary) -> Dictionary:
 func prepare_restore(snapshot: Dictionary) -> Dictionary:
 	var checked := check_snapshot(snapshot)
 	if not checked.ok: return checked
-	return {"ok": true, "code": &"ok", "value": {"candidate": {
-		"kind": &"restore", "snapshot_after": snapshot.duplicate(true),
-	}}, "receipt": {}}
+	var candidate := {"kind": &"restore", "snapshot_after": _read_only_restore_snapshot(snapshot)}
+	candidate.make_read_only()
+	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}, "receipt": {}}
+
+
+static func _read_only_restore_snapshot(snapshot: Dictionary) -> Dictionary:
+	if _is_read_only_tree(snapshot): return snapshot
+	var owned := snapshot.duplicate(true)
+	_READ_ONLY.freeze(owned)
+	return owned
+
+
+static func _is_read_only_tree(container: Variant) -> bool:
+	if not container.is_read_only(): return false
+	for item: Variant in container:
+		var child: Variant = container[item] if container is Dictionary else item
+		if (child is Dictionary or child is Array) and not _is_read_only_tree(child): return false
+	return true
 
 
 func prepare_debug_candidate(input: Dictionary, generation: Dictionary) -> Dictionary:
@@ -375,17 +390,21 @@ func prepare_first_reveal(input: Dictionary, materialized: Dictionary,
 		board_after["paid_start_receipt"] = paid_start_receipt
 		if _phase != _PHASE_PAID and not (_candidate is Dictionary and _candidate.has("paid_start_receipt")):
 			board_after.erase("spec")
-	return _envelope(input, &"first_reveal", _PHASE_ACTIVE_VISIBLE, identity, null, board_after, null)
+	return _envelope(input, &"first_reveal", _PHASE_ACTIVE_VISIBLE, identity, null, _prepare_board_slot(board_after), null)
 
 
-func apply_board_command(input: Dictionary, reduced_board: Dictionary) -> Dictionary:
-	var prepared := prepare_board_command(input, reduced_board)
+func apply_board_command(input: Dictionary, reduced_board: Dictionary, adopt_board: bool = false) -> Dictionary:
+	var prepared := _prepare_board_command(input, reduced_board, adopt_board)
 	if not prepared.ok: return prepared
 	var candidate: Dictionary = prepared.value.candidate
 	return _commit(candidate, candidate.board_after)
 
 
 func prepare_board_command(input: Dictionary, reduced_board: Dictionary) -> Dictionary:
+	return _prepare_board_command(input, reduced_board, false)
+
+
+func _prepare_board_command(input: Dictionary, reduced_board: Dictionary, adopt_board: bool) -> Dictionary:
 	var basics := _validate_common(input)
 	if not basics.get("ok", false):
 		return basics
@@ -408,7 +427,8 @@ func prepare_board_command(input: Dictionary, reduced_board: Dictionary) -> Dict
 	var board_after := {"board": reduced_board}
 	if not _scene_snapshot_format: board_after["paid_start_receipt"] = live_board.paid_start_receipt
 	if live_board.has("spec"): board_after["spec"] = live_board.spec
-	return _envelope(input, &"board_command", _PHASE_ACTIVE_VISIBLE, _identity, null, board_after, null)
+	return _envelope(input, &"board_command", _PHASE_ACTIVE_VISIBLE, _identity, null,
+		board_after if adopt_board else _prepare_board_slot(board_after), null)
 
 
 func prepare_visibility(input: Dictionary, visible: bool) -> Dictionary:
@@ -426,7 +446,7 @@ func prepare_visibility(input: Dictionary, visible: bool) -> Dictionary:
 	if not identity_check.get("ok", false):
 		return identity_check
 	var phase_after := _PHASE_ACTIVE_VISIBLE if visible else _PHASE_ACTIVE_SUSPENDED
-	return _envelope(input, &"visibility", phase_after, _identity, null, _board, null)
+	return _envelope(input, &"visibility", phase_after, _identity, null, _prepare_board_slot(_board), null)
 
 
 func prepare_settlement(input: Dictionary, settlement: Dictionary) -> Dictionary:
@@ -447,7 +467,7 @@ func prepare_settlement(input: Dictionary, settlement: Dictionary) -> Dictionary
 		return identity_check
 	if typeof(settlement) != TYPE_DICTIONARY or settlement.is_empty():
 		return _fail(&"invalid_settlement", "settlement must be a nonempty dictionary", {})
-	return _envelope(input, &"settlement", _PHASE_SETTLING, _identity, null, live_board, settlement)
+	return _envelope(input, &"settlement", _PHASE_SETTLING, _identity, null, _prepare_board_slot(live_board), settlement)
 
 
 
@@ -464,10 +484,9 @@ func _commit(candidate: Dictionary, owned_board: Variant) -> Dictionary:
 		if not candidate.has("snapshot_after") or typeof(candidate["snapshot_after"]) != TYPE_DICTIONARY:
 			return _fail(&"invalid_candidate", "restore candidate.snapshot_after is required", {})
 		var snapshot: Dictionary = candidate["snapshot_after"]
-		if _scene_payment_issuer != null:
-			var checked := check_snapshot(snapshot)
-			if not checked.ok: return checked
-		snapshot = snapshot.duplicate(true)
+		var checked := check_snapshot(snapshot)
+		if not checked.ok: return checked
+		snapshot = _read_only_restore_snapshot(snapshot)
 		_read_view = {}
 		_phase = String(snapshot["phase"])
 		_revision = int(snapshot["revision"])
@@ -611,7 +630,7 @@ func _envelope(input: Dictionary, kind: StringName, phase_after: String, identit
 		"request_fingerprint": str(input["request_fingerprint"]),
 		"identity_fingerprint": identity_fp, "pre_revision": _revision, "phase_after": phase_after,
 		"identity_after": prepared_identity, "candidate_after": _dup_or_null(candidate_after),
-		"board_after": _prepare_board_slot(board_after), "settlement_after": _dup_or_null(settlement_after),
+		"board_after": board_after, "settlement_after": _dup_or_null(settlement_after),
 	}}, "receipt": {}}
 	if _scene_snapshot_format:
 		var checked := _validate_current_scene_board(_scene_candidate_snapshot(prepared.value.candidate))

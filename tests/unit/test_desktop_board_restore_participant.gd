@@ -25,16 +25,14 @@ func test_prepare_rejects_missing_or_invalid_state() -> void:
 	assert_false(participant.prepare({}).get("ok", true), "missing input.state rejects")
 	assert_false(participant.prepare({"state": {"garbage": true}}).get("ok", true), "an invalid state rejects")
 
-func test_capture_wraps_the_raw_capture_dict_in_an_ok_envelope() -> void:
-	# DesktopBoardState.capture() returns its state dict directly, unlike most of this codebase's
-	# other prepare/commit seams -- this participant is responsible for the uniform {ok,value} wrap
-	# every SaveManager participant is required to return.
+func test_capture_retains_read_only_board_for_rollback() -> void:
 	if not _exists(): return
 	var state := _fresh_state()
 	var participant := _participant(state)
 	var captured: Dictionary = participant.capture()
 	assert_true(captured.get("ok", false), JSON.stringify(captured))
-	assert_eq((captured["value"] as Dictionary)["snapshot"], state.capture())
+	assert_same(captured.value.snapshot, state.read_state())
+	assert_true(captured.value.snapshot.command_receipts.is_read_only())
 
 func test_prepare_capture_apply_and_rollback_round_trip() -> void:
 	if not _exists(): return

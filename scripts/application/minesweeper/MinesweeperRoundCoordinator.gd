@@ -926,14 +926,12 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 	if not board_prepared.get("ok", false):
 		return board_prepared
 	var board_candidate: Dictionary = (board_prepared["value"] as Dictionary)["candidate"]
-	board_candidate["result_override"] = {
-		"ok": true, "code": &"first_reveal_committed",
-		"value": {"receipt": receipt, "publication": publication},
-		"receipt": {},
-	}
 	if captured.has("round_paid"):
 		board_candidate.result_override = {"ok": true, "code": &"first_reveal_committed",
 			"value": {"revision": int(captured.revision) + 1}, "receipt": {}}
+	else:
+		board_candidate.result_override = {"ok": true, "code": &"first_reveal_committed",
+			"value": {"receipt": receipt, "publication": publication}, "receipt": {}}
 
 	var checkpoint_commit: Dictionary = _checkpoint_port.call(&"commit_checkpoint", checkpoint_candidate)
 	if not checkpoint_commit.get("ok", false):
@@ -960,11 +958,9 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 			["checkpoint_port", func(): return _checkpoint_port.call(&"rollback", checkpoint_backup)],
 		], seal)
 
-	var published: Dictionary = _state_port.call(&"publish", publication)
-	if not published.get("ok", false):
-		return _fail(&"FIRST_REVEAL_COMMITTED_UNPUBLISHED", "",
-			{"receipt": receipt})
-	return {"ok": true, "code": &"first_reveal_committed", "value": {"receipt": receipt}, "receipt": {}}
+	if captured.has("round_paid"):
+		return _publish_first_reveal(receipt, publication)
+	return _publish_first_reveal(board_commit.value.receipt, board_commit.value.publication)
 
 
 func _first_reveal_durable(request: Dictionary) -> Dictionary:
@@ -1146,12 +1142,9 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 	_state_port.adopt_first_reveal_charge(game_state_candidate)
 	profile_tick = _consequence_profile_phase(profile, "state_commit_us", profile_tick)
 
-	var published: Dictionary = _state_port.call(&"publish", publication)
+	var published := _publish_first_reveal(board_commit.value.receipt, board_commit.value.publication)
 	_consequence_profile_phase(profile, "publish_us", profile_tick)
-	if not published.get("ok", false):
-		return _fail(&"FIRST_REVEAL_COMMITTED_UNPUBLISHED", "", {"receipt": receipt})
-	return _consequence_profile_result(profile,
-		{"ok": true, "code": &"first_reveal_committed", "value": {"receipt": receipt}, "receipt": {}})
+	return _consequence_profile_result(profile, published)
 
 
 func _first_reveal_replay(transaction_id: String, fingerprint: String, captured: Dictionary) -> Dictionary:
@@ -1159,12 +1152,13 @@ func _first_reveal_replay(transaction_id: String, fingerprint: String, captured:
 	if not lookup.has("result"): return {}
 	var stored: Dictionary = lookup.result
 	if captured.has("round_paid") or str(stored.get("code", "")) != "first_reveal_committed": return stored
-	var stored_value: Dictionary = stored.get("value", {})
-	var receipt: Dictionary = stored_value.get("receipt", {})
-	var publication: Variant = stored_value.get("publication")
-	if typeof(publication) == TYPE_DICTIONARY:
-		var republish: Dictionary = _state_port.call(&"publish", publication)
-		if not republish.get("ok", false):
+	return _publish_first_reveal(stored.value.get("receipt", {}), stored.value.get("publication"))
+
+
+func _publish_first_reveal(receipt: Dictionary, publication: Variant) -> Dictionary:
+	if publication is Dictionary:
+		var published: Dictionary = _state_port.call(&"publish", publication)
+		if not published.get("ok", false):
 			return _fail(&"FIRST_REVEAL_COMMITTED_UNPUBLISHED", "", {"receipt": receipt})
 	return {"ok": true, "code": &"first_reveal_committed", "value": {"receipt": receipt}, "receipt": {}}
 
@@ -1250,7 +1244,7 @@ func _routine_command(request: Dictionary, kind: StringName) -> Dictionary:
 	}
 	if kind == &"set_flag":
 		board_input["flagged"] = bool(request["flagged"])
-	var committed: Dictionary = _board_state.apply_board_command(board_input, reduced_board)
+	var committed: Dictionary = _board_state.apply_board_command(board_input, reduced_board, true)
 	if not committed.get("ok", false):
 		return committed
 	if bool(reduced_board.get("terminal", false)):
@@ -1675,7 +1669,7 @@ func _commit_cost_free_under_lease(candidate: Dictionary, selected_difficulty: S
 		var base: Dictionary = _state_port.call(&"capture_base_snapshot_input")
 		if not base.ok: return base
 		var inputs: Dictionary = base.value.snapshot_input
-		inputs["desktop"]["board"] = projected.capture()
+		inputs["desktop"]["board"] = projected.read_state()
 		if not selected_difficulty.is_empty(): inputs["gameplay"]["minesweeper_selected_difficulty"] = selected_difficulty
 		var backup: Dictionary = _durable_checkpoint_port.call(&"capture")
 		if not backup.ok: return backup

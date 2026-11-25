@@ -2,6 +2,7 @@ class_name GameStateDesktopBoardPort
 extends RefCounted
 
 
+const _READ_ONLY := preload("res://scripts/domain/ReadOnlyData.gd")
 const _CAPABILITY_RULES := preload("res://scripts/domain/minesweeper/MinesweeperCapabilityRules.gd")
 const _BOARD_SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
 const _BOARD_CATALOG := preload("res://scripts/domain/minesweeper/MinesweeperBoardCatalog.gd")
@@ -218,21 +219,17 @@ func prepare_first_reveal(board_candidate: Dictionary, transaction_id: String,
 		"receipt_id": str(derived_value["child_id"]),
 		"receipt_provenance": derived_value["provenance"],
 		"transaction_id": transaction_id, "transaction_issuer_receipt": transaction_issuer_receipt.duplicate(),
-		"identity": board_candidate["identity"].duplicate(),
+		"identity": board_candidate["identity"].duplicate(true),
 		"difficulty_id": str(board_candidate["difficulty_id"]), "first_cell": int(board_candidate["cell_index"]),
 		"board_revision": int(board["revision"]), "rounds_before": rounds_left, "rounds_after": rounds_left - 1,
 		"layout_sha256": layout_sha256,
 		"proof_sha256": board_candidate.get("proof_sha256", null), "checkpoint_id": expected_checkpoint_id,
 	}
-	var publication_receipt := receipt.duplicate()
-	publication_receipt.identity = receipt.identity.duplicate()
-	publication_receipt.transaction_issuer_receipt = receipt.transaction_issuer_receipt.duplicate()
-	publication_receipt.receipt_provenance = receipt.receipt_provenance.duplicate()
-	publication_receipt.receipt_provenance.source_ids = receipt.receipt_provenance.source_ids.duplicate()
+	_READ_ONLY.freeze(receipt)
 	return {"ok": true, "code": &"ok", "value": {
 		"run_candidate": run_candidate, "receipt": receipt,
 		"snapshot_input": {"transaction_id": transaction_id, "run_id": str(facts["run_id"])},
-		"publication": {"transaction_id": transaction_id, "receipt": publication_receipt},
+		"publication": {"transaction_id": transaction_id, "receipt": receipt},
 	}, "receipt": {}}
 
 
