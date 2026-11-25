@@ -367,6 +367,10 @@ func _settle_terminal(owner_view: Dictionary) -> Dictionary:
 
 	var identity: Dictionary = owner_view["identity"]
 	var revision := int(owner_view["revision"])
+	if _owner.has_method("scene_round_completion_active") and _owner.scene_round_completion_active():
+		var completed: Dictionary = _owner.complete_round({"expected_identity": identity, "expected_revision": revision})
+		if not completed.get("ok", false): return completed
+		return _adopt_after_settlement()
 	if (
 			_pending_settlement_request.is_empty()
 			or _pending_settlement_request.get("expected_identity") != identity

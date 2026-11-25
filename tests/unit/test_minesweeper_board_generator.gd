@@ -460,6 +460,11 @@ func test_run_debug_slice_falls_back_once_the_search_budget_has_no_room_left() -
 	var candidate: Dictionary = next_preparation["candidate_state"]
 	assert_eq(int(candidate["mine_count"]), 10)
 	assert_false((candidate["mine_indices"] as Array).has(int(preparation["forced_cell"])))
+	var expected: Array = candidate.mine_indices.duplicate()
+	candidate.mine_indices.clear()
+	var replay := GENERATOR.run_debug_slice(forced)
+	assert_true(replay.ok, str(replay))
+	if replay.ok: assert_eq(replay.value.preparation.candidate_state.mine_indices, expected)
 
 
 func test_run_debug_slice_rejects_once_the_hard_operation_budget_is_already_reached() -> void:

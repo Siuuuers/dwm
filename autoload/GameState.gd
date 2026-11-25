@@ -2780,9 +2780,9 @@ func capture_run_lifecycle() -> Dictionary:
 	return _run_lifecycle.to_dict()
 
 
-func _capture_scene_gameplay() -> Dictionary:
+func _capture_scene_gameplay(keys: Array = SCENE_GAMEPLAY_KEYS) -> Dictionary:
 	var gameplay := {}
-	for key: String in SCENE_GAMEPLAY_KEYS:
+	for key: String in keys:
 		var value: Variant = _narrative_variables if key == "narrative_variables" else get(key)
 		gameplay[key] = value.duplicate(true) if value is Dictionary or value is Array else value
 	return gameplay
@@ -4779,19 +4779,21 @@ func capture_scene_shop_context() -> Dictionary:
 func preview_scene_shop_purchase(item_id: String, quantity: int) -> Dictionary:
 	var context := capture_scene_shop_context()
 	if not context.ok: return context
-	var prepared := _prepare_scene_shop_gameplay(item_id, quantity, "scene-shop-preview", context.value.identity)
+	var prepared := _prepare_scene_shop_gameplay(item_id, quantity, "scene-shop-preview", context.value.identity,
+		_SCENE_SHOP_RULES.PREVIEW_GAMEPLAY_KEYS)
 	if not prepared.ok: return prepared
 	var purchase: Dictionary = prepared.value.purchase
 	return {"ok": true, "value": {"eligible": true, "total": purchase.unit_price * purchase.quantity}}
 
-func _prepare_scene_shop_gameplay(item_id: String, quantity: int, id: String, identity: Dictionary) -> Dictionary:
+func _prepare_scene_shop_gameplay(item_id: String, quantity: int, id: String, identity: Dictionary,
+		gameplay_keys: Array = SCENE_GAMEPLAY_KEYS) -> Dictionary:
 	if not is_instance_valid(_scene_shop_catalog) or not is_instance_valid(_scene_shop_consequence):
 		return _transaction_failure(&"scene_shop_unconfigured", "")
 	var raw: Variant = _scene_shop_catalog.call("get_shop_item", item_id)
 	if not raw is Dictionary or raw.is_empty(): return _transaction_failure(&"unregistered_shop_item", "")
 	var captured: Dictionary = _scene_shop_consequence.capture()
 	if not captured.get("ok", false): return captured
-	var gameplay := _capture_scene_gameplay()
+	var gameplay := _capture_scene_gameplay(gameplay_keys)
 	if not _SCENE_EVENT._equal(_desktop_snapshot_view().get("consequence"), captured.value.state) \
 			or captured.value.state.get("pending") != null \
 			or captured.value.state.get("causal_day_instance") != identity.causal_day_instance:
@@ -4803,7 +4805,7 @@ func _prepare_scene_shop_gameplay(item_id: String, quantity: int, id: String, id
 		var effect := _SCENE_SHOP_CAPABILITIES.prepare_supportz_effect(eligibility.value.state, identity.causal_day_instance, id)
 		if not effect.ok: return effect
 		supportz_effect = effect.value
-	return _SCENE_SHOP_RULES.prepare(gameplay, raw, quantity, supportz_effect)
+	return _SCENE_SHOP_RULES.apply_to_candidate(gameplay, raw, quantity, supportz_effect)
 
 func commit_scene_shop_purchase(item_id: String, quantity: int, id: String, proof: Dictionary, source_context: Dictionary) -> Dictionary:
 	if not _scene_shop_operation.is_empty() or not is_instance_valid(_mutation_gate) \
@@ -4922,7 +4924,7 @@ func commit_scene_round_completion(request: Dictionary) -> Dictionary:
 	if not guarded.get("ok", false): return guarded
 	var acquired: Dictionary = _mutation_gate.acquire(&"causal_transaction")
 	if not acquired.get("ok", false): return acquired
-	var result := _commit_scene_round_owned(request.duplicate(true), acquired.value.token)
+	var result := _commit_scene_round_owned(request, acquired.value.token)
 	_scene_round_operation.clear()
 	var released: Dictionary = _mutation_gate.release(&"causal_transaction", acquired.value.token)
 	if not released.get("ok", false):
@@ -4931,37 +4933,23 @@ func commit_scene_round_completion(request: Dictionary) -> Dictionary:
 	return result
 
 func _commit_scene_round_owned(request: Dictionary, lease: String) -> Dictionary:
-	if not _SCENE_EVENT._keys(request, ["transaction_id", "transaction_issuer_receipt", "expected_identity", "expected_revision"]) \
-			or not request.transaction_issuer_receipt is Dictionary or not request.expected_identity is Dictionary \
-			or typeof(request.expected_revision) != TYPE_INT:
+	if not _SCENE_EVENT._keys(request, ["expected_identity", "expected_revision"]) \
+			or not request.expected_identity is Dictionary or typeof(request.expected_revision) != TYPE_INT:
 		return _transaction_failure(&"scene_round_request_invalid", "")
-	var id: String = str(request.transaction_id)
-	if request.transaction_issuer_receipt.get("token") != id:
-		return _transaction_failure(&"scene_round_command_conflict", "")
-	var verified: Dictionary = _identity_issuer.verify_issued(request.transaction_issuer_receipt, &"transaction_id")
-	if not verified.get("ok", false): return verified
-	var prior: Dictionary = _command_receipts.get(id, {})
-	if not prior.is_empty():
-		var checked := _SCENE_EVENT.validate_scene_round_completion(prior, _identity_issuer)
-		if not checked.ok: return checked
-		var done: Dictionary = prior.scene_round_completion.completion
-		if not _SCENE_EVENT._equal(done.board_identity, request.expected_identity) or done.revision != request.expected_revision \
-				or not _SCENE_EVENT._equal(prior.scene_round_completion.issuer_receipt, request.transaction_issuer_receipt):
-			return _transaction_failure(&"scene_round_command_conflict", "")
-		return {"ok": true, "committed": true, "already_applied": true, "receipt": prior.duplicate(true)}
 	var session := capture_live_session()
 	if not session.ok: return session
 	var context := capture_scene_shop_context()
 	if not context.ok: return context
 	var captured: Dictionary = _scene_round_board.capture()
-	if captured.phase != "ACTIVE_VISIBLE" or not _SCENE_EVENT._equal(captured.identity, request.expected_identity) \
-			or captured.revision != request.expected_revision:
+	if captured.phase != "ACTIVE_VISIBLE" or not _SCENE_EVENT._equal(captured.identity, request.expected_identity):
 		return _transaction_failure(&"scene_round_source_changed", "")
 	for field: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"]:
 		if captured.identity.get(field) != context.value.identity.get(field):
 			return _transaction_failure(&"scene_round_identity_changed", "")
-	if _scene_round_board.has_settled_inspection():
+	if _scene_round_board.has_settled_inspection() and request.expected_revision in [captured.revision, captured.revision - 1]:
 		return {"ok": true, "committed": true, "already_applied": true}
+	if request.expected_revision != captured.revision:
+		return _transaction_failure(&"scene_round_source_changed", "")
 	if not captured.board.board.get("terminal", false):
 		return _transaction_failure(&"scene_round_requires_terminal_board", "")
 	var ordinal: int = int(captured.identity.app_round_ordinal)
@@ -4975,18 +4963,9 @@ func _commit_scene_round_owned(request: Dictionary, lease: String) -> Dictionary
 	var difficulty: String = str(captured.board.spec.difficulty_id)
 	var reward: Dictionary = _scene_round_reward.prepare_scene_complete(difficulty, captured.board.board)
 	if not reward.get("ok", false): return reward
-	var completion := {"board_identity": captured.identity,
-		"board_sha256": _scene_round_board.inspection_board_sha256(captured.board),
-		"revision": int(captured.revision), "difficulty": difficulty, "outcome": reward.value.outcome,
-		"gameplay_sha256": _SCENE_EVENT._sha(reward.value.gameplay)}
-	var receipt := _SCENE_EVENT.make_scene_round_completion(context.value.identity, request.transaction_issuer_receipt,
-		context.value.scene_occurrence, completion, _identity_issuer)
-	if not receipt.ok: return receipt
 	var candidate := before.duplicate()
 	candidate.desktop = before.desktop.duplicate()
-	candidate.command_receipts = before.command_receipts.duplicate()
 	candidate.gameplay = reward.value.gameplay
-	candidate.command_receipts[id] = receipt.value
 	var board_after := captured
 	board_after.revision += 1
 	board_after.settled_inspection = true
@@ -5024,8 +5003,7 @@ func _commit_scene_round_owned(request: Dictionary, lease: String) -> Dictionary
 	var board_adopted: Dictionary = _scene_round_board.commit(prepared_board.value.candidate)
 	if not board_adopted.get("ok", false): return _scene_event_fatal(&"scene_round_board_adoption_failed")
 	_apply_gameplay_silent(candidate.gameplay)
-	_command_receipts = candidate.command_receipts.duplicate(true)
-	return {"ok": true, "committed": true, "receipt": receipt.value}
+	return {"ok": true, "committed": true}
 
 func _validate_scene_round_checkpoint(candidate: Dictionary, checkpoint: Dictionary, _phase: String) -> bool:
 	return _validate_scene_mutation_checkpoint(_scene_round_operation, candidate, checkpoint)

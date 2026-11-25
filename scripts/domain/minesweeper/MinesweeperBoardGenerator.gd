@@ -53,35 +53,34 @@ const _FALLBACK_RECORD_KEYS := ["difficulty_id", "forced_cell", "first_cell_zero
 
 
 static func materialize_first_reveal(spec: Dictionary, first_cell: int) -> Dictionary:
-	var spec_check: Dictionary = _BOARD_SCHEMA.validate_spec(spec)
+	var spec_check: Dictionary = _BOARD_SCHEMA.check_spec(spec)
 	if not spec_check.get("ok", false):
 		return spec_check
-	var validated_spec: Dictionary = (spec_check["value"] as Dictionary)["spec"]
 
-	var width: int = int(validated_spec["width"])
-	var height: int = int(validated_spec["height"])
+	var width: int = int(spec["width"])
+	var height: int = int(spec["height"])
 	var total_cells: int = width * height
 	if typeof(first_cell) != TYPE_INT or first_cell < 0 or first_cell >= total_cells:
 		return _fail(&"cell_index_out_of_range", "first_cell is out of range", {"first_cell": first_cell})
 
-	var capability_ids: Array = validated_spec["capability_ids"]
+	var capability_ids: Array = spec["capability_ids"]
 	var zero_mode: bool = capability_ids.has("first_cell_zero")
 	var excluded := _KERNEL.excluded_cells(first_cell, zero_mode, width, height)
 	var pool: Array[int] = []
 	for index in range(total_cells):
 		if not excluded.has(index):
 			pool.append(index)
-	var base_mine_count: int = int(validated_spec["base_mine_count"])
+	var base_mine_count: int = int(spec["base_mine_count"])
 	if base_mine_count > pool.size():
 		return _fail(&"base_mine_count_infeasible",
 			"base_mine_count does not fit outside the first cell and its exclusions",
 			{"base_mine_count": base_mine_count, "available_cells": pool.size()})
-	var requested_extra: int = int(validated_spec["requested_mine_count"]) - base_mine_count
+	var requested_extra: int = int(spec["requested_mine_count"]) - base_mine_count
 	var max_fit_extra: int = pool.size() - base_mine_count
 	var effective_extra: int = maxi(mini(requested_extra, max_fit_extra), 0)
 	var mine_count: int = base_mine_count + effective_extra
 
-	var placement_seeded := _seed(StringName(validated_spec["placement_stream_id"]), String(validated_spec["placement_nonce"]))
+	var placement_seeded := _seed(StringName(spec["placement_stream_id"]), String(spec["placement_nonce"]))
 	if not placement_seeded.get("ok", false):
 		return placement_seeded
 	var placement_rng: RefCounted = placement_seeded["value"]
@@ -90,12 +89,11 @@ static func materialize_first_reveal(spec: Dictionary, first_cell: int) -> Dicti
 
 	var layout := {"schema_version": 1, "width": width, "height": height,
 		"mine_indices": mine_indices, "mine_count": mine_indices.size()}
-	validated_spec["requested_mine_count"] = mine_count
-	var layout_check: Dictionary = _BOARD_SCHEMA.validate_layout(layout, validated_spec)
+	var layout_check: Dictionary = _BOARD_SCHEMA.validate_layout(layout, spec)
 	if not layout_check.get("ok", false):
 		return layout_check
 
-	var explosion_seeded := _seed(StringName(validated_spec["explosion_stream_id"]), String(validated_spec["explosion_nonce"]))
+	var explosion_seeded := _seed(StringName(spec["explosion_stream_id"]), String(spec["explosion_nonce"]))
 	if not explosion_seeded.get("ok", false):
 		return explosion_seeded
 	var explosion_rng: RefCounted = explosion_seeded["value"]
@@ -119,20 +117,19 @@ static func materialize_first_reveal(spec: Dictionary, first_cell: int) -> Dicti
 
 
 static func begin_debug(spec: Dictionary) -> Dictionary:
-	var budget_loaded := _read_budget_manifest()
+	var budget_loaded := _load_budget_manifest()
 	if not budget_loaded.get("ok", false):
 		return budget_loaded
-	var fallback_loaded := _read_fallback_manifest()
+	var fallback_loaded := _load_fallback_manifest()
 	if not fallback_loaded.get("ok", false):
 		return fallback_loaded
 
-	var spec_check: Dictionary = _BOARD_SCHEMA.validate_spec(spec)
+	var spec_check: Dictionary = _BOARD_SCHEMA.check_spec(spec)
 	if not spec_check.get("ok", false):
 		return spec_check
-	var validated_spec: Dictionary = (spec_check["value"] as Dictionary)["spec"]
-	var total_cells: int = int(validated_spec["width"]) * int(validated_spec["height"])
+	var total_cells: int = int(spec["width"]) * int(spec["height"])
 
-	var debug_seeded := _seed(StringName(validated_spec["debug_stream_id"]), String(validated_spec["debug_nonce"]))
+	var debug_seeded := _seed(StringName(spec["debug_stream_id"]), String(spec["debug_nonce"]))
 	if not debug_seeded.get("ok", false):
 		return debug_seeded
 	var debug_rng: RefCounted = debug_seeded["value"]
@@ -142,17 +139,17 @@ static func begin_debug(spec: Dictionary) -> Dictionary:
 	var forced_cell: int = int((drawn["value"] as Dictionary)["result"])
 	var debug_state: Dictionary = debug_rng.capture()["value"]
 
-	var placement_seeded := _seed(StringName(validated_spec["placement_stream_id"]), String(validated_spec["placement_nonce"]))
+	var placement_seeded := _seed(StringName(spec["placement_stream_id"]), String(spec["placement_nonce"]))
 	if not placement_seeded.get("ok", false):
 		return placement_seeded
 	var placement_state: Dictionary = (placement_seeded["value"] as RefCounted).capture()["value"]
 
-	var explosion_seeded := _seed(StringName(validated_spec["explosion_stream_id"]), String(validated_spec["explosion_nonce"]))
+	var explosion_seeded := _seed(StringName(spec["explosion_stream_id"]), String(spec["explosion_nonce"]))
 	if not explosion_seeded.get("ok", false):
 		return explosion_seeded
 	var explosion_state: Dictionary = (explosion_seeded["value"] as RefCounted).capture()["value"]
 
-	var kernel_spec := _project_kernel_spec(validated_spec)
+	var kernel_spec := _project_kernel_spec(spec)
 	var begun: Dictionary = _KERNEL.begin(kernel_spec, forced_cell, _KERNEL.MODE_CANDIDATE_SEARCH,
 		placement_state, debug_state, explosion_state)
 	if not begun.get("ok", false):
@@ -161,22 +158,21 @@ static func begin_debug(spec: Dictionary) -> Dictionary:
 
 
 static func begin_debug_at_cell(spec: Dictionary, first_cell: int) -> Dictionary:
-	var budget_loaded := _read_budget_manifest()
+	var budget_loaded := _load_budget_manifest()
 	if not budget_loaded.get("ok", false):
 		return budget_loaded
-	var fallback_loaded := _read_fallback_manifest()
+	var fallback_loaded := _load_fallback_manifest()
 	if not fallback_loaded.get("ok", false):
 		return fallback_loaded
 
-	var spec_check: Dictionary = _BOARD_SCHEMA.validate_spec(spec)
+	var spec_check: Dictionary = _BOARD_SCHEMA.check_spec(spec)
 	if not spec_check.get("ok", false):
 		return spec_check
-	var validated_spec: Dictionary = (spec_check["value"] as Dictionary)["spec"]
-	var total_cells: int = int(validated_spec["width"]) * int(validated_spec["height"])
+	var total_cells: int = int(spec["width"]) * int(spec["height"])
 	if typeof(first_cell) != TYPE_INT or first_cell < 0 or first_cell >= total_cells:
 		return _fail(&"cell_index_out_of_range", "first_cell is out of range", {"first_cell": first_cell})
 
-	var debug_seeded := _seed(StringName(validated_spec["debug_stream_id"]), String(validated_spec["debug_nonce"]))
+	var debug_seeded := _seed(StringName(spec["debug_stream_id"]), String(spec["debug_nonce"]))
 	if not debug_seeded.get("ok", false):
 		return debug_seeded
 	var debug_rng: RefCounted = debug_seeded["value"]
@@ -185,17 +181,17 @@ static func begin_debug_at_cell(spec: Dictionary, first_cell: int) -> Dictionary
 		return burned
 	var debug_state: Dictionary = debug_rng.capture()["value"]
 
-	var placement_seeded := _seed(StringName(validated_spec["placement_stream_id"]), String(validated_spec["placement_nonce"]))
+	var placement_seeded := _seed(StringName(spec["placement_stream_id"]), String(spec["placement_nonce"]))
 	if not placement_seeded.get("ok", false):
 		return placement_seeded
 	var placement_state: Dictionary = (placement_seeded["value"] as RefCounted).capture()["value"]
 
-	var explosion_seeded := _seed(StringName(validated_spec["explosion_stream_id"]), String(validated_spec["explosion_nonce"]))
+	var explosion_seeded := _seed(StringName(spec["explosion_stream_id"]), String(spec["explosion_nonce"]))
 	if not explosion_seeded.get("ok", false):
 		return explosion_seeded
 	var explosion_state: Dictionary = (explosion_seeded["value"] as RefCounted).capture()["value"]
 
-	var kernel_spec := _project_kernel_spec(validated_spec)
+	var kernel_spec := _project_kernel_spec(spec)
 	var begun: Dictionary = _KERNEL.begin(kernel_spec, first_cell, _KERNEL.MODE_CANDIDATE_SEARCH,
 		placement_state, debug_state, explosion_state)
 	if not begun.get("ok", false):
@@ -204,10 +200,10 @@ static func begin_debug_at_cell(spec: Dictionary, first_cell: int) -> Dictionary
 
 
 static func run_debug_slice(preparation: Dictionary) -> Dictionary:
-	var budget_loaded := _read_budget_manifest()
+	var budget_loaded := _load_budget_manifest()
 	if not budget_loaded.get("ok", false):
 		return budget_loaded
-	var budget: Dictionary = budget_loaded["value"]
+	var budget := _budget_manifest_cache
 
 	var preparation_check: Dictionary = _PREPARATION.validate(preparation)
 	if not preparation_check.get("ok", false):
@@ -233,17 +229,16 @@ static func run_debug_slice(preparation: Dictionary) -> Dictionary:
 			return advanced
 		return _PREPARATION.advance(current, advanced)
 
-	var fallback_loaded := _read_fallback_manifest()
+	var fallback_loaded := _load_fallback_manifest()
 	if not fallback_loaded.get("ok", false):
 		return fallback_loaded
-	return _adopt_fallback(current, budget, (fallback_loaded["value"] as Dictionary)["records"])
+	return _adopt_fallback(current, budget, _fallback_manifest_cache.records)
 
 
 static func validate_prepared(candidate: Dictionary, spec: Dictionary) -> Dictionary:
-	var spec_check: Dictionary = _BOARD_SCHEMA.validate_spec(spec)
+	var spec_check: Dictionary = _BOARD_SCHEMA.check_spec(spec)
 	if not spec_check.get("ok", false):
 		return spec_check
-	var validated_spec: Dictionary = (spec_check["value"] as Dictionary)["spec"]
 
 	var preparation_check: Dictionary = _PREPARATION.validate(candidate)
 	if not preparation_check.get("ok", false):
@@ -252,7 +247,7 @@ static func validate_prepared(candidate: Dictionary, spec: Dictionary) -> Dictio
 	if StringName(preparation["status"]) != _KERNEL.STATUS_CERTIFIED:
 		return _fail(&"preparation_not_certified", "validate_prepared requires a certified preparation", {})
 
-	var expected_projection := _project_kernel_spec(validated_spec)
+	var expected_projection := _project_kernel_spec(spec)
 	if preparation["spec"] != expected_projection:
 		return _fail(&"preparation_spec_projection_mismatch",
 			"the preparation's kernel spec is not the exact projection of the trusted BoardSpec", {})
@@ -332,18 +327,23 @@ static func _adopt_fallback(current: Dictionary, budget: Dictionary, fallback_re
 
 
 static func _read_budget_manifest() -> Dictionary:
+	var loaded := _load_budget_manifest()
+	return {"ok": true, "value": _budget_manifest_cache.duplicate(true)} if loaded.ok else loaded
+
+
+static func _load_budget_manifest() -> Dictionary:
 	if not FileAccess.file_exists(BUDGET_MANIFEST_PATH):
 		return _fail(&"generator_budget_unavailable", "the generator budget manifest is absent", {})
 	var bytes := FileAccess.get_file_as_bytes(BUDGET_MANIFEST_PATH)
 	var budget: Dictionary
 	if not _budget_manifest_cache.is_empty() and bytes == _budget_manifest_bytes:
-		budget = _budget_manifest_cache.duplicate(true)
+		budget = _budget_manifest_cache
 	else:
 		var parsed: Dictionary = _STRICT_JSON.parse_object(bytes.get_string_from_utf8())
 		if not parsed.get("ok", false):
 			return _fail(&"generator_budget_unavailable", "the generator budget manifest is not strict JSON", {})
 		budget = parsed["value"]
-		var schema_check := validate_budget_schema(budget)
+		var schema_check := _check_budget_schema(budget)
 		if not schema_check.get("ok", false):
 			return _fail(&"generator_budget_unavailable", "the generator budget manifest failed schema validation",
 				{"cause": schema_check.get("code", &"")})
@@ -351,13 +351,17 @@ static func _read_budget_manifest() -> Dictionary:
 	if not freshness_check.get("ok", false):
 		return _fail(&"generator_budget_unavailable", "the generator budget manifest is stale",
 			{"cause": freshness_check.get("code", &"")})
-	if bytes != _budget_manifest_bytes or _budget_manifest_cache.is_empty():
-		_budget_manifest_bytes = bytes.duplicate()
-		_budget_manifest_cache = budget.duplicate(true)
-	return {"ok": true, "value": budget}
+	_budget_manifest_bytes = bytes
+	_budget_manifest_cache = budget
+	return {"ok": true}
 
 
 static func validate_budget_schema(budget: Dictionary) -> Dictionary:
+	var checked := _check_budget_schema(budget)
+	return {"ok": true, "code": &"ok", "value": {"budget": budget.duplicate(true)}, "receipt": {}} if checked.ok else checked
+
+
+static func _check_budget_schema(budget: Dictionary) -> Dictionary:
 	var shape := _exact_keys(budget, _BUDGET_KEYS, &"budget_member_set_invalid")
 	if not shape.get("ok", false):
 		return shape
@@ -407,7 +411,7 @@ static func validate_budget_schema(budget: Dictionary) -> Dictionary:
 	if int(budget["hard_operation_budget"]) != int(budget["search_operation_budget"]) + int(budget["reserved_fallback_operation_budget"]):
 		return _fail(&"budget_formula_invalid", "hard_operation_budget must equal the exact sum", {})
 
-	return {"ok": true, "code": &"ok", "value": {"budget": budget.duplicate(true)}, "receipt": {}}
+	return {"ok": true}
 
 
 static func _validate_row_shape(entry: Variant) -> Dictionary:
@@ -454,26 +458,35 @@ static func _validate_budget_freshness(budget: Dictionary) -> Dictionary:
 
 
 static func _read_fallback_manifest() -> Dictionary:
+	var loaded := _load_fallback_manifest()
+	return {"ok": true, "value": _fallback_manifest_cache.duplicate(true)} if loaded.ok else loaded
+
+
+static func _load_fallback_manifest() -> Dictionary:
 	if not FileAccess.file_exists(FALLBACK_MANIFEST_PATH):
 		return _fail(&"generator_budget_unavailable", "the certified fallback manifest is absent", {})
 	var bytes := FileAccess.get_file_as_bytes(FALLBACK_MANIFEST_PATH)
 	if not _fallback_manifest_cache.is_empty() and bytes == _fallback_manifest_bytes:
-		return {"ok": true, "value": _fallback_manifest_cache.duplicate(true)}
+		return {"ok": true}
 	var parsed: Dictionary = _STRICT_JSON.parse_object(bytes.get_string_from_utf8())
 	if not parsed.get("ok", false):
 		return _fail(&"generator_budget_unavailable", "the certified fallback manifest is not strict JSON", {})
 	var artifact: Dictionary = parsed["value"]
-	var schema_check := validate_fallback_schema(artifact)
+	var schema_check := _check_fallback_schema(artifact)
 	if not schema_check.get("ok", false):
 		return _fail(&"generator_budget_unavailable", "the certified fallback manifest failed schema validation",
 			{"cause": schema_check.get("code", &"")})
-	var value: Dictionary = {"records": artifact["records"]}
-	_fallback_manifest_bytes = bytes.duplicate()
-	_fallback_manifest_cache = value.duplicate(true)
-	return {"ok": true, "value": value}
+	_fallback_manifest_bytes = bytes
+	_fallback_manifest_cache = {"records": artifact.records}
+	return {"ok": true}
 
 
 static func validate_fallback_schema(artifact: Dictionary) -> Dictionary:
+	var checked := _check_fallback_schema(artifact)
+	return {"ok": true, "code": &"ok", "value": {"artifact": artifact.duplicate(true)}, "receipt": {}} if checked.ok else checked
+
+
+static func _check_fallback_schema(artifact: Dictionary) -> Dictionary:
 	var shape := _exact_keys(artifact, _FALLBACK_MANIFEST_KEYS, &"fallback_member_set_invalid")
 	if not shape.get("ok", false):
 		return shape
@@ -507,7 +520,7 @@ static func validate_fallback_schema(artifact: Dictionary) -> Dictionary:
 			return _fail(&"fallback_record_invalid", "mine_indices must be an array", {})
 		if typeof(record["mine_count"]) != TYPE_INT or int(record["mine_count"]) != (record["mine_indices"] as Array).size():
 			return _fail(&"fallback_record_invalid", "mine_count must equal mine_indices.size()", {})
-	return {"ok": true, "code": &"ok", "value": {"artifact": artifact.duplicate(true)}, "receipt": {}}
+	return {"ok": true}
 
 
 

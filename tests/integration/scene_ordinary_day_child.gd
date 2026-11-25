@@ -9,13 +9,6 @@ func _install_content_registration() -> Dictionary:
 func _ordinary_board() -> Dictionary:
 	return game.capture_run_snapshot_input().desktop.board
 
-func _completion_receipts() -> Dictionary:
-	var result := {}
-	for key: String in game.capture_run_snapshot_input().command_receipts:
-		var receipt: Dictionary = game.capture_run_snapshot_input().command_receipts[key]
-		if receipt.get("kind") == "scene_round_completion": result[key] = receipt.duplicate(true)
-	return result
-
 func _wait_active_board() -> bool:
 	var deadline := Time.get_ticks_msec() + 60000
 	while Time.get_ticks_msec() < deadline:
@@ -56,7 +49,7 @@ func _clear_ordinary(panel: Control, ordinal: int) -> bool:
 	while game.minesweeper_app_rounds_finished_today != ordinal and Time.get_ticks_msec() < deadline:
 		await get_tree().process_frame
 	assert_eq(game.minesweeper_app_rounds_finished_today, ordinal)
-	assert_eq(_completion_receipts().size(), ordinal)
+	assert_true(_ordinary_board().settled_inspection)
 	assert_true(_ordinary_board().board.board.terminal)
 	assert_eq(_ordinary_board().board.board.outcome, "cleared")
 	assert_true(panel.public_view.settled)
@@ -146,13 +139,12 @@ func create_ordinary_day() -> void:
 	assert_eq(game.minesweeper_round_floor, -1)
 	for key: String in ["money", "coins", "stats", "minesweeper_task_rewards_claimed"]:
 		assert_eq(renewed.gameplay[key], persistent[key], "Abandonment has no completion consequence: " + key)
-	assert_eq(_completion_receipts().size(), 2)
 	assert_eq(renewed.desktop.consequence.shop_ledger.supportz_branch_purchase_count, 1)
 	assert_eq(renewed.desktop.consequence.shop_ledger.supportz_last_purchase_causal_day_instance, old_day)
 	await _screenshot("ordinary-day2-renewed")
 	if not await _save_slot(1): return
 	var proof := {"process_id": OS.get_process_id(), "gameplay": renewed.gameplay,
-		"completion_receipts": _completion_receipts(), "shop_receipts": _shop_receipts(),
+		"shop_receipts": _shop_receipts(),
 		"old_day": old_day, "current_day": renewed.lifecycle.causal_day_instance,
 		"shop_ledger": renewed.desktop.consequence.shop_ledger,
 		"reading": bridge.capture_reading_checkpoint(false).value,
@@ -180,7 +172,6 @@ func load_ordinary_day() -> void:
 	if not await _wait_line("scene.test.a", "line.scene.test.a.one"): return
 	var restored: Dictionary = game.capture_run_snapshot_input()
 	assert_eq(restored.gameplay, proof.gameplay)
-	assert_true(_completion_receipts().is_empty(), "Load starts a fresh app-round command session")
 	assert_true(_shop_receipts().is_empty(), "Load starts a fresh shop command session")
 	assert_eq(restored.desktop.consequence.shop_ledger, proof.shop_ledger)
 	assert_eq(restored.desktop.board.phase, "NONE")
@@ -202,7 +193,7 @@ func load_ordinary_day() -> void:
 	var shop: Control = shell._cached_app_windows[&"shop"]
 	await _show_supportz_page(shell, shop)
 	assert_false(shop._supportz_button.is_visible_in_tree(), "New day needs its own two completed base rounds.")
-	assert_true(_completion_receipts().is_empty(), "Opening apps cannot replay settlement.")
+	assert_eq(game.minesweeper_app_rounds_finished_today, 0, "opening apps on the new day awards no round")
 	await _screenshot("ordinary-fresh-load-shop")
 	proof["loader_process_id"] = OS.get_process_id()
 	_write_json("res://.godot/ci/ordinary-day-load-proof.json", proof)

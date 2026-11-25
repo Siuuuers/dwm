@@ -744,7 +744,7 @@ func configure(document: Dictionary) -> Dictionary:
 		return _fail(&"reading_catalogue_invalid")
 	var registered := {"kind": "narrative_caption_registry", "schema_version": 1, "beats": beats}
 	var entry_manifest := {"entries": entries}
-	var checked := preload("res://scripts/narrative/DialogicEntryManifest.gd").validate_caption_registry(entry_manifest, registered)
+	var checked := NarrativeCaptionRegistry.check_document(registered, compiled.keys())
 	if not checked.ok: return checked
 	var encoded := JSON_WRITER.stringify(document)
 	if not encoded.ok: return encoded
@@ -1055,10 +1055,12 @@ func _programs_for_frames(frames: Dictionary, transaction_id: String) -> Diction
 	if catalogue_schema_version == 1:
 		for key: String in catalogue: selected[key] = entry_program(key).value
 		return {"ok": true, "value": {"entries": selected, "registry": registry}}
+	var entry_ids := []
 	for entry: Dictionary in manifest.entries:
+		entry_ids.append(entry.entry_id)
 		if selected.has(entry.entry_id): beats.append_array(selected[entry.entry_id].beats)
 	var registered := {"kind": "narrative_caption_registry", "schema_version": 1, "beats": beats}
-	var checked := preload("res://scripts/narrative/DialogicEntryManifest.gd").validate_caption_registry(manifest, registered)
+	var checked := NarrativeCaptionRegistry.check_document(registered, entry_ids)
 	if not checked.ok: return checked
 	return {"ok": true, "value": {"entries": selected, "registry": registered}}
 

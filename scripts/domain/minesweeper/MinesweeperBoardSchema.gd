@@ -34,6 +34,12 @@ const _ACTION_KINDS: Array[StringName] = [&"reveal", &"set_flag", &"chord"]
 
 
 static func validate_spec(spec: Dictionary) -> Dictionary:
+	var checked := check_spec(spec)
+	if not checked.ok: return checked
+	return {"ok": true, "code": &"ok", "value": {"spec": spec.duplicate(true)}, "receipt": {}}
+
+
+static func check_spec(spec: Dictionary) -> Dictionary:
 	var shape := _exact_keys(spec, _SPEC_KEYS, &"spec_member_set_invalid")
 	if not shape.get("ok", false):
 		return shape
@@ -102,11 +108,11 @@ static func validate_spec(spec: Dictionary) -> Dictionary:
 	if String(spec["verifier_version"]) != _VERIFIER_VERSION:
 		return _fail(&"spec_field_invalid", "verifier_version is frozen", {"field": "verifier_version"})
 
-	return {"ok": true, "code": &"ok", "value": {"spec": spec.duplicate(true)}, "receipt": {}}
+	return {"ok": true}
 
 
 static func validate_layout(layout: Dictionary, spec: Dictionary) -> Dictionary:
-	var spec_check := validate_spec(spec)
+	var spec_check := check_spec(spec)
 	if not spec_check.get("ok", false):
 		return spec_check
 	var shape := _exact_keys(layout, _LAYOUT_KEYS, &"layout_member_set_invalid")

@@ -5,6 +5,10 @@ const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const FIELDS := ["beat_id", "line_id", "owning_entry_id", "presentation_signature"]
 
 static func validate_document(document: Dictionary, entry_ids: Array) -> Dictionary:
+	var checked := check_document(document, entry_ids)
+	return {"ok": true, "value": document.duplicate(true)} if checked.ok else checked
+
+static func check_document(document: Dictionary, entry_ids: Variant = null) -> Dictionary:
 	if not FROZEN._exact(document, ["kind", "schema_version", "beats"]) \
 			or document.get("kind") != "narrative_caption_registry" \
 			or typeof(document.get("schema_version")) != TYPE_INT or document.schema_version != 1 \
@@ -14,11 +18,11 @@ static func validate_document(document: Dictionary, entry_ids: Array) -> Diction
 	var lines := {}
 	for row: Variant in document.beats:
 		if not valid_beat(row): return _fail(&"caption_registration_invalid")
-		if not entry_ids.has(row.owning_entry_id): return _fail(&"caption_entry_unregistered")
+		if entry_ids != null and not entry_ids.has(row.owning_entry_id): return _fail(&"caption_entry_unregistered")
 		if beats.has(row.beat_id) or lines.has(row.line_id): return _fail(&"caption_registration_duplicate")
 		beats[row.beat_id] = true
 		lines[row.line_id] = true
-	return {"ok": true, "value": document.duplicate(true)}
+	return {"ok": true}
 
 static func valid_beat(value: Variant) -> bool:
 	if not value is Dictionary or not FROZEN._exact(value, FIELDS): return false

@@ -18,7 +18,7 @@ static func build_draw(witnessed_forms: Array, rng_nonce: int) -> Dictionary:
 	var pool: Array[String] = []
 	for form: String in FORMS:
 		if form not in witnessed: pool.append(form)
-	if pool.is_empty(): pool = FORMS.duplicate()
+	if pool.is_empty(): pool = FORMS
 	if rng_nonce < 0 or rng_nonce >= NONCE_RANGE: return _fail(&"invalid_pair_draw_nonce")
 	if rng_nonce >= NONCE_RANGE - NONCE_RANGE % pool.size():
 		return _fail(&"pair_draw_nonce_rejected")
@@ -83,7 +83,7 @@ static func validate_scene(receipt: Variant) -> Dictionary:
 		if receipt.rng_nonce != null or not _scene_id(receipt.predecessor_run_id) \
 				or not _scene_hash(receipt.predecessor_assignment_sha256): return _fail(&"invalid_scene_assignment")
 	else: return _fail(&"invalid_scene_assignment")
-	return _ok(receipt.duplicate(true))
+	return _ok(receipt.duplicate())
 
 static func validate_ledger(ledger: Variant) -> Dictionary:
 	if not ledger is Dictionary: return _fail(&"invalid_pair_draw_ledger")
@@ -138,7 +138,7 @@ static func prepare_scene_assignment(ledger: Dictionary, run_id: String, creatio
 		if retained.ruleset_id != SCENE_RULESET_ID or retained.creation_transaction_id != creation_transaction_id:
 			return _fail(&"scene_assignment_run_conflict")
 		if retained.selection_kind == "alternate" and rng_nonce != null: return _fail(&"invalid_scene_assignment_nonce")
-		return _ok(retained.duplicate(true))
+		return _ok(retained.duplicate())
 	for receipt: Dictionary in ledger.values():
 		if receipt.ruleset_id == SCENE_RULESET_ID and receipt.creation_transaction_id == creation_transaction_id:
 			return _fail(&"scene_assignment_transaction_reused")

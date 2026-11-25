@@ -204,9 +204,13 @@ func configure_consequence_checkpoint(consequence_state_port: Object, checkpoint
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
+func scene_round_completion_active() -> bool:
+	return is_instance_valid(_scene_completion_owner) and _scene_completion_owner.scene_round_completion_active()
+
+
 func complete_round(request: Dictionary) -> Dictionary:
-	if is_instance_valid(_scene_completion_owner) and _scene_completion_owner.scene_round_completion_active():
-		return _scene_completion_owner.commit_scene_round_completion(request.duplicate(true))
+	if scene_round_completion_active():
+		return _scene_completion_owner.commit_scene_round_completion(request)
 	var profile := _consequence_profile_start("minesweeper_round_complete")
 	var profile_tick := int(profile.get("_started_us", 0))
 	var retry_id := str(request.get("transaction_id", ""))
