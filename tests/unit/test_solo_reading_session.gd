@@ -40,6 +40,9 @@ func test_next_plan_is_pure_and_stops_before_first_exact_unseen_variant() -> voi
 	assert_true(restored.restore(projected.value, PRE).ok)
 	assert_eq(restored.project(projected.value.frontier).value.captions.size(), 2)
 	assert_eq(restored.capture(projected.value.frontier).value, projected.value)
+	projected.value.ledger.captions.back().beat.presentation_signature.clear()
+	assert_false(planned.value.destination.caption.beat.presentation_signature.is_empty())
+	assert_eq(projected.value.next_operation.plan, planned.value)
 
 func test_next_completion_retains_exact_source_and_destination_then_retires_at_new_frame() -> void:
 	var session := _session()

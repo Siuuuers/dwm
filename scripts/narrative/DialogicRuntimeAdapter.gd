@@ -837,7 +837,7 @@ func bind_caption_ledger(ledger: NarrativeCaptionLedger, token: String, entry_id
 	if not _bound or not _qualified_runtime or has_active_playback() or _caption_ledger != null:
 		return _fail(&"caption_binding_unavailable", "no idle qualified publication slot")
 	if ledger == null: return _fail(&"caption_ledger_missing", "ledger is required")
-	var checked := ledger.check_session(token, entry_id, occurrence_id)
+	var checked := ledger.check_session_view(token, entry_id, occurrence_id)
 	if not checked.ok: return checked
 	var text: Object = _dialogic.get_subsystem("Text")
 	if not text.has_signal("about_to_show_text"):
@@ -1238,7 +1238,7 @@ func _reading_seek_source_matches(prepared: Dictionary) -> bool:
 
 func _check_reading_seek_target(prepared: Dictionary, candidate: NarrativeCaptionLedger,
 		frontier: Dictionary) -> Dictionary:
-	if candidate == null or not candidate.check_session(_caption_token, _caption_entry, _scene_caption_occurrence).ok:
+	if candidate == null or not candidate.check_session_view(_caption_token, _caption_entry, _scene_caption_occurrence).ok:
 		return _fail(&"reading_seek_target_invalid", "the destination requires the same admitted session")
 	var snapshot := candidate.snapshot()
 	var old: Dictionary = prepared.snapshot

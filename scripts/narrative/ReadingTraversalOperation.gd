@@ -39,7 +39,7 @@ static func project(plan: Dictionary, phase: String) -> Dictionary:
 	if typeof(plan.get("schema_version")) == TYPE_INT and plan.schema_version == 2: return _project_marker_operation(plan, phase)
 	var made := create(plan, phase)
 	if not made.ok: return made
-	var reading := _projection(plan, phase)
+	var reading := solo_projection_view(plan, phase).duplicate(true)
 	reading["schema_version"] = 2
 	reading["next_operation"] = made.value
 	return {"ok": true, "value": reading}
@@ -62,14 +62,14 @@ static func validate(reading: Dictionary, entry_id: String) -> Dictionary:
 	if not made.ok: return made
 	if operation != made.value or operation.plan.entry_id != entry_id:
 		return _fail(&"reading_next_operation_mismatch")
-	if _without_operation_view(reading) != _projection(operation.plan, operation.phase):
+	if without_operation_view(reading) != solo_projection_view(operation.plan, operation.phase):
 		return _fail(&"reading_next_projection_mismatch")
 	return made
 
 static func without_operation(reading: Dictionary) -> Dictionary:
-	return _without_operation_view(reading).duplicate(true)
+	return without_operation_view(reading).duplicate(true)
 
-static func _without_operation_view(reading: Dictionary) -> Dictionary:
+static func without_operation_view(reading: Dictionary) -> Dictionary:
 	var result := reading.duplicate()
 	if typeof(result.get("schema_version")) == TYPE_INT:
 		match result.schema_version:
@@ -81,16 +81,16 @@ static func _without_operation_view(reading: Dictionary) -> Dictionary:
 	return result
 
 
-static func _projection(plan: Dictionary, phase: String) -> Dictionary:
-	var ledger: Dictionary = plan.source_ledger.duplicate(true)
-	var frontier: Dictionary = plan.source_frontier.duplicate() if phase == "source" else {}
+static func solo_projection_view(plan: Dictionary, phase: String) -> Dictionary:
+	var ledger: Dictionary = plan.source_ledger
+	var frontier: Dictionary = plan.source_frontier if phase == "source" else {}
 	var boundary := "line"
 	if phase == "destination":
-		for row: Dictionary in plan.traversed_captions:
-			ledger.captions.append(row.duplicate(true))
+		ledger = ledger.duplicate()
+		ledger.captions = ledger.captions + plan.traversed_captions
 		if plan.destination.kind == "line":
 			var row: Dictionary = plan.destination.caption
-			ledger.captions.append(row.duplicate(true))
+			ledger.captions.append(row)
 			frontier = {"line_id": row.beat.line_id, "publication_id": row.publication_id}
 		else:
 			boundary = "between_entries"
@@ -268,7 +268,7 @@ static func _validate_marker_operation(reading: Dictionary, entry_id: String) ->
 	if not EVENT._same_types(operation, made.value) or operation != made.value or operation.plan.entry_id != entry_id:
 		return _fail(&"reading_next_operation_mismatch")
 	var expected := _marker_projection_view(operation.plan, operation.phase)
-	var actual := _without_operation_view(reading)
+	var actual := without_operation_view(reading)
 	if not EVENT._same_types(actual, expected) or actual != expected: return _fail(&"reading_next_projection_mismatch")
 	return made
 
@@ -445,7 +445,7 @@ static func _validate_scene_operation(reading: Dictionary, entry_id: String) -> 
 	var made := _create_operation(operation.plan, operation.phase, 3)
 	if not made.ok: return made
 	if not _same(operation, made.value) or operation.plan.entry_id != entry_id: return _fail(&"reading_next_operation_mismatch")
-	if not _same(_without_operation_view(reading), _scene_projection(operation.plan, operation.phase)): return _fail(&"reading_next_projection_mismatch")
+	if not _same(without_operation_view(reading), _scene_projection(operation.plan, operation.phase)): return _fail(&"reading_next_projection_mismatch")
 	return made
 
 static func validate_scene_operation_path(reading: Dictionary, entry_id: String, nodes: Array) -> Dictionary:
