@@ -282,7 +282,7 @@ func _refresh_tiles() -> void:
 		return
 	if not is_instance_valid(_ending_tile_grid): return
 	var retained_history_status := _history_status
-	var retained_return_context := _replay_return_context.duplicate(true)
+	var retained_return_context := _replay_return_context
 	var previous_id := _selected_id
 	var previous_offset := _index_offset
 	var previous_paper_offset: float = _record_paper.scroll_offset if _record_paper != null else 0.0
@@ -555,7 +555,7 @@ func _on_replay_finished(result: Dictionary) -> void:
 	if start_failure: _retry_signature_id = _selected_signature_id()
 	_sync_replay_controls()
 	_set_replay_status("gallery.replay.start_failed" if start_failure else ("gallery.replay.failed" if result.get("outcome") == "failed" else ""))
-	_restore_replay_context.call_deferred(_replay_return_context.duplicate(true))
+	_restore_replay_context.call_deferred(_replay_return_context)
 
 func _restore_replay_context(context: Dictionary) -> void:
 	if not is_visible_in_tree() or (_replay_owner != null and _replay_owner.is_playing()): return

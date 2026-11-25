@@ -366,7 +366,8 @@ func prepare_recovery_advance(transaction_id: String, expected_stage: StringName
 	if next_stage != null and typeof(next_stage) != TYPE_STRING and not (next_stage is StringName):
 		return _fail(&"consequence_next_stage_invalid", "next_stage must be a StringName or null", {})
 
-	var pending_after: Dictionary = pending.duplicate(true)
+	var state_after := _live_state()
+	var pending_after: Dictionary = state_after.pending
 	pending_after["participant_receipts"] = participant_receipts.duplicate(true)
 	if destination_intent != null:
 		pending_after["destination_intent"] = destination_intent
@@ -400,11 +401,9 @@ func prepare_recovery_advance(transaction_id: String, expected_stage: StringName
 		if not is_complete:
 			return _fail(&"consequence_publication_cursor_incomplete",
 				"terminal cleanup requires a complete publication cursor", {})
-		var state_after := _live_state()
-		var retained := _retain_pending_intents(pending, state_after)
+		var retained := _retain_pending_intents(pending, state_after.outbox)
 		if not retained.get("ok", false):
 			return retained
-		state_after = retained["value"]["state"]
 		state_after["pending"] = null
 		return {"ok": true, "code": &"ok", "value": {
 			"checkpoint_header": {
@@ -421,8 +420,6 @@ func prepare_recovery_advance(transaction_id: String, expected_stage: StringName
 		return _fail(&"consequence_advance_edge_invalid",
 			"no legal edge from %s with next_stage %s" % [String(expected_stage), str(next_stage)], {})
 
-	var state_after2 := _live_state()
-	state_after2["pending"] = pending_after
 	return {"ok": true, "code": &"ok", "value": {
 		"checkpoint_header": {
 			"kind": &"consequence_advance", "transaction_id": transaction_id,
@@ -433,7 +430,7 @@ func prepare_recovery_advance(transaction_id: String, expected_stage: StringName
 			"source_ids": [transaction_id],
 		},
 		"proven_recovery_payload_sha256": _proven_pending_payload_sha256,
-		"stage_candidate": state_after2,
+		"stage_candidate": state_after,
 	}, "receipt": {}}
 
 
@@ -501,19 +498,14 @@ func prepare_outbox_publication(request: Dictionary) -> Dictionary:
 		return _fail(&"outbox_consumer_mismatch", str(request["consumer"]), {})
 	if str(live_entry["status"]) != "pending":
 		return _fail(&"outbox_already_published", kind, {})
-	var published_entry: Dictionary = live_entry.duplicate(true)
-	published_entry["status"] = "published"
-	var outbox_after: Dictionary = _outbox.duplicate(true)
-	outbox_after[kind] = published_entry
 	var state_after := _live_state()
-	state_after["outbox"] = outbox_after
+	state_after.outbox[kind].status = "published"
 	return {"ok": true, "code": &"ok", "value": {"candidate": {
 		"kind": &"outbox_publication", "outbox_kind": kind, "state_after": state_after,
 	}}, "receipt": {}}
 
 
-func _retain_pending_intents(pending: Dictionary, state_after: Dictionary) -> Dictionary:
-	var outbox: Dictionary = (state_after["outbox"] as Dictionary).duplicate(true)
+func _retain_pending_intents(pending: Dictionary, outbox: Dictionary) -> Dictionary:
 	var pairs := [
 		{"slot": "hospital", "intent": pending.get("destination_intent")},
 		{"slot": "notification", "intent": pending.get("notification_intent")},
@@ -533,9 +525,7 @@ func _retain_pending_intents(pending: Dictionary, state_after: Dictionary) -> Di
 				and str(occupied.get("status", "")) != "published":
 			return _fail(&"outbox_slot_occupied", str(pair["slot"]), {})
 		outbox[str(pair["slot"])] = record
-	var detached := state_after.duplicate(true)
-	detached["outbox"] = outbox
-	return {"ok": true, "code": &"ok", "value": {"state": detached}, "receipt": {}}
+	return {"ok": true}
 
 
 func _durable_outbox_record(slot: String, intent: Dictionary, pending: Dictionary) -> Dictionary:
@@ -590,11 +580,10 @@ func prepare_record_base_completion(receipt: Dictionary) -> Dictionary:
 		"kind": "complete", "app_round_ordinal": int(receipt["app_round_ordinal"]),
 		"causal_day_instance": str(receipt["causal_day_instance"]),
 	}
-	var existing: Array = (_shop_ledger["base_completion_receipts"] as Array).duplicate(true)
+	var state_after := _live_state()
+	var existing: Array = state_after.shop_ledger.base_completion_receipts
 	if not existing.has(normalized):
 		existing.append(normalized)
-	var state_after := _live_state()
-	(state_after["shop_ledger"] as Dictionary)["base_completion_receipts"] = existing
 	return {"ok": true, "code": &"ok", "value": {"candidate": {
 		"kind": &"shop_ledger_base_completion", "state_after": state_after,
 	}}, "receipt": {}}

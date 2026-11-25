@@ -14,5 +14,5 @@ const COMPACT_METRICS := {
 }
 
 static func get_copy(locale: String) -> Dictionary:
-	return COPY.get(locale.replace("_","-"),{}).duplicate(true)
+	return COPY.get(locale.replace("_","-"),{}).duplicate()
 

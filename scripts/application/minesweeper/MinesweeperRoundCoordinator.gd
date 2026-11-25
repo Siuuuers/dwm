@@ -308,10 +308,10 @@ func complete_round(request: Dictionary) -> Dictionary:
 			return reward
 		action_candidate["reward"] = reward.value.duplicate(true)
 	profile_tick = _consequence_profile_phase(profile, "action_candidate_prepare_us", profile_tick)
-	var pre_terminal_board := _matching_pre_terminal_board(captured)
+	var pre_terminal_board := _matching_pre_terminal_board(captured) if _source_checkpoint_capture.is_valid() else {}
 	if not profile.is_empty():
-		profile["source_checkpoint"] = _source_checkpoint_capture.is_valid() and not pre_terminal_board.is_empty()
-	if _source_checkpoint_capture.is_valid() and not pre_terminal_board.is_empty():
+		profile["source_checkpoint"] = not pre_terminal_board.is_empty()
+	if not pre_terminal_board.is_empty():
 		var source_inputs: Dictionary = _source_checkpoint_capture.call(live_consequence.duplicate(true))
 		profile_tick = _consequence_profile_phase(profile, "source_capture_us", profile_tick)
 		if not source_inputs.get("ok", false):
@@ -1247,12 +1247,7 @@ func _routine_command(request: Dictionary, kind: StringName) -> Dictionary:
 	if not committed.get("ok", false):
 		return committed
 	if bool(reduced_board.get("terminal", false)):
-		_terminal_pre_input_board = {
-			"identity": (captured["identity"] as Dictionary).duplicate(true),
-			"pre_revision": int(captured["revision"]),
-			"terminal_revision": int((committed["value"] as Dictionary)["revision"]),
-			"board": captured.duplicate(true),
-		}
+		_terminal_pre_input_board = captured
 	else:
 		_terminal_pre_input_board.clear()
 	return committed
@@ -1261,18 +1256,10 @@ func _routine_command(request: Dictionary, kind: StringName) -> Dictionary:
 func _matching_pre_terminal_board(terminal_capture: Dictionary) -> Dictionary:
 	if _terminal_pre_input_board.is_empty():
 		return {}
-	if _terminal_pre_input_board.get("identity") != terminal_capture.get("identity") \
-			or int(_terminal_pre_input_board.get("terminal_revision", -1)) != int(terminal_capture.get("revision", -2)) \
-			or int(_terminal_pre_input_board.get("pre_revision", -1)) + 1 != int(terminal_capture.get("revision", -2)):
+	if _terminal_pre_input_board.identity != terminal_capture.get("identity") \
+			or _terminal_pre_input_board.revision + 1 != terminal_capture.get("revision"):
 		return {}
-	var board: Variant = _terminal_pre_input_board.get("board")
-	if typeof(board) != TYPE_DICTIONARY:
-		return {}
-	var wrapper: Variant = (board as Dictionary).get("board")
-	if typeof(wrapper) != TYPE_DICTIONARY or typeof((wrapper as Dictionary).get("board")) != TYPE_DICTIONARY \
-			or bool(((wrapper as Dictionary)["board"] as Dictionary).get("terminal", true)):
-		return {}
-	return (board as Dictionary).duplicate(true)
+	return _terminal_pre_input_board.duplicate(true)
 
 
 func _visibility_command(request: Dictionary, visible: bool) -> Dictionary:
@@ -1376,7 +1363,7 @@ func _build_round_action_receipt(transaction_id: String, transaction_issuer_rece
 		"health": int(facts.get("health", 0)), "pressure": int(facts.get("pressure", 0)),
 		"carried_sequela": bool(facts.get("carried_sequela", false)),
 	}
-	var condition_after := condition.duplicate(true)
+	var condition_after := condition.duplicate()
 	var unlock_receipt_ids: Array = []
 	if not reward.is_empty():
 		var stats: Dictionary = reward.prepared_candidate.gameplay.stats
@@ -1387,14 +1374,14 @@ func _build_round_action_receipt(transaction_id: String, transaction_issuer_rece
 		if group_id != null: unlock_receipt_ids.append(str(group_id))
 		unlock_receipt_ids.sort()
 	var source_commit_receipt_id := str(paid_start_receipt.get("receipt_id", paid_start_receipt.get("checkpoint_id", "")))
-	var action_candidate := {
+	var receipt := {
 		"schema_version": 1, "action_kind": "minesweeper_round", "run_id": str(identity["run_id"]),
 		"branch_id": str(identity["branch_id"]), "desktop_timeline_generation": int(identity["desktop_timeline_generation"]),
 		"causal_day_instance": str(identity["causal_day_instance"]), "day": int(facts.get("day", 0)),
 		"transaction_id": transaction_id, "transaction_issuer_receipt": transaction_issuer_receipt.duplicate(true),
 		"source_commit_receipt_id": source_commit_receipt_id,
 		"source_commit_receipt_provenance": (paid_start_receipt.get("receipt_provenance", {}) as Dictionary).duplicate(true),
-		"condition_before": condition.duplicate(true), "condition_after": condition_after,
+		"condition_before": condition, "condition_after": condition_after,
 		"unlock_receipt_ids": unlock_receipt_ids,
 	}
 	var derived: Dictionary = _identity_issuer.call(&"derive_child", {
@@ -1407,7 +1394,6 @@ func _build_round_action_receipt(transaction_id: String, transaction_issuer_rece
 	var derived_value: Dictionary = derived["value"]
 	var action_id := str(derived_value["child_id"])
 	var action_id_provenance: Dictionary = (derived_value["provenance"] as Dictionary).duplicate(true)
-	var receipt := action_candidate.duplicate(true)
 	receipt["action_id"] = action_id
 	receipt["action_id_provenance"] = action_id_provenance
 	receipt["commit_receipt_id"] = action_id

@@ -90,7 +90,8 @@ static func materialize_first_reveal(spec: Dictionary, first_cell: int) -> Dicti
 
 	var layout := {"schema_version": 1, "width": width, "height": height,
 		"mine_indices": mine_indices, "mine_count": mine_indices.size()}
-	var layout_check: Dictionary = _BOARD_SCHEMA.validate_layout(layout, _requested_count_spec(validated_spec, mine_count))
+	validated_spec["requested_mine_count"] = mine_count
+	var layout_check: Dictionary = _BOARD_SCHEMA.validate_layout(layout, validated_spec)
 	if not layout_check.get("ok", false):
 		return layout_check
 
@@ -256,7 +257,7 @@ static func validate_prepared(candidate: Dictionary, spec: Dictionary) -> Dictio
 		return _fail(&"preparation_spec_projection_mismatch",
 			"the preparation's kernel spec is not the exact projection of the trusted BoardSpec", {})
 
-	return {"ok": true, "code": &"ok", "value": {"preparation": preparation.duplicate(true)}, "receipt": {}}
+	return preparation_check
 
 
 
@@ -515,12 +516,6 @@ static func _project_kernel_spec(board_spec: Dictionary) -> Dictionary:
 	for key: String in _KERNEL.SPEC_KEYS:
 		projected[key] = board_spec[key]
 	return projected
-
-
-static func _requested_count_spec(validated_spec: Dictionary, mine_count: int) -> Dictionary:
-	var adjusted: Dictionary = validated_spec.duplicate(true)
-	adjusted["requested_mine_count"] = mine_count
-	return adjusted
 
 
 static func _seed(stream_id: StringName, nonce: String) -> Dictionary:

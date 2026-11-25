@@ -222,6 +222,8 @@ func test_day7_retains_its_committed_aggregate_and_holds_no_entry_substages() ->
 	var data: Dictionary = plan.to_dict()
 	assert_eq(data.committed_schedule.entries, entries,
 		"Day 7 retains its committed aggregate rather than clearing it")
+	aggregate.entries[0].schedule_entry_id = "changed"
+	assert_eq(plan.to_dict().committed_schedule.entries[0].schedule_entry_id, "d7-solo")
 	for stage: Dictionary in data.stages:
 		assert_true((stage["substages"] as Array).is_empty(),
 			"Day 7 executes no entry substage: " + str(stage["stage_id"]))

@@ -67,7 +67,7 @@ func prepare_reservation(request: Dictionary) -> Dictionary:
 		var recorded: Dictionary = _pending_reservations[transaction_id]
 		if recorded["request"] == request:
 			return {"ok": true, "code": &"ok", "value": {
-				"sequence_candidate": _sequence_candidate(recorded),
+				"sequence_candidate": _sequence_candidate(recorded).duplicate(true),
 				"causal_sequence_receipt": (recorded["causal_sequence_receipt"] as Dictionary).duplicate(true),
 			}, "receipt": (recorded["causal_sequence_receipt"] as Dictionary).duplicate(true)}
 		return _fail(&"causal_sequence_conflict",
@@ -93,7 +93,7 @@ func prepare_reservation(request: Dictionary) -> Dictionary:
 	var causal_sequence := int(request["expected_last_sequence"]) + 1
 	var run_revision := int(request["expected_run_revision"]) + 1
 	var receipt := {
-		"receipt_id": "", "receipt_provenance": {}, "transaction_id": transaction_id,
+		"transaction_id": transaction_id,
 		"transaction_issuer_receipt": (request["transaction_issuer_receipt"] as Dictionary).duplicate(true),
 		"run_id": str(request["run_id"]), "branch_id": str(request["branch_id"]),
 		"desktop_timeline_generation": int(request["desktop_timeline_generation"]),
@@ -102,14 +102,13 @@ func prepare_reservation(request: Dictionary) -> Dictionary:
 		"source_commit_receipt_provenance": (request["source_commit_receipt_provenance"] as Dictionary).duplicate(true),
 		"causal_sequence": causal_sequence, "run_revision": run_revision,
 	}
-	var receipt_id := _derive_receipt_id(receipt)
-	receipt["receipt_id"] = receipt_id
+	receipt["receipt_id"] = "causal_sequence_receipt." + _canonical_sha256(receipt)
 	receipt["receipt_provenance"] = {"kind": "causal_sequence", "transaction_id": transaction_id,
 		"causal_sequence": causal_sequence, "run_revision": run_revision}
-	var record := {"request": request.duplicate(true), "causal_sequence_receipt": receipt.duplicate(true)}
+	var record := {"request": request.duplicate(true), "causal_sequence_receipt": receipt}
 	_pending_reservations[transaction_id] = record
 	return {"ok": true, "code": &"ok", "value": {
-		"sequence_candidate": _sequence_candidate(record), "causal_sequence_receipt": receipt.duplicate(true),
+		"sequence_candidate": _sequence_candidate(record).duplicate(true), "causal_sequence_receipt": receipt.duplicate(true),
 	}, "receipt": receipt.duplicate(true)}
 
 
@@ -259,18 +258,8 @@ func publish(publication: Dictionary) -> Dictionary:
 
 
 func _sequence_candidate(record: Dictionary) -> Dictionary:
-	return {
-		"transaction_id": str((record["request"] as Dictionary)["transaction_id"]),
-		"request": (record["request"] as Dictionary).duplicate(true),
-		"causal_sequence_receipt": (record["causal_sequence_receipt"] as Dictionary).duplicate(true),
-	}
-
-
-func _derive_receipt_id(receipt_without_id: Dictionary) -> String:
-	var preimage := receipt_without_id.duplicate(true)
-	preimage.erase("receipt_id")
-	preimage.erase("receipt_provenance")
-	return "causal_sequence_receipt." + _canonical_sha256(preimage)
+	return {"transaction_id": record.request.transaction_id, "request": record.request,
+		"causal_sequence_receipt": record.causal_sequence_receipt}
 
 
 func _canonical_sha256(value: Variant) -> String:

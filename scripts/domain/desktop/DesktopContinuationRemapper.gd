@@ -472,10 +472,9 @@ static func prepare(snapshot: Dictionary, restore_transaction_id: String,
 			consequence_result.value["outbox"]["hospital"] = terminal.value
 
 	var remapped_snapshot: Dictionary = snapshot.duplicate(true)
-	var remapped_desktop: Dictionary = desktop.duplicate(true)
+	var remapped_desktop: Dictionary = remapped_snapshot["desktop"]
 	remapped_desktop["board"] = board_result["value"]
 	remapped_desktop["consequence"] = consequence_result["value"]
-	remapped_snapshot["desktop"] = remapped_desktop
 
 	if snapshot.has("schedule_view"):
 		var source_view: Variant = snapshot["schedule_view"]
@@ -496,10 +495,11 @@ static func prepare(snapshot: Dictionary, restore_transaction_id: String,
 			live_outbox = outbox_value
 		var lifecycle_result: Dictionary
 		if scene_check.value:
-			var scene_lifecycle: Dictionary = source_lifecycle.duplicate(true)
-			for key: String in ["branch_id", "desktop_timeline_generation", "causal_day_instance", "causal_day_instance_issuer_receipt"]:
+			var scene_lifecycle: Dictionary = remapped_snapshot.lifecycle
+			for key: String in ["branch_id", "desktop_timeline_generation", "causal_day_instance"]:
 				scene_lifecycle[key] = identity_allocation_bundle[key]
-			lifecycle_result = {"ok": true, "value": scene_lifecycle.duplicate(true)}
+			scene_lifecycle.causal_day_instance_issuer_receipt = identity_allocation_bundle.causal_day_instance_issuer_receipt.duplicate(true)
+			lifecycle_result = {"ok": true, "value": scene_lifecycle}
 		else:
 			lifecycle_result = _remap_lifecycle(source_lifecycle as Dictionary,
 				identity_allocation_bundle, transaction_remap, live_outbox)

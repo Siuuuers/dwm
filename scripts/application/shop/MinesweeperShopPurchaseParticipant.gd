@@ -171,7 +171,7 @@ func quote(item_id: String, transaction_id: String, transaction_issuer_receipt: 
 	}
 	var entry: Dictionary = _transactions.get(transaction_id, {}) as Dictionary
 	if quantity != 1: quote_record["quantity"] = quantity
-	entry["quote"] = quote_record.duplicate(true)
+	entry["quote"] = quote_record
 	_transactions[transaction_id] = entry
 	return {"ok": true, "code": &"ok", "value": quote_record.duplicate(true), "receipt": quote_record.duplicate(true)}
 
@@ -343,7 +343,7 @@ func prepare_purchase(request: Dictionary) -> Dictionary:
 	entry["item_id"] = item_id
 	entry["causal_day_instance"] = str(live_state["causal_day_instance"])
 	_transactions[transaction_id] = entry
-	return result.duplicate(true)
+	return result
 
 
 func capture() -> Dictionary:
@@ -413,7 +413,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 		"action_receipt": (entry["action_receipt"] as Dictionary).duplicate(true),
 	}, "receipt": {}}
 	_committed_transactions[transaction_id] = {"candidate": candidate.duplicate(true), "result": result.duplicate(true)}
-	return result.duplicate(true)
+	return result
 
 
 func rollback(backup: Dictionary) -> Dictionary:
@@ -617,11 +617,11 @@ func _recognize_live_pending(pending: Dictionary, request_fingerprint: String, t
 	entry["item_id"] = item_id
 	entry["causal_day_instance"] = str(recovered_receipt.get("causal_day_instance", ""))
 	_transactions[transaction_id] = entry
-	return {"ok": true, "value": {"result": result.duplicate(true)}}
+	return {"ok": true, "value": {"result": result}}
 
 
 func _action_candidate_sha256_from_receipt(receipt: Dictionary) -> String:
-	var action_candidate: Dictionary = receipt.duplicate(true)
+	var action_candidate: Dictionary = receipt.duplicate()
 	for identity_field: String in ["action_id", "action_id_provenance", "commit_receipt_id", "commit_receipt_provenance"]:
 		action_candidate.erase(identity_field)
 	return _canonical_sha256(action_candidate)
@@ -653,18 +653,18 @@ func _build_action_receipt(transaction_id: String, transaction_issuer_receipt: D
 		"health": int(facts["health"]), "pressure": int(facts["pressure"]),
 		"carried_sequela": bool(facts["carried_sequela"]),
 	}
-	var action_candidate := {
+	var receipt := {
 		"schema_version": 1, "action_kind": _ACTION_KIND, "run_id": str(facts["run_id"]),
 		"branch_id": str(facts["branch_id"]), "desktop_timeline_generation": int(facts["desktop_timeline_generation"]),
 		"causal_day_instance": str(facts["causal_day_instance"]), "day": int(facts["day"]),
 		"transaction_id": transaction_id, "transaction_issuer_receipt": transaction_issuer_receipt.duplicate(true),
 		"source_commit_receipt_id": str(quote_record["quote_id"]),
 		"source_commit_receipt_provenance": (quote_record["quote_id_provenance"] as Dictionary).duplicate(true),
-		"condition_before": condition.duplicate(true),
-		"condition_after": condition.duplicate(true) if condition_after.is_empty() else condition_after.duplicate(true),
+		"condition_before": condition,
+		"condition_after": condition.duplicate() if condition_after.is_empty() else condition_after.duplicate(true),
 		"unlock_receipt_ids": [],
 	}
-	var action_candidate_sha256 := _canonical_sha256(action_candidate)
+	var action_candidate_sha256 := _canonical_sha256(receipt)
 	var derived: Dictionary = _identity_issuer.call(&"derive_child", {
 		"child_kind": "desktop_action", "ordinal": 0,
 		"parent_receipt_id": str(transaction_issuer_receipt.get("receipt_id", "")),
@@ -675,7 +675,6 @@ func _build_action_receipt(transaction_id: String, transaction_issuer_receipt: D
 	var derived_value: Dictionary = derived["value"]
 	var action_id := str(derived_value["child_id"])
 	var action_id_provenance: Dictionary = (derived_value["provenance"] as Dictionary).duplicate(true)
-	var receipt := action_candidate.duplicate(true)
 	receipt["action_id"] = action_id
 	receipt["action_id_provenance"] = action_id_provenance
 	receipt["commit_receipt_id"] = action_id

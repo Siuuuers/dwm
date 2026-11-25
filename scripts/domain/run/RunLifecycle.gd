@@ -198,8 +198,8 @@ func begin_day_resolution(
 		if not _plan.is_complete():
 			return {"ok": false, "code": &"resolution_conflict", "message": _plan.get_resolution_id()}
 	var created: Dictionary = DAY_RESOLUTION_PLAN.create(
-		resolution_id, _day, committed_schedule.duplicate(true), route_plan.duplicate(true),
-		schedule_commit_receipt_id, board_fate_receipt_id, resolution_start.duplicate(true))
+		resolution_id, _day, committed_schedule, route_plan,
+		schedule_commit_receipt_id, board_fate_receipt_id, resolution_start)
 	if not created.get("ok", false):
 		return created
 	_plan = created["value"]["plan"]
@@ -227,8 +227,8 @@ func prepare_day_resolution(
 			return {"ok": false, "code": &"resolution_conflict",
 				"message": _plan.get_resolution_id()}
 	var created: Dictionary = DAY_RESOLUTION_PLAN.create(
-		resolution_id, _day, committed_schedule.duplicate(true), route_plan.duplicate(true),
-		schedule_commit_receipt_id, board_fate_receipt_id, resolution_start.duplicate(true))
+		resolution_id, _day, committed_schedule, route_plan,
+		schedule_commit_receipt_id, board_fate_receipt_id, resolution_start)
 	if not created.get("ok", false):
 		return created
 	return {"ok": true, "code": &"ok", "value": {

@@ -58,7 +58,7 @@ func _on_return_pressed() -> void:
 		_retry_available = false
 		_set_playback_status(false)
 		if not _pending_completion.is_empty():
-			on_ending_playback_completed(_pending_completion.duplicate(true))
+			on_ending_playback_completed(_pending_completion)
 		else:
 			var resumed := resume_ending()
 			if not resumed.get("ok", false): _set_playback_status(true)
@@ -222,8 +222,9 @@ func resume_ending() -> Dictionary:
 func on_ending_playback_completed(completion: Dictionary) -> void:
 	if not _completion_matches_pending(completion):
 		return
-	if not _pending_completion.is_empty() and _pending_completion != completion: return
-	_pending_completion = completion.duplicate(true)
+	if _pending_completion.is_empty():
+		_pending_completion = completion.duplicate(true)
+	elif _pending_completion != completion: return
 	var context: Dictionary = _pending_ending_command["playback_context"]
 	var receipt := {
 		"timeline_completion_receipt_id": str(completion.get("timeline_completion_receipt_id", "")),

@@ -8,7 +8,6 @@ const CATALOG := preload("res://scripts/localization/LocalizationCatalog.gd")
 
 var _localization: Node
 var _target: Control
-var _runtime_backup: Dictionary = {}
 var _registration_result: Dictionary = {}
 var _project_font: Font
 var _locale_font_active := false
@@ -19,7 +18,7 @@ func _ready() -> void:
 	if _localization == null:
 		_localization = get_node_or_null("/root/LocalizationManager")
 	if _localization != null and _localization.has_method("register_presentation_root"):
-		_registration_result = _localization.register_presentation_root(self).duplicate(true)
+		_registration_result = _localization.register_presentation_root(self)
 
 
 func _exit_tree() -> void:
@@ -95,7 +94,6 @@ func apply_presentation_silent(plan: Dictionary) -> Dictionary:
 		return target_result
 	if not plan.has_all(["theme", "layout_direction"]) or not plan["theme"] is Theme:
 		return _fail(&"invalid_presentation_plan")
-	_runtime_backup = capture_presentation_state()["value"]
 	_target.theme = (plan["theme"] as Theme).duplicate()
 	_target.layout_direction = int(plan["layout_direction"]) as Control.LayoutDirection
 	_project_font = plan.get("project_font")
@@ -114,12 +112,10 @@ func rollback_presentation_silent(backup: Dictionary) -> Dictionary:
 	_target.layout_direction = int(value["layout_direction"]) as Control.LayoutDirection
 	_project_font = value.get("project_font")
 	_locale_font_active = bool(value.get("locale_font_active", false))
-	_runtime_backup = {}
 	return _success()
 
 
 func finalize_presentation() -> Dictionary:
-	_runtime_backup = {}
 	return _success()
 
 

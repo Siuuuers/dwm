@@ -391,7 +391,7 @@ func _acknowledge_visible_line() -> bool:
 
 
 func _capture_presented_line() -> void:
-	_presented_line.clear()
+	_presented_line = {}
 	_line_waiting_for_text = not _has_caption()
 	if _has_caption() and is_instance_valid(_transport_bridge) \
 			and _transport_bridge.has_method("capture_current_line_presentation_frontier"):
@@ -768,7 +768,7 @@ func _request_reading_command(kind: StringName, target: bool) -> void:
 	if not _recovery_bound or not _reading_recovery.is_empty() or _next_pending: return
 	if kind != &"next": _cancel_speech()
 	var focused := get_viewport().gui_get_focus_owner()
-	var request := {"kind": kind, "target": target, "frontier": _presented_line.duplicate(true),
+	var request := {"kind": kind, "target": target, "frontier": _presented_line,
 		"profile_id": _reading_profile.get_instance_id(), "bridge_id": _transport_bridge.get_instance_id(),
 		"profile_revision": _reading_profile_revision(), "owner_generation": _reading_owner_generation,
 		"runtime": _pause_runtime_identity(), "focus_id": focused.get_instance_id() if focused != null else 0,
@@ -900,7 +900,7 @@ func _show_reading_failure(result: Dictionary) -> void:
 
 func _retry_reading_command() -> void:
 	if _reading_retry_in_progress or not _recovery_action_admitted(): return
-	var retained := _reading_recovery.duplicate(true)
+	var retained := _reading_recovery.duplicate()
 	_reading_retry_in_progress = true
 	var result := _execute_reading_command(retained, true)
 	if not result.get("pending", false): _finish_reading_command(retained, result, true)
@@ -1080,7 +1080,7 @@ func _sync_timed_hold_projection() -> void:
 		_retire_transport()
 		accept_input.retire_input()
 		_line_waiting_for_text = true
-		_presented_line.clear()
+		_presented_line = {}
 		_had_caption = false
 		caption_text.focus_next = NodePath()
 		caption_text.focus_previous = NodePath()
@@ -1194,7 +1194,7 @@ func reset_caption_stack() -> void:
 	_cancel_speech()
 	if is_instance_valid(auto_controller): auto_controller.retire_current()
 	_line_waiting_for_text = true
-	_presented_line.clear()
+	_presented_line = {}
 	_retained.clear()
 	_scrollback.clear()
 	_paired_scrollback.clear()
@@ -1214,7 +1214,7 @@ func begin_ending_caption_handoff(session_token: String) -> bool:
 	_ending_caption_handoff = true
 	_had_caption = false
 	_line_waiting_for_text = true
-	_presented_line.clear()
+	_presented_line = {}
 	_cancel_speech()
 	auto_controller.retire_current()
 	accept_input.retire_input()
@@ -1343,7 +1343,7 @@ func _on_about_to_show_text(_info: Dictionary) -> void:
 	_dismiss_reading_recovery(false)
 	auto_controller.retire_current()
 	_line_waiting_for_text = true
-	_presented_line.clear()
+	_presented_line = {}
 	if is_instance_valid(transport_rail): transport_rail.retire_input()
 	if caption_text.get_parsed_text().is_empty():
 		reset_caption_stack()

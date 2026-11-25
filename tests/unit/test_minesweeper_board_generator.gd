@@ -280,6 +280,8 @@ func test_validate_prepared_accepts_a_correctly_projected_certified_preparation(
 	var preparation := _certified_preparation(spec, 12)
 	var result: Dictionary = GENERATOR.validate_prepared(preparation, spec)
 	assert_true(result.get("ok", false), JSON.stringify(result))
+	preparation.spec.clear()
+	assert_false(result.value.preparation.spec.is_empty())
 
 
 func test_validate_prepared_rejects_a_non_certified_preparation() -> void:

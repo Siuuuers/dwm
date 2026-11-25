@@ -216,7 +216,7 @@ func accept_prepared_action(request: Dictionary) -> Dictionary:
 	var result: Dictionary
 	profile_tick = _settlement_profile_phase("accept", "admission_checks", profile_tick)
 	if str(pending_dict["stage"]) == "action_prepared" and not already_admission_ready:
-		result = _prepare_and_admit(action_receipt, source_kind, transaction_id, request, live_state, pending_dict)
+		result = _prepare_and_admit(action_receipt, source_kind, transaction_id, request, live_state)
 	elif str(pending_dict["stage"]) == "action_prepared" and already_admission_ready:
 		result = _resume_and_admit(action_receipt, source_kind, transaction_id, pending_dict)
 	else:
@@ -261,7 +261,7 @@ func _abandon_pre_admission(transaction_id: String, source_kind: String) -> Dict
 
 
 func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transaction_id: String,
-		request: Dictionary, live_state: Dictionary, pending_dict: Dictionary) -> Dictionary:
+		request: Dictionary, live_state: Dictionary) -> Dictionary:
 	var profile_tick := _settlement_profile_start()
 	var prepared_checkpoint_receipt: Dictionary = request["prepared_checkpoint_receipt"]
 	if typeof(prepared_checkpoint_receipt) != TYPE_DICTIONARY or prepared_checkpoint_receipt.is_empty():
@@ -346,11 +346,10 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
 	var recovery_payload: Dictionary = recovery_built["recovery_payload"]
 
 	var recovery_payload_sha256 := _canonical_sha256(recovery_payload)
-	var pending_after: Dictionary = pending_dict.duplicate(true)
+	var state_after_ordinal1: Dictionary = live_state.duplicate(true)
+	var pending_after: Dictionary = state_after_ordinal1.pending
 	pending_after["recovery_payload"] = recovery_payload.duplicate(true)
 	pending_after["recovery_payload_sha256"] = recovery_payload_sha256
-	var state_after_ordinal1: Dictionary = live_state.duplicate(true)
-	state_after_ordinal1["pending"] = pending_after
 
 	var header1 := {
 		"kind": &"consequence_admission_ready", "operation_ordinal": 1, "run_id": str(action_receipt["run_id"]),
