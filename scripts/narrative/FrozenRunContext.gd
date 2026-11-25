@@ -563,7 +563,7 @@ static func _dating(route: Dictionary, lifecycle: Dictionary, contacts: Dictiona
 		return _fail(&"frozen_context_attempt_mismatch")
 	for entry_id: Variant in cache.entries:
 		if not entry_id is String: return _fail(&"frozen_context_cache_invalid")
-		var checked := FROZEN.validate(entry_id, cache.entries[entry_id])
+		var checked := FROZEN.validated_view(entry_id, cache.entries[entry_id])
 		if not checked.ok: return checked
 		var fields: Dictionary = checked.value.fields
 		var phase := str(fields.get("phase", ""))
@@ -777,7 +777,7 @@ static func _narrative_checkpoint(checkpoint: Variant, route: Dictionary, lifecy
 	if not context.has("presentation"):
 		return _fail(&"frozen_context_snapshot_required") if required else _ok()
 	if not checkpoint.entry_id is String: return _fail(&"frozen_run_narrative_context_invalid")
-	var checked := FROZEN.validate(checkpoint.entry_id, context.presentation)
+	var checked := FROZEN.validated_view(checkpoint.entry_id, context.presentation)
 	if not checked.ok: return checked
 	var fields: Dictionary = checked.value.fields
 	var retained: Variant = null

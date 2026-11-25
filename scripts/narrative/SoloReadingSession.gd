@@ -1064,7 +1064,7 @@ func _programs_for_frames(frames: Dictionary, transaction_id: String) -> Diction
 	return {"ok": true, "value": {"entries": selected, "registry": registered}}
 
 func _admit_authored(entry_id: String, context: Dictionary) -> Dictionary:
-	var source: Dictionary = ledger.snapshot()
+	var source: Dictionary = ledger.snapshot_view()
 	if _selected_entries.is_empty():
 		if entry_id != pre_entry_id: return _fail(&"reading_context_invalid")
 		source = {"session_token": command_id, "frozen_context": {
@@ -1079,8 +1079,8 @@ func _admit_authored(entry_id: String, context: Dictionary) -> Dictionary:
 	else:
 		var completed_source := capture({})
 		if not completed_source.ok: return completed_source
+	source.entry_contexts = source.entry_contexts.merged({entry_id: context})
 	var frames: Dictionary = source.entry_contexts
-	frames[entry_id] = context
 	var programs := _programs_for_frames(frames, command_id)
 	if not programs.ok: return programs
 	var candidate := LEDGER.new()
@@ -1121,7 +1121,7 @@ func _validate_frame(entry_id: String, context: Dictionary, completion_transacti
 				or context.get("transaction_id") != str(context.playback_id) + ":complete" \
 				or not context.get("presentation") is Dictionary:
 			return _fail(&"reading_context_invalid")
-		var ending := FROZEN.validate(entry_id, context.presentation)
+		var ending := FROZEN.validated_view(entry_id, context.presentation)
 		if not ending.ok: return ending
 		if ending.value.fields.step_token != context.playback_id or ending.value.fields.ending_role != context.role:
 			return _fail(&"reading_context_invalid")
@@ -1135,7 +1135,7 @@ func _validate_frame(entry_id: String, context: Dictionary, completion_transacti
 			return _fail(&"reading_context_invalid")
 	elif not _context_shape(context):
 		return _fail(&"reading_context_invalid")
-	var checked := FROZEN.validate(entry_id, context.presentation)
+	var checked := FROZEN.validated_view(entry_id, context.presentation)
 	if not checked.ok: return checked
 	var stage := "hospital" if family == "hospital" else entry_id.get_slice(".", 4)
 	if context.get("expected_stage") != stage or context.get("transaction_id") != completion_transaction_id + ":" + stage:
@@ -1150,7 +1150,7 @@ func _entry_index(entry_id: String) -> int:
 	return -1
 
 static func _ending_entry(entry_id: String) -> bool:
-	return entry_id.begins_with("ending.") and FROZEN.schema_for_entry(entry_id).get("ok", false)
+	return entry_id.begins_with("ending.") and FROZEN.schema_view(entry_id).get("ok", false)
 
 static func _hospital_entry(entry_id: String) -> bool:
 	for day: int in range(1, 8):

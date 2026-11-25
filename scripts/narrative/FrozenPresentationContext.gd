@@ -28,19 +28,27 @@ static var _schemas: Dictionary = {}
 static var _ids: Dictionary = {}
 
 static func schema_for_entry(entry_id: String) -> Dictionary:
+	var schema := schema_view(entry_id)
+	return _ok(schema.value.duplicate(true)) if schema.ok else schema
+
+static func schema_view(entry_id: String) -> Dictionary:
 	var loaded := _load_registry()
 	if not loaded.ok: return loaded
 	if not _schemas.has(entry_id): return _fail("frozen_context_unknown_entry", entry_id)
-	return _ok(_schemas[entry_id].duplicate(true))
+	return _ok(_schemas[entry_id])
 
 static func build(entry_id: String, fields: Dictionary) -> Dictionary:
-	var schema := schema_for_entry(entry_id)
+	var schema := schema_view(entry_id)
 	if not schema.ok: return schema
 	return validate(entry_id, {"schema_id": schema.value.schema_id, "schema_version": 1,
 		"fields": fields})
 
 static func validate(entry_id: String, presentation: Variant) -> Dictionary:
-	var schema := schema_for_entry(entry_id)
+	var checked := validated_view(entry_id, presentation)
+	return _ok(checked.value.duplicate(true)) if checked.ok else checked
+
+static func validated_view(entry_id: String, presentation: Variant) -> Dictionary:
+	var schema := schema_view(entry_id)
 	if not schema.ok: return schema
 	if not presentation is Dictionary or not _exact(presentation, ["fields", "schema_id", "schema_version"]) \
 			or presentation.get("schema_id") != schema.value.schema_id \
@@ -55,7 +63,7 @@ static func validate(entry_id: String, presentation: Variant) -> Dictionary:
 			return _fail("frozen_context_field_invalid", entry_id + ":" + key)
 	var bound := _bindings(entry_id, fields)
 	if not bound.ok: return bound
-	return _ok(presentation.duplicate(true))
+	return _ok(presentation)
 
 static func immutable_fields(presentation: Dictionary) -> Dictionary:
 	var detached: Dictionary = presentation.fields.duplicate(true)

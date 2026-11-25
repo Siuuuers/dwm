@@ -87,7 +87,7 @@ static func build(plan: Dictionary, index: int, seed: Dictionary, playback_id: S
 	var signature := signature_for_step(plan, index, seed)
 	if not signature.ok: return signature
 	var projected: Dictionary = signature.value
-	var schema := CONTEXT.schema_for_entry(projected.entry_id)
+	var schema := CONTEXT.schema_view(projected.entry_id)
 	if not schema.ok: return schema
 	var prerequisites: Array = []
 	for previous: int in range(index):
