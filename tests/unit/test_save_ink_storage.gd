@@ -25,7 +25,7 @@ class WriteRefusal extends "res://tests/support/FakeFileOps.gd":
 		if refuse_write: return {"ok": false, "code": &"write_failed", "message": "TEST storage write unavailable"}
 		return super.write_bytes(path, bytes)
 
-func test_existing_unmarked_and_ink_bearing_documents_discard_retired_metadata() -> void:
+func test_current_document_admits_only_unmarked_saves() -> void:
 	var fixture: Dictionary = preload("res://scripts/domain/run/RunSnapshotSchema.gd").validate(scene_fixture.snapshot)
 	assert_true(fixture.get("ok", false), str(fixture))
 	if not fixture.get("ok", false): return
@@ -33,21 +33,14 @@ func test_existing_unmarked_and_ink_bearing_documents_discard_retired_metadata()
 		"checkpoint_kind": "day_start", "snapshot": fixture.value.candidate}, [])
 	assert_true(built.get("ok", false), str(built))
 	if not built.get("ok", false): return
-	assert_false(built.value.has("ink_marks"), "old documents require no new decoration")
+	assert_false(built.value.has("ink_marks"), "current documents omit decoration")
 	assert_true(SCHEMA.validate(built.value).get("ok", false))
 	built.value["ink_marks"] = [17, 420, 9123]
 	var checked: Dictionary = SCHEMA.validate(built.value)
-	assert_true(checked.get("ok", false), str(checked))
-	if not checked.get("ok", false): return
-	assert_false(checked.value.candidate.has("ink_marks"))
-	assert_eq(built.value.ink_marks, [17, 420, 9123], "reading does not mutate old save data")
-	var canonical: Dictionary = preload("res://scripts/validation/CanonicalJsonWriter.gd").stringify(checked.value.candidate)
-	assert_true(canonical.get("ok", false), str(canonical))
-	if not canonical.get("ok", false): return
-	var parsed: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(canonical.value)
-	assert_true(parsed.get("ok", false), str(parsed))
-	if not parsed.get("ok", false): return
-	assert_false(parsed.value.has("ink_marks"))
+	assert_false(checked.ok)
+	assert_eq(checked.code, &"invalid_document_shape")
+	assert_eq(SCHEMA.load_current_document(built.value).code, &"unsupported_save_format")
+	assert_eq(built.value.ink_marks, [17, 420, 9123], "refusal preserves the source")
 
 func test_refused_atomic_overwrite_preserves_progress_and_retry_omits_ink() -> void:
 	var files := WriteRefusal.new()

@@ -2,12 +2,6 @@ extends "res://addons/gut/test.gd"
 
 const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const ROOT := "profile-tests/root"
-const LEGACY_RUN_STATE := {
-	"settings": {"language": "zh_HK", "music_volume": 0.25, "skip_unseen_text_allowed": true, "font_scale": 1.25},
-	"audio_state": {"music_muted": true, "current_bgm_id": "menu_theme", "current_ambience_id": "rain", "current_context_id": "menu", "current_context": {"day": 7}},
-	"seen_endings": {"alone": true, "ending.priscilla.sweet": true, "lavinia_priscilla": true},
-}
-const LEGACY_INPUT_MAPPINGS := {"game_quick_save": [KEY_F6], "not_registered": [KEY_F7]}
 
 var _schema: Script
 var _manager_script: Script
@@ -42,32 +36,6 @@ func _configure_lines(manager: Node, ids: Array[String]) -> void:
 	var configured: Dictionary = manager.call(&"configure_line_registry", {"reply_lines": lines})
 	assert_true(configured.get("ok", false), str(configured))
 
-func _v1_profile() -> Dictionary:
-	return {
-		"schema_version": 1,
-		"gallery_unlocks": [], "gallery_transaction_receipts": {}, "visited_line_ids": [],
-		"preferences": {
-			"language": "en",
-			"audio": {"music_volume": 0.8, "music_muted": false, "ambience_volume": 0.65,
-				"ambience_muted": false, "sfx_volume": 0.8, "sfx_muted": false,
-				"voice_volume": 0.8, "voice_muted": false, "mute_audio_on_focus_loss": false},
-			"dialogue": {"text_speed": 1.0, "auto_text_speed": 1.0,
-				"skip_mode": "read_only", "auto_advance_dialogue": false},
-			"display": {"fullscreen": false},
-			"accessibility": {"font_scale": 1.0, "high_contrast": false,
-				"reduced_motion": false, "screen_shake_strength": 0.5,
-				"large_click_targets": false, "hold_to_confirm": false,
-				"colorblind_mode": "none", "show_focus_ring": true,
-				"controller_cursor_enabled": false, "subtitles_enabled": true,
-				"captions_enabled": true, "subtitle_speaker_names": true,
-				"subtitle_background_opacity": 0.85, "text_box_opacity": 0.9,
-				"visual_audio_cues": true, "flashing_effects_enabled": false,
-				"pause_on_focus_loss": true},
-		},
-		"input_mappings": {},
-		"migration_receipts": {"legacy_game_state_profile_v1": false,
-			"legacy_input_bindings_v1": false, "invalid_persisted_skip_mode_v1": false},
-	}.duplicate(true)
 
 func test_defaults_are_schema_valid_and_exact() -> void:
 	var profile: Dictionary = _schema.call(&"make_defaults")
@@ -123,54 +91,21 @@ func test_schema_rejects_unknown_nested_fields_bad_types_and_aliases() -> void:
 	profile["preferences"]["audio"]["music_volume"] = 0.1
 	assert_eq(validated["value"]["preferences"]["audio"]["music_volume"], 0.8)
 
-func test_invalid_skip_is_the_only_narrow_document_repair() -> void:
-	var migration := _load("res://scripts/profile/ProfileMigration.gd")
-	var profile: Dictionary = _v1_profile()
-	profile["preferences"]["dialogue"]["skip_mode"] = "legacy-invalid"
-	var repaired: Dictionary = migration.call(&"prepare_document", profile)
-	assert_true(repaired.get("ok", false), str(repaired))
-	assert_eq(repaired["value"]["preferences"]["reading"]["skip_mode"], "read_only")
-	assert_true(repaired["value"]["migration_receipts"]["invalid_persisted_skip_mode_v1"])
-	profile["unexpected"] = true
-	assert_false(migration.call(&"prepare_document", profile).get("ok", true))
 
-func test_legacy_patch_is_exact_detached_and_discards_runtime_audio() -> void:
-	var migration := _load("res://scripts/profile/ProfileMigration.gd")
-	var run_input: Dictionary = LEGACY_RUN_STATE.duplicate(true)
-	var input_input: Dictionary = LEGACY_INPUT_MAPPINGS.duplicate(true)
-	var result: Dictionary = migration.call(&"prepare_legacy_patch", run_input, input_input)
-	assert_true(result.get("ok", false), str(result))
-	var profile: Dictionary = result["value"]
-	assert_eq(profile["preferences"]["reading"]["skip_mode"], "all_text")
-	assert_eq(profile["preferences"]["audio"]["music_muted"], true)
-	assert_false(JSON.stringify(profile).contains("current_bgm_id"))
-	assert_eq(profile["gallery_unlocks"], ["ending.alone", "ending.priscilla.sweet", "ending.priscilla_lavinia"])
-	assert_true(profile["input_mappings"].has("game_quick_save"))
-	assert_false(profile["input_mappings"].has("not_registered"))
-	run_input["settings"]["font_scale"] = 99.0
-	input_input["game_quick_save"].append(KEY_F8)
-	assert_eq(profile["preferences"]["accessibility"]["text_size"], 125)
-	assert_eq(profile["legacy_preferences_v1"]["accessibility"]["font_scale"], 1.25)
-	assert_eq((profile["input_mappings"]["game_quick_save"] as Array).size(), 1)
+func test_previous_profile_documents_are_refused_without_rewriting_history() -> void:
+	var old: Dictionary = _schema.make_defaults()
+	old.visited_line_ids = ["read.in.previous.build"]
+	old.erase("displayed_artwork_ids")
+	old.erase("dialogue_library")
+	for version: int in [10, 9]:
+		old.schema_version = version
+		if version == 9: old.erase("witnessed_caption_variants")
+		var files := {ROOT + "/profile.json": JSON.stringify(old).to_utf8_buffer()}
+		var ops: RefCounted = _fake_ops_script.new(files)
+		var manager: Node = autofree(_manager_script.new())
+		assert_false(manager.initialize(_storage_script.new(ROOT, ops)).ok)
+		assert_eq(ops.snapshot_persisted(), files)
 
-func test_root_relative_legacy_input_import_is_one_shot_and_source_is_untouched() -> void:
-	var legacy_path := ROOT + "/input_bindings.json"
-	var legacy_text := "{\"game_quick_save\":[%d],\"not_registered\":[%d]}" % [KEY_F6, KEY_F7]
-	var ops: RefCounted = _fake_ops_script.new({legacy_path: legacy_text.to_utf8_buffer()})
-	var storage: RefCounted = _storage_script.new(ROOT, ops)
-	var manager: Node = autofree(_manager_script.new())
-	var initialized: Dictionary = manager.call(&"initialize", storage)
-	assert_true(initialized.get("ok", false), str(initialized))
-	var snapshot: Dictionary = manager.call(&"get_profile_snapshot")
-	assert_true(snapshot["migration_receipts"]["legacy_input_bindings_v1"])
-	assert_true(snapshot["input_mappings"].has("game_quick_save"))
-	assert_false(snapshot["input_mappings"].has("not_registered"))
-	assert_true(ops.call(&"snapshot_persisted").has(legacy_path), "legacy source remains inert and untouched")
-	var restarted_ops: RefCounted = _fake_ops_script.new(ops.call(&"snapshot_persisted"))
-	var restarted: Node = autofree(_manager_script.new())
-	assert_true(restarted.call(&"initialize", _storage_script.new(ROOT, restarted_ops)).get("ok", false))
-	assert_true(snapshot["controls_import_pending"], "incomplete legacy Controls provenance requires review")
-	assert_eq(restarted.call(&"get_input_mappings"), {}, "unreviewed legacy bindings are never published")
 
 func test_manager_initializes_once_and_uses_detached_snapshots() -> void:
 	var fixture := _new_manager()
@@ -283,21 +218,6 @@ func test_profile_schema_registers_observation_not_true() -> void:
 	assert_false("ending.priscilla.true" in schema.ENDING_IDS, "retired .true is gone")
 	assert_false("ending.sylvia.true" in schema.ENDING_IDS, "sylvia.true is retired")
 
-func test_profile_document_remaps_retired_true_gallery_unlocks() -> void:
-	var migration: Script = load("res://scripts/profile/ProfileMigration.gd")
-	var schema: Script = load("res://scripts/profile/ProfileSchema.gd")
-	var raw: Dictionary = schema.make_defaults()
-	raw["gallery_unlocks"] = ["ending.priscilla.true", "ending.sylvia.true", "ending.sylvia.special"]
-	var result: Dictionary = migration.prepare_document(raw)
-	assert_true(result.get("ok", false), str(result))
-	var unlocks: Array = result["value"]["gallery_unlocks"]
-	assert_true("ending.priscilla.observation" in unlocks, "priscilla.true remapped")
-	assert_true("ending.sylvia.special" in unlocks, "sylvia.true remapped to special")
-	assert_eq(unlocks.count("ending.sylvia.special"), 1, "special is unioned once, not duplicated")
-	assert_false("ending.priscilla.true" in unlocks, "no retired id remains")
-
-# ---- dwm-p2r.8 (Plan-05 Task 4): visited history is GLOBAL, not run-scoped ----
-# read_only skip depends on this: a line read in one run must stay visited in the next.
 
 func test_visited_history_is_global_and_idempotent() -> void:
 	var manager: Node = _new_manager()["manager"]
@@ -335,26 +255,17 @@ func test_visited_reset_leaves_other_profile_state_intact() -> void:
 	assert_eq(manager.call(&"get_preference", &"preferences.audio.music_volume"), volume_before,
 		"resetting visited history touches nothing else")
 
-func test_font_style_missing_leaf_is_persisted_as_pixel_and_explicit_values_remain_strict() -> void:
-	var legacy: Dictionary = _schema.make_defaults()
-	legacy.preferences.accessibility.erase("font_style")
-	legacy.preferences.audio.music_volume = 0.37
-	var repaired: Dictionary = _schema.validate(legacy)
-	assert_true(repaired.get("ok", false), str(repaired))
-	assert_true(repaired.get("migrated", false))
-	assert_false(legacy.preferences.accessibility.has("font_style"), "Migration leaves the caller detached")
-	var ops: RefCounted = _fake_ops_script.new({ROOT + "/profile.json": JSON.stringify(legacy)})
-	var first: Node = autofree(_manager_script.new())
-	assert_true(first.initialize(_storage_script.new(ROOT, ops)).get("ok", false))
+func test_font_style_default_and_explicit_values_remain_strict() -> void:
+	var f := _new_manager()
+	var first: Node = f.manager
 	assert_eq(first.get_preference(&"preferences.accessibility.font_style"), "pixel")
-	assert_eq(first.get_preference(&"preferences.audio.music_volume"), 0.37)
 	assert_eq(first.set_preference(&"preferences.accessibility.font_style", "readable").get("code"), &"managed_preference")
 	var candidate: Dictionary = first.prepare_font_style_preference("readable")
 	assert_true(candidate.get("ok", false), str(candidate))
 	assert_eq(first.get_preference(&"preferences.accessibility.font_style"), "pixel", "Preparation is inert")
 	assert_true(first.commit_prepared_profile(candidate.value).get("ok", false))
 	var restarted: Node = autofree(_manager_script.new())
-	assert_true(restarted.initialize(_storage_script.new(ROOT, ops)).get("ok", false))
+	assert_true(restarted.initialize(f.storage).get("ok", false))
 	assert_eq(restarted.get_preference(&"preferences.accessibility.font_style"), "readable")
 	assert_true(restarted.reset_preferences().get("ok", false))
 	assert_eq(restarted.get_preference(&"preferences.accessibility.font_style"), "pixel")
@@ -362,39 +273,6 @@ func test_font_style_missing_leaf_is_persisted_as_pixel_and_explicit_values_rema
 		var malformed: Dictionary = _schema.make_defaults()
 		malformed.preferences.accessibility.font_style = bad
 		assert_false(_schema.validate(malformed).get("ok", true), "Invalid style must not be repaired: " + str(bad))
-
-func test_missing_panel_widths_migrate_together_and_persist_without_touching_other_preferences() -> void:
-	var legacy: Dictionary = _schema.make_defaults()
-	for leaf: String in ["angela_panel_width", "dating_solo_portrait_width", "dating_group_portrait_width"]:
-		legacy.preferences.display.erase(leaf)
-	legacy.preferences.audio.music_volume = 0.37
-	var before := legacy.duplicate(true)
-	var repaired: Dictionary = _schema.validate(legacy)
-	assert_true(repaired.get("ok", false), str(repaired))
-	assert_true(repaired.get("migrated", false))
-	assert_eq(legacy, before, "Migration leaves the caller detached")
-	var partial := legacy.duplicate(true)
-	partial.preferences.display.angela_panel_width = 400
-	assert_false(_schema.validate(partial).get("ok", true), "An incomplete new preference set is not a legacy document")
-	var ops: RefCounted = _fake_ops_script.new({ROOT + "/profile.json": JSON.stringify(legacy)})
-	var first: Node = autofree(_manager_script.new())
-	assert_true(first.initialize(_storage_script.new(ROOT, ops)).get("ok", false))
-	var migrated_bytes: Dictionary = ops.snapshot_persisted()
-	var strict_json := _load("res://scripts/validation/StrictJson.gd")
-	var durable: Dictionary = strict_json.parse_object(migrated_bytes[ROOT + "/profile.json"].get_string_from_utf8())
-	assert_true(durable.get("ok", false), str(durable))
-	if not durable.get("ok", false): return
-	assert_eq(durable.value.preferences.display.angela_panel_width, 480)
-	assert_eq(durable.value.preferences.display.dating_solo_portrait_width, 0)
-	assert_eq(durable.value.preferences.display.dating_group_portrait_width, 0)
-	var restarted: Node = autofree(_manager_script.new())
-	assert_true(restarted.initialize(_storage_script.new(ROOT, _fake_ops_script.new(migrated_bytes))).get("ok", false))
-	assert_eq(restarted.get_preference(&"preferences.display.angela_panel_width"), 480)
-	assert_eq(restarted.get_preference(&"preferences.display.dating_solo_portrait_width"), 0)
-	assert_eq(restarted.get_preference(&"preferences.display.dating_group_portrait_width"), 0)
-	assert_eq(restarted.get_preference(&"preferences.audio.music_volume"), 0.37)
-	assert_false(_schema.validate(restarted.get_profile_snapshot()).get("migrated", false), "Persisted defaults require no second admission")
-
 
 func test_panel_width_preferences_are_hidden_and_reject_invalid_ranges_steps_and_types() -> void:
 	var registry := _load("res://scripts/settings/SettingsPreferenceRegistry.gd")
@@ -458,3 +336,32 @@ func test_preferences_reset_restores_panel_width_inheritance() -> void:
 	assert_eq(manager.get_preference(&"preferences.display.angela_panel_width"), 480)
 	assert_eq(manager.get_preference(&"preferences.display.dating_solo_portrait_width"), 0)
 	assert_eq(manager.get_preference(&"preferences.display.dating_group_portrait_width"), 0)
+
+func test_every_reset_refuses_cleanly_before_initialization() -> void:
+	var manager: Node = autofree(_manager_script.new())
+	for method: StringName in [&"reset_preferences", &"reset_controls", &"reset_visited_history",
+			&"reset_gallery", &"reset_entire_profile"]:
+		var result: Dictionary = manager.call(method)
+		assert_false(result.get("ok", true), String(method))
+		assert_eq(result.get("code"), &"not_initialized", String(method))
+
+
+func test_deferred_raw_mapping_publication_survives_as_inert_compatibility_signal() -> void:
+	var manager: Node = autofree(_manager_script.new())
+	assert_true(manager.initialize(_storage_script.new(ROOT, _fake_ops_script.new())).get("ok", false))
+	var live_before: Dictionary = manager.get_input_mappings()
+	var input_events: Array[StringName] = []
+	var controls_events: Array[bool] = []
+	manager.input_mappings_changed.connect(func(action: StringName) -> void: input_events.append(action))
+	manager.controls_bindings_changed.connect(func() -> void: controls_events.append(true))
+	var candidate: Dictionary = manager.get_profile_snapshot()
+	candidate.input_mappings["game_open_log"] = [{"kind": "key", "physical_keycode": KEY_F6,
+		"keycode": 0, "shift": false, "alt": false, "ctrl": false, "meta": false}]
+	var committed: Dictionary = manager.commit_prepared_profile(candidate, true)
+	assert_true(committed.get("ok", false), str(committed))
+	assert_eq(input_events, [], "a deferred commit publishes nothing early")
+	assert_eq(manager.get_input_mappings(), live_before,
+		"retained raw provenance never becomes the active Controls map")
+	assert_true(manager.publish_deferred_profile_signals(committed.value.publication_id).get("ok", false))
+	assert_eq(input_events, [&"game_open_log"])
+	assert_eq(controls_events, [], "unchanged canonical Controls do not publish a false change")

@@ -6,7 +6,6 @@ const MANAGER := preload("res://autoload/ProfileManager.gd")
 const RESTORE_PARTICIPANT := preload("res://scripts/application/restore/ProfileRestoreParticipant.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FILES := preload("res://tests/support/FakeFileOps.gd")
-const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 const ROOT := "minesweeper-view-preferences"
 const SCOPES := ["app_beginner", "app_intermediate", "app_expert", "challenge"]
 
@@ -45,44 +44,15 @@ func test_registry_has_four_hidden_independent_scopes_and_all_manual_sizes() -> 
 		assert_false(String(record.path).begins_with("preferences.display.minesweeper_"))
 
 
-func test_old_profile_admits_only_the_complete_absent_set_and_preserves_other_preferences() -> void:
-	var old: Dictionary = SCHEMA.make_defaults()
-	_remove_view_leaves(old)
-	old.preferences.display.window_mode = "borderless"
-	old.preferences.audio.music_volume = 0.35
-	var before := old.duplicate(true)
-	var admitted: Dictionary = SCHEMA.validate(old)
-	assert_true(admitted.get("ok", false), str(admitted))
-	if not admitted.get("ok", false):
-		return
-	assert_eq(old, before, "admission must not mutate stored input")
-	assert_eq(admitted.value.preferences.display.window_mode, "borderless")
-	assert_eq(admitted.value.preferences.audio.music_volume, 0.35)
-	for scope: String in SCOPES:
-		assert_eq(admitted.value.preferences.display[String(_path(scope, "cell_size")).get_slice(".", 2)], 36)
-		assert_eq(admitted.value.preferences.display[String(_path(scope, "always_fit")).get_slice(".", 2)], false)
-	var partial := old.duplicate(true)
-	partial.preferences.display["minesweeper_challenge_cell_size"] = 44
-	assert_false(SCHEMA.validate(partial).get("ok", true), "a partial new shape is malformed")
-	var invalid: Dictionary = admitted.value.duplicate(true)
-	invalid.preferences.display["minesweeper_challenge_cell_size"] = 11
-	assert_false(SCHEMA.validate(invalid).get("ok", true), "invalid new values are never repaired")
-
-
-func test_old_profile_defaults_persist_and_four_scopes_survive_restart() -> void:
-	var old: Dictionary = SCHEMA.make_defaults()
-	_remove_view_leaves(old)
-	old.preferences.audio.music_volume = 0.35
-	var ops := FILES.new({ROOT + "/profile.json": JSON.stringify(old).to_utf8_buffer()})
+func test_four_view_scopes_survive_restart() -> void:
+	var profile: Dictionary = SCHEMA.make_defaults()
+	profile.preferences.audio.music_volume = 0.35
+	var ops := FILES.new({ROOT + "/profile.json": JSON.stringify(profile).to_utf8_buffer()})
 	var manager: Node = autofree(MANAGER.new())
 	var initialized: Dictionary = manager.initialize(STORAGE.new(ROOT, ops))
 	assert_true(initialized.get("ok", false), str(initialized))
 	if not initialized.get("ok", false):
 		return
-	var persisted: Dictionary = STRICT_JSON.parse_object(ops.snapshot_persisted()[ROOT + "/profile.json"].get_string_from_utf8())
-	assert_true(persisted.get("ok", false), str(persisted))
-	if persisted.get("ok", false):
-		assert_eq(persisted.value, manager.get_profile_snapshot(), "admitted defaults must be durable at startup")
 	assert_eq(manager.get_preference(_path("challenge", "cell_size")), 36)
 	assert_eq(manager.get_preference(_path("challenge", "always_fit")), false)
 	for index: int in SCOPES.size():
@@ -120,7 +90,7 @@ func test_failed_preference_write_keeps_memory_and_profile_bytes_unchanged() -> 
 	assert_eq(changes, [])
 
 
-func test_older_save_restore_plan_keeps_current_view_scopes_without_legacy_patch() -> void:
+func test_restore_plan_keeps_current_view_scopes() -> void:
 	var ops := FILES.new()
 	var manager: Node = autofree(MANAGER.new())
 	assert_true(manager.initialize(STORAGE.new(ROOT + "-restore", ops)).get("ok", false))
@@ -128,7 +98,7 @@ func test_older_save_restore_plan_keeps_current_view_scopes_without_legacy_patch
 	var before: Dictionary = manager.get_profile_snapshot()
 	var disk: Dictionary = ops.snapshot_persisted()
 	var participant := RESTORE_PARTICIPANT.new(manager)
-	var prepared: Dictionary = participant.prepare({"legacy_profile_patch_input": {}})
+	var prepared: Dictionary = participant.prepare(before)
 	assert_true(prepared.get("ok", false), str(prepared))
 	if not prepared.get("ok", false): return
 	assert_eq(prepared.value.profile_plan.profile.preferences.display, before.preferences.display)
@@ -147,9 +117,3 @@ func _nondefault_view_changes() -> Dictionary:
 
 func _path(scope: String, leaf: String) -> StringName:
 	return StringName("preferences.display.minesweeper_%s_%s" % [scope, leaf])
-
-
-func _remove_view_leaves(profile: Dictionary) -> void:
-	for scope: String in SCOPES:
-		for leaf: String in ["cell_size", "always_fit"]:
-			profile.preferences.display.erase("minesweeper_%s_%s" % [scope, leaf])

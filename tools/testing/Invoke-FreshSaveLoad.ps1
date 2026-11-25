@@ -97,7 +97,7 @@ try {
         'scripts/infrastructure/save/CheckpointJournal.gd',
         'scripts/infrastructure/save/DesktopContinuationOperationJournal.gd',
         'scripts/infrastructure/save/SaveDocumentSchema.gd',
-        'scripts/infrastructure/save/SaveMigrations.gd', 'scripts/narrative/FrozenRunContext.gd')) {
+        'scripts/narrative/FrozenRunContext.gd')) {
         $runtimeHashes[$path] = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot $path) -Algorithm SHA256).Hash.ToLowerInvariant()
     }
     if ((Get-FileHash -LiteralPath (Join-Path $output 'slot_3.json') -Algorithm SHA256).Hash.ToLowerInvariant() -cne $proof.slot_sha256) {

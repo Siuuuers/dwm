@@ -12,8 +12,8 @@ static func dispositions(spec: Dictionary, mine_count: int) -> Array:
 		result.append(DISPOSITIONS[int(sampled.value.result)])
 	return result
 
-static func perfect_reasons(board: Dictionary, record_version: int = 3) -> Array:
-	return PERFORMANCE.perfect_reasons(board, 1 if record_version == 2 else 2)
+static func perfect_reasons(board: Dictionary) -> Array:
+	return PERFORMANCE.perfect_reasons(board)
 
 static func three_bv(board: Dictionary) -> int:
 	return PERFORMANCE.three_bv(board)
@@ -21,6 +21,6 @@ static func three_bv(board: Dictionary) -> int:
 static func scene_closure_outcome(record: Dictionary, targets: Dictionary) -> String:
 	if record.is_empty(): return "never_started"
 	if record.state == "in_progress": return "unfinished"
-	if record.state == "won" and targets.has("perfect") and not perfect_reasons(record.board, 4).is_empty():
+	if record.state == "won" and targets.has("perfect") and not perfect_reasons(record.board).is_empty():
 		return "perfect"
 	return str(record.state)

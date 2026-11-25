@@ -29,16 +29,11 @@ class RestoreOwner:
 	var candidate: Dictionary = preload("res://scripts/profile/ProfileSchema.gd").make_defaults()
 	func _init() -> void:
 		candidate.preferences.language = {"primary_locale_id": "zh_CN", "secondary_locale_id": "en", "dual_enabled": true}
-	var received: Array = []
 
 	func get_profile_snapshot() -> Dictionary:
 		return candidate.duplicate(true)
 	func prepare_profile_document(document: Dictionary) -> Dictionary:
 		return preload("res://scripts/profile/ProfileSchema.gd").validate(document)
-	func prepare_legacy_profile_patch(run: Dictionary, mappings: Dictionary) -> Dictionary:
-		received = [run.duplicate(true), mappings.duplicate(true)]
-		return {"ok": true, "value": candidate.duplicate(true)}
-
 class TextSink:
 	extends Node
 	var calls: Array = []
@@ -139,16 +134,12 @@ func test_restore_checks_committed_canonical_primary_before_applying() -> void:
 	assert_true(localization.apply_restore_silent(prepared["value"]).get("ok", false))
 	assert_eq(localization.get_locale(), "en")
 
-func test_restore_participant_preserves_legacy_input_and_extracts_canonical_primary() -> void:
+func test_restore_participant_extracts_canonical_primary() -> void:
 	var owner := RestoreOwner.new()
 	var participant := RESTORE.new(owner)
-	var input := {"legacy_profile_patch_input": {
-		"legacy_run_state": {"language": "zh-CN"}, "legacy_input_mappings": {"unused": []},
-	}}
-	var result: Dictionary = participant.prepare(input)
+	var result: Dictionary = participant.prepare(owner.get_profile_snapshot())
 	assert_true(result.get("ok", false))
 	assert_eq(result["value"]["locale_id"], "zh_CN")
-	assert_eq(owner.received, [{"language": "zh-CN"}, {"unused": []}])
 	assert_eq(result["value"]["profile_plan"]["profile"], owner.candidate)
 	result["value"]["profile_plan"]["profile"]["preferences"]["language"]["primary_locale_id"] = "en"
 	assert_eq(owner.candidate["preferences"]["language"]["primary_locale_id"], "zh_CN")

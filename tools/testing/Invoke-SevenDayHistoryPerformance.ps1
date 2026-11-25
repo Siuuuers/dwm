@@ -32,8 +32,7 @@ $sourceCodeHashes = [ordered]@{
     baseline = (Get-FileHash -LiteralPath $baseline -Algorithm SHA256).Hash.ToLowerInvariant()
     shared = [ordered]@{}
 }
-foreach ($relative in @('scripts/infrastructure/save/SaveMigrations.gd',
-    'scripts/infrastructure/save/SaveDocumentSchema.gd', 'scripts/domain/run/RunSnapshotSchema.gd',
+foreach ($relative in @('scripts/infrastructure/save/SaveDocumentSchema.gd', 'scripts/domain/run/RunSnapshotSchema.gd',
     'scripts/infrastructure/save/CheckpointJournal.gd')) {
     $sourceCodeHashes.shared[$relative] = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot $relative) -Algorithm SHA256).Hash.ToLowerInvariant()
 }

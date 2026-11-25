@@ -21,7 +21,6 @@ const PAIR_DECK := preload("res://scripts/domain/relationship/PairDeckDraw.gd")
 const PRESENTATION_SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 const CAPTION_WITNESSES := preload("res://scripts/profile/CaptionWitnessLedger.gd")
 const DIALOGUE_LIBRARY := preload("res://scripts/narrative/DialogueLibraryCatalogue.gd")
-const MIGRATION := preload("res://scripts/profile/ProfileMigration.gd")
 const PREFERENCE_REGISTRY := preload("res://scripts/settings/SettingsPreferenceRegistry.gd")
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
@@ -40,7 +39,6 @@ var _profile: Dictionary = {}
 var _profile_revision := 0
 var _reading_history_dirty := false
 var _initialized := false
-var _profile_existed_at_initialize := false
 var _mutation_blocked := false
 var _mutation_gate: Object
 var _deferred_publications: Dictionary = {}
@@ -68,42 +66,20 @@ func initialize(storage: RefCounted = null) -> Dictionary:
 	if storage == null:
 		return _failure(&"invalid_storage", "A storage adapter is required")
 	_storage = storage
-	var reconciled: Dictionary = _storage.call(&"reconcile", "profile.json", _profile_migration_text_validator)
+	var reconciled: Dictionary = _storage.call(&"reconcile", "profile.json", _profile_text_validator)
 	if not reconciled.get("ok", false):
 		if reconciled.get("code") == &"indeterminate_transaction" or reconciled.get("code") == &"indeterminate_commit" or reconciled.get("fatal", false):
 			_mutation_blocked = true
 		return reconciled
 	if not reconciled.get("exists", false):
-		_profile_existed_at_initialize = false
 		var defaults := SCHEMA.make_defaults()
 		var persisted := _persist_candidate(defaults)
 		if not persisted.get("ok", false):
 			return persisted
 		_profile = defaults
 	else:
-		_profile_existed_at_initialize = true
-		var text_result: Dictionary = _storage.call(&"read_text", "profile.json")
-		if not text_result.get("ok", false):
-			return text_result
-		var parsed: Dictionary = STRICT_JSON.parse_object(text_result["value"])
-		if not parsed.get("ok", false):
-			return parsed
-		var validation: Dictionary = MIGRATION.prepare_document(parsed["value"])
-		if not validation.get("ok", false):
-			return validation
-		var adoption: Dictionary = validation["value"]
-		var discovery_repaired := _grant_discovered_dark_mode(adoption)
-		if validation.get("migrated", false) or discovery_repaired:
-			var persisted := _persist_candidate(adoption, true)
-			if not persisted.get("ok", false):
-				if persisted.get("fatal", false) or persisted.get("code") == &"indeterminate_commit":
-					_mutation_blocked = true
-				return persisted
-		_profile = adoption
+		_profile = reconciled["value"]
 	_profile_revision += 1
-	var imported := _import_legacy_input_mappings()
-	if not imported.get("ok", false):
-		return imported
 	_initialized = true
 	profile_restored.emit(_profile.duplicate(true))
 	return {"ok": true, "code": &"ok", "value": _profile.duplicate(true)}
@@ -122,14 +98,8 @@ static func validate_scene_new_run_material(material: Dictionary) -> Dictionary:
 	if not before.ok: return before
 	var after: Dictionary = SCHEMA.validate(material.candidate)
 	if not after.ok: return after
-	var original_before: Dictionary = WRITER.stringify(material.before)
-	var normalized_before: Dictionary = WRITER.stringify(before.value)
-	var original_after: Dictionary = WRITER.stringify(material.candidate)
-	var normalized_after: Dictionary = WRITER.stringify(after.value)
-	if not original_before.ok or not normalized_before.ok or not original_after.ok or not normalized_after.ok \
-			or original_before.value != normalized_before.value or original_after.value != normalized_after.value \
-			or not material.before.get("pair_deck_draws") is Dictionary or not material.candidate.get("pair_deck_draws") is Dictionary:
-		return {"ok": false, "code": &"invalid_scene_new_run_material"}
+	var original_after: Dictionary = WRITER.stringify(after.value)
+	if not original_after.ok: return original_after
 	var receipt: Dictionary = PAIR_DECK.validate_scene(material.scene_assignment.receipt)
 	if not receipt.ok: return receipt
 	var selected: Dictionary = PAIR_DECK.prepare_scene_assignment(material.before.pair_deck_draws,
@@ -145,7 +115,7 @@ static func validate_scene_new_run_material(material: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok"}
 
 func prepare_profile_document(raw: Dictionary) -> Dictionary:
-	return MIGRATION.prepare_document(raw)
+	return SCHEMA.validate(raw)
 
 
 func prepare_preferences(changes: Dictionary) -> Dictionary:
@@ -996,38 +966,6 @@ func commit_controls_change(proposal: Dictionary) -> Dictionary:
 	return commit_prepared_profile(candidate, false, proposal.revision)
 
 
-func prepare_legacy_profile_patch(legacy_run_state: Dictionary,
-		legacy_input_mappings: Dictionary = {}) -> Dictionary:
-	if not _initialized:
-		return _failure(&"not_initialized", "ProfileManager is not initialized")
-	if _profile["migration_receipts"]["legacy_game_state_profile_v1"]:
-		return {"ok": true, "code": &"ok", "value": _profile.duplicate(true), "unchanged": true}
-	var prepared := MIGRATION.prepare_legacy_patch(legacy_run_state.duplicate(true),
-		legacy_input_mappings.duplicate(true))
-	if not prepared.get("ok", false):
-		return prepared
-	var patch: Dictionary = prepared["value"]
-	var candidate := _profile.duplicate(true)
-	if not _profile_existed_at_initialize:
-		candidate["preferences"] = patch["preferences"].duplicate(true)
-		candidate["legacy_preferences_v1"] = patch["legacy_preferences_v1"].duplicate(true)
-	for action_id: String in patch["input_mappings"]:
-		if not candidate["input_mappings"].has(action_id):
-			candidate["input_mappings"][action_id] = patch["input_mappings"][action_id].duplicate(true)
-	for ending_id: String in patch["gallery_unlocks"]:
-		if ending_id not in candidate["gallery_unlocks"]:
-			candidate["gallery_unlocks"].append(ending_id)
-	candidate["gallery_unlocks"].sort()
-	candidate["migration_receipts"]["legacy_game_state_profile_v1"] = true
-	if patch["migration_receipts"]["legacy_input_bindings_v1"]:
-		candidate["migration_receipts"]["legacy_input_bindings_v1"] = true
-	if not patch["input_mappings"].is_empty():
-		var imported := CONTROLS_IMPORT.prepare(candidate["input_mappings"])
-		candidate["controls_bindings"] = imported["bindings"]
-		candidate["controls_import_pending"] = imported["pending"]
-	return SCHEMA.validate(candidate)
-
-
 func reset_preferences(expected_revision: int = -1) -> Dictionary:
 	if not _initialized:
 		return _failure(&"not_initialized", "ProfileManager is not initialized")
@@ -1205,14 +1143,11 @@ func _commit_prepared_reset(candidate: Dictionary, section: StringName, expected
 	return result
 
 
-func _persist_candidate(candidate: Dictionary, migrating := false) -> Dictionary:
-	if migrating:
-		var checked := SCHEMA.validate(candidate)
-		if not checked.get("ok", false): return checked
+func _persist_candidate(candidate: Dictionary) -> Dictionary:
 	var emitted: Dictionary = WRITER.stringify(candidate)
 	if not emitted.get("ok", false):
 		return emitted
-	var validator := _profile_migration_text_validator if migrating else _write_profile_text_validator.bind({})
+	var validator := _write_profile_text_validator.bind({})
 	var written: Dictionary = _storage.call(&"write_atomic", "profile.json", emitted["value"], validator)
 	if written.ok: _reading_history_dirty = false
 	return written
@@ -1224,12 +1159,6 @@ func _write_profile_text_validator(text: String, validated_texts: Dictionary) ->
 	if not result.get("ok", false) or typeof(result.get("value")) != TYPE_DICTIONARY: return result
 	validated_texts[text] = true
 	return {"ok": true, "code": &"ok", "value": {}}
-
-
-func _profile_migration_text_validator(text: String) -> Dictionary:
-	var parsed := STRICT_JSON.parse_object(text)
-	if not parsed.get("ok", false): return parsed
-	return MIGRATION.prepare_document(parsed.value)
 
 
 const _PROFILE_PARSE_MAX_BYTES := 1024 * 1024
@@ -1249,54 +1178,6 @@ func _profile_text_validator(text: String) -> Dictionary:
 			_profile_parsed_text = text
 			_profile_parsed_document = parsed
 	return SCHEMA.validate(parsed["value"])
-
-
-func _import_legacy_input_mappings() -> Dictionary:
-	if _profile["migration_receipts"]["legacy_input_bindings_v1"]:
-		return {"ok": true, "code": &"ok", "unchanged": true}
-	var reconciled: Dictionary = _storage.call(&"reconcile", "input_bindings.json",
-		_legacy_input_text_validator)
-	if not reconciled.get("ok", false):
-		return reconciled
-	if not reconciled.get("exists", false):
-		return {"ok": true, "code": &"ok", "unchanged": true}
-	var read_result: Dictionary = _storage.call(&"read_text", "input_bindings.json")
-	if not read_result.get("ok", false):
-		return read_result
-	var parsed := STRICT_JSON.parse_object(read_result["value"])
-	if not parsed.get("ok", false):
-		return parsed
-	var patch_result := MIGRATION.prepare_legacy_patch({}, parsed["value"])
-	if not patch_result.get("ok", false):
-		return patch_result
-	var patch: Dictionary = patch_result["value"]
-	var candidate := _profile.duplicate(true)
-	for action_id: String in patch["input_mappings"]:
-		if not candidate["input_mappings"].has(action_id):
-			candidate["input_mappings"][action_id] = patch["input_mappings"][action_id].duplicate(true)
-	var imported := CONTROLS_IMPORT.prepare(candidate["input_mappings"])
-	candidate["controls_bindings"] = imported["bindings"]
-	candidate["controls_import_pending"] = imported["pending"]
-	candidate["migration_receipts"]["legacy_input_bindings_v1"] = true
-	var validation := SCHEMA.validate(candidate)
-	if not validation.get("ok", false):
-		return validation
-	var persisted := _persist_candidate(validation["value"])
-	if not persisted.get("ok", false):
-		return persisted
-	_profile = validation["value"]
-	_profile_revision += 1
-	return {"ok": true, "code": &"ok", "imported": true}
-
-
-func _legacy_input_text_validator(text: String) -> Dictionary:
-	var parsed := STRICT_JSON.parse_object(text)
-	if not parsed.get("ok", false):
-		return parsed
-	var prepared := MIGRATION.prepare_legacy_patch({}, parsed["value"])
-	if not prepared.get("ok", false):
-		return prepared
-	return {"ok": true, "code": &"ok", "value": (parsed["value"] as Dictionary).duplicate(true)}
 
 
 func _build_publication(old: Dictionary, current: Dictionary) -> Dictionary:

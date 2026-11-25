@@ -16,7 +16,7 @@ const FROZEN_CONTEXT := preload("res://scripts/narrative/FrozenPresentationConte
 const OWNER_KIND := "dating_challenge"
 const PHASES := ["pre_challenge", "preparing", "challenge", "cleared_awaiting_terminal_choice", "settlement_retry", "post_challenge", "completed"]
 const RECORD_KEYS := ["applied_result", "board", "command_sha256", "completion_transaction_id",
-	"context", "host", "mine_dispositions", "outcome", "pair_form", "perfect_reasons", "phase",
+	"context", "envelope", "host", "mine_dispositions", "outcome", "pair_form", "perfect_reasons", "phase",
 	"physical_token", "relationship_outcome", "schema_version", "spec"]
 
 signal physical_completion_ready(receipt: Dictionary)
@@ -234,18 +234,16 @@ func _dispatch_physical(physical_token: String, action: String, cell_index: int,
 				if not rebound_context.ok: return rebound_context
 				_clear_history_state()
 				_history_selection = {"mode": "fresh"}
-			if _record.schema_version == 3:
-				_record.envelope = ENVELOPE.make()
-				if _record.spec.capability_ids.has("forced_no_guess"):
-					if not _generation.has_method("begin_search") or not _generation.has_method("run_search_slice"):
-						return _fail(&"dating_preparation_unavailable")
-					var begun: Dictionary = _generation.begin_search(_record.spec)
-					if not begun.get("ok", false): return begun
-					var plain: Dictionary = ENVELOPE.plain_frontier(begun.value.frontier)
-					if not plain.get("ok", false): return plain
-					_record.envelope.preparation = plain.value
-					_record.phase = "preparing"
-				else: _record.phase = "challenge"
+			_record.envelope = ENVELOPE.make()
+			if _record.spec.capability_ids.has("forced_no_guess"):
+				if not _generation.has_method("begin_search") or not _generation.has_method("run_search_slice"):
+					return _fail(&"dating_preparation_unavailable")
+				var begun: Dictionary = _generation.begin_search(_record.spec)
+				if not begun.get("ok", false): return begun
+				var plain: Dictionary = ENVELOPE.plain_frontier(begun.value.frontier)
+				if not plain.get("ok", false): return plain
+				_record.envelope.preparation = plain.value
+				_record.phase = "preparing"
 			else: _record.phase = "challenge"
 			if _record.phase == "challenge" and _attempt_gate != null and not _post_ending_history():
 				var resumed: Dictionary = _restore_attempt(_admitted_command)
@@ -666,7 +664,7 @@ func _board_action(action: String, index: int, projected: Dictionary) -> Diction
 		return _fail(&"dating_challenge_action_unavailable")
 	var reduced: Dictionary
 	if _record.board == null:
-		if _record.schema_version in [3, 4] and action in ["flag", "unflag"]:
+		if action in ["flag", "unflag"]:
 			var issued: Dictionary = _issue_board_transaction()
 			if not issued.get("ok", false): return issued
 			var marked: Dictionary = REDUCER.set_shell_flag(_record.envelope.shell, int(_record.spec.width),
@@ -675,9 +673,8 @@ func _board_action(action: String, index: int, projected: Dictionary) -> Diction
 			_record.envelope.shell = marked.value.shell
 			return _ok({})
 		var generated: Dictionary
-		if _record.schema_version in [3, 4] and _record.envelope.prepared_layout != null:
+		if _record.envelope.prepared_layout != null:
 			if index != int(_record.envelope.forced_cell): return _fail(&"dating_forced_cell_mismatch")
-			SCHEMA.clear_debug_flags(_record.envelope.shell)
 			generated = _ok({"layout": _record.envelope.prepared_layout})
 		else: generated = _generation.materialize(_record.spec, index)
 		if not generated.get("ok", false): return generated
@@ -690,10 +687,8 @@ func _board_action(action: String, index: int, projected: Dictionary) -> Diction
 			_record.mine_dispositions = RULES.dispositions(_record.spec, layout.mine_indices.size()) \
 				if _record.host == "canonical_solo" else []
 		_first_cell_index = index
-		if _record.schema_version in [3, 4]:
-			_record.envelope.special_cell = ENVELOPE.special_cell(_record.spec, layout)
-			reduced = REDUCER.first_reveal(layout, index, _record.envelope.shell)
-		else: reduced = REDUCER.first_reveal(layout, index)
+		_record.envelope.special_cell = ENVELOPE.special_cell(_record.spec, layout)
+		reduced = REDUCER.first_reveal(layout, index, _record.envelope.shell)
 	else:
 		var issued: Dictionary = _issue_board_transaction()
 		if not issued.get("ok", false): return issued
@@ -706,21 +701,17 @@ func _board_action(action: String, index: int, projected: Dictionary) -> Diction
 	if not reduced.get("ok", false): return reduced
 	_record.board = reduced.value.board
 	_record.board.outcome = str(_record.board.outcome)
-	for entry: Dictionary in _record.board.actions: entry.kind = str(entry.kind)
 	return _ok({})
 
 func _settle_board() -> Dictionary:
 	if not _record.board is Dictionary or not bool(_record.board.terminal): return _fail(&"dating_challenge_command_refused", _view())
-	_record.perfect_reasons = RULES.perfect_reasons(_record.board, int(_record.schema_version))
+	_record.perfect_reasons = RULES.perfect_reasons(_record.board)
 	_record.outcome = "exploded" if str(_record.board.outcome) == "exploded" else (
 		"cleared" if _record.perfect_reasons.is_empty() else "perfect")
 	if _record.host == "canonical_pair":
 		_record.applied_result = {"board_only": true}
 		_record.phase = "post_challenge"
 		return _ok({})
-	if _record.schema_version == 3 and _record.outcome == "perfect":
-		_record.relationship_outcome = "foresight"
-		return _settle_terminal()
 	if _record.outcome != "exploded":
 		_record.relationship_outcome = "foresight" if _record.outcome == "perfect" else "loved"
 		return _settle_terminal()
@@ -1225,21 +1216,21 @@ func _view() -> Dictionary:
 
 func _project_board() -> Variant:
 	if _record.board == null:
-		var shell: Dictionary = _record.envelope.shell if _record.schema_version in [3, 4] else {"flagged_indices": [], "actions": []}
-		var forced: int = int(_record.envelope.forced_cell) if _record.schema_version in [3, 4] else -1
+		var shell: Dictionary = _record.envelope.shell
+		var forced: int = int(_record.envelope.forced_cell)
 		var cells: Array = []
 		for index in int(_record.spec.width) * int(_record.spec.height):
 			var legal: bool = _record.phase in ["challenge", "ready", "active"] and (forced < 0 or index == forced)
-			var flagged: bool = forced < 0 and shell.flagged_indices.has(index)
+			var flagged: bool = shell.flagged_indices.has(index)
 			var actions: Array = []
 			if legal:
 				if flagged: actions = ["unflag"]
 				elif index == forced: actions = ["reveal"]
-				else: actions = ["reveal", "flag"] if _record.schema_version in [3, 4] else ["reveal"]
+				else: actions = ["reveal", "flag"]
 			cells.append({"index": index, "face": "covered", "mark": "flag" if flagged else "none", "number": 0,
 				"bracketed": index == forced, "inspectable": legal, "pressable": not actions.is_empty(), "actions": actions})
 		var estimate: Variant = null
-		if _record.schema_version in [3, 4] and _record.envelope.prepared_layout != null:
+		if _record.envelope.prepared_layout != null:
 			estimate = int(_record.envelope.prepared_layout.mine_count)
 		return {"width": _record.spec.width, "height": _record.spec.height, "revision": _revision(),
 			"mine_estimate": estimate, "terminal": false, "custody": _record.phase not in ["challenge", "ready", "active"], "cells": cells}
@@ -1271,13 +1262,12 @@ func _project_board() -> Variant:
 		"custody":board.terminal,"cells":cells}
 
 func _revision() -> int:
-	return int(_record.board.revision) if _record.get("board") is Dictionary else (_record.envelope.shell.actions.size() if _record.get("schema_version") in [3, 4] else 0)
+	return int(_record.board.revision) if _record.get("board") is Dictionary else _record.envelope.shell.actions.size()
 
 func _no_flag_status() -> String:
 	if not _record.get("board") is Dictionary:
-		if _record.get("schema_version") in [3, 4]:
-			for action: Dictionary in _record.envelope.shell.actions:
-				if bool(action.get("flagged", false)): return "lost"
+		for action: Dictionary in _record.envelope.shell.actions:
+			if bool(action.get("flagged", false)): return "lost"
 		return "intact"
 	for entry: Variant in (_record.board as Dictionary).get("actions", []):
 		if entry is Dictionary and str((entry as Dictionary).get("kind", "")) == "set_flag" \
@@ -1302,9 +1292,7 @@ func _valid_record(value: Dictionary, command: Dictionary) -> bool:
 	if value.get("schema_version") == 4:
 		return ATTEMPTS.validate_record(value) and (command.is_empty() or (value.context == command.get("context") and value.completion_transaction_id == command.get("completion_transaction_id") and value.command_sha256 == command.get("command_sha256")))
 	var keys: Array = value.keys(); keys.sort()
-	var expected_keys: Array = RECORD_KEYS.duplicate()
-	if value.get("schema_version") == 3: expected_keys.append("envelope"); expected_keys.sort()
-	if keys != expected_keys or value.schema_version not in [2, 3] or value.phase not in PHASES: return false
+	if keys != RECORD_KEYS or value.schema_version != 3 or value.phase not in PHASES: return false
 	if not value.context is Dictionary or not value.spec is Dictionary or not value.applied_result is Dictionary \
 			or not value.mine_dispositions is Array or not value.perfect_reasons is Array: return false
 	if typeof(value.completion_transaction_id) != TYPE_STRING or typeof(value.command_sha256) != TYPE_STRING \
@@ -1327,10 +1315,8 @@ func _valid_record(value: Dictionary, command: Dictionary) -> bool:
 			or value.spec.board_kind != expected_kind or value.spec.difficulty_id != expected_host \
 			or value.spec.width != dimensions.value.width or value.spec.height != dimensions.value.height \
 			or value.spec.base_mine_count != dimensions.value.base_mine_count: return false
-	if value.schema_version == 2 and (value.spec.requested_mine_count != dimensions.value.base_mine_count \
-			or value.spec.pressure != 0 or value.spec.penalty_points_today != 0): return false
 	if value.board != null and not value.board is Dictionary: return false
-	if value.schema_version == 3 and not ENVELOPE.validate(value): return false
+	if not ENVELOPE.validate(value): return false
 	if value.board == null:
 		return value.phase in ["pre_challenge", "preparing", "challenge"] and value.outcome == null \
 			and value.relationship_outcome == null and value.mine_dispositions.is_empty() \
@@ -1344,20 +1330,20 @@ func _valid_record(value: Dictionary, command: Dictionary) -> bool:
 	if not board.terminal or value.phase == "challenge":
 		return value.phase == "challenge" and value.outcome == null and value.relationship_outcome == null \
 			and value.perfect_reasons.is_empty() and value.applied_result.is_empty()
-	var reasons: Array = RULES.perfect_reasons(board, int(value.schema_version))
+	var reasons: Array = RULES.perfect_reasons(board)
 	var outcome: String = "exploded" if str(board.outcome) == "exploded" else ("cleared" if reasons.is_empty() else "perfect")
 	if value.outcome != outcome or value.perfect_reasons != reasons: return false
 	if expected_host == "canonical_pair":
 		return value.phase in ["post_challenge", "completed"] and value.relationship_outcome == null \
 			and value.applied_result == {"board_only": true}
 	if value.phase == "cleared_awaiting_terminal_choice":
-		return (outcome == "cleared" if value.schema_version == 3 else outcome != "exploded") and value.relationship_outcome == null and value.applied_result.is_empty()
+		return outcome == "cleared" and value.relationship_outcome == null and value.applied_result.is_empty()
 	var relationship: String = str(value.relationship_outcome)
 	if outcome == "exploded":
 		if relationship != dispositions[board.mine_indices.find(board.exploded_index)]: return false
-	elif value.schema_version == 3 and outcome == "perfect":
+	elif outcome == "perfect":
 		if relationship != "foresight": return false
-	elif relationship not in ["dark", "foresight" if outcome == "perfect" else "loved"]: return false
+	elif relationship not in ["dark", "loved"]: return false
 	if value.phase == "settlement_retry": return value.applied_result.is_empty()
 	return value.phase in ["post_challenge", "completed"] and not value.applied_result.is_empty()
 
@@ -1487,7 +1473,7 @@ func _pull_scene(token: String) -> Dictionary:
 	elif _record.phase in ["ready", "active"]: actions = ["reveal", "flag", "unflag", "chord"]
 	var detail := {}
 	if _record.phase == "terminal":
-		detail = {"outcome": str(_record.board.outcome), "perfect_reasons": RULES.perfect_reasons(_record.board, 4)}
+		detail = {"outcome": str(_record.board.outcome), "perfect_reasons": RULES.perfect_reasons(_record.board)}
 	return _ok({"phase": "checkpoint_retry" if not _pending_checkpoint.is_empty() else _record.phase,
 		"state": _record.state, "actions": actions, "board": _project_board(), "revision": _revision(), "result": detail})
 

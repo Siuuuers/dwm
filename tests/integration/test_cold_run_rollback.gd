@@ -74,7 +74,7 @@ func test_scene_install_compensation_preserves_cold_state_and_configured_owners(
 		# The empty fixture alone cannot expose leaked progress during compensation.
 		owner.scene_choices = {"test.opportunity": "second"}
 		owner.scene_challenge_outcomes = {"test.occurrence".sha256_text(): {
-			"challenge_id": "test.challenge", "outcome": "perfect"}}
+			"challenge_id": "test.challenge", "outcome": "perfect", "physical_slot": "scene.challenge." + "test.occurrence".sha256_text()}}
 		var rolled: Dictionary = participant.rollback_silent(captured.value)
 		assert_true(rolled.get("ok", false), str(rolled))
 		assert_eq(owner.capture_restore_state().value, captured.value, "scene identity, references, receipts and contacts return exactly")

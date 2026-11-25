@@ -201,11 +201,8 @@ func check_snapshot(snapshot: Dictionary) -> Dictionary:
 func prepare_restore(snapshot: Dictionary) -> Dictionary:
 	var checked := check_snapshot(snapshot)
 	if not checked.ok: return checked
-	var restored := snapshot.duplicate(true)
-	if restored.phase == _PHASE_PREPARED_UNSTARTED and not restored.candidate.get("flagged_indices", []).is_empty():
-		_BOARD_SCHEMA.clear_debug_flags(restored.candidate)
 	return {"ok": true, "code": &"ok", "value": {"candidate": {
-		"kind": &"restore", "snapshot_after": restored,
+		"kind": &"restore", "snapshot_after": snapshot.duplicate(true),
 	}}, "receipt": {}}
 
 

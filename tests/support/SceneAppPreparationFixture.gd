@@ -115,14 +115,14 @@ static func backup_owner() -> RefCounted:
 			"revision": "fixture-revision", "operation_allowed": true, "loadable": false}
 	owner.rows.autosave.merge({"state": "occupied", "family": "scene", "saved_time": "09:10",
 		"load_family": "scene", "load_saved_time": "09:10", "loadable": true}, true)
-	owner.rows.quick.merge({"state": "occupied", "family": "legacy_day", "day": 2,
-		"saved_time": "11:05", "load_family": "legacy_day", "load_day": 2,
+	owner.rows.quick.merge({"state": "occupied", "family": "scene",
+		"saved_time": "11:05", "load_family": "scene",
 		"load_saved_time": "11:05", "loadable": true}, true)
 	owner.rows["slot:1"].merge({"state": "occupied", "family": "scene", "saved_time": "13:57",
 		"fallback": false, "load_family": "scene", "loadable": true}, true)
-	owner.rows["slot:2"].merge({"state": "occupied", "family": "legacy_day", "day": 6,
-		"saved_time": "14:30", "fallback": false, "load_family": "legacy_day",
-		"load_day": 3, "loadable": true}, true)
+	owner.rows["slot:2"].merge({"state": "occupied", "family": "scene",
+		"saved_time": "14:30", "fallback": false, "load_family": "scene",
+		"load_saved_time": "14:30", "loadable": true}, true)
 	owner.rows["slot:3"].merge({"state": "unavailable", "family": "scene", "reason": "unreadable"}, true)
 	owner.rows["slot:4"].merge({"state": "unavailable", "reason": "unreadable"}, true)
 	# Deliberately old injected metadata: the real port must project null families.
@@ -130,5 +130,5 @@ static func backup_owner() -> RefCounted:
 	owner.rows["slot:5"].merge({"state": "occupied", "day": 77, "saved_time": "12:34", "load_day": 88}, true)
 	owner.rows["slot:5"].erase("family")
 	owner.rows["slot:5"].erase("load_family")
-	owner.rows["slot:7"].merge({"state": "unavailable", "family": "legacy_day", "reason": "unreadable"}, true)
+	owner.rows["slot:7"].merge({"state": "unavailable", "reason": "unreadable"}, true)
 	return owner

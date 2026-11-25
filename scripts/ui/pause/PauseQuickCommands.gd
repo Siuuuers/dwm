@@ -288,8 +288,6 @@ func _load_copy(record: Dictionary) -> Dictionary:
 	var copy: Dictionary = COPY.get(_surface._locale, COPY.en)
 	var time: Variant = record.get("saved_time")
 	var stamp := str(time) if time != null else "--:--"
-	if record.get("family") == "legacy_day":
-		stamp = copy.day.replace("{day}", str(record.get("day"))).replace("{time}", stamp)
 	var body: String = stamp + "\n\n" + copy.replace_progress
 	return {"title": copy.load_title.replace("{record}", copy.quick),
 		"body": body, "cancel": copy.cancel, "confirm": copy.load, "risk": "danger",

@@ -160,13 +160,7 @@ func test_debug_preparation_and_shell_flags_resume_without_changing_the_certifie
 	assert_false(_act("reveal", other).ok)
 	assert_false(_act("flag", forced).ok)
 	assert_false(_act("flag", other).ok)
-	# Older saves can retain flags on the certified opening and elsewhere.
-	var reducer := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")
-	var shell_before: Dictionary = game.saved.envelope.shell
-	for index: int in [forced, other]:
-		shell_before = reducer.set_shell_flag(shell_before, 18, 18, index, true, "old-flag-%d" % index).value.shell
-	game.saved.envelope.shell = shell_before
-	var marked: Dictionary = game.saved.duplicate(true)
+	var ready: Dictionary = game.saved.duplicate(true)
 	physical = OWNER.new()
 	assert_true(physical.configure(issuer, game, profile, generation).ok)
 	assert_true(physical.begin_physical(command).ok)
@@ -177,21 +171,20 @@ func test_debug_preparation_and_shell_flags_resume_without_changing_the_certifie
 	assert_eq(view.board.cells[forced].mark, "none")
 	assert_eq(view.board.cells[other].mark, "none")
 	assert_eq(view.board.mine_estimate, certified.mine_count)
-	assert_eq(view.no_flag, "lost")
+	assert_eq(view.no_flag, "intact")
 	assert_false(_act("unflag", forced).ok)
-	assert_eq(game.saved, marked, "viewing the old save preserves the source record")
+	assert_eq(game.saved, ready)
 	assert_true(_act("reveal", forced).ok)
 	assert_eq(game.saved.board.adjacency_counts[forced], 0)
 	assert_eq(game.saved.board.flagged_indices, [])
 	assert_eq(game.saved.board.actions, game.saved.envelope.shell.actions)
-	assert_eq(game.saved.board.actions.slice(0, shell_before.actions.size()), shell_before.actions)
 	assert_eq(preload("res://scripts/domain/minesweeper/BoardPerformance.gd").click_count(game.saved.board),
-		shell_before.actions.size() + 1, "Foresight counts the original flags and the opening reveal")
-	assert_eq(physical.pull_physical(command.physical_token).value.no_flag, "lost")
-	assert_true(ENVELOPE.advances(marked, game.saved))
+		1, "Foresight counts the opening reveal")
+	assert_eq(physical.pull_physical(command.physical_token).value.no_flag, "intact")
+	assert_true(ENVELOPE.advances(ready, game.saved))
 	var ledger := preload("res://scripts/profile/DatingAttemptLedger.gd")
-	var slot: String = ledger.semantic_slot(marked.context)
-	var before: Dictionary = ledger.prepare_update({}, "run", slot, "branch", marked, 0)
+	var slot: String = ledger.semantic_slot(ready.context)
+	var before: Dictionary = ledger.prepare_update({}, "run", slot, "branch", ready, 0)
 	assert_true(before.ok, str(before))
 	if not before.ok: return
 	var after: Dictionary = ledger.prepare_update(before.value.ledger, "run", slot, "branch", game.saved, 1, forced)

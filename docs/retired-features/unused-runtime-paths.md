@@ -65,3 +65,11 @@ The board-fate port uses `project_dismissed_inspection()` to clear the board slo
 ## Round recovery success receipts
 
 Desktop consequence recovery already holds the action receipt when it commits a Minesweeper round. The commit now reports success directly and retains the validator-owned receipt for retry comparisons. The former success envelope returned two editable receipts that the game discarded.
+
+## Previous development builds
+
+Profile initialization adopts the current document validated by storage. Earlier Profile schema upgrades, standalone input-binding imports, the old Run-to-Profile patch and startup repair of an earlier Dark-mode writer are retired. Current ending completion grants Dark mode when the discoveries qualify. Load keeps the current Profile, including Global reading history. New Account prepares its current Profile candidate through the same participant API as the other restore owners.
+
+Minesweeper certification clears flags before it publishes a required first reveal. Loading and revealing that cell use the saved board directly. Dating Challenge no longer accepts the retired v2 board record or its scoring calculation. Backup and Quick Load no longer render the retired day-slot label.
+
+Save9 and Run9 use the current writer's fields. Opening a checkpoint no longer converts an older development layout or supplies a missing physical slot. Dialogue content revisions still use the game's checkpoint fallback. Minesweeper records each new move in its saved form and shares the read-only entries between successive boards.

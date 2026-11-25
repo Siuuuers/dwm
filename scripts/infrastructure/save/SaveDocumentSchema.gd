@@ -19,6 +19,59 @@ const AUTOSAVE_REASONS: Array[String] = ["automatic", "day_start", "ending", "pr
 const MIN_SLOT := 1
 const MAX_SLOT := 7
 
+static func load_current_document(raw: Dictionary) -> Dictionary:
+	var version: Variant = raw.get("schema_version")
+	if typeof(version) not in [TYPE_INT, TYPE_FLOAT] or version != SCENE_DOCUMENT_VERSION:
+		return _fail(&"unsupported_save_format", "Only current Save9 files can be loaded")
+	if not _has_current_document_keys(raw) or not RUN_SNAPSHOT_SCHEMA._scene_keys(raw.current_snapshot, ["checkpoint_kind", "snapshot"]):
+		return _fail(&"unsupported_save_format", "Only the current Save9 envelope can be loaded")
+	var snapshot: Variant = raw.current_snapshot.snapshot
+	if not RUN_SNAPSHOT_SCHEMA._scene_keys(snapshot, RUN_SNAPSHOT_SCHEMA.SCENE_TOP_KEYS):
+		return _fail(&"unsupported_save_format", "Only the current Run9 fields can be loaded")
+	var normalized := RUN_SNAPSHOT_SCHEMA.normalize_scene_content(snapshot, true)
+	if not normalized.ok: return normalized
+	raw.current_snapshot.snapshot = normalized.value
+	return {"ok": true, "value": raw}
+
+static func _has_current_document_keys(document: Dictionary) -> bool:
+	return RUN_SNAPSHOT_SCHEMA._scene_keys(document, SCENE_DOCUMENT_KEYS + ["saved_time"] if document.has("saved_time") else SCENE_DOCUMENT_KEYS)
+
+static func admit_document(raw: Dictionary, expected_locator: Dictionary,
+		scene_seed_receiver: Callable = Callable()) -> Dictionary:
+	if not RUN_SNAPSHOT_SCHEMA._scene_keys(expected_locator, ["kind", "slot_id"]):
+		return _fail(&"invalid_expected_locator", "expected_locator must have exactly kind and slot_id")
+	var locator_error := _validate_locator(str(expected_locator.kind), expected_locator.slot_id)
+	if locator_error != "": return _fail(&"invalid_expected_locator", locator_error)
+	var version: Variant = raw.get("schema_version")
+	if typeof(version) == TYPE_FLOAT and is_finite(version) and version == floorf(version): version = int(version)
+	if typeof(version) != TYPE_INT: return _fail(&"invalid_schema_version", "Document version must be integral")
+	if version < SCENE_DOCUMENT_VERSION:
+		return _fail(&"unsupported_run_configuration_schema", "Current scene state is required")
+	if version > SCENE_DOCUMENT_VERSION:
+		return _fail(&"unsupported_future_schema", str(version))
+	if not raw.get("current_snapshot") is Dictionary or not raw.get("recovery_journal") is Array:
+		return _fail(&"invalid_document_shape", "Save9 requires current snapshot and journal")
+	var bundles: Array = [raw.current_snapshot]
+	bundles.append_array(raw.recovery_journal)
+	for index in bundles.size():
+		var bundle: Variant = bundles[index]
+		if not bundle is Dictionary or not bundle.get("snapshot") is Dictionary:
+			return _fail(&"invalid_document_shape", "snapshot bundle must contain a snapshot")
+		var normalized := RUN_SNAPSHOT_SCHEMA.normalize_scene_content(bundle.snapshot)
+		if not normalized.ok: return normalized
+		var result: Dictionary = bundle.duplicate()
+		result.snapshot = normalized.value
+		bundles[index] = result
+	var admitted := raw.duplicate()
+	admitted.current_snapshot = bundles.pop_front()
+	admitted.recovery_journal = bundles
+	var validated := validate(admitted, {}, scene_seed_receiver)
+	if not validated.get("ok", false): return validated
+	var document: Dictionary = validated["value"]["candidate"]
+	if document.kind != expected_locator.kind or document.slot_id != expected_locator.slot_id:
+		return _fail(&"save_locator_mismatch", "Document identity differs from its source locator")
+	return {"ok": true, "code": &"ok", "value": document}
+
 static func build(
 		kind: StringName,
 		slot_id: Variant,
@@ -82,16 +135,12 @@ static func validate_scene_new_run_candidate(document: Dictionary, allocation_ca
 		profile_material: Dictionary, bundle: Dictionary, issuer: Object,
 		acknowledged_checkpoint: Dictionary) -> Dictionary:
 	document = document.duplicate()
-	document.erase("save_reason")
-	document.erase("ink_marks")
 	var display_time := normalize_optional_saved_time(document.get("saved_time"))
 	document.erase("saved_time")
 	if not display_time.is_empty(): document["saved_time"] = display_time
 	var primitive := RUN_SNAPSHOT_SCHEMA.validate_primitive_tree(document)
 	if not primitive.ok: return primitive
-	var expected := SCENE_DOCUMENT_KEYS.duplicate()
-	if document.has("saved_time"): expected.append("saved_time")
-	if not RUN_SNAPSHOT_SCHEMA._scene_keys(document, expected) \
+	if not _has_current_document_keys(document) \
 			or typeof(document.schema_version) != TYPE_INT or document.schema_version != SCENE_DOCUMENT_VERSION \
 			or document.kind != "autosave" or document.slot_id != null \
 			or not document.recovery_journal is Array or not document.recovery_journal.is_empty():
@@ -134,8 +183,6 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 	var tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 	var candidate := {}
 	for key: Variant in document:
-		if key == "ink_marks": continue
-		if key == "save_reason": continue
 		if key == "saved_time":
 			var display_time := normalize_optional_saved_time(document[key])
 			if not display_time.is_empty(): candidate[key] = display_time
@@ -145,14 +192,8 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 		else:
 			candidate[key] = RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(document[key])
 	tick = _profile_phase(profile, "outgoing_schema_envelope_normalize_us", tick)
-	var keys: Array = candidate.keys()
-	keys.sort()
-	var expected := SCENE_DOCUMENT_KEYS.duplicate()
-	if candidate.has("saved_time"):
-		expected.append("saved_time")
-	expected.sort()
-	if keys != Array(expected):
-		return _fail(&"invalid_document_shape", "unexpected document keys: " + str(keys))
+	if not _has_current_document_keys(candidate):
+		return _fail(&"invalid_document_shape", "unexpected document keys: " + str(candidate.keys()))
 	if typeof(candidate["schema_version"]) != TYPE_INT:
 		return _fail(&"invalid_document_shape", "schema_version must be an integer")
 	if int(candidate["schema_version"]) > SCENE_DOCUMENT_VERSION:

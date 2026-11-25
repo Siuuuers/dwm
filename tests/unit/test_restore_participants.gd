@@ -44,11 +44,6 @@ class FakeOwner extends RefCounted:
 		var guarded := _guard("prepare_profile_document")
 		if not guarded.is_empty(): return guarded
 		return preload("res://scripts/profile/ProfileSchema.gd").validate(candidate)
-	func prepare_legacy_profile_patch(_legacy: Dictionary, _mappings: Dictionary = {}) -> Dictionary:
-		_r("prepare_legacy_profile_patch")
-		var g := _guard("prepare_legacy_profile_patch")
-		if not g.is_empty(): return g
-		return {"ok": true, "value": preload("res://scripts/profile/ProfileSchema.gd").make_defaults()}
 	func prepare_locale_presentation(locale_id: String, _font_style: String = "pixel", _text_size: int = 100) -> Dictionary:
 		_r("prepare_locale_presentation")
 		var g := _guard("prepare_locale_presentation")
@@ -135,12 +130,11 @@ func test_run_participant_prepare_and_delegation() -> void:
 		"apply_restore_silent", "rollback_restore_silent", "finalize_restore",
 	])
 
-func test_profile_participant_prepares_legacy_patch_and_derives_locale() -> void:
+func test_profile_participant_validates_candidate_and_derives_locale() -> void:
 	if not _all_exist(): return
 	var owner := FakeOwner.new("profile", _log())
 	var participant: RefCounted = load(PROFILE_PATH).new(owner)
-	var prepared: Dictionary = participant.prepare({"legacy_profile_patch_input":
-		{"legacy_run_state": {}, "legacy_input_mappings": {}}})
+	var prepared: Dictionary = participant.prepare(owner.get_profile_snapshot())
 	assert_true(prepared["ok"], JSON.stringify(prepared))
 	assert_eq(prepared["value"]["locale_id"], "en", "locale derives from the prepared profile language")
 	assert_false(participant.prepare({}).get("ok", true))

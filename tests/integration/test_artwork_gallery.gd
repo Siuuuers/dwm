@@ -21,15 +21,13 @@ func _profile(storage: RefCounted) -> Node:
 	assert_true(profile.initialize(storage).get("ok", false))
 	return profile
 
-func test_older_profile_starts_without_inferred_artwork_discoveries() -> void:
+func test_dialogue_history_alone_does_not_discover_artwork() -> void:
 	var schema := preload("res://scripts/profile/ProfileSchema.gd")
-	var old: Dictionary = schema.make_defaults()
-	old.erase("displayed_artwork_ids")
-	old.visited_line_ids = ["line.Day1.one", "line.Day4.one"]
-	var admitted: Dictionary = schema.validate(old)
-	assert_true(admitted.ok, str(admitted))
-	assert_eq(admitted.value.displayed_artwork_ids, [], "old dialogue history cannot grant displayed artwork")
-	assert_eq(admitted.value.visited_line_ids, old.visited_line_ids)
+	var profile: Dictionary = schema.make_defaults()
+	profile.visited_line_ids = ["line.Day1.one", "line.Day4.one"]
+	var checked: Dictionary = schema.validate(profile)
+	assert_true(checked.ok, str(checked))
+	assert_eq(checked.value.displayed_artwork_ids, [])
 
 func test_only_displayed_artwork_persists_and_gallery_owns_its_reset() -> void:
 	if DisplayServer.get_name() == "headless":

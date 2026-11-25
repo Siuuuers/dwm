@@ -64,7 +64,6 @@ static func validate(record: Dictionary) -> bool:
 
 static func advances(before: Dictionary, after: Dictionary) -> bool:
 	if before.schema_version != after.schema_version: return false
-	if before.schema_version == 2: return true
 	if before.schema_version == 4: return _scene_advances(before, after)
 	var old: Dictionary = before.envelope
 	var current: Dictionary = after.envelope

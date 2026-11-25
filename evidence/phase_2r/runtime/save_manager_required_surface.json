@@ -18,7 +18,6 @@
     {"symbol": "SAVE_DOCUMENT_SCHEMA", "kind": "constant", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_save_family_writes_closed_relative_names"},
     {"symbol": "STRICT_JSON", "kind": "constant", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_metadata_family_present_absent_and_ordering"},
     {"symbol": "CANONICAL_JSON", "kind": "constant", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_save_family_writes_closed_relative_names"},
-    {"symbol": "SAVE_MIGRATIONS", "kind": "constant", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_current_documents_are_admitted_for_their_exact_locator_and_dark_value"},
     {"symbol": "PROJECTOR", "kind": "constant", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_failed_rollback_preserves_sparse_owner_and_original_refusals"},
     {"symbol": "configure_backup_capture_provider", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_capture_provider_and_guard_are_immutable_and_guard_arity_is_checked"},
     {"symbol": "initialize", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_invalid_save_references_do_not_touch_storage"},

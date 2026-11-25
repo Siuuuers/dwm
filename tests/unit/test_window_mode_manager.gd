@@ -274,16 +274,12 @@ func test_failed_window_size_persistence_restores_exact_geometry_and_selected_si
 	assert_eq(f.files.snapshot_persisted(), persisted)
 	assert_false(f.gate.is_fatal_latched())
 
-func test_legacy_profile_admits_only_missing_window_size_and_rejects_invalid_values() -> void:
+func test_profile_requires_valid_window_size() -> void:
 	var schema := preload("res://scripts/profile/ProfileSchema.gd")
 	var source: Dictionary = schema.make_defaults()
 	source.preferences.display.erase("window_size")
-	var checked: Dictionary = schema.validate(source)
-	assert_true(checked.ok)
-	assert_true(checked.migrated)
-	assert_eq(checked.value.preferences.display.window_size, "1280x720")
-	assert_false(source.preferences.display.has("window_size"), "migration must remain detached")
+	assert_false(schema.validate(source).ok)
 	for value: Variant in ["4096x2160", 1280, null]:
-		var malformed: Dictionary = checked.value.duplicate(true)
+		var malformed: Dictionary = source.duplicate(true)
 		malformed.preferences.display.window_size = value
 		assert_false(schema.validate(malformed).ok)

@@ -1,8 +1,6 @@
 extends "res://addons/gut/test.gd"
 
 const LEDGER := preload("res://scripts/profile/DatingAttemptLedger.gd")
-const PROFILE := preload("res://scripts/profile/ProfileSchema.gd")
-const MIGRATION := preload("res://scripts/profile/ProfileMigration.gd")
 const MANAGER := preload("res://autoload/ProfileManager.gd")
 const OWNER := preload("res://scripts/application/run/DatingPhysicalOwner.gd")
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
@@ -14,7 +12,6 @@ const OPS := preload("res://tests/support/FakeFileOps.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const SLOT := "dating.solo.priscilla.day1"
 
-# The historical schema-2 records below use a neutral fixed-board capability.
 class SpecState extends RefCounted:
 	var inventory: Dictionary:
 		get: return {}
@@ -38,7 +35,7 @@ func _record(seed_hex: String = "86") -> Dictionary:
 	owner._issuer = issuer
 	owner._game_state = SpecState.new()
 	var spec: Dictionary = owner._make_spec("canonical_solo").value
-	return {"schema_version": 2, "completion_transaction_id": "date-completion",
+	return {"schema_version": 3, "envelope": owner.ENVELOPE.make(), "completion_transaction_id": "date-completion",
 		"command_sha256": "a".repeat(64), "physical_token": owner._token("date-completion", "a".repeat(64)),
 		"context": {"kind": "solo", "participants": ["priscilla"], "day": 1},
 		"host": "canonical_solo", "spec": spec, "board": null, "phase": "challenge",
@@ -53,47 +50,30 @@ func _materialize(record: Dictionary, index: int = 36) -> Dictionary:
 		"height": 18, "mine_indices": mines, "mine_count": 36}, index)
 	next.board = reduced.value.board.duplicate(true)
 	next.board.outcome = str(next.board.outcome)
+	next.envelope.special_cell = OWNER.ENVELOPE.special_cell(next.spec, next.board)
 	next.mine_dispositions = RULES.dispositions(next.spec, 36)
 	if next.board.terminal:
-		next.perfect_reasons = RULES.perfect_reasons(next.board, 2)
+		next.perfect_reasons = RULES.perfect_reasons(next.board)
 		next.outcome = "perfect" if not next.perfect_reasons.is_empty() else "cleared"
-		next.phase = "cleared_awaiting_terminal_choice"
+		next.phase = "settlement_retry"
+		next.relationship_outcome = "foresight"
+	return next
+
+func _cleared(record: Dictionary) -> Dictionary:
+	var next := _materialize(record)
+	var flagged := REDUCER.set_flag(next.board, 0, true, "flag").value as Dictionary
+	next.board = REDUCER.reveal(flagged.board, 323, "clear").value.board
+	next.board.outcome = str(next.board.outcome)
+	next.phase = "cleared_awaiting_terminal_choice"
+	next.outcome = "cleared"
 	return next
 
 func _flag(record: Dictionary, index: int, event_id: String) -> Dictionary:
 	var result := record.duplicate(true)
 	result.board = REDUCER.set_flag(record.board, index, true, event_id).value.board
 	result.board.outcome = str(result.board.outcome)
-	for action: Dictionary in result.board.actions: action.kind = str(action.kind)
 	return result
 
-func test_v6_migration_retains_original_attempt_progress_and_receipts() -> void:
-	var record := _materialize(_record(), 323)
-	var attempt: Dictionary = LEDGER._prepare_attempt({}, "run-a", SLOT, "branch-a", record, 0, 323).value.attempt
-	var flat := {"run-a": {SLOT: attempt}}
-	var old := PROFILE.make_defaults()
-	old.schema_version = 6
-	old.erase("displayed_artwork_ids")
-	old.erase("dialogue_library")
-	old.erase("observer_evidence")
-	old.erase("pair_deck_draws")
-	old.erase("reached_presentations")
-	old.erase("reached_presentation_chronology")
-	old.erase("witnessed_caption_variants")
-	old.dating_attempts = flat
-	var before := old.duplicate(true)
-	var migrated := MIGRATION.prepare_document(old)
-	assert_true(migrated.ok, str(migrated))
-	if not migrated.ok: return
-	assert_eq(migrated.value.schema_version, PROFILE.SCHEMA_VERSION)
-	var restored: Dictionary = LEDGER.read(migrated.value.dating_attempts, "run-a", SLOT).value
-	var original: Dictionary = flat["run-a"][SLOT].duplicate(true)
-	original["generation"] = 1
-	assert_eq(restored, original)
-	assert_eq(old, before)
-	old.dating_attempts["run-a"][SLOT]["generation"] = 1
-	assert_false(MIGRATION.prepare_document(old).ok, "v6 source rejects v7-only fields")
-	assert_false(PROFILE.validate(before).ok, "current validation does not silently accept v6")
 
 func test_fresh_entries_append_generations_and_default_lookup_keeps_first_lock() -> void:
 	var first := _record()
@@ -168,11 +148,11 @@ func test_entered_unmaterialized_save_does_not_import_later_first_click() -> voi
 	assert_eq(LEDGER.read(copied.value.ledger, "run-a", SLOT).value.materialization_receipt.first_cell_index, 36)
 
 func test_terminal_choices_are_independent_across_saved_continuations_but_frozen_within_each() -> void:
-	var saved := _materialize(_record(), 323)
+	var saved := _cleared(_record())
 	var parent_record := saved.duplicate(true)
 	parent_record.phase = "settlement_retry"
 	parent_record.relationship_outcome = "dark"
-	var parent := LEDGER.prepare_update({}, "run-a", SLOT, "branch-a", parent_record, 0, 323)
+	var parent := LEDGER.prepare_update({}, "run-a", SLOT, "branch-a", parent_record, 0, 36)
 	var preview := LEDGER.prepare_continuation(parent.value.ledger, "run-a", SLOT,
 		saved.spec.board_token, "branch-a", "branch-b", saved)
 	assert_true(preview.ok, str(preview))
@@ -181,12 +161,12 @@ func test_terminal_choices_are_independent_across_saved_continuations_but_frozen
 	assert_null(preview.value.attempt.effect_receipt)
 	var chosen := saved.duplicate(true)
 	chosen.phase = "settlement_retry"
-	chosen.relationship_outcome = "foresight"
+	chosen.relationship_outcome = "loved"
 	var branch := LEDGER.prepare_update(parent.value.ledger, "run-a", SLOT, "branch-b", chosen,
 		0, -1, {}, preview.value.selection)
 	assert_true(branch.ok, str(branch))
 	if not branch.ok: return
-	assert_eq(branch.value.attempt.terminal_receipt.relationship_outcome, "foresight")
+	assert_eq(branch.value.attempt.terminal_receipt.relationship_outcome, "loved")
 	assert_eq(LEDGER.read(branch.value.ledger, "run-a", SLOT).value.terminal_receipt.relationship_outcome, "dark")
 	assert_false(LEDGER.prepare_update(branch.value.ledger, "run-a", SLOT, "branch-b", parent_record,
 		1, -1, {}, {"mode": "branch"}).ok)

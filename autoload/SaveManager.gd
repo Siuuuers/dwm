@@ -16,7 +16,6 @@ const MAX_SLOT := 7
 const CHECKPOINT_JOURNAL := preload("res://scripts/infrastructure/save/CheckpointJournal.gd")
 const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const SAVE_DOCUMENT_SCHEMA := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
-const SAVE_MIGRATIONS := preload("res://scripts/infrastructure/save/SaveMigrations.gd")
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const PROJECTOR := preload("res://scripts/application/transaction/FatalDiagnosticProjector.gd")
@@ -305,7 +304,7 @@ func _start_scene_new_run_in_memory(target_id: String, initial_context: Dictiona
 func _prepare_scene_new_run_plans(snapshot: Dictionary, candidate_profile: Dictionary) -> Dictionary:
 	var run: Dictionary = _restore_participants.run.prepare_scene_new_run(snapshot, _identity_issuer, self)
 	if not run.get("ok", false): return run
-	var profile: Dictionary = _restore_participants.profile.prepare_frozen_profile(candidate_profile)
+	var profile: Dictionary = _restore_participants.profile.prepare(candidate_profile)
 	if not profile.get("ok", false): return profile
 	var narrative: Dictionary = _restore_participants.narrative.prepare_scene_new_run(snapshot, _scene_new_run_bundle, self)
 	if not narrative.get("ok", false): return narrative
@@ -354,8 +353,6 @@ func _new_run_ready() -> Dictionary:
 		return _fail(&"new_run_not_configured", "")
 	if _scene_new_run_bundle.is_empty():
 		return _fail(&"scene_new_run_not_configured", "scene registration required")
-	if not _restore_participants["profile"].has_method("prepare_frozen_profile"):
-		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "")
 	return {"ok": true}
 
 func _take_new_run_custody() -> Dictionary:
@@ -543,11 +540,11 @@ func get_save_metadata(kind: StringName, slot_id: int = -1) -> Dictionary:
 	var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]))
 	if not parsed.get("ok", false):
 		return _fail(&"corrupt_save_document", relative_path)
-	var migrated: Dictionary = SAVE_MIGRATIONS.migrate_document(parsed["value"],
+	var admitted: Dictionary = SAVE_DOCUMENT_SCHEMA.admit_document(parsed["value"],
 		{"kind": str(locator["kind"]), "slot_id": locator["slot_id"]})
-	if not migrated.get("ok", false):
+	if not admitted.get("ok", false):
 		return _fail(&"corrupt_save_document", relative_path)
-	var document: Dictionary = migrated["value"]["document"]
+	var document: Dictionary = admitted["value"]
 	var snapshot: Dictionary = document["current_snapshot"]["snapshot"]
 	return {"ok": true, "code": &"ok", "value": {
 		"exists": true,
@@ -1197,10 +1194,10 @@ func _prepare_restore_content(locator: Dictionary, expected_revision: String) ->
 	if not parsed.get("ok", false):
 		return _fail(&"corrupt_save_document", relative_path)
 
-	var migrated: Dictionary = SAVE_MIGRATIONS.load_current_document(parsed["value"])
-	if not migrated.get("ok", false):
-		return migrated
-	return _prepare_restore_document(locator, migrated.value.document)
+	var admitted: Dictionary = SAVE_DOCUMENT_SCHEMA.load_current_document(parsed["value"])
+	if not admitted.get("ok", false):
+		return admitted
+	return _prepare_restore_document(locator, admitted.value)
 
 func _prepare_restore_document(locator: Dictionary, document: Dictionary) -> Dictionary:
 	var profile := _save_load_profile_begin("restore_prepare", "", locator)
@@ -1273,11 +1270,11 @@ func load_context(locator: Dictionary) -> Dictionary:
 	var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]["text"]))
 	if not parsed.get("ok", false):
 		return _fail(&"corrupt_save_document", relative_path)
-	var migrated: Dictionary = SAVE_MIGRATIONS.migrate_document(parsed["value"],
+	var admitted: Dictionary = SAVE_DOCUMENT_SCHEMA.admit_document(parsed["value"],
 		{"kind": str(resolved["kind"]), "slot_id": resolved["slot_id"]})
-	if not migrated.get("ok", false):
-		return migrated
-	var document: Dictionary = migrated["value"]["document"]
+	if not admitted.get("ok", false):
+		return admitted
+	var document: Dictionary = admitted["value"]
 	var bundle := _find_bundle_by_checkpoint_id(document, str(locator.get("checkpoint_id", "")))
 	if bundle.is_empty():
 		return _fail(&"source_bundle_not_found", str(locator.get("checkpoint_id", "")))

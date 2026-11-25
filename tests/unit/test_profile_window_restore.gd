@@ -85,10 +85,7 @@ func _set_mode(profile: Node, mode: String) -> void:
 
 func _prepare_target(profile: Node, participant: RefCounted, mode: String) -> Dictionary:
 	_set_mode(profile, mode)
-	var prepared: Dictionary = participant.prepare({"legacy_profile_patch_input": {
-		"legacy_run_state": {"settings": {"fullscreen": mode == "borderless"}},
-		"legacy_input_mappings": {},
-	}})
+	var prepared: Dictionary = participant.prepare(profile.get_profile_snapshot())
 	assert_true(prepared.get("ok", false), str(prepared))
 	return prepared.get("value", {}).get("profile_plan", {}).duplicate(true)
 

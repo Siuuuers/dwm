@@ -1,14 +1,19 @@
 import unittest
 
-from check_live_transitions import ADAPTER, BINDINGS, BOARD_PRESENTATION, BOOTSTRAP, BRIDGE, CAPTION, CONTACTS, EVENT_PORT, GAME, PAUSE, PROFILE, RULES, SAVE, SESSION, STRICT_JSON, violations
+from check_live_transitions import (
+    ADAPTER, BINDINGS, BOARD_PRESENTATION, BOARD_STATE, BOOTSTRAP, BRIDGE, CAPTION, CONTACTS,
+    DATING, EVENT_PORT, GAME, PAUSE, PROFILE, REDUCER, REWARDS, RULES, RUN_SNAPSHOT, SAVE, SESSION,
+    STRICT_JSON, violations,
+)
 
 
 class LiveTransitionDependencies(unittest.TestCase):
     def setUp(self):
+        owners = {(path, name) for path, functions, _, _ in RULES for name in functions}
+        owners.update((path, name) for path, name, _, _ in REWARDS)
         self.sources = {}
-        for path, functions, _, _ in RULES:
-            for name in functions:
-                self.sources[path] = self.sources.get(path, '') + f'func {name}():\n\tpass\n\n'
+        for path, name in sorted(owners):
+            self.sources[path] = self.sources.get(path, '') + f'func {name}():\n\tpass\n\n'
 
     def insert(self, path, name, code):
         self.sources[path] = self.sources[path].replace(f'func {name}():\n', f'func {name}():\n\t{code}\n')
@@ -33,8 +38,46 @@ class LiveTransitionDependencies(unittest.TestCase):
         self.sources[SAVE] += 'func commit_prepared_new_run(token):\n\tstart(target, _scene_title_new_run_context)\n'
         self.assertEqual(violations(self.sources), [])
 
+    def test_settlement_precedes_reward_preparation(self):
+        for path, name, board, reward in REWARDS:
+            guard = f'if {board}.has_settled_inspection():\n\t\treturn settled'
+            prepare = f'var result = {reward}(candidate)'
+            cases = (
+                (guard + '\n\t' + prepare, 0),
+                (prepare + '\n\t' + guard, 1),
+                (prepare, 1),
+                (f'if not {board}.has_settled_inspection(): return error\n\t' + prepare, 1),
+            )
+            for code, expected in cases:
+                with self.subTest(owner=name, code=code):
+                    self.setUp()
+                    self.insert(path, name, code)
+                    self.assertEqual(len(violations(self.sources)), expected)
+
+    def test_current_save_and_debug_certification_are_allowed(self):
+        self.insert(REDUCER, '_append_action', 'var actions := history.duplicate()')
+        self.insert(REDUCER, '_append_action', 'var owned := prior.duplicate(true)')
+        self.insert(PROFILE, 'initialize', '_profile_text_validator(text)')
+        self.insert(PROFILE, '_profile_text_validator', 'return SCHEMA.validate(parsed.value)')
+        self.insert(RUN_SNAPSHOT, 'normalize_scene_content', 'if outcome.physical_slot == slot: return candidate')
+        self.insert(DATING, '_board_action', 'REDUCER.reveal(_record.board, index, transaction_id)')
+        self.insert(BOARD_STATE, 'prepare_restore', 'return prepare(snapshot)')
+        self.sources[BOARD_STATE] += 'func prepare_debug_slice():\n\t_BOARD_SCHEMA.clear_debug_flags(candidate)\n'
+        self.assertEqual(violations(self.sources), [])
+
     def test_rejects_each_regression(self):
         cases = [
+            (REDUCER, 'reveal', 'var actions: Array = (parsed["actions"] as Array).duplicate(true)'),
+            (REDUCER, '_append_action', 'var actions := history.duplicate(true)'),
+            (PROFILE, 'initialize', 'MIGRATION.prepare_document(parsed.value)'),
+            (PROFILE, 'initialize', '_import_legacy_input_mappings()'),
+            (PROFILE, 'initialize', 'reconcile(path, _profile_migration_text_validator)'),
+            (PROFILE, 'prepare_profile_document', 'return MIGRATION.prepare_document(raw)'),
+            (RUN_SNAPSHOT, 'normalize_scene_content', 'outcome.physical_slot = slot'),
+            (RUN_SNAPSHOT, 'normalize_scene_content', 'var slot = SCENE_ATTEMPTS.semantic_slot(record.context)'),
+            (DATING, '_board_action', 'for entry: Dictionary in _record.board.actions: entry.kind = str(entry.kind)'),
+            (DATING, '_board_action', 'SCHEMA.clear_debug_flags(_record.envelope.shell)'),
+            (BOARD_STATE, 'prepare_restore', '_BOARD_SCHEMA.clear_debug_flags(restored.candidate)'),
             (STRICT_JSON, 'parse_object', 'return (result["value"] as Dictionary).duplicate(true)'),
             (SESSION, '_configure_scene_observed_body', 'row = entry.duplicate(true)'),
             (ADAPTER, '_check_reading_seek_target', 'headers = snapshot.duplicate(true)'),

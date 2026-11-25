@@ -2,7 +2,7 @@ extends "res://addons/gut/test.gd"
 ## Real filesystem/issuer/Profile/Run/Save owners. Activation and ancillary
 ## restore participants are diagnostic; no rendered or production UI claim.
 const PORT := preload("res://scripts/application/backup/BackupPresentationPort.gd")
-const ADMISSION := preload("res://scripts/infrastructure/save/SaveMigrations.gd")
+const ADMISSION := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 const RUN_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const VALIDATION_TIMING := preload("res://scripts/narrative/SceneValidationTiming.gd")
 
@@ -257,12 +257,12 @@ func test_new_scene_writes_omit_fallback_snapshots_without_changing_admitted_his
 	source.recovery_journal = [original]
 	source.current_snapshot.snapshot.checkpoint_sequence = 2
 	source.current_snapshot.snapshot.checkpoint_id = original.snapshot.run_id + ":2"
-	var admitted: Dictionary = ADMISSION.migrate_document(source, {"kind": "autosave", "slot_id": null})
+	var admitted: Dictionary = ADMISSION.admit_document(source, {"kind": "autosave", "slot_id": null})
 	assert_true(admitted.ok, str(admitted))
 	if not admitted.ok: return
-	var unchanged: Dictionary = admitted.value.document.duplicate(true)
+	var unchanged: Dictionary = admitted.value.duplicate(true)
 	var journal := preload("res://scripts/infrastructure/save/CheckpointJournal.gd").new()
-	var seeded: Dictionary = journal.prepare_seed(admitted.value.document, admitted.value.document.current_snapshot)
+	var seeded: Dictionary = journal.prepare_seed(admitted.value, admitted.value.current_snapshot)
 	assert_true(seeded.ok, str(seeded))
 	if not seeded.ok: return
 	assert_true(journal.commit_prepared(seeded.value.candidate).ok)
@@ -293,7 +293,7 @@ func test_new_scene_writes_omit_fallback_snapshots_without_changing_admitted_his
 		assert_false(journal.commit_prepared(prepared.value.candidate).ok, "duplicate commit remains refused")
 	assert_true(journal.restore_state(rollback).ok)
 	assert_eq(journal.capture_state().value.backup, rollback, "rollback restores prior cursor and admitted history exactly")
-	assert_eq(admitted.value.document, unchanged, "new writing never edits the admitted source document")
+	assert_eq(admitted.value, unchanged, "new writing never edits the admitted source document")
 	assert_eq(_observed(), before, "isolated journal writes do not alter live or durable creation owners")
 
 func test_scene_gameplay_adoption_and_recapture_preserve_progress_without_relationship_fields() -> void:
@@ -379,9 +379,7 @@ func test_scene_app_metadata_is_omitted_and_cannot_select_restore_surface() -> v
 		with_metadata["active_app_id"] = old_app
 		var unchanged := with_metadata.duplicate(true)
 		var admitted := RUN_SCHEMA.validate(with_metadata)
-		assert_true(admitted.ok, str(admitted))
-		if not admitted.ok: continue
-		assert_eq(admitted.value.candidate, source, "optional app metadata cannot alter progress")
+		assert_false(admitted.ok, "previous-build app metadata is outside the current Run shape")
 		assert_eq(RUN_SCHEMA.derive_route_restore_context(with_metadata), context,
 			"required surface comes from current gameplay, not saved window selection")
 		assert_eq(with_metadata, unchanged, "admission never edits selected bytes")

@@ -14,7 +14,6 @@ func _fixture() -> Dictionary:
 	var profile := PROFILE.new()
 	add_child_autofree(profile)
 	assert_true(profile.initialize(STORAGE.new("restore-preserves-current-profile", files)).get("ok", false))
-	assert_false(profile._profile_existed_at_initialize)
 	var candidate: Dictionary = profile.get_profile_snapshot()
 	candidate.preferences.language.primary_locale_id = "zh_HK"
 	candidate.preferences.accessibility.text_size = 150
@@ -38,7 +37,7 @@ func _fixture() -> Dictionary:
 	assert_false(profile.get_profile_snapshot().migration_receipts.legacy_game_state_profile_v1)
 	return {"profile": profile, "files": files, "participant": PARTICIPANT.new(profile)}
 
-func test_empty_patch_preserves_first_process_current_document_without_import_or_publication() -> void:
+func test_profile_plan_preserves_first_process_current_document_without_import_or_publication() -> void:
 	var fixture := _fixture()
 	if fixture.is_empty(): return
 	var profile: Node = fixture.profile
@@ -47,7 +46,7 @@ func test_empty_patch_preserves_first_process_current_document_without_import_or
 	var disk: Dictionary = fixture.files._persisted.duplicate(true)
 	var publications: Array = []
 	profile.profile_restored.connect(func(value: Dictionary) -> void: publications.append(value))
-	var prepared: Dictionary = fixture.participant.prepare({"legacy_profile_patch_input": {}})
+	var prepared: Dictionary = fixture.participant.prepare(before)
 	assert_true(prepared.get("ok", false), str(prepared))
 	if not prepared.get("ok", false): return
 	assert_eq(prepared.value.locale_id, "zh_HK")
@@ -62,7 +61,7 @@ func test_empty_patch_preserves_first_process_current_document_without_import_or
 	prepared.value.profile_plan.profile.controls_bindings.clear()
 	assert_eq(profile.get_profile_snapshot(), before, "The prepared document is detached")
 
-func test_empty_patch_apply_and_finalize_preserve_all_current_fields_and_receipts() -> void:
+func test_profile_plan_apply_and_finalize_preserve_all_current_fields_and_receipts() -> void:
 	var fixture := _fixture()
 	if fixture.is_empty(): return
 	var profile: Node = fixture.profile
@@ -73,7 +72,7 @@ func test_empty_patch_apply_and_finalize_preserve_all_current_fields_and_receipt
 	var disk: Dictionary = fixture.files._persisted.duplicate(true)
 	var publications: Array = []
 	profile.profile_restored.connect(func(value: Dictionary) -> void: publications.append(value.duplicate(true)))
-	var prepared: Dictionary = fixture.participant.prepare({"legacy_profile_patch_input": {}})
+	var prepared: Dictionary = fixture.participant.prepare(before)
 	assert_true(prepared.get("ok", false), str(prepared))
 	if not prepared.get("ok", false): return
 	assert_eq(prepared.value.profile_plan.window_plan, {"window_mode": "borderless"})
@@ -95,7 +94,7 @@ func test_frozen_candidate_is_validated_detached_and_uses_the_same_locale_window
 	var window := WINDOW_FIXTURE.FakeWindowOutput.new()
 	add_child_autofree(window)
 	assert_true(fixture.participant.configure_window_output(window).get("ok", false))
-	var prepared: Dictionary = fixture.participant.prepare_frozen_profile(candidate)
+	var prepared: Dictionary = fixture.participant.prepare(candidate)
 	assert_true(prepared.get("ok", false), str(prepared))
 	if not prepared.get("ok", false): return
 	assert_eq(prepared.value.profile_plan.profile, candidate)
@@ -108,24 +107,8 @@ func test_frozen_candidate_is_validated_detached_and_uses_the_same_locale_window
 	assert_eq(fixture.profile.get_profile_snapshot(), before)
 	var calls := window.calls.duplicate()
 	candidate["unknown_root"] = true
-	var refused: Dictionary = fixture.participant.prepare_frozen_profile(candidate)
+	var refused: Dictionary = fixture.participant.prepare(candidate)
 	assert_false(refused.get("ok", true))
 	assert_false(refused.has("value"))
 	assert_eq(window.calls, calls, "Invalid Profile is rejected before window preparation")
-	assert_eq(fixture.profile.get_profile_snapshot(), before)
-
-func test_explicit_nonempty_legacy_patch_still_uses_real_import_preparation() -> void:
-	var fixture := _fixture()
-	if fixture.is_empty(): return
-	var before: Dictionary = fixture.profile.get_profile_snapshot()
-	var legacy := {"settings": {"fullscreen": false}}
-	var expected: Dictionary = fixture.profile.prepare_legacy_profile_patch(legacy, {})
-	assert_true(expected.get("ok", false), str(expected))
-	var prepared: Dictionary = fixture.participant.prepare({"legacy_profile_patch_input": {
-		"legacy_run_state": legacy, "legacy_input_mappings": {},
-	}})
-	assert_true(prepared.get("ok", false), str(prepared))
-	if not prepared.get("ok", false) or not expected.get("ok", false): return
-	assert_eq(prepared.value.profile_plan.profile, expected.value)
-	assert_true(prepared.value.profile_plan.profile.migration_receipts.legacy_game_state_profile_v1)
 	assert_eq(fixture.profile.get_profile_snapshot(), before)

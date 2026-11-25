@@ -9,7 +9,7 @@ const PHASES := ["challenge", "cleared_awaiting_terminal_choice", "settlement_re
 const ATTEMPT_KEYS := ["attempt_id", "branch_id", "clear_receipt", "completion_receipt", "effect_receipt",
 	"entry_receipt", "materialization_receipt", "record", "revision", "run_id", "slot_id", "terminal_receipt"]
 const ENVELOPE := preload("res://scripts/application/run/DatingChallengeEnvelope.gd")
-const RECORD_KEYS := ["applied_result", "board", "command_sha256", "completion_transaction_id", "context",
+const RECORD_KEYS := ["applied_result", "board", "command_sha256", "completion_transaction_id", "context", "envelope",
 	"host", "mine_dispositions", "outcome", "pair_form", "perfect_reasons", "phase", "physical_token",
 	"relationship_outcome", "schema_version", "spec"]
 const SCENE_RECORD_KEYS := ["schema_version", "completion_transaction_id", "command_sha256", "physical_token",
@@ -245,8 +245,8 @@ static func _prepare_attempt(previous: Dictionary, run_id: String, slot_id: Stri
 		if attempt.materialization_receipt == null:
 			if first_cell_index < 0: return _fail(&"dating_first_cell_required")
 			attempt.materialization_receipt = {"first_cell_index": first_cell_index,
-				"layout": _layout(record.board).duplicate(true), "mine_dispositions": record.mine_dispositions.duplicate()}
-			if record.schema_version == 3: attempt.materialization_receipt["shell"] = record.envelope.shell.duplicate(true)
+				"layout": _layout(record.board).duplicate(true), "mine_dispositions": record.mine_dispositions.duplicate(),
+				"shell": record.envelope.shell.duplicate(true)}
 		elif first_cell_index != -1 and first_cell_index != attempt.materialization_receipt.first_cell_index:
 			return _fail(&"dating_materialization_conflict")
 	elif first_cell_index != -1:
@@ -308,17 +308,16 @@ static func validate_attempt(attempt: Dictionary) -> Dictionary:
 	if record.board == null:
 		if material != null: return _fail(&"invalid_dating_materialization")
 	else:
-		var material_keys: Array = ["first_cell_index", "layout", "mine_dispositions"]
-		if record.schema_version == 3: material_keys.append("shell")
+		var material_keys: Array = ["first_cell_index", "layout", "mine_dispositions", "shell"]
 		if not material is Dictionary or not _keys(material, material_keys) \
 				or typeof(material.first_cell_index) != TYPE_INT or material.layout != _layout(record.board) \
 				or material.mine_dispositions != record.mine_dispositions: return _fail(&"invalid_dating_materialization")
-		if record.schema_version == 3 and material.shell != record.envelope.shell: return _fail(&"invalid_dating_materialization")
-		var initial: Dictionary = REDUCER.first_reveal(material.layout, material.first_cell_index, material.get("shell", {}))
+		if material.shell != record.envelope.shell: return _fail(&"invalid_dating_materialization")
+		var initial: Dictionary = REDUCER.first_reveal(material.layout, material.first_cell_index, material.shell)
 		if not initial.ok: return _fail(&"invalid_dating_materialization")
 		for cell: int in initial.value.board.revealed_indices:
 			if not record.board.revealed_indices.has(cell): return _fail(&"invalid_dating_materialization")
-		if record.board.actions.size() == (material.shell.actions.size() if record.schema_version == 3 else 0):
+		if record.board.actions.size() == material.shell.actions.size():
 			var initial_board: Dictionary = initial.value.board
 			initial_board.outcome = str(initial_board.outcome)
 			if initial_board != record.board: return _fail(&"invalid_dating_materialization")
@@ -382,13 +381,9 @@ static func semantic_slot(context: Dictionary) -> String:
 static func _entry(record: Dictionary) -> Dictionary:
 	if record.schema_version == 4:
 		return {"record_version": 4, "context": record.context, "host": record.host, "spec": record.spec}
-	var entry := {"spec": record.spec, "context": record.context,
-		"host": record.host, "pair_form": record.pair_form}
-	if record.schema_version == 3:
-		entry["record_version"] = 3
-		entry["prepared_layout"] = record.envelope.prepared_layout
-		entry["forced_cell"] = record.envelope.forced_cell
-	return entry
+	return {"spec": record.spec, "context": record.context, "host": record.host, "pair_form": record.pair_form,
+		"record_version": 3, "prepared_layout": record.envelope.prepared_layout, "forced_cell": record.envelope.forced_cell}
+
 
 static func _layout(board: Dictionary) -> Dictionary:
 	return {"schema_version": 1, "width": board.width, "height": board.height,
@@ -410,10 +405,8 @@ static func validate_record(record: Dictionary) -> bool:
 
 static func _valid_record(record: Dictionary) -> bool:
 	if record.get("schema_version") == 4: return _valid_scene_record(record)
-	var expected_keys: Array = RECORD_KEYS.duplicate()
-	if record.get("schema_version") == 3: expected_keys.append("envelope")
-	if not _keys(record, expected_keys) or typeof(record.schema_version) != TYPE_INT \
-			or record.schema_version not in [2, 3] or record.phase not in PHASES \
+	if not _keys(record, RECORD_KEYS) or typeof(record.schema_version) != TYPE_INT \
+			or record.schema_version != 3 or record.phase not in PHASES \
 			or not record.context is Dictionary or record.context.get("kind") == "scene_challenge" or semantic_slot(record.context).is_empty() \
 			or not record.spec is Dictionary or not BOARD.check_spec(record.spec).ok \
 			or not record.applied_result is Dictionary or not record.mine_dispositions is Array \
@@ -428,10 +421,8 @@ static func _valid_record(record: Dictionary) -> bool:
 	var dimensions: Dictionary = CATALOG.lookup(host).value
 	if record.spec.width != dimensions.width or record.spec.height != dimensions.height \
 			or record.spec.base_mine_count != dimensions.base_mine_count: return false
-	if record.schema_version == 2 and (record.spec.requested_mine_count != dimensions.base_mine_count \
-			or record.spec.pressure != 0 or record.spec.penalty_points_today != 0): return false
 	if record.board != null and not record.board is Dictionary: return false
-	if record.schema_version == 3 and not ENVELOPE.validate(record): return false
+	if not ENVELOPE.validate(record): return false
 	if host == "canonical_solo" and record.pair_form != "": return false
 	if host == "canonical_pair" and record.pair_form not in ["ambiguous_sweet", "ambiguous_dark", "love_sweet", "love_dark"]: return false
 	if record.board == null:
@@ -446,19 +437,19 @@ static func _valid_record(record: Dictionary) -> bool:
 	if not board.terminal or record.phase == "challenge":
 		return record.phase == "challenge" and record.outcome == null and record.relationship_outcome == null \
 			and record.perfect_reasons.is_empty() and record.applied_result.is_empty()
-	var reasons: Array = RULES.perfect_reasons(board, int(record.schema_version))
+	var reasons: Array = RULES.perfect_reasons(board)
 	var outcome: String = "exploded" if str(board.outcome) == "exploded" else ("cleared" if reasons.is_empty() else "perfect")
 	if record.outcome != outcome or record.perfect_reasons != reasons: return false
 	if host == "canonical_pair":
 		return record.phase in ["post_challenge", "completed"] and record.relationship_outcome == null \
 			and record.applied_result == {"board_only": true}
 	if record.phase == "cleared_awaiting_terminal_choice":
-		return (outcome == "cleared" if record.schema_version == 3 else outcome != "exploded") and record.relationship_outcome == null and record.applied_result.is_empty()
+		return outcome == "cleared" and record.relationship_outcome == null and record.applied_result.is_empty()
 	if outcome == "exploded":
 		if record.relationship_outcome != dispositions[board.mine_indices.find(board.exploded_index)]: return false
-	elif record.schema_version == 3 and outcome == "perfect":
+	elif outcome == "perfect":
 		if record.relationship_outcome != "foresight": return false
-	elif record.relationship_outcome not in ["dark", "foresight" if outcome == "perfect" else "loved"]: return false
+	elif record.relationship_outcome not in ["dark", "loved"]: return false
 	if record.phase == "settlement_retry": return record.applied_result.is_empty()
 	return record.phase in ["post_challenge", "completed"] and not record.applied_result.is_empty()
 
@@ -521,7 +512,7 @@ static func _valid_scene_record(record: Dictionary) -> bool:
 static func _scene_terminal(record: Dictionary) -> Variant:
 	if record.state == "in_progress": return null
 	return {"state": record.state, "outcome": str(record.board.outcome),
-		"perfect_reasons": RULES.perfect_reasons(record.board, 4)}
+		"perfect_reasons": RULES.perfect_reasons(record.board)}
 
 static func _valid_fresh_scene_entry(record: Dictionary, first_cell: int) -> bool:
 	if record.board == null:
