@@ -37,10 +37,7 @@ func apply_silent(plan: Dictionary) -> Dictionary:
 func rollback_silent(backup: Dictionary) -> Dictionary:
 	if typeof(backup.get("snapshot")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_board_backup", "rollback_silent requires backup.snapshot")
-	var restored: Dictionary = _state.prepare_restore(backup["snapshot"])
-	if not restored.get("ok", false):
-		return restored
-	return _state.commit((restored["value"] as Dictionary)["candidate"])
+	return _state.restore_snapshot(backup["snapshot"])
 
 func finalize() -> Dictionary:
 	return {"ok": true, "code": &"ok"}

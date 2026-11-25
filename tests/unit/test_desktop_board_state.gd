@@ -636,6 +636,18 @@ func test_prepare_restore_round_trips_a_captured_snapshot() -> void:
 	assert_false(prepared.value.candidate.snapshot_after.command_receipts.has("hide"))
 
 
+func test_restore_shares_the_frozen_board_when_only_the_receipt_table_is_mutable() -> void:
+	_first_reveal_from_none(_state, "start", IDENTITY_A, _spec_a(), 0)
+	var live := _state.read_state()
+	var snapshot := live.duplicate()
+	snapshot.command_receipts = live.command_receipts.duplicate()
+	var fresh := STATE.new()
+	assert_true(fresh.restore_snapshot(snapshot).ok)
+	snapshot.command_receipts.clear()
+	assert_same(fresh.read_state().board, live.board)
+	assert_eq(fresh.read_state().command_receipts, live.command_receipts)
+
+
 func test_raw_restore_detaches_mutable_children_of_read_only_snapshot() -> void:
 	_first_reveal_from_none(_state, "start", IDENTITY_A, _spec_a(), 0)
 	var snapshot := _state.capture()
