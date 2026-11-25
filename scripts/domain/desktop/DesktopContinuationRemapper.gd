@@ -482,25 +482,17 @@ static func prepare(snapshot: Dictionary, restore_transaction_id: String,
 		if not view_result.get("ok", false):
 			return view_result
 
-	var source_lifecycle: Variant = snapshot.get("lifecycle")
-	if typeof(source_lifecycle) == TYPE_DICTIONARY and not (source_lifecycle as Dictionary).is_empty():
-		var live_outbox: Dictionary = {}
-		var outbox_value: Variant = (remapped_desktop["consequence"] as Dictionary).get("outbox")
-		if typeof(outbox_value) == TYPE_DICTIONARY:
-			live_outbox = outbox_value
-		var lifecycle_result: Dictionary
+	var lifecycle: Variant = remapped_snapshot.get("lifecycle")
+	if lifecycle is Dictionary and not lifecycle.is_empty():
 		if scene_check.value:
-			var scene_lifecycle: Dictionary = remapped_snapshot.lifecycle
 			for key: String in ["branch_id", "desktop_timeline_generation", "causal_day_instance"]:
-				scene_lifecycle[key] = identity_allocation_bundle[key]
-			scene_lifecycle.causal_day_instance_issuer_receipt = identity_allocation_bundle.causal_day_instance_issuer_receipt.duplicate(true)
-			lifecycle_result = {"ok": true, "value": scene_lifecycle}
+				lifecycle[key] = identity_allocation_bundle[key]
+			lifecycle.causal_day_instance_issuer_receipt = identity_allocation_bundle.causal_day_instance_issuer_receipt.duplicate(true)
 		else:
-			lifecycle_result = _remap_lifecycle(source_lifecycle as Dictionary,
-				identity_allocation_bundle, transaction_remap, live_outbox)
-		if not lifecycle_result.get("ok", false):
-			return lifecycle_result
-		remapped_snapshot["lifecycle"] = lifecycle_result["value"]
+			var outbox: Variant = remapped_desktop.consequence.get("outbox")
+			var lifecycle_result := _remap_lifecycle(lifecycle, identity_allocation_bundle,
+				transaction_remap, outbox if outbox is Dictionary else {})
+			if not lifecycle_result.ok: return lifecycle_result
 
 	var source_ids: Array = transaction_remap.keys()
 	source_ids.sort()
@@ -926,7 +918,6 @@ static func _remap_schedule_view(view: Dictionary, bundle: Dictionary,
 			transaction_remap, view_context)
 		if not walked_pending.get("ok", false):
 			return walked_pending
-		view["pending_warning"] = walked_pending["value"]
 	var consumed: Variant = view.get("consumed_warning_receipts")
 	if typeof(consumed) == TYPE_DICTIONARY:
 		var walked_consumed := _remap_consumed_warning_receipts(consumed as Dictionary, bundle,
@@ -971,8 +962,7 @@ static func _remap_pending_warning(record: Dictionary, bundle: Dictionary,
 	var remapped_preimage := _remap_warning_preimage(stored_preimage as Dictionary, bundle)
 	if not remapped_preimage.get("ok", false):
 		return remapped_preimage
-	var preimage: Dictionary = remapped_preimage["value"]
-	var new_digest := _canonical_sha256(preimage)
+	var new_digest := _canonical_sha256(stored_preimage)
 	if new_digest.is_empty():
 		return _fail(&"remap_payload_not_canonicalizable",
 			"the remapped warning preimage is not canonically representable", {})
@@ -992,13 +982,11 @@ static func _remap_pending_warning(record: Dictionary, bundle: Dictionary,
 		"activation_id_provenance": activation_value["provenance"],
 	}
 
-	var remapped: Dictionary = record.duplicate(true)
-	remapped["warning_fingerprint_preimage"] = preimage
-	remapped["warning_state_fingerprint"] = new_digest
-	remapped["activation_id"] = str(activation_value["child_id"])
-	remapped["activation_id_provenance"] = activation_value["provenance"]
-	remapped["opened_by_transaction_id"] = str((mapping as Dictionary)["new_transaction_id"])
-	remapped["opened_by_transaction_issuer_receipt"] = new_receipt.duplicate(true)
+	record["warning_state_fingerprint"] = new_digest
+	record["activation_id"] = str(activation_value["child_id"])
+	record["activation_id_provenance"] = activation_value["provenance"]
+	record["opened_by_transaction_id"] = str((mapping as Dictionary)["new_transaction_id"])
+	record["opened_by_transaction_issuer_receipt"] = new_receipt.duplicate(true)
 	var attempts: Variant = record.get("attempt_receipts")
 	if typeof(attempts) == TYPE_DICTIONARY:
 		var rekeyed: Dictionary = {}
@@ -1017,8 +1005,8 @@ static func _remap_pending_warning(record: Dictionary, bundle: Dictionary,
 				return _fail(&"remap_warning_key_stale",
 					"two attempt receipts collide on the remapped key: " + new_key, {})
 			rekeyed[new_key] = new_attempt
-		remapped["attempt_receipts"] = rekeyed
-	return {"ok": true, "code": &"ok", "value": remapped}
+		record["attempt_receipts"] = rekeyed
+	return {"ok": true}
 
 
 static func _remap_consumed_warning_receipts(consumed: Dictionary, bundle: Dictionary,
@@ -1089,8 +1077,7 @@ static func _remap_terminal_receipt(record: Dictionary, bundle: Dictionary,
 	var remapped_preimage := _remap_warning_preimage(stored_preimage as Dictionary, bundle)
 	if not remapped_preimage.get("ok", false):
 		return remapped_preimage
-	var preimage: Dictionary = remapped_preimage["value"]
-	var new_digest := _canonical_sha256(preimage)
+	var new_digest := _canonical_sha256(stored_preimage)
 	if new_digest.is_empty():
 		return _fail(&"remap_payload_not_canonicalizable",
 			"a remapped terminal warning preimage is not canonically representable", {})
@@ -1109,26 +1096,23 @@ static func _remap_terminal_receipt(record: Dictionary, bundle: Dictionary,
 		return minted
 	var minted_value: Dictionary = minted["value"]
 
-	var remapped: Dictionary = record.duplicate(true)
-	remapped["warning_fingerprint_preimage"] = preimage
-	remapped["warning_state_fingerprint"] = new_digest
-	remapped["transaction_id"] = str((mapping as Dictionary)["new_transaction_id"])
-	remapped["transaction_issuer_receipt"] = new_receipt.duplicate(true)
-	remapped["receipt_id"] = str(minted_value["child_id"])
-	remapped["receipt_provenance"] = minted_value["provenance"]
+	record["warning_state_fingerprint"] = new_digest
+	record["transaction_id"] = str((mapping as Dictionary)["new_transaction_id"])
+	record["transaction_issuer_receipt"] = new_receipt.duplicate(true)
+	record["receipt_id"] = str(minted_value["child_id"])
+	record["receipt_provenance"] = minted_value["provenance"]
 	if not new_activation.is_empty():
-		remapped["activation_id"] = target_activation_id
-		remapped["activation_id_provenance"] = (new_activation["activation_id_provenance"] as Dictionary).duplicate(true)
-	return {"ok": true, "code": &"ok", "value": remapped}
+		record["activation_id"] = target_activation_id
+		record["activation_id_provenance"] = (new_activation["activation_id_provenance"] as Dictionary).duplicate(true)
+	return {"ok": true, "code": &"ok", "value": record}
 
 
 static func _remap_warning_preimage(preimage: Dictionary, bundle: Dictionary) -> Dictionary:
-	var remapped: Dictionary = preimage.duplicate(true)
-	var projection: Variant = remapped.get("view_projection")
+	var projection: Variant = preimage.get("view_projection")
 	if typeof(projection) == TYPE_DICTIONARY:
 		var view_projection: Dictionary = projection
 		view_projection["causal_day_instance"] = str(bundle["causal_day_instance"])
-	var context: Variant = remapped.get("context")
+	var context: Variant = preimage.get("context")
 	if typeof(context) == TYPE_DICTIONARY:
 		var data: Dictionary = context
 		data["branch_id"] = str(bundle["branch_id"])
@@ -1141,7 +1125,7 @@ static func _remap_warning_preimage(preimage: Dictionary, bundle: Dictionary) ->
 			if not remapped_identity.get("ok", false):
 				return remapped_identity
 			data["board_identity"] = (remapped_identity["value"] as Dictionary)["identity"]
-	return {"ok": true, "code": &"ok", "value": remapped}
+	return {"ok": true}
 
 
 static func _warning_source_preconditions(preimage: Dictionary, stored_digest: String,
@@ -1198,7 +1182,7 @@ static func _remap_condition_departure_ledger(ledger: Dictionary, transaction_re
 		var is_live := typeof(provenance) == TYPE_DICTIONARY and not parent_receipt_id.is_empty() \
 			and str((provenance as Dictionary).get("parent_receipt_id", "")) == parent_receipt_id
 		if not is_live:
-			rekeyed[str(key)] = entry.duplicate(true)
+			rekeyed[str(key)] = entry
 			continue
 		if mapped_receipt.is_empty():
 			return _fail(&"remap_dangling_transaction",
@@ -1209,34 +1193,25 @@ static func _remap_condition_departure_ledger(ledger: Dictionary, transaction_re
 			return rederived
 		var rederived_value: Dictionary = rederived["value"]
 		var child_id := str(rederived_value["child_id"])
-		var remapped_entry: Dictionary = entry.duplicate(true)
-		remapped_entry["source_condition_receipt_id"] = child_id
-		remapped_entry["source_condition_receipt_provenance"] = rederived_value["provenance"]
+		entry["source_condition_receipt_id"] = child_id
+		entry["source_condition_receipt_provenance"] = rederived_value["provenance"]
 		if not payload_hashes.is_empty():
 			if str(entry.get("schedule_view_before_sha256", "")) != str(payload_hashes["before_source"]) \
 					or str(entry.get("schedule_view_after_sha256", "")) != str(payload_hashes["after_source"]):
 				return _fail(&"remap_ledger_payload_mismatch",
 					"the ledger entry's two view hashes do not equal the recovery payload's own two views", {})
-			remapped_entry["schedule_view_before_sha256"] = str(payload_hashes["before_new"])
-			remapped_entry["schedule_view_after_sha256"] = str(payload_hashes["after_new"])
+			entry["schedule_view_before_sha256"] = str(payload_hashes["before_new"])
+			entry["schedule_view_after_sha256"] = str(payload_hashes["after_new"])
 		if rekeyed.has(child_id):
 			return _fail(&"remap_ledger_entry_invalid",
 				"two condition-departure entries collide on the remapped key: " + child_id, {})
-		rekeyed[child_id] = remapped_entry
+		rekeyed[child_id] = entry
 	return {"ok": true, "code": &"ok", "value": rekeyed}
 
 
 
 static func _remap_lifecycle(lifecycle: Dictionary, bundle: Dictionary,
 		transaction_remap: Dictionary, live_outbox: Dictionary) -> Dictionary:
-	var remapped: Dictionary = lifecycle.duplicate(true)
-	if lifecycle.has("branch_id") and lifecycle.has("desktop_timeline_generation") \
-			and lifecycle.has("causal_day_instance") \
-			and lifecycle.has("causal_day_instance_issuer_receipt"):
-		remapped["branch_id"] = str(bundle["branch_id"])
-		remapped["desktop_timeline_generation"] = int(bundle["desktop_timeline_generation"])
-		remapped["causal_day_instance"] = str(bundle["causal_day_instance"])
-		remapped["causal_day_instance_issuer_receipt"] = (bundle["causal_day_instance_issuer_receipt"] as Dictionary).duplicate(true)
 	var history: Variant = lifecycle.get("condition_hospital_history")
 	if typeof(history) == TYPE_DICTIONARY:
 		var validated := _validate_condition_hospital_history(history as Dictionary)
@@ -1248,14 +1223,19 @@ static func _remap_lifecycle(lifecycle: Dictionary, bundle: Dictionary,
 			transaction_remap, live_outbox)
 		if not walked_plan.get("ok", false):
 			return walked_plan
-		remapped["active_condition_hospital_plan"] = walked_plan["value"]
 	var handoff: Variant = lifecycle.get("terminal_intent_handoff")
 	if typeof(handoff) == TYPE_DICTIONARY:
 		var walked_handoff := _remap_terminal_intent_handoff(handoff as Dictionary, transaction_remap)
 		if not walked_handoff.get("ok", false):
 			return walked_handoff
-		remapped["terminal_intent_handoff"] = walked_handoff["value"]
-	return {"ok": true, "code": &"ok", "value": remapped}
+	if lifecycle.has("branch_id") and lifecycle.has("desktop_timeline_generation") \
+			and lifecycle.has("causal_day_instance") \
+			and lifecycle.has("causal_day_instance_issuer_receipt"):
+		lifecycle["branch_id"] = str(bundle["branch_id"])
+		lifecycle["desktop_timeline_generation"] = int(bundle["desktop_timeline_generation"])
+		lifecycle["causal_day_instance"] = str(bundle["causal_day_instance"])
+		lifecycle["causal_day_instance_issuer_receipt"] = (bundle["causal_day_instance_issuer_receipt"] as Dictionary).duplicate(true)
+	return {"ok": true}
 
 
 static func _remap_condition_hospital_plan(plan: Dictionary, lifecycle: Dictionary,
@@ -1343,29 +1323,27 @@ static func _remap_condition_hospital_plan(plan: Dictionary, lifecycle: Dictiona
 		return _fail(&"remap_condition_hospital_identity_split_invalid",
 			"one allocation is never both this plan's source and its advance_day target", {})
 
-	var remapped: Dictionary = plan.duplicate(true)
 	if not split_allowed:
-		remapped["branch_id"] = str(bundle["branch_id"])
-		remapped["desktop_timeline_generation"] = int(bundle["desktop_timeline_generation"])
-		remapped["causal_day_instance"] = str(bundle["causal_day_instance"])
-		remapped["causal_day_instance_issuer_receipt"] = (bundle["causal_day_instance_issuer_receipt"] as Dictionary).duplicate(true)
+		plan["branch_id"] = str(bundle["branch_id"])
+		plan["desktop_timeline_generation"] = int(bundle["desktop_timeline_generation"])
+		plan["causal_day_instance"] = str(bundle["causal_day_instance"])
+		plan["causal_day_instance_issuer_receipt"] = (bundle["causal_day_instance_issuer_receipt"] as Dictionary).duplicate(true)
 
 	var plan_mapping: Variant = transaction_remap.get(str(plan["transaction_id"]))
 	if typeof(plan_mapping) != TYPE_DICTIONARY:
 		return _fail(&"remap_dangling_transaction",
 			"active_condition_hospital_plan.transaction_id has no remap entry: " + str(plan["transaction_id"]), {})
 	var mapped_plan_receipt: Dictionary = (plan_mapping as Dictionary)["new_transaction_issuer_receipt"]
-	remapped["transaction_id"] = str((plan_mapping as Dictionary)["new_transaction_id"])
-	remapped["transaction_issuer_receipt"] = mapped_plan_receipt.duplicate(true)
+	plan["transaction_id"] = str((plan_mapping as Dictionary)["new_transaction_id"])
+	plan["transaction_issuer_receipt"] = mapped_plan_receipt.duplicate(true)
 	var action_mapping: Variant = transaction_remap.get(str(action_receipt.get("transaction_id", "")))
 	if typeof(action_mapping) != TYPE_DICTIONARY:
 		return _fail(&"remap_dangling_transaction",
 			"active_condition_hospital_plan.action_receipt.transaction_id has no remap entry: "
 				+ str(action_receipt.get("transaction_id", "")), {})
 	var mapped_action_receipt: Dictionary = (action_mapping as Dictionary)["new_transaction_issuer_receipt"]
-	var remapped_action: Dictionary = remapped["action_receipt"]
-	remapped_action["transaction_id"] = str((action_mapping as Dictionary)["new_transaction_id"])
-	remapped_action["transaction_issuer_receipt"] = mapped_action_receipt.duplicate(true)
+	action_receipt["transaction_id"] = str((action_mapping as Dictionary)["new_transaction_id"])
+	action_receipt["transaction_issuer_receipt"] = mapped_action_receipt.duplicate(true)
 
 	var parents: Dictionary = {
 		"plan_receipt_id": str(plan_receipt.get("receipt_id", "")),
@@ -1373,7 +1351,7 @@ static func _remap_condition_hospital_plan(plan: Dictionary, lifecycle: Dictiona
 		"action_receipt_id": str((action_issuer as Dictionary).get("receipt_id", "")),
 		"action_receipt": mapped_action_receipt,
 	}
-	var condition: Dictionary = remapped["condition_receipt"]
+	var condition: Dictionary = plan["condition_receipt"]
 	var condition_child := _rederive_plan_child(condition.get("receipt_provenance"), parents,
 		transaction_remap)
 	if not condition_child.get("ok", false):
@@ -1382,7 +1360,7 @@ static func _remap_condition_hospital_plan(plan: Dictionary, lifecycle: Dictiona
 	condition["receipt_id"] = str(condition_value["child_id"])
 	condition["receipt_provenance"] = condition_value["provenance"]
 
-	var resolution: Dictionary = remapped["resolution_receipt"]
+	var resolution: Dictionary = plan["resolution_receipt"]
 	var resolution_child := _rederive_plan_child(resolution.get("receipt_provenance"), parents,
 		transaction_remap)
 	if not resolution_child.get("ok", false):
@@ -1392,9 +1370,8 @@ static func _remap_condition_hospital_plan(plan: Dictionary, lifecycle: Dictiona
 	resolution["receipt_id"] = new_resolution_id
 	resolution["receipt_provenance"] = resolution_value["provenance"]
 
-	var remapped_stages: Array = remapped["stages"]
-	for index: int in range(remapped_stages.size()):
-		var stage: Dictionary = remapped_stages[index]
+	for index: int in range(stages.size()):
+		var stage: Dictionary = stages[index]
 		stage["stage_key"] = new_resolution_id + ":" + str(stage.get("stage_id", ""))
 		if index == 4 and str(stage.get("state", "")) != "pending":
 			var prepared: Variant = stage.get("prepared")
@@ -1430,18 +1407,17 @@ static func _remap_condition_hospital_plan(plan: Dictionary, lifecycle: Dictiona
 			stage_receipt["receipt_provenance"] = new_stage_provenance.duplicate(true)
 			stage_receipt["resolution_receipt_id"] = new_resolution_id
 
-	var remapped_destination: Dictionary = remapped["destination_record"]
-	var destination_payload: Variant = remapped_destination.get("payload")
+	var destination_payload: Variant = destination.get("payload")
 	if typeof(destination_payload) == TYPE_DICTIONARY:
 		var payload_digest := _canonical_sha256(destination_payload)
 		if payload_digest.is_empty():
 			return _fail(&"remap_payload_not_canonicalizable",
 				"the destination record's payload is not canonically representable", {})
-		remapped_destination["payload_hash"] = payload_digest
-	var outbox_check := _condition_hospital_outbox_error(remapped_destination, live_outbox)
+		destination["payload_hash"] = payload_digest
+	var outbox_check := _condition_hospital_outbox_error(destination, live_outbox)
 	if not outbox_check.get("ok", false):
 		return outbox_check
-	return {"ok": true, "code": &"ok", "value": remapped}
+	return {"ok": true}
 
 
 static func _rederive_plan_child(provenance: Variant, parents: Dictionary,
@@ -1530,15 +1506,14 @@ static func _remap_terminal_intent_handoff(handoff: Dictionary,
 	if typeof(mapping) != TYPE_DICTIONARY:
 		return _fail(&"remap_dangling_transaction",
 			"terminal_intent_handoff.source_transaction_id has no remap entry: " + old_transaction_id, {})
-	var remapped: Dictionary = handoff.duplicate(true)
-	remapped["source_transaction_id"] = str((mapping as Dictionary)["new_transaction_id"])
-	remapped["source_transaction_issuer_receipt"] = ((mapping as Dictionary)["new_transaction_issuer_receipt"] as Dictionary).duplicate(true)
-	var record: Variant = remapped.get("destination_outbox_record")
+	handoff["source_transaction_id"] = str((mapping as Dictionary)["new_transaction_id"])
+	handoff["source_transaction_issuer_receipt"] = ((mapping as Dictionary)["new_transaction_issuer_receipt"] as Dictionary).duplicate(true)
+	var record: Variant = handoff.get("destination_outbox_record")
 	if typeof(record) != TYPE_DICTIONARY:
 		return _fail(&"remap_terminal_handoff_invalid",
 			"terminal_intent_handoff.destination_outbox_record must be an object", {})
 	var outbox_record: Dictionary = record
-	var intent: Variant = remapped.get("terminal_intent")
+	var intent: Variant = handoff.get("terminal_intent")
 	if outbox_record.get("payload") != intent:
 		return _fail(&"remap_terminal_handoff_invalid",
 			"the destination outbox record's payload must stay byte-equal to the terminal intent", {})
@@ -1547,7 +1522,7 @@ static func _remap_terminal_intent_handoff(handoff: Dictionary,
 		return _fail(&"remap_payload_not_canonicalizable",
 			"the terminal intent is not canonically representable", {})
 	outbox_record["payload_hash"] = digest
-	return {"ok": true, "code": &"ok", "value": remapped}
+	return {"ok": true}
 
 
 
