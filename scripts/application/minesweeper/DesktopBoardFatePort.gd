@@ -56,6 +56,11 @@ func configure(board_state: Object, identity_issuer: Object) -> Dictionary:
 
 
 func prepare_causal_departure(request: Dictionary) -> Dictionary:
+	var prepared := _prepare_causal_departure(request)
+	return prepared.duplicate(true) if prepared.ok else prepared
+
+
+func _prepare_causal_departure(request: Dictionary) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
@@ -90,6 +95,11 @@ func prepare_causal_departure(request: Dictionary) -> Dictionary:
 
 
 func prepare_projected_causal_departure(request: Dictionary) -> Dictionary:
+	var prepared := _prepare_projected_causal_departure(request)
+	return prepared.duplicate(true) if prepared.ok else prepared
+
+
+func _prepare_projected_causal_departure(request: Dictionary) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
@@ -169,6 +179,13 @@ func prepare_projected_causal_departure(request: Dictionary) -> Dictionary:
 
 func prepare_recovery_departure(action_receipt: Dictionary, projected_board: Dictionary,
 		board_candidate: Dictionary, board_fate_receipt: Dictionary) -> Dictionary:
+	var restored := ensure_recovery_departure(action_receipt, projected_board, board_candidate, board_fate_receipt)
+	if not restored.ok: return restored
+	return (_prepared[restored.command_id].result as Dictionary).duplicate(true)
+
+
+func ensure_recovery_departure(action_receipt: Dictionary, projected_board: Dictionary,
+		board_candidate: Dictionary, board_fate_receipt: Dictionary) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
@@ -188,7 +205,7 @@ func prepare_recovery_departure(action_receipt: Dictionary, projected_board: Dic
 				or _canonical_sha256(value["board_candidate"]) != candidate_hash \
 				or _canonical_sha256(value["board_fate_receipt"]) != receipt_hash:
 			return _fail(&"board_fate_recovery_mismatch", "frozen departure differs from retained preparation", {})
-		return (retained["result"] as Dictionary).duplicate(true)
+		return {"ok": true, "command_id": command_id}
 	var live := _read_board()
 	var request := {
 		"command_id": command_id, "command_issuer_receipt": action["transaction_issuer_receipt"],
@@ -205,7 +222,7 @@ func prepare_recovery_departure(action_receipt: Dictionary, projected_board: Dic
 	var configured: Dictionary = verifier.configure(_board_state, _identity_issuer)
 	if not configured.get("ok", false):
 		return configured
-	var regenerated: Dictionary = verifier.prepare_projected_causal_departure(request)
+	var regenerated: Dictionary = verifier._prepare_projected_causal_departure(request)
 	if not regenerated.get("ok", false):
 		return regenerated
 	var regenerated_value: Dictionary = regenerated["value"]
@@ -214,7 +231,7 @@ func prepare_recovery_departure(action_receipt: Dictionary, projected_board: Dic
 		return _fail(&"board_fate_recovery_mismatch", "frozen departure does not match the exact source board", {})
 	_prepared[command_id] = verifier._prepared[command_id]
 	_prepared_by_candidate_hash[candidate_hash] = command_id
-	return regenerated
+	return {"ok": true, "command_id": command_id}
 
 
 
@@ -231,6 +248,15 @@ func capture() -> Dictionary:
 
 
 func commit(candidate: Dictionary) -> Dictionary:
+	var adopted := adopt(candidate)
+	if not adopted.ok: return adopted
+	var prepared: Dictionary = _prepared[adopted.command_id].result.value
+	var result := {"ok": true, "code": &"ok", "value": {"board_candidate": prepared.board_candidate},
+		"receipt": prepared.board_fate_receipt}
+	return result.duplicate(true)
+
+
+func adopt(candidate: Dictionary) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
@@ -240,13 +266,9 @@ func commit(candidate: Dictionary) -> Dictionary:
 	var command_id: String = _prepared_by_candidate_hash[hash_key]
 	var recorded: Dictionary = _prepared[command_id]
 	var request: Dictionary = recorded["request"]
-	var board_fate_receipt: Dictionary = \
-		((recorded["result"] as Dictionary)["value"] as Dictionary)["board_fate_receipt"]
-
-	if recorded.has("commit_result"):
-		var stored: Dictionary = recorded.commit_result
-		if stored.value.board_candidate == candidate:
-			return stored.duplicate(true)
+	if recorded.has("committed"):
+		if recorded.result.value.board_candidate == candidate:
+			return {"ok": true, "command_id": command_id}
 		return _fail(&"board_fate_conflict", "candidate was already committed with different bytes", {})
 
 	var live := _read_board()
@@ -261,10 +283,8 @@ func commit(candidate: Dictionary) -> Dictionary:
 	if not committed.get("ok", false):
 		return committed
 
-	var result := {"ok": true, "code": &"ok", "value": {"board_candidate": recorded.result.value.board_candidate},
-		"receipt": board_fate_receipt}
-	recorded.commit_result = result
-	return result.duplicate(true)
+	recorded.committed = true
+	return {"ok": true, "command_id": command_id}
 
 
 func publish(publication: Dictionary) -> Dictionary:
@@ -283,12 +303,12 @@ func publish(publication: Dictionary) -> Dictionary:
 
 	var hash_key := _canonical_sha256(board_candidate)
 	var command_id: String = str(_prepared_by_candidate_hash.get(hash_key, ""))
-	if command_id.is_empty() or not _prepared[command_id].has("commit_result"):
+	if command_id.is_empty() or not _prepared[command_id].has("committed"):
 		return _fail(&"board_fate_conflict", "board_candidate does not match a committed candidate", {})
-	var committed: Dictionary = _prepared[command_id].commit_result
-	if committed.value.board_candidate != board_candidate:
+	var committed: Dictionary = _prepared[command_id].result.value
+	if committed.board_candidate != board_candidate:
 		return _fail(&"board_fate_conflict", "board_candidate does not byte-equal the committed candidate", {})
-	var expected_receipt: Dictionary = committed.receipt
+	var expected_receipt: Dictionary = committed.board_fate_receipt
 	if board_fate_receipt != expected_receipt:
 		return _fail(&"board_fate_conflict", "board_fate_receipt does not byte-equal the retained receipt", {})
 	var live := _read_board()
@@ -325,7 +345,7 @@ func _prepared_lookup(command_id: String, request: Dictionary) -> Dictionary:
 		return {}
 	var recorded: Dictionary = _prepared[command_id]
 	if recorded["request"] == request:
-		return {"result": (recorded["result"] as Dictionary).duplicate(true)}
+		return {"result": recorded["result"]}
 	return {"result": _fail(&"board_fate_conflict", "command_id was already prepared with different bytes", {})}
 
 
@@ -392,7 +412,7 @@ func _finish_prepare(request: Dictionary, command_id: String, base_snapshot: Dic
 	var board_candidate: Dictionary
 	if fate == &"none":
 		if source_action_receipt == null and _BOARD_STATE_SCRIPT.is_settled_inspection(base_snapshot):
-			board_candidate = _BOARD_STATE_SCRIPT.dismissed_inspection_snapshot(base_snapshot)
+			board_candidate = _BOARD_STATE_SCRIPT.project_dismissed_inspection(base_snapshot)
 		else:
 			board_candidate = base_snapshot
 	else:
@@ -406,7 +426,7 @@ func _finish_prepare(request: Dictionary, command_id: String, base_snapshot: Dic
 		"request": request, "result": result,
 	}
 	_prepared_by_candidate_hash[candidate_hash] = command_id
-	return result.duplicate(true)
+	return result
 
 
 func _build_departed_snapshot(base_snapshot: Dictionary, board_fate_receipt_id: String) -> Dictionary:

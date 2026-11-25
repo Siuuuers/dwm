@@ -2746,9 +2746,13 @@ static func _legacy_run_gameplay(saved: Dictionary, variables: Dictionary) -> Di
 
 
 func capture_run_snapshot_input() -> Dictionary:
+	return capture_run_snapshot_with_contacts(contacts)
+
+
+func capture_run_snapshot_with_contacts(snapshot_contacts: Dictionary) -> Dictionary:
 	if _run_lifecycle.is_scene_run():
 		return {"lifecycle": _run_lifecycle.to_dict(), "gameplay": _capture_scene_gameplay(),
-			"contacts": contacts.duplicate(true), "desktop": _capture_desktop_snapshot(),
+			"contacts": snapshot_contacts.duplicate(true), "desktop": _capture_desktop_snapshot(),
 			"scene": _scene_snapshot_references.duplicate(true),
 			"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(true),
 			"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(true),
@@ -2758,7 +2762,7 @@ func capture_run_snapshot_input() -> Dictionary:
 	return {
 		"lifecycle": _run_lifecycle.to_dict(),
 		"gameplay": gameplay,
-		"contacts": contacts.duplicate(true),
+		"contacts": snapshot_contacts.duplicate(true),
 		"committed_schedule": _canonical_committed_schedule(),
 		"desktop": _capture_desktop_snapshot(),
 		"dating": current.get("dating_route_state", {}).duplicate(true) if typeof(current.get("dating_route_state")) == TYPE_DICTIONARY else {},
@@ -4882,7 +4886,7 @@ func _commit_scene_round_owned(request: Dictionary, lease: String) -> Dictionary
 	if not session.ok: return session
 	var context := capture_scene_shop_context()
 	if not context.ok: return context
-	var captured: Dictionary = _scene_round_board.capture()
+	var captured: Dictionary = _scene_round_board.read_state()
 	if captured.phase != "ACTIVE_VISIBLE" or not _SCENE_EVENT._equal(captured.identity, request.expected_identity):
 		return _transaction_failure(&"scene_round_source_changed", "")
 	for field: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"]:
@@ -4908,9 +4912,7 @@ func _commit_scene_round_owned(request: Dictionary, lease: String) -> Dictionary
 	var candidate := before.duplicate()
 	candidate.desktop = before.desktop.duplicate()
 	candidate.gameplay = reward.value.gameplay
-	var board_after := captured
-	board_after.revision += 1
-	board_after.settled_inspection = true
+	var board_after := captured.merged({"revision": captured.revision + 1, "settled_inspection": true}, true)
 	var prepared_board: Dictionary = _scene_round_board.prepare_restore(board_after)
 	if not prepared_board.get("ok", false): return prepared_board
 	if not _scene_round_board.is_settled_inspection(board_after):

@@ -365,6 +365,7 @@ class RewardProbe extends RefCounted:
 
 class CompletionStub extends RefCounted:
 	func accept_prepared_action(_request: Dictionary) -> Dictionary: return {"ok": false}
+	func replay_accepted_action(_transaction_id: String) -> Dictionary: return {"ok": false}
 
 func test_replacement_terminal_reward_uses_current_tier_and_original_paid_session() -> void:
 	var original := _start()

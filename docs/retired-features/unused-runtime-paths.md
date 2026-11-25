@@ -50,3 +50,14 @@ Board and spec callers now use check_board and check_spec to validate the values
 ## Editable Minesweeper shell query
 
 First reveal and flag commands read shared shell flags and action history through `DesktopBoardState.read_shell()`. The former `shell_state()` copied that history for each lookup. Callers that need to edit a board still own the result of `capture()`.
+
+
+## Minesweeper preparation and Windows budget provenance
+
+Only tests called MinesweeperBoardGenerator.validate_prepared to revalidate an already certified search. The game checks preparation fields and transitions in MinesweeperPreparationState.check and check_advance. Current callers can use those checks directly. The retired validate and advance wrappers copied the checked preparation.
+
+The checked-in Windows benchmark records the reducer, generator kernel and verifier source hashes that produced its operation budgets. The benchmark tool still records those hashes when a new calibration is made. The game checks the exact RNG, difficulty manifest, fallback manifest and budget schema used by that calibration. Ordinary code edits can reuse the budgets. Changes to the search algorithm, operation accounting or target hardware require a fresh calibration before making a performance claim.
+
+## Dismissed Minesweeper inspection
+
+The board-fate port uses `project_dismissed_inspection()` to clear the board slots and retain the existing receipt history. Its public command result already owns a separate editable copy. This replaces the extra detached `dismissed_inspection_snapshot()` between those two steps.

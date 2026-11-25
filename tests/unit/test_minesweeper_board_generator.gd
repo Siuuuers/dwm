@@ -210,13 +210,6 @@ func test_validate_fallback_schema_rejects_wrong_kind() -> void:
 	assert_false(result.get("ok", true))
 
 
-# ---- _validate_budget_freshness(): fallback_manifest hash cross-check (Task-4 review fix) ----
-# _adopt_fallback() adopts fallback_records' mine_indices directly into certified boards, so the
-# freshness check must cover fallback_manifest the same way it already covers rng/reducer/kernel/
-# verifier/difficulty_manifest/budget_schema. Both cases use the real, unmodified frozen budget
-# manifest and only tamper the in-memory dict passed to the check -- the real fallback-manifest
-# file on disk is never touched.
-
 func test_validate_budget_freshness_accepts_the_real_fallback_manifest_digest() -> void:
 	if not _both_generated_manifests_present():
 		pending("requires both generated manifests")
@@ -240,7 +233,7 @@ func test_validate_budget_freshness_rejects_a_drifted_fallback_manifest_digest()
 	assert_eq((result.get("details", {}) as Dictionary).get("field"), "fallback_manifest")
 
 
-# ---- validate_prepared(): drives a real kernel search, then re-validates its projection ----
+# ---- MinesweeperPreparationState ----
 
 func _kernel_spec_from_board_spec(board_spec: Dictionary) -> Dictionary:
 	var projected: Dictionary = {}
@@ -254,65 +247,6 @@ func _rng_state(stream_id: StringName, nonce: String) -> Dictionary:
 	rng.seed(stream_id, nonce)
 	return rng.capture()["value"]
 
-
-func _certified_preparation(board_spec: Dictionary, forced_cell: int) -> Dictionary:
-	var kernel_spec := _kernel_spec_from_board_spec(board_spec)
-	var placement := _rng_state(StringName(kernel_spec["placement_stream_id"]), String(kernel_spec["placement_nonce"]))
-	var debug := _rng_state(StringName(kernel_spec["debug_stream_id"]), String(kernel_spec["debug_nonce"]))
-	var explosion := _rng_state(StringName(kernel_spec["explosion_stream_id"]), String(kernel_spec["explosion_nonce"]))
-	var begun: Dictionary = KERNEL.begin(kernel_spec, forced_cell, KERNEL.MODE_CANDIDATE_SEARCH, placement, debug, explosion)
-	assert_true(begun.get("ok", false), JSON.stringify(begun))
-	var frontier: Dictionary = (begun["value"] as Dictionary)["preparation"]
-	var total_cells: int = int(kernel_spec["width"]) * int(kernel_spec["height"])
-	var slices := 0
-	while frontier["status"] == KERNEL.STATUS_SEARCHING:
-		var advanced: Dictionary = KERNEL.advance(frontier, total_cells)
-		assert_true(advanced.get("ok", false), JSON.stringify(advanced))
-		frontier = (advanced["value"] as Dictionary)["preparation"]
-		slices += 1
-		assert_lt(slices, 2000, "bounded tiny-board search must terminate")
-	assert_eq(frontier["status"], KERNEL.STATUS_CERTIFIED)
-	return frontier
-
-
-func test_validate_prepared_accepts_a_correctly_projected_certified_preparation() -> void:
-	var spec := _board_spec(5, 5, 3, 0, 0, ["first_cell_safe"], "validate-happy")
-	var preparation := _certified_preparation(spec, 12)
-	var result: Dictionary = GENERATOR.validate_prepared(preparation, spec)
-	assert_true(result.get("ok", false), JSON.stringify(result))
-	preparation.spec.clear()
-	assert_false(result.value.preparation.spec.is_empty())
-
-
-func test_validate_prepared_rejects_a_non_certified_preparation() -> void:
-	var spec := _board_spec(5, 5, 3, 0, 0, ["first_cell_safe"], "validate-not-certified")
-	var kernel_spec := _kernel_spec_from_board_spec(spec)
-	var placement := _rng_state(StringName(kernel_spec["placement_stream_id"]), String(kernel_spec["placement_nonce"]))
-	var debug := _rng_state(StringName(kernel_spec["debug_stream_id"]), String(kernel_spec["debug_nonce"]))
-	var explosion := _rng_state(StringName(kernel_spec["explosion_stream_id"]), String(kernel_spec["explosion_nonce"]))
-	var begun: Dictionary = KERNEL.begin(kernel_spec, 12, KERNEL.MODE_CANDIDATE_SEARCH, placement, debug, explosion)
-	var frontier: Dictionary = (begun["value"] as Dictionary)["preparation"]
-	var result: Dictionary = GENERATOR.validate_prepared(frontier, spec)
-	assert_false(result.get("ok", true))
-	assert_eq(result.get("code"), &"preparation_not_certified")
-
-
-func test_validate_prepared_rejects_a_tampered_kernel_spec_projection() -> void:
-	var spec := _board_spec(5, 5, 3, 0, 0, ["first_cell_safe"], "validate-tampered")
-	var preparation := _certified_preparation(spec, 12)
-	var tampered: Dictionary = preparation.duplicate(true)
-	var tampered_spec: Dictionary = (tampered["spec"] as Dictionary).duplicate(true)
-	# Tamper a field MinesweeperPreparationState.validate() does not itself cross-check (unlike the
-	# nonce/stream_id fields, which its own rng-state-vs-spec matching would already catch), so this
-	# proves validate_prepared()'s OWN projection-equality check is independently load-bearing.
-	tampered_spec["difficulty_id"] = "a-different-difficulty"
-	tampered["spec"] = tampered_spec
-	var result: Dictionary = GENERATOR.validate_prepared(tampered, spec)
-	assert_false(result.get("ok", true))
-	assert_eq(result.get("code"), &"preparation_spec_projection_mismatch")
-
-
-# ---- MinesweeperPreparationState ----
 
 func test_preparation_state_make_matches_kernel_begin() -> void:
 	var spec := _board_spec(5, 5, 3, 0, 0, ["first_cell_safe"], "state-make")
@@ -331,7 +265,7 @@ func test_preparation_state_make_matches_kernel_begin() -> void:
 
 
 func test_preparation_state_validate_rejects_wrong_member_set() -> void:
-	var result: Dictionary = PREPARATION.validate({"status": KERNEL.STATUS_SEARCHING})
+	var result: Dictionary = PREPARATION.check({"status": KERNEL.STATUS_SEARCHING})
 	assert_false(result.get("ok", true))
 	assert_eq(result.get("code"), &"preparation_member_set_invalid")
 
@@ -348,7 +282,7 @@ func test_preparation_state_validate_rejects_rng_state_belonging_to_a_different_
 	var forged_placement: Dictionary = (forged["placement_rng_state"] as Dictionary).duplicate(true)
 	forged_placement["nonce"] = "a-different-nonce"
 	forged["placement_rng_state"] = forged_placement
-	var result: Dictionary = PREPARATION.validate(forged)
+	var result: Dictionary = PREPARATION.check(forged)
 	assert_false(result.get("ok", true))
 	assert_eq(result.get("code"), &"preparation_rng_state_nonce_mismatch")
 
@@ -362,11 +296,8 @@ func test_preparation_state_advance_accepts_a_real_kernel_slice_result() -> void
 	var begun: Dictionary = KERNEL.begin(kernel_spec, 12, KERNEL.MODE_CANDIDATE_SEARCH, placement, debug, explosion)
 	var frontier: Dictionary = (begun["value"] as Dictionary)["preparation"]
 	var slice_result: Dictionary = KERNEL.advance(frontier, 36)
-	var result: Dictionary = PREPARATION.advance(frontier, slice_result)
+	var result: Dictionary = PREPARATION.check_advance(frontier, slice_result)
 	assert_true(result.get("ok", false), JSON.stringify(result))
-	assert_eq(result.value.preparation, slice_result.value.preparation)
-	result.value.preparation.spec.capability_ids.clear()
-	assert_false(slice_result.value.preparation.spec.capability_ids.is_empty())
 
 
 func test_preparation_state_advance_rejects_a_slice_result_with_a_drifted_spec() -> void:
@@ -389,7 +320,7 @@ func test_preparation_state_advance_rejects_a_slice_result_with_a_drifted_spec()
 	tampered_preparation["spec"] = tampered_spec
 	tampered_value["preparation"] = tampered_preparation
 	tampered_result["value"] = tampered_value
-	var result: Dictionary = PREPARATION.advance(frontier, tampered_result)
+	var result: Dictionary = PREPARATION.check_advance(frontier, tampered_result)
 	assert_false(result.get("ok", true))
 	assert_eq(result.get("code"), &"preparation_spec_drifted")
 
@@ -443,9 +374,7 @@ func test_begin_debug_and_run_debug_slice_reach_certified_against_the_real_begin
 	var candidate: Dictionary = preparation["candidate_state"]
 	assert_eq(int(candidate["mine_count"]), 10)
 	assert_false((candidate["mine_indices"] as Array).has(forced_cell))
-	# A certified preparation must also pass validate_prepared() against the same trusted spec.
-	var revalidated: Dictionary = GENERATOR.validate_prepared(preparation, spec)
-	assert_true(revalidated.get("ok", false), JSON.stringify(revalidated))
+
 
 
 func test_run_debug_slice_falls_back_once_the_search_budget_has_no_room_left() -> void:

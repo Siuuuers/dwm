@@ -12,13 +12,6 @@ static func make(kernel_spec: Dictionary, forced_cell: int, mode: StringName,
 		placement_rng_state, debug_rng_state, explosion_rng_state)
 
 
-static func validate(state: Dictionary) -> Dictionary:
-	var checked := check(state)
-	if not checked.ok:
-		return checked
-	return {"ok": true, "code": &"ok", "value": {"preparation": state.duplicate(true)}, "receipt": {}}
-
-
 static func check(state: Dictionary) -> Dictionary:
 	var shape := _exact_keys(state, _KERNEL.FRONTIER_KEYS, &"preparation_member_set_invalid")
 	if not shape.get("ok", false):
@@ -83,18 +76,12 @@ static func check(state: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
-static func advance(current: Dictionary, slice_result: Dictionary) -> Dictionary:
-	var checked := check_advance(current, slice_result)
-	if not checked.ok: return checked
-	return {"ok": true, "code": &"ok", "value": {"preparation": slice_result.value.preparation.duplicate(true)}, "receipt": {}}
-
-
 static func check_advance(current: Dictionary, slice_result: Dictionary) -> Dictionary:
 	var current_check := check(current)
 	if not current_check.get("ok", false):
 		return current_check
 	if StringName(current["status"]) != _KERNEL.STATUS_SEARCHING:
-		return _fail(&"preparation_not_searching", "advance() requires a searching preparation", {})
+		return _fail(&"preparation_not_searching", "A slice requires a searching preparation", {})
 
 	if not slice_result.get("ok", false):
 		return _fail(&"preparation_slice_result_failed", "slice_result did not succeed",

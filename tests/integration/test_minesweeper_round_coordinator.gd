@@ -457,6 +457,8 @@ func test_dating_round_takes_its_evidence_from_the_state_port_not_the_request() 
 	assert_eq((evidence as Dictionary)["entry_id"], "entry-1")
 	assert_eq((evidence as Dictionary)["route_transaction_id"], "rtx-1")
 	assert_eq((evidence as Dictionary)["friend_ids"], ["priscilla"])
+	evidence.friend_ids.clear()
+	assert_eq(made.coord.get_active_round().value.dating_evidence.friend_ids, ["priscilla"])
 
 
 func test_dating_round_ignores_caller_supplied_friend_and_entry_identifiers() -> void:

@@ -23,9 +23,6 @@ const FALLBACK_MANIFEST_PATH := "res://data/manifests/minesweeper_certified_fall
 const _DIFFICULTY_MANIFEST_PATH := "res://data/manifests/minesweeper_difficulties.v1.json"
 const _BUDGET_SCHEMA_PATH := "res://data/schemas/minesweeper-generator-budget.schema.json"
 const _RNG_SOURCE_PATH := "res://scripts/domain/minesweeper/DeterministicRng32.gd"
-const _REDUCER_SOURCE_PATH := "res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd"
-const _KERNEL_SOURCE_PATH := "res://scripts/domain/minesweeper/MinesweeperGeneratorKernel.gd"
-const _VERIFIER_SOURCE_PATH := "res://scripts/domain/minesweeper/MinesweeperNoGuessVerifier.gd"
 
 const _BUDGET_KEYS := [
 	"schema_version", "benchmark_corpus_sha256", "device_evidence", "source_sha256", "rows",
@@ -38,8 +35,7 @@ const _SOURCE_SHA256_KEYS := [
 	"fallback_builder", "fallback_manifest", "benchmark_tool", "budget_schema",
 ]
 const _FRESHNESS_CHECKED_SOURCES := {
-	"rng": _RNG_SOURCE_PATH, "reducer": _REDUCER_SOURCE_PATH, "kernel": _KERNEL_SOURCE_PATH,
-	"verifier": _VERIFIER_SOURCE_PATH, "difficulty_manifest": _DIFFICULTY_MANIFEST_PATH,
+	"rng": _RNG_SOURCE_PATH, "difficulty_manifest": _DIFFICULTY_MANIFEST_PATH,
 	"budget_schema": _BUDGET_SCHEMA_PATH, "fallback_manifest": FALLBACK_MANIFEST_PATH,
 }
 const _ROW_KEYS := [
@@ -220,8 +216,6 @@ static func run_debug_slice(current: Dictionary) -> Dictionary:
 		var advanced: Dictionary = _KERNEL.advance(current, call_limit)
 		if not advanced.get("ok", false):
 			return advanced
-		if advanced.value.preparation.status == _KERNEL.STATUS_SEARCHING and current.candidate_state != null:
-			return _PREPARATION.advance(current, advanced)
 		var checked := _PREPARATION.check_advance(current, advanced)
 		return advanced if checked.ok else checked
 
@@ -229,27 +223,6 @@ static func run_debug_slice(current: Dictionary) -> Dictionary:
 	if not fallback_loaded.get("ok", false):
 		return fallback_loaded
 	return _adopt_fallback(current, budget, _fallback_manifest_cache.records)
-
-
-static func validate_prepared(candidate: Dictionary, spec: Dictionary) -> Dictionary:
-	var spec_check: Dictionary = _BOARD_SCHEMA.check_spec(spec)
-	if not spec_check.get("ok", false):
-		return spec_check
-
-	var preparation_check: Dictionary = _PREPARATION.validate(candidate)
-	if not preparation_check.get("ok", false):
-		return preparation_check
-	var preparation: Dictionary = (preparation_check["value"] as Dictionary)["preparation"]
-	if StringName(preparation["status"]) != _KERNEL.STATUS_CERTIFIED:
-		return _fail(&"preparation_not_certified", "validate_prepared requires a certified preparation", {})
-
-	var expected_projection := _project_kernel_spec(spec)
-	if preparation["spec"] != expected_projection:
-		return _fail(&"preparation_spec_projection_mismatch",
-			"the preparation's kernel spec is not the exact projection of the trusted BoardSpec", {})
-
-	return preparation_check
-
 
 
 static func _adopt_fallback(current: Dictionary, budget: Dictionary, fallback_records: Array) -> Dictionary:
@@ -305,20 +278,23 @@ static func _adopt_fallback(current: Dictionary, budget: Dictionary, fallback_re
 			return sampled
 		dispositions.append(_DISPOSITIONS[int((sampled["value"] as Dictionary)["result"])])
 
+	var owned_spec := spec.duplicate()
+	owned_spec.capability_ids = capability_ids.duplicate()
 	var certified_preparation := {
-		"status": _KERNEL.STATUS_CERTIFIED, "mode": current["mode"], "spec": spec,
-		"forced_cell": forced_cell, "placement_rng_state": current["placement_rng_state"],
-		"debug_rng_state": current["debug_rng_state"],
+		"status": _KERNEL.STATUS_CERTIFIED, "mode": current["mode"], "spec": owned_spec,
+		"forced_cell": forced_cell, "placement_rng_state": current["placement_rng_state"].duplicate(),
+		"debug_rng_state": current["debug_rng_state"].duplicate(),
 		"explosion_rng_state": explosion_rng.capture()["value"],
 		"extra_tier": current["extra_tier"], "candidate_ordinal": current["candidate_ordinal"],
 		"candidate_state": {
-			"mine_indices": mine_indices, "mine_count": mine_indices.size(), "mine_dispositions": dispositions,
+			"mine_indices": mine_indices.duplicate(), "mine_count": mine_indices.size(), "mine_dispositions": dispositions,
 		},
 		"operations_used": operations_used + operation_count,
 		"slice_sequence": int(current["slice_sequence"]) + 1, "last_failure_code": current["last_failure_code"],
 	}
 	var wrapped := {"ok": true, "code": &"ok", "value": {"preparation": certified_preparation}, "receipt": {}}
-	return _PREPARATION.advance(current, wrapped)
+	var checked := _PREPARATION.check_advance(current, wrapped)
+	return wrapped if checked.ok else checked
 
 
 

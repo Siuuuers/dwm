@@ -347,7 +347,7 @@ static func _fail(code: StringName, message: String, details: Dictionary) -> Dic
 	return {"ok": false, "code": code, "message": message, "details": details}
 
 
-static func validate_shell(shell: Dictionary, width: int, height: int) -> Dictionary:
+static func validate_shell(shell: Dictionary, width: int, height: int, check_only: bool = false) -> Dictionary:
 	if width <= 0 or height <= 0 or shell.size() != 2 or not shell.get("actions") is Array \
 			or not shell.get("flagged_indices") is Array:
 		return _fail(&"invalid_board_shell", "shell requires flags and actions", {})
@@ -358,7 +358,7 @@ static func validate_shell(shell: Dictionary, width: int, height: int) -> Dictio
 		if not raw is Dictionary or raw.size() != 5 or str(raw.get("kind", "")) != "set_flag" \
 				or not raw.get("transaction_id") is String or raw.transaction_id.strip_edges().is_empty() \
 				or transactions.has(raw.transaction_id) or not _is_int_like(raw.get("cell_index")) \
-				or not _is_int_like(raw.get("revision")) or int(raw.revision) != actions.size() + 1 \
+				or not _is_int_like(raw.get("revision")) or int(raw.revision) != transactions.size() + 1 \
 				or not raw.get("flagged") is bool:
 			return _fail(&"invalid_board_shell", "invalid shell action", {})
 		var index: int = int(raw.cell_index)
@@ -367,8 +367,9 @@ static func validate_shell(shell: Dictionary, width: int, height: int) -> Dictio
 		transactions[raw.transaction_id] = true
 		if raw.flagged: flags[index] = true
 		else: flags.erase(index)
-		actions.append({"transaction_id": str(raw.transaction_id), "kind": "set_flag",
-			"cell_index": index, "flagged": bool(raw.flagged), "revision": actions.size() + 1})
+		if not check_only:
+			actions.append({"transaction_id": str(raw.transaction_id), "kind": "set_flag",
+				"cell_index": index, "flagged": bool(raw.flagged), "revision": transactions.size()})
 	var expected: Array = flags.keys()
 	expected.sort()
 	var supplied: Array = []
@@ -378,13 +379,15 @@ static func validate_shell(shell: Dictionary, width: int, height: int) -> Dictio
 		supplied.append(int(raw))
 	if supplied != expected:
 		return _fail(&"invalid_board_shell", "shell flags disagree with history", {})
+	if check_only: return {"ok": true}
 	return {"ok": true, "value": {"shell": {"flagged_indices": expected, "actions": actions}}}
 
 
-static func clear_debug_flags(shell: Dictionary) -> Dictionary:
-	var actions: Array = shell.actions.duplicate(true)
+static func clear_debug_flags(shell: Dictionary) -> void:
+	if shell.flagged_indices.is_empty(): return
+	var actions: Array = shell.actions
 	for index: int in shell.flagged_indices:
 		var revision := actions.size() + 1
 		actions.append({"transaction_id": DEBUG_CLEAR_PREFIX + str(revision), "kind": "set_flag",
 			"cell_index": index, "flagged": false, "revision": revision})
-	return {"flagged_indices": [], "actions": actions}
+	shell["flagged_indices"] = []

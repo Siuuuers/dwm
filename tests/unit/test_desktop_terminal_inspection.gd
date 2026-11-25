@@ -76,7 +76,7 @@ func test_binding_survives_json_stringname_and_typed_array_normalization_but_not
 	var legacy := snapshot.duplicate(true)
 	for receipt: Dictionary in legacy.terminal_receipts.values(): receipt.erase("board_sha256")
 	assert_false(STATE.is_settled_inspection(legacy), "an old ordinal alone cannot suppress settlement")
-	legacy = STATE.dismissed_inspection_snapshot(legacy)
+	legacy = STATE.project_dismissed_inspection(legacy)
 	assert_true(STATE.new().prepare_restore(legacy).ok, "historical completed NONE remains loadable")
 
 func test_cold_remapped_terminal_keeps_exact_inspection_and_rejects_old_action_without_payment() -> void:

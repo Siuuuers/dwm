@@ -67,9 +67,12 @@ func configure(save_port: Object, state_port: Object) -> Dictionary:
 func get_active_round() -> Dictionary:
 	if _active_round.is_empty():
 		return {"ok": false, "code": &"no_active_round"}
-	if _active_round.get("dating_evidence") != null:
-		return {"ok": true, "code": &"ok", "value": _active_round.duplicate(true)}
-	return {"ok": true, "code": &"ok", "value": _active_round.duplicate()}
+	var round_view := _active_round.duplicate()
+	if round_view.get("dating_evidence") != null:
+		var evidence: Dictionary = round_view.dating_evidence.duplicate()
+		evidence.friend_ids = evidence.friend_ids.duplicate()
+		round_view.dating_evidence = evidence
+	return {"ok": true, "code": &"ok", "value": round_view}
 
 
 func _normalize_result_for_identity(result: Variant) -> Dictionary:
@@ -207,7 +210,7 @@ func complete_round(round_id: String, result: Variant, transaction_id: String) -
 		var stored: Dictionary = _completed_records[transaction_id]
 		if round_id != stored["receipt"].get("round_id", "") or normalized["value"] != stored["normalized_result"]:
 			return {"ok": false, "code": &"TRANSACTION_ID_CONFLICT"}
-		return {"ok": true, "code": &"ok", "value": stored["receipt"].duplicate(true)}
+		return {"ok": true, "code": &"ok", "value": CONTRACT.copy_completion_receipt(stored.receipt)}
 	if not _pending.is_empty():
 		if round_id != _pending.get("round_id", "") or transaction_id != _pending.get("transaction_id", "") \
 				or normalized["value"] != _pending.get("normalized_result", {}):
@@ -263,17 +266,17 @@ func _resume_pending() -> Dictionary:
 		var pub: Dictionary = _state_port.publish(_pending["receipt"], _pending["domain_events"])
 		if not pub.get("ok", false):
 			return {"ok": false, "code": &"COMPLETION_COMMITTED_UNPUBLISHED",
-				"value": _pending["receipt"].duplicate(true)}
+				"value": CONTRACT.copy_completion_receipt(_pending.receipt)}
 		_pending["phase"] = &"release_lock"
 	var rel: Dictionary = _save_port.release_board_lock()
 	if not rel.get("ok", false):
 		return {"ok": false, "code": &"LOCK_RELEASE_PENDING",
-			"value": _pending["receipt"].duplicate(true)}
+			"value": CONTRACT.copy_completion_receipt(_pending.receipt)}
 	_completed_records[_pending["transaction_id"]] = {
 		"receipt": _pending["receipt"],
 		"normalized_result": _pending["normalized_result"],
 	}
-	var detached: Dictionary = _pending["receipt"].duplicate(true)
+	var detached: Dictionary = CONTRACT.copy_completion_receipt(_pending.receipt)
 	_active_round = {}
 	_pending = {}
 	return {"ok": true, "code": &"ok", "value": detached}

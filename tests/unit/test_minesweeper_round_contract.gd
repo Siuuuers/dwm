@@ -88,3 +88,12 @@ func test_validate_result_rejects_app_with_evidence() -> void:
 	var r := CONTRACT.validate_result(ar, {"outcome": &"cleared"})
 	assert_false(r.ok)
 	assert_eq(r.code, &"invalid_result")
+
+
+func test_completion_receipt_copies_only_the_mutable_collections() -> void:
+	var original := {"round_id": "round-1", "counter_deltas": {"money": 4}, "task_ids": ["no_flag"],
+		"effect_transaction_ids": ["effect-1"], "message_transaction_ids": ["message-1"]}
+	var editable := MinesweeperRoundContract.copy_completion_receipt(original)
+	for key: String in ["counter_deltas", "task_ids", "effect_transaction_ids", "message_transaction_ids"]:
+		editable[key].clear()
+		assert_false(original[key].is_empty())

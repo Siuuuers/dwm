@@ -460,7 +460,8 @@ func validate_recovery_action(action_candidate: Dictionary, action_receipt: Dict
 	}}, "receipt": {}}
 
 
-func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictionary) -> Dictionary:
+func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictionary,
+		_proven_candidate_sha256: String = "") -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready

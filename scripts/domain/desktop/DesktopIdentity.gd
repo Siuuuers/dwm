@@ -34,7 +34,7 @@ static func validate(identity: Dictionary) -> Dictionary:
 	if typeof(ordinal) != TYPE_INT or int(ordinal) < _MIN_ORDINAL or int(ordinal) > _MAX_ORDINAL:
 		return _fail(&"identity_field_invalid", "app_round_ordinal must be an integer in 1..5",
 			{"field": "app_round_ordinal", "value": ordinal})
-	return {"ok": true, "code": &"ok", "value": {"identity": identity.duplicate(true)}, "receipt": {}}
+	return {"ok": true, "code": &"ok", "value": {"identity": identity.duplicate()}, "receipt": {}}
 
 
 static func fingerprint(identity: Dictionary) -> Dictionary:
@@ -63,14 +63,11 @@ static func remap(identity: Dictionary, branch_id: String, timeline_generation: 
 		return _fail(&"identity_field_invalid",
 			"desktop_timeline_generation must be a nonnegative integer",
 			{"field": "desktop_timeline_generation"})
-	var remapped: Dictionary = identity.duplicate(true)
+	var remapped: Dictionary = validated.value.identity
 	remapped["branch_id"] = branch_id
 	remapped["desktop_timeline_generation"] = timeline_generation
 	remapped["causal_day_instance"] = causal_day_instance
-	var revalidated := validate(remapped)
-	if not revalidated.get("ok", false):
-		return revalidated
-	return {"ok": true, "code": &"ok", "value": {"identity": remapped}, "receipt": {}}
+	return validated
 
 
 static func _exact_keys(identity: Dictionary) -> Dictionary:

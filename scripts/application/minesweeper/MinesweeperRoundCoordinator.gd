@@ -2,6 +2,7 @@ extends RefCounted
 
 const _REGISTER_QUERY := preload("res://scripts/application/minesweeper/MinesweeperRegisterQuery.gd")
 const _CATALOG := preload("res://scripts/domain/minesweeper/MinesweeperBoardCatalog.gd")
+const _ROUND_CONTRACT := preload("res://scripts/domain/minesweeper/MinesweeperRoundContract.gd")
 const PERFORMANCE := preload("res://scripts/domain/minesweeper/BoardPerformance.gd")
 
 
@@ -182,8 +183,8 @@ func configure_durable_checkpoint(checkpoint_port: Object, snapshot_composer: Sc
 
 
 func configure_consequence_port(port: Object, mutation_gate: ApplicationMutationGate) -> Dictionary:
-	if port == null or not port.has_method("accept_prepared_action"):
-		return _fail(&"invalid_consequence_port", "an exact accept_prepared_action capability is required", {})
+	if port == null or not _has_all_methods(port, ["accept_prepared_action", "replay_accepted_action"]):
+		return _fail(&"invalid_consequence_port", "accepted actions must be replayable", {})
 	if mutation_gate == null:
 		return _fail(&"invalid_mutation_gate", "mutation_gate is required", {})
 	if _consequence_coordinator != null or _consequence_gate != null:
@@ -221,11 +222,11 @@ func complete_round(request: Dictionary) -> Dictionary:
 	var profile := _consequence_profile_start("minesweeper_round_complete")
 	var profile_tick := int(profile.get("_started_us", 0))
 	var retry_id := str(request.get("transaction_id", ""))
-	var prior: Dictionary = _round_pending_admission_requests.get(retry_id, _round_completions.get(retry_id, {}))
+	var prior: Variant = _round_pending_admission_requests.get(retry_id, {}).get("fingerprint", _round_completions.get(retry_id))
 	var own_retry := _consequence_gate_token != "" and _consequence_gate != null \
 		and _consequence_gate.is_internal_owner_active(_GATE_OWNER) \
-		and not prior.is_empty()
-	if own_retry and str(prior.fingerprint) != _fingerprint(request):
+		and prior != null
+	if own_retry and prior != _fingerprint(request):
 		return _fail(&"transaction_conflict", "completion retry must retain its original request", {})
 	var guard := {} if own_retry else _guard(&"complete_round")
 	if not guard.is_empty():
@@ -241,9 +242,8 @@ func complete_round(request: Dictionary) -> Dictionary:
 	var fingerprint := _fingerprint(request)
 
 	if _round_completions.has(transaction_id):
-		var recorded: Dictionary = _round_completions[transaction_id]
-		if str(recorded["fingerprint"]) == fingerprint:
-			return (recorded["result"] as Dictionary).duplicate(true)
+		if _round_completions[transaction_id] == fingerprint:
+			return _consequence_coordinator.replay_accepted_action(transaction_id)
 		return _fail(&"transaction_conflict", "", {"transaction_id": transaction_id})
 
 	var verify := _verify_transaction(transaction_id, request["transaction_issuer_receipt"])
@@ -445,7 +445,7 @@ func _call_accept_and_finalize(transaction_id: String, fingerprint: String, acce
 	profile_tick = _consequence_profile_phase(profile, "accept_prepared_action_us", profile_tick)
 	if bool(accepted.get("ok", false)):
 		_round_pending_admission_requests.erase(transaction_id)
-		_round_completions[transaction_id] = {"fingerprint": fingerprint, "result": accepted.duplicate(true)}
+		_round_completions[transaction_id] = fingerprint
 	elif str(accepted.get("code", "")) == "condition_departure_ports_unconfigured":
 		if _consequence_gate_token != "":
 			_consequence_gate.release(_GATE_OWNER, _consequence_gate_token)
@@ -469,7 +469,8 @@ func validate_recovery_action(action_candidate: Dictionary, action_receipt: Dict
 	}}, "receipt": {}}
 
 
-func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictionary) -> Dictionary:
+func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictionary,
+		proven_candidate_sha256: String = "") -> Dictionary:
 	var profile := _consequence_profile_start("minesweeper_round_recovery_commit")
 	var profile_tick := int(profile.get("_started_us", 0))
 	var validated := _ACTION_RECEIPT.validate(action_receipt)
@@ -482,9 +483,12 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 	if str(action_candidate.get("transaction_id", "")) != transaction_id:
 		return _fail(&"invalid_action_candidate", "action_candidate.transaction_id must match action_receipt", {})
 
+	var candidate_sha256 := proven_candidate_sha256 if not proven_candidate_sha256.is_empty() else _canonical_sha256(action_candidate)
+	if candidate_sha256.is_empty():
+		return _fail(&"invalid_action_candidate", "recovery requires a canonical action candidate", {})
 	if _round_recovery_committed.has(transaction_id):
 		var recorded: Dictionary = _round_recovery_committed[transaction_id]
-		if recorded["action_candidate"] == action_candidate and recorded["receipt"] == receipt:
+		if recorded.candidate_sha256 == candidate_sha256 and recorded.receipt == receipt:
 			return _recovery_result(receipt)
 		return _fail(&"action_receipt_conflict", "this transaction was already committed with different bytes", {})
 
@@ -531,9 +535,14 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 		if not ledger_committed.get("ok", false):
 			return ledger_committed
 
-	_round_recovery_committed[transaction_id] = {
-		"action_candidate": action_candidate.duplicate(true), "receipt": receipt.duplicate(true),
-	}
+	var committed := {"candidate_sha256": candidate_sha256, "receipt": receipt.duplicate(true)}
+	if action_candidate.has("reward"):
+		committed.reward_receipt = _ROUND_CONTRACT.copy_completion_receipt(action_candidate.reward.prepared_domain_receipt)
+		var events: Array[Dictionary] = []
+		for event: Dictionary in action_candidate.reward.domain_events:
+			events.append(event.duplicate())
+		committed.reward_events = events
+	_round_recovery_committed[transaction_id] = committed
 	_consequence_profile_phase(profile, "receipt_and_cache_us", profile_tick)
 	return _consequence_profile_result(profile, _recovery_result(receipt))
 
@@ -565,10 +574,9 @@ func publish_recovery_action(publication: Dictionary) -> Dictionary:
 		return recorded
 	if bool(recorded.get("value", {}).get("first_delivery", false)):
 		var committed: Dictionary = _round_recovery_committed.get(str(receipt.transaction_id), {})
-		var reward: Dictionary = committed.get("action_candidate", {}).get("reward", {})
-		if not reward.is_empty():
+		if committed.has("reward_receipt"):
 			var published: Dictionary = _reward_port.publish_desktop_completion(
-				reward.prepared_domain_receipt, reward.domain_events)
+				committed.reward_receipt, committed.reward_events)
 			if not published.get("ok", false): return published
 	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": receipt}
 

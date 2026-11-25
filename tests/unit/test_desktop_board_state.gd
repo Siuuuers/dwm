@@ -411,7 +411,7 @@ func test_read_state_shares_one_board_and_keeps_old_receipts_across_commands() -
 	assert_true(is_same(shown, _state.read_state()))
 	assert_true(shown.is_read_only() and shown.board.is_read_only())
 	assert_true(shown.board.board.revealed_indices.is_read_only())
-	assert_true(shown.command_receipts.start.result.value.board.is_read_only())
+	assert_true(is_same(shown.command_receipts.start.result.value.board, shown.board))
 	first.value.board.board.revealed_indices.clear()
 	var editable := _state.capture()
 	editable.board.board.revealed_indices.clear()
@@ -1047,7 +1047,7 @@ func test_scene_settled_board_restores_without_terminal_history_and_preserves_vi
 	var detached := restored.capture()
 	detached.settled_inspection = false
 	assert_true(restored.has_settled_inspection(), "captured fact is detached")
-	var cleared := STATE.dismissed_inspection_snapshot(remapped)
+	var cleared := STATE.project_dismissed_inspection(remapped)
 	assert_false(cleared.settled_inspection)
 	assert_eq(cleared.phase, "NONE")
 
@@ -1088,7 +1088,7 @@ func test_scene_round_paid_is_required_boolean_and_agrees_with_active_phase() ->
 	var missing := saved.duplicate(true)
 	missing.erase("round_paid")
 	assert_false(STATE.new().prepare_restore_scene(missing, fixture.issuer).ok)
-	var cleared := STATE.dismissed_inspection_snapshot(saved)
+	var cleared := STATE.project_dismissed_inspection(saved)
 	assert_false(cleared.round_paid)
 	assert_true(STATE.new().prepare_restore_scene(cleared, fixture.issuer).ok)
 	cleared.round_paid = true
@@ -1099,7 +1099,7 @@ func test_scene_new_unpaid_preparation_ignores_previous_day_matching_round_ordin
 	var fixture := _scene_fixture()
 	var saved := _scene_start(fixture)
 	if saved.is_empty(): return
-	var cleared := STATE.dismissed_inspection_snapshot(saved)
+	var cleared := STATE.project_dismissed_inspection(saved)
 	var restored := STATE.new()
 	var restore := restored.prepare_restore_scene(cleared, fixture.issuer)
 	assert_true(restore.ok, str(restore))
