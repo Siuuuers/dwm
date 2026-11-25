@@ -124,6 +124,8 @@ func test_invalid_v1_skip_is_the_only_repair_and_the_repaired_archive_is_valid()
 	assert_eq(repaired.value.preferences.reading.skip_mode, "read_only")
 	assert_eq(repaired.value.legacy_preferences_v1.dialogue.skip_mode, "read_only")
 	assert_true(repaired.value.migration_receipts.invalid_persisted_skip_mode_v1)
+	assert_eq(source.preferences.dialogue.skip_mode, "invalid-old-value")
+	assert_false(source.migration_receipts.invalid_persisted_skip_mode_v1)
 	var malformed := source.duplicate(true)
 	malformed.preferences.accessibility.unknown_legacy_preference = true
 	assert_false(MIGRATION.prepare_document(malformed).get("ok", true))

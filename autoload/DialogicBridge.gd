@@ -1678,11 +1678,11 @@ func configure_reached_caption_collection(document: Dictionary, admissions: Arra
 			if not line_id is String or not owned.has(line_id) or collectable.has(line_id):
 				return _command_failure(&"replay_caption_admission_invalid")
 			collectable[line_id] = true
-		admitted[signature_id] = {"signature": row.signature.duplicate(true), "collectable_line_ids": collectable}
+		admitted[signature_id] = collectable
 	preload("res://scripts/narrative/FrozenPresentationContext.gd")._freeze(admitted)
 	var variants := {}
-	for beat: Dictionary in candidate.registry.beats: variants[beat.line_id] = beat.duplicate(true)
-	preload("res://scripts/narrative/FrozenPresentationContext.gd")._freeze(variants)
+	for beat: Dictionary in candidate.registry.beats: variants[beat.line_id] = beat
+	variants.make_read_only()
 	_reached_caption_variants = variants
 	_reached_caption_catalogue = candidate
 	_reached_caption_admissions = admitted
@@ -1711,8 +1711,7 @@ func _prepare_reached_caption_collection(entry_id: String) -> Dictionary:
 	var bound: Dictionary = _runtime_adapter.bind_caption_ledger(ledger, _reached_replay.token, entry_id)
 	if not bound.ok: return bound
 	_reached_replay.merge({"caption_ledger": ledger,
-		"caption_registry": _reached_caption_catalogue.registry.duplicate(true),
-		"collectable_line_ids": _reached_caption_admissions[signature_id].collectable_line_ids.duplicate(true),
+		"collectable_line_ids": _reached_caption_admissions[signature_id],
 		"collected_captions": [], "acknowledged_publications": {}})
 	return {"ok": true}
 
@@ -1754,10 +1753,10 @@ func _acknowledge_reached_caption(expected: Dictionary) -> Dictionary:
 	var identity: Dictionary = current.value
 	var publication_id: String = identity.caption_publication.publication_id
 	if not _reached_replay.acknowledged_publications.has(publication_id):
-		_reached_replay.acknowledged_publications[publication_id] = identity.duplicate(true)
+		_reached_replay.acknowledged_publications[publication_id] = identity
 		if _reached_replay.collectable_line_ids.has(identity.line_id) \
 				and not _reached_replay.collected_captions.has(identity.caption_variant):
-			_reached_replay.collected_captions.append(identity.caption_variant.duplicate(true))
+			_reached_replay.collected_captions.append(identity.caption_variant)
 	return {"ok": true, "code": &"acknowledged", "value": {}, "receipt": {
 		"line_id": identity.line_id, "entry_id": identity.entry_id, "playback_token": identity.token,
 		"frontier": identity.frontier.duplicate(true)}}
@@ -1868,7 +1867,7 @@ func replay_reached_signature(signature_id: String) -> Dictionary:
 	if dialogic != null:
 		variables = (dialogic.current_state_info.get("variables", {}) as Dictionary).duplicate(true)
 	_replay_counter += 1
-	_reached_replay = {"signature_id": signature_id, "signature": signature.duplicate(true),
+	_reached_replay = {"signature_id": signature_id, "signature": signature,
 		"variables": variables, "token": "gallery-%d" % _replay_counter}
 	if entry.role in ["solo_pre_challenge", "solo_post_challenge", "pair_pre_challenge_scene", "pair_post_challenge_scene"]:
 		var card_started: Dictionary = _begin_reached_date_card(signature)
@@ -1957,7 +1956,10 @@ func _finish_reached_replay(outcome: String, code: String = "", restore_variable
 	if _reached_replay.get("merge_busy", false): return _command_failure(&"replay_exit_in_progress")
 	if _reached_replay.get("exit_uncertain", false):
 		return _reached_replay.exit_result.duplicate(true)
-	var replay := _reached_replay.duplicate(true)
+	var replay := _reached_replay.duplicate()
+	var captions: Array[Dictionary] = []
+	if outcome in ["completed", "cancelled"] and replay.has("caption_ledger"):
+		for beat: Dictionary in replay.collected_captions: captions.append(beat.duplicate(true))
 	if not replay.has("exit_outcome"):
 		_reached_replay["exit_outcome"] = outcome
 		if replay.has("caption_ledger") and _runtime_adapter != null \
@@ -1971,9 +1973,7 @@ func _finish_reached_replay(outcome: String, code: String = "", restore_variable
 	var merged := {"ok": true, "value": {"history_added": false}}
 	if outcome in ["completed", "cancelled"] and replay.has("caption_ledger"):
 		_reached_replay["merge_busy"] = true
-		var captions: Array[Dictionary] = []
-		for beat: Dictionary in replay.collected_captions: captions.append(beat.duplicate(true))
-		merged = _replay_profile.merge_caption_history(captions, replay.caption_registry)
+		merged = _replay_profile.merge_caption_history(captions, _reached_caption_catalogue.registry.duplicate(true))
 		if _reached_replay.get("token") != replay.token or _reached_replay.get("signature_id") != replay.signature_id:
 			return _command_failure(&"replay_identity_mismatch")
 		_reached_replay["merge_busy"] = false
@@ -4498,11 +4498,22 @@ func validate_live_scene_event_anchor(anchor: Dictionary, checkpoint: Dictionary
 	return _reading_session.validate_scene_event_anchors(anchors)
 
 func validate_scene_event_anchor(anchor: Dictionary, checkpoint: Dictionary) -> Dictionary:
-	var expanded := _READING_SESSION.expand_player_checkpoint(checkpoint)
-	if not expanded.ok: return expanded
-	checkpoint = expanded.value
-	if checkpoint.get("reading_session") is Dictionary and typeof(checkpoint.reading_session.get("schema_version")) == TYPE_INT and checkpoint.reading_session.schema_version == 5:
-		return _validate_scene5_event_anchors([anchor], checkpoint)
+	return validate_scene_event_anchors([anchor], checkpoint)
+
+func validate_scene_event_anchors(anchors: Array[Dictionary], checkpoint: Dictionary) -> Dictionary:
+	var reading: Variant = checkpoint.get("reading_session")
+	if checkpoint.get("stage") == "scene" and (not reading is Dictionary or reading.get("schema_version") != 5):
+		var expanded := _READING_SESSION.expand_player_checkpoint(checkpoint)
+		if not expanded.ok: return expanded
+		return expanded.session.validate_scene_event_anchors(anchors)
+	if reading is Dictionary and typeof(reading.get("schema_version")) == TYPE_INT and reading.schema_version == 5:
+		return _validate_scene5_event_anchors(anchors, checkpoint)
+	for anchor: Dictionary in anchors:
+		var checked := _validate_solo_event_anchor(anchor, checkpoint)
+		if not checked.ok: return checked
+	return {"ok": true}
+
+func _validate_solo_event_anchor(anchor: Dictionary, checkpoint: Dictionary) -> Dictionary:
 	var catalogue := _READING_SESSION.new()
 	var configured: Dictionary = catalogue.configure(_reading_catalogue_for_entry(str(anchor.entry_id)))
 	if not configured.get("ok", false) or catalogue.family != "solo" \
@@ -4525,17 +4536,6 @@ func validate_scene_event_anchor(anchor: Dictionary, checkpoint: Dictionary) -> 
 					and caption.get("beat", {}).get("line_id") == anchor.line_id:
 				return {"ok": true}
 		return _command_failure(&"event_anchor_invalid")
-	return {"ok": true}
-
-func validate_scene_event_anchors(anchors: Array[Dictionary], checkpoint: Dictionary) -> Dictionary:
-	var expanded := _READING_SESSION.expand_player_checkpoint(checkpoint)
-	if not expanded.ok: return expanded
-	checkpoint = expanded.value
-	if checkpoint.get("reading_session") is Dictionary and typeof(checkpoint.reading_session.get("schema_version")) == TYPE_INT and checkpoint.reading_session.schema_version == 5:
-		return _validate_scene5_event_anchors(anchors, checkpoint)
-	for anchor: Dictionary in anchors:
-		var checked := validate_scene_event_anchor(anchor, checkpoint)
-		if not checked.ok: return checked
 	return {"ok": true}
 
 func _validate_scene5_event_anchors(anchors: Array[Dictionary], checkpoint: Dictionary) -> Dictionary:

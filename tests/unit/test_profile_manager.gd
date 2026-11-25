@@ -77,6 +77,11 @@ func test_defaults_are_schema_valid_and_exact() -> void:
 	assert_eq(profile["preferences"]["reading"]["skip_mode"], "read_only")
 	assert_eq(profile["gallery_transaction_receipts"], {})
 	assert_eq(profile["migration_receipts"].size(), 3)
+	profile.dialogue_library.checkpoints.append("edited")
+	profile.controls_bindings.game_quick_save.keyboard.physical_keycode = KEY_A
+	var fresh: Dictionary = _schema.call(&"make_defaults")
+	assert_eq(fresh.dialogue_library.checkpoints, [])
+	assert_eq(fresh.controls_bindings.game_quick_save.keyboard.physical_keycode, KEY_F5)
 
 func test_display_default_preserves_saved_choices_until_explicit_reset() -> void:
 	var fixture := _new_manager()
