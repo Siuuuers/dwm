@@ -14,7 +14,6 @@ const COMPOSER := preload("res://scripts/application/minesweeper/DesktopFirstRev
 const CONSEQUENCE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
 
 class StatePort extends "res://tests/support/FakeDesktopBoardStatePort.gd":
-	var selected := "beginner"
 	var board_owner: RefCounted
 	var pressure := 3
 	func get_selected_difficulty() -> String: return selected

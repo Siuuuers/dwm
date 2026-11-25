@@ -56,11 +56,10 @@ func capture() -> Dictionary:
 	var identity_context: Dictionary = captured_identity.value
 	var money: int = int(_game_state.money)
 	var coins: int = int(_game_state.coins)
-	var inventory: Dictionary = (_game_state.inventory as Dictionary).duplicate(true)
 	var round_floor: int = int(_game_state.minesweeper_round_floor)
 	var owned_item_ids: Dictionary = {}
 	for item_id: String in _CAPABILITY_ITEM_IDS:
-		owned_item_ids[item_id] = _owns(inventory, item_id)
+		owned_item_ids[item_id] = _owns(_game_state.inventory, item_id)
 	return {"ok": true, "code": &"ok", "value": {
 		"run_id": str(identity_context["run_id"]),
 		"branch_id": str(identity_context["branch_id"]),
@@ -72,10 +71,6 @@ func capture() -> Dictionary:
 		"pressure": _game_state.get_stat(_STAT_PRESSURE),
 		"carried_sequela": (_game_state.condition_effects_today as Array).has(_CONDITION_SEQUELA),
 		"owned_item_ids": owned_item_ids, "minesweeper_round_floor": round_floor,
-		"backup": {
-			"money": money, "coins": coins, "inventory": inventory,
-			"minesweeper_round_floor": round_floor,
-		},
 	}, "receipt": {}}
 
 
@@ -107,13 +102,11 @@ func prepare_purchase(item: Dictionary, quote: Dictionary, transaction_id: Strin
 	if currency != "money" and currency != "minesweeper_coin":
 		return _fail(&"invalid_currency", currency, {})
 
-	var captured := capture()
-	if not captured.get("ok", false):
-		return captured
-	var facts: Dictionary = captured["value"]
+	var identity := _capture_identity()
+	if not identity.get("ok", false): return identity
 
 	var is_capability_item := item_id in _CAPABILITY_ITEM_IDS
-	if is_capability_item and bool((facts["owned_item_ids"] as Dictionary).get(item_id, false)):
+	if is_capability_item and _owns(_game_state.inventory, item_id):
 		return _fail(&"shop_item_already_owned", "%s is already owned on this branch" % item_id, {})
 	if not _can_afford(currency, price):
 		return _fail(&"insufficient_funds", "not enough %s for %s" % [currency, item_id], {})
@@ -123,7 +116,7 @@ func prepare_purchase(item: Dictionary, quote: Dictionary, transaction_id: Strin
 		"grant_inventory_item_id": item_id if is_capability_item else "",
 	}
 	return {"ok": true, "code": &"ok", "value": {
-		"candidate": candidate, "backup": facts["backup"],
+		"candidate": candidate,
 	}, "receipt": {}}
 
 
@@ -209,23 +202,7 @@ func _prepare_ordinary(item: Dictionary, quote: Dictionary, transaction_id: Stri
 	var condition := {"pressure": int(clone.get_stat("pressure")),
 		"carried_sequela": (_game_state.condition_effects_today as Array).has("sequela")}
 	clone.free()
-	return {"ok": true, "value": {"candidate": candidate, "condition_after": condition,
-		"backup": {"gameplay": _game_state.to_save_dict(), "contacts": _game_state.contacts.duplicate(true)}}}
-
-
-func rollback(backup: Dictionary) -> Dictionary:
-	var ready := _require_configured()
-	if not ready.get("ok", false):
-		return ready
-	if backup.get("gameplay") is Dictionary:
-		_game_state.call(&"_apply_gameplay_silent", backup.gameplay)
-		_game_state.contacts = backup.contacts.duplicate(true)
-		return {"ok": true}
-	_game_state.money = int(backup["money"])
-	_game_state.coins = int(backup["coins"])
-	_game_state.inventory = (backup["inventory"] as Dictionary).duplicate(true)
-	_game_state.minesweeper_round_floor = int(backup["minesweeper_round_floor"])
-	return {"ok": true, "code": &"ok", "value": {"restored": true}, "receipt": {}}
+	return {"ok": true, "value": {"candidate": candidate, "condition_after": condition}}
 
 
 func publish(_publication: Dictionary) -> Dictionary:

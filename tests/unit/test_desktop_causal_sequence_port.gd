@@ -251,34 +251,6 @@ func test_publish_records_through_the_configured_ledger_at_most_once() -> void:
 	assert_eq((wired["ledger"] as FakePublicationLedger).records.size(), 1, "no second record is allocated")
 
 
-func test_rollback_before_admission_restores_pending_reservations() -> void:
-	var wired := _wired()
-	var port: RefCounted = wired["port"]
-	var backup: Dictionary = port.capture()
-	port.prepare_reservation(_request())
-	var rolled: Dictionary = port.rollback(backup["value"]["backup"])
-	assert_true(rolled.get("ok", false), JSON.stringify(rolled))
-	assert_eq(rolled["value"]["restored"], true)
-	# The reservation is gone: a fresh prepare_reservation for the same transaction proposes anew.
-	var reprepared: Dictionary = port.prepare_reservation(_request())
-	assert_true(reprepared.get("ok", false))
-	assert_eq(reprepared["value"]["causal_sequence_receipt"]["causal_sequence"], 1)
-
-
-func test_rollback_after_admission_is_irreversible() -> void:
-	var wired := _wired()
-	var port: RefCounted = wired["port"]
-	var gate: RefCounted = wired["gate"]
-	var backup: Dictionary = port.capture()
-	gate.acquire(&"causal_transaction")
-	var admission := _admit(wired)
-	var committed: Dictionary = port.commit(admission["admission_candidate"])
-	assert_true(committed.get("ok", false), JSON.stringify(committed))
-	var rejected: Dictionary = port.rollback(backup["value"]["backup"])
-	assert_false(rejected.get("ok", true))
-	assert_eq(rejected["code"], &"causal_admission_irreversible")
-
-
 func test_checkpoint_commit_failure_leaves_live_state_untouched() -> void:
 	var checkpoint_port := FakeAdmissionCheckpointPort.new()
 	var wired := _wired(null, checkpoint_port)
@@ -326,9 +298,6 @@ class FailInjectingConsequenceState:
 	func commit(candidate: Dictionary) -> Dictionary:
 		return _inner.commit(candidate)
 
-	func rollback(backup: Dictionary) -> Dictionary:
-		return _inner.rollback(backup)
-
 
 func test_commit_partial_live_failure_after_checkpoint_returns_committed_pending_recovery() -> void:
 	var spy_state := FailInjectingConsequenceState.new(_fresh_state())
@@ -355,25 +324,6 @@ func test_commit_partial_live_failure_after_checkpoint_returns_committed_pending
 	var live: Dictionary = spy_state.capture()["value"]["state"]
 	assert_eq(live["causal_sequence"], 0)
 	assert_eq(live["run_revision"], 0)
-
-
-func test_commit_partial_live_failure_pre_admission_backup_rollback_refuses() -> void:
-	var spy_state := FailInjectingConsequenceState.new(_fresh_state())
-	var wired := _wired(spy_state)
-	var port: RefCounted = wired["port"]
-	var gate: RefCounted = wired["gate"]
-	gate.acquire(&"causal_transaction")
-	var pre_admission_backup: Dictionary = port.capture()
-
-	var admission := _admit(wired)
-	spy_state.fail_next_call_name = "prepare_sequence_reservation"
-	var partial: Dictionary = port.commit(admission["admission_candidate"])
-	assert_false(partial.get("ok", true))
-	assert_eq(partial["code"], &"causal_admission_committed_pending_recovery")
-
-	var rejected: Dictionary = port.rollback(pre_admission_backup["value"]["backup"])
-	assert_false(rejected.get("ok", true), "rollback must refuse once the admission checkpoint has committed, even if live adoption then failed")
-	assert_eq(rejected["code"], &"causal_admission_irreversible")
 
 
 func test_commit_partial_live_failure_then_retry_resumes_coherently() -> void:

@@ -23,6 +23,7 @@ var desktop_timeline_generation := 0
 var causal_day_instance := "day-fake"
 var motivation := 7
 var rounds_left := 2
+var selected := "beginner"
 var round_floor := 0
 var generation_capabilities: Array = ["first_cell_safe"]
 var next_ordinal := 1
@@ -171,13 +172,21 @@ func commit(candidate: Dictionary) -> Dictionary:
 	var armed := _consume_failure("commit")
 	if not armed.is_empty():
 		return armed
+	adopt_first_reveal_charge(candidate)
+	return {"ok": true, "code": &"ok", "value": {"committed": true}, "receipt": {}}
+
+
+func adopt_selected_difficulty(difficulty: String) -> void:
+	selected = difficulty
+
+
+func adopt_first_reveal_charge(candidate: Dictionary) -> void:
 	if candidate.has("rounds_left"):
 		rounds_left = int(candidate["rounds_left"])
 	if candidate.has("motivation"):
 		motivation = int(candidate["motivation"])
 	if candidate.has("next_ordinal"):
 		next_ordinal = int(candidate["next_ordinal"])
-	return {"ok": true, "code": &"ok", "value": {"committed": true}, "receipt": {}}
 
 
 func rollback(backup: Dictionary) -> Dictionary:

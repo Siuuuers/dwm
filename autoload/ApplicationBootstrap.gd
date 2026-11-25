@@ -1211,7 +1211,8 @@ func _commit_ending_checkpoint() -> Dictionary:
 		var prepared: Dictionary = _retained_checkpoint_port.prepare(inputs, &"safe_marker", {"kind": &"autosave", "reason": &"automatic"})
 		if not prepared.get("ok", false): return prepared
 		var committed: Dictionary = _retained_checkpoint_port.commit(prepared.value.candidate)
-		if not committed.get("ok", false) and not committed.get("committed", false):
+		if not committed.get("ok", false) and not committed.get("committed", false) \
+				and not committed.get("checkpoint_untouched", false):
 			var rolled: Dictionary = _retained_checkpoint_port.rollback({"journal_backup": backup.value.backup,
 				"storage_backup": prepared.value.candidate.storage_backup})
 			if not rolled.get("ok", false): return rolled

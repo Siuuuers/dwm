@@ -78,11 +78,11 @@ class PurchaseParticipant extends RefCounted:
 	var prepare_requests: Array[Dictionary] = []
 
 	func capture() -> Dictionary:
-		return {"ok": true, "code": &"ok", "value": {"backup": {"state_backup": {}, "consequence_state": {
+		return {"ok": true, "code": &"ok", "value": {"state": {
 			"run_revision": 9,
 			"causal_day_instance": "causal-day-3",
 			"shop_ledger": shop_ledger.duplicate(true),
-		}}}}
+		}}}
 
 	func quote(item_id: String, transaction_id: String, receipt: Dictionary, quantity: int = 1) -> Dictionary:
 		quote_requests.append({"item_id": item_id, "quantity": quantity, "transaction_id": transaction_id, "receipt": receipt.duplicate(true)})

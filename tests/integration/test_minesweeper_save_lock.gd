@@ -14,13 +14,17 @@ const SAVE_PORT := preload("res://scripts/application/minesweeper/SaveManagerMin
 const COORDINATOR := preload("res://scripts/domain/minesweeper/MinesweeperRoundCoordinator.gd")
 const FAKE_STATE := preload("res://tests/support/FakeMinesweeperStatePort.gd")
 const FAKE_GATE := preload("res://tests/support/FakeApplicationMutationGate.gd")
-const SCHEDULE_VIEW := preload("res://scripts/domain/schedule/ScheduleViewState.gd")
-const VALID_FIXTURE := "res://tests/fixtures/snapshots/valid_day3.json"
+var _fixture := preload("res://tests/support/SceneRunSaveFixture.gd").new()
+var _scope := preload("res://tests/support/SceneValidationScope.gd").new()
 
-## FakeMinesweeperStatePort reports this run and ordinal, so the journal, the previewed
-## checkpoint ids and the built round id all have to agree with it.
-const RUN_ID := "run-1"
-const ROUND_ID := "run-1:day-1:round-1"
+func before_all() -> void:
+	_scope.install(true)
+	var setup: Dictionary = _fixture.setup(get_tree())
+	assert_true(setup.ok, str(setup))
+
+func after_all() -> void:
+	_fixture.close()
+	_scope.restore()
 
 var _suite_counter := 0
 
@@ -31,9 +35,15 @@ class RealBundleStatePort:
 	extends "res://tests/support/FakeMinesweeperStatePort.gd"
 	var bundle: Dictionary = {}
 
+	func capture() -> Dictionary:
+		var captured := super.capture()
+		captured.value.backup.run_id = bundle.snapshot_input.lifecycle.run_id
+		return captured
+
 	func prepare_begin(request: Dictionary, round_id: String) -> Dictionary:
 		var prepared: Dictionary = super.prepare_begin(request, round_id)
 		if prepared.get("ok", false):
+			prepared.value.active_round.run_id = bundle.snapshot_input.lifecycle.run_id
 			prepared["value"]["pre_board_checkpoint_inputs"] = bundle.duplicate(true)
 		return prepared
 
@@ -57,75 +67,21 @@ func _isolated_manager(suite_id: String) -> Node:
 	return manager
 
 
-## Test-authored current snapshot inputs explicitly choose Dark=false.
-## Historical payload reuse is not a production migration. This retained .9-era lock stack still checkpoints through the same
-## SaveManagerCheckpointPort / RunSnapshotSchema production code, so it must supply a v6-valid
-## bundle even though the desktop board itself is never driven here.
-func _issuer_receipt(token: String) -> Dictionary:
-	return {"receipt_id": "issuer_receipt.fixture-" + token, "purpose": "causal_day_instance",
-		"namespace": "fixturenamespace", "counter": 1, "token": token, "numeric_value": null}
-
-func _empty_desktop() -> Dictionary:
-	return {
-		"board": {"schema_version": 1, "phase": "NONE", "revision": 0, "identity": null,
-			"candidate": null, "board": null, "settlement": null, "command_receipts": {}, "terminal_receipts": {}},
-		"consequence": {"schema_version": 1, "run_revision": 0, "causal_sequence": 0,
-			"causal_day_instance": "causal-day-1",
-			"causal_day_instance_issuer_receipt": _issuer_receipt("causal-day-1"),
-			"pending": null, "outbox": {}, "shop_ledger": {"supportz_branch_purchase_count": 0,
-				"supportz_last_purchase_causal_day_instance": "", "base_completion_receipts": []}},
-	}
-
-func _bundle(run_id: String) -> Dictionary:
-	var fixture: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(VALID_FIXTURE))
-	fixture["contacts"] = preload("res://scripts/domain/contact/ContactInvitationState.gd").make_defaults()
-	fixture["gameplay"].erase("opening_seen")
-	fixture["gameplay"].erase("tutorial_seen")
-	var lifecycle: Dictionary = fixture["lifecycle"]
-	lifecycle["dark_mode"] = false
-	lifecycle["run_id"] = run_id
-	lifecycle["branch_id"] = "branch-1"
-	lifecycle["desktop_timeline_generation"] = 0
-	lifecycle["causal_day_instance"] = "causal-day-1"
-	lifecycle["causal_day_instance_issuer_receipt"] = _issuer_receipt("causal-day-1")
-	lifecycle["restore_provenance"] = null
-	lifecycle["active_condition_hospital_plan"] = null
-	lifecycle["condition_hospital_history"] = {}
-	lifecycle["terminal_intent_handoff"] = null
-	var schedule_view: Dictionary = SCHEDULE_VIEW.make_empty(
-		int(lifecycle["day"]), str(lifecycle["causal_day_instance"]))["value"]["view"]
-	return {
-		"snapshot_input": {
-			"lifecycle": lifecycle, "gameplay": fixture["gameplay"], "contacts": fixture["contacts"],
-			"committed_schedule": {
-				"schema_version": 1, "day": int(lifecycle["day"]),
-				"registry_fingerprint": null, "entries": [], "commit_receipt": null,
-			},
-			"desktop": _empty_desktop(),
-			"schedule_view": schedule_view,
-			"dating": fixture["dating"],
-			"applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [],
-		},
-		"dialogic_checkpoint": {}, "route_id": "main", "active_app_id": null,
-		"audio_context": {}, "content_version": 1,
-	}
-
-
 ## Wires the full production save chain behind one coordinator, over a journal that already
 ## holds one stable checkpoint (a manual save has nothing to write without one).
 func _make_round(suite_id: String) -> Dictionary:
 	var manager := _isolated_manager(suite_id)
 	if manager == null:
 		return {}
-	assert_true(manager.get("_journal").reset(RUN_ID).get("ok", false))
-	assert_true(manager.call(&"record_stable_checkpoint", _bundle(RUN_ID), &"day_start").get("ok", false))
+	assert_true(manager.get("_journal").reset(_fixture.identity.run_id).get("ok", false))
+	assert_true(manager.call(&"record_stable_checkpoint", _fixture.checkpoint_inputs, &"day_start").get("ok", false))
 	var gate: RefCounted = FAKE_GATE.new()
 	var checkpoint_port: RefCounted = CHECKPOINT_PORT.new(manager)
 	assert_true(checkpoint_port.configure_fatal_latch(gate).get("ok", false))
 	var save_port: RefCounted = SAVE_PORT.new()
 	assert_true(save_port.configure(checkpoint_port, manager).get("ok", false))
 	var state_port := RealBundleStatePort.new(gate)
-	state_port.bundle = _bundle(RUN_ID)
+	state_port.bundle = _fixture.checkpoint_inputs
 	var coordinator: RefCounted = COORDINATOR.new()
 	assert_true(coordinator.configure(save_port, state_port).get("ok", false))
 	return {
@@ -207,7 +163,7 @@ func test_completion_releases_the_lock_and_restores_capability() -> void:
 	assert_true(made["coordinator"].begin_round({"context": &"app", "difficulty": &"beginner"}).get("ok", false))
 	assert_true(manager.call(&"is_save_locked"))
 	var completed: Dictionary = made["coordinator"].complete_round(
-		ROUND_ID, {"outcome": &"cleared"}, "tx-lock-1")
+		str(made.coordinator.get_active_round().value.round_id), {"outcome": &"cleared"}, "tx-lock-1")
 	assert_true(completed.get("ok", false), str(completed))
 	assert_false(manager.call(&"is_save_locked"), "completion releases the board lock")
 	assert_false(made["save_port"].owns_board_lock())
@@ -225,7 +181,7 @@ func test_abort_releases_the_lock_without_publishing_a_result() -> void:
 	assert_true(made["coordinator"].begin_round({"context": &"app", "difficulty": &"beginner"}).get("ok", false))
 	made["state_port"].reset_call_counts()
 	var aborted: Dictionary = made["coordinator"].abort_round(
-		ROUND_ID, &"fatal_teardown", "tx-abort-1")
+		str(made.coordinator.get_active_round().value.round_id), &"fatal_teardown", "tx-abort-1")
 	assert_true(aborted.get("ok", false), str(aborted))
 	assert_false(manager.call(&"is_save_locked"), "abort releases the board lock")
 	assert_eq(int(made["state_port"].get_call_counts()["publish"]), 0,
@@ -240,7 +196,11 @@ func test_a_failed_lock_acquisition_consumes_no_round_and_leaves_no_lock() -> vo
 	var manager: Node = made["manager"]
 	# Another owner already holds the lock, so the board can never take it.
 	assert_true(manager.call(&"acquire_save_lock", &"restore").get("ok", false))
+	var journal_before: Dictionary = manager._journal.capture_state()
+	var disk_before: Dictionary = manager._storage.read_text("autosave.json")
 	var begun: Dictionary = made["coordinator"].begin_round({"context": &"app", "difficulty": &"beginner"})
+	assert_eq(manager._journal.capture_state(), journal_before)
+	assert_eq(manager._storage.read_text("autosave.json"), disk_before)
 	assert_false(begun.get("ok", false))
 	assert_eq(begun.get("code"), &"SAVE_LOCK_FAILED")
 	assert_false(made["save_port"].owns_board_lock())

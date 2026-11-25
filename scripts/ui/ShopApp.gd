@@ -227,7 +227,7 @@ func refresh_view(on_open: bool = false, _presentation_only: bool = false, prepa
 		_source_pending = false
 		return {"ok":true,"code":"unchanged"}
 	var prior_quantity := quantity
-	var prior_item_quantities := _item_quantities.duplicate()
+	var prior_item_quantities := _item_quantities
 	if is_node_ready():
 		_remember_focus()
 		var focused := get_viewport().gui_get_focus_owner()
@@ -342,7 +342,7 @@ func _configure_shop_context(items: Array, locale: String = "en", percent: int =
 		_focus_after_layout = focused != null and is_ancestor_of(focused)
 	_cancel_contacts()
 	quantity = 1
-	_item_quantities.clear()
+	_item_quantities = {}
 	_locale = locale.replace("-", "_")
 	_percent = percent
 	_large_targets = large_targets

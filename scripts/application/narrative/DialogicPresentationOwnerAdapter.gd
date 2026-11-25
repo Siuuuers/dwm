@@ -74,15 +74,15 @@ func adopt_reading_restore(command: Dictionary) -> Dictionary:
 	var shaped := _exact_keys(command, CANONICAL_COMMAND_KEYS, &"invalid_presentation_command")
 	if not shaped.is_empty(): return shaped
 	var completion_id := str(command.completion_transaction_id)
-	var prior_completed: Dictionary = _completed.get(completion_id, {}).duplicate(true)
-	var prior_pending: Dictionary = _in_flight.get(completion_id, {}).duplicate(true)
+	var prior_completed: Dictionary = _completed.get(completion_id, {})
+	var prior_pending: Dictionary = _in_flight.get(completion_id, {})
 	for prior: Dictionary in [prior_completed, prior_pending]:
 		if not prior.is_empty() and (prior.get("command_sha256") != command.command_sha256 \
 				or prior.get("physical_token") != command.physical_token):
 			return _fail(&"presentation_command_conflict", "restored command binding changed", {})
 	_completed.erase(completion_id)
 	_in_flight.erase(completion_id)
-	var physical := command.duplicate(true)
+	var physical := command.duplicate()
 	physical.erase("physical_token")
 	var resumed := begin_physical(physical)
 	if not resumed.get("ok", false):

@@ -1127,7 +1127,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_active_run_rollback_keeps_independent_nested_gameplay_and_existing_publication"
+      "contract_test": "test_apply_save_dict_preserves_state"
     },
     {
       "symbol": "configure_mutation_gate",
@@ -1250,22 +1250,6 @@
       "kind": "function",
       "availability": "target",
       "signature": "func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_timeline_generation: int,"
-    },
-    {
-      "symbol": "capture_live_run_state",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_active_run_capture_and_owner_keep_independent_nested_gameplay"
-    },
-    {
-      "symbol": "restore_live_run_state",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_active_run_rollback_keeps_independent_nested_gameplay_and_existing_publication"
     },
     {
       "symbol": "commit_effect_transaction",

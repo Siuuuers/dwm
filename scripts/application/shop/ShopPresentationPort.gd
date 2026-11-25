@@ -258,8 +258,7 @@ func _prepare_purchase(item_id: String, quantity: int, issue_value: Dictionary) 
 			or not (participant_capture as Dictionary).get("ok", false):
 		return participant_capture if typeof(participant_capture) == TYPE_DICTIONARY \
 			else _fail(&"shop_participant_capture_malformed")
-	var consequence: Variant = (participant_capture as Dictionary).get("value", {}).get("backup", {}) \
-		.get("consequence_state")
+	var consequence: Variant = (participant_capture as Dictionary).get("value", {}).get("state")
 	if typeof(consequence) != TYPE_DICTIONARY:
 		return _fail(&"shop_participant_capture_malformed")
 	var board_result: Variant = _round_coordinator.call(&"get_state")
@@ -356,7 +355,7 @@ func _supportz_eligibility() -> Dictionary:
 	var captured: Variant = _purchase_participant.call(&"capture")
 	if typeof(captured) != TYPE_DICTIONARY or not (captured as Dictionary).get("ok", false):
 		return captured if typeof(captured) == TYPE_DICTIONARY else _fail(&"shop_participant_capture_malformed")
-	var state: Variant = (captured as Dictionary).get("value", {}).get("backup", {}).get("consequence_state")
+	var state: Variant = (captured as Dictionary).get("value", {}).get("state")
 	if typeof(state) != TYPE_DICTIONARY or typeof((state as Dictionary).get("shop_ledger")) != TYPE_DICTIONARY:
 		return _fail(&"shop_participant_capture_malformed")
 	var ledger: Dictionary = (state as Dictionary)["shop_ledger"]

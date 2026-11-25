@@ -25,8 +25,6 @@ var _identity_issuer: Object = null
 var _prepared: Dictionary = {}
 var _prepared_by_candidate_hash: Dictionary = {}
 var _committed: Dictionary = {}
-var _capture_generations: Dictionary = {}
-var _commit_generation := 0
 
 
 
@@ -224,7 +222,6 @@ func capture() -> Dictionary:
 	if not ready.get("ok", false):
 		return ready
 	var backup: Dictionary = _board_state.call(&"capture")
-	_capture_generations[_canonical_sha256(backup)] = _commit_generation
 	return {"ok": true, "code": &"ok", "value": {"backup": backup}, "receipt": {}}
 
 
@@ -262,30 +259,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 	var result := {"ok": true, "code": &"ok", "value": {"board_candidate": candidate.duplicate(true)},
 		"receipt": board_fate_receipt}
 	_committed[command_id] = result
-	_commit_generation += 1
 	return result.duplicate(true)
-
-
-func rollback(backup: Dictionary) -> Dictionary:
-	var ready := _require_configured()
-	if not ready.get("ok", false):
-		return ready
-	var key := _canonical_sha256(backup)
-	if not _capture_generations.has(key):
-		return _fail(&"board_fate_backup_unknown", "backup does not match a captured backup", {})
-	if int(_capture_generations[key]) != _commit_generation:
-		return _fail(&"board_fate_rollback_forbidden",
-			"an admitted board-fate transaction has already committed since this backup was captured", {})
-	var live: Dictionary = _board_state.call(&"capture")
-	if live == backup:
-		return {"ok": true, "code": &"ok", "value": {"restored": true}, "receipt": {}}
-	var prepared_restore: Dictionary = _board_state.call(&"prepare_restore", backup)
-	if not prepared_restore.get("ok", false):
-		return _fail(&"board_fate_conflict", "the current board is a third live state", {})
-	var committed: Dictionary = _board_state.call(&"commit", (prepared_restore["value"] as Dictionary)["candidate"])
-	if not committed.get("ok", false):
-		return committed
-	return {"ok": true, "code": &"ok", "value": {"restored": true}, "receipt": {}}
 
 
 func publish(publication: Dictionary) -> Dictionary:

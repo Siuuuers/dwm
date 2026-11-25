@@ -159,12 +159,11 @@ func capture() -> Dictionary:
 	if digest.is_empty():
 		return _fail(&"noncanonical_lifecycle", "the live lifecycle does not canonicalize", {})
 	_captures.append({
-		"backup": backup.duplicate(true),
 		"backup_sha": digest,
 		"expected_sha": "",
 		"closed": false,
 	})
-	return _ok({"backup": backup.duplicate(true)}, {})
+	return _ok({"backup": backup}, {})
 
 
 func commit(candidate: Dictionary) -> Dictionary:
@@ -958,9 +957,10 @@ func _fingerprint_conflict(claimed: Variant, required: bool) -> Dictionary:
 
 
 func _arm_open_captures() -> void:
-	var digest := _fingerprint(_live())
+	var digest := ""
 	for entry: Dictionary in _captures:
 		if not bool(entry["closed"]) and str(entry["expected_sha"]).is_empty():
+			if digest.is_empty(): digest = _fingerprint(_live())
 			entry["expected_sha"] = digest
 
 

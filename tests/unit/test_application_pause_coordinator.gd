@@ -239,6 +239,7 @@ func test_partial_resume_failure_keeps_tree_paused_and_retries_only_unreleased_p
 	_dialogic.resume_ok = false
 	assert_false((await _coordinator.request_resume(handle)).ok)
 	assert_eq(_log.slice(3), ["resume:audio", "resume:dialogic"])
+	assert_eq(_view.calls, ["capture", "cover", "restore", "cover"])
 	assert_eq(_audio.state, &"Active")
 	assert_eq(_input.state, &"Suspended")
 	assert_true(get_tree().paused)

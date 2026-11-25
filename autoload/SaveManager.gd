@@ -473,14 +473,9 @@ func _release_transaction(owner: StringName, gate_token: String, holds_save_lock
 	if holds_save_lock:
 		release_save_lock(&"restore")
 
-func _rollback_transaction(owner: StringName, applied: Array[String], backups: Dictionary, gate_token: String, holds_save_lock: bool, original_failure: Dictionary, journal_backup: Variant = null) -> Dictionary:
+func _rollback_transaction(owner: StringName, applied: Array[String], backups: Dictionary, gate_token: String, holds_save_lock: bool, original_failure: Dictionary) -> Dictionary:
 	var attempts: Array = []
 	var all_recovered := true
-	if typeof(journal_backup) == TYPE_DICTIONARY:
-		var journal_rolled: Dictionary = _journal.restore_state(journal_backup)
-		attempts.append({"owner_id": "checkpoint_journal", "operation": "restore_state", "result": journal_rolled})
-		if not journal_rolled.get("ok", false):
-			all_recovered = false
 	for index: int in range(applied.size() - 1, -1, -1):
 		var key: String = applied[index]
 		var rolled: Dictionary = _restore_participants[key].rollback_silent(backups[key])
@@ -1432,15 +1427,11 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Dictio
 	if not held.get("ok", false): return _scene_restore_early_failure(held, creating)
 	var backups := {}
 	var applied: Array[String] = []
-	var captured: Dictionary = _journal.capture_state()
-	if not captured.get("ok", false):
-		return _scene_restore_prepare_failure(captured, creating, applied, backups, operation_id, null)
-	var journal_backup: Variant = captured.value.backup
 	for key: String in _SCENE_PARTICIPANT_ORDER:
 		if key in ["profile", "localization"] and plans[key].get("reuse_current", false): continue
 		var backup: Dictionary = _restore_participants[key].capture()
 		if not backup.get("ok", false):
-			return _scene_restore_prepare_failure(backup, creating, applied, backups, operation_id, null)
+			return _scene_restore_prepare_failure(backup, creating, applied, backups, operation_id)
 		backups[key] = backup.value
 	var route_token: Dictionary = {}
 	for key: String in backups:
@@ -1452,12 +1443,12 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Dictio
 			plan["read_only_restore"] = not creating
 		var result: Dictionary = _restore_participants[key].apply_silent(plan)
 		if not result.get("ok", false):
-			return _scene_restore_prepare_failure(result, creating, applied, backups, operation_id, journal_backup)
+			return _scene_restore_prepare_failure(result, creating, applied, backups, operation_id)
 		applied.append(key)
 		if key == "route": route_token = result.get("value", {}).get("route_ready_token", {})
 	var seeded: Dictionary = _journal._install_prepared(journal_candidate)
 	if not seeded.get("ok", false):
-		return _scene_restore_prepare_failure(seeded, creating, applied, backups, operation_id, journal_backup)
+		return _scene_restore_prepare_failure(seeded, creating, applied, backups, operation_id)
 	if not creating:
 		_restore_participants.run.activate_loaded_session(activation.value)
 	_scene_restore_activation = {"operation_id": operation_id, "ticket": activation.value, "route_id": route_id,
@@ -1476,13 +1467,13 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Dictio
 	return _drive_scene_restore_activation()
 
 func _scene_restore_prepare_failure(failure: Dictionary, creating: bool, applied: Array[String],
-		backups: Dictionary, operation_id: String, journal_backup: Variant) -> Dictionary:
+		backups: Dictionary, operation_id: String) -> Dictionary:
 	if creating:
 		return _fatal_transaction_recovery("scene_restore", [{"owner_id": "restore", "operation": "reconstruct", "result": failure}])
 	var cancelled: Dictionary = _restore_participants.route.cancel_scene_publication_hold(operation_id)
 	if not cancelled.get("ok", false):
 		return _fatal_transaction_recovery("scene_restore", [{"owner_id": "route", "operation": "cancel_hold", "result": cancelled}])
-	return _rollback_transaction(&"restore", applied, backups, "", _lock_owner == &"restore", failure, journal_backup)
+	return _rollback_transaction(&"restore", applied, backups, "", _lock_owner == &"restore", failure)
 
 func _scene_restore_early_failure(failure: Dictionary, creating: bool) -> Dictionary:
 	if creating:

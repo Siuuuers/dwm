@@ -937,12 +937,12 @@ func _start_at_path(timeline_id: String, path: String, context: Dictionary, labe
 		if not frozen.get("ok", false): return frozen
 		var installed: Dictionary = _runtime_adapter.install_frozen_presentation(frozen.value.presentation)
 		if not installed.get("ok", false): return installed
-	var before := {"id": _current_timeline_id, "context": _current_timeline_context.duplicate(true)}
+	var before := {"id": _current_timeline_id, "context": _current_timeline_context}
 	_ordinary_speech_counter += 1
 	_start_in_progress = true
 	_current_timeline_id = timeline_id
 	_current_timeline_context = context.duplicate(true)
-	_ordinary_playback = {"timeline_id": timeline_id, "context": context.duplicate(true), "cache_before": before,
+	_ordinary_playback = {"timeline_id": timeline_id, "context": _current_timeline_context, "cache_before": before,
 		"speech_token": "ordinary-%d" % _ordinary_speech_counter, "content_locale": "en",
 		"suppress_first_speech": false}
 	scene_art_changed.emit()
@@ -1224,10 +1224,10 @@ func _on_playback_start_failed(failure: Dictionary, halt_runtime: bool = false) 
 	_close_art_hold()
 	if _runtime_adapter != null and _runtime_adapter.has_method("release_frozen_presentation"):
 		_runtime_adapter.release_frozen_presentation()
-	var ordinary := _ordinary_playback.duplicate(true)
-	var ordinary_id := str(_ordinary_playback.get("timeline_id", ""))
-	var ending := _active_playback.duplicate(true)
-	var entry := _active_entry.duplicate(true)
+	var ordinary := _ordinary_playback
+	var ordinary_id := str(ordinary.get("timeline_id", ""))
+	var ending := _active_playback
+	var entry := _active_entry
 	var before: Dictionary = ordinary.get("cache_before", ending.get("cache_before", {}))
 	_ordinary_playback = {}
 	_active_entry = {}
@@ -1235,7 +1235,7 @@ func _on_playback_start_failed(failure: Dictionary, halt_runtime: bool = false) 
 	scene_art_changed.emit()
 	if not before.is_empty():
 		_current_timeline_id = str(before.id)
-		_current_timeline_context = before.context.duplicate(true)
+		_current_timeline_context = before.context
 	if ordinary.has("runtime_before"):
 		_restore_playback_started = false
 		_pending_resume_token = ""
@@ -1312,7 +1312,6 @@ func _latch_preference_fatal(phase: StringName, result: Dictionary) -> void:
 
 
 
-var _narrative_restore_backup: Dictionary = {}
 var _pending_resume_token := ""
 var _resume_counter := 0
 var _restore_playback_started := false
@@ -1341,10 +1340,6 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 	if has_reading_session(): retire_reading_session()
 	_reading_restore_pending = {}
 	var checkpoint: Dictionary = plan.get("narrative_checkpoint", {}) if typeof(plan.get("narrative_checkpoint")) == TYPE_DICTIONARY else {}
-	_narrative_restore_backup = {
-		"timeline_id": _current_timeline_id,
-		"timeline_context": _current_timeline_context.duplicate(true),
-	}
 	var position := str(plan.get("position", ""))
 	if _runtime_adapter != null and position != "":
 		var path := str(plan.get("timeline_path", ""))
@@ -1353,15 +1348,15 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 			"revealed_event", "before_event":
 				var captured: Dictionary = _runtime_adapter.capture_restore_state()
 				if not captured.get("ok", false): return captured
-				var before := {"id": _current_timeline_id, "context": _current_timeline_context.duplicate(true)}
+				var before := {"id": _current_timeline_id, "context": _current_timeline_context}
 				_ordinary_speech_counter += 1
-				_ordinary_playback = {"timeline_id": str(checkpoint.get("timeline_id", "")),
-					"context": checkpoint.duplicate(true), "cache_before": before,
+				_current_timeline_id = str(checkpoint.get("timeline_id", ""))
+				_current_timeline_context = checkpoint.duplicate(true)
+				_ordinary_playback = {"timeline_id": _current_timeline_id,
+					"context": _current_timeline_context, "cache_before": before,
 					"runtime_before": captured.get("value", {}).get("backup", {}).duplicate(true),
 					"speech_token": "ordinary-%d" % _ordinary_speech_counter, "content_locale": "en",
 					"suppress_first_speech": true}
-				_current_timeline_id = str(checkpoint.get("timeline_id", ""))
-				_current_timeline_context = checkpoint.duplicate(true)
 				_restore_playback_started = true
 				if position == "before_event": _runtime_adapter.set_paused(true)
 				_start_in_progress = true
@@ -1422,7 +1417,6 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 	_current_timeline_id = str((source as Dictionary)["timeline_id"])
 	var ctx: Variant = (source as Dictionary).get("timeline_context", {})
 	_current_timeline_context = (ctx as Dictionary).duplicate(true) if typeof(ctx) == TYPE_DICTIONARY else {}
-	_narrative_restore_backup = {}
 	_pending_resume_token = ""
 	if _runtime_adapter != null and _runtime_adapter.has_method("restore_captured_state"):
 		_runtime_adapter.restore_captured_state(runtime_before)
@@ -1430,7 +1424,6 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 
 
 func finalize_restore() -> Dictionary:
-	_narrative_restore_backup = {}
 	_restore_playback_started = false
 	if _pending_resume_token != "":
 		call_deferred("_resume_pending_restore", _pending_resume_token)
@@ -1512,7 +1505,7 @@ func start_ending_presentation(ending_id: String, context: Dictionary, signature
 		if not installed.get("ok", false): return installed
 	_playback_counter += 1
 	var token := "playback-%d" % _playback_counter
-	var before := {"id": _current_timeline_id, "context": _current_timeline_context.duplicate(true)}
+	var before := {"id": _current_timeline_id, "context": _current_timeline_context}
 	_current_timeline_id = timeline_id
 	_active_playback = {"token":token, "ending_id":ending_id, "role":str(context.role),
 		"stable_playback_id": str(context.playback_id),
@@ -3592,7 +3585,7 @@ func _retire_suspended_playback(handle: Dictionary) -> Dictionary:
 		_active_playback.clear()
 		scene_art_changed.emit()
 		_current_timeline_id = ""
-		_current_timeline_context.clear()
+		_current_timeline_context = {}
 		_retired_pause_handle = handle.duplicate(true)
 		_close_art_hold()
 		_runtime_adapter.halt_with_error({"code": &"session_abandoned"})
@@ -4033,7 +4026,7 @@ func _start_playback(ending_id: String, expected_role: String) -> Dictionary:
 	var label := str(record["label"])
 	_playback_counter += 1
 	var token := "playback-%d" % _playback_counter
-	var before := {"id": _current_timeline_id, "context": _current_timeline_context.duplicate(true)}
+	var before := {"id": _current_timeline_id, "context": _current_timeline_context}
 	_current_timeline_id = timeline_id
 	_active_playback = {"token": token, "ending_id": ending_id, "role": expected_role,
 		"timeline_id": timeline_id, "label": label, "cache_before": before,

@@ -2,7 +2,6 @@ class_name DialogicPreferenceAdapter
 extends RefCounted
 
 var _dialogic: Node
-var _plan: Dictionary = {}
 
 const _REVEAL_MULTIPLIERS := {"instant": 0.0, "fast": 0.5, "normal": 1.0, "slow": 2.0}
 const _AUTO_DELAY_MULTIPLIERS := {"short": 0.5, "normal": 1.0, "long": 1.5}
@@ -41,25 +40,6 @@ func prepare(profile: Dictionary) -> Dictionary:
 	})
 
 
-func capture_state() -> Dictionary:
-	if _dialogic == null:
-		return _failure(&"dialogic_missing")
-	var settings := _subsystem(&"Settings")
-	var inputs := _subsystem(&"Inputs")
-	if settings == null or inputs == null or typeof(settings.get("settings")) != TYPE_DICTIONARY:
-		return _failure(&"dialogic_subsystem_missing")
-	var auto_advance: Variant = inputs.get("auto_advance")
-	if auto_advance == null:
-		return _failure(&"dialogic_subsystem_missing")
-	var settings_cache: Dictionary = settings.get("settings")
-	return _ok({"plan": {
-		"text_delay_multiplier": float(settings_cache.get(&"text_speed", _plan.get("text_delay_multiplier", 1.0))),
-		"auto_delay_multiplier": float(settings_cache.get(&"autoadvance_delay_modifier", _plan.get("auto_delay_multiplier", 1.0))),
-		"auto_advance_enabled": bool(_plan.get("auto_advance_enabled", false)),
-		"skip_mode": _plan.get("skip_mode", &"read_only"),
-	}})
-
-
 func apply_silent(plan: Dictionary) -> Dictionary:
 	if _dialogic == null:
 		return _failure(&"dialogic_missing")
@@ -88,19 +68,6 @@ func apply_silent(plan: Dictionary) -> Dictionary:
 	text.call(&"update_text_speed", -1.0, false, 1.0, float(plan["text_delay_multiplier"]))
 	auto_advance.set("delay_modifier", float(plan["auto_delay_multiplier"]))
 	auto_advance.set("enabled_until_user_input", false)
-	_plan = plan.duplicate(true)
-	_plan["skip_mode"] = skip_mode
-	return _ok({})
-
-
-func rollback_silent(backup: Dictionary) -> Dictionary:
-	var plan: Variant = backup.get("plan")
-	if typeof(plan) != TYPE_DICTIONARY:
-		return _failure(&"invalid_dialogic_backup")
-	return apply_silent(plan)
-
-
-func finalize() -> Dictionary:
 	return _ok({})
 
 

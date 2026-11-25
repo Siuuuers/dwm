@@ -99,7 +99,7 @@ func _wired(reuse: bool = true, changed_reread: bool = false) -> Dictionary:
 	assert_true(manager._journal.reset(str(snapshot.run_id)).get("ok", false))
 	return {"files": files, "storage": storage, "manager": manager, "port": port, "snapshot": snapshot, "gate": gate}
 
-func _prepare(wired: Dictionary, money: int) -> Dictionary:
+func _prepare(wired: Dictionary, money: int, disk_write := {"kind": &"autosave", "reason": &"automatic"}) -> Dictionary:
 	var snapshot: Dictionary = wired.snapshot.duplicate(true)
 	snapshot["gameplay"]["money"] = money
 	var input := {}
@@ -113,7 +113,7 @@ func _prepare(wired: Dictionary, money: int) -> Dictionary:
 	input.desktop.board = board.capture()
 	var prepared: Dictionary = wired.port.prepare({"snapshot_input": input, "dialogic_checkpoint": snapshot.narrative_checkpoint,
 		"route_id": "scene", "active_app_id": null, "audio_context": {},
-		"content_version": snapshot.content_version}, &"post_result", {"kind": &"autosave", "reason": &"automatic"})
+		"content_version": snapshot.content_version}, &"post_result", disk_write)
 	assert_true(prepared.get("ok", false), str(prepared))
 	return prepared.get("value", {}).get("candidate", {})
 
@@ -160,6 +160,7 @@ func test_non_object_outgoing_values_match_uncached_failure_without_physical_mut
 		var original: Dictionary = uncached.port.commit(reference)
 		assert_eq(rejected, original, "wrong top-level value: %s" % str(wrong))
 		assert_eq(rejected.get("code"), &"outgoing_validation_failed")
+		assert_true(rejected.get("checkpoint_untouched", false))
 		assert_eq(cached.files.snapshot_persisted(), cached_before_files)
 		assert_eq(uncached.files.snapshot_persisted(), reference_before_files)
 		assert_eq(cached.files.operation_trace(), cached_before_trace)
@@ -264,9 +265,20 @@ func test_schema_valid_changed_reread_is_rejected_before_journal_commit() -> voi
 	var result: Dictionary = wired.port.commit(candidate)
 	assert_false(result.get("ok", true))
 	assert_eq(result.get("code"), &"reread_mismatch")
+	assert_false(result.get("checkpoint_untouched", false))
 	assert_eq(wired.manager._journal.capture_state(), before)
 	var persisted: Dictionary = wired.files.snapshot_persisted()
 	assert_true(persisted.has(FINAL), "disk write completed; journal must wait for exact reread")
+
+func test_duplicate_journal_refusal_reports_whether_autosave_was_written() -> void:
+	for disk_write: Dictionary in [{"kind": &"none", "reason": &"stage"}, {"kind": &"autosave", "reason": &"automatic"}]:
+		var wired := _wired()
+		var candidate := _prepare(wired, 400, disk_write)
+		assert_true(wired.port.commit(candidate).ok)
+		var repeated: Dictionary = wired.port.commit(candidate)
+		assert_eq(repeated.get("code"), &"duplicate_commit")
+		assert_eq(repeated.get("checkpoint_untouched", false), disk_write.kind == &"none")
+
 
 func test_failed_reread_retry_has_a_fresh_validation_scope_and_commits_once() -> void:
 	var wired := _wired(true, true)

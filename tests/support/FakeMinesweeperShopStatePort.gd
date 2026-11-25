@@ -54,10 +54,6 @@ func capture() -> Dictionary:
 		"causal_day_instance": causal_day_instance, "day": day, "money": money, "coins": coins,
 		"health": health, "pressure": pressure, "carried_sequela": carried_sequela,
 		"owned_item_ids": owned_item_ids, "minesweeper_round_floor": minesweeper_round_floor,
-		"backup": {
-			"money": money, "coins": coins, "inventory": inventory.duplicate(true),
-			"minesweeper_round_floor": minesweeper_round_floor,
-		},
 	}, "receipt": {}}
 
 
@@ -91,8 +87,6 @@ func prepare_purchase(item: Dictionary, quote: Dictionary, transaction_id: Strin
 	}
 	return {"ok": true, "code": &"ok", "value": {
 		"candidate": candidate,
-		"backup": {"money": money, "coins": coins, "inventory": inventory.duplicate(true),
-			"minesweeper_round_floor": minesweeper_round_floor},
 	}, "receipt": {}}
 
 
@@ -120,18 +114,6 @@ func commit(candidate: Dictionary) -> Dictionary:
 	if str(candidate.get("item_id", "")) == _SUPPORTZ_ITEM_ID:
 		minesweeper_round_floor -= 1
 	return {"ok": true, "code": &"ok", "value": {"committed": true}, "receipt": {}}
-
-
-func rollback(backup: Dictionary) -> Dictionary:
-	_log(&"rollback", {})
-	var armed := _consume_failure("rollback")
-	if not armed.is_empty():
-		return armed
-	money = int(backup["money"])
-	coins = int(backup["coins"])
-	inventory = (backup["inventory"] as Dictionary).duplicate(true)
-	minesweeper_round_floor = int(backup["minesweeper_round_floor"])
-	return {"ok": true, "code": &"ok", "value": {"restored": true}, "receipt": {}}
 
 
 func publish(publication: Dictionary) -> Dictionary:

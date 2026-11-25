@@ -580,15 +580,11 @@ func flush_pending_attempt() -> Dictionary:
 	if not _attempt_gate.is_internal_owner_active(&"causal_transaction"):
 		lease = _attempt_gate.acquire(&"causal_transaction")
 		if not lease.get("ok", false): return lease
-	var prior_history := _history_state()
 	var committed: Dictionary = _commit_attempt()
 	var published: Dictionary = _publish_history_reference() if committed.get("ok", false) else committed
 	if not lease.is_empty():
 		var released: Dictionary = _attempt_gate.release(&"causal_transaction", str(lease.value.token))
 		if not released.get("ok", false): return released
-	if not committed.get("ok", false):
-		_restore_history_state(prior_history)
-		return committed
 	if not published.get("ok", false): return published
 	return _ok({"committed": true})
 

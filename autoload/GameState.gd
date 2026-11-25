@@ -678,23 +678,18 @@ func _commit_ordinary_candidate(prepared: Dictionary, friend_id: String, command
 		return _transaction_failure(&"contact_checkpoint_writer_unconfigured", "")
 	var lease: Dictionary = _mutation_gate.acquire(&"causal_transaction")
 	if not lease.get("ok", false): return lease
-	var captured: Dictionary = capture_restore_state()
-	if not captured.get("ok", false):
-		_mutation_gate.release(&"causal_transaction", str(lease.value.token))
-		return captured
 	var frozen := _prepare_contact_presentation_candidate(prepared.value.candidate)
 	if not frozen.ok:
 		_mutation_gate.release(&"causal_transaction", str(lease.value.token))
 		return frozen
+	var previous_contacts := contacts
+	var previous_route := route_context
 	contacts = prepared.value.candidate.duplicate(true)
 	if _frozen_contacts_contexts_enabled: route_context = frozen.value.route_context.duplicate(true)
 	var saved: Dictionary = _contact_checkpoint_writer.call()
 	if not saved.get("ok", false):
-		var rolled: Dictionary = rollback_restore_silent(captured.value.backup)
-		if not rolled.get("ok", false):
-			_mutation_gate.latch_fatal({"source": "ordinary_correspondence", "phase": "rollback",
-				"code": "ORDINARY_ROLLBACK_FAILED", "details": {"cause": str(rolled.get("code", ""))}})
-			return rolled
+		contacts = previous_contacts
+		route_context = previous_route
 		var released: Dictionary = _mutation_gate.release(&"causal_transaction", str(lease.value.token))
 		return saved if released.get("ok", false) else released
 	var released: Dictionary = _mutation_gate.release(&"causal_transaction", str(lease.value.token))
@@ -1207,18 +1202,13 @@ func capture_ending_frozen_presentation(ending_id: String, context: Dictionary) 
 	if not _ending_checkpoint_writer.is_valid(): return _transaction_failure(&"ending_checkpoint_writer_unconfigured", "")
 	var lease := _acquire_ending_lease()
 	if not lease.ok: return lease
-	var captured := capture_restore_state()
-	if not captured.ok:
-		_release_ending_lease(lease)
-		return captured
 	var candidate: Dictionary = cached.duplicate(true)
 	candidate.presentations[key] = projected.value.duplicate(true)
 	route_context["ending_frozen_contexts_v1"] = candidate
 	var saved: Dictionary = _ending_checkpoint_writer.call()
 	if not saved.ok:
-		var rolled := rollback_restore_silent(captured.value.backup)
+		route_context["ending_frozen_contexts_v1"] = cached
 		var released := _release_ending_lease(lease)
-		if not rolled.ok: return rolled
 		return saved if released.ok else released
 	var released := _release_ending_lease(lease)
 	return projected if released.ok else released
@@ -2248,7 +2238,7 @@ func _admit_terminal_ending() -> Dictionary:
 		if _frozen_ending_contexts_enabled:
 			var frozen_contacts := preload("res://scripts/narrative/ContactsFrozenContext.gd").capture_candidate(
 				contacts, closure.value.candidate, _legacy_run_gameplay(to_save_dict(), _narrative_variables), 7)
-			if not frozen_contacts.ok: return _rollback_ending_admission(backup, consequence_backup, frozen_contacts)
+			if not frozen_contacts.ok: return _rollback_ending_admission(backup, {}, frozen_contacts)
 			_apply_gameplay_silent(frozen_contacts.value)
 		contacts = closure.value.candidate.duplicate(true)
 		var cause := str(condition_source.terminal_cause)
@@ -2261,7 +2251,7 @@ func _admit_terminal_ending() -> Dictionary:
 			"stored_tone": "dark" if int((dating_route_state.get("sylvia", {}) as Dictionary).get("dark_points", 0)) >= _PROVISIONAL_RELATIONSHIP_RULES.DARK_TONE_THRESHOLD else "sweet",
 			"ending_form": "special_forced_dark" if cause == "sylvia_special" else ("dark_mode" if cause == "dark_mode_alone" else "normal")}
 		var published: Dictionary = _ending_condition_source.commit(publication.value.candidate)
-		if not published.get("ok", false): return _rollback_ending_admission(backup, consequence_backup, published)
+		if not published.get("ok", false): return _rollback_ending_admission(backup, {}, published)
 	if _frozen_ending_contexts_enabled:
 		var seed := _capture_ending_frozen_seed(provisional.value)
 		if not seed.ok: return _rollback_ending_admission(backup, consequence_backup, seed)
@@ -2310,8 +2300,10 @@ func complete_ending_playback_stage(transaction_id: String, expected_stage: Stri
 
 
 func _commit_ending_playback_completion(transaction_id: String, expected_stage: StringName, receipt: Dictionary) -> Dictionary:
-	var captured: Dictionary = capture_restore_state()
-	if not captured.get("ok", false): return captured
+	var captured := {}
+	if _ending_checkpoint_writer.is_valid():
+		captured = capture_restore_state()
+		if not captured.get("ok", false): return captured
 	var completed: Dictionary = _complete_ending_playback_stage(transaction_id, expected_stage, receipt)
 	if not completed.get("ok", false): return completed
 	if _ending_checkpoint_writer.is_valid():
@@ -2554,10 +2546,8 @@ func commit_effect_transaction(transaction_id: String, effect_ids: Array[String]
 	if not resolved.get("ok", false):
 		return resolved
 	var descriptors: Array = (resolved["value"] as Dictionary)["descriptors"]
-	var backup: Dictionary = capture_live_run_state()["value"]["backup"]
 	var applied: Dictionary = resolver.apply_resolved_descriptors(self, descriptors)
 	if not applied.get("ok", false):
-		restore_live_run_state(backup)
 		return applied
 	return _record_transaction_receipt(transaction_id, str(identity["fingerprint"]), &"effect_transaction", source_id, _applied_effect_transaction_ids)
 
@@ -2572,12 +2562,8 @@ func commit_variable_transaction(transaction_id: String, variable_id: String, va
 		return identity["result"]
 	if variable_id not in _NARRATIVE_VARIABLE_SCHEMA._registered_narrative_variables():
 		return _transaction_failure(&"unknown_variable_id", variable_id)
-	var backup: Dictionary = capture_live_run_state()["value"]["backup"]
 	_narrative_variables[variable_id] = value
-	var recorded := _record_transaction_receipt(transaction_id, str(identity["fingerprint"]), &"variable_transaction", source_id, _applied_variable_transaction_ids)
-	if not recorded.get("ok", false):
-		restore_live_run_state(backup)
-	return recorded
+	return _record_transaction_receipt(transaction_id, str(identity["fingerprint"]), &"variable_transaction", source_id, _applied_variable_transaction_ids)
 
 
 func _guard_transaction(owner_id: StringName) -> Dictionary:
@@ -2620,43 +2606,6 @@ func _record_transaction_receipt(transaction_id: String, fingerprint: String, ki
 
 static func _transaction_failure(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": {}}
-
-
-func capture_live_run_state() -> Dictionary:
-	return {"ok": true, "code": &"ok", "value": {"backup": {
-		"gameplay": to_save_dict().duplicate(true),
-		"contacts": contacts.duplicate(true),
-		"scene_choices": scene_choices.duplicate(true),
-		"scene_challenge_outcomes": scene_challenge_outcomes.duplicate(true),
-		"command_receipts": _command_receipts.duplicate(true),
-		"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(true),
-		"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(true),
-		"narrative_variables": _narrative_variables.duplicate(true),
-	}}}
-
-
-func restore_live_run_state(backup: Dictionary) -> Dictionary:
-	var source: Variant = backup.get("backup", backup)
-	if typeof(source) != TYPE_DICTIONARY or not (source as Dictionary).has("command_receipts"):
-		return _transaction_failure(&"invalid_run_backup", "backup was not issued by capture_live_run_state")
-	var detached: Dictionary = source as Dictionary
-	var progress_error := _NARRATIVE_VARIABLE_SCHEMA._validate_scene_progress(
-		detached.get("scene_choices", {}), detached.get("scene_challenge_outcomes", {}))
-	if progress_error != "": return _transaction_failure(&"invalid_run_backup", progress_error)
-	if typeof(detached.get("gameplay")) == TYPE_DICTIONARY:
-		var gameplay_check: Dictionary = _prepare_note_restore_gameplay(detached["gameplay"])
-		if not gameplay_check.get("ok", false):
-			return gameplay_check
-		apply_save_dict(gameplay_check["value"]["gameplay"].duplicate(true))
-	if typeof(detached.get("contacts")) == TYPE_DICTIONARY:
-		contacts = (detached["contacts"] as Dictionary).duplicate(true)
-	scene_choices = detached.get("scene_choices", {}).duplicate(true)
-	scene_challenge_outcomes = detached.get("scene_challenge_outcomes", {}).duplicate(true)
-	_command_receipts = (detached["command_receipts"] as Dictionary).duplicate(true)
-	_applied_effect_transaction_ids = (detached["applied_effect_transaction_ids"] as Array).duplicate(true)
-	_applied_variable_transaction_ids = (detached["applied_variable_transaction_ids"] as Array).duplicate(true)
-	_narrative_variables = (detached["narrative_variables"] as Dictionary).duplicate(true)
-	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
 
 
 func capture_live_session() -> Dictionary:
@@ -3136,21 +3085,21 @@ func retain_hospital_presentation_request(request: Dictionary) -> Dictionary:
 	else:
 		lease = _mutation_gate.acquire(&"causal_transaction")
 		if not lease.get("ok", false): return lease
-	var backup: Dictionary = capture_restore_state()
-	if not backup.get("ok", false):
-		if not lease.is_empty(): _mutation_gate.release(&"causal_transaction", str(lease.value.token))
-		return backup
-	var cache: Dictionary = route_context.get("hospital_frozen_contexts_v1", {"schema_version": 1, "requests": {}}).duplicate(true)
+	const CACHE_KEY := "hospital_frozen_contexts_v1"
+	var had_cache := route_context.has(CACHE_KEY)
+	var previous_cache: Variant = route_context.get(CACHE_KEY)
+	var cache: Dictionary = previous_cache.duplicate(true) if previous_cache != null else {"schema_version": 1, "requests": {}}
 	cache.requests[request.resolution_id] = checked.value
-	route_context["hospital_frozen_contexts_v1"] = cache
+	route_context[CACHE_KEY] = cache
 	var bound := read_hospital_presentation_request(str(request.resolution_id))
 	var saved: Dictionary = _contact_checkpoint_writer.call() if bound.get("ok", false) else bound
 	if not saved.get("ok", false):
-		var rolled := rollback_restore_silent(backup.value.backup)
+		if had_cache: route_context[CACHE_KEY] = previous_cache
+		else: route_context.erase(CACHE_KEY)
 		if not lease.is_empty():
 			var released: Dictionary = _mutation_gate.release(&"causal_transaction", str(lease.value.token))
 			if not released.get("ok", false): return released
-		return saved if rolled.get("ok", false) else rolled
+		return saved
 	if not lease.is_empty():
 		var released: Dictionary = _mutation_gate.release(&"causal_transaction", str(lease.value.token))
 		if not released.get("ok", false): return released
@@ -3186,18 +3135,11 @@ func ensure_contact_presentation_contexts(friend_id: String = "") -> Dictionary:
 		return _transaction_failure(&"contact_checkpoint_writer_unconfigured", "")
 	var lease: Dictionary = _mutation_gate.acquire(&"causal_transaction")
 	if not lease.ok: return lease
-	var captured: Dictionary = capture_restore_state()
-	if not captured.ok:
-		_mutation_gate.release(&"causal_transaction", str(lease.value.token))
-		return captured
+	var previous_route := route_context
 	route_context = candidate.duplicate(true)
 	var saved: Dictionary = _contact_checkpoint_writer.call()
 	if not saved.get("ok", false):
-		var rolled: Dictionary = rollback_restore_silent(captured.value.backup)
-		if not rolled.ok:
-			_mutation_gate.latch_fatal({"source": "contact_presentation", "phase": "rollback",
-				"code": "CONTACT_PRESENTATION_ROLLBACK_FAILED", "details": {"cause": str(rolled.get("code", ""))}})
-			return rolled
+		route_context = previous_route
 		var released: Dictionary = _mutation_gate.release(&"causal_transaction", str(lease.value.token))
 		return saved if released.ok else released
 	var released: Dictionary = _mutation_gate.release(&"causal_transaction", str(lease.value.token))

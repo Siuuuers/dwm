@@ -141,9 +141,6 @@ func begin_round(request: Variant) -> Dictionary:
 		if cause in DOMAIN_AVAILABILITY_CODES:
 			return {"ok": false, "code": cause, "details": {"cause": prepared}}
 		return {"ok": false, "code": &"STATE_PREPARE_FAILED"}
-	var s_cap: Dictionary = _save_port.capture()
-	if not s_cap.get("ok", false):
-		return {"ok": false, "code": &"PRE_BOARD_CHECKPOINT_FAILED"}
 	var preview: Dictionary = _save_port.preview_checkpoint_id(run_id)
 	if not preview.get("ok", false):
 		return {"ok": false, "code": &"PRE_BOARD_CHECKPOINT_FAILED"}
@@ -151,17 +148,27 @@ func begin_round(request: Variant) -> Dictionary:
 		&"pre_board", {"kind": &"autosave", "reason": &"pre_board"})
 	if not prep_ckpt.get("ok", false):
 		return {"ok": false, "code": &"PRE_BOARD_CHECKPOINT_FAILED"}
-	var ckpt_commit: Dictionary = _save_port.commit_checkpoint(prep_ckpt["value"]["candidate"])
-	if not ckpt_commit.get("ok", false):
-		return {"ok": false, "code": &"PRE_BOARD_AUTOSAVE_FAILED", "details": {"cause": ckpt_commit}}
+	var checkpoint: Dictionary = prep_ckpt.value.candidate
+	var captured: Dictionary = _save_port.capture()
+	if not captured.get("ok", false):
+		return {"ok": false, "code": &"PRE_BOARD_CHECKPOINT_FAILED"}
+	var autosave_backup: Dictionary = captured.value
+	if checkpoint.get("storage_backup") is Dictionary:
+		autosave_backup = {"journal_backup": captured.value.backup, "storage_backup": checkpoint.storage_backup}
 	var lock: Dictionary = _save_port.acquire_board_lock()
 	if not lock.get("ok", false):
-		_save_port.rollback(s_cap["value"])
 		return {"ok": false, "code": &"SAVE_LOCK_FAILED", "details": {"cause": lock}}
+	var ckpt_commit: Dictionary = _save_port.commit_checkpoint(checkpoint)
+	if not ckpt_commit.get("ok", false):
+		var cleanup := []
+		if not ckpt_commit.get("checkpoint_untouched", false):
+			cleanup.append(["minesweeper_save", "rollback", func() -> Dictionary: return _save_port.rollback(autosave_backup)])
+		cleanup.append(["minesweeper_save", "release_board_lock", func() -> Dictionary: return _save_port.release_board_lock()])
+		return _recover_then(cleanup, "pre_board_checkpoint_commit",
+			{"ok": false, "code": &"PRE_BOARD_AUTOSAVE_FAILED", "details": {"cause": ckpt_commit}}, round_id)
 	var comm: Dictionary = _state_port.commit(prepared["value"]["candidate"])
 	if not comm.get("ok", false):
 		return _recover_then([
-			["minesweeper_state", "rollback", func() -> Dictionary: return _state_port.rollback(backup["value"])],
 			["minesweeper_save", "release_board_lock", func() -> Dictionary: return _save_port.release_board_lock()],
 		], "begin_state_commit",
 			{"ok": false, "code": &"STATE_COMMIT_FAILED", "details": {"cause": comm}}, round_id)
@@ -209,12 +216,6 @@ func complete_round(round_id: String, result: Variant, transaction_id: String) -
 	var vres := CONTRACT.validate_result(_active_round, result)
 	if not vres.get("ok", false):
 		return {"ok": false, "code": &"INVALID_RESULT"}
-	var s_backup: Dictionary = _state_port.capture()
-	if not s_backup.get("ok", false):
-		return s_backup
-	var w_backup: Dictionary = _save_port.capture()
-	if not w_backup.get("ok", false):
-		return w_backup
 	var prepared: Dictionary = _state_port.prepare_complete(_active_round, result, transaction_id)
 	if not prepared.get("ok", false):
 		return {"ok": false, "code": &"STATE_PREPARE_FAILED"}
@@ -228,17 +229,19 @@ func complete_round(round_id: String, result: Variant, transaction_id: String) -
 		&"post_result", {"kind": &"none", "reason": &"stage"})
 	if not prep_ckpt.get("ok", false):
 		return {"ok": false, "code": &"CHECKPOINT_PREPARE_FAILED"}
+	var w_backup: Dictionary = _save_port.capture()
+	if not w_backup.get("ok", false):
+		return w_backup
 	var ckpt_commit: Dictionary = _save_port.commit_checkpoint(prep_ckpt["value"]["candidate"])
 	if not ckpt_commit.get("ok", false):
+		var failure := {"ok": false, "code": &"CHECKPOINT_COMMIT_FAILED", "details": {"cause": ckpt_commit}}
+		if ckpt_commit.get("checkpoint_untouched", false): return failure
 		return _recover_then([
 			["minesweeper_save", "rollback", func() -> Dictionary: return _save_port.rollback(w_backup["value"])],
-		], "completion_checkpoint_commit",
-			{"ok": false, "code": &"CHECKPOINT_COMMIT_FAILED", "details": {"cause": ckpt_commit}},
-			round_id, transaction_id)
+		], "completion_checkpoint_commit", failure, round_id, transaction_id)
 	var state_commit: Dictionary = _state_port.commit(finalized["value"]["candidate"])
 	if not state_commit.get("ok", false):
 		return _recover_then([
-			["minesweeper_state", "rollback", func() -> Dictionary: return _state_port.rollback(s_backup["value"])],
 			["minesweeper_save", "rollback", func() -> Dictionary: return _save_port.rollback(w_backup["value"])],
 		], "completion_state_commit",
 			{"ok": false, "code": &"STATE_COMMIT_FAILED", "details": {"cause": state_commit}},

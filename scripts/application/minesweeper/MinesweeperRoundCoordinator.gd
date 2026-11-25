@@ -21,6 +21,7 @@ const _STATE_PORT_METHODS: Array[String] = [
 	"guard_external", "capture", "prepare_spec", "prepare_first_reveal", "prepare_board_only",
 	"commit", "rollback", "publish",
 ]
+const _DURABLE_ADOPTION_METHODS: Array[String] = ["adopt_first_reveal_charge", "adopt_selected_difficulty"]
 const _CHECKPOINT_PORT_METHODS: Array[String] = [
 	"capture", "preview_checkpoint_id", "prepare_checkpoint", "commit_checkpoint",
 	"seal_checkpoint", "rollback",
@@ -80,6 +81,8 @@ var _profile_enabled: bool = false
 var _scene_completion_owner: Object
 
 func configure_scene_completion(owner: Object) -> Dictionary:
+	if _state_port != null and not _has_all_methods(_state_port, _DURABLE_ADOPTION_METHODS):
+		return _fail(&"invalid_state_port", "scene board adoption methods are required", {})
 	if not is_instance_valid(owner) or not owner.has_method("commit_scene_round_completion"):
 		return _fail(&"invalid_scene_completion_owner", "", {})
 	if _scene_completion_owner != null and _scene_completion_owner != owner:
@@ -115,6 +118,9 @@ func configure(state_port: Object, checkpoint_port: Object,
 		generation_port: Object, identity_issuer: Object) -> Dictionary:
 	if state_port == null or not _has_all_methods(state_port, _STATE_PORT_METHODS):
 		return _fail(&"invalid_state_port", "an exact state-port capability is required", {})
+	if (_durable_checkpoint_port != null or _scene_completion_owner != null or _board_state.uses_scene_payments()) \
+			and not _has_all_methods(state_port, _DURABLE_ADOPTION_METHODS):
+		return _fail(&"invalid_state_port", "prepared board adoption methods are required", {})
 	var has_legacy_checkpoint := checkpoint_port != null and _has_all_methods(
 		checkpoint_port, _CHECKPOINT_PORT_METHODS)
 	var is_configured_durable_checkpoint := (
@@ -158,6 +164,8 @@ func configure_durable_checkpoint(checkpoint_port: Object, snapshot_composer: Sc
 	if checkpoint_port == null or not _has_all_methods(checkpoint_port,
 			_DURABLE_CHECKPOINT_PORT_METHODS):
 		return _fail(&"invalid_durable_checkpoint_port", "an exact durable-checkpoint capability is required", {})
+	if _state_port != null and not _has_all_methods(_state_port, _DURABLE_ADOPTION_METHODS):
+		return _fail(&"invalid_state_port", "durable board adoption methods are required", {})
 	if snapshot_composer == null or not snapshot_composer.has_method("compose"):
 		return _fail(&"invalid_snapshot_composer", "snapshot_composer must expose compose", {})
 	if consequence_state_port == null or not consequence_state_port.has_method("capture"):
@@ -484,26 +492,16 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 		return _fail(&"causal_transaction_lease_required", "commit_recovery_action requires the active causal_transaction lease", {})
 	profile_tick = _consequence_profile_phase(profile, "validation_us", profile_tick)
 
-	if not profile.is_empty(): profile["reward"] = action_candidate.has("reward")
-	if action_candidate.has("reward"):
-		if _reward_port == null: return _fail(&"reward_port_not_configured", "", {})
-		var applied: Dictionary = _reward_port.commit_desktop_completion(action_candidate.reward.prepared_candidate)
-		if not applied.get("ok", false): return applied
-	profile_tick = _consequence_profile_phase(profile, "reward_commit_us", profile_tick)
-
 	var board_projection: Dictionary = action_candidate["board_projection"]
 	var prepared_restore: Dictionary = _board_state.prepare_restore(board_projection)
 	profile_tick = _consequence_profile_phase(profile, "board_prepare_us", profile_tick)
 	if not prepared_restore.get("ok", false):
 		return prepared_restore
-	var board_committed: Dictionary = _board_state.commit((prepared_restore["value"] as Dictionary)["candidate"])
-	profile_tick = _consequence_profile_phase(profile, "board_commit_us", profile_tick)
-	if not board_committed.get("ok", false):
-		return board_committed
 
 	var identity: Dictionary = action_candidate["identity"]
 	if not profile.is_empty():
 		profile["base_completion"] = int(identity["app_round_ordinal"]) in _BASE_COMPLETION_ORDINALS
+	var completion_candidate := {}
 	if int(identity["app_round_ordinal"]) in _BASE_COMPLETION_ORDINALS:
 		var recorded_completion: Dictionary = _round_consequence_state_port.call(&"prepare_record_base_completion", {
 			"kind": "complete", "app_round_ordinal": int(identity["app_round_ordinal"]),
@@ -512,8 +510,23 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 		if not recorded_completion.get("ok", false):
 			return recorded_completion
 		profile_tick = _consequence_profile_phase(profile, "base_completion_prepare_us", profile_tick)
+		completion_candidate = recorded_completion.value.candidate
+
+	if not profile.is_empty(): profile["reward"] = action_candidate.has("reward")
+	if action_candidate.has("reward"):
+		if _reward_port == null: return _fail(&"reward_port_not_configured", "", {})
+		var applied: Dictionary = _reward_port.commit_desktop_completion(action_candidate.reward.prepared_candidate)
+		if not applied.get("ok", false): return applied
+	profile_tick = _consequence_profile_phase(profile, "reward_commit_us", profile_tick)
+
+	var board_committed: Dictionary = _board_state.commit((prepared_restore["value"] as Dictionary)["candidate"])
+	profile_tick = _consequence_profile_phase(profile, "board_commit_us", profile_tick)
+	if not board_committed.get("ok", false):
+		return board_committed
+
+	if not completion_candidate.is_empty():
 		var ledger_committed: Dictionary = _round_consequence_state_port.call(&"commit",
-			(recorded_completion["value"] as Dictionary)["candidate"])
+			completion_candidate)
 		profile_tick = _consequence_profile_phase(profile, "base_completion_commit_us", profile_tick)
 		if not ledger_committed.get("ok", false):
 			return ledger_committed
@@ -1074,16 +1087,9 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 	if captured.has("round_paid"):
 		board_candidate.result_override = {"ok": true, "code": &"first_reveal_committed",
 			"value": {"revision": int(captured.revision) + 1}, "receipt": {}}
-		var backup: Dictionary = _state_port.call(&"capture")
-		if not backup.get("ok", false): return backup
-		var state_result: Dictionary = _state_port.call(&"commit", game_state_candidate)
-		if not state_result.get("ok", false): return state_result
-		var board_result := _board_state.commit(board_candidate)
-		if not board_result.get("ok", false):
-			return _rollback_participants("board_commit", transaction_id, [
-				["state_port", func(): return _state_port.call(&"rollback", backup.value.backup)],
-			], board_result)
-		return _consequence_profile_result(profile, board_result)
+		var revealed := _board_state.commit(board_candidate)
+		if revealed.ok: _state_port.adopt_first_reveal_charge(game_state_candidate)
+		return _consequence_profile_result(profile, revealed)
 
 	var base_captured: Dictionary = _state_port.call(&"capture_base_snapshot_input")
 	profile_tick = _consequence_profile_phase(profile, "capture_base_snapshot_us", profile_tick)
@@ -1104,11 +1110,6 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 		return composed
 	var post_commit_snapshot_input: Dictionary = (composed["value"] as Dictionary)["snapshot_input"]
 
-	var state_backup_captured: Dictionary = _state_port.call(&"capture")
-	profile_tick = _consequence_profile_phase(profile, "state_capture_us", profile_tick)
-	if not state_backup_captured.get("ok", false):
-		return state_backup_captured
-	var state_backup: Dictionary = (state_backup_captured["value"] as Dictionary)["backup"]
 	var checkpoint_backup_captured: Dictionary = _durable_checkpoint_port.call(&"capture")
 	profile_tick = _consequence_profile_phase(profile, "checkpoint_capture_us", profile_tick)
 	if not checkpoint_backup_captured.get("ok", false):
@@ -1125,25 +1126,26 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 	if str(checkpoint_value["checkpoint_id"]) != expected_checkpoint_id:
 		return _fail(&"checkpoint_id_mismatch", "", {})
 
+	var has_autosave_backup: bool = checkpoint_candidate.get("storage_backup") is Dictionary
+	if has_autosave_backup:
+		checkpoint_backup = {"journal_backup": checkpoint_backup, "storage_backup": checkpoint_candidate.storage_backup}
 	var checkpoint_commit: Dictionary = _durable_checkpoint_port.call(&"commit_checkpoint", checkpoint_candidate)
 	profile_tick = _consequence_profile_phase(profile, "checkpoint_commit_us", profile_tick)
 	if not checkpoint_commit.get("ok", false):
+		if not checkpoint_commit.get("checkpoint_untouched", false):
+			return _rollback_participants("checkpoint_commit", transaction_id, [
+				["checkpoint_port", func(): return _durable_checkpoint_port.call(&"rollback", checkpoint_backup)],
+			], checkpoint_commit)
 		return checkpoint_commit
-
-	var state_commit: Dictionary = _state_port.call(&"commit", game_state_candidate)
-	profile_tick = _consequence_profile_phase(profile, "state_commit_us", profile_tick)
-	if not state_commit.get("ok", false):
-		return _rollback_participants("state_commit", transaction_id, [
-			["checkpoint_port", func(): return _durable_checkpoint_port.call(&"rollback", checkpoint_backup)],
-		], state_commit)
 
 	var board_commit := _board_state.commit(board_candidate)
 	profile_tick = _consequence_profile_phase(profile, "board_commit_us", profile_tick)
 	if not board_commit.get("ok", false):
 		return _rollback_participants("board_commit", transaction_id, [
-			["state_port", func(): return _state_port.call(&"rollback", state_backup)],
 			["checkpoint_port", func(): return _durable_checkpoint_port.call(&"rollback", checkpoint_backup)],
 		], board_commit)
+	_state_port.adopt_first_reveal_charge(game_state_candidate)
+	profile_tick = _consequence_profile_phase(profile, "state_commit_us", profile_tick)
 
 	var published: Dictionary = _state_port.call(&"publish", publication)
 	_consequence_profile_phase(profile, "publish_us", profile_tick)
@@ -1654,25 +1656,22 @@ func _commit_cost_free_candidate(candidate: Dictionary, selected_difficulty: Str
 
 
 func _commit_cost_free_under_lease(candidate: Dictionary, selected_difficulty: String) -> Dictionary:
+	if _board_state.uses_scene_payments():
+		var committed := _board_state.commit(candidate)
+		if committed.ok and not selected_difficulty.is_empty():
+			_state_port.adopt_selected_difficulty(selected_difficulty)
+		return committed
+	if _durable_checkpoint_port == null and selected_difficulty.is_empty():
+		return _board_state.commit(candidate)
 	var before := _board_state.capture()
-	if before.has("round_paid"):
-		var live_committed := _board_state.commit(candidate)
-		if not live_committed.ok: return live_committed
-		if not selected_difficulty.is_empty():
-			var live_selected: Dictionary = _state_port.call(&"commit", {"board_only": true, "selected_difficulty": selected_difficulty})
-			if not live_selected.ok:
-				return _rollback_participants("cost_free_selection", str(candidate.transaction_id), [
-					["board", func(): return _restore_board_state(before)],
-				], live_selected)
-		return live_committed
-	var projected := _BOARD_STATE.new()
-	var restore := projected.prepare_restore(before)
-	if not restore.ok: return restore
-	projected.commit(restore.value.candidate)
-	var projection := projected.commit(candidate)
-	if not projection.ok: return projection
 	var disk_backup: Dictionary = {}
 	if _durable_checkpoint_port != null:
+		var projected := _BOARD_STATE.new()
+		var restore := projected.prepare_restore(before)
+		if not restore.ok: return restore
+		projected.commit(restore.value.candidate)
+		var projection := projected.commit(candidate)
+		if not projection.ok: return projection
 		var base: Dictionary = _state_port.call(&"capture_base_snapshot_input")
 		if not base.ok: return base
 		var inputs: Dictionary = base.value.snapshot_input
@@ -1688,6 +1687,7 @@ func _commit_cost_free_under_lease(candidate: Dictionary, selected_difficulty: S
 			disk_backup = {"journal_backup": disk_backup, "storage_backup": disk_candidate.storage_backup}
 		var written: Dictionary = _durable_checkpoint_port.call(&"commit_checkpoint", disk_candidate)
 		if not written.ok:
+			if written.get("checkpoint_untouched", false): return written
 			return _rollback_participants("cost_free_checkpoint", str(candidate.transaction_id), [["checkpoint_port", func(): return _durable_checkpoint_port.call(&"rollback", disk_backup)]], written)
 	var committed := _board_state.commit(candidate)
 	if not committed.ok:
