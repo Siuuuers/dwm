@@ -666,7 +666,7 @@ func project_scene_day_history(frontier: Dictionary) -> Dictionary:
 		if _scene_text.has(row.line_id): row.text = _scene_text[row.line_id]
 		if row.line_id == tail.beat.line_id: row.publication_id = tail.publication_id
 		if _scene_thought_ids.has(row.line_id): row["self_talk"] = true
-	return {"ok": true, "value": {"captions": rows, "frontier": frontier.duplicate(true),
+	return {"ok": true, "value": {"captions": rows, "frontier": frontier.duplicate(),
 		"session_id": command_id, "occurrence_id": scene_occurrence}}
 
 func _history_programme(entry_id: String) -> Dictionary:
@@ -1018,7 +1018,7 @@ func project(frontier: Dictionary) -> Dictionary:
 			if line.line_id == row.beat.line_id:
 				rows.append({"publication_id": row.publication_id, "beat_id": row.beat.beat_id,
 					"line_id": line.line_id, "entry_id": row.beat.owning_entry_id, "text": line.text})
-	return {"ok": true, "value": {"captions": rows, "frontier": frontier.duplicate(true), "session_id": command_id}}
+	return {"ok": true, "value": {"captions": rows, "frontier": frontier.duplicate(), "session_id": command_id}}
 
 func entry_program(entry_id: String, context: Dictionary = {}) -> Dictionary:
 	if family == "scene":

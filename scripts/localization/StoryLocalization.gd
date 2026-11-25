@@ -34,12 +34,11 @@ static func pair(primary: String, secondary: String, line_id: String, source: St
 		result.secondary_locale = secondary
 	return result
 
-static func project(result: Dictionary, locale: String, secondary: String = "") -> Dictionary:
+static func localize_caption_rows(result: Dictionary, locale: String, secondary: String = "") -> Dictionary:
 	if not result.get("ok", false): return result
-	var copy := result.duplicate(true)
-	for row: Dictionary in copy.get("value", {}).get("captions", []):
+	for row: Dictionary in result.value.captions:
 		row.merge(pair(locale, secondary, str(row.get("line_id", "")), str(row.text)), true)
-	return copy
+	return result
 
 static func display_markup(source: String) -> String:
 	if not source.contains(_STRIKE_MARK):

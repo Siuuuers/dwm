@@ -39,6 +39,9 @@ func test_reconstructed_day_passage_does_not_create_historical_publications() ->
 	assert_eq(history.value.captions.back().line_id, frontier.line_id)
 	assert_eq(history.value.frontier, frontier)
 	assert_eq(session.ledger.snapshot().captions.size(), 1, "unencountered earlier text is never backfilled")
+	var english: String = history.value.captions.back().text
+	preload("res://scripts/localization/StoryLocalization.gd").localize_caption_rows(history, "ja")
+	assert_eq(session.project_scene_day_history(frontier).value.captions.back().text, english)
 	assert_eq(session.capture(frontier).value, before, "projection has no live publication or cursor effects")
 	history.value.captions.clear()
 	assert_eq(session.project_scene_day_history(frontier).value.captions.size(), 1)
