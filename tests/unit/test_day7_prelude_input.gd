@@ -214,6 +214,8 @@ func test_pause_preserves_exact_card_scroll_focus_and_quarantines_held_confirm()
 	assert_false(_surface.cover_pause_view(altered), "a different anchor cannot cover an already covered source")
 	get_tree().paused = true
 	assert_false(_surface.visible)
+	var inspected: Dictionary = _surface.get_pause_projection()
+	inspected.receipt.view_token = "edited"
 	assert_eq(_surface.get_pause_projection(), projection, "covered projection retains exact witnessed identity")
 	assert_true(_surface.restore_pause_view(captured.value))
 	get_tree().paused = false

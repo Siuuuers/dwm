@@ -218,13 +218,12 @@ func retire() -> void:
 	set_process(false)
 	next_button.disabled = true
 
-func capture_pause_view(source: Dictionary) -> Dictionary:
+func capture_pause_view(_source: Dictionary) -> Dictionary:
 	if not has_drawn_art() or _covered or not is_visible_in_tree():
 		return {"ok": false, "code": &"pause_view_unavailable"}
 	_capture_id += 1
-	_anchor = {"view_id": get_instance_id(), "capture_id": _capture_id,
-		"token": _token, "source": source.duplicate(true)}
-	return {"ok": true, "value": _anchor.duplicate(true)}
+	_anchor = {"view_id": get_instance_id(), "capture_id": _capture_id}
+	return {"ok": true, "value": _anchor.duplicate()}
 
 func cover_pause_view(anchor: Dictionary) -> bool:
 	if _retired or anchor != _anchor or _anchor.is_empty(): return false
