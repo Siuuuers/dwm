@@ -843,7 +843,7 @@ static func validate_ids_document(ids_document: Dictionary) -> Dictionary:
 	if ids_document.get("kind") == "scene_ids_registry":
 		if _scene_bundle.is_empty() or ids_document != _scene_bundle.ids_registry:
 			return _scene_fail("unselected ids registry")
-		return {"ok": true, "value": ids_document.duplicate(true)}
+		return {"ok": true, "value": _scene_bundle.ids_registry}
 	for pair: Array in REGISTRY_COUNTS:
 		if not ids_document.has(str(pair[1])):
 			return _fail(&"IDS_MANIFEST_DOCUMENT_SHAPE",
@@ -1010,7 +1010,7 @@ static func validate_line_id(document: Dictionary, entry_id: String, line_id: St
 		if not selected.ok or document != selected.bundle.entry_manifest: return _scene_fail("unselected entries")
 		for row: Dictionary in selected.bundle.ids_registry.lines:
 			if row.line_id == line_id and row.owning_entry_id == entry_id:
-				return {"ok": true, "value": row.duplicate(true)}
+				return {"ok": true, "value": row}
 		return _fail(&"LINE_ID_UNREGISTERED", line_id)
 	var registry := load_ids_default(false)
 	if not registry.get("ok", false):

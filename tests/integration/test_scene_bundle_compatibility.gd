@@ -69,7 +69,13 @@ func test_both_owners_share_the_selected_complete_bundle_fingerprint() -> void:
 	assert_true(resolved.ok, str(resolved))
 	if not resolved.ok: return
 	assert_eq(resolved.value, line)
-	resolved.value.clear()
+	var installed: Dictionary = A.scene_contract_tables().bundle
+	assert_same(resolved.value, installed.ids_registry.lines[0])
+	assert_true(resolved.value.is_read_only())
+	var validated := A.validate_ids_document(bundle.ids_registry)
+	assert_true(validated.ok, str(validated))
+	assert_same(validated.value, installed.ids_registry)
+	assert_false(bundle.ids_registry.is_read_only())
 	assert_eq(A.validate_line_id(bundle.entry_manifest, line.owning_entry_id, line.line_id).value, line)
 	assert_eq(A.scene_registration_fingerprint(), expected)
 	# A structural-only change still changes B; hashing only entry identities
