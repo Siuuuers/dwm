@@ -111,7 +111,6 @@ func request_resume(handle: Dictionary) -> Dictionary:
 		return _recover(_failure(&"pause_source_changed"))
 	var released := await _resume_ports()
 	if not released.get("ok", false):
-		if is_instance_valid(view): view.cover_pause_view(_anchor)
 		return _recover(released)
 	if _owns_tree_pause:
 		get_tree().paused = false

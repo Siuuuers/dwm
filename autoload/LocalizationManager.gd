@@ -376,7 +376,6 @@ func _apply_root_plans(root_plans: Array) -> Dictionary:
 		}
 		var result: Variant = root.apply_presentation_silent((root_plan["plan"] as Dictionary).duplicate(true))
 		if not result is Dictionary or not result.get("ok", false):
-			root.rollback_presentation_silent(applied_record["backup"].duplicate(true))
 			_rollback_applied_roots(applied)
 			return result if result is Dictionary else _fail(&"invalid_root_apply_result")
 		applied.append(applied_record)

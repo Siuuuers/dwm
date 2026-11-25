@@ -722,6 +722,10 @@ func _copy_preparation_shell(target: Dictionary) -> void:
 		if _candidate.has(key): target[key] = _candidate[key]
 
 
+func uses_scene_payments() -> bool:
+	return _scene_snapshot_format
+
+
 func has_settled_inspection() -> bool:
 	return _settled_inspection
 

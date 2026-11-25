@@ -42,6 +42,7 @@ var admission: Dictionary = {}
 var event: Dictionary = {}
 var anchor: Dictionary = {}
 var snapshot: Dictionary = {}
+var checkpoint_inputs: Dictionary = {}
 var document: Dictionary = {}
 var setup_complete := false
 
@@ -165,6 +166,8 @@ func setup(scene_tree: SceneTree) -> Dictionary:
 			"active_challenge": {}, "return_to": null},
 		"applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [],
 		"command_receipts": {admission.transaction_id: admission, event.command_id: receipt.value}}
+	checkpoint_inputs = {"snapshot_input": input, "dialogic_checkpoint": checkpoint, "route_id": "scene",
+		"active_app_id": null, "audio_context": {}, "content_version": 1}
 	result = RUN.build_scene(input, checkpoint, "scene", null, {}, 1, 2)
 	if not result.ok: return result
 	snapshot = result.value.snapshot

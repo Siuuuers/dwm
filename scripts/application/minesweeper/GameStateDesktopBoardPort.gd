@@ -301,14 +301,21 @@ func commit(candidate: Dictionary) -> Dictionary:
 	if candidate.has("selected_difficulty"):
 		var selected := _BOARD_CATALOG.lookup("desktop_app", str(candidate.selected_difficulty))
 		if not selected.ok: return selected
-		_game_state.minesweeper_selected_difficulty = str(candidate.selected_difficulty)
-	if candidate.get("board_only", false):
-		return {"ok": true, "code": &"ok", "value": {"committed": true}, "receipt": {}}
+		adopt_selected_difficulty(str(candidate.selected_difficulty))
+	if not candidate.get("board_only", false):
+		adopt_first_reveal_charge(candidate)
+	return {"ok": true, "code": &"ok", "value": {"committed": true}, "receipt": {}}
+
+
+func adopt_selected_difficulty(difficulty: String) -> void:
+	_game_state.minesweeper_selected_difficulty = difficulty
+
+
+func adopt_first_reveal_charge(candidate: Dictionary) -> void:
 	if candidate.has("rounds_left"):
 		_game_state.minesweeper_rounds_left = int(candidate["rounds_left"])
 	if candidate.has("starts_today"):
 		_starts_today = (candidate["starts_today"] as Dictionary).duplicate()
-	return {"ok": true, "code": &"ok", "value": {"committed": true}, "receipt": {}}
 
 
 func rollback(backup: Dictionary) -> Dictionary:

@@ -90,7 +90,7 @@ func test_invalid_reading_has_no_partial_plan() -> void:
 		assert_false(result.has("value"))
 	assert_false(adapter.prepare({"preferences": {"dialogue": {"text_speed": 1.0}}}).get("ok", true))
 
-func test_instant_and_skip_plan_survive_native_cache_capture_and_rollback() -> void:
+func test_instant_reveal_and_long_delay_reach_native_reading_settings() -> void:
 	var runtime := Node.new()
 	var settings := SettingsSink.new()
 	settings.name = "Settings"
@@ -109,11 +109,6 @@ func test_instant_and_skip_plan_survive_native_cache_capture_and_rollback() -> v
 	assert_eq(text_sink.calls, [[-1.0, false, 1.0, 0.0]])
 	assert_eq(inputs.auto_advance.delay_modifier, 1.5)
 	assert_false(inputs.auto_advance.enabled_until_user_input, "Witnessed captions own Auto progression")
-	var backup: Dictionary = adapter.capture_state()["value"]
-	assert_eq(backup["plan"], plan)
-	assert_true(adapter.apply_silent(adapter.prepare(_reading())["value"]).get("ok", false))
-	assert_true(adapter.rollback_silent(backup).get("ok", false))
-	assert_eq(adapter.capture_state()["value"], backup)
 
 func test_localization_reads_and_publishes_only_canonical_primary_locale() -> void:
 	var profile := CanonicalProfile.new()

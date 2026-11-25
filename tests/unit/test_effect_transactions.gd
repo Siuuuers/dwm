@@ -3,6 +3,9 @@ extends "res://addons/gut/test.gd"
 # RED-first: assertions are guarded by has_method so a missing API fails by assertion, never by a
 # parse error, and no test mutates state before its intended assertion.
 
+@onready var GameState: Node = get_node("/root/GameState")
+@onready var EffectResolver: Node = get_node("/root/EffectResolver")
+
 func before_each() -> void:
 	GameState.reset_game()
 
@@ -119,7 +122,10 @@ func test_applied_transaction_id_sets_start_empty() -> void:
 	assert_eq(captured.get("applied_variable_transaction_ids"), [], "variable id set starts empty")
 
 
-func test_game_state_never_touches_the_gallery_ledger() -> void:
-	# Task 3's ledger is disjoint from ProfileManager.gallery_transaction_receipts (.7 owns that).
-	var source := FileAccess.get_file_as_string("res://autoload/GameState.gd")
-	assert_false("gallery_transaction_receipts" in source, "GameState must never read or write the ending-gallery ledger")
+func test_effect_transaction_writes_only_the_run_ledger() -> void:
+	var profile: Node = get_node("/root/ProfileManager")
+	var before: Dictionary = profile.get_profile_snapshot()
+	var result: Dictionary = GameState.commit_effect_transaction("run:ledger", _ids(["money:+5"]), "test_source")
+	assert_true(result.ok)
+	assert_eq(GameState.capture_run_snapshot_input().command_receipts.get("run:ledger"), result.receipt)
+	assert_eq(profile.get_profile_snapshot(), before, "a run effect leaves the profile gallery ledger untouched")

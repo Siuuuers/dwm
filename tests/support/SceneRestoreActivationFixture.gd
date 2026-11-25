@@ -5,9 +5,7 @@ const MANAGER := preload("res://autoload/SaveManager.gd")
 class Checkpoints:
 	extends RefCounted
 	var refuse_install := false
-	func capture_state() -> Dictionary: return {"ok": true, "value": {"backup": {}}}
 	func _install_prepared(_candidate: Dictionary) -> Dictionary: return {"ok": not refuse_install}
-	func restore_state(_backup: Dictionary) -> Dictionary: return {"ok": true}
 
 class Participant:
 	extends RefCounted

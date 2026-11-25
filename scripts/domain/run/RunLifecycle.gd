@@ -265,21 +265,6 @@ func commit_active_plan(candidate: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"plan": _plan.to_dict()}}
 
 
-func rollback_active_plan(backup: Dictionary) -> Dictionary:
-	if not backup.has("active_resolution_plan"):
-		return _fail(&"invalid_backup", "backup must carry active_resolution_plan")
-	var saved: Variant = backup["active_resolution_plan"]
-	if saved == null:
-		_plan = null
-		return {"ok": true, "code": &"ok", "value": {"active_resolution_plan": null}}
-	if typeof(saved) != TYPE_DICTIONARY:
-		return _fail(&"invalid_backup", "active_resolution_plan must be null or an object")
-	var restored: Dictionary = DAY_RESOLUTION_PLAN.from_dict(saved as Dictionary)
-	if not restored.get("ok", false):
-		return restored
-	_plan = restored["value"]["plan"]
-	return {"ok": true, "code": &"ok", "value": {"active_resolution_plan": _plan.to_dict()}}
-
 func resume_resolution() -> Dictionary:
 	if _state == COMPLETED:
 		return _fail(&"invalid_state", "resume_resolution is unavailable after COMPLETED")

@@ -130,26 +130,17 @@ func _source_method(source: String, method_name: String) -> String:
 
 func _assert_frozen_provenance() -> bool:
 	# Pin the actual historical overrides, not unrelated parts of today's owner.
-	# Both controls reuse the current owner; the probes below must reproduce the
+	# The control reuses the current owner; the probes below must reproduce the
 	# old aliases while current capture/install/rollback retain isolation.
-	const LIVE_REFERENCE := preload("res://tests/support/LiveRunRollbackAliasingReference.gd")
 	assert_same((REFERENCE as Script).get_base_script(), GAME_STATE, "restore control inherits the current owner")
-	assert_same((LIVE_REFERENCE as Script).get_base_script(), GAME_STATE, "live rollback control inherits the current owner")
 	var reference := FileAccess.get_file_as_string("res://tests/support/RunRestoreAliasingReference.gd").replace("\r\n", "\n")
-	var live_reference := FileAccess.get_file_as_string("res://tests/support/LiveRunRollbackAliasingReference.gd").replace("\r\n", "\n")
 	var capture := _source_method(reference, "capture_restore_state").sha256_text()
 	var install := _source_method(reference, "_apply_gameplay_silent").sha256_text()
-	var live_capture := _source_method(live_reference, "capture_live_run_state").sha256_text()
-	var live_rollback := _source_method(live_reference, "restore_live_run_state").sha256_text()
 	assert_eq(capture, REFERENCE.CAPTURE_RESTORE_STATE_SHA256, "exact historical capture control")
 	assert_eq(install, REFERENCE.APPLY_GAMEPLAY_SILENT_SHA256, "exact historical installation control")
-	assert_eq(live_capture, LIVE_REFERENCE.CAPTURE_LIVE_RUN_STATE_SHA256, "exact historical active-run capture control")
-	assert_eq(live_rollback, LIVE_REFERENCE.RESTORE_LIVE_RUN_STATE_SHA256, "exact historical active-run rollback control")
-	return (REFERENCE as Script).get_base_script() == GAME_STATE and (LIVE_REFERENCE as Script).get_base_script() == GAME_STATE \
+	return (REFERENCE as Script).get_base_script() == GAME_STATE \
 		and capture == REFERENCE.CAPTURE_RESTORE_STATE_SHA256 \
-		and install == REFERENCE.APPLY_GAMEPLAY_SILENT_SHA256 \
-		and live_capture == LIVE_REFERENCE.CAPTURE_LIVE_RUN_STATE_SHA256 \
-		and live_rollback == LIVE_REFERENCE.RESTORE_LIVE_RUN_STATE_SHA256
+		and install == REFERENCE.APPLY_GAMEPLAY_SILENT_SHA256
 
 
 func test_frozen_owner_reproduces_all_six_historical_alias_directions() -> void:

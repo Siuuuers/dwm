@@ -195,9 +195,9 @@ func commit(candidate: Dictionary) -> Dictionary:
 	var validated_texts := _take_prepared_text_validation(candidate)
 	var readiness := _readiness()
 	if not readiness.is_empty():
-		return readiness
+		return readiness.merged({"checkpoint_untouched": true})
 	if typeof(candidate.get("journal_candidate")) != TYPE_DICTIONARY:
-		return _fail(&"invalid_candidate", "candidate was not issued by this port")
+		return _fail(&"invalid_candidate", "candidate was not issued by this port").merged({"checkpoint_untouched": true})
 	var profile := {}
 	var tick := 0
 	if OS.get_environment("DWM_CHECKPOINT_PROFILE") == "1":
@@ -211,9 +211,10 @@ func commit(candidate: Dictionary) -> Dictionary:
 	var proven_current_document: Dictionary = {}
 	var written_history: Array = []
 	var written_document_text := ""
-	if candidate.get("autosave_document") != null:
+	var writes_autosave := candidate.get("autosave_document") != null
+	if writes_autosave:
 		var flushed: Dictionary = _save_manager.flush_profile_reading_history()
-		if not flushed.ok: return _profile_result(profile, flushed)
+		if not flushed.ok: return _profile_result(profile, flushed.merged({"checkpoint_untouched": true}))
 		var autosave_document: Variant = candidate["autosave_document"]
 		var document_text := ""
 		var proven_journal: Array = []
@@ -234,7 +235,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 			proven_documents.clear()
 			var canonical: Dictionary = CANONICAL_JSON.stringify(autosave_document)
 			if not canonical.get("ok", false):
-				return _profile_result(profile, _fail(&"canonical_serialization_failed", ""))
+				return _profile_result(profile, _fail(&"canonical_serialization_failed", "").merged({"checkpoint_untouched": true}))
 			document_text = str(canonical["value"])
 			if proven_current_text != "" and document_text.find(proven_current_text) < 0:
 				proven_current_text = ""
@@ -271,7 +272,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 			var checked_text := _document_text_validator(outgoing_text)
 			if not checked_text.get("ok", false) or not checked_text.get("value") is Dictionary:
 				return _profile_result(profile, {"ok": false, "code": &"outgoing_validation_failed",
-					"message": str(checked_text.get("message", "Outgoing document rejected")), "fatal": false})
+					"message": str(checked_text.get("message", "Outgoing document rejected")), "fatal": false, "checkpoint_untouched": true})
 			validated_texts[outgoing_text] = true
 		tick = _profile_phase(profile, "outgoing_schema_us", tick)
 		var witness := _witness_document_text_validator.bind(validated_texts)
@@ -293,7 +294,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 	var committed: Dictionary = _journal().commit_prepared(candidate["journal_candidate"])
 	tick = _profile_phase(profile, "journal_us", tick)
 	if not committed.get("ok", false):
-		return _profile_result(profile, committed)
+		return _profile_result(profile, committed if writes_autosave else committed.merged({"checkpoint_untouched": true}))
 	var proof_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 	var current_matches := proven_current_text != "" and CANONICAL_JSON._deep_same(
 			(candidate["journal_candidate"] as Dictionary)["current"],

@@ -19,7 +19,6 @@ var _admission_checkpoint_port: Object = null
 var _publication_ledger: Object = null
 var _pending_reservations: Dictionary = {}
 var _committed_transaction_ids: Dictionary = {}
-var _commit_generation := 0
 
 
 func configure_publication_ledger(publication_ledger: Object) -> Dictionary:
@@ -138,13 +137,6 @@ func prepare_admission(sequence_candidate: Dictionary, admission_checkpoint_cand
 	}}, "receipt": {}}
 
 
-func capture() -> Dictionary:
-	return {"ok": true, "code": &"ok", "value": {"backup": {
-		"pending_reservations": _pending_reservations.duplicate(true),
-		"commit_generation": _commit_generation,
-	}}, "receipt": {}}
-
-
 func commit(candidate: Dictionary) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.is_empty():
@@ -174,8 +166,6 @@ func commit(candidate: Dictionary) -> Dictionary:
 		&"commit_consequence_checkpoint", admission_checkpoint_candidate["candidate"], checkpoint_receipt)
 	if not checkpoint_committed.get("ok", false):
 		return checkpoint_committed
-
-	_commit_generation += 1
 
 	var reserved: Dictionary = _state.call(&"prepare_sequence_reservation", request, receipt)
 	if not reserved.get("ok", false):
@@ -212,22 +202,6 @@ func _committed_pending_recovery_result(transaction_id: String, causal_sequence_
 			"live_failure": live_failure.duplicate(true),
 		},
 	}
-
-
-func rollback(backup: Dictionary) -> Dictionary:
-	var ready := _require_configured()
-	if not ready.is_empty():
-		return ready
-	var restored_reservations: Variant = backup.get("pending_reservations")
-	if typeof(restored_reservations) != TYPE_DICTIONARY:
-		return _fail(&"invalid_backup", "backup.pending_reservations is required", {})
-	if typeof(backup.get("commit_generation")) != TYPE_INT:
-		return _fail(&"invalid_backup", "backup.commit_generation is required", {})
-	if int(backup["commit_generation"]) != _commit_generation:
-		return _fail(&"causal_admission_irreversible",
-			"an admission checkpoint has already committed since this backup was captured", {})
-	_pending_reservations = (restored_reservations as Dictionary).duplicate(true)
-	return {"ok": true, "code": &"ok", "value": {"restored": true}, "receipt": {}}
 
 
 func publish(publication: Dictionary) -> Dictionary:

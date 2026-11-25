@@ -619,7 +619,6 @@ func goto_scene_id(scene_id: String, context: Dictionary = {}) -> void:
 
 
 
-var _route_restore_backup: Dictionary = {}
 var _route_generation: int = 0
 var _pending_restore_scene_id: String = ""
 
@@ -713,7 +712,6 @@ func finalize_restore() -> Dictionary:
 		if not changed.get("ok", false):
 			return changed
 		_pending_restore_scene_id = ""
-	_route_restore_backup = {}
 	if _startup_hold_active:
 		return {"ok": true, "code": &"ok", "value": {"deferred": true, "route_id": get_current_route_id()}}
 	return {"ok": true, "code": &"ok"}

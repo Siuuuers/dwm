@@ -176,6 +176,8 @@ func test_root_apply_failure_rolls_back_prior_root_and_preserves_profile() -> vo
 	var before: Dictionary = _profile.get_profile_snapshot()
 	var result: Dictionary = _manager.set_locale("zh_CN")
 	assert_eq(result.get("code"), &"root_apply_failed")
+	assert_eq(first.call_log.count(&"rollback"), 1)
+	assert_eq(second.call_log.count(&"rollback"), 0, "the refusing root has not written presentation state")
 	assert_eq(first.applied_profile["locale_id"], "en")
 	assert_eq(_profile.get_profile_snapshot(), before)
 	assert_eq(_manager.get_locale(), "en")

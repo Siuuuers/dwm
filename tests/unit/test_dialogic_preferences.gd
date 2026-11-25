@@ -108,7 +108,7 @@ func test_installed_version_preference_adapter_exists() -> void:
 	if not loaded.get("ok", false):
 		return
 	var adapter: RefCounted = autofree(loaded["value"].new())
-	for method_name in [&"bind", &"prepare", &"capture_state", &"apply_silent", &"rollback_silent", &"finalize"]:
+	for method_name in [&"bind", &"prepare", &"apply_silent"]:
 		assert_true(adapter.has_method(method_name), "missing %s" % method_name)
 
 
@@ -152,27 +152,6 @@ func test_adapter_maps_profile_values_to_live_caches_without_persistence() -> vo
 		"the adapter preserves Dialogic's one-event Auto owner")
 	assert_true(fake["auto"].enabled_forced,
 		"the adapter preserves Dialogic's forced Auto owner")
-	# The native player flag is no longer the logical preference cache.
-	fake["auto"].enabled_until_user_input = false
-	var backup: Dictionary = adapter.call(&"capture_state")["value"]
-	assert_true(backup["plan"]["auto_advance_enabled"],
-		"capture retains the logical profile Auto value while native player Auto is neutral")
-	var disabled_plan: Dictionary = prepared["value"].duplicate(true)
-	disabled_plan["auto_advance_enabled"] = false
-	assert_true(adapter.call(&"apply_silent", disabled_plan).get("ok", false))
-	assert_false(adapter.call(&"capture_state")["value"]["plan"]["auto_advance_enabled"])
-	assert_true(adapter.call(&"rollback_silent", backup).get("ok", false))
-	assert_false(fake["auto"].enabled_until_user_input)
-	assert_true(adapter.call(&"capture_state")["value"]["plan"]["auto_advance_enabled"],
-		"rollback restores logical Auto without restoring native player Auto")
-	assert_false(true in fake["auto"].player_flag_writes,
-		"apply and rollback only ever neutralize the native player flag")
-	assert_true(adapter.call(&"apply_silent", prepared["value"]).get("ok", false),
-		"the cached plan can be reapplied after the native runtime clears")
-	assert_false(fake["auto"].enabled_until_user_input)
-	assert_true(adapter.call(&"capture_state")["value"]["plan"]["auto_advance_enabled"])
-	assert_true(fake["auto"].enabled_until_next_event)
-	assert_true(fake["auto"].enabled_forced)
 
 
 func test_committed_dialogue_apply_failure_latches_shared_gate() -> void:

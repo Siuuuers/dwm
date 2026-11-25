@@ -2,6 +2,9 @@
 # EffectResolver unit tests (prompt_docs/requirements/verification.md). EffectResolver applies
 # whitelisted effects onto the real GameState singleton, so we reset before each test.
 
+@onready var GameState: Node = get_node("/root/GameState")
+@onready var EffectResolver: Node = get_node("/root/EffectResolver")
+
 func before_each() -> void:
 	GameState.reset_game()
 
@@ -65,7 +68,7 @@ func test_minesweeper_floor_alias_and_clamp() -> void:
 # apply_resolved_descriptors() applies onto an EXPLICIT target and performs no discovery.
 
 func test_resolve_effects_normalizes_without_mutating() -> void:
-	var before := GameState.to_save_dict()
+	var before: Dictionary = GameState.to_save_dict()
 	var resolved: Dictionary = EffectResolver.resolve_effects(["  PRESSURE:+2  ", "money:+5"])
 	assert_true(resolved.get("ok", false), str(resolved))
 	var descriptors: Array = resolved["value"]["descriptors"]
@@ -101,7 +104,7 @@ func test_apply_resolved_descriptors_applies_onto_the_given_target() -> void:
 
 
 func test_apply_resolved_descriptors_rejects_malformed_descriptors() -> void:
-	var before := GameState.to_save_dict()
+	var before: Dictionary = GameState.to_save_dict()
 	assert_false(EffectResolver.apply_resolved_descriptors(GameState, [{"wrong_key": "x"}]).get("ok", false))
 	assert_eq(GameState.to_save_dict(), before, "a malformed descriptor applies nothing")
 

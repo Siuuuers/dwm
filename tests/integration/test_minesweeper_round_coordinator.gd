@@ -239,9 +239,8 @@ func test_recovery_failure_latches_once_and_returns_only_the_retained_applicatio
 	var gate: RefCounted = FAKE_GATE.new()
 	var made := _hostile_round(gate)
 	assert_true(made.coord.begin_round({"context": &"app", "difficulty": &"beginner"}).get("ok", false))
-	# The completion's state commit fails, and BOTH required rollbacks then fail too.
+	# The reward is refused after the staged checkpoint commits. Its journal restore fails.
 	made.state.set_failure(&"commit", 1)
-	made.state.hostile_rollback = true
 	made.save.set_failure(&"rollback", 1)
 	var result: Dictionary = made.coord.complete_round(ROUND_ID, {"outcome": &"cleared"}, "tx-fatal")
 
@@ -254,12 +253,12 @@ func test_recovery_failure_latches_once_and_returns_only_the_retained_applicatio
 	var failure: Dictionary = result["details"]["failure"]
 	assert_false(failure.is_empty(), "the retained fatal details are never empty")
 
-	# The projection survived every hostile value: primitives only, with sentinel reason/path.
+	# The fatal record identifies the journal that failed to restore.
 	assert_eq(str(failure["source"]), "minesweeper")
 	assert_eq(str(failure["code"]), "ROLLBACK_FAILED", "inner retained code identity")
 	var text := JSON.stringify(failure)
-	assert_true(text.contains("unsupported_type"), "hostile values became sentinels")
-	assert_true(text.contains("\"path\""), "every sentinel records its path")
+	assert_true(text.contains("minesweeper_save"))
+	assert_eq(made.state.get_call_counts().rollback, 0, "a refused reward never changed the state")
 	assert_true(PROJECTOR.validate_failure(failure).get("ok", false),
 		"the full failure was validated before latching")
 	# The context carries only stable identifiers.
@@ -285,7 +284,6 @@ func test_a_latched_fatal_blocks_every_later_operation_at_the_first_guard() -> v
 	var made := _hostile_round(gate)
 	assert_true(made.coord.begin_round({"context": &"app", "difficulty": &"beginner"}).get("ok", false))
 	made.state.set_failure(&"commit", 1)
-	made.state.hostile_rollback = true
 	made.save.set_failure(&"rollback", 1)
 	assert_eq(made.coord.complete_round(ROUND_ID, {"outcome": &"cleared"}, "tx-a").get("code"),
 		&"APPLICATION_FATAL")

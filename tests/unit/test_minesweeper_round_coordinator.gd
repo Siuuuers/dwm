@@ -152,6 +152,15 @@ func test_base_configure_accepts_the_same_durable_port_without_legacy_seal() -> 
 	var configured: Dictionary = fresh.configure(_state_port, durable, _generation_port, _issuer)
 	assert_true(configured.get("ok", false), JSON.stringify(configured))
 
+func test_durable_installation_checks_adoption_before_installing_the_checkpoint_port() -> void:
+	var fresh := COORDINATOR.new()
+	fresh._state_port = RefCounted.new()
+	var result: Dictionary = fresh.configure_durable_checkpoint(DurableCheckpointWithoutSeal.new(),
+		FIRST_REVEAL_COMPOSER, CONSEQUENCE_STATE.new())
+	assert_eq(result.code, &"invalid_state_port")
+	assert_null(fresh._durable_checkpoint_port)
+
+
 func _bootstrap_consequence_state(causal_day_instance: String) -> RefCounted:
 	var state := CONSEQUENCE_STATE.new()
 	var receipt: Dictionary = _root_store.mint(&"causal_day_instance").duplicate(true)
@@ -979,9 +988,9 @@ func test_first_reveal_durable_records_every_profile_phase_under_the_env_gate() 
 	var phases: Array = [
 		"board_capture_us", "verify_transaction_us", "prepare_spec_us", "materialize_us",
 		"reducer_us", "preview_checkpoint_us", "prepare_consequence_us", "board_prepare_us",
-		"validate_candidates_us", "capture_base_snapshot_us", "compose_us", "state_capture_us",
-		"checkpoint_capture_us", "checkpoint_prepare_us", "checkpoint_commit_us", "state_commit_us",
-		"board_commit_us", "publish_us",
+		"validate_candidates_us", "capture_base_snapshot_us", "compose_us",
+		"checkpoint_capture_us", "checkpoint_prepare_us", "checkpoint_commit_us", "board_commit_us",
+		"state_commit_us", "publish_us",
 	]
 	var cursor := 0
 	for phase: String in phases:

@@ -61,10 +61,10 @@ func configure(state_port: Object, causal_sequence_port: Object, board_fate_port
 			"prepare_recovery_advance", "prepare_sequence_reservation"]):
 		return _fail(&"invalid_state_port", "an exact consequence-state capability is required", {})
 	if causal_sequence_port == null or not _has_all_methods(causal_sequence_port,
-			["prepare_reservation", "prepare_admission", "commit", "rollback", "publish"]):
+			["prepare_reservation", "prepare_admission", "commit", "publish"]):
 		return _fail(&"invalid_causal_sequence_port", "an exact causal-sequence-port capability is required", {})
 	if board_fate_port == null or not _has_all_methods(board_fate_port, ["prepare_causal_departure",
-			"prepare_projected_causal_departure", "capture", "commit", "rollback", "publish"]):
+			"prepare_projected_causal_departure", "capture", "commit", "publish"]):
 		return _fail(&"invalid_board_fate_port", "an exact board-fate-port capability is required", {})
 	if checkpoint_port == null or not _has_all_methods(checkpoint_port,
 			["prepare_consequence_checkpoint", "commit_consequence_checkpoint"]):

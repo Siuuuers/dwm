@@ -1,7 +1,7 @@
 extends "res://addons/gut/test.gd"
 ## RED/GREEN coverage for DesktopBoardFatePort (Plan 02 Task 8, dwm-p2r.32,
 ## req.minesweeper.causal_departure). Representative, mutation-tested coverage of the core
-## capture/prepare/commit/rollback/publish contract and its three fates (none/discarded_unstarted/
+## capture/prepare/commit/publish contract and its three fates (none/discarded_unstarted/
 ## forfeited_started), not an exhaustive permutation of every phase x stage x corruption named in
 ## the brief's Step 8.1 enumeration -- see the Task-8 report for an honest note on what is
 ## representative rather than exhaustive here, matching this repo's own established precedent.
@@ -527,7 +527,7 @@ func test_prepare_projected_departure_rejects_stale_pre_state() -> void:
 	assert_eq(result.get("code"), &"board_fate_stale_revision")
 
 
-# ---- capture / commit / rollback / publish round trips ----
+# ---- capture / commit / publish round trips ----
 
 func test_commit_adopts_the_fate_none_candidate_and_publish_records_once() -> void:
 	var wired := _wired()
@@ -538,7 +538,6 @@ func test_commit_adopts_the_fate_none_candidate_and_publish_records_once() -> vo
 	var board_candidate: Dictionary = prepared["value"]["board_candidate"]
 	var board_fate_receipt: Dictionary = prepared["value"]["board_fate_receipt"]
 
-	var backup: Dictionary = port.capture()["value"]["backup"]
 	var committed: Dictionary = port.commit(board_candidate)
 	assert_true(committed.get("ok", false), JSON.stringify(committed))
 	assert_eq(committed["value"]["board_candidate"], board_candidate)
@@ -562,13 +561,8 @@ func test_commit_adopts_the_fate_none_candidate_and_publish_records_once() -> vo
 	assert_eq(ledger.record_calls, 2, "record_before_emit is still called, but its own replay stays a no-op")
 	assert_eq(_ledger_records(ledger).size(), 1, "no second distinct ledger record is created")
 
-	# Rollback is forbidden once admitted.
-	var rollback_result: Dictionary = port.rollback(backup)
-	assert_false(rollback_result.get("ok", false))
-	assert_eq(rollback_result.get("code"), &"board_fate_rollback_forbidden")
 
-
-func test_commit_adopts_a_discard_and_rollback_restores_pre_commit() -> void:
+func test_commit_adopts_a_discard_after_capturing_the_current_board() -> void:
 	var wired := _wired()
 	var port: RefCounted = wired["port"]
 	_begin_debug(_next_tx(), "beginner")
@@ -578,9 +572,6 @@ func test_commit_adopts_a_discard_and_rollback_restores_pre_commit() -> void:
 
 	var backup: Dictionary = port.capture()["value"]["backup"]
 	assert_eq(backup, live)
-	var rolled_back: Dictionary = port.rollback(backup)
-	assert_true(rolled_back.get("ok", false), JSON.stringify(rolled_back))
-	assert_eq(_coordinator._board_state.capture(), live, "rollback before commit is a genuine no-op restore")
 
 	var committed: Dictionary = port.commit(board_candidate)
 	assert_true(committed.get("ok", false), JSON.stringify(committed))
@@ -599,16 +590,6 @@ func test_commit_rejects_a_wrapped_candidate() -> void:
 	var result: Dictionary = port.commit(wrapped)
 	assert_false(result.get("ok", false))
 	assert_eq(result.get("code"), &"invalid_candidate")
-
-
-func test_rollback_rejects_an_unknown_backup() -> void:
-	var wired := _wired()
-	var port: RefCounted = wired["port"]
-	var result: Dictionary = port.rollback({"schema_version": 1, "phase": "NONE", "revision": 999,
-		"identity": null, "candidate": null, "board": null, "settlement": null,
-		"command_receipts": {}, "terminal_receipts": {}})
-	assert_false(result.get("ok", false))
-	assert_eq(result.get("code"), &"board_fate_backup_unknown")
 
 
 func test_publish_rejects_changed_receipt_bytes() -> void:

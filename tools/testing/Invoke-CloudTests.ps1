@@ -175,7 +175,6 @@ $suites = @{
         'tests/unit/test_reading_restore_admission.gd'
         'tests/unit/test_desktop_consequence_source_port.gd'
         'tests/integration/test_run_restore_isolation.gd'
-        'tests/integration/test_live_run_rollback_isolation.gd'
         'tests/integration/test_save_manager_public_boundaries.gd'
         'tests/integration/test_save_capability.gd'
     )

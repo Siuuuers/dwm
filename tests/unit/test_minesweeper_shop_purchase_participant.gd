@@ -721,7 +721,7 @@ func _force_terminal_cleanup() -> void:
 
 
 # ---------------------------------------------------------------------------------------------
-# capture() / commit() / rollback() / publish()
+# capture() / commit() / publish()
 # ---------------------------------------------------------------------------------------------
 
 func test_commit_rejects_without_the_gate_lease() -> void:
@@ -779,23 +779,6 @@ func test_commit_is_idempotent_on_identical_replay_and_conflicts_on_changed_byte
 	var conflicting: Dictionary = _participant.commit(changed)
 	assert_false(conflicting.get("ok", true))
 	assert_eq(conflicting.get("code"), &"transaction_conflict")
-
-
-func test_rollback_reverts_the_prepared_pending_and_releases_the_gate() -> void:
-	if _publication_ledger == null:
-		return
-	var txn := _mint_transaction()
-	var before := _live_consequence()
-	var participant := _configured_participant()
-	var backup: Dictionary = participant.capture()["value"]["backup"]
-	var prepared: Dictionary = _quote_and_prepare("lucky_charm", txn)
-	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
-	assert_true(_gate.is_internal_owner_active(&"causal_transaction"))
-
-	var restored: Dictionary = participant.rollback(backup)
-	assert_true(restored.get("ok", false), JSON.stringify(restored))
-	assert_eq(_live_consequence(), before, "consequence pending reverts to the pre-prepare state")
-	assert_false(_gate.is_active(), "the causal_transaction lease is released on abandonment")
 
 
 func test_publish_records_through_the_action_source_kind_and_releases_the_gate() -> void:

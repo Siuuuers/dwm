@@ -111,6 +111,7 @@ func commit_current_boundary(request: Dictionary) -> Dictionary:
 		return prepared
 	var committed: Dictionary = _real_port.commit((prepared["value"] as Dictionary)["candidate"])
 	if not committed.get("ok", false):
+		if committed.get("checkpoint_untouched", false): return committed
 		var rolled: Dictionary = _real_port.rollback((captured["value"] as Dictionary)["backup"])
 		if not rolled.get("ok", false):
 			return rolled
@@ -175,6 +176,7 @@ func _commit_reading_next_autosave(checkpoint: Dictionary, operation_id: String,
 		return _fail(&"reading_next_storage_backup_missing", "the real autosave preimage is required")
 	var committed: Dictionary = _real_port.commit(candidate)
 	if not committed.get("ok", false):
+		if committed.get("checkpoint_untouched", false): return committed
 		var rolled: Dictionary = _real_port.rollback({"journal_backup": captured.value.backup,
 			"storage_backup": candidate.storage_backup})
 		if not rolled.get("ok", false): return rolled
@@ -445,7 +447,8 @@ func _save_named_presentation(snapshot_input: Dictionary, checkpoint: Dictionary
 	if _fingerprint(candidate) != candidate_hash:
 		return {"ok": false, "code": &"scene_entry_commit_uncertain", "committed": true}
 	if not committed.get("ok", false):
-		if committed.get("committed", false) or str(committed.get("code", "")) == "APPLICATION_FATAL": return committed
+		if committed.get("checkpoint_untouched", false) or committed.get("committed", false) \
+				or str(committed.get("code", "")) == "APPLICATION_FATAL": return committed
 		var rolled: Dictionary = _real_port.rollback({"journal_backup": captured.value.backup,
 			"storage_backup": candidate.storage_backup})
 		if not rolled.get("ok", false):
@@ -543,6 +546,7 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 			var committed_failure := committed.duplicate(true)
 			committed_failure["committed"] = true
 			return committed_failure
+		if committed.get("checkpoint_untouched", false): return committed
 		var rolled: Dictionary = _real_port.rollback({"journal_backup": captured.value.backup,
 			"storage_backup": candidate.storage_backup})
 		if not rolled.get("ok", false):

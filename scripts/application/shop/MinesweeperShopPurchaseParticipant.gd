@@ -19,10 +19,10 @@ const _CAPABILITY_ITEM_IDS: Array[String] = ["lucky_charm", "debug_key"]
 const _SUPPORTZ_ITEM_ID := "supportz"
 
 const _STATE_PORT_METHODS: Array[String] = [
-	"guard_external", "capture", "prepare_purchase", "commit", "rollback", "publish",
+	"guard_external", "capture", "prepare_purchase", "commit", "publish",
 ]
 const _CONSEQUENCE_STATE_PORT_METHODS: Array[String] = [
-	"capture", "prepare_action_handoff", "prepare_restore", "commit",
+	"capture", "prepare_action_handoff", "commit",
 	"prepare_record_supportz_purchase", "supportz_eligibility_state",
 ]
 const _CHECKPOINT_PORT_METHODS: Array[String] = [
@@ -337,7 +337,6 @@ func prepare_purchase(request: Dictionary) -> Dictionary:
 	entry["prepare_request_fingerprint"] = request_fingerprint
 	entry["prepare_result"] = result.duplicate(true)
 	entry["economy_candidate"] = economy_candidate.duplicate(true)
-	entry["economy_backup"] = (economy_value["backup"] as Dictionary).duplicate(true)
 	entry["action_receipt"] = receipt.duplicate(true)
 	entry["action_candidate_sha256"] = action_candidate_sha256
 	entry["item_id"] = item_id
@@ -353,14 +352,7 @@ func capture() -> Dictionary:
 	var state_captured: Dictionary = _state_port.call(&"capture")
 	if not state_captured.get("ok", false):
 		return state_captured
-	var consequence_captured: Dictionary = _consequence_state_port.call(&"capture")
-	if not consequence_captured.get("ok", false):
-		return consequence_captured
-	return {"ok": true, "code": &"ok", "value": {"backup": {
-		"state_backup": ((state_captured["value"] as Dictionary)["backup"] as Dictionary).duplicate(true),
-		"consequence_state": ((consequence_captured["value"] as Dictionary)["state"] as Dictionary).duplicate(true),
-	}}, "receipt": {}}
-
+	return _consequence_state_port.call(&"capture")
 
 
 func commit(candidate: Dictionary) -> Dictionary:
@@ -414,29 +406,6 @@ func commit(candidate: Dictionary) -> Dictionary:
 	}, "receipt": {}}
 	_committed_transactions[transaction_id] = {"candidate": candidate.duplicate(true), "result": result.duplicate(true)}
 	return result
-
-
-func rollback(backup: Dictionary) -> Dictionary:
-	var ready := _require_configured()
-	if not ready.get("ok", false):
-		return ready
-	if typeof(backup.get("state_backup")) != TYPE_DICTIONARY or typeof(backup.get("consequence_state")) != TYPE_DICTIONARY:
-		return _fail(&"invalid_backup", "backup.state_backup and backup.consequence_state are required", {})
-	var state_restored: Dictionary = _state_port.call(&"rollback", backup["state_backup"])
-	if not state_restored.get("ok", false):
-		return state_restored
-	var consequence_prepared: Dictionary = _consequence_state_port.call(&"prepare_restore", backup["consequence_state"])
-	if not consequence_prepared.get("ok", false):
-		return consequence_prepared
-	var consequence_committed: Dictionary = _consequence_state_port.call(&"commit",
-		(consequence_prepared["value"] as Dictionary)["candidate"])
-	if not consequence_committed.get("ok", false):
-		return consequence_committed
-	var restored_state: Dictionary = (consequence_committed["value"] as Dictionary)["state"]
-	if restored_state.get("pending") == null and _gate_token != "":
-		_mutation_gate.release(_GATE_OWNER, _gate_token)
-		_gate_token = ""
-	return {"ok": true, "code": &"ok", "value": {"restored": true}, "receipt": {}}
 
 
 func publish(publication: Dictionary) -> Dictionary:

@@ -86,52 +86,6 @@ func test_scene_install_compensation_preserves_cold_state_and_configured_owners(
 	assert_signal_not_emitted(owner, "save_relevant_state_changed")
 	fixture.close()
 
-func test_live_run_backup_restores_detached_scene_progress() -> void:
-	var manifest := preload("res://scripts/narrative/DialogicEntryManifest.gd")
-	var loaded: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
-		FileAccess.get_file_as_string("res://data/manifests/scene_story_registration.json"))
-	assert_true(loaded.ok, str(loaded))
-	if not loaded.ok: return
-	var installed: Dictionary = manifest.configure_test_scene_registration(loaded.value)
-	assert_true(installed.ok, str(installed))
-	if not installed.ok: return
-	var opportunity := ""
-	var choice := ""
-	for entry: Dictionary in loaded.value.scene_programme.entries:
-		for marker: Dictionary in entry.markers:
-			if marker.kind == "thought.pass":
-				opportunity = marker.payload.opportunity_id
-				choice = "yes"
-			elif marker.kind == "thought.options":
-				opportunity = marker.payload.opportunity_id
-				choice = marker.payload.options[0].choice_id
-	assert_false(opportunity.is_empty(), "installed story supplies an actual choice")
-	assert_false(loaded.value.challenges.is_empty(), "installed story supplies an actual challenge")
-	if opportunity.is_empty() or loaded.value.challenges.is_empty(): return
-	var challenge_id: String = loaded.value.challenges[0].challenge_id
-	var owner: Node = autofree(GAME_STATE.new())
-	owner.reset_game()
-	var occurrence := "test.occurrence".sha256_text()
-	owner.scene_choices = {opportunity: choice}
-	owner.scene_challenge_outcomes = {occurrence: {"challenge_id": challenge_id, "outcome": "perfect"}}
-	var captured: Dictionary = owner.capture_live_run_state()
-	assert_true(captured.ok)
-	var baseline: Dictionary = captured.value.duplicate(true)
-	for attempt: int in 2:
-		owner.scene_choices[opportunity] = "pass"
-		owner.scene_challenge_outcomes[occurrence].outcome = "lost"
-		assert_eq(captured.value, baseline, "live mutation cannot alter the retained backup")
-		var restored: Dictionary = owner.restore_live_run_state(captured.value)
-		assert_true(restored.get("ok", false), str(restored))
-		assert_eq(owner.scene_choices, baseline.backup.scene_choices)
-		assert_eq(owner.scene_challenge_outcomes, baseline.backup.scene_challenge_outcomes)
-		assert_eq(owner.capture_live_run_state().value, baseline, "retry restores the complete captured live state")
-	# Restored nested dictionaries must also detach from caller-owned backup bytes.
-	captured.value.backup.scene_choices[opportunity] = "pass"
-	captured.value.backup.scene_challenge_outcomes[occurrence].outcome = "unfinished"
-	assert_eq(owner.scene_choices, baseline.backup.scene_choices)
-	assert_eq(owner.scene_challenge_outcomes, baseline.backup.scene_challenge_outcomes)
-
 func test_nested_registration_scope_restores_matching_derived_tables() -> void:
 	var manifest := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 	var parsed: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
