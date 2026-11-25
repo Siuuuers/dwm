@@ -81,7 +81,7 @@ func _present(next_kind: String, claimed: Array) -> bool:
 	if measured.is_empty(): return false
 	var new_sheet: bool = kind != next_kind
 	kind = next_kind
-	_claims = claimed.duplicate()
+	_claims = claimed if claimed.is_read_only() else claimed.duplicate()
 	_install(measured,new_sheet)
 	return true
 

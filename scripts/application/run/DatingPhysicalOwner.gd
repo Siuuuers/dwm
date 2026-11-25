@@ -829,14 +829,14 @@ func _freeze_post_challenge_presentation() -> Dictionary:
 	var stored: Variant = _game_state.route_context.get("dating_post_challenge_presentation")
 	if stored is Dictionary and stored.get("board_token") == _record.spec.board_token:
 		if not stored.get("fields") is Dictionary: return _fail(&"invalid_saved_presentation_fields")
-		var saved_fields: Dictionary = stored.fields.duplicate(true)
+		var saved_fields: Dictionary = stored.fields
 		if _record.host == "canonical_pair" and saved_fields.get("pair_mode") != _record.context.kind:
-			var prior_record: Dictionary = _record.duplicate(true)
-			prior_record.context.kind = saved_fields.get("pair_mode")
+			var prior_context: Dictionary = _record.context.merged({"kind": saved_fields.get("pair_mode")}, true)
+			var prior_record := _record.merged({"context": prior_context}, true)
 			var prior_signature: Dictionary = PRESENTATION_SIGNATURE.from_dating_post_challenge(prior_record, saved_fields)
 			if not prior_signature.ok or prior_signature.value.signature.entry_id != stored.get("entry_id"):
 				return _fail(&"invalid_saved_presentation_fields")
-			saved_fields.pair_mode = _record.context.kind
+			saved_fields = saved_fields.merged({"pair_mode": _record.context.kind}, true)
 			var remapped: Dictionary = PRESENTATION_SIGNATURE.from_dating_post_challenge(_record, saved_fields)
 			if not remapped.ok: return remapped
 			_game_state.route_context["dating_post_challenge_presentation"] = {
@@ -1369,7 +1369,7 @@ func _ok(value: Variant) -> Dictionary:
 	return {"ok":true,"code":&"ok","value":value,"receipt":{}}
 func _fail(code: StringName, value: Dictionary={}) -> Dictionary:
 	var result={"ok":false,"code":code,"message":"","details":{}}
-	if not value.is_empty(): result["value"]=value.duplicate(true)
+	if not value.is_empty(): result["value"] = value
 	return result
 
 func configure_scene_challenges(bundle: Dictionary, authority: Object) -> Dictionary:

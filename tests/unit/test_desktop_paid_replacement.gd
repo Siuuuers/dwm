@@ -257,6 +257,8 @@ func test_prepare_failure_keeps_original_board_and_exact_retry_does_not_refreeze
 	var request := _request("expert")
 	assert_false(coordinator.select_difficulty(request).ok)
 	assert_eq(coordinator.get_state().value, original)
+	var restored: Dictionary = coordinator._board_state.prepare_restore(original)
+	assert_true(coordinator._board_state.commit(restored.value.candidate).ok)
 	port.pressure = 9
 	assert_true(coordinator.select_difficulty(request).ok)
 	assert_eq(coordinator.get_state().value.candidate.spec.pressure, 3)

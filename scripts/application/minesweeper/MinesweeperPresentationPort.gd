@@ -4,7 +4,7 @@ extends RefCounted
 const PERFORMANCE := preload("res://scripts/domain/minesweeper/BoardPerformance.gd")
 const QUERY := preload("res://scripts/application/minesweeper/MinesweeperBoardPresentationQuery.gd")
 const REGISTER := preload("res://scripts/application/minesweeper/MinesweeperRegisterQuery.gd")
-const OWNER_METHODS := ["get_state", "get_entry_context", "reveal", "set_flag", "chord", "complete_round"]
+const OWNER_METHODS := ["read_state", "get_entry_context", "reveal", "set_flag", "chord", "complete_round"]
 
 var _owner: Object = null
 var _issuer: Object = null
@@ -139,7 +139,7 @@ func dispatch(action: String, cell_index: int, expected_revision: int) -> Dictio
 		_accepted_routine_snapshot = after_commit.value.routine_snapshot
 	if _defers_settlement(after_commit.value):
 		_pending_settlement_view = after_commit.value
-		return {"ok": true, "code": &"minesweeper_settlement_pending", "value": _projection.duplicate(true)}
+		return {"ok": true, "code": &"minesweeper_settlement_pending", "value": _projection}
 	var settled := _settle_terminal(after_commit.value)
 	if not settled.get("ok", false):
 		return _failure(&"minesweeper_settlement_refused", _projection)
@@ -191,7 +191,8 @@ func advance_preparation(expected_revision: int) -> Dictionary:
 	if expected_revision != _revision or context.revision != _revision:
 		return _failure(&"stale_minesweeper_presentation", _projection)
 	if context.action == "none": return {"ok": true, "advanced": false}
-	context = context.duplicate(true)
+	context = context.duplicate()
+	if context.identity is Dictionary: context.identity = context.identity.duplicate()
 	var current := _read_owner(_difficulty)
 	var checked := _read_preparation_context()
 	if not current.ok or not checked.get("ok", false) or checked.value != context \
@@ -227,7 +228,7 @@ func advance_preparation(expected_revision: int) -> Dictionary:
 		_clear()
 		return _failure(&"minesweeper_presentation_unavailable")
 	_adopt(after.value)
-	return {"ok": true, "advanced": true, "value": _projection.duplicate(true)}
+	return {"ok": true, "advanced": true, "value": _projection}
 
 
 func _read_preparation_context() -> Dictionary:
@@ -266,7 +267,7 @@ func get_accepted_routine_context(projection: Dictionary) -> Dictionary:
 	if _active_board_token != null:
 		if not has_current_active_board(): return {"ok": false}
 	else:
-		var current: Variant = _owner.call(&"get_state")
+		var current: Variant = _owner.call(&"read_state")
 		if not current is Dictionary or not current.get("ok", false) \
 				or not current.get("value") is Dictionary or current.value != retained_snapshot:
 			return {"ok": false}
@@ -355,7 +356,7 @@ func _read_configuration(snapshot: Dictionary, difficulty: String) -> Dictionary
 		seen.append(tier)
 	var configuration := value.duplicate()
 	configuration.identity = snapshot.identity
-	configuration.difficulty_enabled = value.difficulty_enabled.duplicate()
+	configuration.difficulty_enabled = seen
 	return _success(configuration)
 
 
@@ -493,7 +494,7 @@ func has_current_active_board(difficulty: String = "") -> bool:
 
 func _read_owner(difficulty: String, include_routine_context: bool = false) -> Dictionary:
 	var active_board_token: RefCounted = _owner.get_active_board_token() if _owner.has_method("get_active_board_token") else null
-	var state_result: Dictionary = _owner.call(&"get_state")
+	var state_result: Dictionary = _owner.call(&"read_state")
 	if not state_result.get("ok", false) or not state_result.get("value") is Dictionary:
 		return {"ok": false}
 	var snapshot: Dictionary = state_result.value
@@ -563,6 +564,7 @@ func _adopt(value: Dictionary) -> void:
 	_phase = value.phase
 	_identity = value.identity
 	_revision = value.revision
+	preload("res://scripts/domain/ReadOnlyData.gd").freeze(value.projection)
 	_projection = value.projection
 	_configuration = value.configuration
 	_terminal_foresight = value.terminal_foresight
@@ -582,7 +584,7 @@ func _clear() -> void:
 
 
 func _published_projection() -> Dictionary:
-	return _success(_projection.duplicate(true))
+	return _success(_projection)
 
 
 func _success(value: Dictionary) -> Dictionary:
@@ -591,5 +593,5 @@ func _success(value: Dictionary) -> Dictionary:
 
 func _failure(code: StringName, projection: Dictionary = {}) -> Dictionary:
 	var result := {"ok": false, "code": code}
-	if not projection.is_empty(): result["value"] = projection.duplicate(true)
+	if not projection.is_empty(): result["value"] = projection
 	return result

@@ -101,6 +101,10 @@ func test_shop_projection_equals_the_registry_records() -> void:
 		if not fetched.get("ok", false):
 			continue
 		var record: Dictionary = (fetched.get("value", {}) as Dictionary).get("record", {}) as Dictionary
+		assert_true(record.is_read_only())
+		assert_true(record.cap.is_read_only())
+		assert_true(record.effect_ids.is_read_only())
+		assert_true(record.capability_ids.is_read_only())
 		var cap: Dictionary = record.get("cap", {}) as Dictionary
 		var item: Dictionary = _dc.get_shop_item(item_id)
 		assert_eq(str(item.get("currency", "")), str(record.get("currency", "")),
