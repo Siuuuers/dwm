@@ -259,7 +259,7 @@ func _install_scene_control(session: RefCounted, reading: Dictionary,
 			or session.fingerprint != source.registration_sha256 \
 			or session.scene_index != retained.program_index or session.boundary != "control" \
 			or not session.next_operation.is_empty() \
-			or not traversal._same(candidate_ledger.snapshot(), retained.ledger) \
+			or not traversal._same(candidate_ledger.snapshot_view(), retained.ledger) \
 			or not traversal._same(reading, retained):
 		return _fail(&"scene_control_candidate_changed", "candidate changed during preflight")
 	_scene_source_token = null
@@ -1155,7 +1155,7 @@ func prepare_reading_seek(source_frontier: Dictionary, entry_label: String,
 	if not checked.ok: return checked
 	var indices := _reading_seek_indices(entry_label, ordered_lines, destination_line_id)
 	if not indices.ok: return indices
-	var intent := {"source": source_frontier.duplicate(true), "entry_id": _caption_entry,
+	var intent := {"source": source.value, "entry_id": _caption_entry,
 		"destination_line_id": destination_line_id, "terminal": destination_line_id.is_empty()}
 	if not _prepared_reading_seek.is_empty():
 		var previous: Dictionary = _prepared_reading_seek.plan.duplicate()
@@ -1196,7 +1196,7 @@ func apply_reading_seek(plan: Dictionary, destination_ledger: NarrativeCaptionLe
 	if plan.destination_line_id == plan.source.line_id:
 		_caption_ledger = destination_ledger
 		_prepared_reading_seek = {}
-		var result := {"ok": true, "value": {"frontier": destination_frontier.duplicate(true), "terminal": false}}
+		var result := {"ok": true, "value": {"frontier": destination_frontier.duplicate(), "terminal": false}}
 		reading_seek_finished.emit(result)
 		return result
 	var event: DialogicTextEvent = prepared.event
@@ -1219,7 +1219,7 @@ func apply_reading_seek(plan: Dictionary, destination_ledger: NarrativeCaptionLe
 	if not target.ok: return target
 	_caption_ledger = destination_ledger
 	_prepared_reading_seek = {}
-	_caption_seek_frontier = destination_frontier.duplicate(true)
+	_caption_seek_frontier = destination_frontier.duplicate()
 	_caption_seek_queued = false
 	_caption_seek_result = {"ok": true, "value": {"frontier": _caption_seek_frontier,
 		"terminal": bool(plan.terminal)}}
@@ -1240,7 +1240,7 @@ func _check_reading_seek_target(prepared: Dictionary, candidate: NarrativeCaptio
 		frontier: Dictionary) -> Dictionary:
 	if candidate == null or not candidate.check_session_view(_caption_token, _caption_entry, _scene_caption_occurrence).ok:
 		return _fail(&"reading_seek_target_invalid", "the destination requires the same admitted session")
-	var snapshot := candidate.snapshot()
+	var snapshot := candidate.snapshot_view()
 	var old: Dictionary = prepared.snapshot
 	var original_headers := old.duplicate()
 	var target_headers := snapshot.duplicate()
@@ -1930,7 +1930,8 @@ func hold_marker_source(source: Dictionary) -> Dictionary:
 	var identity := marker_source_identity()
 	if not identity.ok or identity.value.frontier != source: return _fail(&"reading_marker_source_changed", "")
 	var ledger := _caption_ledger
-	var snapshot := ledger.snapshot()
+	var history := ledger.fork_live()
+	var snapshot := history.snapshot_view()
 	var completed := complete_reading_frontier()
 	if not completed.ok: return completed
 	var after := marker_source_identity()
@@ -1965,7 +1966,7 @@ func hold_marker_source(source: Dictionary) -> Dictionary:
 		return failed
 	_marker_hold = {"identity": identity.value, "source_line": source.line_id,
 		"frontier": {}, "ledger": ledger, "snapshot": snapshot,
-		"live_history": _caption_ledger.fork_live(),
+		"live_history": history,
 		"event": event, "execution_generation": event._execution_generation}
 	return {"ok": true}
 
@@ -1980,7 +1981,7 @@ func prepare_marker_seek(entry_label: String, lines: Array, destination_line: St
 	if not valid.ok: return valid
 	var indices := _reading_seek_indices(entry_label, lines, destination_line)
 	if not indices.ok: return indices
-	return {"ok": true, "value": {"identity": source.value.duplicate(true), "entry_label": entry_label,
+	return {"ok": true, "value": {"identity": source.value, "entry_label": entry_label,
 		"lines": lines.duplicate(true), "destination": destination_line, "indices": indices.value}}
 
 func install_marker_candidate(plan: Dictionary, candidate: NarrativeCaptionLedger, frontier: Dictionary) -> Dictionary:
@@ -1989,7 +1990,7 @@ func install_marker_candidate(plan: Dictionary, candidate: NarrativeCaptionLedge
 		return _fail(&"reading_marker_source_changed", "")
 	var indices := _reading_seek_indices(plan.entry_label, plan.lines, plan.destination)
 	if not indices.ok or indices.value != plan.indices: return _fail(&"reading_seek_changed", "")
-	var target_frontier := frontier.duplicate(true)
+	var target_frontier := frontier
 	if frontier.has("anchor"):
 		if not frontier.anchor is Dictionary or frontier.get("event_id") != _marker_binding.event_id \
 				or frontier.anchor.get("line_id") != _marker_binding.after_line_id \
@@ -2001,16 +2002,16 @@ func install_marker_candidate(plan: Dictionary, candidate: NarrativeCaptionLedge
 		"plan": {"terminal": plan.destination.is_empty(), "destination_line_id": plan.destination}}
 	var checked := _check_reading_seek_target(prepared, candidate, target_frontier)
 	if not checked.ok: return checked
-	var after: Dictionary = candidate.snapshot()
 	_caption_ledger = candidate
-	_marker_hold.ledger = candidate
-	_marker_hold.snapshot = after
-	_marker_hold.live_history = candidate.fork_live()
 	if frontier.has("anchor"):
+		var history := candidate.fork_live()
+		_marker_hold.ledger = candidate
+		_marker_hold.snapshot = history.snapshot_view()
+		_marker_hold.live_history = history
 		_marker_hold.frontier = frontier.duplicate(true)
 		_marker_hold.source_line = frontier.anchor.line_id
 		return {"ok": true, "value": {"pending": false}}
-	_caption_seek_frontier = frontier.duplicate(true)
+	_caption_seek_frontier = frontier.duplicate()
 	_caption_seek_result = {"ok": true, "value": {"frontier": _caption_seek_frontier, "terminal": frontier.is_empty()}}
 	_caption_seek_queued = false
 	_marker_hold = {}

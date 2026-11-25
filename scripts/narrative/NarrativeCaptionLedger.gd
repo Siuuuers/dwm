@@ -268,12 +268,12 @@ func latest_frontier() -> Dictionary:
 	return {"line_id": tail.beat.line_id, "publication_id": tail.publication_id}
 
 func snapshot() -> Dictionary:
-	return _snapshot_fields().duplicate(true)
+	return snapshot_view().duplicate(true)
 
 func matches_snapshot(saved: Dictionary) -> bool:
-	return _snapshot_fields() == saved
+	return snapshot_view() == saved
 
-func _snapshot_fields() -> Dictionary:
+func snapshot_view() -> Dictionary:
 	var result := {"session_token": _session_token, "frozen_context": _frozen_context,
 		"captions": _sequence}
 	if _entry_contexts_required: result["entry_contexts"] = _entry_contexts
