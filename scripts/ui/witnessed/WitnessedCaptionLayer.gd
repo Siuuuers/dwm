@@ -585,7 +585,7 @@ func _on_history_requested() -> void:
 	var source: Dictionary = history.value
 	var captions: Array = source.get("captions", [])
 	if captions.is_empty(): return
-	_history_source = {"session_id": source.session_id, "frontier": source.frontier.duplicate(true)}
+	_history_source = {"session_id": source.session_id, "frontier": source.frontier}
 	var focused := get_viewport().gui_get_focus_owner()
 	_load_activation_focus_id = focused.get_instance_id() if focused != null and _owns_caption_focus(focused) else 0
 	_history_pending = true
