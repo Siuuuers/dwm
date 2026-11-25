@@ -38,6 +38,7 @@ func _manager(storage: RefCounted = null) -> Node:
 func test_verification_requires_registered_capture_from_another_run() -> void:
 	var captured := OBSERVER.prepare({}, _receipt("capture"))
 	assert_true(captured.ok)
+	assert_eq(OBSERVER.prepare(captured.value, _receipt("capture")), {"ok": true, "already_recorded": true})
 	assert_false(OBSERVER.prepare(captured.value, _receipt("verification")).ok)
 	var verified := OBSERVER.prepare(captured.value, _receipt("verification", "run-b"))
 	assert_true(verified.ok)

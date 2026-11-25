@@ -522,7 +522,7 @@ func commit_dating_attempt(material: Dictionary) -> Dictionary:
 	if not prepared.value.changed and not requires_witness:
 		return {"ok": true, "code": &"ok", "value": {"attempt": attempt, "already_recorded": true}}
 	var candidate := _profile.duplicate()
-	candidate["dating_attempts"] = prepared.value.ledger
+	if prepared.value.changed: candidate["dating_attempts"] = prepared.value.ledger
 	if requires_witness:
 		candidate["pair_form_witness_receipts"] = _profile.pair_form_witness_receipts.duplicate()
 		candidate["pair_form_witness_receipts"][witness_id] = attempt.record.pair_form

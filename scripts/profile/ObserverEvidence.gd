@@ -52,7 +52,7 @@ static func prepare(ledger: Dictionary, receipt: Dictionary) -> Dictionary:
 	var id: String = receipt.receipt_id
 	if ledger.has(id):
 		if ledger[id] != receipt: return _fail("Observer receipt conflict")
-		return {"ok": true, "value": ledger.duplicate(true), "already_recorded": true}
+		return {"ok": true, "already_recorded": true}
 	var candidate := ledger.duplicate(true)
 	candidate[id] = receipt.duplicate()
 	var valid := validate(candidate)
