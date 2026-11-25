@@ -255,14 +255,14 @@ func _update_scene_progress() -> Dictionary:
 	_progress_publication = highest
 	return {"ok": true}
 
-func _capture_scene(frontier: Dictionary) -> Dictionary:
+func _capture_scene(frontier: Dictionary, operation: Variant = null) -> Dictionary:
 	var updated := _update_scene_progress()
 	if not updated.ok: return updated
 	var saved := {"schema_version": 5, "registration_sha256": fingerprint, "entry_id": latest_entry,
 		"occurrence_id": scene_occurrence, "program_index": scene_index, "boundary": boundary,
-		"ledger": ledger.snapshot(), "frontier": frontier.duplicate(true), "player_progress": player_progress.duplicate(true),
-		"next_operation": null if next_operation.is_empty() else next_operation.duplicate(true)}
-	return {"ok": true, "value": saved}
+		"ledger": ledger.snapshot_view(), "frontier": frontier, "player_progress": player_progress,
+		"next_operation": operation}
+	return {"ok": true, "value": saved.duplicate(true)}
 
 func _story_day(entry_id: String) -> int:
 	return int(_scene_bundle.get("scene_programme", {}).get("story_days", {}).get(entry_id,
@@ -590,7 +590,6 @@ func prepare_scene_control_continuation() -> Dictionary:
 	var target: int = scene_index + 1
 	if node.kind != "control" or target >= nodes.size() or nodes[target].kind != "caption": return _content_error("Cannot continue dialogue in: " + latest_entry, {"entry_id": latest_entry, "program_index": scene_index})
 	var reading: Dictionary = source.value
-	reading.next_operation = null
 	var candidate := ledger.fork_live()
 	if not _caption_variants_by_line.has(nodes[target].line_id):
 		return _content_error("Unregistered dialogue ID: " + nodes[target].line_id,
@@ -612,7 +611,6 @@ func prepare_scene_next(frontier: Dictionary, is_witnessed: Callable) -> Diction
 	var source := _capture_scene(frontier)
 	if not source.ok: return source
 	var reading: Dictionary = source.value
-	reading.next_operation = null
 	var candidate := ledger.fork_live()
 	var nodes: Array = _scene_nodes[latest_entry]
 	var index: int = scene_index
@@ -831,18 +829,26 @@ func current_caption_variant_view(entry_id: String, frontier: Dictionary) -> Dic
 	return {"ok": true, "value": beat}
 
 func capture(frontier: Dictionary) -> Dictionary:
-	if family == "scene": return _capture_scene(frontier)
-	if marker_entries.has(latest_entry): return _capture_marker(frontier)
+	if family == "scene": return _capture_scene(frontier, null if next_operation.is_empty() else next_operation)
+	var checked := _validated_reading_view(frontier)
+	return {"ok": true, "value": checked.value.duplicate(true)} if checked.ok else checked
+
+func _validated_reading_view(frontier: Dictionary) -> Dictionary:
 	if ledger == null or latest_entry.is_empty(): return _fail(&"reading_session_unavailable")
 	var saved := {"schema_version": 1, "catalogue_fingerprint": fingerprint,
-		"boundary": boundary, "ledger": ledger.snapshot(), "frontier": frontier.duplicate(true)}
-	if family in ["hospital", "ending"]:
+		"boundary": boundary, "ledger": ledger.snapshot_view(), "frontier": frontier}
+	if marker_entries.has(latest_entry):
+		saved.schema_version = 4
+		saved["marker_program_fingerprint"] = marker_fingerprint
+		if boundary == "notification": saved.frontier = marker_frontier
+		saved["next_operation"] = null if next_operation.is_empty() else next_operation
+	elif family in ["hospital", "ending"]:
 		if not next_operation.is_empty(): return _fail(&"reading_next_unavailable")
 		saved.schema_version = 3
 		saved["family"] = family
 	elif not next_operation.is_empty():
 		saved.schema_version = 2
-		saved["next_operation"] = next_operation.duplicate(true)
+		saved["next_operation"] = next_operation
 	var checked := validate_saved(saved, latest_entry)
 	return {"ok": true, "value": saved} if checked.ok else checked
 
@@ -1018,7 +1024,7 @@ func prepare_next(frontier: Dictionary, is_witnessed: Callable) -> Dictionary:
 
 func project(frontier: Dictionary) -> Dictionary:
 	if family == "scene": return project_scene_day_history(frontier)
-	var captured := capture(frontier)
+	var captured := _validated_reading_view(frontier)
 	if not captured.ok: return captured
 	var rows: Array[Dictionary] = []
 	var entries := catalogue if catalogue_schema_version == 1 else _selected_entries
@@ -1219,15 +1225,6 @@ func configure_markers(document: Dictionary) -> Dictionary:
 	FROZEN._freeze(marker_document)
 	marker_entries.make_read_only()
 	return {"ok": true}
-
-func _capture_marker(frontier: Dictionary) -> Dictionary:
-	if ledger == null: return _fail(&"reading_session_unavailable")
-	var saved := {"schema_version": 4, "catalogue_fingerprint": fingerprint,
-		"marker_program_fingerprint": marker_fingerprint, "boundary": boundary, "ledger": ledger.snapshot(),
-		"frontier": marker_frontier.duplicate(true) if boundary == "notification" else frontier.duplicate(true),
-		"next_operation": null if next_operation.is_empty() else next_operation.duplicate(true)}
-	var checked := _validate_marker_saved(saved, latest_entry)
-	return {"ok": true, "value": saved} if checked.ok else checked
 
 func _validate_marker_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 	if not marker_entries.has(entry_id) or not TRAVERSAL.valid_marker_reading_shape(saved) \
