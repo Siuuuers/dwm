@@ -11,24 +11,21 @@ func materialize(spec: Dictionary, forced_cell: int) -> Dictionary:
 	var generated: Dictionary = _GENERATOR.materialize_first_reveal(spec, forced_cell)
 	if not generated.get("ok", false):
 		return generated
-	var value: Dictionary = generated["value"]
-	return _ok({"layout": (value["layout"] as Dictionary).duplicate(true)})
+	return _ok({"layout": generated.value.layout})
 
 
 func begin_search(spec: Dictionary) -> Dictionary:
 	var begun: Dictionary = _GENERATOR.begin_debug(spec)
 	if not begun.get("ok", false):
 		return begun
-	var preparation: Dictionary = begun["value"]["preparation"]
-	return _ok({"frontier": preparation.duplicate(true)})
+	return _ok({"frontier": begun.value.preparation})
 
 
 func begin_search_at_cell(spec: Dictionary, first_cell: int) -> Dictionary:
 	var begun: Dictionary = _GENERATOR.begin_debug_at_cell(spec, first_cell)
 	if not begun.get("ok", false):
 		return begun
-	var preparation: Dictionary = begun["value"]["preparation"]
-	return _ok({"frontier": preparation.duplicate(true)})
+	return _ok({"frontier": begun.value.preparation})
 
 
 func run_search_slice(frontier: Dictionary) -> Dictionary:
@@ -38,7 +35,7 @@ func run_search_slice(frontier: Dictionary) -> Dictionary:
 	var preparation: Dictionary = advanced["value"]["preparation"]
 	var status := str(preparation["status"])
 	if status == "searching":
-		return _ok({"done": false, "frontier": preparation.duplicate(true)})
+		return _ok({"done": false, "frontier": preparation})
 	if status != "certified":
 		return _fail(&"generation_search_status_invalid",
 			"the production generator returned an unsupported terminal search status",
@@ -50,7 +47,7 @@ func run_search_slice(frontier: Dictionary) -> Dictionary:
 		"schema_version": 1,
 		"width": int(spec["width"]),
 		"height": int(spec["height"]),
-		"mine_indices": (candidate["mine_indices"] as Array).duplicate(),
+		"mine_indices": candidate["mine_indices"],
 		"mine_count": int(candidate["mine_count"]),
 	}
 	return _ok({

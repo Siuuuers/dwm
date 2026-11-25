@@ -16,6 +16,8 @@ func test_materialize_returns_the_coordinator_shape_deterministically_and_keeps_
 	var layout: Dictionary = first["value"]["layout"]
 	assert_eq(int(layout["mine_count"]), 10)
 	assert_false((layout["mine_indices"] as Array).has(9))
+	layout.mine_indices.clear()
+	assert_eq(replay.value.layout.mine_indices.size(), 10)
 
 
 func test_debug_search_projects_real_generator_progress_and_certification_into_exact_port_shapes() -> void:
