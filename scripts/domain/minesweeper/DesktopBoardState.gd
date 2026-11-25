@@ -193,7 +193,7 @@ func check_snapshot(snapshot: Dictionary) -> Dictionary:
 		var spec := _BOARD_SCHEMA.check_spec(slot.spec)
 		if not spec.ok: return spec
 		var shell := _BOARD_SCHEMA.validate_shell({"flagged_indices": slot.get("flagged_indices"),
-			"actions": slot.get("actions")}, slot.spec.width, slot.spec.height)
+			"actions": slot.get("actions")}, slot.spec.width, slot.spec.height, true)
 		if not shell.ok: return shell
 	return {"ok": true}
 
@@ -203,7 +203,7 @@ func prepare_restore(snapshot: Dictionary) -> Dictionary:
 	if not checked.ok: return checked
 	var restored := snapshot.duplicate(true)
 	if restored.phase == _PHASE_PREPARED_UNSTARTED and not restored.candidate.get("flagged_indices", []).is_empty():
-		restored.candidate.merge(_BOARD_SCHEMA.clear_debug_flags(restored.candidate), true)
+		_BOARD_SCHEMA.clear_debug_flags(restored.candidate)
 	return {"ok": true, "code": &"ok", "value": {"candidate": {
 		"kind": &"restore", "snapshot_after": restored,
 	}}, "receipt": {}}
@@ -297,12 +297,12 @@ func prepare_debug_slice(input: Dictionary, generation: Dictionary) -> Dictionar
 		"spec": spec, "layout": layout, "forced_cell": int(forced_cell),
 		"proof_sha256": proof_sha256,
 	}
-	if _candidate.has("actions"):
-		certified_candidate.merge(_BOARD_SCHEMA.clear_debug_flags(_candidate))
-	if _candidate.has("paid_start_receipt"):
-		certified_candidate["paid_start_receipt"] = _candidate.paid_start_receipt
-	return _envelope(input, &"debug_slice_certified", _PHASE_PREPARED_UNSTARTED, _identity,
+	_copy_preparation_shell(certified_candidate)
+	var prepared := _envelope(input, &"debug_slice_certified", _PHASE_PREPARED_UNSTARTED, _identity,
 		certified_candidate, null, null)
+	if prepared.ok and certified_candidate.has("actions"):
+		_BOARD_SCHEMA.clear_debug_flags(prepared.value.candidate.candidate_after)
+	return prepared
 
 
 func prepare_first_reveal(input: Dictionary, materialized: Dictionary,
@@ -474,7 +474,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 		_scene_snapshot_format = snapshot.has("settled_inspection")
 		_settled_inspection = is_settled_inspection(snapshot)
 		_round_paid = bool(snapshot.get("round_paid", false))
-		return _committed_state_view()
+		return _committed_state_view().duplicate(true)
 
 	var transaction_id := str(candidate.get("transaction_id", ""))
 	var request_fingerprint := str(candidate.get("request_fingerprint", ""))
@@ -523,9 +523,9 @@ func commit(candidate: Dictionary) -> Dictionary:
 			"request_fingerprint": request_fingerprint,
 			"identity_fingerprint": str(candidate.get("identity_fingerprint", "")),
 			"pre_revision": int(candidate["pre_revision"]), "post_revision": _revision,
-			"command_kind": String(kind), "result": result.duplicate(true),
+			"command_kind": String(kind), "result": result,
 		}
-	return result
+	return result.duplicate(true)
 
 
 func lookup_command_receipt(transaction_id: String, fingerprint: String) -> Dictionary:
@@ -589,15 +589,17 @@ func _check_identity_matches_live(input: Dictionary) -> Dictionary:
 func _envelope(input: Dictionary, kind: StringName, phase_after: String, identity_after: Variant,
 		candidate_after: Variant, board_after: Variant, settlement_after: Variant) -> Dictionary:
 	var identity_fp := ""
+	var prepared_identity: Variant = null
 	if identity_after != null:
 		var fp := _IDENTITY.fingerprint(identity_after)
+		prepared_identity = identity_after.duplicate(not fp.ok)
 		if fp.get("ok", false):
 			identity_fp = str((fp["value"] as Dictionary)["fingerprint"])
 	var prepared := {"ok": true, "code": &"ok", "value": {"candidate": {
 		"kind": kind, "transaction_id": str(input["transaction_id"]),
 		"request_fingerprint": str(input["request_fingerprint"]),
 		"identity_fingerprint": identity_fp, "pre_revision": _revision, "phase_after": phase_after,
-		"identity_after": _dup_or_null(identity_after), "candidate_after": _dup_or_null(candidate_after),
+		"identity_after": prepared_identity, "candidate_after": _dup_or_null(candidate_after),
 		"board_after": _dup_or_null(board_after), "settlement_after": _dup_or_null(settlement_after),
 	}}, "receipt": {}}
 	if _scene_snapshot_format:
@@ -611,9 +613,8 @@ func _committed_state_view(candidate: Dictionary = {}) -> Dictionary:
 	if candidate.has("result_override"):
 		return (candidate["result_override"] as Dictionary).duplicate(true)
 	return {"ok": true, "code": &"ok", "value": {
-		"phase": _phase, "revision": _revision, "identity": _dup_or_null(_identity),
-		"candidate": _dup_or_null(_candidate), "board": _dup_or_null(_board),
-		"settlement": _dup_or_null(_settlement),
+		"phase": _phase, "revision": _revision, "identity": _identity,
+		"candidate": _candidate, "board": _board, "settlement": _settlement,
 	}, "receipt": {}}
 
 
@@ -742,7 +743,7 @@ func _validate_candidate_shell(candidate: Dictionary, phase: String, scene: bool
 		if candidate.spec.board_kind != "desktop": return _fail(&"invalid_board_kind", "", {})
 		width = int(candidate.spec.width)
 		height = int(candidate.spec.height)
-	return _BOARD_SCHEMA.validate_shell({"flagged_indices": candidate.flagged_indices, "actions": candidate.actions}, width, height)
+	return _BOARD_SCHEMA.validate_shell({"flagged_indices": candidate.flagged_indices, "actions": candidate.actions}, width, height, true)
 
 
 func _copy_preparation_shell(target: Dictionary) -> void:
@@ -799,7 +800,7 @@ static func _validate_scene_settlement(snapshot: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
-static func dismissed_inspection_snapshot(snapshot: Dictionary) -> Dictionary:
+static func project_dismissed_inspection(snapshot: Dictionary) -> Dictionary:
 	var cleared := snapshot.duplicate()
 	if cleared.has("settled_inspection"):
 		cleared.settled_inspection = false
@@ -807,7 +808,7 @@ static func dismissed_inspection_snapshot(snapshot: Dictionary) -> Dictionary:
 	cleared["phase"] = _PHASE_NONE
 	cleared["revision"] = int(snapshot.revision) + 1
 	for key: String in ["identity", "candidate", "board", "settlement"]: cleared[key] = null
-	return cleared.duplicate(true)
+	return cleared
 
 
 func prepare_dismiss_inspection(input: Dictionary) -> Dictionary:
@@ -896,7 +897,7 @@ func _validate_current_scene_board(snapshot: Dictionary) -> Dictionary:
 		keys.append_array(["flagged_indices", "actions"])
 	var shape := _exact_keys(slot, keys, &"invalid_current_preparation")
 	if not shape.ok: return shape
-	var shell := _BOARD_SCHEMA.validate_shell({"flagged_indices": slot.get("flagged_indices", []), "actions": slot.get("actions", [])}, spec.width, spec.height)
+	var shell := _BOARD_SCHEMA.validate_shell({"flagged_indices": slot.get("flagged_indices", []), "actions": slot.get("actions", [])}, spec.width, spec.height, true)
 	if not shell.ok: return shell
 	if phase == _PHASE_PREPARING:
 		if not slot.frontier is Dictionary or not slot.frontier.get("spec") is Dictionary:

@@ -1170,7 +1170,7 @@ func _failure(code: StringName, message: String) -> Dictionary:
 func _capture_live_desktop_snapshot() -> Dictionary:
 	var consequence: Dictionary = _desktop_consequence_state.capture()
 	if not consequence.get("ok", false): return {}
-	return {"board": _desktop_board_state.capture(), "consequence": consequence.value.state}
+	return {"board": _desktop_board_state.read_state(), "consequence": consequence.value.state}
 
 
 func configure_session_exit_desktop(desktop: Node) -> Dictionary:
@@ -1478,14 +1478,14 @@ func _scene_shell_input_admitted(host: Control) -> bool:
 		and _application_gate.guard_external(&"scene_desktop").get("ok", false)
 
 func _scene_desktop_phase() -> StringName:
-	return StringName(_desktop_board_state.capture().phase)
+	return StringName(_desktop_board_state.read_state().phase)
 
 func _scene_desktop_dispatch(command: Dictionary, panel: RefCounted) -> Dictionary:
 	var kind: String = str(command.get("kind", ""))
 	if kind in ["open_app", "hide_app"]: return {"ok": true}
 	if kind not in ["suspend_board", "resume_board"]:
 		return _failure(&"invalid_scene_desktop_command", "")
-	var board: Dictionary = _desktop_board_state.capture()
+	var board: Dictionary = _desktop_board_state.read_state()
 	return panel.set_foreground(kind == "resume_board", int(board.revision))
 
 func _prepare_scene_desktop_app(app_id: StringName, app: Control, ports: Dictionary) -> Dictionary:

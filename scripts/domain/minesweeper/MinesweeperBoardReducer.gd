@@ -354,11 +354,11 @@ static func _build_board(width: int, height: int, mine_indices: Array[int], reve
 		outcome = _CLEARED
 	return {
 		"schema_version": 1, "width": width, "height": height,
-		"mine_indices": mine_indices.duplicate(), "mine_count": mine_indices.size(),
-		"revealed_indices": revealed.duplicate(), "flagged_indices": flagged.duplicate(),
-		"adjacency_counts": adjacency.duplicate(), "exploded_index": exploded_index,
+		"mine_indices": mine_indices, "mine_count": mine_indices.size(),
+		"revealed_indices": revealed, "flagged_indices": flagged,
+		"adjacency_counts": adjacency, "exploded_index": exploded_index,
 		"terminal": terminal, "outcome": outcome, "revision": actions.size(),
-		"actions": actions.duplicate(true),
+		"actions": actions,
 	}
 
 

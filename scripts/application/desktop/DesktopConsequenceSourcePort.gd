@@ -112,7 +112,8 @@ func resolve_board_fate_receipt(request: Dictionary) -> Dictionary:
 	var board_candidate: Dictionary = prepared_value["board_candidate"]
 	var board_fate_receipt: Dictionary = prepared_value["board_fate_receipt"]
 
-	var committed: Variant = _board_fate_port.call(&"commit", board_candidate)
+	var committed: Variant = _board_fate_port.call(
+		&"adopt" if _board_fate_port.has_method(&"adopt") else &"commit", board_candidate)
 	if typeof(committed) != TYPE_DICTIONARY or not (committed as Dictionary).get("ok", false):
 		return committed if typeof(committed) == TYPE_DICTIONARY else {
 			"ok": false, "code": &"board_fate_receipt_unavailable",

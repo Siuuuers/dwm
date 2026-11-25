@@ -200,7 +200,13 @@ func test_app_completion_carries_no_dating_outcome_id() -> void:
 	var prepared: Dictionary = port.call(
 		&"prepare_complete", app_round, {"outcome": "cleared"}, "tx-app-1")
 	assert_true(prepared.get("ok", false))
-	assert_eq(prepared["value"]["prepared_domain_receipt"]["dating_outcome_id"], null)
+	var receipt: Dictionary = prepared.value.prepared_domain_receipt
+	assert_eq(receipt.dating_outcome_id, null)
+	watch_signals(game)
+	game.minesweeper_reward_changed.connect(func(published: Dictionary) -> void: published.counter_deltas.clear())
+	assert_true(port.publish(receipt, prepared.value.domain_events).ok)
+	assert_signal_emit_count(game, "minesweeper_reward_changed", 1)
+	assert_eq(receipt.counter_deltas.money, 6, "the listener receives its own reward receipt")
 
 
 func test_preparing_a_dating_completion_never_mutates_live_state() -> void:

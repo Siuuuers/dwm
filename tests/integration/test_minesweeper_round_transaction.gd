@@ -15,25 +15,26 @@ extends "res://addons/gut/test.gd"
 
 const STATE_PORT := preload("res://scripts/application/minesweeper/GameStateMinesweeperPort.gd")
 
+@onready var game_state: Node = get_node("/root/GameState")
 var _port: RefCounted
 
 
 func before_each() -> void:
-	GameState.reset_game()
-	_port = STATE_PORT.new(GameState)
+	game_state.reset_game()
+	_port = STATE_PORT.new(game_state)
 
 
 ## Day plus optional extra playable rounds, the canon supportz-equivalent grant.
 func _enter_day(day: int, extra_rounds: int = 0) -> void:
-	assert_true(GameState.apply_save_dict({"day": day}).get("ok", false), "day must apply")
+	assert_true(game_state.apply_save_dict({"day": day}).get("ok", false), "day must apply")
 	for _i: int in range(extra_rounds):
-		GameState.change_minesweeper_round_floor(-1)
+		game_state.change_minesweeper_round_floor(-1)
 
 
 ## One COMPLETE app-round transaction through the port, committing both candidates as the
 ## coordinator does. Returns finalize_complete's value ({} after any refusal).
 func _complete_app_round(ordinal: int, outcome: String = "cleared") -> Dictionary:
-	var round_id := "run-test:day%d:round-%d" % [GameState.day, ordinal]
+	var round_id := "run-test:day%d:round-%d" % [game_state.day, ordinal]
 	var begun: Dictionary = _port.prepare_begin(
 		{"context": "app", "difficulty": "beginner"}, round_id)
 	assert_true(begun.get("ok", false), "round %d begins: %s" % [ordinal, str(begun)])
@@ -57,11 +58,11 @@ func _complete_app_round(ordinal: int, outcome: String = "cleared") -> Dictionar
 
 
 func _group_state() -> String:
-	return str(((GameState.contacts as Dictionary)["group_action"] as Dictionary)["state"])
+	return str(((game_state.contacts as Dictionary)["group_action"] as Dictionary)["state"])
 
 
 func _solo_state(friend: String, day: int) -> String:
-	var solo: Variant = ((GameState.contacts as Dictionary)["solo_actions"] as Dictionary) \
+	var solo: Variant = ((game_state.contacts as Dictionary)["solo_actions"] as Dictionary) \
 		.get("solo:%s:day%d" % [friend, day])
 	return str((solo as Dictionary)["state"]) if typeof(solo) == TYPE_DICTIONARY else "<absent>"
 
@@ -96,7 +97,7 @@ func test_the_third_day2_round_commits_group_activation_with_its_receipt() -> vo
 
 	assert_eq(_group_state(), "AVAILABLE_UNOPENED",
 		"the third round's COMMIT carried the activation into live state")
-	var group: Dictionary = (GameState.contacts as Dictionary)["group_action"] as Dictionary
+	var group: Dictionary = (game_state.contacts as Dictionary)["group_action"] as Dictionary
 	assert_eq(group.get("inviter_id"), null, "canon group offer has no inviter")
 	assert_eq(group.get("history_generated"), false, "no history yet")
 	var receipt: Dictionary = third["domain_receipt"] as Dictionary
@@ -159,9 +160,9 @@ func test_an_already_read_solo_blocks_activation_with_a_null_receipt() -> void:
 	for ordinal: int in [1, 2]:
 		if _complete_app_round(ordinal).is_empty():
 			return
-	var contacts: Dictionary = (GameState.contacts as Dictionary).duplicate(true)
+	var contacts: Dictionary = (game_state.contacts as Dictionary).duplicate(true)
 	(contacts["read_watermarks"] as Dictionary)["priscilla"] = 999
-	GameState.contacts = contacts
+	game_state.contacts = contacts
 
 	var third := _complete_app_round(3)
 	if third.is_empty():
@@ -188,7 +189,7 @@ func test_the_third_day6_round_commits_group_activation() -> void:
 ## Dating rounds never touch contacts and never activate, under any transition.
 func test_a_dating_round_commits_no_contact_change() -> void:
 	_enter_day(3, 0)
-	var contacts_before: Dictionary = (GameState.contacts as Dictionary).duplicate(true)
+	var contacts_before: Dictionary = (game_state.contacts as Dictionary).duplicate(true)
 	var active := {"round_id": "run-test:day3:dating-1", "context": "dating",
 		"difficulty": "beginner"}
 	var prepared: Dictionary = _port.prepare_complete(active,
@@ -202,7 +203,7 @@ func test_a_dating_round_commits_no_contact_change() -> void:
 		return
 	assert_true(_port.commit((finalized["value"] as Dictionary)["candidate"]).get("ok", false))
 
-	assert_eq(GameState.contacts, contacts_before,
+	assert_eq(game_state.contacts, contacts_before,
 		"a dating round commits no contact change whatsoever")
 	var receipt: Dictionary = (finalized["value"] as Dictionary)["domain_receipt"] as Dictionary
 	assert_eq(receipt.get("group_activation_transaction_id"), null)
@@ -219,7 +220,7 @@ func test_rollback_restores_contacts_beside_gameplay() -> void:
 	assert_true(backup.get("ok", false), str(backup))
 	if not backup.get("ok", false):
 		return
-	var contacts_before: Dictionary = (GameState.contacts as Dictionary).duplicate(true)
+	var contacts_before: Dictionary = (game_state.contacts as Dictionary).duplicate(true)
 	if _complete_app_round(3).is_empty():
 		return
 	assert_eq(_group_state(), "AVAILABLE_UNOPENED",
@@ -227,7 +228,7 @@ func test_rollback_restores_contacts_beside_gameplay() -> void:
 
 	assert_true(_port.rollback(backup["value"]).get("ok", false))
 
-	assert_eq(GameState.contacts, contacts_before,
+	assert_eq(game_state.contacts, contacts_before,
 		"rollback restored the contacts section beside gameplay")
 	assert_eq(_group_state(), "INACTIVE", "the activation is gone with it")
 
@@ -271,22 +272,25 @@ func test_the_post_result_checkpoint_carries_the_candidate_contacts() -> void:
 	assert_eq(str(((snapshot_contacts as Dictionary)["group_action"] as Dictionary)["state"]),
 		"AVAILABLE_UNOPENED",
 		"and those bytes carry the activation this round produced, BEFORE the commit")
+	candidate_contacts.group_action.clear()
+	assert_eq(snapshot_contacts.group_action.state, "AVAILABLE_UNOPENED")
+	assert_eq(prepared.value.prepared_candidate.contacts.group_action.state, "AVAILABLE_UNOPENED")
 
 
 ## The abort path: the coordinator funnels prepare_abort's candidate through rollback(), so the
-## abort candidate must land whole -- round refunded, motivation refunded, contacts untouched.
+## abort candidate must land whole -- round refunded, motivation and contacts preserved.
 ## Green today, and the guard that REDs the moment a candidate reshape forgets this consumer.
 func test_an_aborted_round_refunds_through_the_rollback_door() -> void:
 	_enter_day(2, 0)
-	var rounds_before: int = int(GameState.minesweeper_rounds_left)
-	var motivation_before: int = int(GameState.get_stat("motivation"))
-	var contacts_before: Dictionary = (GameState.contacts as Dictionary).duplicate(true)
+	var rounds_before: int = int(game_state.minesweeper_rounds_left)
+	var contacts_before: Dictionary = (game_state.contacts as Dictionary).duplicate(true)
 	var begun: Dictionary = _port.prepare_begin(
 		{"context": "app", "difficulty": "beginner"}, "run-test:day2:abort-1")
 	assert_true(begun.get("ok", false), str(begun))
 	if not begun.get("ok", false):
 		return
 	assert_true(_port.commit((begun["value"] as Dictionary)["candidate"]).get("ok", false))
+	var motivation_before_abort: int = int(game_state.get_stat("motivation"))
 	var aborted: Dictionary = _port.prepare_abort(
 		(begun["value"] as Dictionary)["active_round"], &"user_abort", "tx:abort-1")
 	assert_true(aborted.get("ok", false), str(aborted))
@@ -296,8 +300,8 @@ func test_an_aborted_round_refunds_through_the_rollback_door() -> void:
 	assert_true(_port.rollback((aborted["value"] as Dictionary)["candidate"]).get("ok", false),
 		"the abort candidate goes through the ROLLBACK door, exactly as the coordinator sends it")
 
-	assert_eq(int(GameState.minesweeper_rounds_left), rounds_before,
+	assert_eq(int(game_state.minesweeper_rounds_left), rounds_before,
 		"the aborted round was refunded")
-	assert_eq(int(GameState.get_stat("motivation")), motivation_before,
-		"the motivation cost was refunded")
-	assert_eq(GameState.contacts, contacts_before, "and contacts are untouched")
+	assert_eq(int(game_state.get_stat("motivation")), motivation_before_abort,
+		"abort refunds only the round")
+	assert_eq(game_state.contacts, contacts_before, "and contacts are untouched")

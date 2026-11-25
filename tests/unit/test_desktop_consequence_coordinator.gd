@@ -106,7 +106,8 @@ class FakeRoundSource:
 			"action_candidate_sha256": _sha(action_candidate), "action_receipt": action_receipt,
 		}}, "receipt": {}}
 
-	func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictionary) -> Dictionary:
+	func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictionary,
+			_proven_candidate_sha256: String = "") -> Dictionary:
 		if gate != null and not gate.is_internal_owner_active(&"causal_transaction"):
 			return {"ok": false, "code": &"causal_transaction_lease_required"}
 		if board_state != null and typeof(action_candidate.get("board_projection")) == TYPE_DICTIONARY:

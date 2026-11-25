@@ -548,6 +548,7 @@ func test_commit_adopts_the_fate_none_candidate_and_publish_records_once() -> vo
 	assert_true(committed.get("ok", false), JSON.stringify(committed))
 	assert_eq(committed["value"]["board_candidate"], board_candidate)
 	assert_eq(committed["receipt"], board_fate_receipt)
+	assert_eq(port.adopt(board_candidate), {"ok": true, "command_id": board_fate_receipt.command_id})
 	assert_eq(_coordinator._board_state.capture()["phase"], "NONE")
 
 	var replay: Dictionary = port.commit(board_candidate)
@@ -670,6 +671,10 @@ func test_fresh_shop_departure_rebuilds_frozen_preparation_and_retries_after_com
 	var restored: Dictionary = fresh["port"].prepare_recovery_departure(action, source,
 		frozen["board_candidate"], frozen["board_fate_receipt"])
 	assert_true(restored.get("ok", false), str(restored))
+	assert_eq(restored.value, frozen)
+	restored.value.board_candidate["revision"] += 1
+	assert_eq(fresh.port.ensure_recovery_departure(action, source, frozen.board_candidate, frozen.board_fate_receipt),
+		{"ok": true, "command_id": command_id})
 	assert_eq(fresh["board"].capture(), source, "repreparation never mutates the source board")
 	assert_true(fresh["port"].commit(frozen["board_candidate"]).get("ok", false))
 	assert_true(fresh["port"].publish(frozen).get("ok", false))

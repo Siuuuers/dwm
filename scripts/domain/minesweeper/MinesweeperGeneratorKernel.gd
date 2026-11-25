@@ -175,7 +175,7 @@ static func advance(frontier: Dictionary, operation_limit: int) -> Dictionary:
 			return {"ok": true, "code": &"ok", "value": {"preparation": {
 				"status": STATUS_CERTIFIED, "mode": mode, "spec": spec, "forced_cell": forced_cell,
 				"placement_rng_state": placement_rng.capture()["value"],
-				"debug_rng_state": (frontier["debug_rng_state"] as Dictionary).duplicate(true),
+				"debug_rng_state": (frontier["debug_rng_state"] as Dictionary).duplicate(),
 				"explosion_rng_state": explosion_rng.capture()["value"],
 				"extra_tier": extra_tier, "candidate_ordinal": candidate_ordinal,
 				"candidate_state": {
@@ -197,10 +197,10 @@ static func advance(frontier: Dictionary, operation_limit: int) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"preparation": {
 		"status": STATUS_SEARCHING, "mode": mode, "spec": spec, "forced_cell": forced_cell,
 		"placement_rng_state": placement_rng.capture()["value"],
-		"debug_rng_state": (frontier["debug_rng_state"] as Dictionary).duplicate(true),
-		"explosion_rng_state": (frontier["explosion_rng_state"] as Dictionary).duplicate(true),
+		"debug_rng_state": (frontier["debug_rng_state"] as Dictionary).duplicate(),
+		"explosion_rng_state": (frontier["explosion_rng_state"] as Dictionary).duplicate(),
 		"extra_tier": extra_tier, "candidate_ordinal": candidate_ordinal,
-		"candidate_state": frontier["candidate_state"],
+		"candidate_state": frontier.candidate_state.duplicate(true) if frontier.candidate_state is Dictionary else frontier.candidate_state,
 		"operations_used": operations_used,
 		"slice_sequence": int(frontier["slice_sequence"]) + 1, "last_failure_code": last_failure_code,
 	}}, "receipt": {}}
@@ -265,7 +265,9 @@ static func validate_spec(spec: Dictionary) -> Dictionary:
 	if String(spec["verifier_version"]) != _VERIFIER_VERSION:
 		return _fail(&"spec_field_invalid", "verifier_version is frozen", {"field": "verifier_version"})
 
-	return {"ok": true, "code": &"ok", "value": {"spec": spec.duplicate(true)}, "receipt": {}}
+	var detached := spec.duplicate()
+	detached["capability_ids"] = capability_ids.duplicate()
+	return {"ok": true, "code": &"ok", "value": {"spec": detached}, "receipt": {}}
 
 
 static func is_legal_status(status: Variant) -> bool:

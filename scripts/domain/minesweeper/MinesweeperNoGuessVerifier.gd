@@ -70,7 +70,7 @@ static func _certified_result(trace: Array) -> Dictionary:
 		return _fail(&"proof_trace_not_canonicalizable", "the proof trace could not be canonicalized", {})
 	return {"ok": true, "code": &"ok", "value": {
 		"certified": true, "operation_count": trace.size(),
-		"proof_trace": trace.duplicate(true),
+		"proof_trace": trace,
 		"proof_trace_sha256": String(trace_text["value"]).sha256_text(),
 	}, "receipt": {}}
 

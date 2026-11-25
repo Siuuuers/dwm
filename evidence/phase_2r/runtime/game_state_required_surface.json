@@ -1240,6 +1240,14 @@
       "contract_test": "test_command_receipts_are_present_and_detached"
     },
     {
+      "symbol": "capture_run_snapshot_with_contacts",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_the_post_result_checkpoint_carries_the_candidate_contacts"
+    },
+    {
       "symbol": "configure_mutation_gate",
       "kind": "function",
       "availability": "target",

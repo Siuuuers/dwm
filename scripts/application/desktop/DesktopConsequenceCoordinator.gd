@@ -180,7 +180,7 @@ func accept_prepared_action(request: Dictionary) -> Dictionary:
 	if _accepted.has(transaction_id):
 		var recorded: Dictionary = _accepted[transaction_id]
 		if str(recorded["request_fingerprint"]) == request_fingerprint:
-			return (recorded["result"] as Dictionary).duplicate(true)
+			return replay_accepted_action(transaction_id)
 		return _fail(&"action_receipt_conflict",
 			"this action/transaction identity was already accepted with different bytes", {})
 
@@ -226,6 +226,12 @@ func accept_prepared_action(request: Dictionary) -> Dictionary:
 		_accepted[transaction_id] = {"request_fingerprint": request_fingerprint, "result": result.duplicate(true)}
 	_settlement_profile_phase("accept", "prepare_and_forward_inclusive", profile_tick)
 	return result
+
+
+func replay_accepted_action(transaction_id: String) -> Dictionary:
+	if not _accepted.has(transaction_id):
+		return _fail(&"action_not_accepted", "", {})
+	return _accepted[transaction_id].result.duplicate(true)
 
 
 func _abandon_pre_admission(transaction_id: String, source_kind: String) -> Dictionary:
@@ -461,13 +467,16 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 	if is_departure and _board_fate_port.has_method("prepare_recovery_departure"):
 		var projected: Dictionary = _build_projected_board_candidate(source_kind, action_candidate)
 		if not projected.get("ok", false): return projected
-		var recovered_fate: Dictionary = _board_fate_port.prepare_recovery_departure(action_receipt,
+		var recovered_fate: Dictionary = _board_fate_port.call(
+			&"ensure_recovery_departure" if _board_fate_port.has_method(&"ensure_recovery_departure") else &"prepare_recovery_departure",
+			action_receipt,
 			projected.value.board_candidate, recovery_payload.board_candidate,
 			_board_fate_receipt_from_payload(recovery_payload))
 		if not recovered_fate.get("ok", false): return recovered_fate
 
 	profile_tick = _settlement_profile_phase("forward", "capture_and_recovery_prepare", profile_tick)
-	var source_committed: Dictionary = source_port.call(&"commit_recovery_action", action_candidate, action_receipt)
+	var source_committed: Dictionary = source_port.call(&"commit_recovery_action", action_candidate, action_receipt,
+		str(recovery_payload["action_candidate_sha256"]))
 	if not source_committed.get("ok", false):
 		return source_committed
 	profile_tick = _settlement_profile_phase("forward", "source_commit_inclusive", profile_tick)
@@ -475,7 +484,8 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 	var schedule_view_commit_receipt: Variant = null
 	if is_departure:
 		var board_candidate: Dictionary = recovery_payload["board_candidate"]
-		var board_committed: Dictionary = _board_fate_port.call(&"commit", board_candidate)
+		var board_committed: Dictionary = _board_fate_port.call(
+			&"adopt" if _board_fate_port.has_method(&"adopt") else &"commit", board_candidate)
 		if not board_committed.get("ok", false):
 			return board_committed
 

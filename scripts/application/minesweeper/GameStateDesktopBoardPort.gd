@@ -224,10 +224,15 @@ func prepare_first_reveal(board_candidate: Dictionary, transaction_id: String,
 		"layout_sha256": layout_sha256,
 		"proof_sha256": board_candidate.get("proof_sha256", null), "checkpoint_id": expected_checkpoint_id,
 	}
+	var publication_receipt := receipt.duplicate()
+	publication_receipt.identity = receipt.identity.duplicate()
+	publication_receipt.transaction_issuer_receipt = receipt.transaction_issuer_receipt.duplicate()
+	publication_receipt.receipt_provenance = receipt.receipt_provenance.duplicate()
+	publication_receipt.receipt_provenance.source_ids = receipt.receipt_provenance.source_ids.duplicate()
 	return {"ok": true, "code": &"ok", "value": {
 		"run_candidate": run_candidate, "receipt": receipt,
 		"snapshot_input": {"transaction_id": transaction_id, "run_id": str(facts["run_id"])},
-		"publication": {"transaction_id": transaction_id, "receipt": receipt.duplicate(true)},
+		"publication": {"transaction_id": transaction_id, "receipt": publication_receipt},
 	}, "receipt": {}}
 
 

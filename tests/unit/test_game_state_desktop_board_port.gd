@@ -144,6 +144,10 @@ func test_first_reveal_charges_round_only_and_rollback_preserves_pressure() -> v
 	assert_eq(prepared.value.receipt.identity.app_round_ordinal, 1)
 	prepared.value.receipt.identity.app_round_ordinal = 4
 	assert_eq(prepared.value.publication.receipt.identity.app_round_ordinal, 1)
+	prepared.value.receipt.receipt_provenance.source_ids.clear()
+	assert_eq(prepared.value.publication.receipt.receipt_provenance.source_ids, [root.token])
+	prepared.value.publication.receipt.transaction_issuer_receipt.clear()
+	assert_eq(prepared.value.receipt.transaction_issuer_receipt, root)
 	assert_true(_port.commit(prepared.value.run_candidate).ok)
 	assert_eq(_game_state.minesweeper_rounds_left, before.value.rounds_left - 1)
 	assert_eq(_game_state.stats, {"pressure": 3})

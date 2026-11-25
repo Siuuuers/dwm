@@ -2,7 +2,6 @@ extends RefCounted
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const JSON_READER := preload("res://scripts/validation/StrictJson.gd")
 const BOARD := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
-const REDUCER := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")
 const PREPARATION := preload("res://scripts/domain/minesweeper/MinesweeperPreparationState.gd")
 const CAPABILITIES := preload("res://scripts/domain/minesweeper/MinesweeperCapabilityRules.gd")
 const RNG := preload("res://scripts/domain/minesweeper/DeterministicRng32.gd")
@@ -34,7 +33,7 @@ static func validate(record: Dictionary) -> bool:
 	if keys != KEYS or not envelope.shell is Dictionary \
 			or typeof(envelope.forced_cell) != TYPE_INT or typeof(envelope.special_cell) != TYPE_INT: return false
 	var spec: Dictionary = record.spec
-	if not REDUCER.validate_shell(envelope.shell, int(spec.width), int(spec.height)).get("ok", false): return false
+	if not BOARD.validate_shell(envelope.shell, int(spec.width), int(spec.height), true).get("ok", false): return false
 	var policy: Dictionary = CAPABILITIES.build_spec_inputs({"capability_ids": spec.capability_ids}, int(spec.pressure), int(spec.penalty_points_today))
 	if not policy.ok or spec.raw_extra_mines != policy.value.raw_extra_mines \
 			or spec.requested_mine_count != spec.base_mine_count + policy.value.effective_extra_mines: return false
@@ -110,7 +109,7 @@ static func _validate_scene(record: Dictionary) -> bool:
 	if keys != KEYS or not envelope.shell is Dictionary \
 			or typeof(envelope.forced_cell) != TYPE_INT or typeof(envelope.special_cell) != TYPE_INT: return false
 	var spec: Dictionary = record.spec
-	if not REDUCER.validate_shell(envelope.shell, spec.width, spec.height).ok: return false
+	if not BOARD.validate_shell(envelope.shell, spec.width, spec.height, true).ok: return false
 	var policy: Dictionary = CAPABILITIES.build_spec_inputs({"capability_ids": spec.capability_ids}, spec.pressure, spec.penalty_points_today)
 	if not policy.ok or spec.raw_extra_mines != policy.value.raw_extra_mines \
 			or spec.requested_mine_count != spec.base_mine_count + policy.value.effective_extra_mines: return false

@@ -53,5 +53,13 @@ static func validate_result(active_round: Variant, result: Variant) -> Dictionar
 	return {"ok": true, "code": &"ok", "value": {"outcome": outcome}}
 
 
+static func copy_completion_receipt(receipt: Dictionary) -> Dictionary:
+	var value := receipt.duplicate()
+	for key: String in ["counter_deltas", "task_ids", "effect_transaction_ids", "message_transaction_ids"]:
+		if receipt.has(key):
+			value[key] = receipt[key].duplicate()
+	return value
+
+
 static func build_round_id(run_id: String, day: int, ordinal: int) -> String:
 	return "%s:day-%d:round-%d" % [run_id, day, ordinal]

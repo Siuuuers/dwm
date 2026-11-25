@@ -2,6 +2,7 @@ class_name GameStateMinesweeperPort
 extends RefCounted
 
 
+const ROUND_CONTRACT := preload("res://scripts/domain/minesweeper/MinesweeperRoundContract.gd")
 const GAME_STATE_SCRIPT_PATH := "res://autoload/GameState.gd"
 const CHECKPOINT_PROVIDER_KEYS: Array[String] = [
 	"active_app_id", "audio_context", "content_version", "dialogic_checkpoint", "route_id",
@@ -78,10 +79,10 @@ func configure_checkpoint_providers(providers: Dictionary) -> Dictionary:
 func capture() -> Dictionary:
 	if _game_state == null:
 		return _fail(&"invalid_minesweeper_state_port", "port requires a GameState")
-	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
+	var lifecycle: Object = _game_state._run_lifecycle
 	var backup := _capture_save_and_contacts()
-	backup["run_id"] = str(lifecycle.get("run_id", ""))
-	backup["day"] = int(lifecycle.get("day", 1))
+	backup["run_id"] = lifecycle.get_run_id()
+	backup["day"] = 1 if lifecycle.is_scene_run() else lifecycle.get_day()
 	backup["next_ordinal"] = int(_game_state.get("minesweeper_app_rounds_finished_today")) + 1
 	return {"ok": true, "code": &"ok", "value": {"backup": backup}}
 
@@ -95,8 +96,8 @@ func prepare_begin(request: Dictionary, round_id: String) -> Dictionary:
 		return _fail(&"invalid_minesweeper_state_port", "port requires a GameState")
 	var context := str(request.get("context", ""))
 	var difficulty := str(request.get("difficulty", ""))
-	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
-	var day := int(lifecycle.get("day", 1))
+	var lifecycle: Object = _game_state._run_lifecycle
+	var day: int = 1 if lifecycle.is_scene_run() else lifecycle.get_day()
 	var ordinal: int = int(_game_state.get("minesweeper_app_rounds_finished_today")) + 1
 	var dating_evidence: Variant = null
 	if context == "app":
@@ -111,7 +112,7 @@ func prepare_begin(request: Dictionary, round_id: String) -> Dictionary:
 		dating_evidence = resolved["value"]
 	var active_round := {
 		"round_id": round_id,
-		"run_id": str(lifecycle.get("run_id", "")),
+		"run_id": lifecycle.get_run_id(),
 		"context": context,
 		"difficulty": difficulty,
 		"day": day,
@@ -131,7 +132,7 @@ func prepare_begin(request: Dictionary, round_id: String) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {
 		"candidate": candidate,
 		"active_round": active_round,
-		"pre_board_checkpoint_inputs": _checkpoint_inputs(lifecycle),
+		"pre_board_checkpoint_inputs": _checkpoint_inputs(),
 		"start_receipt": {
 			"round_id": round_id, "context": context, "difficulty": difficulty,
 			"day": day, "ordinal": ordinal,
@@ -164,8 +165,7 @@ func prepare_complete(active_round: Dictionary, result: Dictionary, transaction_
 	if clone == null:
 		return _fail(&"invalid_minesweeper_state_port", "could not build a detached candidate")
 	var before := _counters(clone)
-	var receipts_before: Dictionary = (((clone.get("contacts") as Dictionary) \
-		.get("transaction_receipts", {})) as Dictionary).duplicate()
+	var receipts_before: Dictionary = _game_state.contacts.get("transaction_receipts", {})
 	if context == "app":
 		clone.call(&"finish_minesweeper_app_round", {
 			"context": "app", "difficulty": difficulty, "outcome": outcome, "task_ids": task_ids,
@@ -243,18 +243,18 @@ func finalize_complete(prepared_completion: Dictionary, checkpoint_id: String) -
 	var inner: Dictionary = prepared_completion.get("value", prepared_completion) as Dictionary
 	if typeof(inner.get("prepared_domain_receipt")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_prepared_completion", "prepared completion was not issued by this port")
-	var receipt: Dictionary = (inner["prepared_domain_receipt"] as Dictionary).duplicate(true)
-	if str(receipt.get("checkpoint_id", "")) != "":
+	var prepared_receipt: Dictionary = inner["prepared_domain_receipt"]
+	if str(prepared_receipt.get("checkpoint_id", "")) != "":
 		return _fail(&"invalid_prepared_completion", "prepared receipt already carries a checkpoint id")
+	var receipt := ROUND_CONTRACT.copy_completion_receipt(prepared_receipt)
 	receipt["checkpoint_id"] = checkpoint_id
 	var candidate: Dictionary = (inner["prepared_candidate"] as Dictionary).duplicate(true)
 	var events: Array = (inner.get("domain_events", []) as Array).duplicate(true)
-	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
 	return {"ok": true, "code": &"ok", "value": {
 		"candidate": candidate,
 		"domain_receipt": receipt,
 		"domain_events": events,
-		"post_result_checkpoint_inputs": _checkpoint_inputs(lifecycle, candidate),
+		"post_result_checkpoint_inputs": _checkpoint_inputs(candidate),
 	}}
 
 
@@ -282,13 +282,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 	var gameplay: Variant = candidate.get("gameplay")
 	if typeof(gameplay) != TYPE_DICTIONARY:
 		return _fail(&"invalid_candidate", "candidate was not issued by this port")
-	var applied: Dictionary = _game_state.call(&"apply_save_dict", gameplay)
-	if not applied.get("ok", false):
-		return applied
-	var contacts: Variant = candidate.get("contacts")
-	if typeof(contacts) == TYPE_DICTIONARY:
-		_game_state.set("contacts", (contacts as Dictionary).duplicate(true))
-	return applied
+	return _apply_save_and_contacts(gameplay, candidate.get("contacts"))
 
 
 func commit_desktop_completion(candidate: Dictionary) -> Dictionary:
@@ -324,11 +318,12 @@ func rollback(backup: Dictionary) -> Dictionary:
 	var save: Variant = (payload as Dictionary).get("save", payload)
 	if typeof(save) != TYPE_DICTIONARY:
 		return _fail(&"invalid_backup", "backup was not issued by this port")
-	var applied: Dictionary = _game_state.call(&"apply_save_dict", save)
-	if not applied.get("ok", false):
-		return applied
-	var contacts: Variant = (payload as Dictionary).get("contacts")
-	if typeof(contacts) == TYPE_DICTIONARY:
+	return _apply_save_and_contacts(save, payload.get("contacts"))
+
+
+func _apply_save_and_contacts(save: Dictionary, contacts: Variant) -> Dictionary:
+	var applied: Dictionary = _game_state.apply_save_dict(save)
+	if applied.get("ok", false) and contacts is Dictionary:
 		_game_state.set("contacts", (contacts as Dictionary).duplicate(true))
 	return applied
 
@@ -357,7 +352,8 @@ func publish(receipt: Dictionary, domain_events: Array) -> Dictionary:
 				_game_state.emit_signal("minesweeper_rounds_changed",
 					int(_game_state.call(&"get_minesweeper_display_rounds_left")),
 					int(_game_state.call(&"get_minesweeper_display_rounds_max")))
-				_game_state.emit_signal("minesweeper_reward_changed", receipt.duplicate(true))
+				if _game_state.minesweeper_reward_changed.has_connections():
+					_game_state.emit_signal("minesweeper_reward_changed", receipt.duplicate(true))
 	_game_state.emit_signal("save_relevant_state_changed")
 	return {"ok": true, "code": &"ok", "value": {"published": true}}
 
@@ -408,8 +404,7 @@ func _task_ids_for(outcome: String, difficulty: String) -> Array:
 
 
 func _resolve_dating_evidence() -> Dictionary:
-	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
-	var plan: Variant = lifecycle.get("active_resolution_plan")
+	var plan: Variant = _game_state._run_lifecycle.capture_active_plan().value.active_resolution_plan
 	if typeof(plan) != TYPE_DICTIONARY:
 		return _fail(&"DATING_ROUTE_NOT_ACTIVE", "no active resolution plan")
 	var stages: Variant = (plan as Dictionary).get("stages", [])
@@ -506,19 +501,15 @@ func _committed_participants(plan: Dictionary, entry_id: String) -> Array:
 	return []
 
 
-func _checkpoint_inputs(lifecycle: Dictionary, candidate: Variant = null) -> Dictionary:
-	var snapshot_input: Dictionary = _game_state.call(&"capture_run_snapshot_input")
-	snapshot_input["lifecycle"] = lifecycle
-	if typeof(candidate) == TYPE_DICTIONARY:
-		var source: Dictionary = candidate as Dictionary
-		var gameplay_section: Dictionary = source.get("gameplay", source) as Dictionary
+func _checkpoint_inputs(candidate: Dictionary = {}) -> Dictionary:
+	var snapshot_input: Dictionary = _game_state.capture_run_snapshot_with_contacts(candidate.contacts) \
+		if candidate.get("contacts") is Dictionary else _game_state.capture_run_snapshot_input()
+	if not candidate.is_empty():
+		var gameplay_section: Dictionary = candidate.get("gameplay", candidate)
 		var gameplay: Dictionary = snapshot_input.gameplay
 		for key: Variant in gameplay_section:
 			if gameplay.has(key):
 				gameplay[key] = gameplay_section[key]
-		var candidate_contacts: Variant = source.get("contacts")
-		if typeof(candidate_contacts) == TYPE_DICTIONARY:
-			snapshot_input["contacts"] = (candidate_contacts as Dictionary).duplicate(true)
 	return {
 		"snapshot_input": snapshot_input,
 		"dialogic_checkpoint": _provided("dialogic_checkpoint", {}),

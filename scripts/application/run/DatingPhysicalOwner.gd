@@ -651,7 +651,7 @@ func _advance_preparation() -> Dictionary:
 		if not plain.get("ok", false): return plain
 		_record.envelope.preparation = plain.value
 		return _ok({})
-	_record.envelope.shell = SCHEMA.clear_debug_flags(_record.envelope.shell)
+	SCHEMA.clear_debug_flags(_record.envelope.shell)
 	_record.envelope.prepared_layout = advanced.value.layout.duplicate(true)
 	_record.envelope.forced_cell = int(advanced.value.forced_cell)
 	_record.envelope.special_cell = ENVELOPE.special_cell(_record.spec, advanced.value.layout)
@@ -677,7 +677,7 @@ func _board_action(action: String, index: int, projected: Dictionary) -> Diction
 		var generated: Dictionary
 		if _record.schema_version in [3, 4] and _record.envelope.prepared_layout != null:
 			if index != int(_record.envelope.forced_cell): return _fail(&"dating_forced_cell_mismatch")
-			_record.envelope.shell = SCHEMA.clear_debug_flags(_record.envelope.shell)
+			SCHEMA.clear_debug_flags(_record.envelope.shell)
 			generated = _ok({"layout": _record.envelope.prepared_layout})
 		else: generated = _generation.materialize(_record.spec, index)
 		if not generated.get("ok", false): return generated

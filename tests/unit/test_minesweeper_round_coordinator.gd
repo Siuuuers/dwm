@@ -47,14 +47,18 @@ class DurableCheckpointWithoutSeal:
 class FakeConsequencePort:
 	var calls: Array[Dictionary] = []
 	var armed_result: Dictionary = {}
+	var accepted := {}
+
+	func replay_accepted_action(transaction_id: String) -> Dictionary:
+		return accepted[transaction_id].duplicate(true)
 
 	func accept_prepared_action(request: Dictionary) -> Dictionary:
 		calls.append(request.duplicate(true))
-		if not armed_result.is_empty():
-			return (armed_result as Dictionary).duplicate(true)
-		return {"ok": true, "code": &"action_consequence_accepted",
+		var result := armed_result if not armed_result.is_empty() else {"ok": true, "code": &"action_consequence_accepted",
 			"value": {"action_receipt": request["action_receipt"], "source_kind": "minesweeper_round", "departure": false},
 			"receipt": {}}
+		if result.ok: accepted[request.action_receipt.transaction_id] = result.duplicate(true)
+		return result.duplicate(true)
 
 ## dwm-p2r.35.7 remediation (finding 3): minimal fake for publish_recovery_action()'s own
 ## record_before_emit() call, mirroring test_minesweeper_shop_purchase_participant.gd's own
@@ -265,6 +269,8 @@ func test_complete_round_duplicate_replay_returns_identical_result() -> void:
 	var replay: Dictionary = _coordinator.complete_round(request)
 	assert_true(replay.get("ok", false), JSON.stringify(replay))
 	assert_eq(replay, first)
+	first.value.action_receipt.condition_after.clear()
+	assert_eq(_coordinator.complete_round(request), replay)
 	assert_eq(_consequence_port.calls.size(), 1, "a duplicate replay never calls accept_prepared_action again")
 
 
@@ -346,6 +352,8 @@ func test_commit_recovery_action_adopts_the_board_projection_and_rejects_without
 	var replay: Dictionary = _coordinator.commit_recovery_action(action_candidate, action_receipt)
 	assert_eq(replay.value.action_receipt, action_receipt, "the cached recovery result owns its receipt")
 	assert_eq(replay.receipt, action_receipt)
+	action_candidate.board_projection.revision += 1
+	assert_eq(_coordinator.commit_recovery_action(action_candidate, action_receipt).code, &"action_receipt_conflict")
 
 
 ## dwm-p2r.35.7 remediation (finding 3): publish_recovery_action() used to release the causal_
