@@ -156,9 +156,9 @@ func test_shared_source_preserves_each_entry_graph_native_indices_hashes_and_det
 	var shared_first := _registration_compile("first", scope, [marker])
 	assert_eq(shared_first, first)
 	assert_eq(_registration_compile("second", scope), second)
-	shared_first.value.nodes.clear()
-	shared_first.value.events.clear()
-	assert_eq(_registration_compile("first", scope, [marker]), first, "returned arrays remain detached")
+	assert_true(shared_first.value.nodes.is_read_only())
+	assert_true(shared_first.value.events.is_read_only())
+	assert_true(is_same(_registration_compile("first", scope, [marker]), shared_first))
 	var alternate_marker := marker.duplicate(true)
 	alternate_marker.marker_id = "alternate.control"
 	var alternate := _registration_compile("first", scope, [alternate_marker])
@@ -404,6 +404,8 @@ func test_runtime_compiler_reuses_frozen_selected_mapping_without_rereading_sour
 	if not first.ok: return
 	assert_true(first.is_read_only())
 	assert_true(first.value.nodes.is_read_only())
+	var registered := ADAPTER._compile_scene_programme_in_registration(PATH, programme.entry_id, labels, programme.markers, {})
+	assert_true(is_same(first, registered), "registration and playback share the frozen programme")
 	_write("not the installed programme")
 	var reused := ADAPTER.compile_runtime_scene_programme(PATH, programme.entry_id, programme.markers)
 	assert_true(is_same(first, reused), "same process keeps its installed immutable programme")
