@@ -189,10 +189,13 @@ func test_real_caption_installs_exact_control_without_replay_and_consumes_source
 	var execution: int = native_event._execution_generation
 	var native_identity: Dictionary = _adapter.marker_source_identity().value
 	var publications := _results.size()
+	var source_ledger: Dictionary = _adapter._scene_source.boundary.reading.ledger
 	var installed: Dictionary = _adapter.install_scene_control(_candidate, _reading, _source_token)
 	assert_true(installed.ok, str(installed))
 	if not installed.ok: return
 	assert_eq(installed.value, _reading)
+	assert_true(is_same(_adapter._scene_control_restore.reading.ledger, source_ledger))
+	assert_true(_adapter._scene_control_restore.reading.frontier.is_read_only())
 	assert_eq(_adapter.capture_scene_control_position(_candidate).value, _reading)
 	assert_eq(_adapter.capture_reading_frontier().value, _source_frontier)
 	assert_eq(_adapter.marker_source_identity().value, native_identity)

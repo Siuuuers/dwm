@@ -66,9 +66,6 @@ static func validate(reading: Dictionary, entry_id: String) -> Dictionary:
 		return _fail(&"reading_next_projection_mismatch")
 	return made
 
-static func without_operation(reading: Dictionary) -> Dictionary:
-	return without_operation_view(reading).duplicate(true)
-
 static func without_operation_view(reading: Dictionary) -> Dictionary:
 	var result := reading.duplicate()
 	if typeof(result.get("schema_version")) == TYPE_INT:
