@@ -97,6 +97,7 @@ func test_offer_freezes_generation_facts_and_missing_history_is_not_recreated() 
 	assert_true(again.ok, str(again))
 	if not again.ok: return
 	assert_eq(again.value.route_context[FROZEN.CACHE_KEY], cached)
+	assert_false(is_same(again.value.route_context[FROZEN.CACHE_KEY].entries[entry].fields, cached.entries[entry].fields))
 	assert_true(FROZEN.validate_cache(cached, offered.value.candidate, true, [], 2).ok)
 	assert_false(FROZEN.validate_cache(FROZEN.empty_cache(), offered.value.candidate, true, [], 2).ok)
 	gameplay.route_context.erase(FROZEN.CACHE_KEY)
@@ -139,7 +140,8 @@ func test_ordinary_after_selection_and_echo_use_exact_saved_reply_and_original_t
 	assert_true(echo.ok, str(echo))
 	if not echo.ok: return
 	assert_eq(echo.value.fields.due_echoes, [{"echo_id": choice.echo_id, "presentation_atom_id": choice.presentation_atom_id}])
-	var echo_cache: Dictionary = FROZEN.retain(FROZEN.empty_cache(), echo.value).value
+	var echo_cache := FROZEN.empty_cache()
+	echo_cache.entries[FROZEN.key_for(echo.value)] = echo.value
 	var forged: Dictionary = replied.value.candidate.duplicate(true)
 	forged.transaction_receipts[issued.token].erase("command_issuer_receipt")
 	assert_false(FROZEN.validate_cache(echo_cache, forged, false, [], 7).ok,
