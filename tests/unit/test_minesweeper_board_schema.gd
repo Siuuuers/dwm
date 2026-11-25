@@ -320,9 +320,10 @@ func test_next_move_shares_owned_action_history_and_detaches_loaded_records() ->
 	assert_true(advanced.actions[1].is_read_only())
 	assert_typeof(advanced.actions[1].kind, TYPE_STRING)
 	assert_eq(flagged.actions.size(), 1)
-	var loaded: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(JSON.stringify(flagged)).value
-	var continued: Dictionary = REDUCER.reveal(loaded, 14, "reveal").value.board
-	assert_eq(continued, advanced)
+	var chorded: Dictionary = REDUCER.chord(advanced, 9, "chord").value.board
+	var loaded: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(JSON.stringify(chorded)).value
+	var continued: Dictionary = REDUCER.set_flag(loaded, 10, false, "unflag").value.board
+	assert_eq(continued, REDUCER.set_flag(chorded, 10, false, "unflag").value.board)
 	assert_false(loaded.actions[0].is_read_only())
 	loaded.actions[0].flagged = false
 	assert_true(continued.actions[0].flagged)

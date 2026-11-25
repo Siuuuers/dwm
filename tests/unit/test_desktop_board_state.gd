@@ -388,7 +388,9 @@ func test_commit_duplicate_transaction_id_same_payload_replays_result() -> void:
 	var replay := _state.commit(_last_candidate)
 	assert_true(replay.get("ok", false), JSON.stringify(replay))
 	assert_eq(replay, first, "an identical replay returns the exact original result")
-	first.value.candidate.spec.clear()
+	assert_true(is_same(first, replay))
+	assert_true(first.value.candidate.spec.is_read_only())
+	assert_true(is_same(first, _state.lookup_command_receipt("tx-dup", _last_candidate.request_fingerprint).result))
 	assert_false(replay.value.candidate.spec.is_empty())
 	assert_eq(_state.commit(_last_candidate), replay, "the receipt owns its result")
 	assert_eq(_state.capture()["revision"], 1, "a duplicate commit must not advance revision again")
@@ -402,7 +404,8 @@ func test_read_state_shares_one_board_and_keeps_old_receipts_across_commands() -
 	assert_true(shown.is_read_only() and shown.board.is_read_only())
 	assert_true(shown.board.board.revealed_indices.is_read_only())
 	assert_true(is_same(shown.command_receipts.start.result.value.board, shown.board))
-	first.value.board.board.revealed_indices.clear()
+	assert_true(is_same(first.value.board, shown.board))
+	assert_true(first.value.board.board.revealed_indices.is_read_only())
 	var editable := _state.capture()
 	editable.board.board.revealed_indices.clear()
 	assert_false(shown.board.board.revealed_indices.is_empty())
@@ -613,13 +616,16 @@ func test_prepare_restore_round_trips_a_captured_snapshot() -> void:
 	var fresh := STATE.new()
 	var prepared := fresh.prepare_restore(snapshot)
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	snapshot.board.board.revealed_indices.clear()
 	var committed := fresh.commit(prepared["value"]["candidate"])
 	assert_true(committed.get("ok", false), JSON.stringify(committed))
 	# commit()'s result is a single flat CommandResult -- never a CommandResult wrapping another
 	# CommandResult -- so "phase" reads at the same one level every other commit() caller relies on.
 	assert_true(committed["value"].has("phase"), "restore's result must not double-wrap its value")
 	assert_eq(committed["value"]["phase"], "ACTIVE_VISIBLE")
-	assert_eq(fresh.capture(), snapshot)
+	assert_true(committed.is_read_only() and committed.value.board.board.revealed_indices.is_read_only())
+	assert_true(is_same(committed.value.board, fresh.read_state().board))
+	assert_eq(fresh.capture(), _state.capture(), "editing the source cannot change a prepared restore")
 
 
 func test_prepare_restore_rejects_bad_member_set() -> void:
@@ -1143,7 +1149,7 @@ func test_scene_board_command_and_visibility_preserve_frozen_spec() -> void:
 	assert_true(command.ok, str(command))
 	if not command.ok: return
 	reduced.value.board.flagged_indices.clear()
-	command.value.board.board.flagged_indices.clear()
+	assert_true(command.value.board.board.flagged_indices.is_read_only())
 	assert_eq(saved.board.board.flagged_indices, [])
 	var flagged: Dictionary = fixture.state.capture()
 	assert_eq(flagged.board.spec, saved.board.spec)
@@ -1153,7 +1159,9 @@ func test_scene_board_command_and_visibility_preserve_frozen_spec() -> void:
 		"request_fingerprint": "hide-current", "identity": saved.identity, "expected_revision": flagged.revision}, false)
 	assert_true(visibility.ok, str(visibility))
 	if not visibility.ok: return
+	assert_true(is_same(visibility.value.candidate.board_after, command.value.board))
 	assert_true(fixture.state.commit(visibility.value.candidate).ok)
+	assert_true(is_same(fixture.state.read_state().board, command.value.board))
 	var suspended: Dictionary = fixture.state.capture()
 	assert_eq(suspended.board, flagged.board)
 	assert_true(suspended.round_paid)

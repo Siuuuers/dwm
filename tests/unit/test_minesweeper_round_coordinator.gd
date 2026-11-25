@@ -638,7 +638,7 @@ func test_duplicate_first_reveal_replays_the_original_receipt_without_recharging
 	first.value.receipt.receipt_provenance.clear()
 	assert_ne(replay.value.receipt, first.value.receipt)
 	assert_eq(_coordinator.reveal(request).value.receipt, replay.value.receipt, "first reveal keeps its own replay receipt")
-	replay.value.receipt.receipt_provenance.clear()
+	assert_true(replay.value.receipt.receipt_provenance.is_read_only())
 	assert_false(_coordinator.reveal(request).value.receipt.receipt_provenance.is_empty())
 
 
@@ -868,7 +868,8 @@ func test_older_board_and_visibility_retries_acknowledge_without_reapplying() ->
 	assert_eq(_coordinator.suspend(suspended).code, &"board_command_already_applied")
 	var replay := _coordinator.resume(resumed)
 	assert_eq(replay, latest, "latest same-ID response stays exact")
-	replay.value.board.clear()
+	assert_true(is_same(replay, latest))
+	assert_true(replay.value.board.is_read_only())
 	assert_eq(_coordinator.get_state().value, before, "old retries cannot hide or edit the current board")
 	assert_eq(_state_port.call_log.size(), state_calls + 3, "only external guards run on retry")
 	assert_eq(_checkpoint_port.call_log.size(), checkpoint_calls, "retry never writes a checkpoint")
