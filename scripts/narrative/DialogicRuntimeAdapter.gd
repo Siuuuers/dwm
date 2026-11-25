@@ -1159,7 +1159,7 @@ func prepare_reading_seek(source_frontier: Dictionary, entry_label: String,
 	var intent := {"source": source_frontier.duplicate(true), "entry_id": _caption_entry,
 		"destination_line_id": destination_line_id, "terminal": destination_line_id.is_empty()}
 	if not _prepared_reading_seek.is_empty():
-		var previous: Dictionary = _prepared_reading_seek.plan.duplicate(true)
+		var previous: Dictionary = _prepared_reading_seek.plan.duplicate()
 		previous.erase("seek_id")
 		if previous == intent and _reading_seek_source_matches(_prepared_reading_seek) \
 				and _prepared_reading_seek.lines == ordered_lines and _prepared_reading_seek.entry_label == entry_label:
@@ -1170,7 +1170,7 @@ func prepare_reading_seek(source_frontier: Dictionary, entry_label: String,
 		"entry_label": entry_label, "indices": indices.value, "event": _caption_event,
 		"ledger": _caption_ledger, "snapshot": _caption_ledger.snapshot(),
 		"request_id": _request_id, "generation": _runtime_generation}
-	return {"ok": true, "value": intent.duplicate(true)}
+	return {"ok": true, "value": intent}
 
 
 func apply_reading_seek(plan: Dictionary, destination_ledger: NarrativeCaptionLedger,
@@ -1243,8 +1243,8 @@ func _check_reading_seek_target(prepared: Dictionary, candidate: NarrativeCaptio
 		return _fail(&"reading_seek_target_invalid", "the destination requires the same admitted session")
 	var snapshot := candidate.snapshot()
 	var old: Dictionary = prepared.snapshot
-	var original_headers := old.duplicate(true)
-	var target_headers := snapshot.duplicate(true)
+	var original_headers := old.duplicate()
+	var target_headers := snapshot.duplicate()
 	original_headers.erase("captions")
 	target_headers.erase("captions")
 	if original_headers != target_headers:

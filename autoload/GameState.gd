@@ -4111,7 +4111,7 @@ func validate_scene_challenge_end(command: Dictionary) -> Dictionary:
 func commit_scene_challenge_closure(command: Dictionary, result: Dictionary) -> Dictionary:
 	var checked := validate_scene_challenge_end(command)
 	if not checked.ok: return checked
-	var operation := _scene_end_operation.duplicate(true)
+	var operation := _scene_end_operation
 	var registration := _SCENE_MANIFEST.scene_contract_tables()
 	if not registration.ok: return registration
 	var current := _scene_runtime_event_context()
@@ -4721,8 +4721,10 @@ func _commit_scene_contact_owned(kind: String, subject: String, id: String, proo
 	return prepared
 
 func _validate_scene_contact_checkpoint(candidate: Dictionary, checkpoint: Dictionary, _phase: String) -> bool:
-	if _scene_contact_operation.is_empty(): return false
-	var op := _scene_contact_operation.duplicate(true)
+	return _validate_scene_mutation_checkpoint(_scene_contact_operation, candidate, checkpoint)
+
+func _validate_scene_mutation_checkpoint(op: Dictionary, candidate: Dictionary, checkpoint: Dictionary) -> bool:
+	if op.is_empty(): return false
 	var session := capture_live_session()
 	var boundary: Dictionary = _scene_event_bridge.capture_scene_event_boundary()
 	return session.get("ok", false) and boundary.get("ok", false) \
@@ -4874,17 +4876,7 @@ func _scene_shop_result(receipt: Dictionary) -> Dictionary:
 		"total": purchase.unit_price * purchase.quantity}, "receipt": receipt.duplicate(true)}
 
 func _validate_scene_shop_checkpoint(candidate: Dictionary, checkpoint: Dictionary, _phase: String) -> bool:
-	if _scene_shop_operation.is_empty(): return false
-	var op := _scene_shop_operation.duplicate(true)
-	var session := capture_live_session()
-	var boundary: Dictionary = _scene_event_bridge.capture_scene_event_boundary()
-	return session.get("ok", false) and boundary.get("ok", false) \
-		and _mutation_gate.is_lease_active(&"causal_transaction", op.lease) \
-		and _SCENE_EVENT._equal(session.value, op.session) \
-		and _SCENE_EVENT._equal(capture_run_snapshot_input(), op.before) \
-		and _SCENE_EVENT._equal(candidate, op.candidate) \
-		and _SCENE_EVENT._equal(checkpoint, op.checkpoint) \
-		and _SCENE_EVENT._equal(boundary.value.checkpoint, op.checkpoint)
+	return _validate_scene_mutation_checkpoint(_scene_shop_operation, candidate, checkpoint)
 
 
 var _scene_round_board: Object
@@ -5018,14 +5010,4 @@ func _commit_scene_round_owned(request: Dictionary, lease: String) -> Dictionary
 	return {"ok": true, "committed": true, "receipt": receipt.value.duplicate(true)}
 
 func _validate_scene_round_checkpoint(candidate: Dictionary, checkpoint: Dictionary, _phase: String) -> bool:
-	if _scene_round_operation.is_empty(): return false
-	var op := _scene_round_operation
-	var session := capture_live_session()
-	var boundary: Dictionary = _scene_event_bridge.capture_scene_event_boundary()
-	return session.get("ok", false) and boundary.get("ok", false) \
-		and _mutation_gate.is_lease_active(&"causal_transaction", op.lease) \
-		and _SCENE_EVENT._equal(session.value, op.session) \
-		and _SCENE_EVENT._equal(capture_run_snapshot_input(), op.before) \
-		and _SCENE_EVENT._equal(candidate, op.candidate) \
-		and _SCENE_EVENT._equal(checkpoint, op.checkpoint) \
-		and _SCENE_EVENT._equal(boundary.value.checkpoint, op.checkpoint)
+	return _validate_scene_mutation_checkpoint(_scene_round_operation, candidate, checkpoint)
