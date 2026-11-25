@@ -74,12 +74,10 @@ func test_public_history_includes_thoughts_in_encountered_order() -> void:
 	assert_eq(result.value.captions.map(func(row: Dictionary) -> String: return row.line_id), ["caption", "thought"])
 	assert_eq(bridge.encountered.map(func(row: Dictionary) -> String: return row.line_id), ["caption", "thought"])
 
-class ThoughtSession extends SESSION:
-	func _capture_scene(_frontier: Dictionary) -> Dictionary:
-		return {"ok": true}
-
 func test_current_thought_projection_does_not_change_encountered_history() -> void:
-	var session := ThoughtSession.new()
+	var session := SESSION.new()
+	session.latest_entry = "fixture"
+	session.ledger = NarrativeCaptionLedger.new()
 	session._scene_display = {"a": {"self_talk": {"line_id": "thought_a", "text": "Thought A."}},
 		"c": {"self_talk": {"line_id": "thought_c", "text": "Thought C."}}}
 	session.player_progress = {"history_sections": [{"checkpoint_id": "a", "last_line_id": "thought_a"}, {"checkpoint_id": "c", "last_line_id": "thought_c"}]}
