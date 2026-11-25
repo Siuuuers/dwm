@@ -112,6 +112,10 @@ func test_manager_initializes_once_and_uses_detached_snapshots() -> void:
 	var manager: Node = fixture["manager"]
 	assert_eq(manager.call(&"initialize", fixture["storage"]).get("code"), &"already_initialized")
 	var snapshot: Dictionary = manager.call(&"get_profile_snapshot")
+	var unchanged: Dictionary = manager.set_preferences({})
+	assert_true(unchanged.unchanged)
+	unchanged.value.visited_line_ids.append("edited")
+	assert_false(manager.is_line_visited("edited"))
 	snapshot["preferences"]["audio"]["music_volume"] = 0.1
 	assert_eq(manager.call(&"get_preference", &"preferences.audio.music_volume"), 0.8)
 
