@@ -1059,7 +1059,7 @@ func _prepare_day7_ending_plan(condition_source: Dictionary, attempt_reader: Cal
 			profile_reader = profile_owner.get_profile_snapshot
 	if profile_reader.is_valid():
 		var read_profile: Variant = profile_reader.call()
-		if read_profile is Dictionary: evidence_profile = read_profile.duplicate(true)
+		if read_profile is Dictionary: evidence_profile = read_profile
 	var completed_posts := {}
 	var gallery_receipts: Variant = evidence_profile.get("gallery_transaction_receipts", {})
 	if gallery_receipts is Dictionary:
@@ -1100,20 +1100,16 @@ func _prepare_day7_ending_plan(condition_source: Dictionary, attempt_reader: Cal
 		"hospital_required": pending_hospital,
 		"pair_ending_eligible": should_route_priscilla_lavinia_post_ending(),
 		"pair_form": str(pair.get("frozen_form", "")),
-		"observer_variant_by_scope": observer_variants.duplicate(true),
-		"board_mastery_by_scope": mastery.duplicate(true),
-		"pair_observer_witness_precondition": pair_observer_precondition.duplicate(true),
+		"observer_variant_by_scope": observer_variants,
+		"board_mastery_by_scope": mastery,
+		"pair_observer_witness_precondition": pair_observer_precondition,
 		"presentation_by_scope": _capture_ending_presentation_inputs(),
 	}
 	if not condition_source.is_empty():
 		var cause := str(condition_source.terminal_cause)
 		rules_input.invitation_read = {"sylvia": cause == "sylvia_special"}
 		rules_input.hospital_required = cause != "dark_mode_alone"
-	var frozen: Dictionary = _PROVISIONAL_RELATIONSHIP_RULES.new().freeze_day7_ending_plan(
-		rules_input)
-	if not frozen.get("ok", false):
-		return frozen
-	return {"ok": true, "code": &"ok", "value": frozen["value"].duplicate(true)}
+	return _PROVISIONAL_RELATIONSHIP_RULES.new().freeze_day7_ending_plan(rules_input)
 
 
 func _capture_ending_presentation_inputs() -> Dictionary:
@@ -1232,7 +1228,7 @@ func capture_ending_presentation_signature(ending_id: String, context: Dictionar
 		if not checked.ok: return checked
 		return _ENDING_FROZEN_CONTEXT.signature_for_step(lifecycle.ending_plan, int(lifecycle.ending_plan.next_step_index), cache.seed)
 	var frozen: Dictionary = route_context.get("provisional_ending_plan", {}).get("eligibility_snapshot", {})
-	var inputs: Dictionary = frozen.get("presentation_by_scope", _capture_ending_presentation_inputs())
+	var inputs: Dictionary = frozen.presentation_by_scope if frozen.has("presentation_by_scope") else _capture_ending_presentation_inputs()
 	var role := str(context.role)
 	var entry_id := ending_id
 	var form := ""
