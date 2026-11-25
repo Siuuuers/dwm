@@ -475,8 +475,13 @@ func clear_unfinished_minesweeper_round() -> void:
 
 
 func calculate_minesweeper_money_reward(result: Dictionary) -> Dictionary:
-	var cap: int = MINESWEEPER_MONEY_DAILY_CAP_BASE + MINESWEEPER_MONEY_DAILY_CAP_PER_EXTRA_ROUND * maxi(0, get_minesweeper_total_playable_rounds() - 2)
-	var remaining: int = maxi(0, cap - minesweeper_money_earned_today)
+	return _round_money_reward(result, minesweeper_round_floor, minesweeper_money_earned_today)
+
+
+static func _round_money_reward(result: Dictionary, floor_value: int, earned_today: int) -> Dictionary:
+	var extra_rounds := maxi(0, MINESWEEPER_BASE_ROUNDS - floor_value - 2)
+	var cap := MINESWEEPER_MONEY_DAILY_CAP_BASE + MINESWEEPER_MONEY_DAILY_CAP_PER_EXTRA_ROUND * extra_rounds
+	var remaining := maxi(0, cap - earned_today)
 	var difficulty: String = result.get("difficulty", "")
 	var outcome: String = result.get("outcome", "")
 	if outcome == "no_flag" or outcome == "foresight":
@@ -503,28 +508,38 @@ func apply_minesweeper_money_reward(result: Dictionary) -> Dictionary:
 	return reward
 
 
-func check_and_claim_minesweeper_task_rewards(result: Dictionary) -> Array:
+static func _claim_round_tasks(tasks: Array, claims: Dictionary, add_coin: Callable) -> Array:
 	var claimed: Array = []
-	var task_ids: Array = result.get("task_ids", [])
-	for tid in task_ids:
-		if not _MINESWEEPER_TASK_IDS.has(tid):
-			continue
-		if minesweeper_task_rewards_claimed.has(tid):
-			continue
-		if minesweeper_task_rewards_claimed.size() >= MINESWEEPER_TASK_COIN_TOTAL_CAP:
-			break
-		minesweeper_task_rewards_claimed[tid] = true
-		change_coins(1)
-		claimed.append(tid)
-	if not minesweeper_task_rewards_claimed.has("win_win_win"):
-		if minesweeper_task_rewards_claimed.has("complete_beginner") \
-				and minesweeper_task_rewards_claimed.has("complete_intermediate") \
-				and minesweeper_task_rewards_claimed.has("complete_expert"):
-			if minesweeper_task_rewards_claimed.size() < MINESWEEPER_TASK_COIN_TOTAL_CAP:
-				minesweeper_task_rewards_claimed["win_win_win"] = true
-				change_coins(1)
-				claimed.append("win_win_win")
+	var grant := func(task: Variant) -> void:
+		if not _MINESWEEPER_TASK_IDS.has(task) or claims.has(task) or claims.size() >= MINESWEEPER_TASK_COIN_TOTAL_CAP:
+			return
+		claims[task] = true
+		add_coin.call(1)
+		claimed.append(task)
+	for task: Variant in tasks:
+		grant.call(task)
+	if claims.has_all(["complete_beginner", "complete_intermediate", "complete_expert"]):
+		grant.call("win_win_win")
 	return claimed
+
+
+func check_and_claim_minesweeper_task_rewards(result: Dictionary) -> Array:
+	return _claim_round_tasks(result.get("task_ids", []), minesweeper_task_rewards_claimed, change_coins)
+
+
+func _prepare_scene_round_reward(result: Dictionary) -> Dictionary:
+	var gameplay := _capture_scene_gameplay()
+	var reward := _round_money_reward(result, gameplay.minesweeper_round_floor, gameplay.minesweeper_money_earned_today)
+	if reward.money > 0:
+		gameplay.money = maxi(-30, gameplay.money + reward.money)
+		gameplay.minesweeper_money_earned_today += reward.money
+	if reward.pressure != 0:
+		gameplay.stats[STAT_PRESSURE] = clampi(int(gameplay.stats.get(STAT_PRESSURE, 0)) + int(reward.pressure),
+			_stat_min(STAT_PRESSURE), _stat_max(STAT_PRESSURE))
+	var claimed := _claim_round_tasks(result.task_ids, gameplay.minesweeper_task_rewards_claimed,
+		func(amount: int) -> void: gameplay.coins = maxi(0, gameplay.coins + amount))
+	gameplay.minesweeper_app_rounds_finished_today += 1
+	return {"ok": true, "value": {"gameplay": gameplay, "reward": reward, "claimed": claimed, "outcome": result.outcome}}
 
 
 func is_invitation_day(friend_id: String, target_day: int = -1) -> bool:
@@ -2752,10 +2767,13 @@ func configure_desktop_snapshot_provider(provider: Callable) -> Dictionary:
 	return {"ok": true}
 
 
-func _capture_desktop_snapshot() -> Dictionary:
-	if not _desktop_snapshot_provider.is_valid(): return _desktop_snapshot.duplicate(true)
+func _desktop_snapshot_view() -> Dictionary:
+	if not _desktop_snapshot_provider.is_valid(): return _desktop_snapshot
 	var captured: Variant = _desktop_snapshot_provider.call()
-	return captured.duplicate(true) if captured is Dictionary else {}
+	return captured if captured is Dictionary else {}
+
+func _capture_desktop_snapshot() -> Dictionary:
+	return _desktop_snapshot_view().duplicate(true)
 
 
 func capture_run_lifecycle() -> Dictionary:
@@ -4634,7 +4652,7 @@ func _validate_scene_physical_record(snapshot: Dictionary) -> Dictionary:
 
 var _scene_contact_operation: Dictionary = {}
 
-func capture_scene_contact_context() -> Dictionary:
+func _capture_scene_app_context() -> Dictionary:
 	if not _run_lifecycle.is_scene_run() or not _live_session_active:
 		return _transaction_failure(&"scene_contact_unavailable", "")
 	var identity := _capture_live_identity(true)
@@ -4644,9 +4662,14 @@ func capture_scene_contact_context() -> Dictionary:
 	if _scene_snapshot_references.get("registration_sha256") != registration.value.fingerprint:
 		return _transaction_failure(&"scene_registration_mismatch", "")
 	return {"ok": true, "value": {"identity": identity.value,
-		"scene_occurrence": _scene_snapshot_references.active_occurrence_id,
-		"registration_sha256": _scene_snapshot_references.registration_sha256,
-		"contacts_sha256": _CONTACT_INVITATION_STATE._s_hash(contacts)}}
+		"scene_occurrence": _scene_snapshot_references.active_occurrence_id}}
+
+func capture_scene_contact_context() -> Dictionary:
+	var context := _capture_scene_app_context()
+	if not context.ok: return context
+	context.value["registration_sha256"] = _scene_snapshot_references.registration_sha256
+	context.value["contacts_sha256"] = _CONTACT_INVITATION_STATE._s_hash(contacts)
+	return context
 
 func resolve_scene_contact_facts(source_fact_ids: Array) -> Dictionary:
 	var context := capture_scene_contact_context()
@@ -4751,13 +4774,10 @@ func configure_scene_shop_runtime(catalog: Object, consequence: Object) -> Dicti
 	return {"ok": true}
 
 func capture_scene_shop_context() -> Dictionary:
-	var context := capture_scene_contact_context()
-	if not context.ok: return context
-	return {"ok": true, "value": {"identity": context.value.identity.duplicate(true),
-		"scene_occurrence": context.value.scene_occurrence}}
+	return _capture_scene_app_context()
 
 func preview_scene_shop_purchase(item_id: String, quantity: int) -> Dictionary:
-	var context := capture_scene_contact_context()
+	var context := capture_scene_shop_context()
 	if not context.ok: return context
 	var prepared := _prepare_scene_shop_gameplay(item_id, quantity, "scene-shop-preview", context.value.identity)
 	if not prepared.ok: return prepared
@@ -4771,8 +4791,8 @@ func _prepare_scene_shop_gameplay(item_id: String, quantity: int, id: String, id
 	if not raw is Dictionary or raw.is_empty(): return _transaction_failure(&"unregistered_shop_item", "")
 	var captured: Dictionary = _scene_shop_consequence.capture()
 	if not captured.get("ok", false): return captured
-	var snapshot := capture_run_snapshot_input()
-	if not _SCENE_EVENT._equal(snapshot.desktop.get("consequence"), captured.value.state) \
+	var gameplay := _capture_scene_gameplay()
+	if not _SCENE_EVENT._equal(_desktop_snapshot_view().get("consequence"), captured.value.state) \
 			or captured.value.state.get("pending") != null \
 			or captured.value.state.get("causal_day_instance") != identity.causal_day_instance:
 		return _transaction_failure(&"scene_shop_consequence_changed", "")
@@ -4783,7 +4803,7 @@ func _prepare_scene_shop_gameplay(item_id: String, quantity: int, id: String, id
 		var effect := _SCENE_SHOP_CAPABILITIES.prepare_supportz_effect(eligibility.value.state, identity.causal_day_instance, id)
 		if not effect.ok: return effect
 		supportz_effect = effect.value
-	return _SCENE_SHOP_RULES.prepare(snapshot.gameplay, raw, quantity, supportz_effect)
+	return _SCENE_SHOP_RULES.prepare(gameplay, raw, quantity, supportz_effect)
 
 func commit_scene_shop_purchase(item_id: String, quantity: int, id: String, proof: Dictionary, source_context: Dictionary) -> Dictionary:
 	if not _scene_shop_operation.is_empty() or not is_instance_valid(_mutation_gate) \
@@ -4831,7 +4851,7 @@ func _commit_scene_shop_owned(item_id: String, quantity: int, id: String, proof:
 		context.value.scene_occurrence, prepared.value.purchase, _identity_issuer)
 	if not receipt.ok: return receipt
 	var candidate := before.duplicate(true)
-	candidate.gameplay = prepared.value.gameplay.duplicate(true)
+	candidate.gameplay = prepared.value.gameplay
 	candidate.command_receipts[id] = receipt.value.duplicate(true)
 	var consequence_candidate := {}
 	if item_id == "supportz":
@@ -4955,17 +4975,19 @@ func _commit_scene_round_owned(request: Dictionary, lease: String) -> Dictionary
 	var difficulty: String = str(captured.board.spec.difficulty_id)
 	var reward: Dictionary = _scene_round_reward.prepare_scene_complete(difficulty, captured.board.board)
 	if not reward.get("ok", false): return reward
-	var completion := {"board_identity": captured.identity.duplicate(true),
+	var completion := {"board_identity": captured.identity,
 		"board_sha256": _scene_round_board.inspection_board_sha256(captured.board),
 		"revision": int(captured.revision), "difficulty": difficulty, "outcome": reward.value.outcome,
 		"gameplay_sha256": _SCENE_EVENT._sha(reward.value.gameplay)}
 	var receipt := _SCENE_EVENT.make_scene_round_completion(context.value.identity, request.transaction_issuer_receipt,
 		context.value.scene_occurrence, completion, _identity_issuer)
 	if not receipt.ok: return receipt
-	var candidate := before.duplicate(true)
+	var candidate := before.duplicate()
+	candidate.desktop = before.desktop.duplicate()
+	candidate.command_receipts = before.command_receipts.duplicate()
 	candidate.gameplay = reward.value.gameplay
-	candidate.command_receipts[id] = receipt.value.duplicate(true)
-	var board_after := captured.duplicate(true)
+	candidate.command_receipts[id] = receipt.value
+	var board_after := captured
 	board_after.revision += 1
 	board_after.settled_inspection = true
 	var prepared_board: Dictionary = _scene_round_board.prepare_restore(board_after)
@@ -4984,7 +5006,7 @@ func _commit_scene_round_owned(request: Dictionary, lease: String) -> Dictionary
 		var recorded: Dictionary = _scene_shop_consequence.prepare_record_base_completion({"kind": "complete",
 			"app_round_ordinal": ordinal, "causal_day_instance": context.value.identity.causal_day_instance})
 		if not recorded.get("ok", false): return recorded
-		candidate.desktop.consequence = recorded.value.candidate.state_after.duplicate(true)
+		candidate.desktop.consequence = recorded.value.candidate.state_after
 		prepared_consequence = _scene_shop_consequence.prepare_restore(candidate.desktop.consequence)
 		if not prepared_consequence.get("ok", false): return prepared_consequence
 	var configured: Dictionary = _narrative_checkpoint_port.configure_scene_round_authority(self, _validate_scene_round_checkpoint)
@@ -5003,7 +5025,7 @@ func _commit_scene_round_owned(request: Dictionary, lease: String) -> Dictionary
 	if not board_adopted.get("ok", false): return _scene_event_fatal(&"scene_round_board_adoption_failed")
 	_apply_gameplay_silent(candidate.gameplay)
 	_command_receipts = candidate.command_receipts.duplicate(true)
-	return {"ok": true, "committed": true, "receipt": receipt.value.duplicate(true)}
+	return {"ok": true, "committed": true, "receipt": receipt.value}
 
 func _validate_scene_round_checkpoint(candidate: Dictionary, checkpoint: Dictionary, _phase: String) -> bool:
 	return _validate_scene_mutation_checkpoint(_scene_round_operation, candidate, checkpoint)

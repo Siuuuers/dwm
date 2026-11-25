@@ -104,6 +104,13 @@ func test_shop_live_purchase_custody_duplicate_and_manual_save() -> void:
 	var writes: int = fault.autosave_writes
 	var accepted_disk: Dictionary = storage.read_text("autosave.json")
 	assert_true(after.command_receipts.has(accepted.receipt.transaction_id), "live duplicate still has its acknowledgement")
+	var projected: Dictionary = preload("res://scripts/domain/run/RunSnapshotSchema.gd").build_scene(
+		after, reading.value, "scene", null, {}, 1, 99)
+	if not _ok(projected): return
+	var saved: Dictionary = projected.value.snapshot
+	assert_false(saved.has("command_receipts"))
+	saved.gameplay.inventory.clear()
+	assert_eq(after.gameplay.inventory.get("crystal_stutters"), 1, "editing the save leaves purchase history intact")
 	var invalid_input: Dictionary = after.duplicate(true)
 	invalid_input.scene.entry_id = "missing.entry"
 	var invalid_build: Dictionary = preload("res://scripts/domain/run/RunSnapshotSchema.gd").build_scene(

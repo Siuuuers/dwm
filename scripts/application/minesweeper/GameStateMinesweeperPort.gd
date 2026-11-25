@@ -561,17 +561,4 @@ func prepare_scene_complete(difficulty: String, board: Dictionary) -> Dictionary
 	var tasks := _task_ids_for(outcome, difficulty)
 	if reasons.has("no_flag"): tasks.append("no_flag_finish")
 	if reasons.has("efficiency_gt_100") or reasons.has("efficiency_gte_100"): tasks.append("foresight_finish")
-	var gameplay: Dictionary = _game_state._capture_scene_gameplay()
-	var result := {"context": "app", "difficulty": difficulty, "outcome": outcome, "task_ids": tasks}
-	var reward_state: Object = load(GAME_STATE_SCRIPT_PATH).new()
-	var reward_fields := ["money", "coins", "stats", "minesweeper_money_earned_today", "minesweeper_task_rewards_claimed"]
-	for key: String in reward_fields:
-		reward_state.set(key, gameplay[key])
-	reward_state.set("minesweeper_round_floor", gameplay.minesweeper_round_floor)
-	var reward: Dictionary = reward_state.apply_minesweeper_money_reward(result)
-	var claimed: Array = reward_state.check_and_claim_minesweeper_task_rewards(result)
-	for key: String in reward_fields:
-		gameplay[key] = reward_state.get(key)
-	reward_state.free()
-	gameplay.minesweeper_app_rounds_finished_today += 1
-	return {"ok": true, "value": {"gameplay": gameplay, "reward": reward, "claimed": claimed, "outcome": outcome}}
+	return _game_state._prepare_scene_round_reward({"difficulty": difficulty, "outcome": outcome, "task_ids": tasks})

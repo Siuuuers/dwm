@@ -27,7 +27,10 @@ func test_scene_rewards_are_detached_pressure_only_and_retain_daily_cap() -> voi
 	var result: Dictionary = port.prepare_scene_complete("expert", _terminal(false))
 	assert_true(result.ok, str(result))
 	if result.ok:
-		assert_eq(result.value.gameplay.scene_choices, game.scene_choices)
+		var repeated: Dictionary = port.prepare_scene_complete("expert", _terminal(false))
+		assert_eq(repeated, result)
+		result.value.gameplay.scene_choices.clear()
+		assert_eq(repeated.value.gameplay.scene_choices, {"earlier_choice": "accepted"})
 		assert_eq(result.value.gameplay.scene_challenge_outcomes, game.scene_challenge_outcomes)
 		assert_eq(result.value.gameplay.money, before.money + 1)
 		assert_eq(result.value.gameplay.minesweeper_money_earned_today, 108)
