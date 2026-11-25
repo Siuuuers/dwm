@@ -845,11 +845,10 @@ func validate_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 		var operation := TRAVERSAL.validate(saved, entry_id)
 		if not operation.ok: return operation
 		for phase: String in ["source", "destination"]:
-			var projected := TRAVERSAL.project(operation.value.plan, phase)
-			if not projected.ok: return projected
-			var endpoint := _validate_base_saved(TRAVERSAL.without_operation(projected.value), entry_id)
+			var projected := TRAVERSAL.solo_projection_view(operation.value.plan, phase)
+			var endpoint := _validate_base_saved(projected, entry_id)
 			if not endpoint.ok: return endpoint
-		return _validate_base_saved(TRAVERSAL.without_operation(saved), entry_id)
+		return _validate_base_saved(TRAVERSAL.without_operation_view(saved), entry_id)
 	return _validate_base_saved(saved, entry_id)
 
 func _validate_base_saved(saved: Dictionary, entry_id: String) -> Dictionary:

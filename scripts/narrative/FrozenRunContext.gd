@@ -167,7 +167,7 @@ static func _validate_reading_checkpoint_body(checkpoint: Dictionary, snapshot: 
 			and reading.schema_version == 2:
 		var operation := READING_NEXT.validate(reading, checkpoint.entry_id)
 		if not operation.ok: return operation
-		reading = READING_NEXT.without_operation(reading)
+		reading = READING_NEXT.without_operation_view(reading)
 	if not reading is Dictionary or not _exact(reading, ["schema_version", "catalogue_fingerprint", "boundary", "ledger", "frontier"]) \
 			or typeof(reading.schema_version) != TYPE_INT or reading.schema_version != 1 \
 			or not FROZEN._field(reading.catalogue_fingerprint, "id") \
@@ -305,7 +305,7 @@ static func derive_scene_frames(admissions: Dictionary, reading: Dictionary) -> 
 		if not key is String: return _fail(&"reading_entry_context_mismatch")
 		var pair := SCENE_LEDGER.decode_scene_frame_key(key)
 		if not pair.ok: return pair
-		var resolved := SCENE_LEDGER.resolve_scene_frame(reading.ledger.entry_contexts,
+		var resolved := SCENE_LEDGER._scene_frame_view(reading.ledger.entry_contexts,
 			pair.value.occurrence_id, pair.value.entry_id)
 		if not resolved.ok: return resolved
 		var frame: Dictionary = resolved.value

@@ -167,7 +167,7 @@ func restore_snapshot(session_token: String, frozen_context: Dictionary,
 	return {"ok": true}
 
 func allocate_publication(session_token: String, entry_id: String, occurrence_id: String = "") -> Dictionary:
-	var checked := _check_session(session_token, entry_id, occurrence_id)
+	var checked := check_session_view(session_token, entry_id, occurrence_id)
 	if not checked.ok: return checked
 	if _publication_serial == 9223372036854775807: return _fail(&"caption_publication_exhausted")
 	_publication_serial += 1
@@ -179,11 +179,11 @@ func allocate_publication(session_token: String, entry_id: String, occurrence_id
 	return {"ok": true, "value": publication_id}
 
 func check_session(session_token: String, entry_id: String, occurrence_id: String = "") -> Dictionary:
-	var checked := _check_session(session_token, entry_id, occurrence_id)
+	var checked := check_session_view(session_token, entry_id, occurrence_id)
 	if checked.ok and _scene: checked.value = checked.value.duplicate(true)
 	return checked
 
-func _check_session(session_token: String, entry_id: String, occurrence_id: String) -> Dictionary:
+func check_session_view(session_token: String, entry_id: String, occurrence_id: String) -> Dictionary:
 	if _session_token.is_empty(): return _fail(&"caption_session_uninitialized")
 	if session_token != _session_token: return _fail(&"caption_foreign_session")
 	if not _has_registered_entry(entry_id): return _fail(&"caption_entry_unregistered")
@@ -201,7 +201,7 @@ func _has_registered_entry(entry_id: String) -> bool:
 
 func publish_line(session_token: String, publication_id: String, entry_id: String, line_id: String,
 		occurrence_id: String = "") -> Dictionary:
-	var session := _check_session(session_token, entry_id, occurrence_id)
+	var session := check_session_view(session_token, entry_id, occurrence_id)
 	if not session.ok: return session
 	if not _by_line.has(line_id): return _fail(&"caption_line_unregistered")
 	var beat: Dictionary = _by_line[line_id]
@@ -228,7 +228,7 @@ func publish_caption(session_token: String, publication_id: String, beat: Dictio
 			return _fail(&"caption_publication_expired")
 	if not _registered.has(beat.beat_id): return _fail(&"caption_beat_unregistered")
 	if _registered[beat.beat_id] != beat: return _fail(&"caption_registration_mismatch")
-	var session := _check_session(session_token, beat.owning_entry_id, occurrence_id)
+	var session := check_session_view(session_token, beat.owning_entry_id, occurrence_id)
 	if not session.ok: return session
 	var admitted: Dictionary = _registered[beat.beat_id]
 	var row := {"publication_id": publication_id, "beat": admitted}

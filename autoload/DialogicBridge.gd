@@ -2790,13 +2790,13 @@ func can_capture_reading_checkpoint() -> bool:
 				or _runtime_adapter == null or not _runtime_adapter.has_method("can_capture_reading_frontier"):
 			return false
 		if _reading_session.boundary == "control":
-			var control_frame: Dictionary = _reading_session.ledger.check_session(_reading_session.command_id,
+			var control_frame: Dictionary = _reading_session.ledger.check_session_view(_reading_session.command_id,
 				_reading_session.latest_entry, _reading_session.scene_occurrence)
 			return control_frame.ok and _READING_TRAVERSAL._same(control_frame.value, _active_entry.get("frozen_context")) \
 				and _runtime_adapter.has_method("capture_scene_control_position") \
 				and _runtime_adapter.has_method("project_scene_control_frontier") \
 				and _runtime_adapter.project_scene_control_frontier(_reading_session).get("ok", false)
-		var frame: Dictionary = _reading_session.ledger.check_session(_reading_session.command_id,
+		var frame: Dictionary = _reading_session.ledger.check_session_view(_reading_session.command_id,
 			_reading_session.latest_entry, _reading_session.scene_occurrence)
 		if not frame.ok or not _READING_TRAVERSAL._same(frame.value, _active_entry.get("frozen_context")):
 			return false
