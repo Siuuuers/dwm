@@ -115,7 +115,9 @@ func connect_host_focus(previous: Control, next: Control) -> bool:
 	return true
 
 func present(value: Dictionary) -> bool:
-	var accepted: Dictionary = value.duplicate(true)
+	return _present_owned(value.duplicate(true))
+
+func _present_owned(accepted: Dictionary) -> bool:
 	if not _valid(accepted): return _fail(&"minesweeper_panel_invalid_view")
 	var measured := _measure(accepted,_locale,_percent,_large,_palette,_high_contrast,_colour_preset,_font_style,_day, _scene_presentation)
 	if measured.is_empty(): return _fail(&"minesweeper_panel_invalid_view")
@@ -299,7 +301,7 @@ func _finish_board_command() -> void:
 
 func _receive(result: Variant) -> bool:
 	if result is Dictionary and result.get("value") is Dictionary:
-		if not present(result.value): return false
+		if not _present_owned(result.value): return false
 		if result.get("ok",false): return true
 		presentation_failed.emit(result.get("code",&"minesweeper_panel_command_refused"))
 		return false

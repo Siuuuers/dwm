@@ -45,7 +45,7 @@ func test_first_flood_respects_flags_and_preserves_prior_unflag_history() -> voi
 	assert_false(board.terminal)
 	assert_eq(board.revision, 3)
 	assert_eq(board.actions, shell.actions)
-	assert_true(SCHEMA.validate_board(board).ok)
+	assert_true(SCHEMA.check_board(board).ok)
 	board = REDUCER.set_flag(board, 1, false, "unflag-a").value.board
 	board = REDUCER.reveal(board, 1, "last").value.board
 	assert_true(board.terminal)

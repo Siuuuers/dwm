@@ -278,20 +278,15 @@ func _shop_prepared(item_id: String) -> Dictionary:
 			checkpoint_receipt = record["receipt"]
 	assert_false(checkpoint_receipt.is_empty(), "the source's own ordinal-0 checkpoint must be recorded")
 	return {
-		"action_receipt": (prepared["value"] as Dictionary)["action_receipt"], "prepared_checkpoint_receipt": checkpoint_receipt,
+		"action_receipt": prepared.value.action_receipt, "action_candidate": prepared.value.action_candidate,
+		"prepared_checkpoint_receipt": checkpoint_receipt,
 	}
 
 
 func _accept_request(prepared: Dictionary, expected_run_revision: int) -> Dictionary:
 	var action_receipt: Dictionary = prepared["action_receipt"]
-	var transaction_id := str(action_receipt["transaction_id"])
-	# The self-sufficient economy candidate GameStateMinesweeperShopPort.prepare_purchase() already
-	# built, retrieved directly from the participant's own retained entry -- mirroring this
-	# codebase's established "reach into private state for test wiring" precedent (see
-	# DesktopBoardFatePort's own suite reconnecting MinesweeperRoundCoordinator._board_state).
-	var economy_candidate: Dictionary = (_shop_participant._transactions[transaction_id] as Dictionary)["economy_candidate"]
 	return {
-		"action_receipt": action_receipt, "action_candidate": economy_candidate,
+		"action_receipt": action_receipt, "action_candidate": prepared.action_candidate,
 		"prepared_checkpoint_receipt": prepared["prepared_checkpoint_receipt"],
 		"expected_run_revision": expected_run_revision, "expected_board_identity": _board_state.capture()["identity"],
 		"expected_board_revision": int(_board_state.capture()["revision"]),

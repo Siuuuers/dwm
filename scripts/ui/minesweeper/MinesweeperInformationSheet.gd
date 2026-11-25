@@ -87,7 +87,7 @@ func _present(next_kind: String, claimed: Array) -> bool:
 
 static func _compose(next_theme: Theme, band: Vector2i, large: bool, locale: String, next_kind: String,
 		claimed: Array) -> Dictionary:
-	var copy := COPY.get_copy(locale)
+	var copy: Dictionary = COPY.BY_LOCALE[locale]
 	var target := 32 if large else 24
 	var button: Button = RETURN.new()
 	if not button.configure(copy["return"],next_theme,large):
@@ -99,7 +99,7 @@ static func _compose(next_theme: Theme, band: Vector2i, large: bool, locale: Str
 	var footer_top := band.y-8-footer_height
 	var page := footer_top-4-body_top
 	var row_width := (band.x-16)*2
-	var text_rows: Array = copy.facts.duplicate() if next_kind == "rules" else []
+	var text_rows: Array = copy.facts if next_kind == "rules" else []
 	if next_kind == "assignments":
 		for index in 9:
 			text_rows.append(copy.requirements[index]+" — "+copy.claimed if claimed[index] else copy.requirements[index]+" — "+copy.unclaimed)

@@ -236,7 +236,7 @@ static func _prepare_attempt(previous: Dictionary, run_id: String, slot_id: Stri
 			"entry_receipt": _entry(record).duplicate(true), "materialization_receipt": null, "clear_receipt": null,
 			"terminal_receipt": null, "effect_receipt": null, "completion_receipt": null}
 	else:
-		attempt = previous.duplicate(true)
+		attempt = previous.duplicate()
 		attempt.record = record.duplicate(true)
 		if attempt.entry_receipt != _entry(record): return _fail(&"dating_entry_conflict")
 		if PHASES.find(record.phase) < PHASES.find(previous.record.phase): return _fail(&"dating_attempt_rewind")
@@ -415,7 +415,7 @@ static func _valid_record(record: Dictionary) -> bool:
 	if not _keys(record, expected_keys) or typeof(record.schema_version) != TYPE_INT \
 			or record.schema_version not in [2, 3] or record.phase not in PHASES \
 			or not record.context is Dictionary or record.context.get("kind") == "scene_challenge" or semantic_slot(record.context).is_empty() \
-			or not record.spec is Dictionary or not BOARD.validate_spec(record.spec).ok \
+			or not record.spec is Dictionary or not BOARD.check_spec(record.spec).ok \
 			or not record.applied_result is Dictionary or not record.mine_dispositions is Array \
 			or not record.perfect_reasons is Array: return false
 	for key: String in ["completion_transaction_id", "command_sha256", "physical_token"]:
@@ -437,7 +437,7 @@ static func _valid_record(record: Dictionary) -> bool:
 	if record.board == null:
 		return record.phase == "challenge" and record.outcome == null and record.relationship_outcome == null \
 			and record.mine_dispositions.is_empty() and record.perfect_reasons.is_empty() and record.applied_result.is_empty()
-	if not record.board is Dictionary or not BOARD.validate_board(record.board).ok: return false
+	if not record.board is Dictionary or not BOARD.check_board(record.board).ok: return false
 	var board: Dictionary = record.board
 	if board.width != record.spec.width or board.height != record.spec.height \
 			or board.mine_count < record.spec.base_mine_count or board.mine_count > record.spec.requested_mine_count: return false
@@ -498,7 +498,7 @@ static func _valid_scene_record(record: Dictionary) -> bool:
 			or typeof(record.schema_version) != TYPE_INT or record.schema_version != 4 \
 			or not record.context is Dictionary or record.context.get("kind") != "scene_challenge" \
 			or semantic_slot(record.context).is_empty() or record.host != "scene_challenge" \
-			or not record.spec is Dictionary or not BOARD.validate_spec(record.spec).ok \
+			or not record.spec is Dictionary or not BOARD.check_spec(record.spec).ok \
 			or record.applied_result != {} or record.state not in ["in_progress", "lost", "won"]: return false
 	if not _id(record.completion_transaction_id) or not _hash(record.command_sha256) or not _id(record.physical_token): return false
 	var token: Dictionary = CANONICAL.canonical_sha256(record.completion_transaction_id + "|" + record.command_sha256)
@@ -512,7 +512,6 @@ static func _valid_scene_record(record: Dictionary) -> bool:
 	if not ENVELOPE.validate(record): return false
 	if record.board == null:
 		return record.phase in ["preparing", "preparation_failed", "ready"] and record.state == "in_progress"
-	if not record.board is Dictionary or not BOARD.validate_board(record.board).ok: return false
 	var board: Dictionary = record.board
 	if board.width != record.spec.width or board.height != record.spec.height \
 			or board.mine_count < record.spec.base_mine_count or board.mine_count > record.spec.requested_mine_count: return false
@@ -550,7 +549,7 @@ static func _prepare_scene_attempt(previous: Dictionary, run_id: String, slot_id
 		if previous.entry_receipt != _entry(record): return _fail(&"dating_entry_conflict")
 		if not ENVELOPE.advances(previous.record, record) or not _board_advances(previous.record.board, record.board):
 			return _fail(&"dating_attempt_rewind")
-		attempt = previous.duplicate(true)
+		attempt = previous.duplicate()
 		attempt.record = record.duplicate(true)
 	if record.board != null:
 		if attempt.materialization_receipt == null:

@@ -140,7 +140,7 @@ static func _validate_desktop(desktop: Variant) -> String:
 		return "unexpected desktop keys: " + str(keys)
 	if typeof((desktop as Dictionary)["board"]) != TYPE_DICTIONARY:
 		return "desktop.board must be an object"
-	var board_check: Dictionary = DESKTOP_BOARD_STATE.new().prepare_restore((desktop as Dictionary)["board"])
+	var board_check: Dictionary = DESKTOP_BOARD_STATE.new().check_snapshot((desktop as Dictionary)["board"])
 	if not board_check.get("ok", false):
 		return str(board_check.get("message", board_check.get("code", "invalid desktop.board")))
 	if typeof((desktop as Dictionary)["consequence"]) != TYPE_DICTIONARY:

@@ -80,14 +80,17 @@ func _file_hashes() -> Dictionary:
 func _same_files(hashes: Dictionary) -> void:
 	assert_eq(_file_hashes(), hashes, "selected source, autosave and persistent Profile bytes unchanged")
 
+func _matches_projected(key: String, value: Variant, source: Dictionary) -> bool:
+	return source.has(key) and source[key] == value
+
 func _assert_scene_context_admission(source: Dictionary, reading: Dictionary) -> bool:
-	var captured: Dictionary = bootstrap._capture_desktop_board_scene_context(source)
+	var captured: Dictionary = bootstrap._capture_desktop_board_scene_context(_matches_projected.bind(source))
 	if not _ok(captured): return false
 	assert_eq(captured.value.route_id, "scene")
 	assert_eq(captured.value.dialogic_checkpoint, reading)
 	var forged: Dictionary = source.duplicate(true)
 	forged.scene.active_occurrence_id += ":not-current"
-	var refused: Dictionary = bootstrap._capture_desktop_board_scene_context(forged)
+	var refused: Dictionary = bootstrap._capture_desktop_board_scene_context(_matches_projected.bind(forged))
 	assert_false(refused.get("ok", false))
 	assert_eq(refused.get("code"), &"stale_scene_checkpoint_source")
 	var gate: RefCounted = bootstrap.get("_application_gate")
@@ -95,7 +98,7 @@ func _assert_scene_context_admission(source: Dictionary, reading: Dictionary) ->
 	if not _ok(acquired): return false
 	# safe_marker is an internal checkpoint within this existing lease, not an
 	# external command attempting to bypass transaction custody.
-	var internal: Dictionary = bootstrap._capture_desktop_board_scene_context(source)
+	var internal: Dictionary = bootstrap._capture_desktop_board_scene_context(_matches_projected.bind(source))
 	var released: Dictionary = gate.release(&"causal_transaction", acquired.value.token)
 	if not _ok(released): return false
 	if not _ok(internal): return false
@@ -103,7 +106,7 @@ func _assert_scene_context_admission(source: Dictionary, reading: Dictionary) ->
 	for owner: StringName in [&"restore", &"new_run", &"session_abandonment"]:
 		acquired = gate.acquire(owner)
 		if not _ok(acquired): return false
-		refused = bootstrap._capture_desktop_board_scene_context(source)
+		refused = bootstrap._capture_desktop_board_scene_context(_matches_projected.bind(source))
 		released = gate.release(owner, acquired.value.token)
 		if not _ok(released): return false
 		assert_false(refused.get("ok", false), "foreign lease refuses scene checkpoint context: " + String(owner))

@@ -1331,7 +1331,7 @@ func _scene_host_admitted(host: Control) -> bool:
 		and _state.get("ready", false) and _target(&"SceneRouter").get_current_route_id() == "scene" \
 		and not _target(&"SceneRouter").is_restore_publication_held()
 
-func _capture_desktop_board_scene_context(projected_input: Dictionary) -> Dictionary:
+func _capture_desktop_board_scene_context(matches_projected: Callable) -> Dictionary:
 	var host: Node = get_tree().current_scene
 	if not host is Control or host.scene_file_path != "res://scenes/narrative/SceneHost.tscn" \
 			or not _scene_host_admitted(host):
@@ -1346,7 +1346,7 @@ func _capture_desktop_board_scene_context(projected_input: Dictionary) -> Dictio
 	var live: Dictionary = game.capture_run_snapshot_input()
 	for key: String in ["lifecycle", "scene", "contacts", "command_receipts",
 			"applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
-		if not projected_input.has(key) or projected_input[key] != live.get(key):
+		if not matches_projected.call(key, live.get(key)):
 			return _failure(&"stale_scene_checkpoint_source", key)
 	var active_app: Variant = _active_app_id_context()
 	var reading: Dictionary = bridge.capture_reading_checkpoint(false)

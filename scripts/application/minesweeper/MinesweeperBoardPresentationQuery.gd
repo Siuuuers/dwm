@@ -5,10 +5,7 @@ const SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema
 const CATALOG := preload("res://scripts/domain/minesweeper/MinesweeperBoardCatalog.gd")
 
 static func desktop(snapshot: Dictionary, difficulty: String, entry_eligible: bool = false) -> Dictionary:
-	var restored := STATE.new().prepare_restore(snapshot)
-	if not restored.ok:
-		return _fail()
-	snapshot = restored.value.candidate.snapshot_after
+	if not STATE.new().check_snapshot(snapshot).ok: return _fail()
 	var phase: String = snapshot.phase
 	if phase == "NONE":
 		var catalog := CATALOG.lookup("desktop_app", difficulty)
@@ -31,10 +28,9 @@ static func desktop(snapshot: Dictionary, difficulty: String, entry_eligible: bo
 			return _fail()
 		if wrapper.paid_start_receipt.is_empty(): return _fail()
 	if wrapper.has("spec"):
-		if not wrapper.spec is Dictionary or not SCHEMA.validate_spec(wrapper.spec).get("ok", false): return _fail()
-	var validated := SCHEMA.validate_board(wrapper.board)
-	if not validated.get("ok", false): return _fail()
-	var board: Dictionary = validated.value.board
+		if not wrapper.spec is Dictionary or not SCHEMA.check_spec(wrapper.spec).get("ok", false): return _fail()
+	var board: Dictionary = wrapper.board
+	if not SCHEMA.check_board(board).ok: return _fail()
 	if phase == "SETTLING" and (not board.terminal or snapshot.settlement.is_empty()): return _fail()
 	var cells: Array[Dictionary] = []
 	var terminal: bool = board.terminal
@@ -81,9 +77,8 @@ static func _candidate(snapshot: Dictionary) -> Dictionary:
 	for extra: String in ["flagged_indices", "actions", "paid_start_receipt"]:
 		if candidate.has(extra): keys.append(extra)
 	if not _keys(candidate, keys) or not candidate.spec is Dictionary: return _fail()
-	var validated_spec := SCHEMA.validate_spec(candidate.spec)
-	if not validated_spec.get("ok", false): return _fail()
-	var spec: Dictionary = validated_spec.value.spec
+	var spec: Dictionary = candidate.spec
+	if not SCHEMA.check_spec(spec).ok: return _fail()
 	if spec.board_kind != "desktop": return _fail()
 	if not prepared:
 		if not candidate.frontier is Dictionary: return _fail()

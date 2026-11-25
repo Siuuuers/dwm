@@ -828,7 +828,7 @@ func test_validate_recovery_action_is_mutation_free_and_returns_the_frozen_publi
 	var prepared: Dictionary = _quote_and_prepare("lucky_charm", txn)
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
 	var receipt: Dictionary = (prepared["value"] as Dictionary)["action_receipt"]
-	var economy_candidate: Dictionary = (_participant._transactions[txn["transaction_id"]] as Dictionary)["economy_candidate"]
+	var economy_candidate: Dictionary = prepared.value.action_candidate
 	var before_inventory: Dictionary = (_state_port.inventory as Dictionary).duplicate(true)
 
 	var validated: Dictionary = _participant.validate_recovery_action(economy_candidate, receipt)
@@ -848,7 +848,7 @@ func test_commit_recovery_action_grants_the_capability_and_is_idempotent() -> vo
 	var prepared: Dictionary = _quote_and_prepare("lucky_charm", txn)
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
 	var receipt: Dictionary = (prepared["value"] as Dictionary)["action_receipt"]
-	var economy_candidate: Dictionary = (_participant._transactions[txn["transaction_id"]] as Dictionary)["economy_candidate"]
+	var economy_candidate: Dictionary = prepared.value.action_candidate
 
 	# prepare_purchase() already acquired the lease; release it to prove commit_recovery_action()
 	# independently requires it too, then reacquire for the real forward-commit below.
@@ -880,7 +880,7 @@ func test_commit_recovery_action_rejects_changed_bytes_at_the_same_identity() ->
 	var txn := _mint_transaction()
 	var prepared: Dictionary = _quote_and_prepare("lucky_charm", txn)
 	var receipt: Dictionary = (prepared["value"] as Dictionary)["action_receipt"]
-	var economy_candidate: Dictionary = (_participant._transactions[txn["transaction_id"]] as Dictionary)["economy_candidate"]
+	var economy_candidate: Dictionary = prepared.value.action_candidate
 	_force_sequence_committed(txn["transaction_id"])
 	_participant.commit_recovery_action(economy_candidate, receipt)
 
@@ -905,7 +905,7 @@ func test_publish_recovery_action_records_through_action_source_and_retains_the_
 	var txn := _mint_transaction()
 	var prepared: Dictionary = _quote_and_prepare("lucky_charm", txn)
 	var receipt: Dictionary = (prepared["value"] as Dictionary)["action_receipt"]
-	var economy_candidate: Dictionary = (_participant._transactions[txn["transaction_id"]] as Dictionary)["economy_candidate"]
+	var economy_candidate: Dictionary = prepared.value.action_candidate
 	_force_sequence_committed(txn["transaction_id"])
 	_participant.commit_recovery_action(economy_candidate, receipt)
 

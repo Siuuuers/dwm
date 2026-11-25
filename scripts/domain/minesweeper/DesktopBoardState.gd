@@ -132,7 +132,7 @@ func capture() -> Dictionary:
 
 
 
-func prepare_restore(snapshot: Dictionary) -> Dictionary:
+func check_snapshot(snapshot: Dictionary) -> Dictionary:
 	var keys := _CAPTURE_KEYS.duplicate()
 	if _scene_payment_issuer != null or snapshot.has("settled_inspection"):
 		keys.erase("terminal_receipts")
@@ -171,18 +171,24 @@ func prepare_restore(snapshot: Dictionary) -> Dictionary:
 	if snapshot.has("settled_inspection"):
 		var payments := _validate_current_scene_board(snapshot)
 		if not payments.ok: return payments
+	if not snapshot.has("settled_inspection") and phase in [_PHASE_PREPARING, _PHASE_PREPARED_UNSTARTED] \
+			and (snapshot.candidate.has("flagged_indices") or snapshot.candidate.has("actions")):
+		var slot: Dictionary = snapshot.candidate
+		if not slot.get("spec") is Dictionary: return _fail(&"invalid_current_board_spec", "", {})
+		var spec := _BOARD_SCHEMA.check_spec(slot.spec)
+		if not spec.ok: return spec
+		var shell := _BOARD_SCHEMA.validate_shell({"flagged_indices": slot.get("flagged_indices"),
+			"actions": slot.get("actions")}, slot.spec.width, slot.spec.height)
+		if not shell.ok: return shell
+	return {"ok": true}
+
+
+func prepare_restore(snapshot: Dictionary) -> Dictionary:
+	var checked := check_snapshot(snapshot)
+	if not checked.ok: return checked
 	var restored := snapshot.duplicate(true)
-	if phase in [_PHASE_PREPARING, _PHASE_PREPARED_UNSTARTED] and (restored.candidate.has("flagged_indices") or restored.candidate.has("actions")):
-		var slot: Dictionary = restored.candidate
-		if not snapshot.has("settled_inspection"):
-			if not slot.get("spec") is Dictionary: return _fail(&"invalid_current_board_spec", "", {})
-			var spec := _BOARD_SCHEMA.validate_spec(slot.spec)
-			if not spec.ok: return spec
-			var shell := _BOARD_SCHEMA.validate_shell({"flagged_indices": slot.get("flagged_indices"),
-				"actions": slot.get("actions")}, spec.value.spec.width, spec.value.spec.height)
-			if not shell.ok: return shell
-		if phase == _PHASE_PREPARED_UNSTARTED and not slot.flagged_indices.is_empty():
-			slot.merge(_BOARD_SCHEMA.clear_debug_flags(slot), true)
+	if restored.phase == _PHASE_PREPARED_UNSTARTED and not restored.candidate.get("flagged_indices", []).is_empty():
+		restored.candidate.merge(_BOARD_SCHEMA.clear_debug_flags(restored.candidate), true)
 	return {"ok": true, "code": &"ok", "value": {"candidate": {
 		"kind": &"restore", "snapshot_after": restored,
 	}}, "receipt": {}}
@@ -204,7 +210,7 @@ func prepare_debug_candidate(input: Dictionary, generation: Dictionary) -> Dicti
 		return identity_valid
 	if not input.has("spec") or typeof(input["spec"]) != TYPE_DICTIONARY:
 		return _fail(&"invalid_debug_input", "input.spec is required", {})
-	var spec_valid := _BOARD_SCHEMA.validate_spec(input["spec"])
+	var spec_valid := _BOARD_SCHEMA.check_spec(input["spec"])
 	if not spec_valid.get("ok", false):
 		return spec_valid
 	var frontier_check := _exact_keys(generation, ["frontier"], &"invalid_generation_frontier")
@@ -213,13 +219,14 @@ func prepare_debug_candidate(input: Dictionary, generation: Dictionary) -> Dicti
 	if typeof(generation["frontier"]) != TYPE_DICTIONARY:
 		return _fail(&"invalid_generation_frontier", "generation.frontier must be a dictionary", {})
 
-	var candidate_after := {"spec": (spec_valid["value"] as Dictionary)["spec"],
+	var candidate_after := {"spec": input["spec"],
 		"frontier": generation["frontier"]}
 	if _phase == _PHASE_PAID:
 		if input.identity != _identity or input.spec != _candidate.spec: return _fail(&"identity_mismatch", "", {})
 		if not _scene_snapshot_format: candidate_after["paid_start_receipt"] = _candidate.paid_start_receipt
 	if _phase in [_PHASE_UNPAID, _PHASE_PAID]:
-		candidate_after.merge(shell_state())
+		candidate_after["actions"] = _candidate.get("actions", [])
+		candidate_after["flagged_indices"] = _candidate.get("flagged_indices", [])
 	return _envelope(input, &"debug_begin", _PHASE_PREPARING, identity, candidate_after, null, null)
 
 
@@ -298,10 +305,10 @@ func prepare_first_reveal(input: Dictionary, materialized: Dictionary,
 		return _fail(&"invalid_first_reveal_input", "input.cell_index is required", {})
 	if not input.has("spec") or typeof(input["spec"]) != TYPE_DICTIONARY:
 		return _fail(&"invalid_first_reveal_input", "input.spec is required", {})
-	var spec_valid := _BOARD_SCHEMA.validate_spec(input["spec"])
+	var spec_valid := _BOARD_SCHEMA.check_spec(input["spec"])
 	if not spec_valid.get("ok", false):
 		return spec_valid
-	var spec: Dictionary = (spec_valid["value"] as Dictionary)["spec"]
+	var spec: Dictionary = input["spec"]
 
 	var identity: Dictionary
 	if _phase in [_PHASE_NONE, _PHASE_UNPAID]:
@@ -334,15 +341,16 @@ func prepare_first_reveal(input: Dictionary, materialized: Dictionary,
 		var live_candidate2: Dictionary = _candidate
 		if (layout_valid["value"] as Dictionary)["layout"] != live_candidate2["layout"]:
 			return _fail(&"layout_mismatch", "the materialized layout must match the certified candidate", {})
-	var board_valid := _BOARD_SCHEMA.validate_board(materialized["board"])
+	var board_valid := _BOARD_SCHEMA.check_board(materialized["board"])
 	if not board_valid.get("ok", false):
 		return board_valid
-	var board: Dictionary = (board_valid["value"] as Dictionary)["board"]
+	var board: Dictionary = materialized["board"]
 	if _scene_snapshot_format:
 		for key: String in ["width", "height", "mine_indices", "mine_count"]:
 			if board[key] != layout_valid.value.layout[key]: return _fail(&"materialized_board_layout_mismatch", "", {})
-	var shell := shell_state()
-	if int(board["revision"]) != shell.actions.size() or board.actions != shell.actions or board.flagged_indices != shell.flagged_indices:
+	var shell: Dictionary = _candidate if _candidate is Dictionary else {}
+	var shell_actions: Array = shell.get("actions", [])
+	if int(board["revision"]) != shell_actions.size() or board.actions != shell_actions or board.flagged_indices != shell.get("flagged_indices", []):
 		return _fail(&"invalid_materialized_input", "first Reveal must retain the saved shell history", {})
 	if not (board["revealed_indices"] as Array).has(int(input["cell_index"])):
 		return _fail(&"invalid_materialized_input", "the forced cell must be revealed", {})
@@ -374,12 +382,11 @@ func prepare_board_command(input: Dictionary, reduced_board: Dictionary) -> Dict
 	var kind: Variant = input.get("kind")
 	if not (kind is StringName) or not [&"reveal", &"set_flag", &"chord"].has(kind):
 		return _fail(&"invalid_board_command_kind", "input.kind must be reveal, set_flag, or chord", {})
-	var board_valid := _BOARD_SCHEMA.validate_board(reduced_board)
+	var board_valid := _BOARD_SCHEMA.check_board(reduced_board)
 	if not board_valid.get("ok", false):
 		return board_valid
-	var board: Dictionary = (board_valid["value"] as Dictionary)["board"]
 	var live_board: Dictionary = _board
-	var board_after := {"board": board}
+	var board_after := {"board": reduced_board}
 	if not _scene_snapshot_format: board_after["paid_start_receipt"] = live_board.paid_start_receipt
 	if live_board.has("spec"): board_after["spec"] = live_board.spec
 	return _envelope(input, &"board_command", _PHASE_ACTIVE_VISIBLE, _identity, null, board_after, null)
@@ -653,10 +660,10 @@ func prepare_paid_replacement(input: Dictionary, spec: Dictionary) -> Dictionary
 	var paid: bool = _round_paid if _scene_snapshot_format else (_phase != _PHASE_PREPARED_UNSTARTED or _candidate.has("paid_start_receipt"))
 	if not paid: return _fail(&"replacement_requires_paid_phase", "", {})
 	if _phase == _PHASE_ACTIVE_VISIBLE and bool(_board.board.terminal): return _fail(&"terminal_board_cannot_replace", "", {})
-	var valid := _BOARD_SCHEMA.validate_spec(spec)
+	var valid := _BOARD_SCHEMA.check_spec(spec)
 	if not valid.ok: return valid
-	if valid.value.spec.board_kind != "desktop": return _fail(&"invalid_board_kind", "", {})
-	var candidate := {"spec": valid.value.spec, "flagged_indices": [], "actions": []}
+	if spec.board_kind != "desktop": return _fail(&"invalid_board_kind", "", {})
+	var candidate := {"spec": spec, "flagged_indices": [], "actions": []}
 	if not _scene_snapshot_format:
 		var receipt: Dictionary = _board.paid_start_receipt if _phase == _PHASE_ACTIVE_VISIBLE else _candidate.paid_start_receipt
 		candidate["paid_start_receipt"] = receipt
@@ -707,11 +714,11 @@ func _validate_candidate_shell(candidate: Dictionary, phase: String, scene: bool
 		if not candidate.spec is Dictionary: return _fail(&"invalid_paid_shell", "", {})
 		if not scene and (not candidate.paid_start_receipt is Dictionary or candidate.paid_start_receipt.is_empty()):
 			return _fail(&"invalid_paid_shell", "", {})
-		var valid := _BOARD_SCHEMA.validate_spec(candidate.spec)
+		var valid := _BOARD_SCHEMA.check_spec(candidate.spec)
 		if not valid.ok: return valid
-		if valid.value.spec.board_kind != "desktop": return _fail(&"invalid_board_kind", "", {})
-		width = int(valid.value.spec.width)
-		height = int(valid.value.spec.height)
+		if candidate.spec.board_kind != "desktop": return _fail(&"invalid_board_kind", "", {})
+		width = int(candidate.spec.width)
+		height = int(candidate.spec.height)
 	return _BOARD_SCHEMA.validate_shell({"flagged_indices": candidate.flagged_indices, "actions": candidate.actions}, width, height)
 
 
@@ -733,8 +740,8 @@ func has_settled_inspection() -> bool:
 static func inspection_board_sha256(wrapper: Dictionary) -> String:
 	if not wrapper.get("board") is Dictionary or (not wrapper.get("spec") is Dictionary and not wrapper.get("paid_start_receipt") is Dictionary): return ""
 	var normalized: Dictionary = _inspection_normalize(wrapper)
-	var checked := _BOARD_SCHEMA.validate_board(normalized.board)
-	if not checked.get("ok", false) or not bool(checked.value.board.terminal): return ""
+	var checked := _BOARD_SCHEMA.check_board(normalized.board)
+	if not checked.get("ok", false) or not bool(normalized.board.terminal): return ""
 	var emitted := _INSPECTION_JSON.stringify(normalized)
 	return str(emitted.value).sha256_text() if emitted.get("ok", false) else ""
 
@@ -846,20 +853,20 @@ func _validate_current_scene_board(snapshot: Dictionary) -> Dictionary:
 		return _validate_candidate_shell(snapshot.candidate, phase, true)
 	var slot: Dictionary = snapshot.board if snapshot.board is Dictionary else snapshot.candidate
 	if not slot.get("spec") is Dictionary: return _fail(&"invalid_current_board_spec", "", {})
-	var valid_spec := _BOARD_SCHEMA.validate_spec(slot.spec)
+	var valid_spec := _BOARD_SCHEMA.check_spec(slot.spec)
 	if not valid_spec.ok: return valid_spec
-	var spec: Dictionary = valid_spec.value.spec
+	var spec: Dictionary = slot.spec
 	if spec.board_kind != "desktop": return _fail(&"invalid_board_kind", "", {})
 	if snapshot.board is Dictionary:
 		var shape := _exact_keys(slot, ["board", "spec"], &"invalid_current_board_wrapper")
 		if not shape.ok: return shape
 		if not slot.board is Dictionary: return _fail(&"invalid_current_board_wrapper", "", {})
-		var board := _BOARD_SCHEMA.validate_board(slot.board)
+		var board := _BOARD_SCHEMA.check_board(slot.board)
 		if not board.ok: return board
-		if phase == _PHASE_SETTLING and not board.value.board.terminal:
+		if phase == _PHASE_SETTLING and not slot.board.terminal:
 			return _fail(&"settlement_requires_terminal_board", "", {})
-		var layout := {"schema_version": 1, "width": int(board.value.board.width), "height": int(board.value.board.height),
-			"mine_indices": board.value.board.mine_indices, "mine_count": int(board.value.board.mine_count)}
+		var layout := {"schema_version": 1, "width": int(slot.board.width), "height": int(slot.board.height),
+			"mine_indices": slot.board.mine_indices, "mine_count": int(slot.board.mine_count)}
 		return _BOARD_SCHEMA.validate_layout(layout, spec)
 	var keys: Array = ["spec", "frontier"] if phase == _PHASE_PREPARING else ["spec", "layout", "forced_cell", "proof_sha256"]
 	if slot.has("flagged_indices") or slot.has("actions"):

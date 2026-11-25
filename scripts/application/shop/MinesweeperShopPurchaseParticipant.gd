@@ -120,7 +120,7 @@ func _get_item_record(item_id: String, quantity: int) -> Dictionary:
 		return _fail(&"shop_quantity_exceeds_batch_cap", "", {})
 	return {"ok": true, "value": {"record": {
 		"item_id": item_id, "currency": str(item.currency), "price": int(item.price) * quantity,
-		"effect_ids": item.effect_ids.duplicate(true), "quantity": quantity,
+		"effect_ids": item.effect_ids.duplicate(), "quantity": quantity,
 		"max_purchases": int(item.get("max_purchases", 0)),
 	}}}
 
@@ -164,8 +164,8 @@ func quote(item_id: String, transaction_id: String, transaction_issuer_receipt: 
 	var derived_value: Dictionary = derived["value"]
 	var quote_record := {
 		"quote_id": str(derived_value["child_id"]),
-		"quote_id_provenance": (derived_value["provenance"] as Dictionary).duplicate(true),
-		"transaction_id": transaction_id, "transaction_issuer_receipt": transaction_issuer_receipt.duplicate(true),
+		"quote_id_provenance": derived_value["provenance"],
+		"transaction_id": transaction_id, "transaction_issuer_receipt": transaction_issuer_receipt.duplicate(),
 		"item_id": item_id, "currency": str(record["currency"]), "price": int(record["price"]),
 		"registry_version": registry_version, "request_fingerprint": request_fingerprint,
 	}
@@ -287,15 +287,15 @@ func prepare_purchase(request: Dictionary) -> Dictionary:
 			"snapshot_sha256": _canonical_sha256(source_snapshot)}
 
 	var recovery_payload := {
-		"source_kind": _ACTION_KIND, "action_receipt": receipt.duplicate(true),
+		"source_kind": _ACTION_KIND, "action_receipt": receipt,
 		"run_revision_before": int(live_state["run_revision"]),
 		"participant_snapshot_ids": {
 			"request_fingerprint": request_fingerprint, "item_id": item_id,
 			"currency": str(quote_record["currency"]), "price": int(quote_record["price"]),
-			"economy_candidate": economy_candidate.duplicate(true),
+			"economy_candidate": economy_candidate,
 		},
 	}
-	var action_receipt_for_handoff := receipt.duplicate(true)
+	var action_receipt_for_handoff := receipt.duplicate()
 	action_receipt_for_handoff["source_kind"] = receipt["action_kind"]
 	var handoff_prepared: Dictionary = _consequence_state_port.call(&"prepare_action_handoff",
 		action_receipt_for_handoff, int(live_state["run_revision"]), recovery_payload)
@@ -330,19 +330,17 @@ func prepare_purchase(request: Dictionary) -> Dictionary:
 		return consequence_committed
 
 	var result := {"ok": true, "code": &"shop_purchase_action_checkpointed", "value": {
-		"action_receipt": receipt.duplicate(true), "candidate": {"transaction_id": transaction_id},
-		"action_candidate": economy_candidate.duplicate(true),
-		"prepared_checkpoint_receipt": (checkpoint_value["checkpoint_receipt"] as Dictionary).duplicate(true),
+		"action_receipt": receipt, "candidate": {"transaction_id": transaction_id},
+		"action_candidate": economy_candidate,
+		"prepared_checkpoint_receipt": checkpoint_value["checkpoint_receipt"],
 	}, "receipt": {}}
 	entry["prepare_request_fingerprint"] = request_fingerprint
-	entry["prepare_result"] = result.duplicate(true)
-	entry["economy_candidate"] = economy_candidate.duplicate(true)
-	entry["action_receipt"] = receipt.duplicate(true)
+	entry["prepare_result"] = result
 	entry["action_candidate_sha256"] = action_candidate_sha256
 	entry["item_id"] = item_id
 	entry["causal_day_instance"] = str(live_state["causal_day_instance"])
 	_transactions[transaction_id] = entry
-	return result
+	return result.duplicate(true)
 
 
 func capture() -> Dictionary:
@@ -387,7 +385,8 @@ func commit(candidate: Dictionary) -> Dictionary:
 			"commit requires a transaction this participant itself prepared", {})
 	var entry: Dictionary = _transactions[transaction_id]
 
-	var economy_committed: Dictionary = _state_port.call(&"commit", entry["economy_candidate"])
+	var prepared: Dictionary = entry.prepare_result.value
+	var economy_committed: Dictionary = _state_port.call(&"commit", prepared.action_candidate)
 	if not economy_committed.get("ok", false):
 		return economy_committed
 
@@ -402,10 +401,10 @@ func commit(candidate: Dictionary) -> Dictionary:
 			return ledger_committed
 
 	var result := {"ok": true, "code": &"ok", "value": {
-		"action_receipt": (entry["action_receipt"] as Dictionary).duplicate(true),
+		"action_receipt": prepared.action_receipt,
 	}, "receipt": {}}
-	_committed_transactions[transaction_id] = {"candidate": candidate.duplicate(true), "result": result.duplicate(true)}
-	return result
+	_committed_transactions[transaction_id] = {"candidate": candidate.duplicate(true), "result": result}
+	return result.duplicate(true)
 
 
 func publish(publication: Dictionary) -> Dictionary:
@@ -424,9 +423,9 @@ func publish(publication: Dictionary) -> Dictionary:
 	var action_candidate_sha256 := ""
 	if _transactions.has(transaction_id):
 		action_candidate_sha256 = str((_transactions[transaction_id] as Dictionary).get("action_candidate_sha256", ""))
-	var ledger_publication := {"action_candidate_sha256": action_candidate_sha256, "action_receipt": receipt.duplicate(true)}
+	var ledger_publication := {"action_candidate_sha256": action_candidate_sha256, "action_receipt": receipt}
 	var recorded: Dictionary = _publication_ledger.call(&"record_before_emit", {
-		"kind": "action_source", "semantic_receipt": receipt.duplicate(true),
+		"kind": "action_source", "semantic_receipt": receipt,
 		"publication": ledger_publication, "publication_sha256": _canonical_sha256(ledger_publication),
 	})
 	if not recorded.get("ok", false):
@@ -457,7 +456,7 @@ func validate_recovery_action(action_candidate: Dictionary, action_receipt: Dict
 			return _fail(&"invalid_note_shop_candidate", "source day does not match action receipt", {})
 	var action_candidate_sha256 := _action_candidate_sha256_from_receipt(receipt)
 	return {"ok": true, "code": &"ok", "value": {"publication": {
-		"action_candidate_sha256": action_candidate_sha256, "action_receipt": receipt.duplicate(true),
+		"action_candidate_sha256": action_candidate_sha256, "action_receipt": receipt,
 	}}, "receipt": {}}
 
 
@@ -484,7 +483,7 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 	if _recovery_committed.has(transaction_id):
 		var recorded: Dictionary = _recovery_committed[transaction_id]
 		if recorded["action_candidate"] == action_candidate and recorded["action_receipt"] == receipt:
-			return (recorded["result"] as Dictionary).duplicate(true)
+			return _recovery_commit_result(receipt)
 		return _fail(&"action_receipt_conflict", "this transaction was already committed with different bytes", {})
 
 	if not _mutation_gate.is_internal_owner_active(_GATE_OWNER):
@@ -504,11 +503,12 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 		if not ledger_committed.get("ok", false):
 			return ledger_committed
 
-	var result := {"ok": true, "code": &"ok", "value": {"action_receipt": receipt.duplicate(true)}, "receipt": receipt.duplicate(true)}
-	_recovery_committed[transaction_id] = {
-		"action_candidate": action_candidate.duplicate(true), "action_receipt": receipt.duplicate(true), "result": result.duplicate(true),
-	}
-	return result
+	_recovery_committed[transaction_id] = {"action_candidate": action_candidate.duplicate(true), "action_receipt": receipt}
+	return _recovery_commit_result(receipt.duplicate(true))
+
+
+static func _recovery_commit_result(receipt: Dictionary) -> Dictionary:
+	return {"ok": true, "code": &"ok", "value": {"action_receipt": receipt}, "receipt": receipt.duplicate(true)}
 
 
 func publish_recovery_action(publication: Dictionary) -> Dictionary:
@@ -525,10 +525,10 @@ func publish_recovery_action(publication: Dictionary) -> Dictionary:
 		return validated
 	receipt = (validated["value"] as Dictionary)["receipt"]
 	var ledger_publication := {
-		"action_candidate_sha256": str(publication["action_candidate_sha256"]), "action_receipt": receipt.duplicate(true),
+		"action_candidate_sha256": str(publication["action_candidate_sha256"]), "action_receipt": receipt,
 	}
 	var recorded: Dictionary = _publication_ledger.call(&"record_before_emit", {
-		"kind": "action_source", "semantic_receipt": receipt.duplicate(true),
+		"kind": "action_source", "semantic_receipt": receipt,
 		"publication": ledger_publication, "publication_sha256": _canonical_sha256(ledger_publication),
 	})
 	if not recorded.get("ok", false):
@@ -539,7 +539,7 @@ func publish_recovery_action(publication: Dictionary) -> Dictionary:
 			var published: Dictionary = _state_port.publish(ledger_publication)
 			if not published.get("ok", false): return published
 
-	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": receipt.duplicate(true)}
+	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": receipt}
 
 
 func release_recovery_lease() -> Dictionary:
@@ -570,23 +570,21 @@ func _recognize_live_pending(pending: Dictionary, request_fingerprint: String, t
 		"grant_inventory_item_id": item_id if item_id in _CAPABILITY_ITEM_IDS else "",
 	}
 	if snapshot_ids.get("economy_candidate") is Dictionary:
-		economy_candidate = snapshot_ids.economy_candidate.duplicate(true)
+		economy_candidate = snapshot_ids.economy_candidate
 	var result := {"ok": true, "code": &"shop_purchase_action_checkpointed", "value": {
-		"action_receipt": (recovered_receipt as Dictionary).duplicate(true),
+		"action_receipt": recovered_receipt,
 		"candidate": {"transaction_id": transaction_id},
-		"action_candidate": economy_candidate.duplicate(true),
+		"action_candidate": economy_candidate,
 		"prepared_checkpoint_receipt": {},
 	}, "receipt": {}}
 	var entry: Dictionary = _transactions.get(transaction_id, {}) as Dictionary
 	entry["prepare_request_fingerprint"] = request_fingerprint
-	entry["prepare_result"] = result.duplicate(true)
-	entry["action_receipt"] = (recovered_receipt as Dictionary).duplicate(true)
+	entry["prepare_result"] = result
 	entry["action_candidate_sha256"] = _action_candidate_sha256_from_receipt(recovered_receipt)
-	entry["economy_candidate"] = economy_candidate
 	entry["item_id"] = item_id
 	entry["causal_day_instance"] = str(recovered_receipt.get("causal_day_instance", ""))
 	_transactions[transaction_id] = entry
-	return {"ok": true, "value": {"result": result}}
+	return {"ok": true, "value": {"result": result.duplicate(true)}}
 
 
 func _action_candidate_sha256_from_receipt(receipt: Dictionary) -> String:
@@ -626,11 +624,11 @@ func _build_action_receipt(transaction_id: String, transaction_issuer_receipt: D
 		"schema_version": 1, "action_kind": _ACTION_KIND, "run_id": str(facts["run_id"]),
 		"branch_id": str(facts["branch_id"]), "desktop_timeline_generation": int(facts["desktop_timeline_generation"]),
 		"causal_day_instance": str(facts["causal_day_instance"]), "day": int(facts["day"]),
-		"transaction_id": transaction_id, "transaction_issuer_receipt": transaction_issuer_receipt.duplicate(true),
+		"transaction_id": transaction_id, "transaction_issuer_receipt": transaction_issuer_receipt,
 		"source_commit_receipt_id": str(quote_record["quote_id"]),
-		"source_commit_receipt_provenance": (quote_record["quote_id_provenance"] as Dictionary).duplicate(true),
+		"source_commit_receipt_provenance": (quote_record["quote_id_provenance"] as Dictionary),
 		"condition_before": condition,
-		"condition_after": condition.duplicate() if condition_after.is_empty() else condition_after.duplicate(true),
+		"condition_after": condition if condition_after.is_empty() else condition_after,
 		"unlock_receipt_ids": [],
 	}
 	var action_candidate_sha256 := _canonical_sha256(receipt)
@@ -643,11 +641,11 @@ func _build_action_receipt(transaction_id: String, transaction_issuer_receipt: D
 		return derived
 	var derived_value: Dictionary = derived["value"]
 	var action_id := str(derived_value["child_id"])
-	var action_id_provenance: Dictionary = (derived_value["provenance"] as Dictionary).duplicate(true)
+	var action_id_provenance: Dictionary = (derived_value["provenance"] as Dictionary)
 	receipt["action_id"] = action_id
 	receipt["action_id_provenance"] = action_id_provenance
 	receipt["commit_receipt_id"] = action_id
-	receipt["commit_receipt_provenance"] = action_id_provenance.duplicate(true)
+	receipt["commit_receipt_provenance"] = action_id_provenance
 	var validated := _ACTION_RECEIPT.validate(receipt)
 	if not validated.get("ok", false):
 		return validated

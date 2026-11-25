@@ -308,7 +308,7 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
 	var schedule_view_after_sha256: Variant = null
 	profile_tick = _settlement_profile_phase("prepare", "condition_policy", profile_tick)
 	if is_departure:
-		var projected := _build_projected_board_candidate(source_kind, action_receipt, action_candidate)
+		var projected := _build_projected_board_candidate(source_kind, action_candidate)
 		if not projected.get("ok", false):
 			return projected
 		var projected_board_candidate: Dictionary = (projected["value"] as Dictionary)["board_candidate"]
@@ -459,7 +459,7 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 	var notification_intent: Variant = recovery_payload.get("notification_intent")
 
 	if is_departure and _board_fate_port.has_method("prepare_recovery_departure"):
-		var projected: Dictionary = _build_projected_board_candidate(source_kind, action_receipt, action_candidate)
+		var projected: Dictionary = _build_projected_board_candidate(source_kind, action_candidate)
 		if not projected.get("ok", false): return projected
 		var recovered_fate: Dictionary = _board_fate_port.prepare_recovery_departure(action_receipt,
 			projected.value.board_candidate, recovery_payload.board_candidate,
@@ -848,8 +848,7 @@ func resume_pending() -> Dictionary:
 
 
 
-func _build_projected_board_candidate(source_kind: String, action_receipt: Dictionary,
-		action_candidate: Dictionary) -> Dictionary:
+func _build_projected_board_candidate(source_kind: String, action_candidate: Dictionary) -> Dictionary:
 	if source_kind == "minesweeper_round":
 		if typeof(action_candidate.get("board_projection")) != TYPE_DICTIONARY:
 			return _fail(&"action_candidate_missing_board_projection",
@@ -858,7 +857,7 @@ func _build_projected_board_candidate(source_kind: String, action_receipt: Dicti
 	var captured: Dictionary = _board_fate_port.call(&"capture")
 	if not captured.get("ok", false):
 		return captured
-	return {"ok": true, "value": {"board_candidate": ((captured["value"] as Dictionary)["backup"] as Dictionary).duplicate(true)}}
+	return {"ok": true, "value": {"board_candidate": captured.value.backup}}
 
 
 func _build_admission_ready_payload(source_kind: String, action_receipt: Dictionary, action_candidate: Dictionary,

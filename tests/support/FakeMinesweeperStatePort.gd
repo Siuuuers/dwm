@@ -107,7 +107,6 @@ func prepare_complete(active_round: Dictionary, result: Dictionary, transaction_
 		"prepared_candidate": {"active_round": active_round, "result": result},
 		"prepared_domain_receipt": {"transaction_id": transaction_id, "round_id": active_round.get("round_id", ""), "checkpoint_id": ""},
 		"domain_events": [{"event_id": "round_completed", "round_id": active_round.get("round_id", "")}],
-		"checkpoint_input_template": {"snapshot_input": {}},
 	}}
 
 
@@ -120,11 +119,9 @@ func finalize_complete(prepared_completion: Dictionary, checkpoint_id: String) -
 	var receipt: Variant = (inner.get("prepared_domain_receipt", {}) as Dictionary).duplicate(true)
 	receipt["checkpoint_id"] = checkpoint_id
 	var events: Variant = (inner.get("domain_events", []) as Array).duplicate(true)
-	var post: Variant = (inner.get("checkpoint_input_template", {}) as Dictionary).duplicate(true)
-	post["checkpoint_id"] = checkpoint_id
 	return {"ok": true, "code": &"ok", "value": {
 		"candidate": candidate, "domain_receipt": receipt, "domain_events": events,
-		"post_result_checkpoint_inputs": post}}
+		"post_result_checkpoint_inputs": {"snapshot_input": {}, "checkpoint_id": checkpoint_id}}}
 
 
 func prepare_abort(active_round: Dictionary, reason: StringName, transaction_id: String) -> Dictionary:

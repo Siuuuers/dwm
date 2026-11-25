@@ -48,7 +48,7 @@ func pull(difficulty: String) -> Dictionary:
 	if not _pending_settlement_view.is_empty():
 		return settle_pending()
 	if not _pending_settlement_request.is_empty():
-		var retried: Dictionary = _owner.call(&"complete_round", _pending_settlement_request.duplicate(true))
+		var retried: Dictionary = _owner.call(&"complete_round", _pending_settlement_request)
 		if not retried.get("ok", false):
 			return _failure(&"minesweeper_settlement_refused", _projection)
 		_pending_settlement_request = {}
@@ -108,7 +108,7 @@ func dispatch(action: String, cell_index: int, expected_revision: int) -> Dictio
 	var request := {
 		"transaction_id": str(issued_value.token),
 		"transaction_issuer_receipt": issued_value.issuer_receipt,
-		"expected_identity": _identity.duplicate(true) if _identity is Dictionary else null,
+		"expected_identity": _identity,
 		"expected_revision": _revision,
 		"cell_index": cell_index,
 	}
@@ -191,6 +191,7 @@ func advance_preparation(expected_revision: int) -> Dictionary:
 	if expected_revision != _revision or context.revision != _revision:
 		return _failure(&"stale_minesweeper_presentation", _projection)
 	if context.action == "none": return {"ok": true, "advanced": false}
+	context = context.duplicate(true)
 	var current := _read_owner(_difficulty)
 	var checked := _read_preparation_context()
 	if not current.ok or not checked.get("ok", false) or checked.value != context \
@@ -217,7 +218,7 @@ func advance_preparation(expected_revision: int) -> Dictionary:
 		}
 		if context.action == "begin": _pending_preparation_request["difficulty_id"] = _difficulty
 		_pending_preparation_context = context
-	var result: Dictionary = _owner.call(method, _pending_preparation_request.duplicate(true))
+	var result: Dictionary = _owner.call(method, _pending_preparation_request)
 	if not result.get("ok", false): return _failure(&"minesweeper_preparation_refused", _projection)
 	_pending_preparation_request = {}
 	_pending_preparation_context = {}
@@ -239,7 +240,7 @@ func _read_preparation_context() -> Dictionary:
 	if value.action not in ["none", "begin", "slice"] or not value.difficulty_id is String \
 			or not value.revision is int or (value.identity != null and not value.identity is Dictionary):
 		return {"ok": false}
-	return _success(value.duplicate(true))
+	return result
 
 
 func get_configuration(projection: Dictionary) -> Dictionary:
@@ -320,7 +321,7 @@ func _configure_board(method: StringName, difficulty: String, expected_revision:
 				"expected_identity": _configuration.identity,
 				"expected_revision": _revision, "difficulty_id": difficulty,
 			}}
-	var result: Dictionary = _owner.call(method, _pending_configuration.request.duplicate(true))
+	var result: Dictionary = _owner.call(method, _pending_configuration.request)
 	if result.get("ok", false): _pending_configuration = {}
 	var after := _read_owner(difficulty if result.get("ok", false) else _difficulty)
 	if not after.ok:
@@ -352,7 +353,10 @@ func _read_configuration(snapshot: Dictionary, difficulty: String) -> Dictionary
 		if not tier is String or tier not in ["beginner", "intermediate", "expert"] or tier in seen:
 			return {"ok": false}
 		seen.append(tier)
-	return _success(value.duplicate(true))
+	var configuration := value.duplicate()
+	configuration.identity = snapshot.identity
+	configuration.difficulty_enabled = value.difficulty_enabled.duplicate()
+	return _success(configuration)
 
 
 func _settle_terminal(owner_view: Dictionary) -> Dictionary:
@@ -389,7 +393,7 @@ func _settle_terminal(owner_view: Dictionary) -> Dictionary:
 			"expected_revision": revision,
 		}
 
-	var completed: Dictionary = _owner.call(&"complete_round", _pending_settlement_request.duplicate(true))
+	var completed: Dictionary = _owner.call(&"complete_round", _pending_settlement_request)
 	if not completed.get("ok", false):
 		return completed
 	_pending_settlement_request = {}
@@ -459,7 +463,7 @@ func set_foreground(foreground: bool, expected_revision: int) -> Dictionary:
 		return _failure(&"minesweeper_command_refused", _projection)
 	var result: Dictionary = _owner.call(method, {
 		"transaction_id": str(value.token), "transaction_issuer_receipt": value.issuer_receipt,
-		"expected_identity": (_identity as Dictionary).duplicate(true), "expected_revision": _revision,
+		"expected_identity": _identity, "expected_revision": _revision,
 	})
 	var after := _read_owner(_difficulty)
 	if not after.ok:
@@ -527,7 +531,7 @@ func _read_owner(difficulty: String, include_routine_context: bool = false) -> D
 		routine_context = derived.value
 	return {"ok": true, "value": {
 		"difficulty": difficulty, "phase": str(snapshot.phase), "active_board_token": active_board_token,
-		"identity": identity.duplicate(true) if identity is Dictionary else null,
+		"identity": identity.duplicate() if identity is Dictionary else null,
 		"revision": int(snapshot.revision), "projection": projected.value,
 		"terminal_foresight": terminal_foresight, "configuration": configuration.value,
 		"routine_context": routine_context,

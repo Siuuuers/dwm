@@ -63,7 +63,7 @@ func configure_attempt_history(gate: Object) -> Dictionary:
 		return _fail(&"invalid_dating_attempt_gate")
 	for method: String in ["get_dating_attempt", "prepare_dating_attempt", "commit_dating_attempt", "prepare_dating_continuation", "has_completed_ending"]:
 		if not _profile.has_method(method): return _fail(&"invalid_dating_attempt_profile")
-	for method: String in ["capture_run_lifecycle", "capture_run_snapshot_input", "prepare_dating_challenge_effect", "apply_dating_challenge_effect_receipt"]:
+	for method: String in ["capture_run_lifecycle", "prepare_dating_challenge_effect", "apply_dating_challenge_effect_receipt"]:
 		if not _game_state.has_method(method): return _fail(&"invalid_dating_attempt_state")
 	if _attempt_gate != null and _attempt_gate != gate: return _fail(&"dating_attempt_gate_conflict")
 	_attempt_gate = gate
@@ -388,26 +388,26 @@ func _rollback_run_preserving_retry(backup: Dictionary) -> Dictionary:
 
 func reconcile_restore_silent(restored_snapshot: Dictionary) -> Dictionary:
 	if _attempt_gate == null: return _ok({})
-	var snapshot: Dictionary = _game_state.capture_run_snapshot_input()
-	var route_context: Dictionary = snapshot.gameplay.get("route_context", {})
-	var stored: Dictionary = route_context.get("active_dating_challenge", {})
+	var captured: Dictionary = _game_state.capture_dating_challenge_state()
+	if not captured.ok: return captured
+	var stored: Dictionary = captured.value
 	if stored.get("schema_version") == 4:
 		if not _valid_record(stored, {}): return _fail(&"invalid_restored_scene_challenge")
 		_first_cell_index = -1
-		_record = stored.duplicate(true)
+		_record = stored
 		_pending_checkpoint = {}
 		_routine_pending = false
 		_clear_history_state()
 		_admitted_command = {}
-		_history_reference = route_context.get("dating_active_attempt_ref", {}).duplicate(true)
+		_history_reference = _game_state.route_context.get("dating_active_attempt_ref", {}).duplicate(true)
 		_scene_first_reveal_cell = -1
 		return _ok({})
 	var active_dating := str(restored_snapshot.get("route_id", "")) == "dating" and not stored.is_empty() \
-		and int(stored.get("context", {}).get("day", 0)) == int(snapshot.lifecycle.day)
+		and int(stored.get("context", {}).get("day", 0)) == int(_attempt_identity().day)
 	if active_dating:
 		if not _valid_record(stored, {}): return _fail(&"invalid_restored_dating_challenge")
 		var previous_record := _record
-		_record = stored.duplicate(true)
+		_record = stored
 		var frozen := _validate_retained_frozen_contexts()
 		_record = previous_record
 		if not frozen.ok: return frozen
@@ -419,7 +419,7 @@ func reconcile_restore_silent(restored_snapshot: Dictionary) -> Dictionary:
 	_routine_pending = false
 	_clear_history_state()
 	if not active_dating: return _ok({})
-	_record = stored.duplicate(true)
+	_record = stored
 	if stored.phase in ["pre_challenge", "preparing"]: return _ok({})
 	return _restore_attempt(stored, true)
 
@@ -427,8 +427,8 @@ func _attempt_identity() -> Dictionary:
 	return _game_state.capture_run_lifecycle()
 
 func _rebind_record(record: Dictionary, command: Dictionary) -> Dictionary:
-	if record.get("schema_version") == 4: return record.duplicate(true)
-	var rebound := record.duplicate(true)
+	if record.get("schema_version") == 4: return record
+	var rebound := record.duplicate()
 	if ATTEMPTS.semantic_slot(record.context) == ATTEMPTS.semantic_slot(command.context):
 		rebound["context"] = command.context.duplicate(true)
 	rebound["completion_transaction_id"] = str(command.completion_transaction_id)
@@ -1206,8 +1206,8 @@ func _make_spec(host: String, scene_dimensions: Dictionary = {}) -> Dictionary:
 		"debug_nonce_receipt_id":values.debug.receipt_id,"explosion_stream_id":"minesweeper_explosion_v1",
 		"explosion_nonce":values.explosion.token,"explosion_nonce_receipt_id":values.explosion.receipt_id,
 		"generator_version":"dwm_generator_v1","verifier_version":"visible_deduction_v1"}
-	var valid: Dictionary=SCHEMA.validate_spec(spec)
-	return _ok(valid.value.spec) if valid.get("ok",false) else valid
+	var valid := SCHEMA.check_spec(spec)
+	return _ok(spec) if valid.ok else valid
 
 func _view() -> Dictionary:
 	var phase: String = "checkpoint_retry" if not _pending_checkpoint.is_empty() else _record.phase
@@ -1243,9 +1243,8 @@ func _project_board() -> Variant:
 			estimate = int(_record.envelope.prepared_layout.mine_count)
 		return {"width": _record.spec.width, "height": _record.spec.height, "revision": _revision(),
 			"mine_estimate": estimate, "terminal": false, "custody": _record.phase not in ["challenge", "ready", "active"], "cells": cells}
-	var checked: Dictionary=SCHEMA.validate_board(_record.board)
-	if not checked.get("ok",false): return null
-	var board: Dictionary=checked.value.board
+	var board: Dictionary = _record.board
+	if not SCHEMA.check_board(board).ok: return null
 	var cells: Array=[]
 	var inspectable: bool = not bool(board.terminal)
 	for index in int(board.width)*int(board.height):
@@ -1324,7 +1323,7 @@ func _valid_record(value: Dictionary, command: Dictionary) -> bool:
 	var dimensions: Dictionary = CATALOG.lookup(expected_host)
 	if expected_host == "canonical_pair" and value.pair_form not in PROFILE_SCHEMA.PAIR_FORMS: return false
 	if expected_host == "canonical_solo" and value.pair_form != "": return false
-	if value.host != expected_host or not SCHEMA.validate_spec(value.spec).get("ok", false) \
+	if value.host != expected_host or not SCHEMA.check_spec(value.spec).get("ok", false) \
 			or value.spec.board_kind != expected_kind or value.spec.difficulty_id != expected_host \
 			or value.spec.width != dimensions.value.width or value.spec.height != dimensions.value.height \
 			or value.spec.base_mine_count != dimensions.value.base_mine_count: return false
@@ -1336,7 +1335,7 @@ func _valid_record(value: Dictionary, command: Dictionary) -> bool:
 		return value.phase in ["pre_challenge", "preparing", "challenge"] and value.outcome == null \
 			and value.relationship_outcome == null and value.mine_dispositions.is_empty() \
 			and value.perfect_reasons.is_empty() and value.applied_result.is_empty()
-	if not value.board is Dictionary or not SCHEMA.validate_board(value.board).get("ok", false): return false
+	if not value.board is Dictionary or not SCHEMA.check_board(value.board).get("ok", false): return false
 	var board: Dictionary = value.board
 	if board.width != value.spec.width or board.height != value.spec.height \
 			or board.mine_count < value.spec.base_mine_count or board.mine_count > value.spec.requested_mine_count: return false
@@ -1461,7 +1460,7 @@ func _begin_scene(command: Dictionary) -> Dictionary:
 	var stored: Dictionary = captured.value
 	if not stored.is_empty() and not _valid_record(stored, command):
 		return _fail(&"scene_challenge_record_conflict")
-	_record = stored.duplicate(true)
+	_record = stored
 	_clear_history_state()
 	_history_reference = _game_state.route_context.get("dating_active_attempt_ref", {}).duplicate(true)
 	_scene_first_reveal_cell = -1
@@ -1503,7 +1502,7 @@ func _scene_board_profile() -> Dictionary:
 	if selected.is_empty() or selected.difficulty_id not in ["canonical_solo", "canonical_pair"] \
 			or selected.capability_policy_id != "owned_inventory_v1":
 		return _fail(&"scene_board_profile_unsupported")
-	return _ok(selected.duplicate(true))
+	return _ok(selected)
 
 func _scene_unstarted_board(selected: Dictionary) -> Dictionary:
 	var owned: Dictionary = CAPABILITIES.resolve_owned(_game_state.inventory)
@@ -1614,7 +1613,7 @@ func _scene_prepare() -> Dictionary:
 		_record.phase = "preparation_failed" if frontier.status == "exhausted" else "preparing"
 	elif frontier.status == "certified":
 		var layout := {"schema_version": 1, "width": int(_record.spec.width), "height": int(_record.spec.height),
-			"mine_indices": frontier.candidate_state.mine_indices.duplicate(), "mine_count": int(frontier.candidate_state.mine_count)}
+			"mine_indices": frontier.candidate_state.mine_indices, "mine_count": int(frontier.candidate_state.mine_count)}
 		_record.envelope.prepared_layout = layout
 		_record.envelope.forced_cell = int(frontier.forced_cell)
 		_record.envelope.special_cell = ENVELOPE.special_cell(_record.spec, layout)

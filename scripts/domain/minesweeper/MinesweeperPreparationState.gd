@@ -84,6 +84,12 @@ static func check(state: Dictionary) -> Dictionary:
 
 
 static func advance(current: Dictionary, slice_result: Dictionary) -> Dictionary:
+	var checked := check_advance(current, slice_result)
+	if not checked.ok: return checked
+	return {"ok": true, "code": &"ok", "value": {"preparation": slice_result.value.preparation.duplicate(true)}, "receipt": {}}
+
+
+static func check_advance(current: Dictionary, slice_result: Dictionary) -> Dictionary:
 	var current_check := check(current)
 	if not current_check.get("ok", false):
 		return current_check
@@ -97,10 +103,10 @@ static func advance(current: Dictionary, slice_result: Dictionary) -> Dictionary
 	if typeof(slice_value) != TYPE_DICTIONARY or not (slice_value as Dictionary).has("preparation"):
 		return _fail(&"preparation_slice_result_shape_invalid",
 			"slice_result.value.preparation is required", {})
-	var next_check := validate((slice_value as Dictionary)["preparation"])
+	var next_state: Dictionary = slice_value["preparation"]
+	var next_check := check(next_state)
 	if not next_check.get("ok", false):
 		return next_check
-	var next_state: Dictionary = (next_check["value"] as Dictionary)["preparation"]
 
 	if next_state["spec"] != current["spec"]:
 		return _fail(&"preparation_spec_drifted", "spec must not change across a slice", {})
@@ -119,7 +125,7 @@ static func advance(current: Dictionary, slice_result: Dictionary) -> Dictionary
 			and next_status != _KERNEL.STATUS_EXHAUSTED:
 		return _fail(&"preparation_status_invalid", "illegal status transition", {})
 
-	return {"ok": true, "code": &"ok", "value": {"preparation": next_state}, "receipt": {}}
+	return {"ok": true}
 
 
 

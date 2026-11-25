@@ -39,7 +39,7 @@ func configure(game_state: Object, identity_issuer: Object, desktop_identity_con
 		return {"ok": true, "code": &"ok", "value": {"already_configured": true}, "receipt": {}}
 	_game_state = game_state
 	_identity_issuer = identity_issuer
-	_desktop_identity_context = desktop_identity_context.duplicate(true) if desktop_identity_context is Dictionary else desktop_identity_context
+	_desktop_identity_context = desktop_identity_context.duplicate() if desktop_identity_context is Dictionary else desktop_identity_context
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
@@ -169,11 +169,11 @@ func prepare_spec(difficulty_id: String, transaction_id: String,
 		"explosion_nonce_receipt_id": explosion_nonce["value"]["receipt_id"],
 		"generator_version": "dwm_generator_v1", "verifier_version": "visible_deduction_v1",
 	}
-	var validated := _BOARD_SCHEMA.validate_spec(spec)
+	var validated := _BOARD_SCHEMA.check_spec(spec)
 	if not validated.get("ok", false):
 		return validated
 	return {"ok": true, "code": &"ok",
-		"value": {"identity": identity, "spec": (validated["value"] as Dictionary)["spec"]}, "receipt": {}}
+		"value": {"identity": identity, "spec": spec}, "receipt": {}}
 
 
 func prepare_first_reveal(board_candidate: Dictionary, transaction_id: String,
@@ -217,15 +217,15 @@ func prepare_first_reveal(board_candidate: Dictionary, transaction_id: String,
 	var receipt := {
 		"receipt_id": str(derived_value["child_id"]),
 		"receipt_provenance": derived_value["provenance"],
-		"transaction_id": transaction_id, "transaction_issuer_receipt": transaction_issuer_receipt,
-		"identity": board_candidate["identity"],
+		"transaction_id": transaction_id, "transaction_issuer_receipt": transaction_issuer_receipt.duplicate(),
+		"identity": board_candidate["identity"].duplicate(),
 		"difficulty_id": str(board_candidate["difficulty_id"]), "first_cell": int(board_candidate["cell_index"]),
 		"board_revision": int(board["revision"]), "rounds_before": rounds_left, "rounds_after": rounds_left - 1,
 		"layout_sha256": layout_sha256,
 		"proof_sha256": board_candidate.get("proof_sha256", null), "checkpoint_id": expected_checkpoint_id,
 	}
 	return {"ok": true, "code": &"ok", "value": {
-		"run_candidate": run_candidate, "receipt": receipt.duplicate(true),
+		"run_candidate": run_candidate, "receipt": receipt,
 		"snapshot_input": {"transaction_id": transaction_id, "run_id": str(facts["run_id"])},
 		"publication": {"transaction_id": transaction_id, "receipt": receipt.duplicate(true)},
 	}, "receipt": {}}

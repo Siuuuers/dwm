@@ -1,6 +1,6 @@
 extends RefCounted
 
-const COPY := {
+const BY_LOCALE := {
 	"en": {
 		"rules": "Rules", "assignments": "Assignments", "return": "Return",
 		"claimed": "Claimed", "unclaimed": "Unclaimed",
@@ -22,6 +22,3 @@ const COPY := {
 	"ja": {"rules": "ルール", "assignments": "課題", "return": "戻る", "claimed": "受取済み", "unclaimed": "未受取", "facts": ["開く操作で、閉じたマスを開きます。", "旗の操作で、閉じたマスに旗を立てたり外したりします。", "開いた数字で「開く」を使うと、隣の旗の数が数字と同じなら周囲も開きます。", "ドラッグで盤面を移動します。マスは操作しません。"], "requirements": ["初級をクリア", "中級をクリア", "上級をクリア", "旗なしでクリア", "先読みでクリア", "パーフェクト — 初級", "パーフェクト — 中級", "パーフェクト — 上級", "全3難度をクリア"]},
 	"ko": {"rules": "규칙", "assignments": "과제", "return": "돌아가기", "claimed": "수령함", "unclaimed": "미수령", "facts": ["열기로 닫힌 칸을 열어요.", "깃발로 닫힌 칸에 깃발을 세우거나 제거해요.", "열린 숫자에서 열기: 주변 깃발 수가 숫자와 같으면 이웃 칸도 열려요.", "드래그는 보드만 이동하며 칸을 조작하지 않아요."], "requirements": ["초급 완료", "중급 완료", "고급 완료", "깃발 없이 완료", "예지로 완료", "완벽 — 초급", "완벽 — 중급", "완벽 — 고급", "세 난도 모두 완료"]},
 }
-
-static func get_copy(locale: String) -> Dictionary:
-	return COPY.get(locale.replace("_", "-"), {}).duplicate(true)

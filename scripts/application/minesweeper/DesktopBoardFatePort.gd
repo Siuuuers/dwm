@@ -136,7 +136,7 @@ func prepare_projected_causal_departure(request: Dictionary) -> Dictionary:
 		return _fail(&"board_fate_projection_hash_mismatch",
 			"projected_board_candidate_sha256 does not match the canonical projected candidate", {})
 
-	var shape_valid := _BOARD_STATE_SCRIPT.new().prepare_restore(projected_board_candidate)
+	var shape_valid := _BOARD_STATE_SCRIPT.new().check_snapshot(projected_board_candidate)
 	if not shape_valid.get("ok", false):
 		return _fail(&"board_fate_projection_invalid",
 			"projected_board_candidate is not a valid board snapshot", shape_valid.get("details", {}))
@@ -256,7 +256,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 	if not committed.get("ok", false):
 		return committed
 
-	var result := {"ok": true, "code": &"ok", "value": {"board_candidate": candidate.duplicate(true)},
+	var result := {"ok": true, "code": &"ok", "value": {"board_candidate": recorded.result.value.board_candidate},
 		"receipt": board_fate_receipt}
 	_committed[command_id] = result
 	return result.duplicate(true)
@@ -291,7 +291,7 @@ func publish(publication: Dictionary) -> Dictionary:
 		return _fail(&"board_fate_conflict", "the current board no longer equals the committed candidate", {})
 
 	var ledger_publication := {
-		"board_candidate": board_candidate.duplicate(true), "board_fate_receipt": board_fate_receipt.duplicate(true),
+		"board_candidate": live, "board_fate_receipt": board_fate_receipt.duplicate(true),
 	}
 	var recorded: Dictionary = _publication_ledger.call(&"record_before_emit", {
 		"kind": "board_fate", "semantic_receipt": board_fate_receipt.duplicate(true),
@@ -374,7 +374,7 @@ func _finish_prepare(request: Dictionary, command_id: String, base_snapshot: Dic
 
 	var board_fate_receipt := {
 		"receipt_id": str(derived_value["child_id"]),
-		"receipt_provenance": (derived_value["provenance"] as Dictionary).duplicate(true),
+		"receipt_provenance": derived_value["provenance"],
 		"command_id": command_id,
 		"command_issuer_receipt": (request["command_issuer_receipt"] as Dictionary).duplicate(true),
 		"board_identity": board_identity, "board_revision": board_revision,
@@ -386,7 +386,12 @@ func _finish_prepare(request: Dictionary, command_id: String, base_snapshot: Dic
 
 	var board_candidate: Dictionary
 	if fate == &"none":
-		board_candidate = _BOARD_STATE_SCRIPT.dismissed_inspection_snapshot(base_snapshot) if str(request.get("reason", "")) == "schedule_done" and _BOARD_STATE_SCRIPT.is_settled_inspection(base_snapshot) else base_snapshot.duplicate(true)
+		if source_action_receipt != null:
+			board_candidate = base_snapshot.duplicate(true)
+		elif _BOARD_STATE_SCRIPT.is_settled_inspection(base_snapshot):
+			board_candidate = _BOARD_STATE_SCRIPT.dismissed_inspection_snapshot(base_snapshot)
+		else:
+			board_candidate = base_snapshot
 	else:
 		board_candidate = _build_departed_snapshot(base_snapshot, str(board_fate_receipt["receipt_id"]))
 
