@@ -32,8 +32,9 @@ class NewAccOwner extends RefCounted:
 
 class StartupOwner extends Node:
 	signal startup_failed()
-	func get_startup_state() -> Dictionary:
-		return {"ready":false,"fatal_result":{"ok":false,"code":"fixture_unavailable"}}
+	var title_ready := false
+	var runtime_ready := false
+	var startup_has_failed := true
 
 var _view: SubViewport
 var _menu: Control

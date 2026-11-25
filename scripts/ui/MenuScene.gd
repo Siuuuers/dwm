@@ -107,7 +107,7 @@ func _ready() -> void:
 	if startup_owner == null: startup_owner = get_node_or_null("/root/ApplicationBootstrap")
 	if startup_owner != null:
 		startup_owner.startup_failed.connect(_show_startup_unavailable, CONNECT_DEFERRED)
-		if not startup_owner.get_startup_state().fatal_result.is_empty():
+		if startup_owner.startup_has_failed:
 			_show_startup_unavailable.call_deferred()
 	_start_title_music.call_deferred()
 	var frame := get_tree().process_frame if DisplayServer.get_name() == "headless" else RenderingServer.frame_post_draw
@@ -133,16 +133,14 @@ func _title_request_is_current(source_id: int) -> bool:
 	if scene == null: return source_id == 0
 	return scene.get_instance_id() == source_id and not scene.is_queued_for_deletion()
 
-func _destination_runtime_ready(destination: String, startup: Dictionary) -> bool:
-	return destination == "settings" or not startup.get("title_ready", false) or startup.get("ready", false)
+func _destination_runtime_ready(destination: String) -> bool:
+	return destination == "settings" or startup_owner == null or not startup_owner.title_ready or startup_owner.runtime_ready
 
 func _prepare_title_destination(destination: String) -> bool:
 	if not _title_source_alive() or not _can_leave_login(): return false
 	var loader := get_node("/root/StartupLoader")
 	var paths: Array = TITLE_DESTINATIONS[destination]
-	if loader.resources_ready(paths):
-		var startup: Dictionary = startup_owner.get_startup_state() if startup_owner != null and destination != "settings" else {}
-		if _destination_runtime_ready(destination, startup): return true
+	if loader.resources_ready(paths) and _destination_runtime_ready(destination): return true
 	if not _begin_title_transition(): return false
 	_pending_destination = destination
 	var source_id := _current_scene_id()
@@ -163,9 +161,8 @@ func _prepare_title_destination(destination: String) -> bool:
 	loader.prioritize_destination(destination)
 	loader.queue_resources(paths, true)
 	while true:
-		var startup: Dictionary = startup_owner.get_startup_state() if startup_owner != null else {}
-		if loader.resources_ready(paths) and _destination_runtime_ready(destination, startup): break
-		if not startup.get("fatal_result", {}).is_empty() or loader.resources_failed(paths):
+		if loader.resources_ready(paths) and _destination_runtime_ready(destination): break
+		if (startup_owner != null and startup_owner.startup_has_failed) or loader.resources_failed(paths):
 			_pending_destination = ""
 			_end_title_transition()
 			_show_startup_unavailable()
@@ -365,7 +362,7 @@ func _on_log_in_pressed() -> void:
 		_end_title_transition()
 		return
 	var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
-	if bootstrap == null or not bootstrap.get_startup_state().get("ready", false):
+	if bootstrap == null or not bootstrap.runtime_ready:
 		_end_title_transition()
 		_show_login_unavailable()
 		return
@@ -593,7 +590,7 @@ func _build_login_shell() -> void:
 		if profile.has_signal("profile_reset"):
 			profile.profile_reset.connect(_on_profile_reset, CONNECT_DEFERRED)
 	var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
-	if bootstrap != null and not bootstrap.get_startup_state().get("title_ready", false):
+	if bootstrap != null and not bootstrap.title_ready:
 		bootstrap.application_ready.connect(_refresh_login_shell)
 	_refresh_login_shell()
 

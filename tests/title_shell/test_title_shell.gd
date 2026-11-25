@@ -45,10 +45,11 @@ class ResourceOwner extends Node:
 		return resources[path]
 
 class StartupOwner extends Node:
+	signal startup_failed()
 	signal application_ready()
 	var title_ready := true
-	func get_startup_state() -> Dictionary:
-		return {"title_ready": title_ready, "ready": false}
+	var runtime_ready := false
+	var startup_has_failed := false
 
 class SaveCounter extends Node:
 	var calls := 0

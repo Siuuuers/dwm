@@ -18,8 +18,10 @@ class Profile extends Node:
 class StartupOwner extends Node:
 	signal startup_failed()
 	var fatal_result: Dictionary = {}
-	func get_startup_state() -> Dictionary:
-		return {"ready": false, "fatal_result": fatal_result}
+	var title_ready := false
+	var runtime_ready := false
+	var startup_has_failed: bool:
+		get: return not fatal_result.is_empty()
 
 
 class SaveCounter extends RefCounted:

@@ -38,7 +38,8 @@ class StartupFixture extends Node:
 	signal application_ready()
 	var available := false
 	var configured_hosts := 0
-	func get_startup_state() -> Dictionary: return {"ready":available}
+	var runtime_ready: bool:
+		get: return available
 	func configure_contacts_desktop(_desktop: Control) -> Dictionary:
 		configured_hosts += 1
 		return {"ok":true}

@@ -148,6 +148,13 @@ var _retained_minesweeper_generation_port: RefCounted = null
 var _retained_game_state_desktop_board_port: RefCounted = null
 var _retained_save_manager_desktop_board_port: RefCounted = null
 var _desktop_identity_provider := Callable()
+var title_ready: bool:
+	get: return _state.title_ready
+var runtime_ready: bool:
+	get: return _state.ready
+var startup_has_failed: bool:
+	get: return not _state.fatal_result.is_empty()
+
 var _state := {
 	"started": false, "ready": false, "title_ready": false, "mode": &"",
 	"completed_stages": [], "planned_blockers": [], "fatal_result": {}, "failed_stage": null,
