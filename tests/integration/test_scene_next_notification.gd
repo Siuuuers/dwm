@@ -40,7 +40,7 @@ func test_v4_physical_admission_preserves_owner_checks_and_saved_bytes() -> void
 	var completed: Dictionary = session.prepare_marker_next(later.frontier, func(_variant: Dictionary) -> bool: return false)
 	assert_true(completed.ok, str(completed))
 	if not completed.ok: return
-	var states: Array = [OP.without_operation(source), source, marker,
+	var states: Array = [OP.without_operation_view(source), source, marker,
 		OP.project(next.value, "source").value, later, OP.project(completed.value, "destination").value]
 	for reading: Dictionary in states:
 		var snapshot: Dictionary = FIXTURE.BASE.snapshot()

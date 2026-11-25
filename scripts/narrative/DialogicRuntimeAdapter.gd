@@ -239,14 +239,16 @@ func _install_scene_control(session: RefCounted, reading: Dictionary,
 	var traversal := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
 	if typeof(reading.get("schema_version")) != TYPE_INT or reading.schema_version != 5:
 		return _fail(&"scene_control_candidate_invalid", "Reading5 destination required")
-	var retained := traversal.without_operation(source)
+	var retained := traversal.without_operation_view(source)
 	retained.boundary = "control"
 	retained.program_index += 1
 	retained.frontier = {}
+	retained.frontier.make_read_only()
+	retained.make_read_only()
 	if not traversal._same(reading, retained):
 		return _fail(&"scene_control_candidate_invalid", "exact immediate destination required")
 	var candidate_ledger: NarrativeCaptionLedger = session.ledger
-	var checked: Dictionary = session.validate_saved(retained.duplicate(true), source.entry_id)
+	var checked: Dictionary = session.validate_saved(retained, source.entry_id)
 	if not checked.ok: return checked
 	var captured: Dictionary = session.capture({})
 	if not captured.ok or not traversal._same(captured.get("value"), retained):
@@ -267,7 +269,6 @@ func _install_scene_control(session: RefCounted, reading: Dictionary,
 	_caption_ledger = candidate_ledger
 	_marker_hold.ledger = candidate_ledger
 	_marker_hold.live_history = candidate_ledger.fork_live()
-	FrozenPresentationContext._freeze(retained)
 	_scene_control_restore = {"session": session, "state": session._fork_scene_live(), "reading": retained,
 		"marker": marker, "native_index": control_native_index}
 	var adopted := capture_scene_control_position(session)
