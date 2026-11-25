@@ -153,7 +153,7 @@ func _scene_source_boundary(session: RefCounted, allow_suspended_read: bool = fa
 	if not native is DialogicLabelEvent or native.name != marker.label:
 		return _fail(&"scene_source_boundary_invalid", "")
 	return {"ok": true, "value": {"frontier": frontier.value,
-		"reading": saved.value, "marker": marker.duplicate(true), "native_index": native_index}}
+		"reading": saved.value, "marker": marker, "native_index": native_index}}
 
 func install_scene_target(session: RefCounted, checkpoint: Dictionary, target: Dictionary,
 		source_token: RefCounted = null) -> Dictionary:
@@ -237,14 +237,13 @@ func _install_scene_control(session: RefCounted, reading: Dictionary,
 			or session.ledger == _caption_ledger:
 		return _fail(&"scene_control_source_invalid", "separate immediate playable candidate required")
 	var traversal := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
-	var retained: Dictionary = reading.duplicate(true)
-	if typeof(retained.get("schema_version")) != TYPE_INT or retained.schema_version != 5:
+	if typeof(reading.get("schema_version")) != TYPE_INT or reading.schema_version != 5:
 		return _fail(&"scene_control_candidate_invalid", "Reading5 destination required")
-	var expected := traversal.without_operation(source)
-	expected.boundary = "control"
-	expected.program_index += 1
-	expected.frontier = {}
-	if not traversal._same(retained, expected):
+	var retained := traversal.without_operation(source)
+	retained.boundary = "control"
+	retained.program_index += 1
+	retained.frontier = {}
+	if not traversal._same(reading, retained):
 		return _fail(&"scene_control_candidate_invalid", "exact immediate destination required")
 	var candidate_ledger: NarrativeCaptionLedger = session.ledger
 	var checked: Dictionary = session.validate_saved(retained.duplicate(true), source.entry_id)
@@ -1222,7 +1221,7 @@ func apply_reading_seek(plan: Dictionary, destination_ledger: NarrativeCaptionLe
 	_prepared_reading_seek = {}
 	_caption_seek_frontier = destination_frontier.duplicate(true)
 	_caption_seek_queued = false
-	_caption_seek_result = {"ok": true, "value": {"frontier": destination_frontier.duplicate(true),
+	_caption_seek_result = {"ok": true, "value": {"frontier": _caption_seek_frontier,
 		"terminal": bool(plan.terminal)}}
 	_dialogic.handle_event(int(native.value.target_index))
 	return {"ok": true, "value": {"pending": true}}
@@ -1361,7 +1360,7 @@ func start_reading_frontier(path: String, frontier: Dictionary, entry_label: Str
 	var resolved := _resolve_reading_line(path, _caption_entry if entry_label.is_empty() else entry_label,
 		frontier.line_id)
 	if not resolved.ok: return resolved
-	_caption_restore_frontier = frontier.duplicate(true)
+	_caption_restore_frontier = frontier.duplicate()
 	_caption_restore_queued = false
 	var started := start_timeline(path, resolved.value)
 	if not started.ok:
@@ -1420,7 +1419,7 @@ func _reading_text_matches(event: DialogicTextEvent, expected_text: String) -> b
 func _finish_reading_restore(request_id: String, event: DialogicTextEvent) -> void:
 	if not is_reading_frontier_restoring() or request_id != _request_id \
 			or not _caption_source_is_current() or event != _current_skip_text(true): return
-	var expected := _caption_restore_frontier.duplicate(true)
+	var expected := _caption_restore_frontier
 	var revealed := {"ok": true} if event.state == DialogicTextEvent.States.DONE else reveal_current_line(true)
 	if not revealed.ok or not _caption_source_is_current() or event != _current_skip_text(true) \
 			or event.state != DialogicTextEvent.States.DONE:
@@ -1449,7 +1448,7 @@ func _finish_reading_restore(request_id: String, event: DialogicTextEvent) -> vo
 			_fail_reading_restore(parked)
 			return
 		_marker_hold.source_line = _marker_restore.anchor.line_id
-		_marker_hold.frontier = _marker_restore.duplicate(true)
+		_marker_hold.frontier = _marker_restore
 		_marker_restore = {}
 	reading_frontier_restored.emit(captured)
 
@@ -2012,7 +2011,7 @@ func install_marker_candidate(plan: Dictionary, candidate: NarrativeCaptionLedge
 		_marker_hold.source_line = frontier.anchor.line_id
 		return {"ok": true, "value": {"pending": false}}
 	_caption_seek_frontier = frontier.duplicate(true)
-	_caption_seek_result = {"ok": true, "value": {"frontier": frontier.duplicate(true), "terminal": frontier.is_empty()}}
+	_caption_seek_result = {"ok": true, "value": {"frontier": _caption_seek_frontier, "terminal": frontier.is_empty()}}
 	_caption_seek_queued = false
 	_marker_hold = {}
 	_dialogic.handle_event(int(indices.value.target_index))
