@@ -600,7 +600,7 @@ func prepare_pair_deck_draw(run_id: String, receipt: Dictionary) -> Dictionary:
 	if not checked.ok: return checked
 	if existing.value != null and existing.value != receipt:
 		return _failure(&"pair_deck_draw_conflict", "The run already committed another draw")
-	return {"ok": true, "value": {"run_id": run_id, "receipt": receipt.duplicate(true),
+	return {"ok": true, "value": {"run_id": run_id, "receipt": checked.value,
 		"profile_revision": _profile_revision}}
 
 func commit_pair_deck_draw(material: Dictionary) -> Dictionary:
@@ -615,14 +615,14 @@ func commit_pair_deck_draw(material: Dictionary) -> Dictionary:
 	var prepared := prepare_pair_deck_draw(material.run_id, material.receipt)
 	if not prepared.ok: return prepared
 	if _profile.pair_deck_draws.has(material.run_id):
-		return {"ok": true, "value": material.receipt.duplicate(true), "already_recorded": true}
+		return {"ok": true, "value": prepared.value.receipt, "already_recorded": true}
 	var revision := _check_profile_revision(material.profile_revision)
 	if not revision.ok: return revision
 	var candidate := _profile.duplicate()
 	candidate["pair_deck_draws"] = _profile.pair_deck_draws.duplicate()
-	candidate["pair_deck_draws"][material.run_id] = material.receipt
+	candidate["pair_deck_draws"][material.run_id] = prepared.value.receipt
 	var committed := _commit_profile_candidate(candidate)
-	return {"ok": true, "value": material.receipt.duplicate(true), "already_recorded": false} if committed.ok else committed
+	return {"ok": true, "value": prepared.value.receipt, "already_recorded": false} if committed.ok else committed
 
 func record_reached_presentation(signature: Dictionary) -> Dictionary:
 	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")

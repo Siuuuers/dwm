@@ -51,7 +51,7 @@ static func validate(receipt: Variant) -> Dictionary:
 	else: return _fail(&"invalid_pair_draw_receipt")
 	if not expected.ok: return expected
 	if expected.value != receipt: return _fail(&"pair_draw_receipt_conflict")
-	return _ok(receipt.duplicate(true))
+	return _ok(receipt.merged({"witnessed_forms": receipt.witnessed_forms.duplicate()}, true))
 
 static func _witnesses(forms: Array) -> Dictionary:
 	var sorted: Array[String] = []
