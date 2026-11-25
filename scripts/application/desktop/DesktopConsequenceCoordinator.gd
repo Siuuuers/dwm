@@ -464,11 +464,11 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 	var destination_intent: Variant = recovery_payload.get("destination_intent")
 	var notification_intent: Variant = recovery_payload.get("notification_intent")
 
-	if is_departure and _board_fate_port.has_method("prepare_recovery_departure"):
+	if is_departure and _board_fate_port.has_method(&"ensure_recovery_departure"):
 		var projected: Dictionary = _build_projected_board_candidate(source_kind, action_candidate)
 		if not projected.get("ok", false): return projected
 		var recovered_fate: Dictionary = _board_fate_port.call(
-			&"ensure_recovery_departure" if _board_fate_port.has_method(&"ensure_recovery_departure") else &"prepare_recovery_departure",
+			&"ensure_recovery_departure",
 			action_receipt,
 			projected.value.board_candidate, recovery_payload.board_candidate,
 			_board_fate_receipt_from_payload(recovery_payload))

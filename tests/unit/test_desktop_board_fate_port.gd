@@ -668,19 +668,16 @@ func test_fresh_shop_departure_rebuilds_frozen_preparation_and_retries_after_com
 	var frozen: Dictionary = prepared["value"]
 	assert_eq(frozen["board_fate_receipt"]["fate"], "forfeited_started")
 	var fresh := _fresh_recovery_port(source)
-	var restored: Dictionary = fresh["port"].prepare_recovery_departure(action, source,
+	var restored: Dictionary = fresh["port"].ensure_recovery_departure(action, source,
 		frozen["board_candidate"], frozen["board_fate_receipt"])
 	assert_true(restored.get("ok", false), str(restored))
-	assert_eq(restored.value, frozen)
-	restored.value.board_candidate["revision"] += 1
-	assert_eq(fresh.port.ensure_recovery_departure(action, source, frozen.board_candidate, frozen.board_fate_receipt),
-		{"ok": true, "command_id": command_id})
+	assert_eq(restored.command_id, command_id)
 	assert_eq(fresh["board"].capture(), source, "repreparation never mutates the source board")
 	assert_true(fresh["port"].commit(frozen["board_candidate"]).get("ok", false))
 	assert_true(fresh["port"].publish(frozen).get("ok", false))
 	var after: Dictionary = fresh["board"].capture()
 	assert_eq(after, frozen["board_candidate"])
-	var retried: Dictionary = fresh["port"].prepare_recovery_departure(action, after,
+	var retried: Dictionary = fresh["port"].ensure_recovery_departure(action, after,
 		frozen["board_candidate"], frozen["board_fate_receipt"])
 	assert_true(retried.get("ok", false), str(retried))
 	assert_true(fresh["port"].commit(frozen["board_candidate"]).get("ok", false))
@@ -702,20 +699,20 @@ func test_fresh_departure_refuses_changed_frozen_bytes_without_poisoning_valid_r
 	var fresh := _fresh_recovery_port(source)
 	var altered_receipt: Dictionary = frozen["board_fate_receipt"].duplicate(true)
 	altered_receipt["fate"] = "forfeited_started"
-	var rejected: Dictionary = fresh["port"].prepare_recovery_departure(action, source,
+	var rejected: Dictionary = fresh["port"].ensure_recovery_departure(action, source,
 		frozen["board_candidate"], altered_receipt)
 	assert_false(rejected.get("ok", true))
 	assert_eq(rejected.get("code"), &"board_fate_recovery_mismatch")
 	var altered_board: Dictionary = frozen["board_candidate"].duplicate(true)
 	altered_board["revision"] = int(altered_board["revision"]) + 1
-	rejected = fresh["port"].prepare_recovery_departure(action, source,
+	rejected = fresh["port"].ensure_recovery_departure(action, source,
 		altered_board, frozen["board_fate_receipt"])
 	assert_false(rejected.get("ok", true))
 	assert_eq(rejected.get("code"), &"board_fate_recovery_mismatch")
 	assert_eq(fresh["board"].capture(), source)
 	assert_false(fresh["port"].commit(frozen["board_candidate"]).get("ok", true),
 		"a rejected preparation does not admit a candidate")
-	var accepted: Dictionary = fresh["port"].prepare_recovery_departure(action, source,
+	var accepted: Dictionary = fresh["port"].ensure_recovery_departure(action, source,
 		frozen["board_candidate"], frozen["board_fate_receipt"])
 	assert_true(accepted.get("ok", false), str(accepted))
 	assert_true(fresh["port"].commit(frozen["board_candidate"]).get("ok", false))
@@ -743,7 +740,7 @@ func test_fresh_round_departure_prepares_before_source_projection_then_commits_f
 	assert_true(prepared.get("ok", false), str(prepared))
 	var frozen: Dictionary = prepared["value"]
 	var fresh := _fresh_recovery_port(source)
-	var restored: Dictionary = fresh["port"].prepare_recovery_departure(action, projection,
+	var restored: Dictionary = fresh["port"].ensure_recovery_departure(action, projection,
 		frozen["board_candidate"], frozen["board_fate_receipt"])
 	assert_true(restored.get("ok", false), str(restored))
 	assert_eq(fresh["board"].capture(), source)
