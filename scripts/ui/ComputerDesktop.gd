@@ -833,7 +833,7 @@ func _mask_run_configuration(code: StringName) -> void:
 func _configure_from_bootstrap() -> void:
 	if _scene_navigation_failed: return
 	_run_configuration_required = true
-	if _bootstrap == null or not _bootstrap.get_startup_state().get("ready",false):
+	if _bootstrap == null or not _bootstrap.runtime_ready:
 		_mask_run_configuration(&"run_configuration_unavailable")
 		return
 	var owner: Object = _run_configuration_owner if _run_configuration_owner != null else get_node_or_null("/root/GameState")
