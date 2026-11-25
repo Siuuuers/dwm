@@ -75,6 +75,7 @@ func test_entry_is_detached_idempotent_and_cannot_be_replaced_or_rewound() -> vo
 	var replay: Dictionary = LEDGER.prepare_update(ledger, "run-a", SLOT, "branch-b", record, 0)
 	assert_true(replay.ok)
 	assert_false(replay.value.changed)
+	assert_false(replay.value.has("ledger"))
 	replay.value.attempt.record.phase = "completed"
 	assert_eq(LEDGER.read(ledger, "run-a", SLOT).value.record.phase, "challenge")
 	var replacement := record.duplicate(true)

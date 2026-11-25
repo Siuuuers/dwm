@@ -106,7 +106,7 @@ static func prepare_update(ledger: Dictionary, run_id: String, slot_id: String, 
 	attempt["generation"] = generation
 	if copied: attempt.revision = 1
 	if not copied and not prepared.value.changed:
-		return _ok({"ledger": ledger.duplicate(true), "attempt": attempt, "changed": false})
+		return _ok({"attempt": attempt, "changed": false})
 	var candidate := ledger.duplicate(true)
 	if not candidate.has(run_id): candidate[run_id] = {}
 	if slot.is_empty():
