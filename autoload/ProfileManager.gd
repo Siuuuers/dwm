@@ -860,7 +860,7 @@ func get_input_mappings() -> Dictionary:
 	var result := {}
 	for action: String in _profile.get("controls_bindings", {}):
 		var slots: Dictionary = _profile.controls_bindings[action]
-		result[action] = [slots.keyboard.duplicate(true), slots.controller.duplicate(true)]
+		result[action] = [slots.keyboard.duplicate(), slots.controller.duplicate()]
 	return result
 
 
@@ -886,11 +886,17 @@ func get_controls_binding_snapshot() -> Dictionary:
 	}}
 
 
-func get_controls_import_review() -> Dictionary:
+func _check_controls_import_pending() -> Dictionary:
 	if not _initialized:
 		return _failure(&"not_initialized", "ProfileManager is not initialized")
 	if not _profile.controls_import_pending:
 		return _failure(&"controls_import_not_pending", "There is no pending controls import")
+	return {"ok": true}
+
+
+func get_controls_import_review() -> Dictionary:
+	var pending := _check_controls_import_pending()
+	if not pending.ok: return pending
 	return {"ok": true, "code": &"ok", "value": {
 		"revision": _profile_revision,
 		"bindings": _profile.controls_bindings.duplicate(true),
@@ -900,8 +906,8 @@ func get_controls_import_review() -> Dictionary:
 
 
 func prepare_controls_import(bindings: Variant, expected_revision: Variant) -> Dictionary:
-	var review := get_controls_import_review()
-	if not review.get("ok", false): return review
+	var pending := _check_controls_import_pending()
+	if not pending.ok: return pending
 	if typeof(expected_revision) != TYPE_INT or expected_revision < 0:
 		return _failure(&"invalid_profile_revision", "Import review requires an exact profile revision")
 	if expected_revision != _profile_revision:
@@ -910,15 +916,15 @@ func prepare_controls_import(bindings: Variant, expected_revision: Variant) -> D
 	if not validation.get("ok", false): return validation
 	return {"ok": true, "code": &"ok", "value": {
 		"revision": _profile_revision,
-		"before": review.value.bindings,
-		"legacy_bindings": review.value.legacy_bindings,
+		"before": _profile.controls_bindings.duplicate(true),
+		"legacy_bindings": _profile.input_mappings.duplicate(true),
 		"after": bindings.duplicate(true),
 	}}
 
 
 func commit_controls_import(proposal: Dictionary) -> Dictionary:
-	var review := get_controls_import_review()
-	if not review.get("ok", false): return review
+	var pending := _check_controls_import_pending()
+	if not pending.ok: return pending
 	if proposal.size() != 4:
 		return _failure(&"invalid_binding_proposal", "Import proposal is malformed")
 	for field: String in ["revision", "before", "legacy_bindings", "after"]:
