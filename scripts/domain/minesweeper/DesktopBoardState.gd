@@ -208,8 +208,13 @@ func prepare_restore(snapshot: Dictionary) -> Dictionary:
 
 static func _read_only_restore_snapshot(snapshot: Dictionary) -> Dictionary:
 	if _is_read_only_tree(snapshot): return snapshot
-	var owned := snapshot.duplicate(true)
-	_READ_ONLY.freeze(owned)
+	var owned := snapshot.duplicate()
+	for key: String in owned:
+		var field: Variant = owned[key]
+		if field is Dictionary and not _is_read_only_tree(field):
+			owned[key] = field.duplicate(true)
+			_READ_ONLY.freeze(owned[key])
+	owned.make_read_only()
 	return owned
 
 
@@ -471,6 +476,25 @@ func prepare_settlement(input: Dictionary, settlement: Dictionary) -> Dictionary
 
 
 
+func restore_snapshot(snapshot: Dictionary) -> Dictionary:
+	var checked := check_snapshot(snapshot)
+	if not checked.ok: return checked
+	snapshot = _read_only_restore_snapshot(snapshot)
+	_read_view = {}
+	_phase = String(snapshot["phase"])
+	_revision = int(snapshot["revision"])
+	_identity = snapshot["identity"]
+	_candidate = snapshot["candidate"]
+	_board = snapshot["board"]
+	_settlement = snapshot["settlement"]
+	_command_receipts = snapshot["command_receipts"]
+	_terminal_receipts = snapshot.get("terminal_receipts", {})
+	_scene_snapshot_format = snapshot.has("settled_inspection")
+	_settled_inspection = is_settled_inspection(snapshot)
+	_round_paid = bool(snapshot.get("round_paid", false))
+	return _read_command_result(_committed_state_view())
+
+
 func commit(candidate: Dictionary) -> Dictionary:
 	return _commit(candidate, null)
 
@@ -483,23 +507,7 @@ func _commit(candidate: Dictionary, owned_board: Variant) -> Dictionary:
 	if kind == &"restore":
 		if not candidate.has("snapshot_after") or typeof(candidate["snapshot_after"]) != TYPE_DICTIONARY:
 			return _fail(&"invalid_candidate", "restore candidate.snapshot_after is required", {})
-		var snapshot: Dictionary = candidate["snapshot_after"]
-		var checked := check_snapshot(snapshot)
-		if not checked.ok: return checked
-		snapshot = _read_only_restore_snapshot(snapshot)
-		_read_view = {}
-		_phase = String(snapshot["phase"])
-		_revision = int(snapshot["revision"])
-		_identity = snapshot["identity"]
-		_candidate = snapshot["candidate"]
-		_board = snapshot["board"]
-		_settlement = snapshot["settlement"]
-		_command_receipts = snapshot["command_receipts"]
-		_terminal_receipts = snapshot.get("terminal_receipts", {})
-		_scene_snapshot_format = snapshot.has("settled_inspection")
-		_settled_inspection = is_settled_inspection(snapshot)
-		_round_paid = bool(snapshot.get("round_paid", false))
-		return _read_command_result(_committed_state_view())
+		return restore_snapshot(candidate["snapshot_after"])
 
 	var transaction_id := str(candidate.get("transaction_id", ""))
 	var request_fingerprint := str(candidate.get("request_fingerprint", ""))

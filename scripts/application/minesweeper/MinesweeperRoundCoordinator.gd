@@ -953,7 +953,7 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 	var seal: Dictionary = _checkpoint_port.call(&"seal_checkpoint", checkpoint_candidate)
 	if not seal.get("ok", false):
 		return _rollback_participants("seal", transaction_id, [
-			["board_state", func(): return _restore_board_state(board_state_backup)],
+			["board_state", func(): return _board_state.restore_snapshot(board_state_backup)],
 			["state_port", func(): return _state_port.call(&"rollback", state_backup)],
 			["checkpoint_port", func(): return _checkpoint_port.call(&"rollback", checkpoint_backup)],
 		], seal)
@@ -1161,13 +1161,6 @@ func _publish_first_reveal(receipt: Dictionary, publication: Variant) -> Diction
 		if not published.get("ok", false):
 			return _fail(&"FIRST_REVEAL_COMMITTED_UNPUBLISHED", "", {"receipt": receipt})
 	return {"ok": true, "code": &"first_reveal_committed", "value": {"receipt": receipt}, "receipt": {}}
-
-
-func _restore_board_state(backup: Dictionary) -> Dictionary:
-	var prepared := _board_state.prepare_restore(backup)
-	if not prepared.get("ok", false):
-		return prepared
-	return _board_state.commit((prepared["value"] as Dictionary)["candidate"])
 
 
 func _rollback_participants(phase: String, transaction_id: String,
@@ -1661,9 +1654,8 @@ func _commit_cost_free_under_lease(candidate: Dictionary, selected_difficulty: S
 	var disk_backup: Dictionary = {}
 	if _durable_checkpoint_port != null:
 		var projected := _BOARD_STATE.new()
-		var restore := projected.prepare_restore(before)
+		var restore := projected.restore_snapshot(before)
 		if not restore.ok: return restore
-		projected.commit(restore.value.candidate)
 		var projection := projected.commit(candidate)
 		if not projection.ok: return projection
 		var base: Dictionary = _state_port.call(&"capture_base_snapshot_input")
@@ -1691,7 +1683,7 @@ func _commit_cost_free_under_lease(candidate: Dictionary, selected_difficulty: S
 	if not selected_difficulty.is_empty():
 		var selected: Dictionary = _state_port.call(&"commit", {"board_only": true, "selected_difficulty": selected_difficulty})
 		if not selected.ok:
-			var rollbacks: Array = [["board", func(): return _restore_board_state(before)]]
+			var rollbacks: Array = [["board", func(): return _board_state.restore_snapshot(before)]]
 			if _durable_checkpoint_port != null: rollbacks.append(["checkpoint_port", func(): return _durable_checkpoint_port.call(&"rollback", disk_backup)])
 			return _rollback_participants("cost_free_selection", str(candidate.transaction_id), rollbacks, selected)
 	return committed
