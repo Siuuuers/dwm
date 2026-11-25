@@ -195,8 +195,8 @@ func issue(purpose: StringName) -> Dictionary:
 		return written
 	return {
 		"ok": true,
-		"value": {"token": str(receipt["token"]), "issuer_receipt": receipt.duplicate(true)},
-		"receipt": receipt.duplicate(true),
+		"value": {"token": str(receipt["token"]), "issuer_receipt": receipt.duplicate()},
+		"receipt": receipt.duplicate(),
 	}
 
 
@@ -214,8 +214,8 @@ func issue_deferred(purpose: StringName) -> Dictionary:
 	_adopt_deferred(receipt)
 	return {
 		"ok": true,
-		"value": {"token": str(receipt["token"]), "issuer_receipt": receipt.duplicate(true)},
-		"receipt": receipt.duplicate(true),
+		"value": {"token": str(receipt["token"]), "issuer_receipt": receipt.duplicate()},
+		"receipt": receipt.duplicate(),
 	}
 
 
@@ -237,7 +237,7 @@ func verify_receipt(receipt: Dictionary, expected_purpose: StringName) -> Dictio
 		return ready
 	var verified := _verify_receipt_in_document(receipt, expected_purpose, _document)
 	if not verified.ok: return verified
-	return {"ok": true, "value": {"receipt": receipt.duplicate(true)}}
+	return {"ok": true, "value": {"receipt": receipt.duplicate()}}
 
 
 func prepare_allocation(request: Dictionary) -> Dictionary:
@@ -550,7 +550,7 @@ func _day_advance_candidate(request: Dictionary, key: String) -> Dictionary:
 		"root_next_counter": int(_document["next_counter"]),
 		"resolution_kind": str(request["resolution_kind"]),
 		"source_resolution_receipt_id": str(request["source_resolution_receipt_id"]),
-		"source_causal_day_instance_issuer_receipt": (request["source_causal_day_instance_issuer_receipt"] as Dictionary).duplicate(true),
+		"source_causal_day_instance_issuer_receipt": (request["source_causal_day_instance_issuer_receipt"] as Dictionary).duplicate(),
 		"target_causal_day_instance_issuer_receipt": target,
 	}
 
@@ -989,7 +989,7 @@ func _transaction_remap(remap_sources: Array, remap_receipts: Dictionary) -> Dic
 		transaction_remap[source_id] = {
 			"source_transaction_id": source_id,
 			"new_transaction_id": str(receipt["token"]),
-			"new_transaction_issuer_receipt": receipt.duplicate(true),
+			"new_transaction_issuer_receipt": receipt.duplicate(),
 		}
 	return transaction_remap
 

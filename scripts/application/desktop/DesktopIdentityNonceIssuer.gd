@@ -177,10 +177,7 @@ func prepare_continuation_allocation(request: Dictionary) -> Dictionary:
 	var ready := _require_configured("prepare_continuation_allocation")
 	if not ready.get("ok", false):
 		return ready
-	var prepared: Dictionary = _root.call(&"prepare_allocation", request)
-	if not prepared.get("ok", false):
-		return prepared
-	return {"ok": true, "value": (prepared.get("value", {}) as Dictionary).duplicate(true)}
+	return _root.call(&"prepare_allocation", request)
 
 
 func commit_continuation_allocation(candidate: Dictionary) -> Dictionary:

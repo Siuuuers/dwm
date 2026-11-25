@@ -957,7 +957,7 @@ static func _make_scene_admission_registered(identity: Dictionary, root_issuer_r
 	var target: Dictionary = registered.value.targets[target_id].target
 	if target.kind not in ["scene", "contact"]: return _fail(&"scene_admission_invalid")
 	var result := {"kind": "scene_admitted", "occurrence_id": root_issuer_receipt.token,
-		"entry_id": target.entry_id, "target_id": target_id, "source_checkpoint": source_checkpoint.duplicate(true),
+		"entry_id": target.entry_id, "target_id": target_id, "source_checkpoint": source_checkpoint.duplicate(),
 		"trigger_command_id": trigger_command_id, "return_to": _scene_detach(return_to)}
 	var valid := _validate_scene_admission_registered(result, registered)
 	if not valid.ok: return valid
@@ -977,8 +977,8 @@ static func _make_scene_admission_registered(identity: Dictionary, root_issuer_r
 	return {"ok": true, "value": {"transaction_id": root_issuer_receipt.token,
 		"request_fingerprint": fingerprint, "kind": "scene_admission", "source_id": root_issuer_receipt.token,
 		"scene_admission": {"schema_version": 2, "registration_fingerprint": registered.value.fingerprint,
-			"source_identity": identity.duplicate(true), "issuer_receipt": root_issuer_receipt.duplicate(true),
-			"provenance": child.value.provenance.duplicate(true), "result": result}}}
+			"source_identity": identity.duplicate(true), "issuer_receipt": root_issuer_receipt.duplicate(),
+			"provenance": child.value.provenance, "result": result}}}
 
 
 static func _validate_scene_admission_receipt(receipt: Dictionary, registered: Dictionary, issuer: Object) -> Dictionary:
@@ -1035,10 +1035,10 @@ static func _prepare_scene_initial_admission_registered(allocation_candidate: Di
 	return {"ok": true, "value": {"transaction_id": root.token, "request_fingerprint": fingerprint,
 		"kind": "scene_admission", "source_id": root.token, "scene_admission": {
 			"schema_version": 3, "registration_fingerprint": registered.value.fingerprint,
-			"source_identity": identity, "issuer_receipt": root.duplicate(true),
+			"source_identity": identity, "issuer_receipt": root.duplicate(),
 			"allocation_candidate_sha256": request.allocation_candidate_sha256,
 			"scene_assignment_sha256": request.scene_assignment_sha256,
-			"provenance": child.value.provenance.duplicate(true), "result": {
+			"provenance": child.value.provenance, "result": {
 				"kind": "scene_initial_admitted", "occurrence_id": root.token,
 				"entry_id": target.entry_id, "target_id": target_id}}}}
 
@@ -1286,17 +1286,17 @@ static func _make_scene_terminal_admission_registered(identity: Dictionary, root
 		return _fail(&"scene_terminal_issuer_order_invalid")
 	var record := {"schema_version": 1, "kind": "scene_terminal_admission",
 		"admission_id": root_issuer_receipt.get("token"), "source_identity": identity.duplicate(true),
-		"issuer_receipt": root_issuer_receipt.duplicate(true), "source_occurrence_id": source_occurrence_id,
+		"issuer_receipt": root_issuer_receipt.duplicate(), "source_occurrence_id": source_occurrence_id,
 		"source_admission_receipt_id": source_admission_receipt_id,
 		"trigger_command_id": trigger_receipt.get("transaction_id"), "trigger_sha256": _sha(trigger_receipt),
-		"source_checkpoint": source_checkpoint.duplicate(true), "target_id": target_id,
-		"target": target.duplicate(true), "registration_fingerprint": registered.value.fingerprint}
+		"source_checkpoint": source_checkpoint.duplicate(), "target_id": target_id,
+		"target": target.duplicate(), "registration_fingerprint": registered.value.fingerprint}
 	var fingerprint := _sha(record)
 	var request := _scene_terminal_child_request(root_issuer_receipt, fingerprint)
 	var derived: Dictionary = issuer.derive_child(request)
 	if not derived.get("ok", false): return derived
 	record["request_fingerprint"] = fingerprint
-	record["provenance"] = derived.value.provenance.duplicate(true)
+	record["provenance"] = derived.value.provenance
 	var checked := validate_scene_terminal_admission_shape(record, issuer)
 	return {"ok": true, "value": record} if checked.ok else checked
 
@@ -1469,8 +1469,8 @@ static func make_scene_shop_purchase(identity: Dictionary, root_issuer_receipt: 
 	return {"ok": true, "value": {"transaction_id": root_issuer_receipt.token,
 		"request_fingerprint": fingerprint, "kind": "scene_shop_purchase", "source_id": source_id,
 		"scene_shop_purchase": {"schema_version": 1, "source_identity": identity.duplicate(true),
-			"issuer_receipt": root_issuer_receipt.duplicate(true), "purchase": purchase.duplicate(true),
-			"provenance": child.value.provenance.duplicate(true)}}}
+			"issuer_receipt": root_issuer_receipt.duplicate(), "purchase": purchase.duplicate(true),
+			"provenance": child.value.provenance}}}
 
 static func validate_scene_shop_purchase(receipt: Dictionary, issuer: Object) -> Dictionary:
 	if not scene_shop_purchase_shape_valid(receipt): return _fail(&"scene_shop_purchase_invalid")
@@ -1535,8 +1535,8 @@ static func make_scene_round_completion(identity: Dictionary, root_issuer_receip
 	return {"ok": true, "value": {"transaction_id": root_issuer_receipt.token,
 		"request_fingerprint": fingerprint, "kind": "scene_round_completion", "source_id": source_id,
 		"scene_round_completion": {"schema_version": 1, "source_identity": identity.duplicate(true),
-			"issuer_receipt": root_issuer_receipt.duplicate(true), "completion": completion.duplicate(true),
-			"provenance": child.value.provenance.duplicate(true)}}}
+			"issuer_receipt": root_issuer_receipt.duplicate(), "completion": completion.duplicate(true),
+			"provenance": child.value.provenance}}}
 
 static func validate_scene_round_completion(receipt: Dictionary, issuer: Object) -> Dictionary:
 	if not scene_round_completion_shape_valid(receipt): return _fail(&"scene_round_completion_invalid")
