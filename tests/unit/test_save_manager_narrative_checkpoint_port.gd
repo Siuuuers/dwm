@@ -146,8 +146,12 @@ func test_commit_current_boundary_duplicate_returns_stored_receipt() -> void:
 	var context: RefCounted = pair[1]
 	var request := {"boundary_id": "timeline:T:start", "checkpoint_kind": &"timeline_start", "narrative_checkpoint": _start_checkpoint()}
 	var first: Dictionary = port.commit_current_boundary(request)
+	first.receipt.boundary_id = "caller edit"
 	context.provider_order.clear()
 	var second: Dictionary = port.commit_current_boundary(request)
+	assert_eq(second.receipt.boundary_id, request.boundary_id)
+	second.receipt.clear()
+	assert_eq(port.commit_current_boundary(request).receipt.boundary_id, request.boundary_id)
 	assert_true(second.get("ok", false), str(second))
 	assert_true(second["value"]["duplicate"], "identical boundary is a duplicate")
 	assert_eq(second["value"]["checkpoint_id"], first["value"]["checkpoint_id"], "same checkpoint id")
