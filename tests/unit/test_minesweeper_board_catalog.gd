@@ -74,7 +74,7 @@ func test_production_port_builds_schema_valid_specs_from_the_catalog() -> void:
 		assert_true(prepared.ok, JSON.stringify(prepared))
 		var spec: Dictionary = prepared.value.spec
 		assert_eq(Vector3i(spec.width, spec.height, spec.base_mine_count), expected[difficulty])
-		assert_true(BOARD_SCHEMA.validate_spec(spec).ok)
+		assert_true(BOARD_SCHEMA.check_spec(spec).ok)
 	var issued_before := issuer.ordinal
 	var refused: Dictionary = port.prepare_spec("nightmare", "tx-bad", {})
 	assert_eq(refused.code, &"unknown_minesweeper_difficulty")

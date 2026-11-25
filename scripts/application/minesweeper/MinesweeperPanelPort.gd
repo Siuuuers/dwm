@@ -12,9 +12,8 @@ var _issuer: Object = null
 var _game_state: Object = null
 var _catalog: Object = null
 var _board_port: Object = null
-var _presented := false
-var _presented_difficulty := ""
-var _presented_view: Dictionary = {}
+var _presented_revision := -1
+var _presented_register: Dictionary = {}
 var _presented_session: Dictionary = {}
 var _held_terminal: Dictionary = {}
 var _held_session: Dictionary = {}
@@ -44,9 +43,8 @@ func configure(owner: Object, issuer: Object, game_state: Object, catalog: Objec
 
 
 func pull() -> Dictionary:
-	_presented = false
-	_presented_difficulty = ""
-	_presented_view = {}
+	_presented_revision = -1
+	_presented_register = {}
 	if _board_port == null or not is_instance_valid(_owner) \
 			or not is_instance_valid(_issuer) or not is_instance_valid(_game_state) \
 			or not is_instance_valid(_catalog):
@@ -115,9 +113,9 @@ func dispatch(action: String, index: int, revision: int) -> Dictionary:
 		result = _board_port.call(&"dispatch", action, index, revision)
 	if result.get("value") is Dictionary and bool(result.value.get("terminal", false)):
 		var assignments: Dictionary = ASSIGNMENTS.from_sources(_game_state, _catalog)
-		if not assignments.get("ok", false) or _presented_view.is_empty(): return _unavailable()
+		if not assignments.get("ok", false) or _presented_register.is_empty(): return _unavailable()
 		var settled_now: bool = result.get("ok", false) and result.get("code") != &"minesweeper_settlement_pending"
-		var terminal := _terminal_view(result.value, _presented_view.register,
+		var terminal := _terminal_view(result.value, _presented_register,
 			assignments.value, settled_now)
 		if terminal.is_empty(): return _unavailable()
 		if result.get("ok", false):
@@ -125,8 +123,7 @@ func dispatch(action: String, index: int, revision: int) -> Dictionary:
 		return {"ok": false, "code": &"minesweeper_panel_command_refused",
 			"value": _record_view(terminal, _session_marker())}
 	if not result.get("ok", false): return _refused()
-	if not _presented_view.get("register") is Dictionary \
-			or not (_presented_view.register as Dictionary).get("foresight") is int:
+	if not _presented_register.get("foresight") is int:
 		return pull()
 	var routine_inputs := _routine_inputs()
 	if routine_inputs.is_empty(): return pull()
@@ -155,7 +152,7 @@ func advance_preparation(expected_revision: int) -> Dictionary:
 			if published.get("ok", false): published["advanced"] = true
 			return published
 		return {"ok": true, "advanced": false}
-	if not _presented or _presented_session.is_empty() or _session_marker() != _presented_session:
+	if _presented_revision < 0 or _presented_session.is_empty() or _session_marker() != _presented_session:
 		return _refused()
 	var result: Dictionary = _board_port.advance_preparation(expected_revision)
 	if not result.get("ok", false): return _refused()
@@ -183,7 +180,7 @@ func select_difficulty(difficulty: String, expected_revision: int) -> Dictionary
 
 
 func can_park_preparation(expected_revision: int) -> bool:
-	if _board_port == null or not _held_terminal.is_empty() or not _presented \
+	if _board_port == null or not _held_terminal.is_empty() or _presented_revision < 0 \
 			or _presented_session.is_empty() or _session_marker() != _presented_session:
 		return false
 	return _board_port.can_park_preparation(expected_revision)
@@ -242,16 +239,15 @@ func _routine_inputs() -> Dictionary:
 
 func _routine_view(board: Dictionary, context: Dictionary, inputs: Dictionary,
 		expected_revision: int) -> Dictionary:
-	if _presented_view.is_empty() or bool(board.get("terminal", false)) \
+	if _presented_register.is_empty() or bool(board.get("terminal", false)) \
 			or bool(board.get("custody", true)) or context.size() != 4 or inputs.size() != 2:
 		return {}
-	if not _presented_view.get("board") is Dictionary \
-			or int(_presented_view.board.get("revision", -1)) != expected_revision \
+	if _presented_revision != expected_revision \
 			or int(board.get("revision", -1)) != expected_revision + 1:
 		return {}
 	for key: String in ["difficulty", "foresight", "no_flag", "configuration"]:
 		if not context.has(key): return {}
-	if not context.difficulty is String or context.difficulty != _presented_difficulty \
+	if not context.difficulty is String or context.difficulty != _presented_register.difficulty \
 			or not context.foresight is int or context.no_flag not in ["intact", "lost"] \
 			or not context.configuration is Dictionary:
 		return {}
@@ -288,11 +284,11 @@ func _present_success(value: Dictionary) -> Dictionary:
 
 
 func _record_view(value: Dictionary, marker: Dictionary) -> Dictionary:
-	_presented = true
-	_presented_difficulty = str(value.register.difficulty)
-	_presented_view = value
+	_presented_revision = value.board.revision
+	_presented_register = {"difficulty": value.register.difficulty, "foresight": value.register.foresight,
+		"no_flag": value.register.no_flag}
 	_presented_session = marker
-	return value.duplicate(true)
+	return value.duplicate(true) if is_same(value, _held_terminal) else value
 
 
 func _session_marker() -> Dictionary:
@@ -318,22 +314,21 @@ func _clear_held_terminal() -> void:
 
 func _on_game_state_day_changed(_day: int = -1) -> void:
 	_clear_held_terminal()
-	_presented = false
-	_presented_difficulty = ""
-	_presented_view = {}
+	_presented_revision = -1
+	_presented_register = {}
 
 
 func _has_fresh_difficulty(active_cell_command: bool = false) -> bool:
-	if not _presented or not is_instance_valid(_owner) or not is_instance_valid(_issuer) \
+	if _presented_revision < 0 or not is_instance_valid(_owner) or not is_instance_valid(_issuer) \
 			or _presented_session.is_empty() or _session_marker() != _presented_session:
 		return false
-	if active_cell_command and _board_port.has_current_active_board(_presented_difficulty): return true
+	if active_cell_command and _board_port.has_current_active_board(_presented_register.difficulty): return true
 	var current: Variant = _owner.call(&"get_state")
 	if not current is Dictionary or not current.get("ok", false) \
 			or not current.get("value") is Dictionary:
 		return false
 	var difficulty: Variant = REGISTER.difficulty_of(current.value, _game_state)
-	return difficulty is String and difficulty == _presented_difficulty
+	return difficulty is String and difficulty == _presented_register.difficulty
 
 
 func _refused() -> Dictionary:
@@ -346,7 +341,7 @@ func _refused() -> Dictionary:
 
 func _refused_without_refresh() -> Dictionary:
 	var result := {"ok": false, "code": &"minesweeper_panel_command_refused"}
-	if not _presented_view.is_empty(): result["value"] = _presented_view.duplicate(true)
+	if not _presented_register.is_empty(): result["value"] = _held_terminal.duplicate(true)
 	return result
 
 

@@ -67,7 +67,9 @@ func configure(save_port: Object, state_port: Object) -> Dictionary:
 func get_active_round() -> Dictionary:
 	if _active_round.is_empty():
 		return {"ok": false, "code": &"no_active_round"}
-	return {"ok": true, "code": &"ok", "value": _active_round.duplicate(true)}
+	if _active_round.get("dating_evidence") != null:
+		return {"ok": true, "code": &"ok", "value": _active_round.duplicate(true)}
+	return {"ok": true, "code": &"ok", "value": _active_round.duplicate()}
 
 
 func _normalize_result_for_identity(result: Variant) -> Dictionary:
@@ -187,7 +189,7 @@ func begin_round(request: Variant) -> Dictionary:
 		], "round_start_publication",
 			{"ok": false, "code": &"ROUND_START_PUBLICATION_FAILED", "details": {"cause": pub}}, round_id)
 	_active_round = active_round
-	return {"ok": true, "code": &"ok", "value": active_round.duplicate(true)}
+	return get_active_round()
 
 
 func complete_round(round_id: String, result: Variant, transaction_id: String) -> Dictionary:

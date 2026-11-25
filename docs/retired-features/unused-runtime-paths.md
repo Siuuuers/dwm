@@ -34,3 +34,15 @@ Only tests called DialogicPreferenceAdapter.capture_state, rollback_silent and f
 ## Desktop and shop reversal commands
 
 Only tests requested reversal from DesktopCausalSequencePort, DesktopBoardFatePort and MinesweeperShopPurchaseParticipant. The sequence port’s reservation backup and the board port’s capture-hash generations existed solely for those commands. Desktop departure still reads the current board. Admission and shop recovery use their recorded transaction and checkpoint to finish an interrupted operation. Shop confirmation retains its lease-release path, and pricing reads current economy and consequence facts. The removed commands and private bookkeeping wrote no save fields.
+
+## Minesweeper generator manifest snapshots
+
+Only cache tests requested full copies of the generator budget and certified fallback manifests. Those tests now load the same private caches used for board generation. Public board replay checks that mutating a returned layout leaves the certified fallback intact. Both manifest validators return the validation result directly.
+
+## Minesweeper rules sheet
+
+Only the rules sheet called MinesweeperSheetCopy.get_copy. It now reads its localized text and examples directly from the constant table. The selected language and displayed rules use the same entries.
+
+## Minesweeper schema results
+
+Board and spec callers now use check_board and check_spec to validate the values they already hold. The former validate_board and validate_spec wrappers returned whole copies after the same checks. The generator kernel has a separate validate_spec method covered by its hardware calibration.

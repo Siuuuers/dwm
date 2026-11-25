@@ -318,7 +318,7 @@ static func _port_signatures() -> Dictionary:
 static func _prepared_value_schemas() -> Dictionary:
 	return {
 		"prepare_begin": ["active_round", "candidate", "pre_board_checkpoint_inputs", "start_receipt"],
-		"prepare_complete": ["checkpoint_input_template", "domain_events", "prepared_candidate",
+		"prepare_complete": ["domain_events", "prepared_candidate",
 			"prepared_domain_receipt"],
 		"finalize_complete": ["candidate", "domain_events", "domain_receipt",
 			"post_result_checkpoint_inputs"],

@@ -364,7 +364,9 @@ func test_preparation_state_advance_accepts_a_real_kernel_slice_result() -> void
 	var slice_result: Dictionary = KERNEL.advance(frontier, 36)
 	var result: Dictionary = PREPARATION.advance(frontier, slice_result)
 	assert_true(result.get("ok", false), JSON.stringify(result))
-	assert_eq((result["value"] as Dictionary)["preparation"], (slice_result["value"] as Dictionary)["preparation"])
+	assert_eq(result.value.preparation, slice_result.value.preparation)
+	result.value.preparation.spec.capability_ids.clear()
+	assert_false(slice_result.value.preparation.spec.capability_ids.is_empty())
 
 
 func test_preparation_state_advance_rejects_a_slice_result_with_a_drifted_spec() -> void:
@@ -429,7 +431,11 @@ func test_begin_debug_and_run_debug_slice_reach_certified_against_the_real_begin
 	while preparation["status"] == KERNEL.STATUS_SEARCHING:
 		var stepped: Dictionary = GENERATOR.run_debug_slice(preparation)
 		assert_true(stepped.get("ok", false), JSON.stringify(stepped))
+		var previous := preparation
 		preparation = (stepped["value"] as Dictionary)["preparation"]
+		for field: String in ["spec", "placement_rng_state", "debug_rng_state", "explosion_rng_state"]:
+			assert_false(is_same(preparation[field], previous[field]), field)
+		assert_false(is_same(preparation.spec.capability_ids, previous.spec.capability_ids))
 		assert_eq(int(preparation["forced_cell"]), forced_cell, "forced_cell must never drift")
 		slices += 1
 		assert_lt(slices, 5000, "beginner difficulty must certify well within 5000 slices")

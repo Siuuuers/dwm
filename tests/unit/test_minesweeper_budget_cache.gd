@@ -25,12 +25,12 @@ func _write(path: String, bytes: PackedByteArray) -> void:
 	file.close()
 
 func _warm() -> Dictionary:
-	var result: Dictionary = GENERATOR._read_budget_manifest()
+	var result: Dictionary = GENERATOR._load_budget_manifest()
 	assert_true(result.ok, str(result.get("code", "ok")))
-	return result.get("value", {}).duplicate(true)
+	return GENERATOR._budget_manifest_cache.duplicate(true)
 
 func _refused(message: String, cause: String = "") -> void:
-	var result: Dictionary = GENERATOR._read_budget_manifest()
+	var result: Dictionary = GENERATOR._load_budget_manifest()
 	assert_false(result.ok, str(result.get("code", "ok")))
 	assert_eq(str(result.get("code")), "generator_budget_unavailable")
 	assert_eq(result.get("message"), message)
@@ -38,29 +38,9 @@ func _refused(message: String, cause: String = "") -> void:
 
 func _restore_and_match(expected: Dictionary) -> void:
 	for path: String in _originals: _write(path, _originals[path])
-	var result: Dictionary = GENERATOR._read_budget_manifest()
+	var result: Dictionary = GENERATOR._load_budget_manifest()
 	assert_true(result.ok, str(result.get("code", "ok")))
-	assert_true(result.get("value") == expected, "exact restored budget")
-
-func test_warm_results_are_detached_from_nested_caller_mutation() -> void:
-	var expected := _warm()
-	var cold_expected := expected.duplicate(true)
-	cold_expected.device_evidence.cpu_model = "TEST.cache.cold"
-	_write(GENERATOR.BUDGET_MANIFEST_PATH, JSON.stringify(cold_expected).to_utf8_buffer())
-	var cold: Dictionary = GENERATOR._read_budget_manifest()
-	assert_true(cold.ok, str(cold.get("code", "ok")))
-	cold.value.rows[0].capability_ids.clear()
-	cold.value.source_sha256.kernel = "0".repeat(64)
-	var after_cold: Dictionary = GENERATOR._read_budget_manifest()
-	assert_true(after_cold.ok, str(after_cold.get("code", "ok")))
-	assert_true(after_cold.get("value") == cold_expected, "cold output mutation cannot alter cache")
-	_restore_and_match(expected)
-	var result: Dictionary = GENERATOR._read_budget_manifest()
-	assert_true(result.ok, str(result.get("code", "ok")))
-	result.value.rows[0].capability_ids.clear()
-	result.value.source_sha256.kernel = "0".repeat(64)
-	result.value.device_evidence.cpu_model = "TEST.changed"
-	_restore_and_match(expected)
+	assert_true(GENERATOR._budget_manifest_cache == expected, "exact restored budget")
 
 func test_warm_cache_refuses_same_length_malformed_bytes_and_recovers() -> void:
 	var expected := _warm()
@@ -98,16 +78,16 @@ func test_changed_valid_bytes_are_reparsed_and_returned_without_stale_content() 
 	var changed := expected.duplicate(true)
 	changed.device_evidence.cpu_model = "TEST.cache.changed-valid"
 	_write(GENERATOR.BUDGET_MANIFEST_PATH, JSON.stringify(changed).to_utf8_buffer())
-	var result: Dictionary = GENERATOR._read_budget_manifest()
+	var result: Dictionary = GENERATOR._load_budget_manifest()
 	assert_true(result.ok, str(result.get("code", "ok")))
-	assert_true(result.get("value") == changed, "exact replacement budget")
+	assert_true(GENERATOR._budget_manifest_cache == changed, "exact replacement budget")
 	_restore_and_match(expected)
 
 
 func _warm_fallback() -> Dictionary:
-	var result: Dictionary = GENERATOR._read_fallback_manifest()
+	var result: Dictionary = GENERATOR._load_fallback_manifest()
 	assert_true(result.ok, str(result.get("code", "ok")))
-	return result.get("value", {}).duplicate(true)
+	return GENERATOR._fallback_manifest_cache.duplicate(true)
 
 func _fallback_artifact() -> Dictionary:
 	var parsed: Dictionary = STRICT_JSON.parse_object(
@@ -116,7 +96,7 @@ func _fallback_artifact() -> Dictionary:
 	return parsed.get("value", {})
 
 func _fallback_refused(message: String, cause: String = "") -> void:
-	var result: Dictionary = GENERATOR._read_fallback_manifest()
+	var result: Dictionary = GENERATOR._load_fallback_manifest()
 	assert_false(result.ok, str(result.get("code", "ok")))
 	assert_eq(str(result.get("code")), "generator_budget_unavailable")
 	assert_eq(result.get("message"), message)
@@ -124,26 +104,9 @@ func _fallback_refused(message: String, cause: String = "") -> void:
 
 func _restore_fallback_and_match(expected: Dictionary) -> void:
 	_write(GENERATOR.FALLBACK_MANIFEST_PATH, _originals[GENERATOR.FALLBACK_MANIFEST_PATH])
-	var result: Dictionary = GENERATOR._read_fallback_manifest()
+	var result: Dictionary = GENERATOR._load_fallback_manifest()
 	assert_true(result.ok, str(result.get("code", "ok")))
-	assert_true(result.get("value") == expected, "exact restored fallback")
-
-func test_fallback_cold_and_warm_results_are_detached_from_nested_caller_mutation() -> void:
-	var expected := _warm_fallback()
-	var changed: PackedByteArray = _originals[GENERATOR.FALLBACK_MANIFEST_PATH].duplicate()
-	changed.append(10)
-	_write(GENERATOR.FALLBACK_MANIFEST_PATH, changed)
-	var cold: Dictionary = GENERATOR._read_fallback_manifest()
-	assert_true(cold.ok, str(cold.get("code", "ok")))
-	cold.value.records[0].mine_indices.clear()
-	var warm: Dictionary = GENERATOR._read_fallback_manifest()
-	assert_true(warm.ok, str(warm.get("code", "ok")))
-	assert_true(warm.get("value") == expected, "cold output mutation cannot alter fallback cache")
-	warm.value.records[0].mine_indices.clear()
-	var after_warm: Dictionary = GENERATOR._read_fallback_manifest()
-	assert_true(after_warm.ok, str(after_warm.get("code", "ok")))
-	assert_true(after_warm.get("value") == expected, "warm output mutation cannot alter fallback cache")
-	_restore_fallback_and_match(expected)
+	assert_true(GENERATOR._fallback_manifest_cache == expected, "exact restored fallback")
 
 func test_fallback_warm_cache_refuses_same_length_malformed_bytes_and_recovers() -> void:
 	var expected := _warm_fallback()
@@ -173,9 +136,9 @@ func test_fallback_changed_valid_records_are_reparsed_without_stale_content() ->
 	changed.records.reverse()
 	assert_true(changed.records != expected.records, "replacement order differs")
 	_write(GENERATOR.FALLBACK_MANIFEST_PATH, JSON.stringify(changed).to_utf8_buffer())
-	var result: Dictionary = GENERATOR._read_fallback_manifest()
+	var result: Dictionary = GENERATOR._load_fallback_manifest()
 	assert_true(result.ok, str(result.get("code", "ok")))
-	assert_true(result.get("value") == {"records": changed.records}, "exact replacement fallback")
+	assert_true(GENERATOR._fallback_manifest_cache == {"records": changed.records}, "exact replacement fallback")
 	_restore_fallback_and_match(expected)
 
 func _debug_spec() -> Dictionary:
@@ -202,9 +165,9 @@ func test_fallback_cache_cannot_bypass_public_source_freshness_with_unchanged_bu
 	var changed := _fallback_artifact()
 	changed.records.reverse()
 	_write(GENERATOR.FALLBACK_MANIFEST_PATH, JSON.stringify(changed).to_utf8_buffer())
-	var changed_read: Dictionary = GENERATOR._read_fallback_manifest()
+	var changed_read: Dictionary = GENERATOR._load_fallback_manifest()
 	assert_true(changed_read.ok, str(changed_read.get("code", "ok")))
-	assert_true(changed_read.get("value") == {"records": changed.records}, "replacement cached")
+	assert_true(GENERATOR._fallback_manifest_cache == {"records": changed.records}, "replacement cached")
 	assert_true(FileAccess.get_file_as_bytes(GENERATOR.BUDGET_MANIFEST_PATH) == _originals[GENERATOR.BUDGET_MANIFEST_PATH], "budget bytes unchanged")
 	var refused: Dictionary = GENERATOR.begin_debug(_debug_spec())
 	assert_false(refused.ok, str(refused.get("code", "ok")))

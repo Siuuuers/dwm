@@ -55,40 +55,40 @@ func test_reducer_script_loads() -> void:
 	assert_true(loaded.get("ok", false), "MinesweeperBoardReducer.gd must load")
 
 
-# ==== MinesweeperBoardSchema.validate_spec ====
+# ==== MinesweeperBoardSchema.check_spec ====
 
 func test_validate_spec_accepts_the_frozen_shape() -> void:
-	var result: Dictionary = SCHEMA.validate_spec(VALID_SPEC)
+	var result: Dictionary = SCHEMA.check_spec(VALID_SPEC)
 	assert_true(result.get("ok", false), JSON.stringify(result))
 
 
 func test_validate_spec_rejects_extra_and_missing_keys() -> void:
 	var extra: Dictionary = VALID_SPEC.duplicate(true)
 	extra["extra_field"] = "nope"
-	assert_false(SCHEMA.validate_spec(extra).get("ok", true), "extra key rejects")
+	assert_false(SCHEMA.check_spec(extra).get("ok", true), "extra key rejects")
 	for key: String in VALID_SPEC.keys():
 		var missing: Dictionary = VALID_SPEC.duplicate(true)
 		missing.erase(key)
-		assert_false(SCHEMA.validate_spec(missing).get("ok", true), "missing %s must reject" % key)
+		assert_false(SCHEMA.check_spec(missing).get("ok", true), "missing %s must reject" % key)
 
 
 func test_validate_spec_recomputes_raw_extra_mines() -> void:
 	var bad: Dictionary = VALID_SPEC.duplicate(true)
 	bad["raw_extra_mines"] = 99
-	var result: Dictionary = SCHEMA.validate_spec(bad)
+	var result: Dictionary = SCHEMA.check_spec(bad)
 	assert_false(result.get("ok", true), "raw_extra_mines must equal floor(pressure/3)+penalty_points_today")
 
 
 func test_validate_spec_rejects_requested_mine_count_below_base() -> void:
 	var bad: Dictionary = VALID_SPEC.duplicate(true)
 	bad["requested_mine_count"] = 5
-	assert_false(SCHEMA.validate_spec(bad).get("ok", true), "requested_mine_count must never be below base_mine_count")
+	assert_false(SCHEMA.check_spec(bad).get("ok", true), "requested_mine_count must never be below base_mine_count")
 
 
 func test_validate_spec_rejects_requested_mine_count_above_raw_ceiling() -> void:
 	var bad: Dictionary = VALID_SPEC.duplicate(true)
 	bad["requested_mine_count"] = 13
-	assert_false(SCHEMA.validate_spec(bad).get("ok", true), "requested_mine_count must never exceed base+raw_extra_mines")
+	assert_false(SCHEMA.check_spec(bad).get("ok", true), "requested_mine_count must never exceed base+raw_extra_mines")
 
 
 func test_validate_spec_rejects_frozen_stream_and_version_literals() -> void:
@@ -96,13 +96,13 @@ func test_validate_spec_rejects_frozen_stream_and_version_literals() -> void:
 			"generator_version", "verifier_version"]:
 		var bad: Dictionary = VALID_SPEC.duplicate(true)
 		bad[field] = "tampered"
-		assert_false(SCHEMA.validate_spec(bad).get("ok", true), "%s is frozen and must reject a tampered value" % field)
+		assert_false(SCHEMA.check_spec(bad).get("ok", true), "%s is frozen and must reject a tampered value" % field)
 
 
 func test_validate_spec_rejects_unknown_board_kind() -> void:
 	var bad: Dictionary = VALID_SPEC.duplicate(true)
 	bad["board_kind"] = "unknown_kind"
-	assert_false(SCHEMA.validate_spec(bad).get("ok", true))
+	assert_false(SCHEMA.check_spec(bad).get("ok", true))
 
 
 func test_validate_spec_rejects_blank_receipt_and_nonce_fields() -> void:
@@ -111,7 +111,7 @@ func test_validate_spec_rejects_blank_receipt_and_nonce_fields() -> void:
 			"debug_nonce_receipt_id", "explosion_nonce", "explosion_nonce_receipt_id"]:
 		var bad: Dictionary = VALID_SPEC.duplicate(true)
 		bad[field] = "   "
-		assert_false(SCHEMA.validate_spec(bad).get("ok", true), "%s must reject a blank value" % field)
+		assert_false(SCHEMA.check_spec(bad).get("ok", true), "%s must reject a blank value" % field)
 
 
 # ==== MinesweeperBoardSchema.validate_layout ====
@@ -171,11 +171,11 @@ func VALID_SPEC_4X4() -> Dictionary:
 	return spec
 
 
-# ==== MinesweeperBoardSchema.validate_board ====
+# ==== MinesweeperBoardSchema.check_board ====
 
 func test_validate_board_accepts_a_board_produced_by_first_reveal() -> void:
 	var board: Dictionary = _first_reveal_board()
-	var result: Dictionary = SCHEMA.validate_board(board)
+	var result: Dictionary = SCHEMA.check_board(board)
 	assert_true(result.get("ok", false), JSON.stringify(result))
 
 
@@ -183,7 +183,7 @@ func test_validate_board_rejects_revealed_flagged_overlap() -> void:
 	var board: Dictionary = _first_reveal_board()
 	board["flagged_indices"] = [6]
 	board["revealed_indices"] = (board["revealed_indices"] as Array) + [6]
-	assert_false(SCHEMA.validate_board(board).get("ok", true), "a cell cannot be both revealed and flagged")
+	assert_false(SCHEMA.check_board(board).get("ok", true), "a cell cannot be both revealed and flagged")
 
 
 func test_validate_board_recomputes_adjacency_rather_than_trusting_it() -> void:
@@ -191,21 +191,21 @@ func test_validate_board_recomputes_adjacency_rather_than_trusting_it() -> void:
 	var tampered: Array = (board["adjacency_counts"] as Array).duplicate()
 	tampered[0] = 7
 	board["adjacency_counts"] = tampered
-	assert_false(SCHEMA.validate_board(board).get("ok", true), "tampered adjacency_counts must be caught by recomputation")
+	assert_false(SCHEMA.check_board(board).get("ok", true), "tampered adjacency_counts must be caught by recomputation")
 
 
 func test_validate_board_recomputes_terminal_and_outcome_truth() -> void:
 	var board: Dictionary = _first_reveal_board()
 	board["terminal"] = true
 	board["outcome"] = &"cleared"
-	assert_false(SCHEMA.validate_board(board).get("ok", true), "phase truth is recomputed, never trusted from the caller")
+	assert_false(SCHEMA.check_board(board).get("ok", true), "phase truth is recomputed, never trusted from the caller")
 
 
 func test_validate_board_rejects_a_non_sequential_action_ledger() -> void:
 	var board: Dictionary = _first_reveal_board()
 	board["actions"] = [{"transaction_id": "tx-a", "kind": &"reveal", "cell_index": 6, "revision": 5}]
 	board["revision"] = 1
-	assert_false(SCHEMA.validate_board(board).get("ok", true), "action revisions must be sequential starting at 1")
+	assert_false(SCHEMA.check_board(board).get("ok", true), "action revisions must be sequential starting at 1")
 
 
 # ==== MinesweeperBoardReducer.first_reveal: corner/edge/interior zero flood ====
@@ -393,17 +393,17 @@ func test_board_round_trips_exactly_through_json() -> void:
 	board = REDUCER.reveal(board, 14, "tx-round-trip")["value"]["board"]
 	var stringified: String = JSON.stringify(board)
 	var round_tripped: Dictionary = JSON.parse_string(stringified)
-	var original_validated: Dictionary = SCHEMA.validate_board(board)
-	var round_tripped_validated: Dictionary = SCHEMA.validate_board(round_tripped)
+	var original_validated: Dictionary = SCHEMA.check_board(board)
+	var round_tripped_validated: Dictionary = SCHEMA.check_board(round_tripped)
 	assert_true(original_validated.get("ok", false), JSON.stringify(original_validated))
 	assert_true(round_tripped_validated.get("ok", false), JSON.stringify(round_tripped_validated))
 	# JSON has no int/float distinction, so a round-tripped Dictionary's whole numbers come back
-	# as TYPE_FLOAT; validate_board() accepts that (see _is_int_like()) but does not itself
+	# as TYPE_FLOAT; check_board() accepts that (see _is_int_like()) but does not itself
 	# re-canonicalize the values, so compare the semantic (int-cast) content here.
-	assert_eq(_as_int_array(round_tripped_validated["value"]["board"]["revealed_indices"]),
-		_as_int_array(original_validated["value"]["board"]["revealed_indices"]))
-	assert_eq(_as_int_array(round_tripped_validated["value"]["board"]["adjacency_counts"]),
-		_as_int_array(original_validated["value"]["board"]["adjacency_counts"]))
+	assert_eq(_as_int_array(round_tripped["revealed_indices"]),
+		_as_int_array(board["revealed_indices"]))
+	assert_eq(_as_int_array(round_tripped["adjacency_counts"]),
+		_as_int_array(board["adjacency_counts"]))
 
 
 # ==== helpers ====

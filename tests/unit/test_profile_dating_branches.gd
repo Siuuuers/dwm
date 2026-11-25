@@ -146,6 +146,10 @@ func test_copied_midboard_keeps_exact_saved_progress_and_original_first_cell() -
 		1, -1, {}, {"mode": "branch"}).ok, "the copied branch itself remains monotonic")
 	preview.value.attempt.record.board.flagged_indices.append(99)
 	assert_eq(LEDGER.read(copied.value.ledger, "run-a", SLOT, saved.spec.board_token, "branch-b").value.record.board.flagged_indices, [1])
+	copied.value.attempt.materialization_receipt.layout.mine_indices.clear()
+	assert_eq(LEDGER.read(copied.value.ledger, "run-a", SLOT, saved.spec.board_token, "branch-b")
+		.value.materialization_receipt.layout.mine_indices, saved.board.mine_indices)
+	assert_eq(parent.value.attempt.materialization_receipt.layout.mine_indices, saved.board.mine_indices)
 
 func test_entered_unmaterialized_save_does_not_import_later_first_click() -> void:
 	var saved := _record()

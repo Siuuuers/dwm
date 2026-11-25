@@ -71,6 +71,7 @@ func _wired() -> Dictionary:
 	gs.reset_game()
 	gs.money = 100
 	gs.coins = 10
+	gs.add_inventory("debug_key", 1)
 
 	var issuer := _fresh_issuer(root)
 	var consequence_state: RefCounted = load(CONSEQUENCE_STATE_PATH).new()
@@ -166,7 +167,7 @@ func _shop_prepared(wired: Dictionary, item_id: String) -> Dictionary:
 	})
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
 	assert_eq(prepared.get("code"), &"shop_purchase_action_checkpointed")
-	return {"action_receipt": (prepared["value"] as Dictionary)["action_receipt"]}
+	return prepared.value
 
 
 ## A Shop purchase during a PREPARING (unstarted) candidate, condition-armed for a departure: the
@@ -187,7 +188,7 @@ func test_shop_purchase_departure_discards_an_unstarted_candidate() -> void:
 	assert_true(begun.get("ok", false), JSON.stringify(begun))
 	assert_eq(round_coordinator.get_state()["value"]["phase"], "PREPARING")
 
-	var prepared := _shop_prepared(wired, "debug_key")
+	var prepared := _shop_prepared(wired, "lucky_charm")
 	var action_txn: String = str(prepared["action_receipt"]["transaction_id"])
 	# Review-fix pass (dwm-p2r.32.8, CRITICAL 2): the brief requires a departure to enqueue exactly
 	# one destination intent -- arm one so this pre-existing departure fixture stays valid under the
@@ -222,7 +223,7 @@ func test_shop_purchase_departure_discards_an_unstarted_candidate() -> void:
 			prepared_checkpoint = record["receipt"]
 	assert_false(prepared_checkpoint.is_empty())
 
-	var economy_candidate: Dictionary = (shop_participant._transactions[action_txn] as Dictionary)["economy_candidate"]
+	var economy_candidate: Dictionary = prepared.action_candidate
 	var live_board: Dictionary = round_coordinator._board_state.capture()
 	var result: Dictionary = coordinator.accept_prepared_action({
 		"action_receipt": prepared["action_receipt"], "action_candidate": economy_candidate,
@@ -235,7 +236,7 @@ func test_shop_purchase_departure_discards_an_unstarted_candidate() -> void:
 	assert_eq(str(result["receipt"]["disposition"]), "departure_committed")
 
 	assert_eq(round_coordinator.get_state()["value"]["phase"], "NONE", "the unstarted candidate was discarded")
-	assert_eq(int((wired["gs"] as Node).inventory.get("debug_key", 0)), 1, "the real economy still committed")
+	assert_eq(int((wired["gs"] as Node).inventory.get("lucky_charm", 0)), 1, "the real economy still committed")
 	assert_true((wired["schedule_view_port"] as Object).commit_calls >= 1)
 
 
@@ -265,7 +266,7 @@ func test_shop_purchase_without_a_departure_leaves_the_board_untouched() -> void
 		if str((record["receipt"] as Dictionary)["checkpoint_id"]).find(action_txn) >= 0:
 			prepared_checkpoint = record["receipt"]
 
-	var economy_candidate: Dictionary = (shop_participant._transactions[action_txn] as Dictionary)["economy_candidate"]
+	var economy_candidate: Dictionary = prepared.action_candidate
 	var live_board: Dictionary = round_coordinator._board_state.capture()
 	var coordinator: Object = wired["coordinator"]
 	var result: Dictionary = coordinator.accept_prepared_action({

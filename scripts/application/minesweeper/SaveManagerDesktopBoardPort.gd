@@ -71,7 +71,7 @@ func prepare_checkpoint(post_commit_snapshot_input: Dictionary, checkpoint_kind:
 	if not _audio_context_capture.is_valid(): return _fail(&"audio_context_capture_unavailable", "")
 	var captured: Variant = _audio_context_capture.call()
 	if not captured is Dictionary: return _fail(&"invalid_audio_snapshot", "")
-	var context: Dictionary = captured.duplicate(true)
+	var context: Dictionary = captured
 	var keys: Array = context.keys()
 	keys.sort()
 	if keys != _AUDIO_KEYS: return _fail(&"invalid_audio_snapshot", "")
@@ -88,7 +88,8 @@ func prepare_checkpoint(post_commit_snapshot_input: Dictionary, checkpoint_kind:
 	}
 	if post_commit_snapshot_input.has("scene"):
 		if not _scene_context_capture.is_valid(): return _fail(&"scene_context_capture_unavailable", "")
-		var captured_scene: Variant = _scene_context_capture.call(post_commit_snapshot_input.duplicate(true))
+		var captured_scene: Variant = _scene_context_capture.call(func(key: String, live_value: Variant) -> bool:
+			return post_commit_snapshot_input.has(key) and post_commit_snapshot_input[key] == live_value)
 		if not captured_scene is Dictionary: return _fail(&"invalid_scene_checkpoint_context", "")
 		if not captured_scene.get("ok", false): return captured_scene
 		var semantic: Variant = captured_scene.get("value")

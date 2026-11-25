@@ -75,7 +75,6 @@ var _reward_port: Object = null
 var _source_checkpoint_capture := Callable()
 var _terminal_pre_input_board: Dictionary = {}
 var _round_pending_admission_requests: Dictionary = {}
-var _round_request_fingerprints: Dictionary = {}
 var _round_recovery_committed: Dictionary = {}
 var _profile_enabled: bool = false
 var _scene_completion_owner: Object
@@ -222,10 +221,11 @@ func complete_round(request: Dictionary) -> Dictionary:
 	var profile := _consequence_profile_start("minesweeper_round_complete")
 	var profile_tick := int(profile.get("_started_us", 0))
 	var retry_id := str(request.get("transaction_id", ""))
+	var prior: Dictionary = _round_pending_admission_requests.get(retry_id, _round_completions.get(retry_id, {}))
 	var own_retry := _consequence_gate_token != "" and _consequence_gate != null \
 		and _consequence_gate.is_internal_owner_active(_GATE_OWNER) \
-		and _round_pending_admission_requests.has(retry_id)
-	if own_retry and str(_round_request_fingerprints.get(retry_id, "")) != _fingerprint(request):
+		and not prior.is_empty()
+	if own_retry and str(prior.fingerprint) != _fingerprint(request):
 		return _fail(&"transaction_conflict", "completion retry must retain its original request", {})
 	var guard := {} if own_retry else _guard(&"complete_round")
 	if not guard.is_empty():
@@ -417,8 +417,7 @@ func complete_round(request: Dictionary) -> Dictionary:
 		"expected_run_revision": run_revision,
 		"expected_board_identity": identity, "expected_board_revision": int(captured["revision"]),
 	}
-	_round_pending_admission_requests[transaction_id] = accept_request.duplicate(true)
-	_round_request_fingerprints[transaction_id] = fingerprint
+	_round_pending_admission_requests[transaction_id] = {"fingerprint": fingerprint, "request": accept_request}
 	profile_tick = _consequence_profile_phase(profile, "accept_request_retain_us", profile_tick)
 	var accepted: Dictionary = _call_accept_and_finalize(transaction_id, fingerprint, accept_request)
 	_consequence_profile_phase(profile, "accept_finalize_us", profile_tick)
@@ -435,7 +434,7 @@ func _recognize_live_round_pending(transaction_id: String, fingerprint: String) 
 			return _fail(&"causal_transaction_lease_unavailable",
 				"the shared causal_transaction lease is held by another transaction", {})
 		_consequence_gate_token = str((acquired["value"] as Dictionary)["token"])
-	var accept_request: Dictionary = _round_pending_admission_requests[transaction_id]
+	var accept_request: Dictionary = _round_pending_admission_requests[transaction_id].request
 	return _call_accept_and_finalize(transaction_id, fingerprint, accept_request)
 
 
@@ -445,6 +444,7 @@ func _call_accept_and_finalize(transaction_id: String, fingerprint: String, acce
 	var accepted: Dictionary = _consequence_coordinator.call(&"accept_prepared_action", accept_request)
 	profile_tick = _consequence_profile_phase(profile, "accept_prepared_action_us", profile_tick)
 	if bool(accepted.get("ok", false)):
+		_round_pending_admission_requests.erase(transaction_id)
 		_round_completions[transaction_id] = {"fingerprint": fingerprint, "result": accepted.duplicate(true)}
 	elif str(accepted.get("code", "")) == "condition_departure_ports_unconfigured":
 		if _consequence_gate_token != "":
@@ -484,8 +484,8 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 
 	if _round_recovery_committed.has(transaction_id):
 		var recorded: Dictionary = _round_recovery_committed[transaction_id]
-		if recorded["action_candidate"] == action_candidate and recorded["result"]["receipt"] == receipt:
-			return (recorded["result"] as Dictionary).duplicate(true)
+		if recorded["action_candidate"] == action_candidate and recorded["receipt"] == receipt:
+			return _recovery_result(receipt)
 		return _fail(&"action_receipt_conflict", "this transaction was already committed with different bytes", {})
 
 	if not _consequence_gate.is_internal_owner_active(_GATE_OWNER):
@@ -531,12 +531,15 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 		if not ledger_committed.get("ok", false):
 			return ledger_committed
 
-	var result := {"ok": true, "code": &"ok", "value": {"action_receipt": receipt.duplicate(true)}, "receipt": receipt}
 	_round_recovery_committed[transaction_id] = {
-		"action_candidate": action_candidate.duplicate(true), "result": result.duplicate(true),
+		"action_candidate": action_candidate.duplicate(true), "receipt": receipt.duplicate(true),
 	}
 	_consequence_profile_phase(profile, "receipt_and_cache_us", profile_tick)
-	return _consequence_profile_result(profile, result)
+	return _consequence_profile_result(profile, _recovery_result(receipt))
+
+
+func _recovery_result(receipt: Dictionary) -> Dictionary:
+	return {"ok": true, "code": &"ok", "value": {"action_receipt": receipt.duplicate(true)}, "receipt": receipt}
 
 
 func publish_recovery_action(publication: Dictionary) -> Dictionary:
@@ -625,7 +628,7 @@ func get_preparation_context() -> Dictionary:
 	if not _debug_pending.is_empty() and _debug_pending.source == _debug_source():
 		if _board_state.capture() != _debug_pending.before: return _fail(&"debug_retry_source_changed", "", {})
 		context.action = _debug_pending.action
-		context.identity = _debug_pending.request.expected_identity
+		context.identity = _debug_pending.candidate.identity_after.duplicate()
 		context.difficulty_id = _debug_pending.get("difficulty_id", difficulty)
 		return {"ok": true, "value": context}
 	if header.phase == "PREPARING":
@@ -652,7 +655,7 @@ func begin_debug_preparation(request: Dictionary) -> Dictionary:
 	var transaction_id := str(request.transaction_id)
 	var ledger_hit := _ledger_lookup(request, transaction_id)
 	if ledger_hit.has("result"): return ledger_hit.result
-	var retry := _retry_debug_preparation(request)
+	var retry := _retry_debug_preparation(ledger_hit.fingerprint)
 	if not retry.is_empty(): return retry
 	var verify := _verify_transaction(transaction_id, request.transaction_issuer_receipt)
 	if not verify.ok: return verify
@@ -683,7 +686,7 @@ func begin_debug_preparation(request: Dictionary) -> Dictionary:
 		"identity": identity, "expected_revision": int(request.expected_revision), "spec": spec,
 		"request_fingerprint": ledger_hit.fingerprint}, {"frontier": begun.value.frontier})
 	if not prepared.ok: return prepared
-	return _commit_debug_preparation(request, "begin", str(request.difficulty_id), captured, prepared.value.candidate)
+	return _commit_debug_preparation("begin", str(request.difficulty_id), captured, prepared.value.candidate)
 
 
 func run_debug_preparation_slice(request: Dictionary) -> Dictionary:
@@ -694,7 +697,7 @@ func run_debug_preparation_slice(request: Dictionary) -> Dictionary:
 	var transaction_id := str(request.transaction_id)
 	var ledger_hit := _ledger_lookup(request, transaction_id)
 	if ledger_hit.has("result"): return ledger_hit.result
-	var retry := _retry_debug_preparation(request)
+	var retry := _retry_debug_preparation(ledger_hit.fingerprint)
 	if not retry.is_empty(): return retry
 	var verify := _verify_transaction(transaction_id, request.transaction_issuer_receipt)
 	if not verify.ok: return verify
@@ -708,7 +711,7 @@ func run_debug_preparation_slice(request: Dictionary) -> Dictionary:
 		"identity": captured.identity, "expected_revision": int(request.expected_revision),
 		"request_fingerprint": ledger_hit.fingerprint}, advanced.value)
 	if not prepared.ok: return prepared
-	return _commit_debug_preparation(request, "slice", str(captured.candidate.spec.difficulty_id), captured, prepared.value.candidate)
+	return _commit_debug_preparation("slice", str(captured.candidate.spec.difficulty_id), captured, prepared.value.candidate)
 
 
 func _debug_source() -> Dictionary:
@@ -720,24 +723,24 @@ func _debug_source() -> Dictionary:
 	return source
 
 
-func _retry_debug_preparation(request: Dictionary) -> Dictionary:
+func _retry_debug_preparation(fingerprint: String) -> Dictionary:
 	if _debug_pending.is_empty(): return {}
 	if _debug_pending.source != _debug_source():
 		_debug_pending.clear()
 		return {}
-	if request != _debug_pending.request or _board_state.capture() != _debug_pending.before:
+	if fingerprint != _debug_pending.candidate.request_fingerprint or _board_state.capture() != _debug_pending.before:
 		return _fail(&"debug_retry_required", "The exact prepared write must be retried", {})
 	var result := _commit_cost_free_candidate(_debug_pending.candidate)
 	if result.get("ok", false): _debug_pending.clear()
 	return result
 
 
-func _commit_debug_preparation(request: Dictionary, action: String, difficulty: String,
+func _commit_debug_preparation(action: String, difficulty: String,
 		before: Dictionary, candidate: Dictionary) -> Dictionary:
-	_debug_pending = {"request": request.duplicate(true), "action": action,
+	_debug_pending = {"action": action,
 		"difficulty_id": difficulty, "before": before,
 		"source": _debug_source(), "candidate": candidate}
-	return _retry_debug_preparation(request)
+	return _retry_debug_preparation(candidate.request_fingerprint)
 
 
 func reveal(request: Dictionary) -> Dictionary:
@@ -1199,8 +1202,7 @@ func _fatal_rollback(phase: String, transaction_id: String, raw_diagnostics: Arr
 			if _PROJECTOR.validate_failure(failure).get("ok", false):
 				candidate = failure
 		_fatal_failure = candidate
-	return {"ok": false, "code": &"APPLICATION_FATAL", "message": "",
-		"details": {"failure": _fatal_failure.duplicate(true)}}
+	return _ensure_ready()
 
 
 
@@ -1258,7 +1260,7 @@ func _routine_command(request: Dictionary, kind: StringName) -> Dictionary:
 	if bool(reduced_board.get("terminal", false)):
 		_terminal_pre_input_board = captured
 	else:
-		_terminal_pre_input_board.clear()
+		_terminal_pre_input_board = {}
 	return committed
 
 
@@ -1268,7 +1270,7 @@ func _matching_pre_terminal_board(terminal_capture: Dictionary) -> Dictionary:
 	if _terminal_pre_input_board.identity != terminal_capture.get("identity") \
 			or _terminal_pre_input_board.revision + 1 != terminal_capture.get("revision"):
 		return {}
-	return _terminal_pre_input_board.duplicate(true)
+	return _terminal_pre_input_board
 
 
 func _visibility_command(request: Dictionary, visible: bool) -> Dictionary:

@@ -467,6 +467,21 @@ func test_get_entry_context_is_not_eligible_once_phase_leaves_none() -> void:
 
 # ---- Debug preparation: begin -> slice(progress) -> slice(certified) ----
 
+func test_debug_preparation_retry_uses_the_original_request_after_a_busy_gate() -> void:
+	var identity: Dictionary = _coordinator.get_entry_context("beginner").value.identity
+	var request := _debug_request(_next_tx(), identity, 0, "beginner")
+	var held := _consequence_gate.acquire(&"causal_transaction")
+	assert_eq(_coordinator.begin_debug_preparation(request).code, &"TRANSACTION_ACTIVE")
+	_consequence_gate.release(&"causal_transaction", held.value.token)
+	var context := _coordinator.get_preparation_context()
+	context.value.identity.app_round_ordinal += 1
+	assert_eq(_coordinator.get_preparation_context().value.identity, identity)
+	request.expected_revision = 1
+	assert_eq(_coordinator.begin_debug_preparation(request).code, &"debug_retry_required")
+	request.expected_revision = 0
+	assert_eq(_coordinator.begin_debug_preparation(request).value.phase, "PREPARING")
+
+
 func test_debug_preparation_reaches_prepared_unstarted() -> void:
 	var identity: Dictionary = _coordinator.get_entry_context("beginner")["value"]["identity"]
 	var tx1 := _next_tx()

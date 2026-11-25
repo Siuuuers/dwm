@@ -12,14 +12,14 @@ var lower: RecordingCheckpoint
 var port: RefCounted
 var response: Variant
 var callback_calls := 0
-var mutate_argument := false
+var check_projection := false
 
 func before_each() -> void:
 	lower = RecordingCheckpoint.new()
 	port = PORT.new(lower)
 	response = {"ok": true, "value": _context()}
 	callback_calls = 0
-	mutate_argument = false
+	check_projection = false
 	assert_true(port.configure_audio_context_capture(_audio).ok)
 
 func _audio() -> Dictionary:
@@ -34,14 +34,15 @@ func _snapshot() -> Dictionary:
 		"desktop": {"board": {"phase": "ACTIVE_VISIBLE", "board": {"revealed_indices": [4]}},
 			"consequence": {"run_revision": 2}}, "gameplay": {"minesweeper_rounds_left": 1}}
 
-func _capture(candidate: Dictionary) -> Variant:
+func _capture(matches_projected: Callable) -> Variant:
 	callback_calls += 1
-	if mutate_argument:
-		candidate.desktop.board.board.revealed_indices.append(99)
-		candidate.gameplay.minesweeper_rounds_left = 99
+	if check_projection:
+		assert_true(matches_projected.call("scene", {"active_occurrence_id": "TEST.occurrence"}))
+		assert_false(matches_projected.call("scene", {"active_occurrence_id": "stale"}))
+		assert_false(matches_projected.call("absent", null))
 	return response
 
-func _other_capture(_candidate: Dictionary) -> Variant:
+func _other_capture(_matches_projected: Callable) -> Variant:
 	return response
 
 func _prepare(snapshot: Dictionary) -> Dictionary:
@@ -83,7 +84,7 @@ func test_malformed_contexts_never_reach_lower_prepare() -> void:
 
 func test_callback_cannot_mutate_chosen_detached_board_or_accounting() -> void:
 	assert_true(port.configure_scene_context_capture(_capture).ok)
-	mutate_argument = true
+	check_projection = true
 	var chosen := _snapshot()
 	var before := chosen.duplicate(true)
 	assert_true(_prepare(chosen).ok)

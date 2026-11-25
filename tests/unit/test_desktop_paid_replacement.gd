@@ -181,7 +181,7 @@ func test_unpaid_flags_are_saved_without_capacity_then_preserved_by_first_reveal
 	var board: Dictionary = coordinator.get_state().value.board.board
 	assert_eq(board.actions, shell.candidate.actions)
 	assert_eq(board.flagged_indices, [11])
-	assert_true(SCHEMA.validate_board(board).ok)
+	assert_true(SCHEMA.check_board(board).ok)
 
 func test_free_difficulty_checkpoint_resets_shell_and_does_not_allocate_layout() -> void:
 	_durable()

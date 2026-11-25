@@ -187,6 +187,8 @@ func test_certification_and_legacy_restore_clear_marks_preserving_payment_and_no
 	assert_eq(preload("res://scripts/domain/minesweeper/BoardPerformance.gd").click_count(first.value.board), 3)
 	var old_save := clean.duplicate(true)
 	old_save.candidate.merge(history, true)
+	assert_true(STATE.new().check_snapshot(old_save).ok)
+	assert_eq(old_save.candidate.flagged_indices, [0, 2])
 	restored = STATE.new().prepare_restore(old_save)
 	assert_true(restored.ok, str(restored))
 	assert_eq(restored.value.candidate.snapshot_after, clean)

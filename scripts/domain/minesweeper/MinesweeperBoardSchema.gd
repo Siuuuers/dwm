@@ -33,12 +33,6 @@ const _BOARD_KEYS := [
 const _ACTION_KINDS: Array[StringName] = [&"reveal", &"set_flag", &"chord"]
 
 
-static func validate_spec(spec: Dictionary) -> Dictionary:
-	var checked := check_spec(spec)
-	if not checked.ok: return checked
-	return {"ok": true, "code": &"ok", "value": {"spec": spec.duplicate(true)}, "receipt": {}}
-
-
 static func check_spec(spec: Dictionary) -> Dictionary:
 	var shape := _exact_keys(spec, _SPEC_KEYS, &"spec_member_set_invalid")
 	if not shape.get("ok", false):
@@ -154,7 +148,7 @@ static func validate_layout(layout: Dictionary, spec: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"layout": canonical}, "receipt": {}}
 
 
-static func validate_board(board: Dictionary) -> Dictionary:
+static func check_board(board: Dictionary) -> Dictionary:
 	var shape := _exact_keys(board, _BOARD_KEYS, &"board_member_set_invalid")
 	if not shape.get("ok", false):
 		return shape
@@ -272,7 +266,7 @@ static func validate_board(board: Dictionary) -> Dictionary:
 	if not _is_int_like(board["revision"]) or int(board["revision"]) != actions.size():
 		return _fail(&"board_revision_mismatch", "revision must equal the number of applied actions", {})
 
-	return {"ok": true, "code": &"ok", "value": {"board": board.duplicate(true)}, "receipt": {}}
+	return {"ok": true}
 
 
 

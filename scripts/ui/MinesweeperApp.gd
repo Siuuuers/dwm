@@ -202,7 +202,7 @@ func _foreground(foreground: bool) -> Dictionary:
 	if not result is Dictionary:
 		panel.present({})
 		return _fail(&"minesweeper_presentation_unavailable")
-	if result.get("value") is Dictionary: panel.present(result.value)
+	if result.get("value") is Dictionary: panel._present_owned(result.value)
 	else: panel.present({})
 	if not result.get("ok",false): return _fail(&"minesweeper_foreground_refused")
 	if not result.get("value") is Dictionary or not panel.has_valid_presentation(): return _fail(&"minesweeper_presentation_unavailable")

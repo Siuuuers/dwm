@@ -88,11 +88,9 @@ static func _scene_preparation_matches(spec: Dictionary, envelope: Dictionary) -
 	var current: Dictionary = begun.value.preparation
 	var sought: Variant = envelope.preparation
 	while true:
-		var plain: Dictionary = plain_frontier(current)
-		if not plain.ok: return false
-		if sought != null:
-			if plain.value == sought: return true
-			if current.slice_sequence >= sought.slice_sequence: return false
+		if sought != null and current.slice_sequence >= sought.slice_sequence:
+			var plain := plain_frontier(current)
+			return plain.ok and plain.value == sought
 		if str(current.status) != "searching":
 			if sought != null or str(current.status) != "certified": return false
 			var layout := {"schema_version": 1, "width": spec.width, "height": spec.height,
@@ -132,7 +130,7 @@ static func _validate_scene(record: Dictionary) -> bool:
 	elif envelope.prepared_layout != null or envelope.forced_cell != -1: return false
 	if record.board == null:
 		return record.phase == "ready" and envelope.special_cell == (special_cell(spec, envelope.prepared_layout) if debug else -1)
-	if not record.board is Dictionary or not BOARD.validate_board(record.board).ok: return false
+	if not record.board is Dictionary or not BOARD.check_board(record.board).ok: return false
 	var board: Dictionary = record.board
 	if board.actions.size() < envelope.shell.actions.size() \
 			or board.actions.slice(0, envelope.shell.actions.size()) != envelope.shell.actions: return false

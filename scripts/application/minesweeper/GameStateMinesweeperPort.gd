@@ -232,7 +232,6 @@ func prepare_complete(active_round: Dictionary, result: Dictionary, transaction_
 		"prepared_candidate": candidate,
 		"prepared_domain_receipt": receipt,
 		"domain_events": events,
-		"checkpoint_input_template": {"active_round": active_round.duplicate(true)},
 	}}
 
 
@@ -540,10 +539,7 @@ func _checkpoint_inputs(lifecycle: Dictionary, candidate: Variant = null) -> Dic
 func _provided(key: String, fallback: Variant) -> Variant:
 	if not _checkpoint_providers.has(key):
 		return fallback
-	var produced: Variant = (_checkpoint_providers[key] as Callable).call()
-	if typeof(produced) == TYPE_DICTIONARY or typeof(produced) == TYPE_ARRAY:
-		return produced.duplicate(true)
-	return produced
+	return (_checkpoint_providers[key] as Callable).call()
 
 
 func _fail(code: StringName, message: String) -> Dictionary:

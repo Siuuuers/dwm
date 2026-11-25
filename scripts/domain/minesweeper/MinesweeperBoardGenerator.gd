@@ -220,7 +220,10 @@ static func run_debug_slice(current: Dictionary) -> Dictionary:
 		var advanced: Dictionary = _KERNEL.advance(current, call_limit)
 		if not advanced.get("ok", false):
 			return advanced
-		return _PREPARATION.advance(current, advanced)
+		if advanced.value.preparation.status == _KERNEL.STATUS_SEARCHING and current.candidate_state != null:
+			return _PREPARATION.advance(current, advanced)
+		var checked := _PREPARATION.check_advance(current, advanced)
+		return advanced if checked.ok else checked
 
 	var fallback_loaded := _load_fallback_manifest()
 	if not fallback_loaded.get("ok", false):
@@ -319,11 +322,6 @@ static func _adopt_fallback(current: Dictionary, budget: Dictionary, fallback_re
 
 
 
-static func _read_budget_manifest() -> Dictionary:
-	var loaded := _load_budget_manifest()
-	return {"ok": true, "value": _budget_manifest_cache.duplicate(true)} if loaded.ok else loaded
-
-
 static func _load_budget_manifest() -> Dictionary:
 	if not FileAccess.file_exists(BUDGET_MANIFEST_PATH):
 		return _fail(&"generator_budget_unavailable", "the generator budget manifest is absent", {})
@@ -336,7 +334,7 @@ static func _load_budget_manifest() -> Dictionary:
 		if not parsed.get("ok", false):
 			return _fail(&"generator_budget_unavailable", "the generator budget manifest is not strict JSON", {})
 		budget = parsed["value"]
-		var schema_check := _check_budget_schema(budget)
+		var schema_check := validate_budget_schema(budget)
 		if not schema_check.get("ok", false):
 			return _fail(&"generator_budget_unavailable", "the generator budget manifest failed schema validation",
 				{"cause": schema_check.get("code", &"")})
@@ -350,11 +348,6 @@ static func _load_budget_manifest() -> Dictionary:
 
 
 static func validate_budget_schema(budget: Dictionary) -> Dictionary:
-	var checked := _check_budget_schema(budget)
-	return {"ok": true, "code": &"ok", "value": {"budget": budget.duplicate(true)}, "receipt": {}} if checked.ok else checked
-
-
-static func _check_budget_schema(budget: Dictionary) -> Dictionary:
 	var shape := _exact_keys(budget, _BUDGET_KEYS, &"budget_member_set_invalid")
 	if not shape.get("ok", false):
 		return shape
@@ -450,11 +443,6 @@ static func _validate_budget_freshness(budget: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
-static func _read_fallback_manifest() -> Dictionary:
-	var loaded := _load_fallback_manifest()
-	return {"ok": true, "value": _fallback_manifest_cache.duplicate(true)} if loaded.ok else loaded
-
-
 static func _load_fallback_manifest() -> Dictionary:
 	if not FileAccess.file_exists(FALLBACK_MANIFEST_PATH):
 		return _fail(&"generator_budget_unavailable", "the certified fallback manifest is absent", {})
@@ -465,7 +453,7 @@ static func _load_fallback_manifest() -> Dictionary:
 	if not parsed.get("ok", false):
 		return _fail(&"generator_budget_unavailable", "the certified fallback manifest is not strict JSON", {})
 	var artifact: Dictionary = parsed["value"]
-	var schema_check := _check_fallback_schema(artifact)
+	var schema_check := validate_fallback_schema(artifact)
 	if not schema_check.get("ok", false):
 		return _fail(&"generator_budget_unavailable", "the certified fallback manifest failed schema validation",
 			{"cause": schema_check.get("code", &"")})
@@ -475,11 +463,6 @@ static func _load_fallback_manifest() -> Dictionary:
 
 
 static func validate_fallback_schema(artifact: Dictionary) -> Dictionary:
-	var checked := _check_fallback_schema(artifact)
-	return {"ok": true, "code": &"ok", "value": {"artifact": artifact.duplicate(true)}, "receipt": {}} if checked.ok else checked
-
-
-static func _check_fallback_schema(artifact: Dictionary) -> Dictionary:
 	var shape := _exact_keys(artifact, _FALLBACK_MANIFEST_KEYS, &"fallback_member_set_invalid")
 	if not shape.get("ok", false):
 		return shape
