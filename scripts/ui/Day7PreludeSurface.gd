@@ -175,9 +175,7 @@ func _on_typography_profile_restored(_profile: Dictionary) -> void:
 
 func _refresh_typography_preferences() -> void:
 	if not _configured or not is_instance_valid(_typography_profile): return
-	var percent: Variant = _typography_profile.get_preference(&"preferences.accessibility.text_size", null)
-	if percent == null:
-		percent = int(float(_typography_profile.get_preference(&"preferences.accessibility.font_scale", 1.0)) * 100)
+	var percent: Variant = _typography_profile.get_preference(&"preferences.accessibility.text_size", 100)
 	var style := str(_typography_profile.get_preference(&"preferences.accessibility.font_style", "pixel"))
 	var face: Font = TYPOGRAPHY.font(_locale, int(percent), style)
 	var size: int = TYPOGRAPHY.font_size(int(percent))

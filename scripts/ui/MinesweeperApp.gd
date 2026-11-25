@@ -8,10 +8,7 @@ const PANEL := preload("res://scripts/ui/minesweeper/MinesweeperPanel.gd")
 const GRID := preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd")
 const RETRY_BUTTON := preload("res://scripts/ui/minesweeper/MinesweeperActionButton.gd")
 const PREFERENCE_KEYS := ["preferences.accessibility.font_style","preferences.accessibility.text_size","preferences.accessibility.large_targets",
-	"preferences.accessibility.font_scale","preferences.accessibility.large_click_targets",
-	"preferences.accessibility.high_contrast","preferences.accessibility.colour_differentiation",
-	"preferences.accessibility.colorblind_mode"]
-const LEGACY_COLOUR_PRESETS := {"none":"standard","protanopia":"protan","deuteranopia":"deutan","tritanopia":"tritan"}
+	"preferences.accessibility.high_contrast","preferences.accessibility.colour_differentiation"]
 
 var _scene_presentation := false
 var panel: Control
@@ -307,20 +304,11 @@ func _notification(what: int) -> void:
 
 func _apply_preferences() -> bool:
 	var locale := str(_localization.get_locale()).replace("_","-") if _localization != null else "en"
-	var percent: Variant = _profile.get_preference("preferences.accessibility.text_size",null) if _profile != null else 100
-	if percent == null:
-		var scale_value: Variant = _profile.get_preference("preferences.accessibility.font_scale",1.0)
-		if typeof(scale_value) not in [TYPE_INT,TYPE_FLOAT]: return false
-		percent = 150 if scale_value >= 1.5 else (125 if scale_value >= 1.25 else 100)
-	var large: Variant = _profile.get_preference("preferences.accessibility.large_targets",null) if _profile != null else false
-	if large == null: large = _profile.get_preference("preferences.accessibility.large_click_targets",false)
+	var percent: Variant = _profile.get_preference("preferences.accessibility.text_size",100) if _profile != null else 100
+	var large: Variant = _profile.get_preference("preferences.accessibility.large_targets",false) if _profile != null else false
 	if typeof(percent) != TYPE_INT or typeof(large) != TYPE_BOOL: return false
 	var high_contrast: Variant = _profile.get_preference("preferences.accessibility.high_contrast",false) if _profile != null else false
-	var colour: Variant = _profile.get_preference("preferences.accessibility.colour_differentiation",null) if _profile != null else "standard"
-	if colour == null:
-		var legacy: Variant = _profile.get_preference("preferences.accessibility.colorblind_mode","none")
-		if typeof(legacy) != TYPE_STRING or not LEGACY_COLOUR_PRESETS.has(legacy): return false
-		colour = LEGACY_COLOUR_PRESETS[legacy]
+	var colour: Variant = _profile.get_preference("preferences.accessibility.colour_differentiation","standard") if _profile != null else "standard"
 	if typeof(high_contrast) != TYPE_BOOL or typeof(colour) != TYPE_STRING: return false
 	var font_style := str(_profile.get_preference("preferences.accessibility.font_style", "pixel")) if _profile != null else "pixel"
 	var retained_scroll: Vector2i = panel.worksheet.get_scroll()

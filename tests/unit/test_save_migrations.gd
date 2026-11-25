@@ -75,6 +75,25 @@ func test_current_legacy_members_are_rejected_instead_of_stripped() -> void:
 	outer["preferences"] = {}
 	_assert_refused_unchanged(outer, {"kind": "slot", "slot_id": 1})
 
+func test_load_refuses_prior_fields_and_missing_outcome_without_touching_source() -> void:
+	var raw := _document()
+	var locator := {"kind": "slot", "slot_id": 1}
+	var snapshot: Dictionary = raw.current_snapshot.snapshot
+	for field: String in ["audio_context", "active_app_id"]:
+		snapshot[field] = null
+		_assert_refused_unchanged(raw, locator)
+		assert_eq(DOCUMENT.load_current_document(raw).code, &"unsupported_save_format")
+		snapshot.erase(field)
+	snapshot.lifecycle["scene_assignment"] = {}
+	_assert_refused_unchanged(raw, locator)
+	assert_eq(DOCUMENT.load_current_document(raw).code, &"invalid_lifecycle")
+	snapshot.lifecycle.erase("scene_assignment")
+	var prior := {"challenge_id": "test.challenge", "outcome": "won"}
+	snapshot.gameplay.scene_challenge_outcomes["a".repeat(64)] = prior
+	_assert_refused_unchanged(raw, locator)
+	assert_eq(DOCUMENT.load_current_document(raw).code, &"invalid_gameplay")
+	assert_false(prior.has("physical_slot"))
+
 func test_ordinary_load_refuses_unsupported_version_before_reading_runtime_state() -> void:
 	# No registration, gameplay owners or snapshot body is needed to reject a
 	# version that this build cannot interpret.
