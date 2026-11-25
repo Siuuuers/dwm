@@ -190,10 +190,8 @@ static func checkpoint_content_preimage(checkpoint_header: Dictionary, stage_can
 		return _fail(&"checkpoint_header_invalid", "unexpected header keys: " + str(header_keys), {})
 	if typeof(checkpoint_header["source_ids"]) != TYPE_ARRAY:
 		return _fail(&"checkpoint_header_invalid", "source_ids must be an array", {})
-	var sorted_sources: Array = (checkpoint_header["source_ids"] as Array).duplicate(true)
-	sorted_sources.sort()
 	var normalized_header := checkpoint_header.duplicate(true)
-	normalized_header["source_ids"] = sorted_sources
+	(normalized_header["source_ids"] as Array).sort()
 
 	var candidate_validation := _validate_for_preimage(stage_candidate, proven_recovery_payload_sha256)
 	if not candidate_validation.get("ok", false):

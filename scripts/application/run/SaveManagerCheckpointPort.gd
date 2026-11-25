@@ -546,16 +546,15 @@ func commit_consequence_checkpoint(checkpoint_candidate: Dictionary, checkpoint_
 		return _fail(&"checkpoint_receipt_mismatch", "checkpoint_receipt does not match the prepared candidate")
 	var receipt_id := str(checkpoint_receipt.get("receipt_id", ""))
 	var validated: Dictionary
-	if (_issued_transient_records.has(receipt_id)
-			and record == (_issued_transient_records[receipt_id] as Dictionary)):
-		validated = {"ok": true, "code": &"ok", "value": record.duplicate(true), "canonical_text": ""}
+	var issued: Dictionary = _issued_transient_records.get(receipt_id, {})
+	if not issued.is_empty() and record == issued:
+		validated = {"ok": true, "code": &"ok", "value": issued, "canonical_text": ""}
 		_touch_issued_transient_record(receipt_id)
 	else:
 		validated = _validate_transient_consequence_record(record)
 		if not validated.get("ok", false):
 			return validated
-		if (_issued_transient_records.has(receipt_id)
-				and not CANONICAL_JSON._deep_same(_issued_transient_records[receipt_id], validated["value"])):
+		if not issued.is_empty() and not CANONICAL_JSON._deep_same(issued, validated["value"]):
 			return _fail(&"invalid_candidate", "checkpoint record differs from the issued candidate")
 	var normalized: Dictionary = validated["value"]
 	var key: String = normalized["key"]
