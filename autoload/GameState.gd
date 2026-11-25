@@ -4975,7 +4975,7 @@ func _commit_scene_round_owned(request: Dictionary, lease: String) -> Dictionary
 		context.value.scene_occurrence, completion, _identity_issuer)
 	if not receipt.ok: return receipt
 	var candidate := before.duplicate(true)
-	candidate.gameplay = reward.value.gameplay.duplicate(true)
+	candidate.gameplay = reward.value.gameplay
 	candidate.command_receipts[id] = receipt.value.duplicate(true)
 	var board_after := captured.duplicate(true)
 	board_after.revision += 1
@@ -5019,7 +5019,7 @@ func _commit_scene_round_owned(request: Dictionary, lease: String) -> Dictionary
 
 func _validate_scene_round_checkpoint(candidate: Dictionary, checkpoint: Dictionary, _phase: String) -> bool:
 	if _scene_round_operation.is_empty(): return false
-	var op := _scene_round_operation.duplicate(true)
+	var op := _scene_round_operation
 	var session := capture_live_session()
 	var boundary: Dictionary = _scene_event_bridge.capture_scene_event_boundary()
 	return session.get("ok", false) and boundary.get("ok", false) \

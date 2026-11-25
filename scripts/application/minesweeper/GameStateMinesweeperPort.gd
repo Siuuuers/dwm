@@ -561,16 +561,17 @@ func prepare_scene_complete(difficulty: String, board: Dictionary) -> Dictionary
 	var tasks := _task_ids_for(outcome, difficulty)
 	if reasons.has("no_flag"): tasks.append("no_flag_finish")
 	if reasons.has("efficiency_gt_100") or reasons.has("efficiency_gte_100"): tasks.append("foresight_finish")
-	var clone: Object = _detached_clone()
-	if clone == null: return _fail(&"scene_round_reward_invalid", "detached owner required")
+	var gameplay: Dictionary = _game_state._capture_scene_gameplay()
 	var result := {"context": "app", "difficulty": difficulty, "outcome": outcome, "task_ids": tasks}
-	clone.set("unfinished_minesweeper_result", {})
-	clone.set("minesweeper_app_rounds_finished_today", int(clone.get("minesweeper_app_rounds_finished_today")) + 1)
-	var reward: Dictionary = clone.call("apply_minesweeper_money_reward", result)
-	var claimed: Array = clone.call("check_and_claim_minesweeper_task_rewards", result)
-	var gameplay: Dictionary = {}
-	for key: String in _game_state.SCENE_GAMEPLAY_KEYS:
-		var value: Variant = _game_state._narrative_variables if key == "narrative_variables" else clone.get(key)
-		gameplay[key] = value.duplicate(true) if value is Dictionary or value is Array else value
-	clone.free()
+	var reward_state: Object = load(GAME_STATE_SCRIPT_PATH).new()
+	var reward_fields := ["money", "coins", "stats", "minesweeper_money_earned_today", "minesweeper_task_rewards_claimed"]
+	for key: String in reward_fields:
+		reward_state.set(key, gameplay[key])
+	reward_state.set("minesweeper_round_floor", gameplay.minesweeper_round_floor)
+	var reward: Dictionary = reward_state.apply_minesweeper_money_reward(result)
+	var claimed: Array = reward_state.check_and_claim_minesweeper_task_rewards(result)
+	for key: String in reward_fields:
+		gameplay[key] = reward_state.get(key)
+	reward_state.free()
+	gameplay.minesweeper_app_rounds_finished_today += 1
 	return {"ok": true, "value": {"gameplay": gameplay, "reward": reward, "claimed": claimed, "outcome": outcome}}
