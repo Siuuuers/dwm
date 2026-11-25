@@ -83,7 +83,7 @@ static func _without_operation_view(reading: Dictionary) -> Dictionary:
 
 static func _projection(plan: Dictionary, phase: String) -> Dictionary:
 	var ledger: Dictionary = plan.source_ledger.duplicate(true)
-	var frontier: Dictionary = plan.source_frontier.duplicate(true)
+	var frontier: Dictionary = plan.source_frontier.duplicate() if phase == "source" else {}
 	var boundary := "line"
 	if phase == "destination":
 		for row: Dictionary in plan.traversed_captions:
@@ -94,7 +94,6 @@ static func _projection(plan: Dictionary, phase: String) -> Dictionary:
 			frontier = {"line_id": row.beat.line_id, "publication_id": row.publication_id}
 		else:
 			boundary = "between_entries"
-			frontier = {}
 	return {"schema_version": 1, "catalogue_fingerprint": plan.catalogue_fingerprint,
 		"boundary": boundary, "ledger": ledger, "frontier": frontier}
 
@@ -225,18 +224,19 @@ static func _validate_marker_plan(plan: Dictionary) -> Dictionary:
 					or envelope.source.entry_id != plan.entry_id: return _fail(&"reading_next_destination_invalid")
 		_:
 			return _fail(&"reading_next_destination_invalid")
-	var projected := _marker_projection(plan, "destination")
+	var projected := _marker_projection_view(plan, "destination")
 	if not valid_marker_reading_shape(projected): return _fail(&"reading_next_projection_mismatch")
 	return {"ok": true}
 
-static func _marker_projection(plan: Dictionary, phase: String) -> Dictionary:
-	var result: Dictionary = plan.source_reading.duplicate(true)
-	if phase == "source": return result
-	for row: Dictionary in plan.traversed_captions: result.ledger.captions.append(row.duplicate(true))
+static func _marker_projection_view(plan: Dictionary, phase: String) -> Dictionary:
+	if phase == "source": return plan.source_reading
+	var result: Dictionary = plan.source_reading.duplicate()
+	result.ledger = result.ledger.duplicate()
+	result.ledger.captions = result.ledger.captions + plan.traversed_captions
 	var target: Dictionary = plan.destination
 	match target.kind:
 		"line":
-			result.ledger.captions.append(target.caption.duplicate(true))
+			result.ledger.captions.append(target.caption)
 			result.boundary = "line"
 			result.frontier = {"line_id": target.caption.beat.line_id, "publication_id": target.caption.publication_id}
 		"completion":
@@ -245,13 +245,13 @@ static func _marker_projection(plan: Dictionary, phase: String) -> Dictionary:
 		"notification":
 			result.boundary = "notification"
 			result.frontier = {"event_id": target.semantic.event_id, "command_id": target.semantic.command_id,
-				"event_digest": str(JSON_WRITER.stringify(target.semantic).value).sha256_text(), "anchor": target.anchor.duplicate(true)}
+				"event_digest": str(JSON_WRITER.stringify(target.semantic).value).sha256_text(), "anchor": target.anchor}
 	return result
 
 static func _project_marker_operation(plan: Dictionary, phase: String) -> Dictionary:
 	var made := _create_operation(plan, phase, 2)
 	if not made.ok: return made
-	var result := _marker_projection(plan, phase)
+	var result := _marker_projection_view(plan, phase).duplicate(true)
 	result.next_operation = made.value
 	return {"ok": true, "value": result}
 
@@ -267,7 +267,7 @@ static func _validate_marker_operation(reading: Dictionary, entry_id: String) ->
 	if not made.ok: return made
 	if not EVENT._same_types(operation, made.value) or operation != made.value or operation.plan.entry_id != entry_id:
 		return _fail(&"reading_next_operation_mismatch")
-	var expected := _marker_projection(operation.plan, operation.phase)
+	var expected := _marker_projection_view(operation.plan, operation.phase)
 	var actual := _without_operation_view(reading)
 	if not EVENT._same_types(actual, expected) or actual != expected: return _fail(&"reading_next_projection_mismatch")
 	return made

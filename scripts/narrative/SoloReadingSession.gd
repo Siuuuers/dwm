@@ -625,10 +625,10 @@ func prepare_scene_next(frontier: Dictionary, is_witnessed: Callable) -> Diction
 				return _content_error("Unregistered dialogue ID: " + next.line_id,
 					{"entry_id": latest_entry, "line_id": next.line_id})
 			var beat: Dictionary = _caption_variants_by_line[next.line_id]
-			var witnessed: Variant = is_witnessed.call(beat.duplicate(true))
+			var witnessed: Variant = is_witnessed.call(beat)
 			if typeof(witnessed) != TYPE_BOOL: return _fail(&"reading_next_witness_invalid")
 			if next.has("self_talk"):
-				var thought_witnessed: Variant = is_witnessed.call(_caption_variants_by_line[next.self_talk.line_id].duplicate(true))
+				var thought_witnessed: Variant = is_witnessed.call(_caption_variants_by_line[next.self_talk.line_id])
 				if typeof(thought_witnessed) != TYPE_BOOL: return _fail(&"reading_next_witness_invalid")
 				witnessed = witnessed and thought_witnessed
 			var allocation := candidate.allocate_publication(command_id, latest_entry, scene_occurrence)
@@ -990,7 +990,7 @@ func prepare_next(frontier: Dictionary, is_witnessed: Callable) -> Dictionary:
 	var destination := {"kind": "completion", "caption": null}
 	for ordinal: int in range(index + 1, lines.size()):
 		var variant: Dictionary = _caption_variants_by_line[lines[ordinal].line_id]
-		var witnessed: Variant = is_witnessed.call(variant.duplicate(true))
+		var witnessed: Variant = is_witnessed.call(variant)
 		if typeof(witnessed) != TYPE_BOOL: return _fail(&"reading_next_witness_invalid")
 		var allocation := candidate.allocate_publication(command_id, latest_entry)
 		if not allocation.ok: return allocation
@@ -1256,7 +1256,7 @@ func _marker_crossed(reading: Dictionary, entry_id: String) -> bool:
 
 func _validate_marker_route(plan: Dictionary) -> Dictionary:
 	var source: Dictionary = plan.source_reading
-	var destination := TRAVERSAL._marker_projection(plan, "destination")
+	var destination := TRAVERSAL._marker_projection_view(plan, "destination")
 	var crossed_before := _marker_crossed(source, plan.entry_id)
 	var crossed_after := _marker_crossed(destination, plan.entry_id)
 	if not crossed_before and crossed_after and plan.destination.kind != "notification": return _fail(&"reading_marker_bypassed")
@@ -1300,7 +1300,7 @@ func prepare_marker_next(frontier: Dictionary, is_witnessed: Callable, semantic:
 			break
 		if ordinal + 1 >= lines.size(): break
 		var variant: Dictionary = _caption_variants_by_line[lines[ordinal + 1].line_id]
-		var witnessed: Variant = is_witnessed.call(variant.duplicate(true))
+		var witnessed: Variant = is_witnessed.call(variant)
 		if typeof(witnessed) != TYPE_BOOL: return _fail(&"reading_next_witness_invalid")
 		var allocation := candidate.allocate_publication(command_id, latest_entry)
 		if not allocation.ok: return allocation

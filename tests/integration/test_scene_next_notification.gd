@@ -84,6 +84,11 @@ func test_first_marker_stops_before_any_later_witness_query_or_caption_publicati
 	assert_eq(projected.value.boundary, "notification")
 	assert_eq(projected.value.ledger, before, "the marker is not a History caption")
 	assert_true(session.validate_saved(projected.value, FIXTURE.ENTRY).ok)
+	projected.value.frontier.anchor.clear()
+	projected.value.ledger.captions.clear()
+	assert_false(plan.value.destination.anchor.is_empty())
+	assert_eq(plan.value.source_reading.ledger, before)
+	assert_eq(projected.value.next_operation.plan, plan.value)
 
 func test_notification_restore_requires_exact_receipt_then_next_reaches_second_once() -> void:
 	var session: RefCounted = FIXTURE.started()
