@@ -373,7 +373,7 @@ static func _scene_control_authored_predecessor(index: int, compiled: Dictionary
 	for marker: Dictionary in markers:
 		if marker.marker_id == compiled.nodes[index].marker_id and marker.after_line_id == prior.line_id:
 			return {"ok": true, "value": {"index": index - 1, "line_id": prior.line_id,
-				"marker": marker.duplicate(true)}}
+				"marker": marker}}
 	return {"ok": false, "code": &"scene_restore_control_invalid"}
 
 static func _scene_control_predecessor(saved: Dictionary, compiled: Dictionary, markers: Array) -> Dictionary:
