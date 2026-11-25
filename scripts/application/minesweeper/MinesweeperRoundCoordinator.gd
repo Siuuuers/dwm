@@ -290,6 +290,7 @@ func complete_round(request: Dictionary) -> Dictionary:
 			_consequence_gate_token = ""
 		return consequence_captured
 	var live_consequence: Dictionary = (consequence_captured["value"] as Dictionary)["state"]
+	var run_revision: int = int(live_consequence["run_revision"])
 	profile_tick = _consequence_profile_phase(profile, "consequence_capture_us", profile_tick)
 
 	var board_projection := _project_completion_board(identity, captured, outcome, transaction_id)
@@ -297,7 +298,7 @@ func complete_round(request: Dictionary) -> Dictionary:
 		if acquired_fresh: release_recovery_lease()
 		return _fail(&"invalid_terminal_inspection", "", {})
 	var action_candidate := {
-		"transaction_id": transaction_id, "outcome": outcome, "identity": identity.duplicate(true),
+		"transaction_id": transaction_id, "outcome": outcome, "identity": identity,
 		"board_projection": board_projection,
 	}
 	if _reward_port != null:
@@ -310,13 +311,13 @@ func complete_round(request: Dictionary) -> Dictionary:
 		if not reward.get("ok", false):
 			if acquired_fresh: release_recovery_lease()
 			return reward
-		action_candidate["reward"] = reward.value.duplicate(true)
+		action_candidate["reward"] = reward.value
 	profile_tick = _consequence_profile_phase(profile, "action_candidate_prepare_us", profile_tick)
 	var pre_terminal_board := _matching_pre_terminal_board(captured) if _source_checkpoint_capture.is_valid() else {}
 	if not profile.is_empty():
 		profile["source_checkpoint"] = not pre_terminal_board.is_empty()
 	if not pre_terminal_board.is_empty():
-		var source_inputs: Dictionary = _source_checkpoint_capture.call(live_consequence.duplicate(true))
+		var source_inputs: Dictionary = _source_checkpoint_capture.call(live_consequence)
 		profile_tick = _consequence_profile_phase(profile, "source_capture_us", profile_tick)
 		if not source_inputs.get("ok", false):
 			if acquired_fresh: release_recovery_lease()
@@ -328,8 +329,10 @@ func complete_round(request: Dictionary) -> Dictionary:
 				or typeof((snapshot_input as Dictionary).get("desktop")) != TYPE_DICTIONARY:
 			if acquired_fresh: release_recovery_lease()
 			return _fail(&"invalid_source_checkpoint_inputs", "snapshot_input.desktop is required", {})
-		var completed_inputs: Dictionary = (checkpoint_inputs as Dictionary).duplicate(true)
-		((completed_inputs["snapshot_input"] as Dictionary)["desktop"] as Dictionary)["board"] = pre_terminal_board
+		var completed_inputs: Dictionary = (checkpoint_inputs as Dictionary).duplicate()
+		completed_inputs.snapshot_input = snapshot_input.duplicate()
+		completed_inputs.snapshot_input.desktop = snapshot_input.desktop.duplicate()
+		completed_inputs.snapshot_input.desktop.board = pre_terminal_board
 		var source_prepared: Dictionary = _round_checkpoint_port.prepare(completed_inputs,
 			&"safe_marker", {"kind": &"autosave", "reason": &"automatic"})
 		profile_tick = _consequence_profile_phase(profile, "source_prepare_us", profile_tick)
@@ -357,14 +360,14 @@ func complete_round(request: Dictionary) -> Dictionary:
 	var action_receipt: Dictionary = (built_receipt["value"] as Dictionary)["receipt"]
 
 	var recovery_payload := {
-		"source_kind": "minesweeper_round", "action_receipt": action_receipt.duplicate(true),
-		"run_revision_before": int(live_consequence["run_revision"]),
+		"source_kind": "minesweeper_round", "action_receipt": action_receipt,
+		"run_revision_before": run_revision,
 		"participant_snapshot_ids": {"transaction_id": transaction_id, "outcome": outcome},
 	}
-	var action_receipt_for_handoff := action_receipt.duplicate(true)
+	var action_receipt_for_handoff := action_receipt.duplicate()
 	action_receipt_for_handoff["source_kind"] = action_receipt["action_kind"]
 	var handoff_prepared: Dictionary = _round_consequence_state_port.call(&"prepare_action_handoff",
-		action_receipt_for_handoff, int(live_consequence["run_revision"]), recovery_payload)
+		action_receipt_for_handoff, run_revision, recovery_payload)
 	profile_tick = _consequence_profile_phase(profile, "handoff_prepare_us", profile_tick)
 	if not handoff_prepared.get("ok", false):
 		if acquired_fresh:
@@ -403,7 +406,7 @@ func complete_round(request: Dictionary) -> Dictionary:
 	var accept_request := {
 		"action_receipt": action_receipt, "action_candidate": action_candidate,
 		"prepared_checkpoint_receipt": checkpoint_value["checkpoint_receipt"],
-		"expected_run_revision": int(live_consequence["run_revision"]),
+		"expected_run_revision": run_revision,
 		"expected_board_identity": identity, "expected_board_revision": int(captured["revision"]),
 	}
 	_round_pending_admission_requests[transaction_id] = accept_request.duplicate(true)
@@ -454,7 +457,7 @@ func validate_recovery_action(action_candidate: Dictionary, action_receipt: Dict
 		return _fail(&"invalid_action_candidate", "action_candidate.transaction_id must match action_receipt", {})
 	var action_candidate_sha256 := _canonical_sha256(action_candidate)
 	return {"ok": true, "code": &"ok", "value": {"publication": {
-		"action_candidate_sha256": action_candidate_sha256, "action_receipt": receipt.duplicate(true),
+		"action_candidate_sha256": action_candidate_sha256, "action_receipt": receipt,
 	}}, "receipt": {}}
 
 
@@ -473,7 +476,7 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 
 	if _round_recovery_committed.has(transaction_id):
 		var recorded: Dictionary = _round_recovery_committed[transaction_id]
-		if recorded["action_candidate"] == action_candidate and recorded["action_receipt"] == receipt:
+		if recorded["action_candidate"] == action_candidate and recorded["result"]["receipt"] == receipt:
 			return (recorded["result"] as Dictionary).duplicate(true)
 		return _fail(&"action_receipt_conflict", "this transaction was already committed with different bytes", {})
 
@@ -515,9 +518,9 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 		if not ledger_committed.get("ok", false):
 			return ledger_committed
 
-	var result := {"ok": true, "code": &"ok", "value": {"action_receipt": receipt.duplicate(true)}, "receipt": receipt.duplicate(true)}
+	var result := {"ok": true, "code": &"ok", "value": {"action_receipt": receipt.duplicate(true)}, "receipt": receipt}
 	_round_recovery_committed[transaction_id] = {
-		"action_candidate": action_candidate.duplicate(true), "action_receipt": receipt.duplicate(true), "result": result.duplicate(true),
+		"action_candidate": action_candidate.duplicate(true), "result": result.duplicate(true),
 	}
 	_consequence_profile_phase(profile, "receipt_and_cache_us", profile_tick)
 	return _consequence_profile_result(profile, result)
@@ -536,10 +539,10 @@ func publish_recovery_action(publication: Dictionary) -> Dictionary:
 	if _publication_ledger == null:
 		return _fail(&"publication_ledger_not_configured", "configure_publication_ledger() is required before publish_recovery_action()", {})
 	var ledger_publication := {
-		"action_candidate_sha256": str(publication["action_candidate_sha256"]), "action_receipt": receipt.duplicate(true),
+		"action_candidate_sha256": str(publication["action_candidate_sha256"]), "action_receipt": receipt,
 	}
 	var recorded: Dictionary = _publication_ledger.call(&"record_before_emit", {
-		"kind": "action_source", "semantic_receipt": receipt.duplicate(true),
+		"kind": "action_source", "semantic_receipt": receipt,
 		"publication": ledger_publication, "publication_sha256": _canonical_sha256(ledger_publication),
 	})
 	if not recorded.get("ok", false):
@@ -551,7 +554,7 @@ func publish_recovery_action(publication: Dictionary) -> Dictionary:
 			var published: Dictionary = _reward_port.publish_desktop_completion(
 				reward.prepared_domain_receipt, reward.domain_events)
 			if not published.get("ok", false): return published
-	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": receipt.duplicate(true)}
+	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": receipt}
 
 
 func release_recovery_lease() -> Dictionary:
@@ -648,7 +651,7 @@ func begin_debug_preparation(request: Dictionary) -> Dictionary:
 	var spec: Dictionary
 	if captured.phase == "PAID_UNSTARTED":
 		identity = captured.identity
-		spec = captured.candidate.spec.duplicate(true)
+		spec = captured.candidate.spec
 		if str(request.difficulty_id) != str(spec.difficulty_id): return _fail(&"difficulty_mismatch", "", {})
 	else:
 		var entry := get_entry_context(str(request.difficulty_id))
@@ -719,8 +722,8 @@ func _retry_debug_preparation(request: Dictionary) -> Dictionary:
 func _commit_debug_preparation(request: Dictionary, action: String, difficulty: String,
 		before: Dictionary, candidate: Dictionary) -> Dictionary:
 	_debug_pending = {"request": request.duplicate(true), "action": action,
-		"difficulty_id": difficulty, "before": before.duplicate(true),
-		"source": _debug_source(), "candidate": candidate.duplicate(true)}
+		"difficulty_id": difficulty, "before": before,
+		"source": _debug_source(), "candidate": candidate}
 	return _retry_debug_preparation(request)
 
 
@@ -793,7 +796,7 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 		if str(entry["request_fingerprint"]) != fingerprint:
 			return _fail(&"transaction_conflict", "", {"transaction_id": transaction_id})
 		var stored: Dictionary = entry["result"]
-		if captured.has("round_paid") or str(stored.get("code", "")) != "first_reveal_committed": return stored.duplicate(true)
+		if captured.has("round_paid") or str(stored.get("code", "")) != "first_reveal_committed": return stored
 		var stored_value: Dictionary = stored.get("value", {})
 		return _republish_first_reveal(stored_value)
 
@@ -906,7 +909,7 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 	var board_candidate: Dictionary = (board_prepared["value"] as Dictionary)["candidate"]
 	board_candidate["result_override"] = {
 		"ok": true, "code": &"first_reveal_committed",
-		"value": {"receipt": receipt.duplicate(true), "publication": publication.duplicate(true)},
+		"value": {"receipt": receipt, "publication": publication},
 		"receipt": {},
 	}
 	if captured.has("round_paid"):
@@ -941,8 +944,8 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 	var published: Dictionary = _state_port.call(&"publish", publication)
 	if not published.get("ok", false):
 		return _fail(&"FIRST_REVEAL_COMMITTED_UNPUBLISHED", "",
-			{"receipt": receipt.duplicate(true)})
-	return {"ok": true, "code": &"first_reveal_committed", "value": {"receipt": receipt.duplicate(true)}, "receipt": {}}
+			{"receipt": receipt})
+	return {"ok": true, "code": &"first_reveal_committed", "value": {"receipt": receipt}, "receipt": {}}
 
 
 func _first_reveal_durable(request: Dictionary) -> Dictionary:
@@ -960,7 +963,7 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 		if str(entry["request_fingerprint"]) != fingerprint:
 			return _fail(&"transaction_conflict", "", {"transaction_id": transaction_id})
 		var stored: Dictionary = entry["result"]
-		if captured.has("round_paid") or str(stored.get("code", "")) != "first_reveal_committed": return stored.duplicate(true)
+		if captured.has("round_paid") or str(stored.get("code", "")) != "first_reveal_committed": return stored
 		var stored_value: Dictionary = stored.get("value", {})
 		return _republish_first_reveal(stored_value)
 	profile_tick = _consequence_profile_phase(profile, "board_capture_us", profile_tick)
@@ -1080,7 +1083,7 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 			return _rollback_participants("board_commit", transaction_id, [
 				["state_port", func(): return _state_port.call(&"rollback", backup.value.backup)],
 			], board_result)
-		return _consequence_profile_result(profile, board_candidate.result_override.duplicate(true))
+		return _consequence_profile_result(profile, board_result)
 
 	var base_captured: Dictionary = _state_port.call(&"capture_base_snapshot_input")
 	profile_tick = _consequence_profile_phase(profile, "capture_base_snapshot_us", profile_tick)
@@ -1090,7 +1093,7 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 
 	board_candidate["result_override"] = {
 		"ok": true, "code": &"first_reveal_committed",
-		"value": {"receipt": receipt.duplicate(true), "publication": publication.duplicate(true)},
+		"value": {"receipt": receipt, "publication": publication},
 		"receipt": {},
 	}
 
@@ -1145,9 +1148,9 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 	var published: Dictionary = _state_port.call(&"publish", publication)
 	_consequence_profile_phase(profile, "publish_us", profile_tick)
 	if not published.get("ok", false):
-		return _fail(&"FIRST_REVEAL_COMMITTED_UNPUBLISHED", "", {"receipt": receipt.duplicate(true)})
+		return _fail(&"FIRST_REVEAL_COMMITTED_UNPUBLISHED", "", {"receipt": receipt})
 	return _consequence_profile_result(profile,
-		{"ok": true, "code": &"first_reveal_committed", "value": {"receipt": receipt.duplicate(true)}, "receipt": {}})
+		{"ok": true, "code": &"first_reveal_committed", "value": {"receipt": receipt}, "receipt": {}})
 
 
 func _republish_first_reveal(stored_value: Dictionary) -> Dictionary:
@@ -1156,8 +1159,8 @@ func _republish_first_reveal(stored_value: Dictionary) -> Dictionary:
 	if typeof(publication) == TYPE_DICTIONARY:
 		var republish: Dictionary = _state_port.call(&"publish", publication)
 		if not republish.get("ok", false):
-			return _fail(&"FIRST_REVEAL_COMMITTED_UNPUBLISHED", "", {"receipt": receipt.duplicate(true)})
-	return {"ok": true, "code": &"first_reveal_committed", "value": {"receipt": receipt.duplicate(true)}, "receipt": {}}
+			return _fail(&"FIRST_REVEAL_COMMITTED_UNPUBLISHED", "", {"receipt": receipt})
+	return {"ok": true, "code": &"first_reveal_committed", "value": {"receipt": receipt}, "receipt": {}}
 
 
 func _restore_board_state(backup: Dictionary) -> Dictionary:
@@ -1344,15 +1347,15 @@ func _fingerprint(request: Dictionary) -> String:
 func _project_completion_board(identity: Dictionary, captured: Dictionary, outcome: String,
 		transaction_id: String) -> Dictionary:
 	var terminal_receipt_id := "round_complete." + transaction_id
-	var terminal_receipts: Dictionary = (captured["terminal_receipts"] as Dictionary).duplicate(true)
+	var terminal_receipts: Dictionary = (captured["terminal_receipts"] as Dictionary).duplicate()
 	terminal_receipts[terminal_receipt_id] = {
 		"kind": "complete", "outcome": outcome, "app_round_ordinal": int(identity["app_round_ordinal"]),
 		"board_sha256": _board_state.inspection_board_sha256(captured["board"]),
 	}
 	return {
 		"schema_version": 1, "phase": "ACTIVE_VISIBLE", "revision": int(captured["revision"]) + 1,
-		"identity": identity.duplicate(true), "candidate": null, "board": captured["board"].duplicate(true), "settlement": null,
-		"command_receipts": (captured["command_receipts"] as Dictionary).duplicate(true),
+		"identity": identity, "candidate": null, "board": captured["board"], "settlement": null,
+		"command_receipts": captured["command_receipts"],
 		"terminal_receipts": terminal_receipts,
 	}
 
@@ -1382,9 +1385,9 @@ func _build_round_action_receipt(transaction_id: String, transaction_issuer_rece
 		"schema_version": 1, "action_kind": "minesweeper_round", "run_id": str(identity["run_id"]),
 		"branch_id": str(identity["branch_id"]), "desktop_timeline_generation": int(identity["desktop_timeline_generation"]),
 		"causal_day_instance": str(identity["causal_day_instance"]), "day": int(facts.get("day", 0)),
-		"transaction_id": transaction_id, "transaction_issuer_receipt": transaction_issuer_receipt.duplicate(true),
+		"transaction_id": transaction_id, "transaction_issuer_receipt": transaction_issuer_receipt,
 		"source_commit_receipt_id": source_commit_receipt_id,
-		"source_commit_receipt_provenance": (paid_start_receipt.get("receipt_provenance", {}) as Dictionary).duplicate(true),
+		"source_commit_receipt_provenance": paid_start_receipt.get("receipt_provenance", {}),
 		"condition_before": condition, "condition_after": condition_after,
 		"unlock_receipt_ids": unlock_receipt_ids,
 	}
@@ -1397,11 +1400,11 @@ func _build_round_action_receipt(transaction_id: String, transaction_issuer_rece
 		return derived
 	var derived_value: Dictionary = derived["value"]
 	var action_id := str(derived_value["child_id"])
-	var action_id_provenance: Dictionary = (derived_value["provenance"] as Dictionary).duplicate(true)
+	var action_id_provenance: Dictionary = derived_value["provenance"]
 	receipt["action_id"] = action_id
 	receipt["action_id_provenance"] = action_id_provenance
 	receipt["commit_receipt_id"] = action_id
-	receipt["commit_receipt_provenance"] = action_id_provenance.duplicate(true)
+	receipt["commit_receipt_provenance"] = action_id_provenance
 	var validated := _ACTION_RECEIPT.validate(receipt)
 	if not validated.get("ok", false):
 		return validated
@@ -1542,7 +1545,7 @@ func _configure_board(request: Dictionary, replace: bool) -> Dictionary:
 	var candidate: Dictionary
 	if not _configuration_pending.is_empty():
 		if str(_configuration_pending.fingerprint) != fingerprint: return _fail(&"configuration_retry_required", "Retry the same board replacement", {})
-		candidate = _configuration_pending.candidate.duplicate(true)
+		candidate = _configuration_pending.candidate
 	else:
 		var input := {"transaction_id": str(request.transaction_id), "identity": before.identity,
 			"expected_revision": int(request.expected_revision), "request_fingerprint": fingerprint}
@@ -1558,7 +1561,7 @@ func _configure_board(request: Dictionary, replace: bool) -> Dictionary:
 		if not prepared.ok: return prepared
 		candidate = prepared.value.candidate
 		candidate["result_override"] = {"ok": true, "code": &"board_configuration_committed", "value": {"revision": int(before.revision) + 1}}
-		_configuration_pending = {"binding": binding, "fingerprint": fingerprint, "candidate": candidate.duplicate(true)}
+		_configuration_pending = {"binding": binding, "fingerprint": fingerprint, "candidate": candidate}
 	var committed := _commit_cost_free_candidate(candidate, str(request.difficulty_id))
 	if committed.ok: _configuration_pending.clear()
 	return committed
@@ -1631,7 +1634,7 @@ func _paid_shell_reveal(request: Dictionary) -> Dictionary:
 	var prepared := _board_state.prepare_first_reveal(input, {"layout": layout, "board": reduced.value.board}, {} if state.has("round_paid") else candidate.paid_start_receipt)
 	if not prepared.ok: return prepared
 	prepared.value.candidate["result_override"] = {"ok": true, "code": &"paid_reveal_committed", "value": {"revision": int(state.revision) + 1}}
-	_paid_reveal_pending = {"before": state.duplicate(true), "fingerprint": fingerprint, "candidate": prepared.value.candidate.duplicate(true)}
+	_paid_reveal_pending = {"before": state, "fingerprint": fingerprint, "candidate": prepared.value.candidate}
 	var committed := _commit_cost_free_candidate(prepared.value.candidate)
 	if committed.ok: _paid_reveal_pending.clear()
 	return committed
@@ -1672,7 +1675,7 @@ func _commit_cost_free_under_lease(candidate: Dictionary, selected_difficulty: S
 	if _durable_checkpoint_port != null:
 		var base: Dictionary = _state_port.call(&"capture_base_snapshot_input")
 		if not base.ok: return base
-		var inputs: Dictionary = base.value.snapshot_input.duplicate(true)
+		var inputs: Dictionary = base.value.snapshot_input
 		inputs["desktop"]["board"] = projected.capture()
 		if not selected_difficulty.is_empty(): inputs["gameplay"]["minesweeper_selected_difficulty"] = selected_difficulty
 		var backup: Dictionary = _durable_checkpoint_port.call(&"capture")

@@ -245,10 +245,10 @@ func complete_round(round_id: String, result: Variant, transaction_id: String) -
 			round_id, transaction_id)
 	_pending = {
 		"round_id": round_id, "transaction_id": transaction_id, "phase": &"publish",
-		"receipt": finalized["value"]["domain_receipt"].duplicate(true),
-		"domain_events": (finalized["value"]["domain_events"] as Array).duplicate(true),
+		"receipt": finalized["value"]["domain_receipt"],
+		"domain_events": finalized["value"]["domain_events"],
 		"checkpoint_id": finalized["value"]["domain_receipt"].get("checkpoint_id", ""),
-		"normalized_result": normalized["value"].duplicate(true),
+		"normalized_result": normalized["value"],
 	}
 	return _resume_pending()
 
@@ -265,8 +265,8 @@ func _resume_pending() -> Dictionary:
 		return {"ok": false, "code": &"LOCK_RELEASE_PENDING",
 			"value": _pending["receipt"].duplicate(true)}
 	_completed_records[_pending["transaction_id"]] = {
-		"receipt": _pending["receipt"].duplicate(true),
-		"normalized_result": _pending["normalized_result"].duplicate(true),
+		"receipt": _pending["receipt"],
+		"normalized_result": _pending["normalized_result"],
 	}
 	var detached: Dictionary = _pending["receipt"].duplicate(true)
 	_active_round = {}
@@ -301,4 +301,4 @@ func abort_round(round_id: String, reason: StringName, transaction_id: String) -
 				"result": released})
 		return _recover_and_latch("abort_recovery", diagnostics, round_id, transaction_id)
 	_active_round = {}
-	return {"ok": true, "code": &"ok", "value": prepared["value"]["abort_receipt"].duplicate(true)}
+	return {"ok": true, "code": &"ok", "value": prepared["value"]["abort_receipt"]}

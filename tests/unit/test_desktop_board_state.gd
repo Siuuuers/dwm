@@ -169,6 +169,9 @@ func test_certification_and_legacy_restore_clear_marks_preserving_payment_and_no
 	var restored := _state.prepare_restore(preparing)
 	assert_true(restored.ok, str(restored))
 	assert_true(_state.commit(restored.value.candidate).ok)
+	var exposed := _state.shell_state()
+	exposed.flagged_indices.clear()
+	exposed.actions[0].flagged = false
 	assert_eq(_state.shell_state(), history)
 	assert_true(_certify_debug(_state, "certify", IDENTITY_A, 1).ok)
 	var clean := _state.capture()

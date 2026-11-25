@@ -8,14 +8,18 @@ const _KERNEL := preload("res://scripts/domain/minesweeper/MinesweeperGeneratorK
 static func make(kernel_spec: Dictionary, forced_cell: int, mode: StringName,
 		placement_rng_state: Dictionary, debug_rng_state: Dictionary,
 		explosion_rng_state: Dictionary) -> Dictionary:
-	var begun: Dictionary = _KERNEL.begin(kernel_spec, forced_cell, mode,
+	return _KERNEL.begin(kernel_spec, forced_cell, mode,
 		placement_rng_state, debug_rng_state, explosion_rng_state)
-	if not begun.get("ok", false):
-		return begun
-	return validate((begun["value"] as Dictionary)["preparation"])
 
 
 static func validate(state: Dictionary) -> Dictionary:
+	var checked := check(state)
+	if not checked.ok:
+		return checked
+	return {"ok": true, "code": &"ok", "value": {"preparation": state.duplicate(true)}, "receipt": {}}
+
+
+static func check(state: Dictionary) -> Dictionary:
 	var shape := _exact_keys(state, _KERNEL.FRONTIER_KEYS, &"preparation_member_set_invalid")
 	if not shape.get("ok", false):
 		return shape
@@ -76,14 +80,13 @@ static func validate(state: Dictionary) -> Dictionary:
 		return _fail(&"preparation_candidate_state_invalid",
 			"candidate_state must be null or a dictionary while not certified", {})
 
-	return {"ok": true, "code": &"ok", "value": {"preparation": state.duplicate(true)}, "receipt": {}}
+	return {"ok": true}
 
 
-static func advance(state: Dictionary, slice_result: Dictionary) -> Dictionary:
-	var current_check := validate(state)
+static func advance(current: Dictionary, slice_result: Dictionary) -> Dictionary:
+	var current_check := check(current)
 	if not current_check.get("ok", false):
 		return current_check
-	var current: Dictionary = (current_check["value"] as Dictionary)["preparation"]
 	if StringName(current["status"]) != _KERNEL.STATUS_SEARCHING:
 		return _fail(&"preparation_not_searching", "advance() requires a searching preparation", {})
 

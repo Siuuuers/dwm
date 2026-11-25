@@ -331,6 +331,12 @@ func test_commit_recovery_action_adopts_the_board_projection_and_rejects_without
 	var committed: Dictionary = _coordinator.commit_recovery_action(action_candidate, action_receipt)
 	assert_true(committed.get("ok", false), JSON.stringify(committed))
 	assert_eq(_coordinator.get_state()["value"]["phase"], "NONE")
+	committed.value.action_receipt.condition_before.clear()
+	assert_eq(committed.receipt, action_receipt)
+	committed.receipt.condition_before.clear()
+	var replay: Dictionary = _coordinator.commit_recovery_action(action_candidate, action_receipt)
+	assert_eq(replay.value.action_receipt, action_receipt, "the cached recovery result owns its receipt")
+	assert_eq(replay.receipt, action_receipt)
 
 
 ## dwm-p2r.35.7 remediation (finding 3): publish_recovery_action() used to release the causal_
@@ -597,6 +603,9 @@ func test_duplicate_first_reveal_replays_the_original_receipt_without_recharging
 	assert_eq(replay["value"]["receipt"], first["value"]["receipt"])
 	assert_eq(_state_port.motivation, 6, "a duplicate retry must never charge again")
 	assert_eq(_state_port.published.size(), 2, "the exact retry re-publishes idempotently")
+	first.value.receipt.receipt_provenance.clear()
+	assert_ne(replay.value.receipt, first.value.receipt)
+	assert_eq(_coordinator.reveal(request).value.receipt, replay.value.receipt, "first reveal keeps its own replay receipt")
 
 
 func test_changed_payload_on_the_same_transaction_id_conflicts() -> void:

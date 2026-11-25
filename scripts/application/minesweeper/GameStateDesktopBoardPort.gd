@@ -97,7 +97,7 @@ func capture() -> Dictionary:
 		"pressure": _game_state.get_stat(_STAT_PRESSURE),
 		"carried_sequela": (_game_state.condition_effects_today as Array).has(_CONDITION_SEQUELA),
 		"backup": {
-			"rounds_left": rounds_left, "starts_today": _starts_today.duplicate(true),
+			"rounds_left": rounds_left, "starts_today": _starts_today.duplicate(),
 		},
 	}, "receipt": {}}
 
@@ -191,7 +191,7 @@ func prepare_first_reveal(board_candidate: Dictionary, transaction_id: String,
 	var causal_day_instance: String = str(facts["causal_day_instance"])
 	var run_candidate := {
 		"transaction_id": transaction_id, "rounds_left": rounds_left - 1,
-		"starts_today": (_starts_today.duplicate(true) as Dictionary),
+		"starts_today": facts.backup.starts_today,
 	}
 	(run_candidate["starts_today"] as Dictionary)[causal_day_instance] = \
 		int((run_candidate["starts_today"] as Dictionary).get(causal_day_instance, 0)) + 1
@@ -216,9 +216,9 @@ func prepare_first_reveal(board_candidate: Dictionary, transaction_id: String,
 	var derived_value: Dictionary = derived["value"]
 	var receipt := {
 		"receipt_id": str(derived_value["child_id"]),
-		"receipt_provenance": (derived_value["provenance"] as Dictionary).duplicate(true),
-		"transaction_id": transaction_id, "transaction_issuer_receipt": transaction_issuer_receipt.duplicate(true),
-		"identity": (board_candidate["identity"] as Dictionary).duplicate(true),
+		"receipt_provenance": derived_value["provenance"],
+		"transaction_id": transaction_id, "transaction_issuer_receipt": transaction_issuer_receipt,
+		"identity": board_candidate["identity"],
 		"difficulty_id": str(board_candidate["difficulty_id"]), "first_cell": int(board_candidate["cell_index"]),
 		"board_revision": int(board["revision"]), "rounds_before": rounds_left, "rounds_after": rounds_left - 1,
 		"layout_sha256": layout_sha256,
@@ -244,11 +244,11 @@ func prepare_first_reveal_consequence(board_candidate: Dictionary, transaction_i
 			return captured
 		expected_run_revision = int(((captured["value"] as Dictionary)["state"] as Dictionary)["run_revision"])
 	var value := {
-		"game_state_candidate": (base_value["run_candidate"] as Dictionary).duplicate(true),
+		"game_state_candidate": base_value["run_candidate"],
 		"consequence_candidate": {"expected_run_revision": expected_run_revision},
 	}
 	for key: String in ["receipt", "publication"]:
-		if base_value.has(key): value[key] = base_value[key].duplicate(true)
+		if base_value.has(key): value[key] = base_value[key]
 	return {"ok": true, "code": &"ok", "value": value, "receipt": {}}
 
 
@@ -307,7 +307,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 	if candidate.has("rounds_left"):
 		_game_state.minesweeper_rounds_left = int(candidate["rounds_left"])
 	if candidate.has("starts_today"):
-		_starts_today = (candidate["starts_today"] as Dictionary).duplicate(true)
+		_starts_today = (candidate["starts_today"] as Dictionary).duplicate()
 	return {"ok": true, "code": &"ok", "value": {"committed": true}, "receipt": {}}
 
 
@@ -318,7 +318,7 @@ func rollback(backup: Dictionary) -> Dictionary:
 	if backup.has("motivation") or backup.has("health"):
 		return _fail(&"retired_stat_candidate", "retired stat backup is not admitted", {})
 	_game_state.minesweeper_rounds_left = int(backup["rounds_left"])
-	_starts_today = (backup["starts_today"] as Dictionary).duplicate(true)
+	_starts_today = (backup["starts_today"] as Dictionary).duplicate()
 	return {"ok": true, "code": &"ok", "value": {"restored": true}, "receipt": {}}
 
 
@@ -361,7 +361,7 @@ func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary
 
 func _capture_identity() -> Dictionary:
 	var captured: Variant = _desktop_identity_context.call() if _desktop_identity_context is Callable \
-		else {"ok": true, "value": _desktop_identity_context.duplicate(true)}
+		else {"ok": true, "value": _desktop_identity_context}
 	if not captured is Dictionary or not captured.get("ok", false) or not captured.get("value") is Dictionary:
 		return captured if captured is Dictionary else _fail(&"invalid_desktop_identity_context", "", {})
 	var shaped := _exact_keys(captured.value,

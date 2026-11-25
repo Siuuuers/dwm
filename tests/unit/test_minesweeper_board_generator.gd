@@ -323,6 +323,11 @@ func test_preparation_state_make_matches_kernel_begin() -> void:
 	var made: Dictionary = PREPARATION.make(kernel_spec, 12, KERNEL.MODE_CANDIDATE_SEARCH, placement, debug, explosion)
 	var begun: Dictionary = KERNEL.begin(kernel_spec, 12, KERNEL.MODE_CANDIDATE_SEARCH, placement, debug, explosion)
 	assert_eq(made, begun)
+	var preparation: Dictionary = made.value.preparation
+	preparation.spec.capability_ids.clear()
+	preparation.debug_rng_state.clear()
+	assert_eq(kernel_spec.capability_ids, ["first_cell_safe"])
+	assert_false(debug.is_empty())
 
 
 func test_preparation_state_validate_rejects_wrong_member_set() -> void:

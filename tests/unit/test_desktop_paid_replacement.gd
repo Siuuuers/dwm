@@ -458,14 +458,15 @@ func _certify_shell(paid: bool) -> Dictionary:
 	coordinator._board_state.commit(prepared.value.candidate)
 	return coordinator.get_state().value.duplicate(true)
 
-func test_certified_unpaid_flags_can_be_removed_without_changing_layout_or_payment() -> void:
+func test_certification_clears_unpaid_flags_and_only_allows_the_required_reveal() -> void:
 	var certified := _certify_shell(false)
 	var view: Dictionary = QUERY.desktop(certified, "beginner", true)
 	assert_true(view.ok, str(view))
-	assert_eq(view.value.cells[11].actions, ["unflag"])
-	assert_eq(view.value.cells[10].actions, ["reveal", "flag"])
-	assert_eq(view.value.cells[12].actions, ["flag"])
-	assert_true(_flag(11, false).ok)
+	assert_eq(certified.candidate.flagged_indices, [])
+	assert_eq(view.value.cells[11].actions, [])
+	assert_eq(view.value.cells[10].actions, ["reveal"])
+	assert_eq(view.value.cells[12].actions, [])
+	assert_eq(_flag(11, false).code, &"minesweeper_action_not_available")
 	var changed: Dictionary = coordinator.get_state().value
 	assert_eq(changed.candidate.layout, certified.candidate.layout)
 	assert_eq(changed.candidate.spec, certified.candidate.spec)

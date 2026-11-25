@@ -489,9 +489,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 		_settled_inspection = is_settled_inspection({"phase": _phase, "identity": _identity,
 			"board": _board, "terminal_receipts": _terminal_receipts})
 
-	var result: Dictionary = _committed_state_view()
-	if candidate.has("result_override"):
-		result = (candidate["result_override"] as Dictionary).duplicate(true)
+	var result := _committed_state_view(candidate)
 
 	_compact_prior_command_results()
 	if transaction_id != "":
@@ -578,8 +576,10 @@ func _envelope(input: Dictionary, kind: StringName, phase_after: String, identit
 	return prepared
 
 
-func _committed_state_view() -> Dictionary:
+func _committed_state_view(candidate: Dictionary = {}) -> Dictionary:
 	active_board_token = RefCounted.new() if _phase == _PHASE_ACTIVE_VISIBLE else null
+	if candidate.has("result_override"):
+		return (candidate["result_override"] as Dictionary).duplicate(true)
 	return {"ok": true, "code": &"ok", "value": {
 		"phase": _phase, "revision": _revision, "identity": _dup_or_null(_identity),
 		"candidate": _dup_or_null(_candidate), "board": _dup_or_null(_board),
@@ -625,7 +625,7 @@ func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary
 
 func shell_state() -> Dictionary:
 	if _candidate is Dictionary:
-		return {"flagged_indices": _candidate.get("flagged_indices", []).duplicate(true),
+		return {"flagged_indices": _candidate.get("flagged_indices", []).duplicate(),
 			"actions": _candidate.get("actions", []).duplicate(true)}
 	return {"flagged_indices": [], "actions": []}
 
@@ -867,7 +867,7 @@ func _validate_current_scene_board(snapshot: Dictionary) -> Dictionary:
 	if phase == _PHASE_PREPARING:
 		if not slot.frontier is Dictionary or not slot.frontier.get("spec") is Dictionary:
 			return _fail(&"invalid_current_preparation", "", {})
-		var frontier := _PREPARATION.validate(slot.frontier)
+		var frontier := _PREPARATION.check(slot.frontier)
 		if not frontier.ok: return frontier
 		if str(slot.frontier.status) != "searching": return _fail(&"invalid_current_preparation", "", {})
 		for key: String in _KERNEL.SPEC_KEYS:

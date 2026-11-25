@@ -54,7 +54,7 @@ func pull() -> Dictionary:
 	_discard_stale_terminal()
 	if not _held_terminal.is_empty():
 		if not _owner.has_method("get_configuration_context"):
-			return _present_success(_held_terminal.duplicate(true))
+			return _present_success(_held_terminal)
 		_clear_held_terminal()
 	var initial: Variant = _owner.call(&"get_state")
 	if not initial is Dictionary or not initial.get("ok", false) \
@@ -72,9 +72,8 @@ func pull() -> Dictionary:
 		if terminal.is_empty(): return _unavailable()
 		if board.get("ok", false):
 			return _hold_terminal(terminal)
-		_record_view(terminal, _session_marker())
 		return {"ok": false, "code": &"minesweeper_panel_command_refused",
-			"value": terminal}
+			"value": _record_view(terminal, _session_marker())}
 	if not board.get("ok", false): return _unavailable()
 	if board.value.revision != snapshot.revision or board.value.custody != register.value.custody \
 			or board.value.mine_estimate != register.value.mine_estimate:
@@ -89,7 +88,7 @@ func pull() -> Dictionary:
 	if not register.value.custody:
 		actions.assign(PLAY_ACTIONS)
 		if configuration.value.new_board_enabled: actions.append("new_board")
-		register.value.difficulty_enabled = configuration.value.difficulty_enabled.duplicate()
+		register.value.difficulty_enabled = configuration.value.difficulty_enabled
 	return _present_success({
 		"board": board.value, "register": register.value,
 		"assignments": assignments.value, "actions": actions, "settled": false,
@@ -123,9 +122,8 @@ func dispatch(action: String, index: int, revision: int) -> Dictionary:
 		if terminal.is_empty(): return _unavailable()
 		if result.get("ok", false):
 			return _hold_terminal(terminal)
-		_record_view(terminal, _session_marker())
 		return {"ok": false, "code": &"minesweeper_panel_command_refused",
-			"value": terminal}
+			"value": _record_view(terminal, _session_marker())}
 	if not result.get("ok", false): return _refused()
 	if not _presented_view.get("register") is Dictionary \
 			or not (_presented_view.register as Dictionary).get("foresight") is int:
@@ -149,8 +147,8 @@ func advance_preparation(expected_revision: int) -> Dictionary:
 			if not assignments.get("ok", false): return _unavailable()
 			if not settled.get("ok", false) or not settled.get("value") is Dictionary:
 				_clear_held_terminal()
-				_record_view(unsettled, _session_marker())
-				return {"ok": false, "code": &"minesweeper_panel_command_refused", "value": unsettled}
+				return {"ok": false, "code": &"minesweeper_panel_command_refused",
+					"value": _record_view(unsettled, _session_marker())}
 			var terminal := _terminal_view(settled.value, unsettled.register, assignments.value, true)
 			if terminal.is_empty(): return _unavailable()
 			var published := _hold_terminal(terminal)
@@ -201,7 +199,7 @@ func set_foreground(foreground: bool, expected_revision: int) -> Dictionary:
 			var retained: Dictionary = _board_port.set_foreground(foreground, expected_revision)
 			if not retained.get("ok", false): return _refused()
 			return pull()
-		return _present_success(_held_terminal.duplicate(true))
+		return _present_success(_held_terminal)
 	if not _has_fresh_difficulty(): return _refused()
 	var result: Dictionary = _board_port.call(&"set_foreground", foreground, expected_revision)
 	if not result.get("ok", false): return _refused()
@@ -214,7 +212,7 @@ func _terminal_view(board: Dictionary, prior_register: Dictionary, assignments: 
 		return {}
 	var final_metric: Dictionary = _board_port.get_terminal_foresight(board)
 	if not final_metric.get("ok", false): return {}
-	var register := prior_register.duplicate(true)
+	var register := prior_register.duplicate()
 	register["foresight"] = final_metric.value
 	var rounds: Variant = _game_state.get("minesweeper_rounds_left")
 	if typeof(rounds) != TYPE_INT: return {}
@@ -225,10 +223,10 @@ func _terminal_view(board: Dictionary, prior_register: Dictionary, assignments: 
 	if settled:
 		var configuration: Dictionary = _board_port.get_configuration(board)
 		if not configuration.get("ok",false): return {}
-		register["difficulty_enabled"] = configuration.value.difficulty_enabled.duplicate()
+		register["difficulty_enabled"] = configuration.value.difficulty_enabled
 	return {
 		"board": board, "register": register,
-		"assignments": assignments.duplicate(),
+		"assignments": assignments,
 		"actions": SETTLED_ACTIONS.duplicate() if settled else [],
 		"settled": settled,
 	}
@@ -239,7 +237,7 @@ func _routine_inputs() -> Dictionary:
 	if not assignments.get("ok", false): return {}
 	var rounds: Variant = _game_state.get("minesweeper_rounds_left")
 	if not rounds is int: return {}
-	return {"assignments": assignments.value.duplicate(), "rounds": rounds}
+	return {"assignments": assignments.value, "rounds": rounds}
 
 
 func _routine_view(board: Dictionary, context: Dictionary, inputs: Dictionary,
@@ -266,36 +264,35 @@ func _routine_view(board: Dictionary, context: Dictionary, inputs: Dictionary,
 		"difficulty": context.difficulty, "rounds": inputs.rounds,
 		"mine_estimate": board.get("mine_estimate"), "foresight": context.foresight,
 		"no_flag": context.no_flag, "custody": false,
-		"difficulty_enabled": configuration.difficulty_enabled.duplicate(),
+		"difficulty_enabled": configuration.difficulty_enabled,
 	}
 	var actions: Array[String] = []
 	actions.assign(PLAY_ACTIONS)
 	if configuration.new_board_enabled: actions.append("new_board")
 	return {
 		"board": board, "register": register,
-		"assignments": inputs.assignments.duplicate(), "actions": actions, "settled": false,
+		"assignments": inputs.assignments, "actions": actions, "settled": false,
 	}
 
 
 func _hold_terminal(value: Dictionary) -> Dictionary:
 	var marker := _session_marker()
 	if marker.is_empty(): return _unavailable()
-	_record_view(value, marker)
-	_held_terminal = _presented_view
+	_held_terminal = value
 	_held_session = marker
-	return {"ok": true, "value": value}
+	return {"ok": true, "value": _record_view(value, marker)}
 
 
 func _present_success(value: Dictionary) -> Dictionary:
-	_record_view(value, _session_marker())
-	return {"ok": true, "value": value}
+	return {"ok": true, "value": _record_view(value, _session_marker())}
 
 
-func _record_view(value: Dictionary, marker: Dictionary) -> void:
+func _record_view(value: Dictionary, marker: Dictionary) -> Dictionary:
 	_presented = true
 	_presented_difficulty = str(value.register.difficulty)
-	_presented_view = value.duplicate(true)
+	_presented_view = value
 	_presented_session = marker
+	return value.duplicate(true)
 
 
 func _session_marker() -> Dictionary:
@@ -306,7 +303,7 @@ func _session_marker() -> Dictionary:
 			or not (session as Dictionary).get("ok", false) \
 			or typeof((session as Dictionary).get("value")) != TYPE_DICTIONARY:
 		return {}
-	return {"day": int(day), "session": ((session as Dictionary)["value"] as Dictionary).duplicate(true)}
+	return {"day": int(day), "session": session["value"]}
 
 
 func _discard_stale_terminal() -> void:

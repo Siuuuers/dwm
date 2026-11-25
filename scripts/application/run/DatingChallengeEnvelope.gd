@@ -41,7 +41,7 @@ static func validate(record: Dictionary) -> bool:
 	var debug: bool = spec.capability_ids.has("forced_no_guess")
 	if envelope.preparation != null:
 		if not debug or record.phase != "preparing" or not envelope.preparation is Dictionary \
-				or not PREPARATION.validate(envelope.preparation).get("ok", false): return false
+				or not PREPARATION.check(envelope.preparation).get("ok", false): return false
 		for key: String in envelope.preparation.spec:
 			if envelope.preparation.spec[key] != spec.get(key): return false
 		if str(envelope.preparation.status) != "searching": return false
@@ -101,13 +101,11 @@ static func _scene_preparation_matches(spec: Dictionary, envelope: Dictionary) -
 			return envelope.prepared_layout == layout and envelope.forced_cell == current.forced_cell
 		var advanced: Dictionary = GENERATOR.run_debug_slice(current)
 		if not advanced.ok: return false
-		var next: Dictionary = advanced.value.preparation
-		if not PREPARATION.advance(current, advanced).ok: return false
-		current = next
+		current = advanced.value.preparation
 	return false
 
 static func _validate_scene(record: Dictionary) -> bool:
-	if not record.get("spec") is Dictionary or not BOARD.validate_spec(record.spec).ok: return false
+	if not record.get("spec") is Dictionary or not BOARD.check_spec(record.spec).ok: return false
 	var envelope: Variant = record.get("envelope")
 	if not envelope is Dictionary: return false
 	var keys: Array = envelope.keys(); keys.sort()
@@ -121,7 +119,7 @@ static func _validate_scene(record: Dictionary) -> bool:
 	var debug: bool = spec.capability_ids.has("forced_no_guess")
 	if record.phase in ["preparing", "preparation_failed"]:
 		if not debug or record.board != null or not envelope.preparation is Dictionary \
-				or not PREPARATION.validate(envelope.preparation).ok \
+				or not PREPARATION.check(envelope.preparation).ok \
 				or str(envelope.preparation.status) != ("searching" if record.phase == "preparing" else "exhausted") \
 				or envelope.prepared_layout != null or envelope.special_cell != -1 \
 				or (envelope.forced_cell != -1 and envelope.forced_cell != int(envelope.preparation.forced_cell)) \

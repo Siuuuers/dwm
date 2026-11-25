@@ -123,12 +123,12 @@ func prepare_begin(request: Dictionary, round_id: String) -> Dictionary:
 		clone.call(&"start_minesweeper_app_round", difficulty)
 	var candidate := {
 		"gameplay": clone.call(&"to_save_dict"),
-		"contacts": (clone.get("contacts") as Dictionary).duplicate(true),
+		"contacts": clone.get("contacts"),
 	}
 	clone.free()
 	return {"ok": true, "code": &"ok", "value": {
 		"candidate": candidate,
-		"active_round": active_round.duplicate(true),
+		"active_round": active_round,
 		"pre_board_checkpoint_inputs": _checkpoint_inputs(lifecycle),
 		"start_receipt": {
 			"round_id": round_id, "context": context, "difficulty": difficulty,
@@ -163,7 +163,7 @@ func prepare_complete(active_round: Dictionary, result: Dictionary, transaction_
 		return _fail(&"invalid_minesweeper_state_port", "could not build a detached candidate")
 	var before := _counters(clone)
 	var receipts_before: Dictionary = (((clone.get("contacts") as Dictionary) \
-		.get("transaction_receipts", {})) as Dictionary).duplicate(true)
+		.get("transaction_receipts", {})) as Dictionary).duplicate()
 	if context == "app":
 		clone.call(&"finish_minesweeper_app_round", {
 			"context": "app", "difficulty": difficulty, "outcome": outcome, "task_ids": task_ids,
@@ -186,7 +186,7 @@ func prepare_complete(active_round: Dictionary, result: Dictionary, transaction_
 	message_ids.sort()
 	var candidate := {
 		"gameplay": clone.call(&"to_save_dict"),
-		"contacts": (clone.get("contacts") as Dictionary).duplicate(true),
+		"contacts": clone.get("contacts"),
 	}
 	if _game_state.has_method("frozen_contacts_contexts_enabled") and _game_state.frozen_contacts_contexts_enabled():
 		var frozen := preload("res://scripts/narrative/ContactsFrozenContext.gd").capture_candidate(
@@ -269,7 +269,7 @@ func prepare_abort(active_round: Dictionary, reason: StringName, transaction_id:
 		restored["minesweeper_rounds_left"] = int(restored.get("minesweeper_rounds_left", 0)) + 1
 	var abort_candidate := {
 		"save": restored,
-		"contacts": (clone.get("contacts") as Dictionary).duplicate(true),
+		"contacts": clone.get("contacts"),
 	}
 	clone.free()
 	return {"ok": true, "code": &"ok", "value": {
@@ -306,7 +306,7 @@ func commit_desktop_completion(candidate: Dictionary) -> Dictionary:
 		return _fail(&"invalid_candidate", "completion requires gameplay and contacts")
 	if int(candidate.gameplay.get("day", -1)) != int(_game_state.day):
 		return _fail(&"completion_day_mismatch", "")
-	_game_state.call(&"_apply_gameplay_silent", candidate.gameplay.duplicate(true))
+	_game_state.call(&"_apply_gameplay_silent", candidate.gameplay)
 	_game_state.set("contacts", candidate.contacts.duplicate(true))
 	_game_state.call(&"clear_unfinished_minesweeper_round")
 	return {"ok": true}
@@ -516,15 +516,14 @@ func _committed_participants(plan: Dictionary, entry_id: String) -> Array:
 
 func _checkpoint_inputs(lifecycle: Dictionary, candidate: Variant = null) -> Dictionary:
 	var snapshot_input: Dictionary = _game_state.call(&"capture_run_snapshot_input")
-	snapshot_input["lifecycle"] = lifecycle.duplicate(true)
+	snapshot_input["lifecycle"] = lifecycle
 	if typeof(candidate) == TYPE_DICTIONARY:
 		var source: Dictionary = candidate as Dictionary
 		var gameplay_section: Dictionary = source.get("gameplay", source) as Dictionary
-		var gameplay: Dictionary = (snapshot_input.get("gameplay", {}) as Dictionary).duplicate(true)
+		var gameplay: Dictionary = snapshot_input.gameplay
 		for key: Variant in gameplay_section:
 			if gameplay.has(key):
 				gameplay[key] = gameplay_section[key]
-		snapshot_input["gameplay"] = gameplay
 		var candidate_contacts: Variant = source.get("contacts")
 		if typeof(candidate_contacts) == TYPE_DICTIONARY:
 			snapshot_input["contacts"] = (candidate_contacts as Dictionary).duplicate(true)

@@ -150,11 +150,8 @@ static func begin_debug(spec: Dictionary) -> Dictionary:
 	var explosion_state: Dictionary = (explosion_seeded["value"] as RefCounted).capture()["value"]
 
 	var kernel_spec := _project_kernel_spec(spec)
-	var begun: Dictionary = _KERNEL.begin(kernel_spec, forced_cell, _KERNEL.MODE_CANDIDATE_SEARCH,
+	return _PREPARATION.make(kernel_spec, forced_cell, _KERNEL.MODE_CANDIDATE_SEARCH,
 		placement_state, debug_state, explosion_state)
-	if not begun.get("ok", false):
-		return begun
-	return _PREPARATION.validate((begun["value"] as Dictionary)["preparation"])
 
 
 static func begin_debug_at_cell(spec: Dictionary, first_cell: int) -> Dictionary:
@@ -192,23 +189,19 @@ static func begin_debug_at_cell(spec: Dictionary, first_cell: int) -> Dictionary
 	var explosion_state: Dictionary = (explosion_seeded["value"] as RefCounted).capture()["value"]
 
 	var kernel_spec := _project_kernel_spec(spec)
-	var begun: Dictionary = _KERNEL.begin(kernel_spec, first_cell, _KERNEL.MODE_CANDIDATE_SEARCH,
+	return _PREPARATION.make(kernel_spec, first_cell, _KERNEL.MODE_CANDIDATE_SEARCH,
 		placement_state, debug_state, explosion_state)
-	if not begun.get("ok", false):
-		return begun
-	return _PREPARATION.validate((begun["value"] as Dictionary)["preparation"])
 
 
-static func run_debug_slice(preparation: Dictionary) -> Dictionary:
+static func run_debug_slice(current: Dictionary) -> Dictionary:
 	var budget_loaded := _load_budget_manifest()
 	if not budget_loaded.get("ok", false):
 		return budget_loaded
 	var budget := _budget_manifest_cache
 
-	var preparation_check: Dictionary = _PREPARATION.validate(preparation)
+	var preparation_check: Dictionary = _PREPARATION.check(current)
 	if not preparation_check.get("ok", false):
 		return preparation_check
-	var current: Dictionary = (preparation_check["value"] as Dictionary)["preparation"]
 	if StringName(current["status"]) != _KERNEL.STATUS_SEARCHING:
 		return _fail(&"preparation_not_searching", "run_debug_slice requires a searching preparation", {})
 

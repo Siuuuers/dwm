@@ -366,6 +366,9 @@ func test_prepare_causal_departure_duplicate_replay_returns_identical_result() -
 	var replay: Dictionary = port.prepare_causal_departure(request)
 	assert_true(replay.get("ok", false), JSON.stringify(replay))
 	assert_eq(replay, first)
+	first.receipt.command_issuer_receipt.clear()
+	assert_eq(first.value.board_fate_receipt, replay.receipt)
+	assert_eq(port.prepare_causal_departure(request), replay)
 
 
 func test_prepare_causal_departure_changed_request_at_same_command_id_conflicts() -> void:
@@ -545,6 +548,8 @@ func test_commit_adopts_the_fate_none_candidate_and_publish_records_once() -> vo
 	var replay: Dictionary = port.commit(board_candidate)
 	assert_true(replay.get("ok", false), JSON.stringify(replay))
 	assert_eq(replay, committed)
+	committed.value.board_candidate.command_receipts["changed"] = true
+	assert_eq(port.commit(board_candidate), replay)
 
 	var published: Dictionary = port.publish({"board_candidate": board_candidate, "board_fate_receipt": board_fate_receipt})
 	assert_true(published.get("ok", false), JSON.stringify(published))

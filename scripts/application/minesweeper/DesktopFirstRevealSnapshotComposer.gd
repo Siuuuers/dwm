@@ -67,8 +67,7 @@ static func compose(base_snapshot_input: Dictionary, game_state_candidate: Dicti
 	if not projected_board.get("ok", false):
 		return projected_board
 
-	var composed: Dictionary = base_snapshot_input.duplicate(true)
-	var gameplay: Dictionary = composed.gameplay
+	var gameplay: Dictionary = base_snapshot_input.gameplay
 	if typeof(gameplay.get("stats")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_base_snapshot_input", "base_snapshot_input.gameplay.stats is required")
 	if not _exact_keys(gameplay.stats, ["pressure"], &"invalid_base_snapshot_input").ok \
@@ -77,8 +76,9 @@ static func compose(base_snapshot_input: Dictionary, game_state_candidate: Dicti
 	if typeof(gameplay.get("minesweeper_rounds_left")) != TYPE_INT \
 			or gameplay.minesweeper_rounds_left - 1 != game_state_candidate.rounds_left:
 		return _fail(&"invalid_game_state_candidate", "first Reveal must debit exactly one round")
-	gameplay["minesweeper_rounds_left"] = int(game_state_candidate["rounds_left"])
-	composed.desktop.board = projected_board.value.board
+	var desktop := {"board": projected_board.value.board, "consequence": base_consequence}
+	var composed := base_snapshot_input.merged({"desktop": desktop}, true).duplicate(true)
+	composed.gameplay.minesweeper_rounds_left = game_state_candidate.rounds_left
 	return {"ok": true, "code": &"ok", "value": {"snapshot_input": composed}}
 
 
@@ -86,7 +86,7 @@ static func _project_board(base_board: Dictionary, candidate: Dictionary) -> Dic
 	if int(candidate["pre_revision"]) != int(base_board.get("revision", -1)):
 		return _fail(&"first_reveal_candidate_stale_revision",
 			"board_candidate.pre_revision no longer matches the base board's revision")
-	var receipts: Dictionary = (base_board.get("command_receipts", {}) as Dictionary).duplicate(true)
+	var receipts: Dictionary = (base_board.get("command_receipts", {}) as Dictionary).duplicate()
 	var post_revision := int(candidate["pre_revision"]) + 1
 	var board_after: Dictionary = candidate["board_after"]
 	receipts[str(candidate["transaction_id"])] = {
@@ -94,18 +94,18 @@ static func _project_board(base_board: Dictionary, candidate: Dictionary) -> Dic
 		"identity_fingerprint": str(candidate["identity_fingerprint"]),
 		"pre_revision": int(candidate["pre_revision"]), "post_revision": post_revision,
 		"command_kind": str(candidate["kind"]),
-		"result": candidate.result_override.duplicate(true),
+		"result": candidate.result_override,
 	}
 	var projected := {
 		"schema_version": 1, "phase": str(candidate["phase_after"]), "revision": post_revision,
 		"identity": candidate.get("identity_after"), "candidate": candidate.get("candidate_after"),
-		"board": board_after.duplicate(true), "settlement": candidate.get("settlement_after"),
+		"board": board_after, "settlement": candidate.get("settlement_after"),
 		"command_receipts": receipts,
 	}
 	if base_board.has("settled_inspection"):
 		projected["settled_inspection"] = false
 		projected["round_paid"] = true
-	else: projected["terminal_receipts"] = (base_board.get("terminal_receipts", {}) as Dictionary).duplicate(true)
+	else: projected["terminal_receipts"] = base_board.get("terminal_receipts", {})
 	return {"ok": true, "value": {"board": projected}}
 
 

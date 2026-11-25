@@ -208,8 +208,11 @@ func test_preparing_a_dating_completion_never_mutates_live_state() -> void:
 	var money_before: int = game.money
 	var rounds_before: int = game.minesweeper_app_rounds_finished_today
 	var motivation_before: int = game.get_stat("motivation")
-	assert_true(port.call(&"prepare_complete", _dating_round("intermediate"),
-		{"outcome": "cleared"}, "tx-dating-3").get("ok", false))
+	var prepared: Dictionary = port.prepare_complete(_dating_round("intermediate"), {"outcome": "cleared"}, "tx-dating-3")
+	assert_true(prepared.ok)
+	if not prepared.ok: return
+	prepared.value.prepared_candidate.contacts.clear()
+	assert_false(game.contacts.is_empty(), "the caller owns the prepared contacts")
 	assert_eq(game.money, money_before, "preparation is free of live mutation")
 	assert_eq(game.minesweeper_app_rounds_finished_today, rounds_before)
 	assert_eq(game.get_stat("motivation"), motivation_before)

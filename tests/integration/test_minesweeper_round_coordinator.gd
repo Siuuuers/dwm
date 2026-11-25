@@ -414,6 +414,10 @@ func test_exact_duplicate_after_release_returns_the_stored_receipt_then_conflict
 	var duplicate: Dictionary = made.coord.complete_round(ROUND_ID, {"outcome": &"cleared"}, "tx-d")
 	assert_true(duplicate.get("ok", false))
 	assert_eq(duplicate["value"], completed["value"], "the detached stored receipt is returned")
+	completed.value.clear()
+	duplicate.value.clear()
+	var replay: Dictionary = made.coord.complete_round(ROUND_ID, {"outcome": &"cleared"}, "tx-d")
+	assert_eq(replay.value.checkpoint_id, "run-1:1")
 	for key: Variant in made.save.get_call_counts().keys():
 		assert_eq(int(made.save.get_call_counts()[key]), 0, "save.%s on duplicate" % key)
 

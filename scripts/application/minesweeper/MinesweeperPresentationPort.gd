@@ -107,7 +107,7 @@ func dispatch(action: String, cell_index: int, expected_revision: int) -> Dictio
 		return _failure(&"minesweeper_command_refused")
 	var request := {
 		"transaction_id": str(issued_value.token),
-		"transaction_issuer_receipt": (issued_value.issuer_receipt as Dictionary).duplicate(true),
+		"transaction_issuer_receipt": issued_value.issuer_receipt,
 		"expected_identity": _identity.duplicate(true) if _identity is Dictionary else null,
 		"expected_revision": _revision,
 		"cell_index": cell_index,
@@ -211,12 +211,12 @@ func advance_preparation(expected_revision: int) -> Dictionary:
 		if not value.has("token") or not value.get("issuer_receipt") is Dictionary:
 			return _failure(&"minesweeper_preparation_refused", _projection)
 		_pending_preparation_request = {
-			"transaction_id": str(value.token), "transaction_issuer_receipt": value.issuer_receipt.duplicate(true),
-			"expected_identity": context.identity.duplicate(true) if context.identity is Dictionary else null,
+			"transaction_id": str(value.token), "transaction_issuer_receipt": value.issuer_receipt,
+			"expected_identity": context.identity,
 			"expected_revision": _revision,
 		}
 		if context.action == "begin": _pending_preparation_request["difficulty_id"] = _difficulty
-		_pending_preparation_context = context.duplicate(true)
+		_pending_preparation_context = context
 	var result: Dictionary = _owner.call(method, _pending_preparation_request.duplicate(true))
 	if not result.get("ok", false): return _failure(&"minesweeper_preparation_refused", _projection)
 	_pending_preparation_request = {}
@@ -315,9 +315,9 @@ func _configure_board(method: StringName, difficulty: String, expected_revision:
 		if not value.has("token") or not value.get("issuer_receipt") is Dictionary:
 			return _failure(&"minesweeper_command_refused", _projection)
 		_pending_configuration = {"method": method, "difficulty": difficulty,
-			"context": _configuration.duplicate(true), "request": {
-				"transaction_id": str(value.token), "transaction_issuer_receipt": value.issuer_receipt.duplicate(true),
-				"expected_identity": _configuration.identity.duplicate(true) if _configuration.identity is Dictionary else null,
+			"context": _configuration, "request": {
+				"transaction_id": str(value.token), "transaction_issuer_receipt": value.issuer_receipt,
+				"expected_identity": _configuration.identity,
 				"expected_revision": _revision, "difficulty_id": difficulty,
 			}}
 	var result: Dictionary = _owner.call(method, _pending_configuration.request.duplicate(true))
@@ -384,8 +384,8 @@ func _settle_terminal(owner_view: Dictionary) -> Dictionary:
 			return {"ok": false}
 		_pending_settlement_request = {
 			"transaction_id": str(issued_value["token"]),
-			"transaction_issuer_receipt": (issued_value["issuer_receipt"] as Dictionary).duplicate(true),
-			"expected_identity": identity.duplicate(true),
+			"transaction_issuer_receipt": issued_value["issuer_receipt"],
+			"expected_identity": identity,
 			"expected_revision": revision,
 		}
 
@@ -458,7 +458,7 @@ func set_foreground(foreground: bool, expected_revision: int) -> Dictionary:
 	if not value.has("token") or not value.get("issuer_receipt") is Dictionary:
 		return _failure(&"minesweeper_command_refused", _projection)
 	var result: Dictionary = _owner.call(method, {
-		"transaction_id": str(value.token), "transaction_issuer_receipt": value.issuer_receipt.duplicate(true),
+		"transaction_id": str(value.token), "transaction_issuer_receipt": value.issuer_receipt,
 		"expected_identity": (_identity as Dictionary).duplicate(true), "expected_revision": _revision,
 	})
 	var after := _read_owner(_difficulty)
@@ -531,7 +531,7 @@ func _read_owner(difficulty: String, include_routine_context: bool = false) -> D
 		"revision": int(snapshot.revision), "projection": projected.value,
 		"terminal_foresight": terminal_foresight, "configuration": configuration.value,
 		"routine_context": routine_context,
-		"routine_snapshot": snapshot.duplicate(true) if not routine_context.is_empty() and active_board_token == null else {},
+		"routine_snapshot": snapshot if not routine_context.is_empty() and active_board_token == null else {},
 	}}
 
 
@@ -557,10 +557,10 @@ func _adopt(value: Dictionary) -> void:
 	_active_board_token = value.active_board_token
 	_difficulty = value.difficulty
 	_phase = value.phase
-	_identity = value.identity.duplicate(true) if value.identity is Dictionary else null
+	_identity = value.identity
 	_revision = value.revision
 	_projection = value.projection
-	_configuration = value.configuration.duplicate(true)
+	_configuration = value.configuration
 	_terminal_foresight = value.terminal_foresight
 
 
