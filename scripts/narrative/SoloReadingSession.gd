@@ -335,8 +335,27 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, _choices: Dictio
 	if not configured.ok: return configured
 	var current: Dictionary = saved.duplicate(true)
 	current.registration_sha256 = session.fingerprint
+	# A content update may remove the caption while leaving the saved Run intact.
+	var fallback: bool = saved.registration_sha256 != session.fingerprint and not session._caption_variants_by_line.has(tail.line_id)
+	if fallback:
+		while not current.history_sections.is_empty():
+			var section: Dictionary = current.history_sections.back()
+			var beat: Dictionary = session._caption_variants_by_line.get(section.checkpoint_id, {})
+			if beat.is_empty():
+				current.history_sections.pop_back()
+				continue
+			current.entry_id = beat.owning_entry_id
+			current.position_id = section.checkpoint_id
+			current.boundary = "line"
+			current.captions[0].line_id = current.position_id
+			current.recovery_anchor = {"entry_id": current.entry_id, "line_id": current.position_id}
+			section.last_line_id = current.position_id
+			break
+		if current.history_sections.is_empty():
+			return _content_error("Missing dialogue ID: " + tail.line_id,
+				{"entry_id": saved.entry_id, "line_id": tail.line_id})
 	var days: Dictionary = session._scene_bundle.scene_programme.get("story_days", {})
-	current.story_day = maxi(int(saved.story_day), int(days.get(saved.entry_id, saved.story_day)))
+	current.story_day = maxi(int(saved.story_day), int(days.get(current.entry_id, saved.story_day)))
 	if current.boundary == "control":
 		var prepared: Dictionary = session._ensure_scene_programme(current.entry_id)
 		if not prepared.ok: return prepared
@@ -368,11 +387,12 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, _choices: Dictio
 		restored = session.restore_player(current, current.entry_id)
 	if not restored.ok: return restored
 	var result := checkpoint.duplicate(true)
+	result.entry_id = current.entry_id
 	result.content_version = session.catalogue[current.entry_id].content_version
 	result.manifest_fingerprint = session.fingerprint
 	result.frozen_context = session.ledger.snapshot().entry_contexts[LEDGER.scene_frame_key(current.occurrence_id, current.entry_id)].duplicate(true)
 	result.reading_session = current
-	return {"ok": true, "value": {"checkpoint": result, "story_day": current.story_day, "fallback": false}}
+	return {"ok": true, "value": {"checkpoint": result, "story_day": current.story_day, "fallback": fallback}}
 
 static func expand_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 	if checkpoint.get("stage") != "scene": return {"ok": true, "value": checkpoint.duplicate(true)}

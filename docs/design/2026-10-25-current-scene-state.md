@@ -6,6 +6,11 @@ Load restores the exact full caption, current board, selected choices, Challenge
 outcomes and gameplay values. It does not replay prior gameplay actions.
 Earlier development saves need no migration. Reject incompatible required state.
 
+If a shipped story registration removes the saved caption, Load resumes at the
+newest surviving checkpoint in the slot's retained reading history. If none
+survives, Load reports the missing caption. Moving the reading position keeps
+the slot's gameplay, board, purchases, and claimed rewards.
+
 Start makes a Challenge available. Finish resolves never-started, unfinished,
 won, lost or perfect and enters the corresponding registered dialogue. The
 internal `won` value is the player's solved result. Perfect takes precedence
