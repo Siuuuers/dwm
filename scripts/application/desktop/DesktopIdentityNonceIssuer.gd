@@ -136,12 +136,12 @@ func derive_child(request: Dictionary) -> Dictionary:
 		"parent_receipt_id": str(request["parent_receipt_id"]),
 		"child_kind": child_kind,
 		"ordinal": int(request["ordinal"]),
-		"source_ids": (request["source_ids"] as Array).duplicate(true),
+		"source_ids": (request["source_ids"] as Array).duplicate(),
 		"child_id": str(derived["value"]),
 	}
 	return {
 		"ok": true,
-		"value": {"child_id": str(derived["value"]), "provenance": provenance.duplicate(true)},
+		"value": {"child_id": str(derived["value"]), "provenance": provenance},
 		"receipt": provenance.duplicate(true),
 	}
 

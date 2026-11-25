@@ -632,8 +632,8 @@ func prepare_quick_backup_action(action: String) -> Dictionary:
 	if not is_quick_condition_current(condition) or (action == "save" and not _quick_save_record_allowed(prepared["value"]["record"])):
 		cancel_backup_action(token)
 		return _quick_failure(action)
-	_backup_actions[token]["quick_condition"] = condition.duplicate(true)
-	prepared["value"]["condition"] = condition.duplicate(true)
+	_backup_actions[token]["quick_condition"] = condition.duplicate()
+	prepared["value"]["condition"] = condition
 	return prepared
 
 func is_quick_condition_current(condition: Dictionary) -> bool:
@@ -1291,7 +1291,7 @@ func load_context(locator: Dictionary) -> Dictionary:
 	if context_hash.is_empty():
 		return _fail(&"context_not_canonicalizable", "")
 	return {"ok": true, "code": &"ok", "value": {
-		"context": (context as Dictionary).duplicate(true), "context_sha256": context_hash,
+		"context": context, "context_sha256": context_hash,
 	}}
 
 func _resolve_locator_from_slot_id(slot_id_str: String) -> Dictionary:
@@ -1613,6 +1613,6 @@ func capture_committed_scene_creation(transaction_id: String) -> Dictionary:
 	var initial_scene: Variant = initial.value.current_snapshot.snapshot.get("scene")
 	if not initial_scene is Dictionary or initial_scene.get("active_occurrence_id") != transaction_id:
 		return _fail(&"scene_creation_proof_invalid", "retained initial scene missing")
-	return {"ok": true, "value": {"operation": operation.duplicate(true),
+	return {"ok": true, "value": {"operation": operation,
 		"allocation_candidate": materials.allocation_candidate.duplicate(true), "profile_material": materials.profile.duplicate(true),
-		"initial_scene": initial_scene.duplicate(true)}}
+		"initial_scene": initial_scene}}

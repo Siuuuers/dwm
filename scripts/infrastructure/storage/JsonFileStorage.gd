@@ -108,7 +108,7 @@ func _promote_fresh_revision(relative_path: String, validator: Callable, marker:
 	if not cleaned.get("ok", false):
 		return _reconcile_revision(relative_path, validator, marker)
 	_set_lease(relative_path, final)
-	return {"ok": true, "exists": true, "value": (final["value"] as Dictionary).duplicate(true), "hash": str(marker["outgoing_hash"])}
+	return {"ok": true, "exists": true, "value": final["value"], "hash": str(marker["outgoing_hash"])}
 
 func remove_if_revision(relative_path: String, revision: String) -> Dictionary:
 	var admitted := _admit_revision(relative_path, revision)
@@ -264,7 +264,7 @@ func _finish_revision_write(relative_path: String, validator: Callable, marker: 
 	if not cleaned.get("ok", false):
 		return _fatal(&"indeterminate_commit", "Marker cleanup requires reconciliation")
 	_set_lease(relative_path, final)
-	return {"ok": true, "exists": true, "value": final["value"].duplicate(true), "hash": final["hash"], "text": final["text"]}
+	return {"ok": true, "exists": true, "value": final["value"], "hash": final["hash"], "text": final["text"]}
 
 func _recover_revision_start(relative_path: String, validator: Callable, expected: Dictionary) -> Dictionary:
 	var marker := _classify_marker(_marker_path(relative_path), relative_path)
@@ -346,7 +346,7 @@ func _reconcile(relative_path: String, validator: Callable) -> Dictionary:
 			if not remove_next.get("ok", false):
 				return remove_next
 		_set_lease(relative_path, final)
-		return {"ok": true, "exists": true, "value": (final["value"] as Dictionary).duplicate(true), "hash": final["hash"], "text": final["text"]}
+		return {"ok": true, "exists": true, "value": final["value"], "hash": final["hash"], "text": final["text"]}
 	if final["state"] == &"absent" and next["state"] == &"absent" and backup["state"] == &"absent":
 		_set_absent_lease(relative_path)
 		return {"ok": true, "exists": false}
@@ -438,7 +438,7 @@ func _write_atomic(relative_path: String, text: String, validator: Callable, kee
 	if not step.get("ok", false):
 		return _recover_known_write(intent, validator)
 	_set_lease(relative_path, verified_final)
-	return {"ok": true, "exists": true, "value": (verified_final["value"] as Dictionary).duplicate(true), "hash": outgoing_hash, "text": verified_final["text"]}
+	return {"ok": true, "exists": true, "value": verified_final["value"], "hash": outgoing_hash, "text": verified_final["text"]}
 
 func remove(relative_path: String) -> Dictionary:
 	_reconciled.erase(relative_path)
@@ -520,7 +520,7 @@ func _finish_new_winner(relative_path: String, validator: Callable, marker: Dict
 	if verified["state"] != &"valid" or verified["hash"] != marker["outgoing_hash"]:
 		return _fatal(&"indeterminate_commit", "Final changed during transaction cleanup")
 	_set_lease(relative_path, verified)
-	return {"ok": true, "exists": true, "value": (verified["value"] as Dictionary).duplicate(true), "hash": verified["hash"], "text": verified["text"]}
+	return {"ok": true, "exists": true, "value": verified["value"], "hash": verified["hash"], "text": verified["text"]}
 
 func _recover_known_write(intent: Dictionary, validator: Callable) -> Dictionary:
 	_leases.erase(intent["relative_path"])
@@ -533,7 +533,7 @@ func _recover_known_write(intent: Dictionary, validator: Callable) -> Dictionary
 		if _file_ops.call(&"exists", _next_path(relative_path)):
 			_file_ops.call(&"remove_path", _next_path(relative_path))
 		_set_lease(relative_path, final)
-		return {"ok": true, "exists": true, "value": (final["value"] as Dictionary).duplicate(true), "hash": final["hash"], "text": final["text"]}
+		return {"ok": true, "exists": true, "value": final["value"], "hash": final["hash"], "text": final["text"]}
 	var next := _classify_document(_next_path(relative_path), validator)
 	if next["state"] == &"valid" and next["hash"] == intent["outgoing_hash"]:
 		var promote: Dictionary = _file_ops.call(&"rename_path", _next_path(relative_path), _path(relative_path))
@@ -542,7 +542,7 @@ func _recover_known_write(intent: Dictionary, validator: Callable) -> Dictionary
 			if final["state"] == &"valid" and final["hash"] == intent["outgoing_hash"]:
 				_file_ops.call(&"remove_path", _marker_path(relative_path))
 				_set_lease(relative_path, final)
-				return {"ok": true, "exists": true, "value": (final["value"] as Dictionary).duplicate(true), "hash": final["hash"], "text": final["text"]}
+				return {"ok": true, "exists": true, "value": final["value"], "hash": final["hash"], "text": final["text"]}
 	var previous: Variant = intent["previous_hash"]
 	if intent["previous_absent"] and final["state"] == &"absent":
 		_file_ops.call(&"remove_path", _next_path(relative_path))
@@ -594,12 +594,12 @@ func _classify_document(path: String, validator: Callable) -> Dictionary:
 	var decoded := _decode_utf8(bytes)
 	if not decoded.get("ok", false):
 		return {"state": &"invalid", "reason": decoded, "bytes": bytes}
-	var validation := _call_validator(validator, decoded["value"])
+	var validation := _call_validator(validator, decoded["value"]).duplicate(true)
 	if not validation.get("ok", false) or typeof(validation.get("value")) != TYPE_DICTIONARY:
 		return {"state": &"invalid", "reason": validation, "bytes": bytes}
 	return {
 		"state": &"valid", "bytes": bytes.duplicate(), "text": decoded["value"],
-		"value": (validation["value"] as Dictionary).duplicate(true), "hash": _file_ops.call(&"sha256", bytes),
+		"value": validation["value"], "hash": _file_ops.call(&"sha256", bytes),
 	}
 
 func _classify_marker(path: String, relative_path: String) -> Dictionary:
@@ -694,7 +694,7 @@ func _call_validator(validator: Callable, text: String) -> Dictionary:
 	var result: Variant = validator.call(text)
 	if typeof(result) != TYPE_DICTIONARY:
 		return _failure(&"invalid_validator_result", "Validator must return a Dictionary")
-	return (result as Dictionary).duplicate(true)
+	return result
 
 func _decode_utf8(bytes: PackedByteArray) -> Dictionary:
 	var text := bytes.get_string_from_utf8()
