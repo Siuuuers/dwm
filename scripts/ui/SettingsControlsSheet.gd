@@ -430,7 +430,7 @@ func _propose(binding: Dictionary) -> void:
 		_status_key = _failure_key(result.get("code", &""))
 		_cancel_and_restore()
 		return
-	_proposal = result.value.duplicate(true)
+	_proposal = result.value
 	capture_dialog.hide()
 	if _proposal.operation == &"rebind" and _proposal.can_commit:
 		_commit_proposal()
@@ -570,7 +570,7 @@ func depart(preserve_review: bool = false) -> void:
 	if is_instance_valid(import_dialog):
 		import_dialog.hide()
 	_import_proposal.clear()
-	_original_source.clear()
+	_original_source = {}
 	if not keep_review and is_reviewing_import():
 		_review.clear()
 		_review_draft.clear()
@@ -678,7 +678,7 @@ func begin_import_review() -> void:
 		_status_key = _failure_key(result.get("code", &""))
 		refresh()
 		return
-	_review = result.value.duplicate(true)
+	_review = result.value
 	_review_draft = RULES.defaults()
 	_status_key = ""
 	refresh()
@@ -705,7 +705,7 @@ func show_original_bindings() -> void:
 		refresh()
 		return
 	_source = original_button
-	_original_source = result.value.legacy_bindings.duplicate(true)
+	_original_source = result.value.legacy_bindings
 	_render_original(_original_source)
 	_popup_dialog(original_dialog, Vector2i(720, 480))
 	original_dialog.get_cancel_button().grab_focus()
@@ -733,7 +733,7 @@ func confirm_import_review() -> void:
 			depart()
 		refresh()
 		return
-	_import_proposal = result.value.duplicate(true)
+	_import_proposal = result.value
 	_source = apply_review_button
 	_render_import()
 	_popup_dialog(import_dialog, Vector2i(720, 480))
