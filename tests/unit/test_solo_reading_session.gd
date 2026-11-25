@@ -224,6 +224,9 @@ func test_current_variant_is_detached_and_requires_the_admitted_published_tail()
 	assert_false(session.current_caption_variant(PRE, {"line_id": "fixture.solo.pre.a",
 		"publication_id": "caption:1"}).ok, "registration and allocation alone are not publication")
 	var first := _publish(session, PRE, "fixture.solo.pre.a")
+	var view: Dictionary = session.current_caption_variant_view(PRE, first).value
+	assert_same(view, session.current_caption_variant_view(PRE, first).value)
+	assert_true(view.presentation_signature.is_read_only())
 	var current: Dictionary = session.current_caption_variant(PRE, first)
 	assert_true(current.ok, str(current))
 	assert_eq(current.value, {"beat_id": "fixture.solo.pre.a", "line_id": "fixture.solo.pre.a",
