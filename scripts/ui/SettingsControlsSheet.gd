@@ -521,13 +521,13 @@ func _retire_on_back(event: InputEvent) -> void:
 func _commit_proposal() -> void:
 	if _proposal.is_empty() or not _proposal.get("can_commit", false) or not _lawful():
 		return
-	var proposal := _proposal.duplicate(true)
-	_proposal.clear()
+	var proposal := _proposal
+	_proposal = {}
 	if _proposal_kind == &"draft":
 		if not is_reviewing_import() or proposal.before != _review_draft:
 			_status_key = "settings.controls.stale"
 		else:
-			_review_draft = proposal.after.duplicate(true)
+			_review_draft = proposal.after
 			_status_key = ""
 		_cancel_and_restore()
 		return
@@ -761,12 +761,12 @@ func _render_import() -> void:
 func _apply_import() -> void:
 	if _import_proposal.is_empty() or not is_reviewing_import() or not _lawful():
 		return
-	var proposal := _import_proposal.duplicate(true)
-	var review := _review.duplicate(true)
-	var draft := _review_draft.duplicate(true)
-	_import_proposal.clear()
-	_review.clear()
-	_review_draft.clear()
+	var proposal := _import_proposal
+	var review := _review
+	var draft := _review_draft
+	_import_proposal = {}
+	_review = {}
+	_review_draft = {}
 	var result: Dictionary = _profile.commit_controls_import(proposal)
 	if not result.get("ok", false):
 		var current: Dictionary = _profile.get_controls_import_review()

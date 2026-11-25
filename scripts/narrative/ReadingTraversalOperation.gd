@@ -375,14 +375,15 @@ static func _validate_scene_plan_shape(plan: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 static func _scene_projection(plan: Dictionary, phase: String) -> Dictionary:
-	var result: Dictionary = plan.source_reading.duplicate(true)
-	if phase == "source": return result
-	for row: Dictionary in plan.traversed_captions: result.ledger.captions.append(row.duplicate(true))
+	if phase == "source": return plan.source_reading.duplicate(true)
+	var result: Dictionary = plan.source_reading.duplicate()
+	result.ledger = result.ledger.duplicate()
+	var captions: Array = result.ledger.captions if plan.traversed_captions.is_empty() else plan.traversed_captions
 	result.program_index = plan.destination.program_index
 	match plan.destination.kind:
 		"line":
 			var row: Dictionary = plan.destination.caption
-			result.ledger.captions.append(row.duplicate(true))
+			captions = [row]
 			result.boundary = "line"
 			result.frontier = {"line_id": row.beat.line_id, "publication_id": row.publication_id}
 		"control":
@@ -391,6 +392,8 @@ static func _scene_projection(plan: Dictionary, phase: String) -> Dictionary:
 		"completion":
 			result.boundary = "between_entries"
 			result.frontier = {}
+	result.ledger.captions = [] if captions.is_empty() else [captions.back()]
+	result = result.duplicate(true)
 	if result.has("player_progress"):
 		for row: Dictionary in plan.traversed_captions:
 			append_player_caption(result.player_progress, row.beat.owning_entry_id, row.beat.line_id,
@@ -405,8 +408,6 @@ static func _scene_projection(plan: Dictionary, phase: String) -> Dictionary:
 			if plan.get("paired_lines", {}).has(beat.line_id):
 				append_player_caption(result.player_progress, beat.owning_entry_id,
 					plan.paired_lines[beat.line_id], result.player_progress.story_day)
-	if not result.ledger.captions.is_empty():
-		result.ledger.captions = [result.ledger.captions.back()]
 	return result
 
 static func valid_player_progress(value: Variant) -> bool:

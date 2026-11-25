@@ -130,12 +130,16 @@ func _fork_scene_configuration() -> RefCounted:
 	sibling._caption_variants_by_line = _caption_variants_by_line
 	return sibling
 
-func _fork_scene_live() -> RefCounted:
+func _fork_scene_ledger() -> RefCounted:
 	var sibling := _fork_scene_configuration()
 	sibling.ledger = ledger.fork_live()
 	sibling.command_id = command_id
 	sibling.latest_entry = latest_entry
 	sibling.scene_occurrence = scene_occurrence
+	return sibling
+
+func _fork_scene_live() -> RefCounted:
+	var sibling := _fork_scene_ledger()
 	sibling.scene_index = scene_index
 	sibling.boundary = boundary
 	sibling.next_operation = next_operation.duplicate(true)
@@ -161,7 +165,7 @@ func _retain_scene_live(reading: Dictionary) -> Dictionary:
 	return {"ok": true, "value": retained}
 
 func _fork_scene_transition(plan: Dictionary) -> Dictionary:
-	var sibling := _fork_scene_live()
+	var sibling := _fork_scene_ledger()
 	var rows: Array = plan.traversed_captions.duplicate()
 	if plan.destination.kind == "line": rows.append(plan.destination.caption)
 	for row: Dictionary in rows:
@@ -171,7 +175,6 @@ func _fork_scene_transition(plan: Dictionary) -> Dictionary:
 	var reading := TRAVERSAL._scene_projection(plan, "destination")
 	sibling.scene_index = reading.program_index
 	sibling.boundary = reading.boundary
-	sibling.next_operation = {}
 	sibling.player_progress = reading.get("player_progress", {}).duplicate(true)
 	sibling._pending_checkpoint = sibling.player_progress.is_empty()
 	sibling._progress_publication = _scene_publication_high_water(reading.ledger.captions) if not sibling.player_progress.is_empty() else 0
@@ -474,25 +477,17 @@ func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 	var progress := {"story_day": saved.story_day, "recovery_anchor": saved.recovery_anchor,
 		"history_sections": saved.history_sections}
 	if not TRAVERSAL.valid_player_progress(progress): return _fail(&"reading_checkpoint_invalid")
-	var rows: Array[Dictionary] = []
-	var publications := {}
-	for value: Variant in saved.captions:
-		if not value is Dictionary or not FROZEN._exact(value, ["line_id", "publication_id"]) \
-				or not value.line_id is String \
-				or not value.publication_id is String or value.publication_id.strip_edges().is_empty() \
-				or value.publication_id != "caption:%d" % saved.publication_serial \
-				or publications.has(value.publication_id): return _fail(&"reading_frontier_invalid")
-		if not _caption_variants_by_line.has(value.line_id):
-			return _content_error("Missing dialogue ID: " + value.line_id, {"entry_id": entry_id, "line_id": value.line_id})
-		var beat: Dictionary = _caption_variants_by_line[value.line_id]
-		if beat.owning_entry_id != entry_id:
-			return _content_error("Dialogue ID is not in this passage: " + value.line_id,
-				{"entry_id": entry_id, "line_id": value.line_id})
-		publications[value.publication_id] = true
-		rows.append({"publication_id": value.publication_id, "occurrence_id": saved.occurrence_id,
-			"beat": beat})
-	if saved.publication_serial != _scene_publication_high_water(rows):
+	var caption: Variant = saved.captions[0]
+	if not caption is Dictionary or not FROZEN._exact(caption, ["line_id", "publication_id"]) \
+			or not caption.line_id is String or not caption.publication_id is String \
+			or caption.publication_id != "caption:%d" % saved.publication_serial:
 		return _fail(&"reading_frontier_invalid")
+	if not _caption_variants_by_line.has(caption.line_id):
+		return _content_error("Missing dialogue ID: " + caption.line_id, {"entry_id": entry_id, "line_id": caption.line_id})
+	var beat: Dictionary = _caption_variants_by_line[caption.line_id]
+	if beat.owning_entry_id != entry_id:
+		return _content_error("Dialogue ID is not in this passage: " + caption.line_id,
+			{"entry_id": entry_id, "line_id": caption.line_id})
 	var nodes: Array = _scene_nodes[entry_id]
 	var index := -1
 	for cursor: int in nodes.size():
@@ -505,7 +500,6 @@ func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 			index = cursor
 	if index < 0:
 		return _content_error("Missing dialogue position: " + saved.position_id, {"entry_id": entry_id, "position_id": saved.position_id})
-	var tail: Dictionary = rows.back()
 	if saved.boundary == "control":
 		var registered := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_contract_tables()
 		if not registered.ok: return registered
@@ -513,11 +507,11 @@ func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 		for programme: Dictionary in registered.bundle.scene_programme.entries:
 			if programme.entry_id == entry_id:
 				predecessor = DialogicRuntimeAdapter._scene_control_authored_predecessor(index, {"nodes": nodes}, programme.markers)
-		if not predecessor.ok or predecessor.value.line_id != tail.beat.line_id:
+		if not predecessor.ok or predecessor.value.line_id != caption.line_id:
 			return _content_error("Cannot restore held dialogue control: " + saved.position_id,
-				{"entry_id": entry_id, "position_id": saved.position_id, "line_id": tail.beat.line_id})
+				{"entry_id": entry_id, "position_id": saved.position_id, "line_id": caption.line_id})
 	else:
-		if tail.beat.line_id != saved.position_id: return _fail(&"reading_frontier_invalid")
+		if caption.line_id != saved.position_id: return _fail(&"reading_frontier_invalid")
 		if saved.boundary == "between_entries":
 			index = nodes[index].next
 			var visited := {}
@@ -536,8 +530,9 @@ func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 		"occurrence_id": saved.occurrence_id, "program_index": index, "boundary": saved.boundary,
 		"ledger": {"schema_version": 2, "session_token": saved.session_token,
 			"frozen_context": {"family": "scene", "session_token": saved.session_token, "registration_sha256": fingerprint},
-			"entry_contexts": {LEDGER.scene_frame_key(saved.occurrence_id, entry_id): frame}, "captions": rows},
-		"frontier": {"line_id": tail.beat.line_id, "publication_id": tail.publication_id} if saved.boundary == "line" else {},
+			"entry_contexts": {LEDGER.scene_frame_key(saved.occurrence_id, entry_id): frame}, "captions": [
+				{"publication_id": caption.publication_id, "occurrence_id": saved.occurrence_id, "beat": beat}]},
+		"frontier": caption if saved.boundary == "line" else {},
 		"next_operation": null}
 	live["player_progress"] = progress
 	return restore(live, entry_id)

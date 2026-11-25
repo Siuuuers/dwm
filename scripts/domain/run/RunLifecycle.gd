@@ -240,6 +240,12 @@ func prepare_day_resolution(
 	}}
 
 
+func capture_ending_context() -> Dictionary:
+	return {"run_id": _run_id, "ending_plan": _ending_plan.duplicate(true) if _has_ending_plan else null}
+
+func is_completed_scene_passage() -> bool:
+	return _scene_runtime and _state == &"COMPLETED" and not _has_ending_plan
+
 func capture_active_plan() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {
 		"active_resolution_plan": _plan.to_dict() if _plan != null else null,

@@ -736,6 +736,15 @@ func has_gallery_unlock(ending_id: String) -> bool:
 	return ending_id in _profile.get("gallery_unlocks", [])
 
 
+func has_gallery_receipt(ending_id: String, transaction_id: String = "") -> bool:
+	var receipts: Dictionary = _profile.get("gallery_transaction_receipts", {})
+	if not transaction_id.is_empty():
+		return receipts.has(transaction_id) and receipts[transaction_id].ending_id == ending_id
+	for receipt: Dictionary in receipts.values():
+		if receipt.ending_id == ending_id: return true
+	return false
+
+
 func get_gallery_discovery_snapshot() -> Dictionary:
 	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
 	return {"ok": true, "code": &"ok", "value": {"revision": get_profile_revision(),
