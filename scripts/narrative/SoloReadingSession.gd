@@ -852,7 +852,7 @@ func validate_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 		return _validate_marker_saved(saved, entry_id)
 	if family in ["hospital", "ending"]: return _validate_base_saved(saved, entry_id)
 	if typeof(saved.get("schema_version")) == TYPE_INT and saved.schema_version == 2:
-		var operation := TRAVERSAL.validate(saved, entry_id)
+		var operation := TRAVERSAL.validated_operation_view(saved, entry_id)
 		if not operation.ok: return operation
 		for phase: String in ["source", "destination"]:
 			var projected := TRAVERSAL.solo_projection_view(operation.value.plan, phase)
@@ -1233,7 +1233,7 @@ func _validate_marker_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 	if not marker_entries.has(entry_id) or not TRAVERSAL.valid_marker_reading_shape(saved) \
 			or saved.marker_program_fingerprint != marker_fingerprint: return _fail(&"reading_marker_checkpoint_invalid")
 	if saved.next_operation != null:
-		var checked := TRAVERSAL.validate(saved, entry_id)
+		var checked := TRAVERSAL.validated_operation_view(saved, entry_id)
 		if not checked.ok: return checked
 		var plan: Dictionary = checked.value.plan
 		var destination := TRAVERSAL._marker_projection_view(plan, "destination")

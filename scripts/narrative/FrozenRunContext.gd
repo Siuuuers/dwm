@@ -149,7 +149,7 @@ static func _validate_reading_checkpoint_body(checkpoint: Dictionary, snapshot: 
 			and reading.schema_version == 4:
 		if not READING_NEXT.valid_marker_reading_shape(reading): return _fail(&"reading_session_invalid")
 		if reading.next_operation != null:
-			var operation := READING_NEXT.validate(reading, checkpoint.entry_id)
+			var operation := READING_NEXT.validated_operation_view(reading, checkpoint.entry_id)
 			if not operation.ok: return operation
 		if reading.ledger.captions.back().beat.owning_entry_id != checkpoint.entry_id:
 			return _fail(&"reading_physical_owner_mismatch")
@@ -165,7 +165,7 @@ static func _validate_reading_checkpoint_body(checkpoint: Dictionary, snapshot: 
 			"boundary": boundary, "ledger": reading.ledger, "frontier": frontier}
 	if reading is Dictionary and typeof(reading.get("schema_version")) == TYPE_INT \
 			and reading.schema_version == 2:
-		var operation := READING_NEXT.validate(reading, checkpoint.entry_id)
+		var operation := READING_NEXT.validated_operation_view(reading, checkpoint.entry_id)
 		if not operation.ok: return operation
 		reading = READING_NEXT.without_operation_view(reading)
 	if not reading is Dictionary or not _exact(reading, ["schema_version", "catalogue_fingerprint", "boundary", "ledger", "frontier"]) \
@@ -275,7 +275,7 @@ static func _validate_scene_envelope(checkpoint: Dictionary) -> Dictionary:
 	if not reading is Dictionary or not READING_NEXT.valid_scene_reading_shape(reading):
 		return _fail(&"reading_session_invalid")
 	if reading.next_operation != null:
-		var operation := READING_NEXT.validate(reading, checkpoint.entry_id)
+		var operation := READING_NEXT.validated_operation_view(reading, checkpoint.entry_id)
 		if not operation.ok: return operation
 	var selected := SCENE_ENTRIES.scene_registration_fingerprint()
 	if selected.is_empty() or checkpoint.manifest_fingerprint != selected \

@@ -8,15 +8,19 @@ const PLAN_KEYS := ["entry_id", "catalogue_fingerprint", "source_ledger", "sourc
 const PHASES := ["source", "destination"]
 
 static func create(plan: Dictionary, phase: String) -> Dictionary:
-	var version: Variant = plan.get("schema_version")
-	return _create_operation(plan, phase, version if typeof(version) == TYPE_INT and version in [2, 3] else 1)
+	var made := _operation_view(plan, phase)
+	if made.ok: made.value.plan = plan.duplicate(true)
+	return made
 
-static func _create_operation(plan: Dictionary, phase: String, version: int) -> Dictionary:
+static func _operation_view(plan: Dictionary, phase: String, version: int = 0) -> Dictionary:
+	if version == 0:
+		var declared: Variant = plan.get("schema_version")
+		version = declared if typeof(declared) == TYPE_INT and declared in [2, 3] else 1
 	if phase not in PHASES: return _fail(&"reading_next_phase_invalid")
 	var encoded := encode_plan(plan, version)
 	if not encoded.ok: return encoded
 	return {"ok": true, "value": {"schema_version": version, "operation_id": str(encoded.value).sha256_text(),
-		"phase": phase, "plan": plan.duplicate(true)}}
+		"phase": phase, "plan": plan}}
 
 static func encode_plan(plan: Dictionary, version: int) -> Dictionary:
 	var checked: Dictionary
@@ -30,21 +34,19 @@ static func encode_plan(plan: Dictionary, version: int) -> Dictionary:
 	return encoded if encoded.ok else _fail(&"reading_next_plan_invalid")
 
 static func project(plan: Dictionary, phase: String) -> Dictionary:
-	if typeof(plan.get("schema_version")) == TYPE_INT and plan.schema_version == 3:
-		var made := _create_operation(plan, phase, 3)
-		if not made.ok: return made
-		var result := _scene_projection(plan, phase)
-		result.next_operation = made.value
-		return {"ok": true, "value": result}
-	if typeof(plan.get("schema_version")) == TYPE_INT and plan.schema_version == 2: return _project_marker_operation(plan, phase)
 	var made := create(plan, phase)
 	if not made.ok: return made
-	var reading := solo_projection_view(plan, phase).duplicate(true)
-	reading["schema_version"] = 2
+	var reading: Dictionary
+	match made.value.schema_version:
+		3: reading = _scene_projection(plan, phase)
+		2: reading = _marker_projection_view(plan, phase).duplicate(true)
+		_:
+			reading = solo_projection_view(plan, phase).duplicate(true)
+			reading["schema_version"] = 2
 	reading["next_operation"] = made.value
 	return {"ok": true, "value": reading}
 
-static func validate(reading: Dictionary, entry_id: String) -> Dictionary:
+static func validated_operation_view(reading: Dictionary, entry_id: String) -> Dictionary:
 	if typeof(reading.get("schema_version")) == TYPE_INT and reading.schema_version == 5: return _validate_scene_operation(reading, entry_id)
 	if reading.get("schema_version") == 4: return _validate_marker_operation(reading, entry_id)
 	var keys := READING_KEYS.duplicate()
@@ -58,7 +60,7 @@ static func validate(reading: Dictionary, entry_id: String) -> Dictionary:
 			or not operation.get("operation_id") is String or not operation.get("phase") is String \
 			or not operation.get("plan") is Dictionary:
 		return _fail(&"reading_next_operation_invalid")
-	var made := create(operation.plan, operation.phase)
+	var made := _operation_view(operation.plan, operation.phase)
 	if not made.ok: return made
 	if operation != made.value or operation.plan.entry_id != entry_id:
 		return _fail(&"reading_next_operation_mismatch")
@@ -245,13 +247,6 @@ static func _marker_projection_view(plan: Dictionary, phase: String) -> Dictiona
 				"event_digest": str(JSON_WRITER.stringify(target.semantic).value).sha256_text(), "anchor": target.anchor}
 	return result
 
-static func _project_marker_operation(plan: Dictionary, phase: String) -> Dictionary:
-	var made := _create_operation(plan, phase, 2)
-	if not made.ok: return made
-	var result := _marker_projection_view(plan, phase).duplicate(true)
-	result.next_operation = made.value
-	return {"ok": true, "value": result}
-
 static func _validate_marker_operation(reading: Dictionary, entry_id: String) -> Dictionary:
 	if not valid_marker_reading_shape(reading) or not reading.next_operation is Dictionary:
 		return _fail(&"reading_next_operation_invalid")
@@ -260,9 +255,9 @@ static func _validate_marker_operation(reading: Dictionary, entry_id: String) ->
 			or typeof(operation.schema_version) != TYPE_INT or operation.schema_version != 2 \
 			or not operation.plan is Dictionary or not operation.phase is String:
 		return _fail(&"reading_next_operation_invalid")
-	var made := _create_operation(operation.plan, operation.phase, 2)
+	var made := _operation_view(operation.plan, operation.phase, 2)
 	if not made.ok: return made
-	if not EVENT._same_types(operation, made.value) or operation != made.value or operation.plan.entry_id != entry_id:
+	if not operation.operation_id is String or operation.operation_id != made.value.operation_id or operation.plan.entry_id != entry_id:
 		return _fail(&"reading_next_operation_mismatch")
 	var expected := _marker_projection_view(operation.plan, operation.phase)
 	var actual := without_operation_view(reading)
@@ -439,9 +434,9 @@ static func _validate_scene_operation(reading: Dictionary, entry_id: String) -> 
 	if not FROZEN._exact(operation, ["schema_version", "operation_id", "phase", "plan"]) \
 			or typeof(operation.schema_version) != TYPE_INT or operation.schema_version != 3 \
 			or not operation.phase is String or not operation.plan is Dictionary: return _fail(&"reading_next_operation_invalid")
-	var made := _create_operation(operation.plan, operation.phase, 3)
+	var made := _operation_view(operation.plan, operation.phase, 3)
 	if not made.ok: return made
-	if not _same(operation, made.value) or operation.plan.entry_id != entry_id: return _fail(&"reading_next_operation_mismatch")
+	if not operation.operation_id is String or operation.operation_id != made.value.operation_id or operation.plan.entry_id != entry_id: return _fail(&"reading_next_operation_mismatch")
 	var expected: Dictionary = operation.plan.source_reading if operation.phase == "source" else _scene_projection(operation.plan, "destination")
 	if not _same(without_operation_view(reading), expected): return _fail(&"reading_next_projection_mismatch")
 	return made
@@ -456,6 +451,7 @@ static func validate_scene_operation_path(reading: Dictionary, entry_id: String,
 	var phase := "destination" if operation.phase == "source" else "source"
 	var opposite := _scene_projection(plan, phase)
 	operation.phase = phase
+	operation.plan = plan.duplicate(true)
 	opposite.next_operation = operation
 	return {"ok": true, "value": opposite}
 
