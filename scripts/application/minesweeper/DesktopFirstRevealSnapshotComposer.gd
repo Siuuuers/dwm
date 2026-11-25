@@ -138,15 +138,11 @@ static func _validate_result(candidate: Dictionary, current: bool) -> Dictionary
 
 
 static func _exact_keys(value: Dictionary, expected: Array[String], code: StringName) -> Dictionary:
-	if typeof(value) != TYPE_DICTIONARY:
-		return _fail(code, "expected an object")
-	var keys: Array = value.keys()
+	if value.size() == expected.size() and value.has_all(expected):
+		return {"ok": true}
+	var keys := value.keys()
 	keys.sort()
-	var sorted_expected := expected.duplicate()
-	sorted_expected.sort()
-	if keys != sorted_expected:
-		return _fail(code, "unexpected keys: " + str(keys))
-	return {"ok": true}
+	return _fail(code, "unexpected keys: " + str(keys))
 
 
 static func _fail(code: StringName, message: String) -> Dictionary:
