@@ -162,7 +162,7 @@ func configure_copy(copy: Dictionary) -> bool:
 	for key: String in COPY_KEYS:
 		if typeof(copy.get(key)) != TYPE_STRING or str(copy[key]).strip_edges().is_empty(): return false
 	if not _can_measure(copy,theme): return false
-	_copy = copy.duplicate(true)
+	_copy = copy.duplicate()
 	accessibility_name = _copy.title
 	if is_node_ready(): _apply_copy()
 	return true

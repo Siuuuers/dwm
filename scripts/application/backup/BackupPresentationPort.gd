@@ -216,7 +216,7 @@ func _admission_result() -> Dictionary:
 	var result: Variant = _admission.call()
 	if typeof(result) != TYPE_DICTIONARY or typeof((result as Dictionary).get("ok")) != TYPE_BOOL:
 		return _fail(&"backup_action_unavailable")
-	return (result as Dictionary).duplicate(true)
+	return result if result.ok else (result as Dictionary).duplicate(true)
 
 static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code}

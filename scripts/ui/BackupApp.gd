@@ -203,9 +203,7 @@ func configure_scene_backup(port: Object, localization: Object = null,
 	_run_palette = palette
 	_day = null
 	_scene_presentation = true
-	_records = next
-	_displayed_projection_revision = revision
-	_projection_valid = true
+	_adopt_projection(next, revision)
 	_status_key = ""
 	last_result = result.duplicate(true)
 	for binding in [[_port, "projection_changed", _on_projection_changed],
@@ -222,7 +220,7 @@ func configure_scene_backup(port: Object, localization: Object = null,
 		_font_style = candidate.font_style
 		theme = candidate.theme
 	_ready_result = {"ok": true}
-	return _ready_result.duplicate(true)
+	return _ready_result.duplicate()
 
 func configure_backup(port: Object, localization: Object = null, profile: Object = null,
 		palette: StringName = &"after_hours", day: int = 1,
@@ -324,9 +322,7 @@ func refresh_view() -> Dictionary:
 	if next.is_empty():
 		_projection_failure()
 		return {"ok": false, "code": &"invalid_backup_projection"}
-	_records = next
-	_displayed_projection_revision = revision
-	_projection_valid = true
+	_adopt_projection(next, revision)
 	if _recovering:
 		_retry_enabled = bool(_records[selected_locator].actions.get(_source_action, false))
 	_apply_typography()
@@ -349,8 +345,13 @@ func _projection_records(result: Variant, require_family: bool) -> Dictionary:
 			return {}
 		if require_family and not _scene_record_valid(record, LOCATORS[index]):
 			return {}
-		next[LOCATORS[index]] = record.duplicate(true)
+		next[LOCATORS[index]] = record
 	return next
+
+func _adopt_projection(records: Dictionary, revision: int) -> void:
+	_records = records.duplicate(true)
+	_displayed_projection_revision = revision
+	_projection_valid = true
 
 func _scene_record_valid(record: Variant, locator: String) -> bool:
 	var fields := ["locator", "state", "family", "day", "saved_time", "fallback",

@@ -65,8 +65,8 @@ func request_pause(holder_id: StringName) -> Dictionary:
 	_generation += 1
 	_handle = {"generation": _generation, "handle_id": "pause:%d:%d" % [get_instance_id(), _generation],
 		"holder": holder_id, "reason": &"universal_pause"}
-	_source = source.duplicate(true)
-	_anchor = anchor.value.duplicate(true)
+	_source = source
+	_anchor = anchor.value
 	_phase = &"Acquiring"
 	for port: Object in _ports:
 		var prior: Dictionary = port.get_state()
