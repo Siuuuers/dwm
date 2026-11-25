@@ -106,35 +106,18 @@ func load_same_day_supportz() -> void:
 		"Load restores the current reading state without saved traversal history")
 	var disk: Dictionary = saves._storage.read_text("autosave.json")
 	var owner: Object = bootstrap._retained_minesweeper_round_coordinator_app
-	var completions := _completion_receipts()
-	assert_true(completions.is_empty(), "Load does not restore app-round retry acknowledgements")
-	for receipt: Dictionary in proof.run.command_receipts.values():
-		if receipt.get("kind") != "scene_round_completion": continue
-		var saved: Dictionary = receipt.scene_round_completion
-		var request := {"transaction_id": receipt.transaction_id, "transaction_issuer_receipt": saved.issuer_receipt,
-			"expected_identity": saved.completion.board_identity, "expected_revision": saved.completion.revision}
+	var board: Dictionary = bootstrap._desktop_board_state.capture()
+	var request := {"expected_identity": board.identity.duplicate(), "expected_revision": int(board.revision)}
+	for revision: int in [board.revision, board.revision - 1]:
+		request.expected_revision = revision
 		var retried: Dictionary = owner.complete_round(request)
-		assert_eq(retried.get("code"), &"scene_round_source_changed", "historical completion has an older board or revision")
-		assert_eq(BOARD_STATE._inspection_normalize(game.capture_run_snapshot_input()), restored)
-		assert_eq(saves._storage.read_text("autosave.json"), disk, "stale retry makes no new checkpoint")
-		request.expected_revision += 1
-		var revised: Dictionary = owner.complete_round(request)
-		if request.expected_identity == restored.desktop.board.identity \
-				and request.expected_revision == restored.desktop.board.revision:
-			assert_true(revised.get("ok", false), str(revised))
-			assert_true(revised.get("already_applied", false), "saved settled state prevents another reward")
-		else:
-			assert_eq(revised.get("code"), &"scene_round_source_changed", "another round cannot match the restored board")
-		assert_eq(BOARD_STATE._inspection_normalize(game.capture_run_snapshot_input()), restored)
-		assert_eq(saves._storage.read_text("autosave.json"), disk, "completion checks never write another checkpoint")
-	var issued: Dictionary = bootstrap._desktop_identity_nonce_issuer.issue(&"transaction_id")
-	if not _ok(issued): return
-	var current_board: Dictionary = bootstrap._desktop_board_state.capture()
-	var current_retry: Dictionary = owner.complete_round({"transaction_id": issued.value.token,
-		"transaction_issuer_receipt": issued.value.issuer_receipt,
-		"expected_identity": current_board.identity.duplicate(true), "expected_revision": int(current_board.revision)})
-	if not _ok(current_retry): return
-	assert_true(current_retry.get("already_applied", false), "settled board prevents repeat reward without historical receipts")
+		if not _ok(retried): return
+		assert_true(retried.get("already_applied", false), "restored settled board prevents another reward")
+	request.expected_revision = board.revision - 2
+	assert_eq(owner.complete_round(request).get("code"), &"scene_round_source_changed")
+	request.expected_revision = board.revision
+	request.expected_identity.app_round_ordinal -= 1
+	assert_eq(owner.complete_round(request).get("code"), &"scene_round_source_changed", "earlier board cannot settle")
 	assert_eq(BOARD_STATE._inspection_normalize(game.capture_run_snapshot_input()), restored)
 	assert_eq(saves._storage.read_text("autosave.json"), disk)
 	var host: Control = get_tree().current_scene
@@ -156,7 +139,7 @@ func load_same_day_supportz() -> void:
 	await _click(shop._supportz_confirmation.confirm_button)
 	assert_eq(game.money, before_money - 45)
 	assert_eq(game.minesweeper_round_floor, -1)
-	assert_eq(_completion_receipts(), completions, "purchase cannot replay completion")
+	assert_eq(game.minesweeper_app_rounds_finished_today, 2, "purchase cannot replay completion")
 	assert_eq(_shop_receipts().size(), 1)
 	assert_false(shop._supportz_button.is_visible_in_tree())
 	var after: Dictionary = game.capture_run_snapshot_input()

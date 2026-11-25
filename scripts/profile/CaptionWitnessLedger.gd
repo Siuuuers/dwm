@@ -15,18 +15,12 @@ static func describe(beat: Dictionary) -> Dictionary:
 static func admit(beat: Dictionary, registry: Dictionary) -> Dictionary:
 	var described := describe(beat)
 	if not described.ok: return described
-	var entries: Array = []
-	var rows: Variant = registry.get("beats")
-	if not rows is Array: return _fail(&"invalid_caption_witness_registry")
-	for row: Variant in rows:
-		if not REGISTRY.valid_beat(row): return _fail(&"invalid_caption_witness_registry")
-		if not entries.has(row.owning_entry_id): entries.append(row.owning_entry_id)
-	var checked := REGISTRY.validate_document(registry, entries)
+	var checked := REGISTRY.check_document(registry)
 	if not checked.ok: return _fail(&"invalid_caption_witness_registry")
-	for row: Dictionary in checked.value.beats:
-		var registered := describe(row)
-		if not registered.ok: return _fail(&"invalid_caption_witness_registry")
-		if registered.value.canonical_text == described.value.canonical_text:
+	for row: Dictionary in registry.beats:
+		var encoded := WRITER.stringify(row)
+		if not encoded.ok: return _fail(&"invalid_caption_witness_registry")
+		if encoded.value == described.value.canonical_text:
 			described.value.beat = beat.duplicate(true)
 			return described
 	return _fail(&"unregistered_caption_variant")

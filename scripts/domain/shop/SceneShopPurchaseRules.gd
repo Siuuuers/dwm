@@ -1,9 +1,15 @@
 extends RefCounted
+const PREVIEW_GAMEPLAY_KEYS := ["money", "coins", "minesweeper_round_floor", "stats", "inventory"]
 const MAX_INTEGER: int = 9223372036854775807
 const SPECIAL_IDS: Array[String] = ["supportz", "lucky_charm", "debug_key"]
 
 
 static func prepare(gameplay: Dictionary, item_record: Dictionary, quantity: Variant,
+		supportz_effect: Dictionary = {}) -> Dictionary:
+	return apply_to_candidate(gameplay.duplicate(true), item_record, quantity, supportz_effect)
+
+
+static func apply_to_candidate(candidate: Dictionary, item_record: Dictionary, quantity: Variant,
 		supportz_effect: Dictionary = {}) -> Dictionary:
 	if typeof(quantity) != TYPE_INT or quantity < 1:
 		return _fail(&"invalid_quantity")
@@ -25,26 +31,25 @@ static func prepare(gameplay: Dictionary, item_record: Dictionary, quantity: Var
 		return _fail(&"invalid_shop_price")
 	var total: int = item_record.price * quantity
 	for key: String in ["money", "coins", "minesweeper_round_floor"]:
-		if typeof(gameplay.get(key)) != TYPE_INT:
+		if typeof(candidate.get(key)) != TYPE_INT:
 			return _fail(&"invalid_shop_gameplay")
-	if gameplay.money < -30 or gameplay.coins < 0 \
-			or gameplay.minesweeper_round_floor < -3 or gameplay.minesweeper_round_floor > 0 \
-			or not gameplay.get("stats") is Dictionary or not gameplay.get("inventory") is Dictionary:
+	if candidate.money < -30 or candidate.coins < 0 \
+			or candidate.minesweeper_round_floor < -3 or candidate.minesweeper_round_floor > 0 \
+			or not candidate.get("stats") is Dictionary or not candidate.get("inventory") is Dictionary:
 		return _fail(&"invalid_shop_gameplay")
-	if typeof(gameplay.stats.get("pressure")) != TYPE_INT \
-			or gameplay.stats.pressure < 0 or gameplay.stats.pressure > 12:
+	if typeof(candidate.stats.get("pressure")) != TYPE_INT \
+			or candidate.stats.pressure < 0 or candidate.stats.pressure > 12:
 		return _fail(&"invalid_shop_gameplay")
-	for key: Variant in gameplay.inventory:
-		if typeof(key) != TYPE_STRING or typeof(gameplay.inventory[key]) != TYPE_INT or gameplay.inventory[key] < 0:
+	for key: Variant in candidate.inventory:
+		if typeof(key) != TYPE_STRING or typeof(candidate.inventory[key]) != TYPE_INT or candidate.inventory[key] < 0:
 			return _fail(&"invalid_shop_gameplay")
-	var candidate: Dictionary = gameplay.duplicate(true)
 	match item_record.currency:
 		"money":
-			if gameplay.money < 0 or (total > gameplay.money and total - gameplay.money > 30):
+			if candidate.money < 0 or (total > candidate.money and total - candidate.money > 30):
 				return _fail(&"insufficient_funds")
 			candidate.money -= total
 		"minesweeper_coin":
-			if gameplay.coins < total: return _fail(&"insufficient_funds")
+			if candidate.coins < total: return _fail(&"insufficient_funds")
 			candidate.coins -= total
 		_:
 			return _fail(&"invalid_shop_currency")
@@ -62,7 +67,7 @@ static func prepare(gameplay: Dictionary, item_record: Dictionary, quantity: Var
 			if owned > MAX_INTEGER - quantity: return _fail(&"inventory_overflow")
 			candidate.inventory[item_id] = owned + quantity
 		elif effect_id == "minesweeper:round_floor:-1" and item_id == "supportz":
-			if not _supportz_effect_valid(supportz_effect, gameplay.minesweeper_round_floor):
+			if not _supportz_effect_valid(supportz_effect, candidate.minesweeper_round_floor):
 				return _fail(&"invalid_supportz_effect")
 			candidate.minesweeper_round_floor = supportz_effect.new_round_floor
 		else:
@@ -72,7 +77,7 @@ static func prepare(gameplay: Dictionary, item_record: Dictionary, quantity: Var
 	if item_id != "supportz" and not supportz_effect.is_empty(): return _fail(&"invalid_supportz_effect")
 	return {"ok": true, "code": &"ok", "value": {"gameplay": candidate,
 		"purchase": {"item_id": item_id, "quantity": quantity, "currency": item_record.currency,
-			"unit_price": item_record.price, "effect_ids": item_record.effect_ids.duplicate(true)}}}
+			"unit_price": item_record.price, "effect_ids": item_record.effect_ids.duplicate()}}}
 
 
 static func _supportz_effect_valid(effect: Dictionary, current_floor: int) -> bool:

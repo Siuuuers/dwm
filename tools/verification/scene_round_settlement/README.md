@@ -1,34 +1,32 @@
 # Scene Minesweeper settlement
 
-A terminal round applies its reward once on the current timeline. An exact retry in the same session returns the original receipt. A separate Save records the settled board and resulting gameplay together. Loading that save clears session receipts. A fresh completion request at the restored board's current revision returns “already settled” and leaves gameplay alone.
+A terminal board applies its reward once on the current timeline. Settlement advances its revision. A request for the same visible, settled board returns `already_applied` at its current or immediately preceding revision. Immediately after settlement this includes the original terminal request. Later changes in board revision move the acknowledgement window forward. An earlier board, an older revision, or a future revision is refused. The reply depends only on the current board and the request. This rule also applies after Load.
 
 ## Scope
 
-The model covers two consecutive rounds, three issued transaction tokens, one active run and one save slot. Each round begins at its terminal revision. The relative revision advances from 0 to 1 upon settlement. One grant counts a settlement including its computed reward, independent of difficulty, outcome, daily cap or amount. The guard serializes settlement with Save. An explicit successful save writes one complete compact record. A reopen can happen before or after that write. Restoring an earlier save rewinds the board and gameplay together.
+The model covers two consecutive boards within one active run and one save slot. Each board starts at its terminal revision. The model represents a complete board identity by a round number and uses revisions 2 and 3 for the terminal and settled positions. A grant counts one settlement with its calculated reward, independent of difficulty, outcome, daily cap or amount. The transaction gate holds other settlement and Save operations until the active request finishes.
 
 | Model action | Game behavior |
 | --- | --- |
-| Prepare, Refuse, Adopt | GameState checks the issued command, board, revision and ordinal. The narrative checkpoint port validates live publication. On success the game adopts the settled board, gameplay and receipt under its transaction lease. Ordinary completion leaves the save slot alone. |
-| Save | RunSnapshotSchema.build_scene projects the board and gameplay into Save9 and omits command receipts. |
-| Load | GameState restores the selected saved Run. Its command receipt map starts empty for compact Save9. Loading while a request is pending models closing and reopening the game. |
-| NextRound | A subsequent board reaches its own terminal revision. The earlier live receipt remains available until Load. |
+| Prepare, Refuse, Adopt | Validate the terminal board and expected revision. Successful adoption advances the board and gameplay together. A refused preparation leaves them unchanged. Ordinary settlement leaves the save slot alone. |
+| Save | A successful Save9 write persists a matching board and gameplay. A failed write leaves the prior slot available. |
+| Load | Reopening selects the last saved board and gameplay and drops an unfinished request. Restoring a save made before settlement also rewinds the corresponding grant. |
+| NextRound | A subsequent board reaches its own terminal revision. Retrying the first board now encounters a different identity. |
 
-The checker verifies the count of grants against each board's round and settlement flag, exact live replay and rejection of a conflicting revision, and acknowledgement of an already settled compact save. The retry property assumes continued valid requests and opportunities for a successful adoption. Under those assumptions the same eligible round cannot stay unpaid forever. Native checks cover real reward amounts, persistence bytes and callback behavior. [Godot transaction test](../../../tests/integration/test_scene_round_checkpoint_transaction.gd)
+TLC checks that each saved or live board has exactly the expected count of grants, that a settled board acknowledges both valid revisions, and that stale requests are refused. Under continued valid retries and opportunities to adopt, an eligible round cannot remain unpaid forever. The finite model assumes ordinary in-memory settlement is isolated and a successful slot write is atomic. The native transaction test exercises the gameplay amounts, scene checkpoint, and compact saved bytes. [Godot transaction test](../../../tests/integration/test_scene_round_checkpoint_transaction.gd)
 
-## Receipt ablation
+## Check the revision rule
 
-The board-only configuration checks the same transition graph with the receipt lookup removed from a retry query. TLC finds the sequence **prepare round 1 → adopt → reach round 2 → query the original round 1 request**. The current board answers “source changed”. The live command table returns the original round 1 receipt. This counterexample concerns the reply during a live session. Compact saves already use the board's settled flag to prevent another payout after Load.
+The second configuration accepts only the board's current revision. TLC finds a counterexample immediately after the first successful adoption. The original request still carries revision 2, and the same board is now settled at revision 3. An exact-current-revision check would incorrectly refuse that retry.
 
-## Run TLC
-
-Use the pinned TLC 1.8.0 jar and checksum from the [story progression instructions](../story_progression/README.md#reproduce). Run from the repository root. The temporary directory holds checker output, including the expected counterexample trace.
+Run from the repository root with the pinned TLC 1.8.0 jar and checksum from the [story progression instructions](../story_progression/README.md#reproduce). The temporary directory holds the checker state and expected counterexample.
 
 ```sh
 model_dir=$(mktemp -d)
 cp tools/verification/scene_round_settlement/*.tla tools/verification/scene_round_settlement/*.cfg "$model_dir/"
 cd "$model_dir"
 java -cp /tmp/tla2tools.jar tlc2.TLC -workers 1 SceneRoundSettlement
-java -cp /tmp/tla2tools.jar tlc2.TLC -workers 1 -config BoardOnly.cfg SceneRoundSettlement
+java -cp /tmp/tla2tools.jar tlc2.TLC -workers 1 -config ExactRevisionOnly.cfg SceneRoundSettlement
 ```
 
-The first command completed with 80 distinct states, 222 generated states and depth 9. The second exited 12 with the expected BoardOnlyReplay violation at depth 4.
+The first command completed with 14 distinct states, 39 generated states and depth 7. The second exited 12 with the expected `RetryAcknowledged` counterexample at depth 3.

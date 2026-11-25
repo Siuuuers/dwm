@@ -73,7 +73,7 @@ func capture() -> Dictionary:
 		"carried_sequela": (_game_state.condition_effects_today as Array).has(_CONDITION_SEQUELA),
 		"owned_item_ids": owned_item_ids, "minesweeper_round_floor": round_floor,
 		"backup": {
-			"money": money, "coins": coins, "inventory": inventory.duplicate(true),
+			"money": money, "coins": coins, "inventory": inventory,
 			"minesweeper_round_floor": round_floor,
 		},
 	}, "receipt": {}}
@@ -147,7 +147,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 		var gameplay: Dictionary = candidate.ordinary_gameplay
 		if int(gameplay.get("day", -1)) != int(_game_state.day) or not candidate.get("ordinary_contacts") is Dictionary:
 			return _fail(&"invalid_ordinary_shop_candidate", "", {})
-		_game_state.call(&"_apply_gameplay_silent", gameplay.duplicate(true))
+		_game_state.call(&"_apply_gameplay_silent", gameplay)
 		_game_state.contacts = candidate.ordinary_contacts.duplicate(true)
 		return {"ok": true}
 	var currency := str(candidate.get("currency", ""))
@@ -205,7 +205,7 @@ func _prepare_ordinary(item: Dictionary, quote: Dictionary, transaction_id: Stri
 		clone.free()
 		return applied
 	var candidate := {"transaction_id": transaction_id, "item_id": item_id, "currency": currency,
-		"price": price, "ordinary_gameplay": clone.to_save_dict(), "ordinary_contacts": clone.contacts.duplicate(true)}
+		"price": price, "ordinary_gameplay": clone.to_save_dict(), "ordinary_contacts": clone.contacts}
 	var condition := {"pressure": int(clone.get_stat("pressure")),
 		"carried_sequela": (_game_state.condition_effects_today as Array).has("sequela")}
 	clone.free()
@@ -218,7 +218,7 @@ func rollback(backup: Dictionary) -> Dictionary:
 	if not ready.get("ok", false):
 		return ready
 	if backup.get("gameplay") is Dictionary:
-		_game_state.call(&"_apply_gameplay_silent", backup.gameplay.duplicate(true))
+		_game_state.call(&"_apply_gameplay_silent", backup.gameplay)
 		_game_state.contacts = backup.contacts.duplicate(true)
 		return {"ok": true}
 	_game_state.money = int(backup["money"])
@@ -285,7 +285,7 @@ func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary
 
 func _capture_identity() -> Dictionary:
 	var captured: Variant = _desktop_identity_context.call() if _desktop_identity_context is Callable \
-		else {"ok": true, "value": _desktop_identity_context.duplicate(true)}
+		else {"ok": true, "value": _desktop_identity_context}
 	if not captured is Dictionary or not captured.get("ok", false) or not captured.get("value") is Dictionary:
 		return captured if captured is Dictionary else _fail(&"invalid_desktop_identity_context", "", {})
 	var shaped := _exact_keys(captured.value,
@@ -332,7 +332,7 @@ func validate_note_candidate(candidate: Dictionary) -> Dictionary:
 	var count: int = counts.get(candidate.item_id, 0)
 	if count >= 3: return _fail(&"invalid_note_shop_candidate", "", {})
 	counts[candidate.item_id] = count + 1
-	var expected := source.duplicate(true)
+	var expected := source.duplicate()
 	expected.money = source.money - 45
 	expected.shop_purchase_counts = counts
 	if not _same_note_state(expected, candidate.ordinary_gameplay):
