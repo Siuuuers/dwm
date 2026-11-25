@@ -3869,7 +3869,7 @@ func _current_scene_challenge_command(scene: Dictionary) -> Dictionary:
 
 func capture_scene_challenge_binding(command: Dictionary) -> Dictionary:
 	var current := _current_scene_challenge_command(_scene_snapshot_references)
-	var detached := command.duplicate(true)
+	var detached := command.duplicate()
 	detached.erase("physical_token")
 	if not current.ok or not _SCENE_EVENT._equal(current.value, detached):
 		return _transaction_failure(&"scene_challenge_command_refused", "")
@@ -3906,7 +3906,7 @@ func _retained_scene_challenge_command(expected_context: Dictionary = {}) -> Dic
 func validate_scene_challenge_command(command: Dictionary, bundle: Dictionary) -> Dictionary:
 	var current := _retained_scene_challenge_command(command.get("context", {}))
 	if not current.ok: return current
-	var detached := command.duplicate(true)
+	var detached := command.duplicate()
 	detached.erase("physical_token")
 	if not _SCENE_EVENT._equal(detached, current.value.command) \
 			or (not is_same(bundle, current.value.bundle) and not _SCENE_EVENT._equal(bundle, current.value.bundle)):
@@ -4098,7 +4098,7 @@ func validate_scene_challenge_end(command: Dictionary) -> Dictionary:
 		return _transaction_failure(&"scene_challenge_end_unavailable", "authenticated End required")
 	var current := _retained_scene_challenge_command(command.get("context", {}))
 	if not current.ok: return current
-	var detached := command.duplicate(true)
+	var detached := command.duplicate()
 	detached.erase("physical_token")
 	var marker: Dictionary = _scene_event_bridge.capture_scene_pending_marker()
 	if not _SCENE_EVENT._equal(detached, current.value.command) or not marker.get("ok", false) \

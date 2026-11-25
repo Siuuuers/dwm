@@ -1417,7 +1417,7 @@ func _complete_scene_challenge(host: Control, panel: Control) -> void:
 	var game := _target(&"GameState")
 	var current: Dictionary = game.capture_scene_challenge_command()
 	if not current.get("ok", false): return
-	var presented: Dictionary = panel._command.duplicate(true)
+	var presented: Dictionary = panel._command.duplicate()
 	presented.erase("physical_token")
 	if presented != current.value.command: return
 	var released: Dictionary = close_scene_computer(host)

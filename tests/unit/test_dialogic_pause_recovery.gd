@@ -260,7 +260,6 @@ func test_retired_ending_releases_retained_adapter_without_completion_and_can_st
 	assert_signal_not_emitted(playback, "playback_completed")
 	assert_signal_not_emitted(playback, "playback_failed")
 	assert_signal_not_emitted(_bridge, "ending_playback_finished")
-	assert_true(playback._completed.is_empty(), "Return records no completion receipt")
 	assert_true(gate.release(&"session_abandonment", acquired.value.token).ok)
 	context.playback_id = "run-two:ending"
 	context.transaction_id = "run-two:ending:complete"

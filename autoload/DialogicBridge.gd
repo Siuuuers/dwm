@@ -2659,7 +2659,7 @@ func begin_hospital_reading(command: Dictionary) -> Dictionary:
 	if not candidate.catalogue.has(entry_id): return {"ok": true, "value": {"enabled": false}}
 	if has_active_playback() and not is_hospital_reading_restore_for(command):
 		return _command_failure(&"narrative_playback_active")
-	var request := command.duplicate(true)
+	var request := command.duplicate()
 	request.erase("physical_token")
 	request.erase("command_sha256")
 	var frozen := preload("res://scripts/narrative/HospitalFrozenContext.gd").validate_request(request)
@@ -2958,7 +2958,7 @@ func validate_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Diction
 			or not checkpoint.get("entry_id") is String or not checkpoint.get("frozen_context") is Dictionary \
 			or typeof(checkpoint.get("content_version")) != TYPE_INT or checkpoint.content_version <= 0:
 		return _command_failure(&"reading_checkpoint_invalid")
-	var base := checkpoint.duplicate(true)
+	var base := checkpoint.duplicate()
 	base.erase("manifest_fingerprint")
 	base.erase("reading_session")
 	var semantic := validate_resume_checkpoint(base)
@@ -3059,7 +3059,7 @@ func stage_scene_reading_restore(checkpoint: Dictionary, operation_id: String, r
 	if is_pause_restore_pending():
 		var staged := stage_pause_restore(checkpoint, true, read_only_restore)
 		if not staged.ok: return staged
-	_scene_restore = {"operation_id": operation_id, "read_only": read_only_restore, "checkpoint": checkpoint.duplicate(true),
+	_scene_restore = {"operation_id": operation_id, "read_only": read_only_restore, "checkpoint": checkpoint,
 		"digest": _scene_digest(checkpoint), "candidate": checked.value.candidate,
 		"path": checked.value.path, "runtime": _runtime_adapter, "started": false,
 		"in_call": false, "native_started": false, "proof": false, "confirmed": false}
@@ -3521,7 +3521,7 @@ func begin_suspend(handle: Dictionary) -> Dictionary:
 		var state := get_state()
 		if not state.get("ok", false): return state
 		var live := capture_pause_frontier()
-		var expected := _pause_frontier.duplicate(true)
+		var expected := _pause_frontier.duplicate()
 		expected.erase("paused")
 		if not live.get("ok", false) or live.value != expected:
 			return _pause_failure(&"pause_source_changed")
@@ -3545,7 +3545,7 @@ func resume(handle: Dictionary) -> Dictionary:
 	if _pause_changing or _pause_handle.is_empty() or handle != _pause_handle:
 		return _pause_failure(&"invalid_suspension_handle")
 	var current := capture_pause_frontier()
-	var expected := _pause_frontier.duplicate(true)
+	var expected := _pause_frontier.duplicate()
 	expected.erase("paused")
 	if not current.get("ok", false) or current.value != expected:
 		return _pause_failure(&"pause_source_changed")
@@ -3562,7 +3562,7 @@ func get_state() -> Dictionary:
 	if _pause_handle.is_empty(): return _pause_success({"state": &"Active"})
 	if _pause_changing: return _pause_failure(&"narrative_runtime_indeterminate")
 	var current := capture_pause_frontier()
-	var expected := _pause_frontier.duplicate(true)
+	var expected := _pause_frontier.duplicate()
 	expected.erase("paused")
 	if not current.get("ok", false) or current.value != expected:
 		return _pause_failure(&"narrative_runtime_indeterminate")
@@ -3584,14 +3584,15 @@ func _retire_suspended_playback(handle: Dictionary) -> Dictionary:
 		return _pause_failure(&"invalid_suspension_handle")
 	if handle != _retired_pause_handle:
 		var physical: Dictionary = _capture_presentation_frontier()
-		var expected := _pause_frontier.duplicate(true)
+		var expected := _pause_frontier.duplicate()
 		expected["paused"] = true
 		if not physical.get("ok", false) or physical.value != expected:
 			return _pause_failure(&"pause_source_changed")
-		var hospital := _hospital_reading_command.duplicate(true)
-		var ordinary := _ordinary_playback.duplicate(true)
-		var ending := _active_playback.duplicate(true)
-		if not _ending_reading.is_empty(): ending = _ending_reading.duplicate(true)
+		var had_hospital := not _hospital_reading_command.is_empty()
+		var ordinary_id := str(_ordinary_playback.get("timeline_id", ""))
+		var ending := _active_playback if _ending_reading.is_empty() else _ending_reading
+		var ending_id := str(ending.get("ending_id", ""))
+		var ending_token := str(ending.get("token", ""))
 		_ending_reading.clear()
 		_ordinary_playback.clear()
 		_active_entry.clear()
@@ -3602,13 +3603,13 @@ func _retire_suspended_playback(handle: Dictionary) -> Dictionary:
 		_retired_pause_handle = handle.duplicate(true)
 		_close_art_hold()
 		_runtime_adapter.halt_with_error({"code": &"session_abandoned"})
-		if not hospital.is_empty():
+		if had_hospital:
 			retire_reading_session()
 			ordinary_playback_retired.emit("hospital.faint")
-		if not ordinary.is_empty():
-			ordinary_playback_retired.emit(str(ordinary["timeline_id"]))
-		if not ending.is_empty():
-			ending_playback_retired.emit(str(ending["token"]), str(ending["ending_id"]))
+		if not ordinary_id.is_empty():
+			ordinary_playback_retired.emit(ordinary_id)
+		if not ending_id.is_empty():
+			ending_playback_retired.emit(ending_token, ending_id)
 	var released: Dictionary = _set_presentation_paused(false)
 	if not released.get("ok", false): return released
 	_pause_handle.clear()
@@ -3638,7 +3639,7 @@ func validate_scene_pause_restore_handle(handle: Dictionary) -> Dictionary:
 			or handle.is_empty() or handle != _pause_restore.handle or handle != _pause_handle or _pause_changing:
 		return _pause_failure(&"pause_source_changed")
 	var physical := _capture_presentation_frontier()
-	var expected := _pause_frontier.duplicate(true)
+	var expected := _pause_frontier.duplicate()
 	expected["paused"] = true
 	if not physical.get("ok", false) or physical.value != expected:
 		return _pause_failure(&"pause_source_changed")
@@ -3653,7 +3654,7 @@ func stage_pause_restore(plan: Dictionary, semantic: bool, trusted_load: bool = 
 	if _pause_changing or _pause_handle != _pause_restore.handle:
 		return _pause_failure(&"pause_source_changed")
 	var physical: Dictionary = _capture_presentation_frontier()
-	var expected := _pause_frontier.duplicate(true)
+	var expected := _pause_frontier.duplicate()
 	expected["paused"] = true
 	if not physical.get("ok", false) or physical.value != expected:
 		return _pause_failure(&"pause_source_changed")

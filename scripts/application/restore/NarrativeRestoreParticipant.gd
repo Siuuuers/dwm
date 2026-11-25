@@ -311,7 +311,7 @@ func _prepare_reading(checkpoint: Dictionary, snapshot: Variant) -> Dictionary:
 		if not admitted.get("ok", false): return admitted
 		_prepared_scene_checkpoint = checkpoint.duplicate(true)
 		return {"ok": true, "value": {"narrative_plan": checkpoint.duplicate(true)}}
-	var semantic := checkpoint.duplicate(true)
+	var semantic := checkpoint.duplicate()
 	semantic.erase("reading_session")
 	var base := _prepare_semantic(semantic)
 	if not base.get("ok", false): return base

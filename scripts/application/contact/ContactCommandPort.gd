@@ -321,8 +321,8 @@ func _scene_command_live(command: Dictionary) -> bool:
 
 static func _scene_command_equal(a: Dictionary, b: Dictionary) -> bool:
 	if not a.has("live_session") or not b.has("live_session") or a.live_session != b.live_session: return false
-	var left: Dictionary = a.duplicate(true)
-	var right: Dictionary = b.duplicate(true)
+	var left: Dictionary = a.duplicate()
+	var right: Dictionary = b.duplicate()
 	left.erase("live_session")
 	right.erase("live_session")
 	return _SCENE_STATE._s_equal(left, right)
