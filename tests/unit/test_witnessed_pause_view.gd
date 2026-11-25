@@ -155,7 +155,7 @@ func test_tampered_stale_and_foreign_view_anchors_are_refused_without_mutation()
 	assert_true(first.get("ok",false))
 	source.frontier.generation = 999
 	var changed: Dictionary = first.value.duplicate(true)
-	changed.source.timeline_id = "other.timeline"
+	changed.capture_id += 1
 	assert_false(caption.cover_pause_view(changed))
 	assert_true(caption.canvas.visible)
 	var second: Dictionary = caption.capture_pause_view(_source())

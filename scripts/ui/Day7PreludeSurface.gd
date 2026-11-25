@@ -612,24 +612,28 @@ func _activate_candidate() -> void:
 	_input_activation = false
 
 func get_pause_projection() -> Dictionary:
+	var projection := _pause_projection()
+	return projection if projection.is_empty() else projection.duplicate(true)
+
+func _pause_projection() -> Dictionary:
 	if not _presentation_receipts or not is_inside_tree() or is_queued_for_deletion(): return {}
-	if _covered: return _pause_anchor.get("projection", {}).duplicate(true)
+	if _covered: return _pause_anchor.get("projection", {})
 	if not visible or _busy or _retrying or _acknowledgment_pending or _navigation_requested: return {}
 	if not _drawn and not _advance_retry.is_valid(): return {}
-	return {"view_id": get_instance_id(), "receipt": _card.get("receipt", {}).duplicate(true), "acknowledged": _accepted}
+	return {"view_id": get_instance_id(), "receipt": _card.get("receipt", {}), "acknowledged": _accepted}
 
-func capture_pause_view(source: Dictionary) -> Dictionary:
+func capture_pause_view(_source: Dictionary) -> Dictionary:
 	var projection := get_pause_projection()
 	if _covered or projection.is_empty(): return {"ok": false, "code": &"pause_view_unavailable"}
 	_capture_id += 1
 	var focus := get_viewport().gui_get_focus_owner()
 	_pause_anchor = {"view_id": get_instance_id(), "capture_id": _capture_id,
-		"projection": projection, "source": source.duplicate(true), "scroll": _scroll.scroll_vertical,
+		"projection": projection, "scroll": _scroll.scroll_vertical,
 		"focus": _root.get_path_to(focus) if is_instance_valid(focus) and _root.is_ancestor_of(focus) else NodePath()}
 	return {"ok": true, "value": _pause_anchor.duplicate(true)}
 
 func cover_pause_view(anchor: Dictionary) -> bool:
-	if anchor.is_empty() or anchor != _pause_anchor or get_pause_projection() != anchor.projection: return false
+	if anchor.is_empty() or anchor != _pause_anchor or _pause_projection() != anchor.projection: return false
 	if _covered: return true
 	_focus_pending = null
 	_covered = true
@@ -638,7 +642,7 @@ func cover_pause_view(anchor: Dictionary) -> bool:
 	return true
 
 func restore_pause_view(anchor: Dictionary) -> bool:
-	if not _covered or anchor.is_empty() or anchor != _pause_anchor or get_pause_projection() != anchor.projection: return false
+	if not _covered or anchor.is_empty() or anchor != _pause_anchor or _pause_projection() != anchor.projection: return false
 	_focus_pending = null
 	_covered = false
 	show()

@@ -982,16 +982,16 @@ func capture_pause_view(source: Dictionary) -> Dictionary:
 		or (timed_hold and source.get("frontier", {}) != _timed_hold_frontier)):
 		return {"ok":false,"code":&"pause_view_unavailable","value":{}}
 	_pause_capture_id += 1
-	_pause_anchor = {"view_id":get_instance_id(),"capture_id":_pause_capture_id,"source":source.duplicate(true)}
+	_pause_anchor = {"view_id":get_instance_id(),"capture_id":_pause_capture_id}
 	var focused := get_viewport().gui_get_focus_owner()
 	var focus_id := focused.get_instance_id() if focused != null and _owns_caption_focus(focused) else 0
 	if _load_pending or _history_pending: focus_id = _load_activation_focus_id
 	if timed_hold: focus_id = 0
 	_pause_view = {"caption_id":caption_text.get_instance_id(),"reveal_generation":caption_text.get_reveal_generation(),
 		"runtime":_pause_runtime_identity(),"focus_id":focus_id,"scroll":get_scroll_bar().value,
-		"timed_hold_frontier":_timed_hold_frontier.duplicate(true),
+		"timed_hold_frontier":_timed_hold_frontier,
 		"canvas_visible":canvas.visible,"layer_processing":is_processing(),"caption_processing":caption_text.is_processing()}
-	return {"ok":true,"code":&"ok","value":_pause_anchor.duplicate(true)}
+	return {"ok":true,"code":&"ok","value":_pause_anchor.duplicate()}
 
 func cover_pause_view(anchor: Dictionary) -> bool:
 	if not _valid_pause_anchor(anchor): return false
