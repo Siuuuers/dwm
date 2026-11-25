@@ -302,7 +302,7 @@ static func _check_transaction(parsed: Dictionary, transaction_id: String, kind:
 			continue
 		var matches: bool = StringName(entry.get("kind", &"")) == kind and int(entry.get("cell_index", -1)) == cell_index
 		if matches:
-			for key: String in extra_fields.keys():
+			for key: String in extra_fields:
 				if entry.get(key) != extra_fields[key]:
 					matches = false
 					break

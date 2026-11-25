@@ -1197,12 +1197,10 @@ func _fatal_rollback(phase: String, transaction_id: String, raw_diagnostics: Arr
 		var projected := _PROJECTOR.project_failure(
 			"minesweeper_round_coordinator", phase, "fatal_rollback_failed",
 			{"transaction_id": transaction_id}, raw_diagnostics)
-		var candidate: Dictionary = _PROJECTOR.get_invariant_fallback()
-		if projected.get("ok", false):
-			var failure: Dictionary = (projected["value"] as Dictionary)["failure"]
-			if _PROJECTOR.validate_failure(failure).get("ok", false):
-				candidate = failure
-		_fatal_failure = candidate
+		if projected.get("ok", false) and _PROJECTOR.validate_failure(projected.value.failure).ok:
+			_fatal_failure = projected.value.failure
+		else:
+			_fatal_failure = _PROJECTOR.get_invariant_fallback()
 	return _ensure_ready()
 
 
@@ -1252,10 +1250,7 @@ func _routine_command(request: Dictionary, kind: StringName) -> Dictionary:
 	}
 	if kind == &"set_flag":
 		board_input["flagged"] = bool(request["flagged"])
-	var prepared := _board_state.prepare_board_command(board_input, reduced_board)
-	if not prepared.get("ok", false):
-		return prepared
-	var committed: Dictionary = _board_state.commit((prepared["value"] as Dictionary)["candidate"])
+	var committed: Dictionary = _board_state.apply_board_command(board_input, reduced_board)
 	if not committed.get("ok", false):
 		return committed
 	if bool(reduced_board.get("terminal", false)):

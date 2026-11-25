@@ -439,10 +439,13 @@ func test_prepare_projected_departure_minesweeper_round_none_projection_yields_f
 	assert_eq(receipt["source_action_commit_receipt_id"], action_receipt["commit_receipt_id"])
 	var original := request.duplicate(true)
 	request.projected_board_candidate.command_receipts["caller edit"] = {}
+	request.source_action_receipt.commit_receipt_provenance.clear()
 	result.value.board_candidate.command_receipts["result edit"] = {}
 	var replay: Dictionary = port.prepare_projected_causal_departure(original)
 	assert_true(replay.ok)
 	assert_eq(replay.value.board_candidate, original.projected_board_candidate)
+	assert_eq(replay.value.board_fate_receipt.source_action_commit_receipt_provenance,
+		original.source_action_receipt.commit_receipt_provenance)
 
 
 func test_prepare_projected_departure_rejects_a_nonterminal_minesweeper_round_projection() -> void:

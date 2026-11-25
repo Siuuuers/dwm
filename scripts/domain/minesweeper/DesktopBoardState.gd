@@ -378,6 +378,13 @@ func prepare_first_reveal(input: Dictionary, materialized: Dictionary,
 	return _envelope(input, &"first_reveal", _PHASE_ACTIVE_VISIBLE, identity, null, board_after, null)
 
 
+func apply_board_command(input: Dictionary, reduced_board: Dictionary) -> Dictionary:
+	var prepared := prepare_board_command(input, reduced_board)
+	if not prepared.ok: return prepared
+	var candidate: Dictionary = prepared.value.candidate
+	return _commit(candidate, candidate.board_after)
+
+
 func prepare_board_command(input: Dictionary, reduced_board: Dictionary) -> Dictionary:
 	var basics := _validate_common(input)
 	if not basics.get("ok", false):
@@ -445,6 +452,10 @@ func prepare_settlement(input: Dictionary, settlement: Dictionary) -> Dictionary
 
 
 func commit(candidate: Dictionary) -> Dictionary:
+	return _commit(candidate, null)
+
+
+func _commit(candidate: Dictionary, owned_board: Variant) -> Dictionary:
 	if not candidate.has("kind") or not (candidate["kind"] is StringName):
 		return _fail(&"invalid_candidate", "candidate.kind is required", {})
 	var kind: StringName = candidate["kind"]
@@ -500,7 +511,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 	_phase = String(candidate["phase_after"])
 	_identity = _dup_or_null(candidate.get("identity_after"))
 	_candidate = _dup_or_null(candidate.get("candidate_after"))
-	_board = _dup_or_null(candidate.get("board_after"))
+	_board = owned_board if owned_board != null else _dup_or_null(candidate.get("board_after"))
 	_settlement = _dup_or_null(candidate.get("settlement_after"))
 	_revision += 1
 	if _scene_snapshot_format:

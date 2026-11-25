@@ -124,7 +124,6 @@ func _prepare_projected_causal_departure(request: Dictionary) -> Dictionary:
 	if ledger_hit.has("result"):
 		return ledger_hit["result"]
 
-	request = request.duplicate(true)
 	var receipt_valid := _ACTION_RECEIPT.validate(request["source_action_receipt"])
 	if not receipt_valid.get("ok", false):
 		return receipt_valid
@@ -142,6 +141,8 @@ func _prepare_projected_causal_departure(request: Dictionary) -> Dictionary:
 		return _fail(&"board_fate_action_mismatch",
 			"the source action's run/branch/day identity must match the request", {})
 
+	request = request.merged({"source_action_receipt": null}, true).duplicate(true)
+	request.source_action_receipt = source_action_receipt
 	var projected_board_candidate: Dictionary = request["projected_board_candidate"]
 	if _canonical_sha256(projected_board_candidate) != str(request["projected_board_candidate_sha256"]):
 		return _fail(&"board_fate_projection_hash_mismatch",
@@ -284,11 +285,7 @@ func publish(publication: Dictionary) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
-	var keys: Array = publication.keys()
-	keys.sort()
-	var expected_keys: Array = _PUBLICATION_KEYS.duplicate()
-	expected_keys.sort()
-	if keys != expected_keys:
+	if publication.size() != _PUBLICATION_KEYS.size() or not publication.has_all(_PUBLICATION_KEYS):
 		return _fail(&"invalid_publication",
 			"publication must carry exactly board_candidate and board_fate_receipt", {})
 	var board_candidate: Dictionary = publication["board_candidate"]
@@ -377,9 +374,9 @@ func _finish_prepare(request: Dictionary, command_id: String, base_snapshot: Dic
 		"board_identity": board_identity, "board_revision": board_revision,
 		"causal_day_instance": str(request["causal_day_instance"]), "fate": String(fate),
 	})]
-	if source_commit_receipt_id != null:
+	if source_commit_receipt_id != null and source_commit_receipt_id != source_value_set[0]:
 		source_value_set.append(str(source_commit_receipt_id))
-	source_value_set = _sorted_unique(source_value_set)
+		source_value_set.sort()
 
 	var derived: Dictionary = _identity_issuer.call(&"derive_child", {
 		"child_kind": "board_fate", "ordinal": 0,
@@ -459,16 +456,6 @@ func _validate_common_request_types(request: Dictionary) -> Dictionary:
 	if typeof(request["expected_board_revision"]) != TYPE_INT:
 		return _fail(&"board_fate_request_invalid", "expected_board_revision must be an integer", {})
 	return {"ok": true}
-
-
-func _sorted_unique(values: Array[String]) -> Array[String]:
-	var seen: Dictionary = {}
-	for value: String in values:
-		seen[value] = true
-	var out: Array[String] = []
-	out.assign(seen.keys())
-	out.sort()
-	return out
 
 
 func _require_configured() -> Dictionary:

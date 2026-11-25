@@ -1137,12 +1137,14 @@ func test_scene_board_command_and_visibility_preserve_frozen_spec() -> void:
 	var reduced := REDUCER.set_flag(saved.board.board, 63, true, "flag-current")
 	assert_true(reduced.ok, str(reduced))
 	if not reduced.ok: return
-	var command: Dictionary = fixture.state.prepare_board_command({"transaction_id": "flag-current",
+	var command: Dictionary = fixture.state.apply_board_command({"transaction_id": "flag-current",
 		"request_fingerprint": "flag-current", "identity": saved.identity, "expected_revision": saved.revision,
 		"kind": &"set_flag"}, reduced.value.board)
 	assert_true(command.ok, str(command))
 	if not command.ok: return
-	assert_true(fixture.state.commit(command.value.candidate).ok)
+	reduced.value.board.flagged_indices.clear()
+	command.value.board.board.flagged_indices.clear()
+	assert_eq(saved.board.board.flagged_indices, [])
 	var flagged: Dictionary = fixture.state.capture()
 	assert_eq(flagged.board.spec, saved.board.spec)
 	assert_eq(flagged.board.board.flagged_indices, [63])

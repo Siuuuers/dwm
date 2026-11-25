@@ -255,6 +255,9 @@ func test_calling_advance_twice_from_the_same_restored_frontier_reproduces_the_s
 	# DeterministicRng32.prepare_restore() requires its state/draw_count fields to stay TYPE_INT and
 	# JSON.parse_string() would coerce them to floats.
 	var restored_frontier: Dictionary = frontier.duplicate(true)
+	var resumed: Dictionary = KERNEL.advance(restored_frontier, 1).value.preparation
+	assert_eq(resumed.status, KERNEL.STATUS_SEARCHING)
+	assert_null(resumed.candidate_state)
 	var stepped_again: Dictionary = KERNEL.advance(restored_frontier, 36)
 	assert_eq((stepped_once["value"] as Dictionary)["preparation"], (stepped_again["value"] as Dictionary)["preparation"])
 
