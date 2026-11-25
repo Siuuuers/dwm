@@ -37,7 +37,6 @@ func fork_live() -> NarrativeCaptionLedger:
 
 func fork_legacy_checkpoint() -> NarrativeCaptionLedger:
 	var candidate := fork_live()
-	# Legacy saves derive the next serial from published rows on restore.
 	candidate._publication_serial = _sequence.size()
 	return candidate
 
