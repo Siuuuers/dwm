@@ -355,8 +355,11 @@ func test_next_terminal_crosses_witnessed_tail_without_executing_or_publishing_i
 	var prepared := _adapter.prepare_reading_seek(source.value, ENTRY, _fixed_seek_lines())
 	assert_true(prepared.ok, str(prepared))
 	if not prepared.ok: return
-	assert_eq(_adapter.prepare_reading_seek(source.value, ENTRY, _fixed_seek_lines()), prepared,
+	var repeated := _adapter.prepare_reading_seek(source.value, ENTRY, _fixed_seek_lines())
+	assert_eq(repeated, prepared,
 		"identical preparation retains one source capability")
+	repeated.value.source.clear()
+	assert_eq(prepared.value.source, source.value)
 	assert_eq(_ledger.snapshot(), before, "preparation has no History side effect")
 	var target := _seek_candidate()
 	var target_snapshot := target.snapshot()
