@@ -44,19 +44,18 @@ func test_source_edits_do_not_select_stale_variant_translation() -> void:
 	assert_eq(STORY.pair("en", "zh_HK", "line.sample.a", "A sample.").secondary_text, "範例甲。")
 	assert_eq(STORY.pair("en", "zh_HK", "line.sample.b", "A sample.").secondary_text, "範例乙。")
 
-func test_history_projection_keeps_one_row_and_original_semantic_data() -> void:
+func test_history_localizes_projected_rows_and_preserves_publication_identity() -> void:
 	var source := {"ok": true, "value": {"captions": [
 		{"line_id": "line.sample.a", "text": "A sample.", "publication_id": "publication-a"},
 		{"line_id": "line.sample.b", "text": "A sample.", "publication_id": "publication-b"}]}}
-	var before := source.duplicate(true)
-	var projected := STORY.project(source, "zh_HK", "ja")
+	var projected := STORY.localize_caption_rows(source, "zh_HK", "ja")
 	assert_eq(projected.value.captions.size(), 2)
 	assert_eq(projected.value.captions[0].text, "範例甲。")
 	assert_eq(projected.value.captions[0].secondary_text, "例です。")
 	assert_eq(projected.value.captions[1].text, "範例乙。")
 	assert_eq(projected.value.captions[1].secondary_text, "")
 	assert_eq(projected.value.captions[1].publication_id, "publication-b")
-	assert_eq(source, before, "Projection never modifies the admitted ledger")
+	assert_eq(projected.value.captions[0].publication_id, "publication-a")
 
 func test_choices_use_the_same_projection_and_actual_content_locale() -> void:
 	assert_eq(STORY.pair("ko", "en", "choice.sample.left", "Choose left."), {

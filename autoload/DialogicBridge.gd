@@ -2409,7 +2409,7 @@ func _line_presentation_context(expected_frontier: Dictionary = {}, guard_mutati
 		var registered: Dictionary = _reading_session.current_caption_variant(_active_entry.entry_id, publication.value)
 		if not registered.get("ok", false): return registered
 		caption_variant = registered.value
-		caption_publication = publication.value.duplicate(true)
+		caption_publication = publication.value.duplicate()
 	else:
 		if not _skip_line_owners.has(line_id): return _command_failure(&"unregistered_line_id")
 		if _skip_line_owners[line_id] != _active_entry.get("entry_id"):
@@ -2866,7 +2866,7 @@ func get_ending_caption_memory() -> Dictionary:
 	var frontier: Dictionary = _reading_session.ledger.latest_frontier()
 	if frontier.is_empty(): return _command_failure(&"reading_frontier_unavailable")
 	if _reading_session.boundary != "line": frontier = {}
-	return _STORY_LOCALE.project(_reading_session.project(frontier), _current_locale(), _secondary_reading_locale())
+	return _STORY_LOCALE.localize_caption_rows(_reading_session.project(frontier), _current_locale(), _secondary_reading_locale())
 
 
 func get_scene_caption_memory(expected_presentation: Dictionary) -> Dictionary:
@@ -2879,7 +2879,7 @@ func get_scene_caption_memory(expected_presentation: Dictionary) -> Dictionary:
 	if not projected.ok: return projected
 	projected.value.captions = projected.value.captions.filter(func(row: Dictionary) -> bool: return not row.get("self_talk", false))
 	projected.value["presentation"] = current
-	return _STORY_LOCALE.project(projected, _current_locale(), _secondary_reading_locale())
+	return _STORY_LOCALE.localize_caption_rows(projected, _current_locale(), _secondary_reading_locale())
 
 
 var _self_talk_cache_key: Array = []
@@ -2923,7 +2923,7 @@ func get_reading_history() -> Dictionary:
 	if not source.ok: return source
 	var frontier: Dictionary = source.value.frontier
 	var history: Dictionary = _scene_day_history(frontier) if _reading_session.family == "scene" else _reading_session.project(frontier)
-	return _STORY_LOCALE.project(history, _current_locale(), _secondary_reading_locale())
+	return _STORY_LOCALE.localize_caption_rows(history, _current_locale(), _secondary_reading_locale())
 
 
 func _scene_day_history(frontier: Dictionary) -> Dictionary:
