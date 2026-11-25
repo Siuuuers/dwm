@@ -626,16 +626,17 @@ func commit_pair_deck_draw(material: Dictionary) -> Dictionary:
 
 func record_reached_presentation(signature: Dictionary) -> Dictionary:
 	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
-	var checked := PRESENTATION_SIGNATURE.validate(signature)
+	var checked := PRESENTATION_SIGNATURE.signature_id(signature)
 	if not checked.ok: return checked
-	var id: String = checked.value.signature_id
+	var id: String = checked.value
 	if _profile.reached_presentations.has(id):
 		if _profile.reached_presentations[id] != signature:
 			return _failure(&"presentation_signature_conflict", "A signature digest has conflicting fields")
 		return {"ok": true, "value": {"signature_id": id, "already_reached": true}}
-	var candidate := _profile.duplicate(true)
-	candidate["reached_presentations"][id] = signature.duplicate(true)
-	candidate.reached_presentation_chronology.first_witnessed.append(id)
+	var candidate := _profile.duplicate()
+	candidate.reached_presentations = _profile.reached_presentations.merged({id: signature.duplicate(true)})
+	candidate.reached_presentation_chronology = _profile.reached_presentation_chronology.duplicate()
+	candidate.reached_presentation_chronology.first_witnessed = _profile.reached_presentation_chronology.first_witnessed + [id]
 	var committed: Dictionary
 	if _mutation_gate != null and _mutation_gate.is_internal_owner_active(&"causal_transaction"):
 		committed = _commit_profile_candidate(candidate)
@@ -693,7 +694,8 @@ func record_displayed_artwork(asset_ids: Array[String]) -> Dictionary:
 	var guarded := _guard(&"profile_commit")
 	if not guarded.ok: return guarded
 	if not _initialized: return _failure(&"not_initialized", "ProfileManager is not initialized")
-	var candidate := _profile.duplicate(true)
+	var candidate := _profile.duplicate()
+	candidate.displayed_artwork_ids = _profile.displayed_artwork_ids.duplicate()
 	for asset_id: String in asset_ids:
 		if asset_id not in preload("res://scripts/data/ArtManifest.gd").GALLERY_IDS:
 			return _failure(&"invalid_artwork", "Unknown gallery artwork")

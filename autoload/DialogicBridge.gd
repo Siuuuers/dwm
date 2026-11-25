@@ -1478,7 +1478,7 @@ func start_ending_id(ending_id: String, context: Dictionary = {}) -> Dictionary:
 func start_ending_presentation(ending_id: String, context: Dictionary, signature: Dictionary, presentation: Dictionary = {}) -> Dictionary:
 	if not _initialized: return _command_failure(&"not_initialized")
 	if not _exact_context_keys(context): return _command_failure(&"invalid_playback_context")
-	var checked := _PRESENTATION_SIGNATURE.validate(signature)
+	var checked := _PRESENTATION_SIGNATURE.signature_id(signature)
 	if not checked.ok: return checked
 	var entry: Dictionary = _PRESENTATION_SIGNATURE.entry_record_view(signature.entry_id).value
 	var semantic_id := ending_id.trim_suffix(".full").trim_suffix(".residue").replace(".observation", ".observer")
@@ -1655,9 +1655,9 @@ func configure_reached_caption_collection(document: Dictionary, admissions: Arra
 	for row: Dictionary in admissions:
 		if row.size() != 2 or not row.get("signature") is Dictionary or not row.get("collectable_line_ids") is Array:
 			return _command_failure(&"replay_caption_admission_invalid")
-		var checked: Dictionary = _PRESENTATION_SIGNATURE.validate(row.signature)
+		var checked: Dictionary = _PRESENTATION_SIGNATURE.signature_id(row.signature)
 		if not checked.ok: return checked
-		var signature_id: String = checked.value.signature_id
+		var signature_id: String = checked.value
 		var entry_id: String = row.signature.entry_id
 		var entry: Dictionary = _PRESENTATION_SIGNATURE.entry_record_view(entry_id).value
 		if admitted.has(signature_id) or not candidate.catalogue.has(entry_id) \
