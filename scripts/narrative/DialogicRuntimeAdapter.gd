@@ -452,7 +452,8 @@ func _start_held_scene_target(path: String, native_index: int) -> Dictionary:
 
 static func compile_scene_programme(path: String, entry_label: String,
 		callable_labels: Array, markers: Array = []) -> Dictionary:
-	return _compile_scene_programme_in_registration(path, entry_label, callable_labels, markers, {})
+	var result := _compile_scene_programme_in_registration(path, entry_label, callable_labels, markers, {})
+	return result.duplicate(true) if result.is_read_only() else result
 
 static var _scene_runtime_programmes: Dictionary = {}
 static var _scene_runtime_bundle: Dictionary = {}
@@ -476,7 +477,6 @@ static func compile_runtime_scene_programme(path: String, entry_label: String,
 	if cacheable and parsed_sources.has(path):
 		_scene_runtime_parsed_sources[path] = parsed_sources[path]
 	if cacheable and result.ok:
-		owner._scene_freeze(result)
 		_scene_runtime_programmes[entry_label] = result
 	if not result.ok:
 		return {"ok": false, "code": &"reading_content_error", "message": "Cannot read passage: " + entry_label,
@@ -514,7 +514,7 @@ static func _compile_scene_programme_observed_body(path: String, entry_label: St
 		_scene_compile_cache[path] = cached
 	var key: String = arguments.value
 	if cacheable and cached.results.has(key):
-		return cached.results[key].duplicate(true)
+		return cached.results[key]
 	var text: String = bytes.get_string_from_utf8()
 	var parsed: Dictionary = parsed_sources.get(path, {}) if cacheable else {}
 	if parsed.is_empty() or parsed.bytes != bytes:
@@ -526,7 +526,8 @@ static func _compile_scene_programme_observed_body(path: String, entry_label: St
 		result["message"] = "%s:%d: %s" % [path, int(result.get("line", 1)), str(result.get("code", "scene_compile_error"))]
 	if cacheable and result.get("ok", false):
 		if cached.results.size() >= 256: cached.results.clear()
-		cached.results[key] = result.duplicate(true)
+		preload("res://scripts/narrative/DialogicEntryManifest.gd")._scene_freeze(result)
+		cached.results[key] = result
 	return result
 
 static func _compile_scene_programme_source(text: String, entry_label: String,
@@ -584,6 +585,8 @@ static func _compile_scene_programme_timeline(timeline: DialogicTimeline, text: 
 			label_nodes[event.name] = nodes.size()
 			events.append({"kind": "label", "label": str(event.name)})
 			if marker_labels.has(event.name) and marker_labels[event.name].get("kind") != "passage.start":
+				if not marker_labels[event.name].get("marker_id") is String:
+					return {"ok": false, "code": &"scene_marker_invalid", "line": source_line}
 				nodes.append({"kind": "control", "marker_id": marker_labels[event.name].marker_id})
 				native_indices.append(index)
 			continue
