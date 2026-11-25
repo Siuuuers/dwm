@@ -315,12 +315,15 @@ static func _check_transaction(parsed: Dictionary, transaction_id: String, kind:
 
 
 static func _append_action(history: Array, entry: Dictionary) -> Array:
-	var mutable_history := not history.is_read_only()
-	var actions := history.duplicate(mutable_history)
-	if mutable_history:
-		for prior: Dictionary in actions:
-			prior.kind = str(prior.kind)
-			_READ_ONLY.freeze(prior)
+	var actions := history.duplicate()
+	if not history.is_read_only():
+		for i in actions.size():
+			var prior: Dictionary = actions[i]
+			var owned := {"transaction_id": prior.transaction_id, "kind": str(prior.kind),
+				"cell_index": prior.cell_index, "revision": prior.revision}
+			if owned.kind == "set_flag" and prior.get("flagged") is bool: owned.flagged = prior.flagged
+			owned.make_read_only()
+			actions[i] = owned
 	entry.make_read_only()
 	actions.append(entry)
 	actions.make_read_only()

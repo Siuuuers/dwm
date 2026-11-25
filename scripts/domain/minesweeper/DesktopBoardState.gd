@@ -465,11 +465,9 @@ func _commit(candidate: Dictionary, owned_board: Variant) -> Dictionary:
 			return _fail(&"invalid_candidate", "restore candidate.snapshot_after is required", {})
 		var snapshot: Dictionary = candidate["snapshot_after"]
 		if _scene_payment_issuer != null:
-			var checked := prepare_restore(snapshot)
+			var checked := check_snapshot(snapshot)
 			if not checked.ok: return checked
-			snapshot = checked.value.candidate.snapshot_after
-		else:
-			snapshot = snapshot.duplicate(true)
+		snapshot = snapshot.duplicate(true)
 		_read_view = {}
 		_phase = String(snapshot["phase"])
 		_revision = int(snapshot["revision"])
@@ -482,14 +480,14 @@ func _commit(candidate: Dictionary, owned_board: Variant) -> Dictionary:
 		_scene_snapshot_format = snapshot.has("settled_inspection")
 		_settled_inspection = is_settled_inspection(snapshot)
 		_round_paid = bool(snapshot.get("round_paid", false))
-		return _committed_state_view().duplicate(true)
+		return _read_command_result(_committed_state_view())
 
 	var transaction_id := str(candidate.get("transaction_id", ""))
 	var request_fingerprint := str(candidate.get("request_fingerprint", ""))
 	if transaction_id != "" and _command_receipts.has(transaction_id):
 		var recorded: Dictionary = _command_receipts[transaction_id]
 		if str(recorded["request_fingerprint"]) == request_fingerprint:
-			return (recorded["result"] as Dictionary).duplicate(true)
+			return _read_command_result(recorded.result)
 		return _fail(&"transaction_conflict",
 			"transaction_id was already used for a different request", {"transaction_id": transaction_id})
 
@@ -511,7 +509,7 @@ func _commit(candidate: Dictionary, owned_board: Variant) -> Dictionary:
 	_phase = String(candidate["phase_after"])
 	_identity = _dup_or_null(candidate.get("identity_after"))
 	_candidate = _dup_or_null(candidate.get("candidate_after"))
-	_board = owned_board if owned_board != null else _dup_or_null(candidate.get("board_after"))
+	_board = owned_board if owned_board != null else _prepare_board_slot(candidate.get("board_after"))
 	_settlement = _dup_or_null(candidate.get("settlement_after"))
 	_revision += 1
 	if _scene_snapshot_format:
@@ -533,7 +531,12 @@ func _commit(candidate: Dictionary, owned_board: Variant) -> Dictionary:
 			"pre_revision": int(candidate["pre_revision"]), "post_revision": _revision,
 			"command_kind": String(kind), "result": result,
 		}
-	return result.duplicate(true)
+	return _read_command_result(result)
+
+
+func _read_command_result(result: Dictionary) -> Dictionary:
+	_READ_ONLY.freeze(result)
+	return result
 
 
 func lookup_command_receipt(transaction_id: String, fingerprint: String) -> Dictionary:
@@ -541,7 +544,7 @@ func lookup_command_receipt(transaction_id: String, fingerprint: String) -> Dict
 	if _command_receipts.has(transaction_id):
 		var entry: Dictionary = _command_receipts[transaction_id]
 		if str(entry.request_fingerprint) == fingerprint:
-			lookup["result"] = entry.result.duplicate(true)
+			lookup["result"] = _read_command_result(entry.result)
 		else:
 			lookup["result"] = _fail(&"transaction_conflict", "", {"transaction_id": transaction_id})
 	return lookup
@@ -600,15 +603,15 @@ func _envelope(input: Dictionary, kind: StringName, phase_after: String, identit
 	var prepared_identity: Variant = null
 	if identity_after != null:
 		var fp := _IDENTITY.fingerprint(identity_after)
-		prepared_identity = identity_after.duplicate(not fp.ok)
-		if fp.get("ok", false):
-			identity_fp = str((fp["value"] as Dictionary)["fingerprint"])
+		if not fp.ok: return fp
+		prepared_identity = identity_after.duplicate()
+		identity_fp = str(fp.value.fingerprint)
 	var prepared := {"ok": true, "code": &"ok", "value": {"candidate": {
 		"kind": kind, "transaction_id": str(input["transaction_id"]),
 		"request_fingerprint": str(input["request_fingerprint"]),
 		"identity_fingerprint": identity_fp, "pre_revision": _revision, "phase_after": phase_after,
 		"identity_after": prepared_identity, "candidate_after": _dup_or_null(candidate_after),
-		"board_after": _dup_or_null(board_after), "settlement_after": _dup_or_null(settlement_after),
+		"board_after": _prepare_board_slot(board_after), "settlement_after": _dup_or_null(settlement_after),
 	}}, "receipt": {}}
 	if _scene_snapshot_format:
 		var checked := _validate_current_scene_board(_scene_candidate_snapshot(prepared.value.candidate))
@@ -641,6 +644,13 @@ func _validate_phase_invariants(phase: String, identity: Variant, candidate: Var
 				"phase %s requires %s to be %s" % [phase, slot, "non-null" if expected[slot] else "null"],
 				{"phase": phase, "slot": slot})
 	return {"ok": true}
+
+
+func _prepare_board_slot(board: Variant) -> Variant:
+	if board != null and is_same(board, _board):
+		_READ_ONLY.freeze(board)
+		return board
+	return _dup_or_null(board)
 
 
 func _dup_or_null(value: Variant) -> Variant:
