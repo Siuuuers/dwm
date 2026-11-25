@@ -335,7 +335,6 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, _choices: Dictio
 	if not configured.ok: return configured
 	var current: Dictionary = saved.duplicate(true)
 	current.registration_sha256 = session.fingerprint
-	# A content update may remove the caption while leaving the saved Run intact.
 	var fallback: bool = saved.registration_sha256 != session.fingerprint and not session._caption_variants_by_line.has(tail.line_id)
 	if fallback:
 		while not current.history_sections.is_empty():
