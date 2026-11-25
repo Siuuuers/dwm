@@ -415,13 +415,16 @@ func test_noncanon_conditional_dtl_keeps_canonical_and_saved_signature_branches_
 
 func test_frozen_context_drives_real_dtl_without_mutable_source_aliases() -> void:
 	_inject_frozen_context_prose()
-	runtime.current_state_info["variables"] = {"prior_fixture": "preserved"}
+	var prior := {"prior_fixture": ["preserved"]}
+	runtime.current_state_info["variables"] = prior
 	var presentation := _frozen_pre_presentation()
 	var context := {"expected_stage": "pre_challenge", "playback_id": "frozen-fixture",
 		"role": "dating_phase", "transaction_id": "frozen-fixture", "presentation": presentation}
 	var started: Dictionary = bridge.start_entry(DATING, context)
 	assert_true(started.get("ok", false), str(started))
 	if not started.get("ok", false): return
+	prior.prior_fixture.append("outside playback")
+	runtime.current_state_info.variables.prior_fixture.append("during playback")
 	presentation.fields.tier = "love"
 	presentation.fields.tone = "dark"
 	presentation.fields.due_echoes.append({"echo_id": "not a registered echo"})
@@ -439,7 +442,7 @@ func test_frozen_context_drives_real_dtl_without_mutable_source_aliases() -> voi
 	runtime.Inputs.input_block_timer.stop()
 	runtime.Inputs.handle_input()
 	await _wait_for_completion(1)
-	assert_eq(runtime.current_state_info.variables, {"prior_fixture": "preserved"})
+	assert_eq(runtime.current_state_info.variables, {"prior_fixture": ["preserved"]})
 	assert_false(runtime.current_state_info.variables.is_read_only())
 
 func test_full_context_start_resume_and_preflight_refuse_the_same_invalid_fields() -> void:

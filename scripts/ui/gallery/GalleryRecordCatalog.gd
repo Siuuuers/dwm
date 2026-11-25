@@ -110,7 +110,7 @@ func _init(details: Dictionary = RECORD_DETAILS, overrides: Array = PRESENTATION
 		if _presentations.has(signature_id):
 			_invalidate(&"duplicate_presentation_signature")
 			return
-		var entry: Dictionary = SIGNATURE.entry_record(signature.entry_id)
+		var entry: Dictionary = SIGNATURE.entry_record_view(signature.entry_id)
 		if not entry.get("ok", false):
 			_invalidate(&"invalid_presentation_signature")
 			return
@@ -126,7 +126,7 @@ func _known_record(record_id: String) -> bool:
 	if TITLES.has(record_id): return true
 	var parts := record_id.split(".")
 	if parts.size() != 5 or parts[0] != "dating": return false
-	var entry := SIGNATURE.entry_record(record_id)
+	var entry := SIGNATURE.entry_record_view(record_id)
 	return entry.get("ok", false) and entry.value.get("ending_id") == null \
 		and entry.value.get("role") in ["solo_pre_challenge", "solo_post_challenge",
 			"pair_pre_challenge_scene", "pair_post_challenge_scene"]
@@ -186,7 +186,7 @@ static func presentation_copy(context: Dictionary, phase: String, locale: String
 static func reached_presentation_copy(signature: Dictionary, locale: String = "en") -> Dictionary:
 	var checked: Dictionary = SIGNATURE.validate(signature)
 	if not checked.ok: return checked
-	var entry: Dictionary = SIGNATURE.entry_record(str(signature.entry_id))
+	var entry: Dictionary = SIGNATURE.entry_record_view(str(signature.entry_id))
 	if not entry.ok: return entry
 	var row: Dictionary = entry.value
 	if row.role not in ["solo_pre_challenge", "solo_post_challenge", "pair_pre_challenge_scene", "pair_post_challenge_scene"]:

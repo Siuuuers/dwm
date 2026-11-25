@@ -45,7 +45,7 @@ func get_variants(ending_id: String) -> Dictionary:
 	var variants: Array[Dictionary] = []
 	for record: Dictionary in reached.value.records:
 		var entry_id := str(record.signature.get("entry_id", ""))
-		var located := SIGNATURE.entry_record(entry_id)
+		var located := SIGNATURE.entry_record_view(entry_id)
 		if not located.ok or located.value.ending_id != canonical_id or entry_id.ends_with(".residue"): continue
 		var checked := SIGNATURE.validate(record.signature)
 		if not checked.ok or checked.value.signature_id != record.signature_id:
@@ -77,7 +77,7 @@ func get_reached_entry_variants(entry_id: String = "") -> Dictionary:
 	for record: Dictionary in reached.value.records:
 		var candidate_id := str(record.signature.get("entry_id", ""))
 		if not entry_id.is_empty() and candidate_id != entry_id: continue
-		var located := SIGNATURE.entry_record(candidate_id)
+		var located := SIGNATURE.entry_record_view(candidate_id)
 		if not located.ok or not _is_date_record(located.value): continue
 		if candidate_id not in entry_ids: entry_ids.append(candidate_id)
 		var checked := SIGNATURE.validate(record.signature)

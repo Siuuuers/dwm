@@ -318,7 +318,7 @@ static func _load_registry() -> Dictionary:
 	var built := {}
 	var counts := {}
 	for reply: Dictionary in loaded.value.reply_ids:
-		var entry: Dictionary = SIGNATURE.entry_record(str(reply.owning_entry_id))
+		var entry: Dictionary = SIGNATURE.entry_record_view(str(reply.owning_entry_id))
 		if not entry.ok or entry.value.role != "ordinary_message": return _fail("ordinary_registry_invalid")
 		var day: int = int(entry.value.day)
 		var friend_id: String = str(reply.owning_entry_id).get_slice(".", 2)
