@@ -8,7 +8,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $contentUpdate = $Suite.StartsWith('scene_content_update_')
 $contentUpdateCase = if ($contentUpdate) { $Suite.Substring('scene_content_update_'.Length) } else { '' }
-$contentErrorQuit = $contentUpdateCase -in @('deleted_line', 'deleted_checkpoint', 'completed_deleted', 'invalid_choice_missing_default')
+$contentErrorQuit = $contentUpdateCase -eq 'invalid_choice_missing_default'
 
 if ($Suite -eq 'current_terminal_fixture') {
     & (Join-Path $PSScriptRoot 'Invoke-CurrentTerminalFixture.ps1')
@@ -683,8 +683,7 @@ if ($Suite -in @('dtl_first_authoring', 'scene_inline_presentation') -or $Suite.
             $exits = @(Get-Content -LiteralPath (Join-Path $output "$Suite.jsonl") | ForEach-Object { $_ | ConvertFrom-Json })
             $quitExit = @($exits | Where-Object { [IO.Path]::GetFileName($_.log_path) -ceq "cloud-$Suite-settled-load.log" })
             if ($quitExit.Count -ne 1 -or $quitExit[0].exit_code -ne 0) { throw 'Production Quit did not exit successfully.' }
-            $expectedSource = if ($contentUpdateCase -eq 'completed_deleted') { 'slot_4.json' } else { 'slot_1.json' }
-            $savedPath = Join-Path (Join-Path $quitExit[0].user_dir 'saves') $expectedSource
+            $savedPath = Join-Path (Join-Path $quitExit[0].user_dir 'saves') 'slot_1.json'
             if ((Get-FileHash -LiteralPath $savedPath -Algorithm SHA256).Hash.ToLowerInvariant() -cne $createProof.source_sha256) {
                 throw 'Failed Load or Quit changed the existing source save.'
             }

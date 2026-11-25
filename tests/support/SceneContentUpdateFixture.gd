@@ -72,6 +72,9 @@ static func install(updated: bool, case_id: String) -> Dictionary:
 	for id: String in entries:
 		var captions: Array = ["anchor", "middle", "last"]
 		if id in ["update.a", "update.b"]: captions = ["cue", "following"]
+		if case_id == "active_board" and id == "update.a":
+			captions.push_front("anchor")
+			if updated: captions.erase("cue")
 		var remove_a: bool = updated and case_id in ["transfer_active", "transfer_terminal", "resolved_unfinished"] and id == "update.a"
 		if updated and id == "update.one" and case_id in ["deleted_line", "deleted_checkpoint"]:
 			captions.erase("middle")
@@ -98,7 +101,8 @@ static func install(updated: bool, case_id: String) -> Dictionary:
 				"kind": "scene.transition", "payload": {"target_id": "target.update.after_a"}}]
 		elif id in ["update.a", "update.b"]:
 			var challenge_id := A if id == "update.a" else B
-			markers = [{"marker_id": id + ".playable", "label": id + ".playable", "after_line_id": line(id, "cue"),
+			var cue := "anchor" if case_id == "active_board" and updated and id == "update.a" else "cue"
+			markers = [{"marker_id": id + ".playable", "label": id + ".playable", "after_line_id": line(id, cue),
 				"kind": "challenge.playable", "payload": {"challenge_id": challenge_id}},
 				{"marker_id": id + ".end", "label": id + ".end", "after_line_id": last,
 				"kind": "challenge.end", "payload": {"challenge_id": challenge_id}}]

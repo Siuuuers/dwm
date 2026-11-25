@@ -157,6 +157,10 @@ func create_content_update() -> void:
 		var target := UPDATE.line("update.four" if case_id == "history" else "update.one",
 			"last" if case_id in ["invalid_choice", "invalid_choice_missing_default"] else "middle")
 		if not await _walk_to(target): return
+	if case_id in ["deleted_line", "deleted_checkpoint"]:
+		game.add_inventory("lucky_charm")
+		game.minesweeper_rounds_left = 1
+		assert_eq(game.check_and_claim_minesweeper_task_rewards({"task_ids": ["complete_beginner"]}), ["complete_beginner"])
 	if terminal_capture.is_empty() and not await _save_partner(1): return
 	var path := "user://saves/autosave.json" if locator == "autosave" else "user://saves/slot_1.json"
 	var document: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string(path))
@@ -226,7 +230,7 @@ func load_content_update() -> void:
 	if case_id in ["invalid_choice", "invalid_choice_missing_default"]:
 		assert_eq(preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_registration_fingerprint(),
 			proof.snapshot.scene.registration_sha256, "file-only edit does not rebuild the shipped registry")
-	if case_id in ["deleted_line", "deleted_checkpoint", "completed_deleted", "invalid_choice_missing_default"]:
+	if case_id == "invalid_choice_missing_default":
 		await _load_missing_content(proof, false)
 		return
 	if UPDATE.completed_case(case_id):
@@ -247,9 +251,14 @@ func load_content_update() -> void:
 	if not UPDATE.board_case(case_id):
 		var expected := UPDATE.line("update.four" if case_id == "history" else "update.one",
 			"last" if case_id == "invalid_choice" else "middle")
+		if case_id == "deleted_line": expected = UPDATE.line("update.one", "anchor")
+		if case_id == "deleted_checkpoint": expected = UPDATE.line("Day1", "anchor")
 		if not await _wait_line(expected): return
 		if case_id == "wording": assert_eq(_native_observation().text, "TEST update.one middle revised.")
 		await _history_assertions(proof)
+		if case_id == "deleted_checkpoint":
+			if not await _walk_to(UPDATE.line("update.one", "last")): return
+			_assert_gameplay_preserved(proof.snapshot.gameplay)
 		if case_id == "invalid_choice":
 			await _accept()
 			if not await _wait_line(UPDATE.line("update.two", "anchor")): return
@@ -287,6 +296,9 @@ func load_content_update() -> void:
 
 func _verify_board_continuation(proof: Dictionary) -> bool:
 	if case_id == "active_board":
+		if not await _wait_line(UPDATE.line("update.four", "anchor")): return false
+		if not await _walk_to(UPDATE.line("update.a", "anchor")): return false
+		await _accept()
 		var panel: Control = await _open_board()
 		if panel == null: return false
 		assert_eq(game.capture_dating_challenge_state().value, proof.record)
@@ -374,10 +386,10 @@ func reload_current_content() -> void:
 	var proof: Dictionary = parsed.value
 	assert_ne(OS.get_process_id(), proof.loader_pid)
 	assert_ne(OS.get_process_id(), proof.old_source.creator_pid)
-	if str(proof.case) not in ["deleted_line", "deleted_checkpoint", "completed_deleted", "invalid_choice_missing_default"] and not UPDATE.completed_case(str(proof.case)):
+	if str(proof.case) != "invalid_choice_missing_default" and not UPDATE.completed_case(str(proof.case)):
 		assert_eq(FileAccess.get_sha256("user://saves/slot_3.json"), proof.slot_sha256)
 	if not _start_services(): return
-	if case_id in ["deleted_line", "deleted_checkpoint", "completed_deleted", "invalid_choice_missing_default"]:
+	if case_id == "invalid_choice_missing_default":
 		await _load_missing_content(proof.old_source, true, int(proof.loader_pid))
 		return
 	if UPDATE.completed_case(case_id):
@@ -503,23 +515,21 @@ func _load_missing_content(proof: Dictionary, quit_process: bool, prior_loader_p
 	if not _ok(backup.configure(saves, "title")): return
 	var result: Dictionary = backup.prepare_action("load", proof.locator)
 	if result.get("ok", false): result = backup.commit_action(result.value.token)
-	if case_id == "invalid_choice_missing_default":
-		assert_eq(result.get("code"), &"scene_activation_pending", str(result))
-		if not await _await_ready() or not await _wait_line(UPDATE.line("update.one", "last")): return
-		_assert_gameplay_preserved(proof.snapshot.gameplay)
-		if not bridge.next_request_finished.is_connected(_observe_next_result):
-			bridge.next_request_finished.connect(_observe_next_result)
-		await _accept()
-		result = last_next_result
-		_assert_gameplay_preserved(proof.snapshot.gameplay)
+	assert_eq(result.get("code"), &"scene_activation_pending", str(result))
+	if not await _await_ready() or not await _wait_line(UPDATE.line("update.one", "last")): return
+	_assert_gameplay_preserved(proof.snapshot.gameplay)
+	if not bridge.next_request_finished.is_connected(_observe_next_result):
+		bridge.next_request_finished.connect(_observe_next_result)
+	await _accept()
+	result = last_next_result
+	_assert_gameplay_preserved(proof.snapshot.gameplay)
 	assert_false(result.get("ok", false), str(result))
 	assert_eq(result.get("code"), &"reading_content_error", str(result))
 	var error_layer: Node = bootstrap.get_node_or_null("ContentError")
 	assert_not_null(error_layer)
 	if error_layer == null: return
 	var confirmation: Control = error_layer.get_node("ContentErrorConfirmation")
-	var missing_id := "update.two" if case_id == "invalid_choice_missing_default" else (
-		UPDATE.line("update.end", "last") if case_id == "completed_deleted" else UPDATE.line("update.one", "middle"))
+	var missing_id := "update.two"
 	assert_true(str(confirmation.request.body).contains(missing_id), "the visible diagnosis identifies the saved dialogue ID")
 	assert_false(confirmation.cancel_button.visible)
 	for pressed: bool in [true, false]:

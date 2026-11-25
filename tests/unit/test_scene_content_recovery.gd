@@ -133,16 +133,23 @@ func test_compact_completion_projection_preserves_position_and_detaches_history(
 	projected.value.reading_session.history_sections[0].last_line_id = "changed.history"
 	assert_eq(compact.value, before, "completion projection is detached")
 
-func test_deleted_saved_line_reports_identity_without_rewind_or_mutating_save() -> void:
+func test_deleted_saved_line_resumes_at_reached_checkpoint_without_mutating_save() -> void:
 	_install(_source())
 	var saved := _saved_second()
 	var before := saved.duplicate(true)
 	_install(_source().replace("B second. #id:line.scene.test.b.two\n", ""))
 	var normalized := SESSION.normalize_player_checkpoint(saved, {}, {})
-	assert_false(normalized.ok)
-	assert_eq(normalized.code, &"reading_content_error")
-	assert_eq(normalized.details.line_id, "line.scene.test.b.two")
-	assert_eq(saved, before, "failed continuation must not replace the selected saved state")
+	assert_true(normalized.ok, str(normalized))
+	if not normalized.ok: return
+	assert_true(normalized.value.fallback)
+	assert_eq(normalized.value.checkpoint.reading_session.position_id, "line.scene.test.b.one")
+	assert_true(SESSION.expand_player_checkpoint(normalized.value.checkpoint).ok)
+	assert_eq(saved, before)
+	saved.reading_session.history_sections = [{"checkpoint_id": "line.scene.test.b.two", "last_line_id": "line.scene.test.b.two"}]
+	saved.reading_session.recovery_anchor.line_id = "line.scene.test.b.two"
+	var exhausted := SESSION.normalize_player_checkpoint(saved, {}, {})
+	assert_false(exhausted.ok)
+	assert_eq(exhausted.details.line_id, "line.scene.test.b.two")
 
 func test_file_only_wording_edit_preserves_id_and_uses_current_text() -> void:
 	_install(_source())
