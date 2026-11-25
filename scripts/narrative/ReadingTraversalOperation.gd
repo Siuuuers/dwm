@@ -51,22 +51,24 @@ static func validate(reading: Dictionary, entry_id: String) -> Dictionary:
 	if not made.ok: return made
 	if operation != made.value or operation.plan.entry_id != entry_id:
 		return _fail(&"reading_next_operation_mismatch")
-	if without_operation(reading) != _projection(operation.plan, operation.phase):
+	if _without_operation_view(reading) != _projection(operation.plan, operation.phase):
 		return _fail(&"reading_next_projection_mismatch")
-	return {"ok": true, "value": operation.duplicate(true)}
+	return made
 
 static func without_operation(reading: Dictionary) -> Dictionary:
-	var result := reading.duplicate(true)
-	if typeof(result.get("schema_version")) == TYPE_INT and result.schema_version == 5:
-		result.next_operation = null
-		return result
-	if typeof(result.get("schema_version")) == TYPE_INT and result.schema_version == 4:
-		result["next_operation"] = null
-		return result
-	if typeof(result.get("schema_version")) == TYPE_INT and result.schema_version == 2:
-		result["schema_version"] = 1
-		result.erase("next_operation")
-	return result
+	return _without_operation_view(reading).duplicate(true)
+
+static func _without_operation_view(reading: Dictionary) -> Dictionary:
+	var result := reading.duplicate()
+	if typeof(result.get("schema_version")) == TYPE_INT:
+		match result.schema_version:
+			4, 5:
+				result.next_operation = null
+			2:
+				result.schema_version = 1
+				result.erase("next_operation")
+	return result.duplicate(true)
+
 
 static func _projection(plan: Dictionary, phase: String) -> Dictionary:
 	var ledger: Dictionary = plan.source_ledger.duplicate(true)
@@ -264,9 +266,9 @@ static func _validate_marker_operation(reading: Dictionary, entry_id: String) ->
 	if not EVENT._same_types(operation, made.value) or operation != made.value or operation.plan.entry_id != entry_id:
 		return _fail(&"reading_next_operation_mismatch")
 	var expected := _marker_projection(operation.plan, operation.phase)
-	var actual := without_operation(reading)
+	var actual := _without_operation_view(reading)
 	if not EVENT._same_types(actual, expected) or actual != expected: return _fail(&"reading_next_projection_mismatch")
-	return {"ok": true, "value": operation.duplicate(true)}
+	return made
 
 static func _hash(value: Variant) -> bool:
 	if not value is String or value.length() != 64: return false
@@ -449,8 +451,8 @@ static func _validate_scene_operation(reading: Dictionary, entry_id: String) -> 
 	var made := _create_scene_operation(operation.plan, operation.phase)
 	if not made.ok: return made
 	if not _same(operation, made.value) or operation.plan.entry_id != entry_id: return _fail(&"reading_next_operation_mismatch")
-	if not _same(without_operation(reading), _scene_projection(operation.plan, operation.phase)): return _fail(&"reading_next_projection_mismatch")
-	return {"ok": true, "value": operation.duplicate(true)}
+	if not _same(_without_operation_view(reading), _scene_projection(operation.plan, operation.phase)): return _fail(&"reading_next_projection_mismatch")
+	return made
 
 static func validate_scene_operation_path(reading: Dictionary, entry_id: String, nodes: Array) -> Dictionary:
 	var checked := _validate_scene_operation(reading, entry_id)

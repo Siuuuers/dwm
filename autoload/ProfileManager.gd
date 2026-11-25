@@ -136,11 +136,10 @@ static func validate_scene_new_run_material(material: Dictionary) -> Dictionary:
 		material.scene_assignment.run_id, receipt.value.creation_transaction_id, receipt.value.rng_nonce)
 	if not selected.ok: return selected
 	if selected.value != receipt.value: return {"ok": false, "code": &"scene_assignment_conflict"}
-	var candidate: Dictionary = material.before.duplicate(true)
-	candidate.pair_deck_draws[material.scene_assignment.run_id] = receipt.value.duplicate(true)
+	var candidate: Dictionary = before.value
+	candidate.pair_deck_draws[material.scene_assignment.run_id] = receipt.value
 	var expected: Dictionary = WRITER.stringify(candidate)
-	var supplied: Dictionary = WRITER.stringify(material.candidate)
-	if not expected.ok or not supplied.ok or expected.value != supplied.value \
+	if not expected.ok or expected.value != original_after.value \
 			or material.outgoing_text != expected.value or material.outgoing_text.sha256_text() != material.outgoing_hash:
 		return {"ok": false, "code": &"invalid_scene_new_run_material"}
 	return {"ok": true, "code": &"ok"}
@@ -939,7 +938,7 @@ func commit_controls_import(proposal: Dictionary) -> Dictionary:
 	for field: String in ["revision", "before", "legacy_bindings", "after"]:
 		if not proposal.has(field):
 			return _failure(&"invalid_binding_proposal", "Import proposal is malformed")
-	var source := _profile.duplicate(true)
+	var source := _profile.duplicate()
 	source.controls_bindings = proposal.before
 	source.input_mappings = proposal.legacy_bindings
 	if not SCHEMA.validate(source).get("ok", false):
@@ -948,8 +947,8 @@ func commit_controls_import(proposal: Dictionary) -> Dictionary:
 	if not recomputed.get("ok", false): return recomputed
 	if proposal != recomputed.value:
 		return _failure(&"invalid_binding_proposal", "Import proposal no longer matches the complete source")
-	var candidate := _profile.duplicate(true)
-	candidate.controls_bindings = recomputed.value.after.duplicate(true)
+	var candidate := _profile.duplicate()
+	candidate.controls_bindings = recomputed.value.after
 	candidate.controls_import_pending = false
 	return commit_prepared_profile(candidate, false, proposal.revision)
 
@@ -980,8 +979,8 @@ func commit_controls_change(proposal: Dictionary) -> Dictionary:
 		return _failure(&"invalid_binding_proposal", "The complete binding proposal is not valid")
 	if proposal.before == proposal.after:
 		return {"ok": true, "code": &"ok", "unchanged": true}
-	var candidate := _profile.duplicate(true)
-	candidate.controls_bindings = proposal.after.duplicate(true)
+	var candidate := _profile.duplicate()
+	candidate.controls_bindings = recomputed.value.after
 	return commit_prepared_profile(candidate, false, proposal.revision)
 
 

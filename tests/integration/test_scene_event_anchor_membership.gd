@@ -25,15 +25,15 @@ func test_scene_anchor_requires_retained_publication_occurrence_and_catalogue() 
 	var later: Dictionary = BASE.checkpoint(session)
 	assert_true(later.ok)
 	assert_ne(later.value.reading_session.frontier.publication_id, anchor.publication_id)
-	assert_true(bridge.validate_scene_event_anchor(anchor, later.value).ok,
-		"historical publication membership does not require the current frontier")
+	assert_eq(bridge.validate_scene_event_anchor(anchor, later.value).get("code"),
+		&"event_anchor_invalid", "advancing releases the previous scene publication")
 	for field: String in ["publication_id", "session_id", "catalogue_fingerprint", "line_id"]:
 		var absent: Dictionary = anchor.duplicate(true)
 		absent[field] = "TEST.absent"
-		assert_false(bridge.validate_scene_event_anchor(absent, later.value).ok, field)
+		assert_false(bridge.validate_scene_event_anchor(absent, first.value).ok, field)
 	var wrong_version: Dictionary = anchor.duplicate(true)
 	wrong_version.content_version += 1
-	assert_false(bridge.validate_scene_event_anchor(wrong_version, later.value).ok)
+	assert_false(bridge.validate_scene_event_anchor(wrong_version, first.value).ok)
 
 func _anchor(checkpoint: Dictionary) -> Dictionary:
 	var reading: Dictionary = checkpoint.reading_session
@@ -62,15 +62,17 @@ func test_batch_checks_later_anchors_and_keeps_occurrences_distinct() -> void:
 	var anchors_before: Array[Dictionary] = anchors.duplicate(true)
 	assert_eq(anchors[0].line_id, anchors[1].line_id, "same authored caption in two occurrences")
 	assert_ne(anchors[0].publication_id, anchors[1].publication_id)
-	assert_true(bridge.validate_scene_event_anchors(anchors, later.value).ok)
+	assert_true(bridge.validate_scene_event_anchor(anchors[1], later.value).ok)
+	assert_eq(bridge.validate_scene_event_anchors(anchors, later.value).get("code"),
+		&"event_anchor_invalid", "revisiting the entry releases its earlier occurrence")
 	var wrong_occurrence: Dictionary = anchors[1].duplicate(true)
 	wrong_occurrence.session_id = anchors[0].session_id
-	var wrong_occurrence_anchors: Array[Dictionary] = [anchors[0], wrong_occurrence]
+	var wrong_occurrence_anchors: Array[Dictionary] = [anchors[1], wrong_occurrence]
 	assert_eq(bridge.validate_scene_event_anchors(wrong_occurrence_anchors, later.value).get("code"),
 		&"event_anchor_invalid", "a valid first anchor cannot hide a wrong later occurrence")
 	var absent: Dictionary = anchors[1].duplicate(true)
 	absent.publication_id = "TEST.absent"
-	var absent_anchors: Array[Dictionary] = [anchors[0], absent]
+	var absent_anchors: Array[Dictionary] = [anchors[1], absent]
 	assert_eq(bridge.validate_scene_event_anchors(absent_anchors, later.value).get("code"),
 		&"event_anchor_invalid", "every anchor needs its retained publication")
 	assert_eq(later.value, before, "batch admission leaves the saved checkpoint unchanged")
