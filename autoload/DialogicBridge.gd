@@ -1254,8 +1254,8 @@ func _on_playback_start_failed(failure: Dictionary, halt_runtime: bool = false) 
 			retire_reading_session()
 			ordinary_playback_failed.emit("hospital.faint", failure.duplicate(true))
 		if not _ending_reading.is_empty() and entry.get("frozen_context") == _ending_reading.frame:
-			var reading_ending := _ending_reading.duplicate(true)
-			_ending_reading.clear()
+			var reading_ending := _ending_reading
+			_ending_reading = {}
 			ending_playback_failed.emit(str(reading_ending.token), str(reading_ending.ending_id), failure.duplicate(true))
 		entry_playback_failed.emit(str(entry.token), str(entry.entry_id), failure.duplicate(true))
 	if not ending.is_empty():
@@ -3068,10 +3068,9 @@ func stage_scene_terminal_restore(checkpoint: Dictionary, operation_id: String, 
 			or (not _scene_restore.is_empty() and not _scene_restore.get("confirmed", false)):
 		return _command_failure(&"scene_restore_staging_invalid")
 	var gs := get_node_or_null("/root/GameState")
-	if gs == null or not gs.has_method("capture_run_snapshot_input"):
+	if gs == null or not gs.has_method("capture_run_lifecycle"):
 		return _command_failure(&"scene_terminal_owner_unavailable")
-	var live: Dictionary = gs.capture_run_snapshot_input()
-	var lifecycle: Dictionary = live.get("lifecycle", {})
+	var lifecycle: Dictionary = gs.capture_run_lifecycle()
 	var plan: Dictionary = lifecycle.get("ending_plan", {})
 	if plan.get("source_kind") != "scene": return _command_failure(&"scene_terminal_owner_unavailable")
 	var candidate: RefCounted = null
@@ -3092,7 +3091,7 @@ func stage_scene_terminal_restore(checkpoint: Dictionary, operation_id: String, 
 	if is_pause_restore_pending():
 		var staged := stage_pause_restore(checkpoint, true, read_only_restore)
 		if not staged.ok: return staged
-	_scene_restore = {"operation_id": operation_id, "read_only": read_only_restore, "terminal": true, "lifecycle": lifecycle.duplicate(true),
+	_scene_restore = {"operation_id": operation_id, "read_only": read_only_restore, "terminal": true, "lifecycle": lifecycle,
 		"checkpoint": checkpoint.duplicate(true), "digest": _scene_digest(checkpoint),
 		"candidate": candidate, "runtime": _runtime_adapter, "started": false,
 		"in_call": false, "native_started": false, "proof": false, "confirmed": false}
@@ -3131,9 +3130,8 @@ func _start_terminal_restore_native() -> void:
 
 func _terminal_restore_current() -> bool:
 	var gs := get_node_or_null("/root/GameState")
-	if gs == null or not gs.has_method("capture_run_snapshot_input"): return false
-	var live: Dictionary = gs.capture_run_snapshot_input()
-	if not _READING_TRAVERSAL._same(live.get("lifecycle"), _scene_restore.lifecycle): return false
+	if gs == null or not gs.has_method("capture_run_lifecycle"): return false
+	if not _READING_TRAVERSAL._same(gs.capture_run_lifecycle(), _scene_restore.lifecycle): return false
 	var checkpoint: Dictionary = _scene_restore.checkpoint
 	if checkpoint.is_empty(): return _scene_restore.candidate == null
 	var captured: Dictionary = _scene_restore.candidate.capture(checkpoint.reading_session.frontier)

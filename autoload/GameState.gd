@@ -1132,10 +1132,7 @@ func _capture_ending_presentation_inputs() -> Dictionary:
 	if is_inside_tree():
 		var profile: Node = get_node_or_null("/root/ProfileManager")
 		if profile != null:
-			var completed := false
-			for receipt: Dictionary in profile.get_profile_snapshot().get("gallery_transaction_receipts", {}).values():
-				if str(receipt.get("ending_id", "")) == "ending.sylvia.special": completed = true
-			if completed and not bool(profile.get_preference("preferences.exceptional_replay.replay_full", false)):
+			if profile.has_gallery_receipt("ending.sylvia.special") and not bool(profile.get_preference("preferences.exceptional_replay.replay_full", false)):
 				result["special_variant"] = "residue"
 	return result
 
@@ -1182,7 +1179,7 @@ func capture_ending_frozen_presentation(ending_id: String, context: Dictionary) 
 	if not command.get("ok", false) or command.get("value", {}).get("kind") != "play_ending" \
 			or command.value.ending_id != ending_id or command.value.playback_context != context:
 		return _transaction_failure(&"ending_presentation_command_mismatch", ending_id)
-	var lifecycle: Dictionary = _run_lifecycle.to_dict()
+	var lifecycle: Dictionary = _run_lifecycle.capture_ending_context()
 	if lifecycle.get("ending_plan") is Dictionary and lifecycle.ending_plan.get("source_kind") == "scene":
 		return _ENDING_FROZEN_CONTEXT.build_scene(lifecycle.ending_plan, str(context.playback_id))
 	var cached: Variant = route_context.get("ending_frozen_contexts_v1")
@@ -1217,13 +1214,12 @@ func capture_ending_presentation_signature(ending_id: String, context: Dictionar
 	if not command.get("ok", false) or command.get("value", {}).get("kind") != "play_ending" \
 			or command.value.get("ending_id") != ending_id or command.value.get("playback_context") != context:
 		return _transaction_failure(&"ending_presentation_command_mismatch", ending_id)
-	var scene_lifecycle: Dictionary = _run_lifecycle.to_dict()
-	if scene_lifecycle.get("ending_plan") is Dictionary and scene_lifecycle.ending_plan.get("source_kind") == "scene":
-		var projected := _ENDING_FROZEN_CONTEXT.build_scene(scene_lifecycle.ending_plan, str(context.playback_id))
+	var lifecycle: Dictionary = _run_lifecycle.capture_ending_context()
+	if lifecycle.get("ending_plan") is Dictionary and lifecycle.ending_plan.get("source_kind") == "scene":
+		var projected := _ENDING_FROZEN_CONTEXT.build_scene(lifecycle.ending_plan, str(context.playback_id))
 		return {"ok": true, "value": projected.value.signature} if projected.ok else projected
 
 	if _frozen_ending_contexts_enabled:
-		var lifecycle: Dictionary = _run_lifecycle.to_dict()
 		var cache: Variant = route_context.get("ending_frozen_contexts_v1")
 		var checked := _ENDING_FROZEN_CONTEXT.validate_cache(cache, lifecycle)
 		if not checked.ok: return checked
@@ -1255,7 +1251,7 @@ func capture_ending_presentation_signature(ending_id: String, context: Dictionar
 			if ending_id == "ending.priscilla_lavinia": entry_id += ".dark" if pair_form.ends_with("_dark") else ".sweet"
 		else:
 			form = "derived_dark" if ending_id.ends_with(".dark") else "derived_sweet"
-			var steps: Array = _run_lifecycle.to_dict().get("ending_plan", {}).get("steps", [])
+			var steps: Array = lifecycle.ending_plan.get("steps", [])
 			if ending_id == "ending.sylvia.dark" and not steps.is_empty() and steps[0].get("role") == "special_prefix":
 				form = "special_forced_dark"
 		if ending_id.begins_with("ending.priscilla_lavinia"):
@@ -1546,7 +1542,7 @@ func capture_new_day_gameplay() -> Dictionary:
 	if _run_lifecycle.is_scene_run():
 		gameplay = _capture_scene_gameplay()
 	else:
-		gameplay = capture_run_snapshot_input()["gameplay"].duplicate(true)
+		gameplay = _legacy_run_gameplay(to_save_dict(), _narrative_variables).duplicate(true)
 	gameplay.merge({
 		"minesweeper_rounds_left": 2,
 		"minesweeper_app_rounds_finished_today": 0,
@@ -1936,12 +1932,7 @@ func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_t
 		"priscilla_lavinia": {"date_count": 0, "dark_points": 0,
 			"ending_eligible": false, "provisional_receipts": {}},
 	}
-	var gameplay := {"narrative_variables": {}}
-	for key in _SAVE_WHITELIST:
-		if key in ["day", "contact_message_unlocks", "contact_choice_state", "date_unlocks", "dating_route_state"]:
-			continue
-		if defaults.has(key):
-			gameplay[key] = defaults[key]
+	var gameplay := _legacy_run_gameplay(defaults, {})
 	return {"ok": true, "code": &"ok", "value": {"snapshot_input": {
 		"lifecycle": {
 			"run_id": run_id,
@@ -2011,8 +2002,7 @@ func get_active_minesweeper_round() -> Dictionary:
 
 
 func _lifecycle_advance_day() -> void:
-	var snapshot: Dictionary = _run_lifecycle.to_dict()
-	_lifecycle_set_playing_day(int(snapshot["day"]) + 1)
+	_lifecycle_set_playing_day(_run_lifecycle.get_day() + 1)
 
 
 func _lifecycle_set_playing_day(target_day: int) -> void:
@@ -2042,7 +2032,7 @@ func request_next_ending_command() -> Dictionary:
 		return {"ok": true, "value": {"kind": "return_completed", "expected_stage": &"COMPLETED"}}
 	if _run_lifecycle.get_state() != &"ENDING":
 		return {"ok": false, "code": &"not_in_ending", "message": "run is not in the ENDING state"}
-	var snapshot: Dictionary = _run_lifecycle.to_dict()
+	var snapshot: Dictionary = _run_lifecycle.capture_ending_context()
 	var lifecycle_plan: Dictionary = snapshot["ending_plan"]
 	if lifecycle_plan.has("steps"):
 		return _ordered_ending_command(snapshot, lifecycle_plan)
@@ -2056,7 +2046,7 @@ func request_next_ending_command() -> Dictionary:
 		return command_result
 	var command: Dictionary = command_result["value"]
 	if str(command["kind"]) != "play_ending":
-		return {"ok": true, "code": &"ok", "value": command.duplicate(true)}
+		return {"ok": true, "code": &"ok", "value": command}
 	var run_id: String = str(snapshot["run_id"])
 	var role: String = str(command["role"])
 	return {"ok": true, "code": &"ok", "value": {
@@ -2124,8 +2114,7 @@ func _validate_pair_observer_admission(snapshot: Dictionary, plan: Dictionary, p
 	if not physical:
 		return _transaction_failure(&"pair_observer_sweet_completion_pending", "The preceding Sweet scene has not physically completed")
 	var transaction_id := "ending:%s:gallery:ending.priscilla_lavinia.sweet" % str(snapshot.get("run_id", ""))
-	var saved: Dictionary = profile.get_profile_snapshot().get("gallery_transaction_receipts", {}).get(transaction_id, {})
-	if saved.get("ending_id") != "ending.priscilla_lavinia.sweet":
+	if not profile.has_gallery_receipt("ending.priscilla_lavinia.sweet", transaction_id):
 		return _transaction_failure(&"pair_observer_sweet_completion_pending", "The preceding Sweet completion is not durable")
 	return {"ok": true, "code": &"ok"}
 
@@ -2243,7 +2232,7 @@ func _admit_terminal_ending() -> Dictionary:
 	if not condition_source.is_empty():
 		if _frozen_ending_contexts_enabled:
 			var frozen_contacts := preload("res://scripts/narrative/ContactsFrozenContext.gd").capture_candidate(
-				contacts, closure.value.candidate, capture_run_snapshot_input().gameplay, 7)
+				contacts, closure.value.candidate, _legacy_run_gameplay(to_save_dict(), _narrative_variables), 7)
 			if not frozen_contacts.ok: return _rollback_ending_admission(backup, consequence_backup, frozen_contacts)
 			_apply_gameplay_silent(frozen_contacts.value)
 		contacts = closure.value.candidate.duplicate(true)
@@ -2313,7 +2302,7 @@ func _commit_ending_playback_completion(transaction_id: String, expected_stage: 
 	if _ending_checkpoint_writer.is_valid():
 		var saved: Dictionary = _ending_checkpoint_writer.call()
 		if not saved.get("ok", false):
-			var plan: Variant = _run_lifecycle.to_dict().get("ending_plan")
+			var plan: Variant = _run_lifecycle.capture_ending_context().ending_plan
 			if saved.get("committed", false) and plan is Dictionary and plan.get("source_kind") == "scene":
 				return _scene_event_fatal(&"scene_terminal_commit_uncertain")
 			var restored: Dictionary = rollback_restore_silent(captured.value.backup)
@@ -2330,24 +2319,25 @@ func _retire_completed_ending_session() -> void:
 	_retired_live_session_generation = _live_session_generation
 
 func _completed_ordered_ending_replay(transaction_id: String, stage: StringName, receipt: Dictionary) -> Dictionary:
-	var snapshot: Dictionary = _run_lifecycle.to_dict()
-	var plan: Variant = snapshot.get("ending_plan")
+	var snapshot: Dictionary = _run_lifecycle.capture_ending_context()
+	var plan: Variant = snapshot.ending_plan
 	if not plan is Dictionary or not plan.has("steps"): return {}
 	for index in int(plan.next_step_index):
 		if transaction_id != "%s:ending:%d:complete" % [str(snapshot.run_id), index]: continue
 		var previous: Dictionary = plan.playback_receipts.get("step:%d" % index, {})
 		if stage != &"PRIMARY_PENDING" or previous != {"value": receipt}:
 			return {"ok": false, "code": &"duplicate_transaction_conflict"}
-		return {"ok": true, "code": &"ok", "value": previous.value.duplicate(true)}
+		return {"ok": true, "code": &"ok", "value": previous.value}
 	return {}
 
 
 func _complete_ending_playback_stage(transaction_id: String, expected_stage: StringName, receipt: Dictionary) -> Dictionary:
 	if _run_lifecycle.get_state() != &"ENDING":
 		return {"ok": false, "code": &"not_in_ending", "message": "run is not in the ENDING state"}
-	var lifecycle_plan: Dictionary = _run_lifecycle.to_dict()["ending_plan"]
+	var snapshot: Dictionary = _run_lifecycle.capture_ending_context()
+	var lifecycle_plan: Dictionary = snapshot.ending_plan
 	if lifecycle_plan.has("steps"):
-		var ordered_command: Dictionary = _ordered_ending_command(_run_lifecycle.to_dict(), lifecycle_plan)
+		var ordered_command: Dictionary = _ordered_ending_command(snapshot, lifecycle_plan)
 		if not ordered_command.get("ok", false):
 			return ordered_command
 		var ordered_value: Dictionary = ordered_command["value"]
@@ -2390,7 +2380,7 @@ func _complete_run() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"route": "menu"}}
 
 func _complete_play_ending(stage: String, transaction_id: String, receipt: Dictionary) -> Dictionary:
-	var snapshot: Dictionary = _run_lifecycle.to_dict()
+	var snapshot: Dictionary = _run_lifecycle.capture_ending_context()
 	var plan: Dictionary = snapshot["ending_plan"]
 	var run_id := str(snapshot["run_id"])
 	var lifecycle_transaction := ""
@@ -2498,7 +2488,7 @@ func capture_restore_state() -> Dictionary:
 	if _dating_restore_owner != null:
 		var captured: Dictionary = _dating_restore_owner.capture_reconciliation_state()
 		if not captured.get("ok", false): return captured
-		dating_backup = captured.value.duplicate(true)
+		dating_backup = captured.value
 	var gameplay: Dictionary
 	if _run_lifecycle.is_scene_run():
 		gameplay = _capture_scene_gameplay()
@@ -2780,6 +2770,14 @@ func _capture_scene_gameplay() -> Dictionary:
 	return gameplay
 
 
+static func _legacy_run_gameplay(saved: Dictionary, variables: Dictionary) -> Dictionary:
+	var gameplay := {"narrative_variables": variables}
+	for key: String in saved:
+		if key not in ["day", "contact_message_unlocks", "contact_choice_state", "date_unlocks", "dating_route_state"]:
+			gameplay[key] = saved[key]
+	return gameplay
+
+
 func capture_run_snapshot_input() -> Dictionary:
 	if _run_lifecycle.is_scene_run():
 		return {"lifecycle": _run_lifecycle.to_dict(), "gameplay": _capture_scene_gameplay(),
@@ -2789,12 +2787,7 @@ func capture_run_snapshot_input() -> Dictionary:
 			"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(true),
 			"command_receipts": _command_receipts.duplicate(true)}
 	var current: Dictionary = to_save_dict()
-	var gameplay := {"narrative_variables": _narrative_variables.duplicate(true)}
-	for key in _SAVE_WHITELIST:
-		if key in ["day", "contact_message_unlocks", "contact_choice_state", "date_unlocks", "dating_route_state"]:
-			continue
-		if current.has(key):
-			gameplay[key] = current[key]
+	var gameplay := _legacy_run_gameplay(current, _narrative_variables.duplicate(true))
 	return {
 		"lifecycle": _run_lifecycle.to_dict(),
 		"gameplay": gameplay,
@@ -3096,7 +3089,7 @@ func read_hospital_presentation_request(resolution_id: String) -> Dictionary:
 			return _transaction_failure(&"hospital_frozen_request_mismatch", key)
 	var saved: Dictionary = cache.requests.get(resolution_id, {})
 	if saved.is_empty(): return {"ok": true, "value": {}}
-	var plan: Variant = _run_lifecycle.to_dict().get("active_resolution_plan")
+	var plan: Variant = _run_lifecycle.capture_active_plan().value.active_resolution_plan
 	if not plan is Dictionary or plan.get("resolution_id") != resolution_id \
 			or saved.context.day != plan.get("source_day") \
 			or saved.resolution_issuer_receipt != plan.get("resolution_issuer_receipt"):
@@ -4335,8 +4328,8 @@ func admit_scene_target(target_id: String, trigger_command_id: String) -> Dictio
 	return result
 
 func return_completed_scene_passage() -> void:
-	var lifecycle: Dictionary = _run_lifecycle.to_dict()
-	if lifecycle.get("state") != "COMPLETED" or lifecycle.has("ending_plan") or not _live_session_active: return
+	if not _run_lifecycle.is_completed_scene_passage() or not _live_session_active: return
+	var run_id: String = _run_lifecycle.get_run_id()
 	var guarded: Dictionary = _mutation_gate.guard_external(&"scene_entry")
 	if not guarded.get("ok", false):
 		if guarded.get("code") == &"TRANSACTION_ACTIVE" and not _mutation_gate.transaction_released.is_connected(return_completed_scene_passage):
@@ -4345,15 +4338,14 @@ func return_completed_scene_passage() -> void:
 	var callback := _on_scene_passage_retired.bind(_live_session_fact())
 	if _scene_event_bridge.scene_terminal_retired.is_connected(callback): return
 	_scene_event_bridge.scene_terminal_retired.connect(callback, CONNECT_ONE_SHOT | CONNECT_DEFERRED)
-	var retired: Dictionary = _scene_event_bridge.retire_scene_for_ending("passage:" + str(lifecycle.run_id))
+	var retired: Dictionary = _scene_event_bridge.retire_scene_for_ending("passage:" + run_id)
 	if not retired.get("ok", false):
 		_scene_event_bridge.scene_terminal_retired.disconnect(callback)
 		_scene_event_fatal(&"scene_passage_retirement_failed")
 
 func _on_scene_passage_retired(_token: String, session: Dictionary) -> void:
 	if not _live_session_active or _live_session_fact() != session: return
-	var lifecycle: Dictionary = _run_lifecycle.to_dict()
-	if lifecycle.get("state") != "COMPLETED" or lifecycle.has("ending_plan"): return
+	if not _run_lifecycle.is_completed_scene_passage(): return
 	var lease := _acquire_ending_lease()
 	if not lease.get("ok", false):
 		_scene_event_fatal(&"scene_passage_retirement_failed")
