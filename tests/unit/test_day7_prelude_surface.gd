@@ -84,10 +84,13 @@ func test_prior_draw_and_reused_token_cannot_admit_a_new_card_and_history_stays_
 	assert_eq(surface.present_card(forged).code, &"prelude_card_identity_mismatch")
 	var second := _card("card-two", "b")
 	assert_true(surface.present_card(second).ok)
+	assert_false(surface.has_drawn_card(first))
+	assert_false(surface.has_drawn_card(second))
 	assert_true(surface._next.disabled)
 	surface._on_body_drawn(first.receipt)
 	assert_true(surface._next.disabled, "an old label redraw cannot witness the current atom")
 	surface._current_body.draw.emit()
+	assert_true(surface.has_drawn_card(second))
 	assert_eq(surface.get_presentation_history(), [first, second])
 	var history := surface.get_presentation_history()
 	history[0].receipt.echo_id = "caller change"

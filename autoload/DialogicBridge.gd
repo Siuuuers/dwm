@@ -1905,7 +1905,7 @@ func _begin_reached_date_card(signature: Dictionary) -> Dictionary:
 		surface.free()
 		return _command_failure(&"replay_typography_unavailable")
 	_reached_replay["surface"] = surface
-	_reached_replay["card"] = card.duplicate(true)
+	_reached_replay["card"] = card
 	surface.card_acknowledged.connect(_on_reached_date_card_acknowledged)
 	add_child(surface)
 	return {"ok": true, "code": &"started", "value": {}, "receipt": {
@@ -1916,7 +1916,7 @@ func _acknowledge_reached_date_card(receipt: Dictionary) -> Dictionary:
 			or receipt != _reached_replay.card.receipt:
 		return _command_failure(&"replay_identity_mismatch")
 	var surface: Node = _reached_replay.surface
-	if not is_instance_valid(surface) or not _reached_replay.card in surface.get_presentation_history():
+	if not is_instance_valid(surface) or not surface.has_drawn_card(_reached_replay.card):
 		return _command_failure(&"replay_presentation_not_drawn")
 	if _reached_replay.has("passage_reading"):
 		var reading: RefCounted = _reached_replay.passage_reading
@@ -1949,11 +1949,11 @@ func _finish_reached_replay(outcome: String, code: String = "", restore_variable
 	if _reached_replay.is_empty(): return {"ok": true}
 	if _reached_replay.get("merge_busy", false): return _command_failure(&"replay_exit_in_progress")
 	if _reached_replay.get("exit_uncertain", false):
-		return _reached_replay.exit_result.duplicate(true)
+		return _reached_replay.exit_result.duplicate()
 	var replay := _reached_replay.duplicate()
 	var captions: Array[Dictionary] = []
 	if outcome in ["completed", "cancelled"] and replay.has("caption_ledger"):
-		for beat: Dictionary in replay.collected_captions: captions.append(beat.duplicate(true))
+		captions.assign(replay.collected_captions)
 	if not replay.has("exit_outcome"):
 		_reached_replay["exit_outcome"] = outcome
 		if replay.has("caption_ledger") and _runtime_adapter != null \
@@ -1967,7 +1967,7 @@ func _finish_reached_replay(outcome: String, code: String = "", restore_variable
 	var merged := {"ok": true, "value": {"history_added": false}}
 	if outcome in ["completed", "cancelled"] and replay.has("caption_ledger"):
 		_reached_replay["merge_busy"] = true
-		merged = _replay_profile.merge_caption_history(captions, _reached_caption_catalogue.registry.duplicate(true))
+		merged = _replay_profile.merge_caption_history(captions, _reached_caption_catalogue.registry)
 		if _reached_replay.get("token") != replay.token or _reached_replay.get("signature_id") != replay.signature_id:
 			return _command_failure(&"replay_identity_mismatch")
 		_reached_replay["merge_busy"] = false
@@ -1979,11 +1979,11 @@ func _finish_reached_replay(outcome: String, code: String = "", restore_variable
 		result["history_status"] = "uncertain" if merged.get("fatal", false) or merged.get("code") == &"indeterminate_commit" else "failed"
 		result["retained"] = true
 		_reached_replay["exit_uncertain"] = result.history_status == "uncertain"
-		_reached_replay["exit_result"] = result.duplicate(true)
+		_reached_replay["exit_result"] = result.duplicate()
 	else:
 		_reached_replay.clear()
 	if outcome == "failed" and failure_phase != &"": result["failure_phase"] = failure_phase
-	reached_replay_finished.emit(result.duplicate(true))
+	reached_replay_finished.emit(result.duplicate())
 	return result
 
 
