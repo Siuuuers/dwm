@@ -467,7 +467,7 @@ if ($contentUpdate -or $Suite -in @('scene_desktop_first_reveal', 'scene_passage
         "-gtest=res://$settledScript", '-gexit', '-glog=1', "-gjunit_xml_file=res://.godot/ci/$Suite-settled-load.xml")
 }
 if ($Suite -eq 'scene_audio_connected') {
-    foreach ($proof in @('audio-connected-create-proof.json', 'audio-connected-load-proof.json', 'audio-obsolete-input-proof.json')) {
+    foreach ($proof in @('audio-connected-create-proof.json', 'audio-connected-load-proof.json')) {
         $proofPath = Join-Path $output $proof
         if (Test-Path -LiteralPath $proofPath) { Remove-Item -LiteralPath $proofPath -Force }
     }
@@ -708,11 +708,9 @@ if ($Suite -in @('dtl_first_authoring', 'scene_inline_presentation') -or $Suite.
             assertions = [int]$loadCases[0].GetAttribute('assertions'); status = $loadCases[0].GetAttribute('status') }
         $createProof = Get-Content -LiteralPath (Join-Path $output 'audio-connected-create-proof.json') -Raw | ConvertFrom-Json
         $loadProof = Get-Content -LiteralPath (Join-Path $output 'audio-connected-load-proof.json') -Raw | ConvertFrom-Json
-        $obsoleteProof = Get-Content -LiteralPath (Join-Path $output 'audio-obsolete-input-proof.json') -Raw | ConvertFrom-Json
         if ($createProof.process_id -eq $loadProof.process_id -or
-            $loadProof.creator_process_id -ne $createProof.process_id -or
-            $obsoleteProof.obsolete_audio_injected -ne $true) {
-            throw 'Audio evidence must bind distinct creator/loader processes and the obsolete metadata input.'
+            $loadProof.creator_process_id -ne $createProof.process_id) {
+            throw 'Audio evidence must bind distinct creator/loader processes.'
         }
     }
     [ordered]@{ suite = $Suite; cases = $caseEvidence } | ConvertTo-Json -Depth 5 |

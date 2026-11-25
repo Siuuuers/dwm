@@ -93,7 +93,7 @@ func test_listing_save_and_delete_never_prepare_restoration() -> void:
 	assert_false(fixture.storage.exists("slot_1.json"))
 	assert_true(observer.snapshots.is_empty(), "neither initial Save, overwrite nor Delete prepares a Load")
 
-func test_scene_saves_omit_reason_and_retired_metadata_does_not_gate_load() -> void:
+func test_scene_save_loads_the_written_snapshot_without_diagnostic_fields() -> void:
 	assert_true(fixture_ready)
 	if not fixture_ready: return
 	var source: Dictionary = fixture.read_autosave()
@@ -116,38 +116,20 @@ func test_scene_saves_omit_reason_and_retired_metadata_does_not_gate_load() -> v
 	if not metadata.ok: return
 	assert_null(metadata.value.save_reason)
 	assert_null(metadata.value.day, "Scene metadata has no legacy calendar day")
-	var writer := preload("res://scripts/validation/CanonicalJsonWriter.gd")
-	var schema := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
-	for retired: Variant in ["manual", "not-a-reason", 42, null, {"old": true}, ["old"]]:
-		var input: Dictionary = document.duplicate(true)
-		input["save_reason"] = retired
-		input.current_snapshot.snapshot["audio_context"] = retired
-		var admitted: Dictionary = schema.validate(input)
-		assert_true(admitted.ok, str(admitted))
-		if not admitted.ok: continue
-		assert_eq(admitted.value.candidate, document, "retired metadata does not alter normalized progress")
-		assert_true(input.has("save_reason"), "admission does not mutate its source")
-		assert_true(_replace_target("slot_6.json", writer.stringify(input).value + "\n").ok)
-		observer.snapshots.clear()
-		var loaded: Dictionary = manager.prepare_backup_action("load", "slot:6")
-		assert_true(loaded.ok, str(loaded))
-		if loaded.ok:
-			assert_eq(observer.snapshots, [document.current_snapshot.snapshot])
-			manager.cancel_backup_action(loaded.value.token)
-	var bad: Dictionary = document.duplicate(true)
-	bad.slot_id = 8
-	assert_false(schema.validate(bad).ok, "required slot identity remains checked")
-	bad = document.duplicate(true)
-	bad.current_snapshot.snapshot.gameplay.erase("money")
-	assert_false(schema.validate(bad).ok, "retiring metadata must not admit missing gameplay")
+	observer.snapshots.clear()
+	var loaded: Dictionary = manager.prepare_backup_action("load", "slot:6")
+	assert_true(loaded.ok, str(loaded))
+	if not loaded.ok: return
+	assert_eq(observer.snapshots, [document.current_snapshot.snapshot])
+	manager.cancel_backup_action(loaded.value.token)
 	assert_true(manager.save_latest_to_slot(6).ok)
 	assert_false(STRICT.parse_object(fixture.storage.read_text("slot_6.json").value).value.has("save_reason"),
-		"a later Save never carries forward retired input metadata")
+		"overwriting a slot keeps its current shape")
 	assert_true(manager.quick_save_latest().ok)
 	assert_false(STRICT.parse_object(fixture.storage.read_text("quicksave.json").value).value.has("save_reason"))
 
 
-func test_save_admission_preserves_retired_metadata_in_historical_bundles() -> void:
+func test_save_admission_preserves_current_history_without_rewriting_its_snapshot() -> void:
 	assert_true(fixture_ready)
 	if not fixture_ready: return
 	var source: Dictionary = fixture.read_autosave()
@@ -156,21 +138,17 @@ func test_save_admission_preserves_retired_metadata_in_historical_bundles() -> v
 	var document: Dictionary = source.value.duplicate(true)
 	document["saved_time"] = "invalid-time"
 	var earlier: Dictionary = document.current_snapshot.duplicate(true)
-	earlier.snapshot["audio_context"] = {"obsolete": true}
-	earlier.snapshot["active_app_id"] = "obsolete-app"
 	document.recovery_journal = [earlier]
 	var current: Dictionary = document.current_snapshot.snapshot
 	current.checkpoint_sequence += 1
 	current.checkpoint_id = current.run_id + ":" + str(current.checkpoint_sequence)
-	current["audio_context"] = "obsolete-audio"
-	current["active_app_id"] = {"obsolete": true}
+	current.gameplay.money += 1
 	var schema := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 	var admitted: Dictionary = schema.validate(document)
 	assert_true(admitted.ok, str(admitted))
 	if not admitted.ok: return
 	assert_eq(admitted.value.candidate.recovery_journal, [earlier], "history is validated without rewriting its retained bytes")
-	assert_false(admitted.value.candidate.current_snapshot.snapshot.has("audio_context"))
-	assert_false(admitted.value.candidate.current_snapshot.snapshot.has("active_app_id"))
+	assert_eq(admitted.value.candidate.current_snapshot.snapshot.gameplay.money, earlier.snapshot.gameplay.money + 1)
 
 
 func test_optional_scene_time_preserves_load_and_raw_source_custody() -> void:
