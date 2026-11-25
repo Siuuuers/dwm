@@ -64,6 +64,8 @@ func test_verification_requires_registered_capture_from_another_run() -> void:
 	wrong["line_id"] = "unregistered"
 	assert_false(OBSERVER.prepare(captured.value, wrong).ok)
 	assert_false(OBSERVER.prepare({}, _receipt("verification", "run-b")).ok)
+	verified.value["run-a:capture"].playback_token = "edited"
+	assert_eq(captured.value["run-a:capture"].playback_token, "canonical-token")
 
 func test_restraint_needs_exact_completed_window_without_intervention() -> void:
 	var receipt := _receipt("restraint")

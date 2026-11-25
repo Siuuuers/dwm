@@ -453,7 +453,7 @@ func publish_startup_route_hold(token: String) -> Dictionary:
 	_startup_publishing = false
 	if not result.get("ok", false): return result
 	_startup_hold_active = false
-	var value: Dictionary = result.get("value", {}).duplicate(true)
+	var value: Dictionary = result.get("value", {})
 	value["deferred"] = false
 	value["route_id"] = get_current_route_id()
 	result["value"] = value
@@ -462,7 +462,7 @@ func publish_startup_route_hold(token: String) -> Dictionary:
 
 func _hold_startup_request(request: Dictionary) -> Dictionary:
 	_route_custody_revision += 1
-	_startup_request = request.duplicate(true)
+	_startup_request = request
 	_current_scene_id = request.route_id
 	var value := {"route_id": request.route_id, "deferred": true}
 	if request.has("port_instance_id"): value["port_instance_id"] = request.port_instance_id
@@ -673,9 +673,7 @@ func apply_route_restore_silent(plan: Dictionary) -> Dictionary:
 	var gs := _gs()
 	if route_id != "scene" and gs != null and typeof(plan.get("route_context")) == TYPE_DICTIONARY \
 			and not plan.route_context.has("scene"):
-		var combined: Dictionary = gs.route_context.duplicate(true)
-		combined.merge((plan["route_context"] as Dictionary).duplicate(true), true)
-		gs.route_context = combined
+		gs.route_context = gs.route_context.merged(plan.route_context, true).duplicate(true)
 	return {"ok": true, "code": &"ok", "value": {"route_ready_token": token}}
 
 

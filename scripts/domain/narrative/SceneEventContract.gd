@@ -114,7 +114,7 @@ static func validate_receipts(receipts: Dictionary) -> Dictionary:
 			return _fail(&"event_receipt_invalid")
 		if not saved.semantic is Dictionary or saved.semantic.has("playback_token"):
 			return _fail(&"event_receipt_invalid")
-		var envelope: Dictionary = saved.semantic.duplicate(true)
+		var envelope: Dictionary = saved.semantic.duplicate()
 		envelope["playback_token"] = "receipt.validation"
 		if not saved.reading_anchor is Dictionary: return _fail(&"event_anchor_invalid")
 		var rebuilt: Dictionary = make_receipt(envelope, saved.reading_anchor)
@@ -438,15 +438,17 @@ static func _bind_scene_context(envelope: Variant, shaped: Dictionary, registere
 	var markers: Dictionary = registered.value.markers
 	if not entries.has(envelope.source.entry_id) or not markers.has(envelope.event_id): return _fail(&"scene_marker_unregistered")
 	var bound: Dictionary = markers[envelope.event_id]
-	var authored_payload: Dictionary = envelope.payload.duplicate(true)
-	if envelope.kind == "thought.select": authored_payload.erase("choice_id")
+	var authored_payload: Dictionary = envelope.payload
+	if envelope.kind == "thought.select":
+		authored_payload = authored_payload.duplicate()
+		authored_payload.erase("choice_id")
 	if bound.entry_id != envelope.source.entry_id or entries[bound.entry_id].content_version != envelope.source.content_version \
 			or not (bound.marker.kind == envelope.kind or (bound.marker.kind == "thought.pass" and envelope.kind == "thought.accept") \
 				or (bound.marker.kind == "thought.options" and envelope.kind == "thought.select")) \
 			or not _equal(bound.marker.payload, authored_payload):
 		return _fail(&"scene_marker_mismatch")
 	shaped.value["registration_fingerprint"] = registered.value.fingerprint
-	shaped.value["programme_entry"] = entries[bound.entry_id].duplicate(true)
+	shaped.value["programme_entry"] = entries[bound.entry_id]
 	return {"ok": true, "inspection": shaped, "registered": registered}
 
 static func scene_completion_request(envelope: Dictionary, anchor: Dictionary, bundle: Dictionary) -> Dictionary:
@@ -750,7 +752,7 @@ static func _validate_scene_receipts_registered(receipts: Dictionary, bundle: Di
 				or saved.semantic.has("playback_token") or not saved.reading_anchor is Dictionary \
 				or not saved.result is Dictionary:
 			return _fail(&"scene_receipt_invalid")
-		var envelope: Dictionary = saved.semantic.duplicate(true)
+		var envelope: Dictionary = saved.semantic.duplicate()
 		envelope["playback_token"] = "receipt.validation"
 		var shaped := _inspect_scene_versioned_shape(envelope)
 		if not shaped.ok: return shaped
@@ -960,10 +962,10 @@ static func _make_scene_admission_registered(identity: Dictionary, root_issuer_r
 	var valid := _validate_scene_admission_registered(result, registered)
 	if not valid.ok: return valid
 	var request := {"schema_version": 2, "kind": "scene_admission",
-		"source_identity": identity.duplicate(true), "registration_fingerprint": registered.value.fingerprint,
-		"issuer_receipt": root_issuer_receipt.duplicate(true), "target_id": target_id,
-		"source_checkpoint": source_checkpoint.duplicate(true), "trigger_command_id": trigger_command_id,
-		"return_to": _scene_detach(return_to)}
+		"source_identity": identity, "registration_fingerprint": registered.value.fingerprint,
+		"issuer_receipt": root_issuer_receipt, "target_id": target_id,
+		"source_checkpoint": source_checkpoint, "trigger_command_id": trigger_command_id,
+		"return_to": return_to}
 	var fingerprint := _sha(request)
 	if fingerprint.is_empty(): return _fail(&"scene_admission_invalid")
 	var source_ids: Array[String] = [
@@ -1022,7 +1024,7 @@ static func _prepare_scene_initial_admission_registered(allocation_candidate: Di
 	var root: Dictionary = allocation_candidate.request.transaction_issuer_receipt
 	var request := {"schema_version": 3, "kind": "scene_initial_admission",
 		"registration_fingerprint": registered.value.fingerprint, "source_identity": identity,
-		"issuer_receipt": root.duplicate(true), "allocation_candidate_sha256": _sha(allocation_candidate),
+		"issuer_receipt": root, "allocation_candidate_sha256": _sha(allocation_candidate),
 		"scene_assignment_sha256": _sha(profile_material.scene_assignment.receipt), "target_id": target_id}
 	var fingerprint := _sha(request)
 	var projections: Array[String] = ["request_fingerprint=" + str(WRITER.stringify(fingerprint).value), 'role="scene.initial_admission"']
@@ -1075,7 +1077,7 @@ static func _validate_scene_initial_admission_registered(receipt: Dictionary,
 	if not _equal(receipt, rebuilt.value): return _fail(&"scene_initial_receipt_mismatch")
 	var child: Dictionary = issuer.validate_child(saved.provenance, &"continuation_operation")
 	if not child.get("ok", false): return child
-	return {"ok": true, "value": rebuilt.value.duplicate(true)}
+	return rebuilt
 
 
 static func _validate_initial_materials(candidate: Dictionary, profile: Dictionary, issuer: Object) -> Dictionary:
@@ -1261,7 +1263,7 @@ static func _make_scene_terminal_admission_registered(identity: Dictionary, root
 	var event: Dictionary = trigger_receipt.scene_event
 	if not event.get("semantic") is Dictionary or not event.get("reading_anchor") is Dictionary \
 			or not event.get("result") is Dictionary: return _fail(&"scene_terminal_trigger_invalid")
-	var envelope: Dictionary = event.semantic.duplicate(true)
+	var envelope: Dictionary = event.semantic.duplicate()
 	envelope["playback_token"] = "terminal.validation"
 	var shaped := _inspect_scene_versioned_shape(envelope)
 	if not shaped.ok: return shaped
@@ -1336,7 +1338,7 @@ static func validate_scene_terminal_admission_shape(record: Variant, issuer: Obj
 	if not issued.get("ok", false): return issued
 	var allocated := _scene_admission_identity_proof(identity, issuer)
 	if not allocated.ok: return allocated
-	var request: Dictionary = record.duplicate(true)
+	var request: Dictionary = record.duplicate()
 	request.erase("request_fingerprint")
 	request.erase("provenance")
 	if _sha(request) != record.request_fingerprint: return _fail(&"scene_terminal_admission_mismatch")
@@ -1454,8 +1456,8 @@ static func make_scene_shop_purchase(identity: Dictionary, root_issuer_receipt: 
 	if root_issuer_receipt.counter <= identity.causal_day_instance_issuer_receipt.counter:
 		return _fail(&"scene_shop_purchase_identity_invalid")
 	var request := {"kind": "scene_shop_purchase", "schema_version": 1, "source_id": source_id,
-		"source_identity": identity.duplicate(true), "issuer_receipt": root_issuer_receipt.duplicate(true),
-		"purchase": purchase.duplicate(true)}
+		"source_identity": identity, "issuer_receipt": root_issuer_receipt,
+		"purchase": purchase}
 	var fingerprint := _sha(request)
 	if fingerprint.is_empty(): return _fail(&"scene_shop_purchase_invalid")
 	var source_ids: Array[String] = [
@@ -1520,8 +1522,8 @@ static func make_scene_round_completion(identity: Dictionary, root_issuer_receip
 	if root_issuer_receipt.counter <= identity.causal_day_instance_issuer_receipt.counter:
 		return _fail(&"scene_round_completion_identity_invalid")
 	var request := {"kind": "scene_round_completion", "schema_version": 1, "source_id": source_id,
-		"source_identity": identity.duplicate(true), "issuer_receipt": root_issuer_receipt.duplicate(true),
-		"completion": completion.duplicate(true)}
+		"source_identity": identity, "issuer_receipt": root_issuer_receipt,
+		"completion": completion}
 	var fingerprint := _sha(request)
 	if fingerprint.is_empty(): return _fail(&"scene_round_completion_invalid")
 	var source_ids: Array[String] = [
@@ -1558,7 +1560,7 @@ static func validate_story_days(programme: Dictionary) -> Dictionary:
 			return _fail(&"scene_story_days_invalid")
 		var day: Variant = days[entry.entry_id]
 		if typeof(day) != TYPE_INT or day < 1 or day > 7: return _fail(&"scene_story_days_invalid")
-	return {"ok": true, "value": days.duplicate(true)}
+	return {"ok": true, "value": days.duplicate()}
 
 static func scene_day_boundary(bundle: Dictionary, source_entry: String, target_entry: String) -> Dictionary:
 	var days := validate_story_days(bundle.scene_programme)
@@ -1584,9 +1586,9 @@ static func validate_scene_day_allocation(trigger: Dictionary, identity: Diction
 	for allocation: Dictionary in captured.value.get("day_advance_allocation_receipts", {}).values():
 		if allocation.get("resolution_kind") != "scene_day_complete" \
 				or allocation.get("target_causal_day_instance") != identity.causal_day_instance: continue
-		var source := identity.duplicate(true)
+		var source := identity.duplicate()
 		source.causal_day_instance = allocation.source_causal_day_instance
-		source.causal_day_instance_issuer_receipt = allocation.source_causal_day_instance_issuer_receipt.duplicate(true)
+		source.causal_day_instance_issuer_receipt = allocation.source_causal_day_instance_issuer_receipt
 		for key: String in ["run_id", "branch_id", "desktop_timeline_generation"]:
 			if allocation.get(key) != identity.get(key): return _fail(&"scene_day_allocation_mismatch")
 		var derived: Dictionary = issuer.derive_child(scene_day_renewal_request(trigger, source))

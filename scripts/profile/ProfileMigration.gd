@@ -26,7 +26,7 @@ const _REGISTERED_LEGACY_ACTIONS := [
 
 
 static func prepare_document(raw: Dictionary) -> Dictionary:
-	var detached := raw.duplicate(true)
+	var detached := raw.duplicate()
 	_remap_retired_gallery_unlocks(detached)
 	var version: Variant = detached.get("schema_version")
 	if version == SCHEMA.SCHEMA_VERSION:
@@ -128,7 +128,7 @@ static func prepare_legacy_patch(legacy_run_state: Dictionary,
 	patch["input_mappings"] = input_records["value"]
 	patch["migration_receipts"]["legacy_game_state_profile_v1"] = true
 	patch["migration_receipts"]["legacy_input_bindings_v1"] = not legacy_input_mappings.is_empty()
-	patch["legacy_preferences_v1"] = legacy_preferences.duplicate(true)
+	patch["legacy_preferences_v1"] = legacy_preferences
 	_apply_v1_preferences(patch, legacy_preferences)
 	_apply_controls_import(patch)
 	var validation := SCHEMA.validate(patch)
@@ -146,7 +146,8 @@ static func _prepare_v1_upgrade(detached: Dictionary) -> Dictionary:
 				or not preferences["dialogue"].has("skip_mode") \
 				or typeof(detached.get("migration_receipts")) != TYPE_DICTIONARY:
 			return checked
-		preferences["dialogue"]["skip_mode"] = "read_only"
+		detached = detached.duplicate(true)
+		detached["preferences"]["dialogue"]["skip_mode"] = "read_only"
 		detached["migration_receipts"]["invalid_persisted_skip_mode_v1"] = true
 		checked = SCHEMA.validate_v1_source(detached)
 		if not checked.get("ok", false):
@@ -155,8 +156,8 @@ static func _prepare_v1_upgrade(detached: Dictionary) -> Dictionary:
 	var candidate := SCHEMA.make_defaults()
 	for key: String in ["gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids",
 			"input_mappings", "migration_receipts"]:
-		candidate[key] = source[key].duplicate(true)
-	candidate["legacy_preferences_v1"] = source["preferences"].duplicate(true)
+		candidate[key] = source[key]
+	candidate["legacy_preferences_v1"] = source["preferences"]
 	_apply_v1_preferences(candidate, source["preferences"])
 	_apply_controls_import(candidate)
 	var validation := SCHEMA.validate(candidate)
@@ -241,7 +242,7 @@ static func _legacy_preference_defaults() -> Dictionary:
 			"subtitle_background_opacity": 0.85, "text_box_opacity": 0.9,
 			"visual_audio_cues": true, "flashing_effects_enabled": false,
 			"pause_on_focus_loss": true},
-	}.duplicate(true)
+	}
 
 
 static func _import_legacy_endings(value: Variant) -> Dictionary:

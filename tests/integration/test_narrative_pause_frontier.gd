@@ -130,6 +130,7 @@ var _original_scene: Node
 var _old_process_mode: int
 var _window_size: Vector2i
 var _window_content_size: Vector2i
+var _game_state: Node
 var _original_contacts: Dictionary = {}
 # Coordinator dependencies are Object-typed, so the fixture retains its RefCounted ports.
 var _pause_route: PauseRoute
@@ -145,7 +146,8 @@ var _original_global_pause: Node
 var _mounted_restore_stage: Dictionary
 
 func before_each() -> void:
-	_original_contacts = GameState.contacts.duplicate(true)
+	_game_state = get_node("/root/GameState")
+	_original_contacts = _game_state.contacts.duplicate(true)
 	_old_process_mode = process_mode
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_original_scene = get_tree().current_scene
@@ -272,22 +274,22 @@ func after_each() -> void:
 	get_tree().root.size = _window_size
 	get_tree().root.content_scale_size = _window_content_size
 	process_mode = _old_process_mode
-	GameState.contacts = _original_contacts.duplicate(true)
+	_game_state.contacts = _original_contacts.duplicate(true)
 
 func _sylvia_hospital_context() -> Dictionary:
 	var context := {"kind": "hospital", "day": 3,
 		"source_entry_ids": ["accepted.3"], "miss_receipt_ids": ["miss.3"]}
-	var contacts: Dictionary = GameState.contacts.duplicate(true)
+	var contacts: Dictionary = _game_state.contacts.duplicate(true)
 	var witnesses: Dictionary = contacts.get("sylvia_hospital_witness_receipts", {}).duplicate(true)
 	witnesses["pause-frontier.3"] = {"kind": "sylvia_hospital_witness",
 		"resolution_kind": "condition_hospital", "care_followup_day": 4,
 		"source_receipt_id": "accepted.3", "hospital_miss_receipt_id": "miss.3"}
 	contacts["sylvia_hospital_witness_receipts"] = witnesses
-	GameState.contacts = contacts
-	assert_eq(HOSPITAL_SCENE.art_participants(GameState.contacts, context), ["sylvia"],
+	_game_state.contacts = contacts
+	assert_eq(HOSPITAL_SCENE.art_participants(_game_state.contacts, context), ["sylvia"],
 		"the saved condition-Hospital witness independently proves Sylvia attendance")
-	assert_eq(HOSPITAL_SCENE.art_participants(GameState.contacts, context,
-		GameState._canonical_committed_schedule()), ["sylvia"],
+	assert_eq(HOSPITAL_SCENE.art_participants(_game_state.contacts, context,
+		_game_state._canonical_committed_schedule()), ["sylvia"],
 		"receipt-proven Sylvia attendance admits the physical Hospital timeline")
 	return context
 

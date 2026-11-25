@@ -349,9 +349,9 @@ func test_next_can_finish_after_native_presenter_is_freed() -> void:
 
 func test_next_storage_refusal_retries_through_signal_and_restores_current_caption_focus() -> void:
 	assert_true(caption._recovery_bound, "the real recovery view has its input and localization owners")
-	assert_true(caption.recovery_overlay._configured, "the recovery view loaded its localized catalog before Next")
 	var bridge := _begin_settling_next()
 	bridge.finish({"ok": false, "code": &"candidate_write_failed"})
+	assert_true(caption.recovery_overlay._configured, "the recovery view configures its localized message on refusal")
 	assert_false(caption._next_pending)
 	assert_true(caption.is_reading_recovery_active())
 	assert_true(caption.recovery_overlay.is_visible_in_tree())

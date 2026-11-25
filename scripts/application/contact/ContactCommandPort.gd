@@ -304,10 +304,10 @@ func _acknowledge_scene_reply_owned(command: Dictionary, rendered_line: Dictiona
 		return _fail(&"ordinary_render_identity_mismatch", "")
 	if _ordinary_pending.is_empty() or not _scene_command_equal(command, _ordinary_pending.command):
 		return _fail(&"ordinary_render_identity_mismatch", "")
-	var result: Variant = _game_state.call(&"commit_scene_contact_reply", command.duplicate(true), rendered_line.duplicate(true))
+	var result: Variant = _game_state.call(&"commit_scene_contact_reply", command.duplicate(true), rendered_line)
 	if not result is Dictionary: return _fail(&"contact_command_result_malformed", "")
 	if result.get("ok", false):
-		_ordinary_completed = {"command": command.duplicate(true), "result": result.duplicate(true)}
+		_ordinary_completed = {"command": command, "result": result.duplicate(true)}
 		_ordinary_pending = {}
 	return result.duplicate(true)
 
@@ -321,8 +321,8 @@ func _scene_command_live(command: Dictionary) -> bool:
 
 static func _scene_command_equal(a: Dictionary, b: Dictionary) -> bool:
 	if not a.has("live_session") or not b.has("live_session") or a.live_session != b.live_session: return false
-	var left: Dictionary = a.duplicate(true)
-	var right: Dictionary = b.duplicate(true)
+	var left: Dictionary = a.duplicate()
+	var right: Dictionary = b.duplicate()
 	left.erase("live_session")
 	right.erase("live_session")
 	return _SCENE_STATE._s_equal(left, right)

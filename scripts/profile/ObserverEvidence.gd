@@ -16,7 +16,7 @@ static func validate(ledger: Variant) -> Dictionary:
 			if not source is Dictionary or source.get("kind") != "capture" \
 					or source.run_id == receipt.run_id or source.comparison_key != receipt.comparison_key:
 				return _fail("Verification requires a matching capture from another run")
-	return {"ok": true, "value": ledger.duplicate(true)}
+	return {"ok": true}
 
 static func validate_receipt(receipt: Dictionary) -> Dictionary:
 	var kind: String = str(receipt.get("kind", ""))
@@ -44,7 +44,7 @@ static func validate_receipt(receipt: Dictionary) -> Dictionary:
 				or typeof(receipt.duration_ms) != TYPE_INT or receipt.duration_ms != RULES.OBSERVER_WITHHOLDING_MS \
 				or typeof(receipt.intervened) != TYPE_BOOL or receipt.intervened:
 			return _fail("Restraint requires its completed unintervened window")
-	return {"ok": true, "value": receipt.duplicate(true)}
+	return {"ok": true}
 
 static func prepare(ledger: Dictionary, receipt: Dictionary) -> Dictionary:
 	var checked := validate_receipt(receipt)
@@ -54,11 +54,10 @@ static func prepare(ledger: Dictionary, receipt: Dictionary) -> Dictionary:
 		if ledger[id] != receipt: return _fail("Observer receipt conflict")
 		return {"ok": true, "value": ledger.duplicate(true), "already_recorded": true}
 	var candidate := ledger.duplicate(true)
-	candidate[id] = receipt.duplicate(true)
+	candidate[id] = receipt.duplicate()
 	var valid := validate(candidate)
 	if not valid.ok: return valid
-	valid["already_recorded"] = false
-	return valid
+	return {"ok": true, "value": candidate, "already_recorded": false}
 
 static func evidence(ledger: Dictionary) -> Dictionary:
 	var result := {"priscilla": false, "lavinia": false}

@@ -239,6 +239,19 @@ func _certify_payment_board(coordinator: RefCounted, paid: bool, remaining: int)
 	return board.capture().phase == "PREPARED_UNSTARTED"
 
 
+func test_scene_new_day_gameplay_detaches_stats_and_inventory() -> void:
+	if not _setup(): return
+	game.stats.motivation = 2
+	game.inventory["bookmark"] = 1
+	var preview: Dictionary = game.capture_new_day_gameplay()
+	assert_eq(preview.stats.motivation, 7)
+	assert_eq(game.stats.motivation, 2)
+	assert_eq(preview.minesweeper_rounds_left, 2)
+	assert_eq(game.minesweeper_rounds_left, 0)
+	preview.inventory.bookmark = 9
+	assert_eq(game.inventory.bookmark, 1)
+
+
 func test_next_day_debug_round_one_does_not_inherit_yesterdays_payment() -> void:
 	if not _setup(): return
 	game.minesweeper_rounds_left = 2

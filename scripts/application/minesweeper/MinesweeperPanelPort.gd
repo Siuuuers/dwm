@@ -72,9 +72,9 @@ func pull() -> Dictionary:
 		if terminal.is_empty(): return _unavailable()
 		if board.get("ok", false):
 			return _hold_terminal(terminal)
-		_present_failure(terminal)
+		_record_view(terminal, _session_marker())
 		return {"ok": false, "code": &"minesweeper_panel_command_refused",
-			"value": terminal.duplicate(true)}
+			"value": terminal}
 	if not board.get("ok", false): return _unavailable()
 	if board.value.revision != snapshot.revision or board.value.custody != register.value.custody \
 			or board.value.mine_estimate != register.value.mine_estimate:
@@ -123,9 +123,9 @@ func dispatch(action: String, index: int, revision: int) -> Dictionary:
 		if terminal.is_empty(): return _unavailable()
 		if result.get("ok", false):
 			return _hold_terminal(terminal)
-		_present_failure(terminal)
+		_record_view(terminal, _session_marker())
 		return {"ok": false, "code": &"minesweeper_panel_command_refused",
-			"value": terminal.duplicate(true)}
+			"value": terminal}
 	if not result.get("ok", false): return _refused()
 	if not _presented_view.get("register") is Dictionary \
 			or not (_presented_view.register as Dictionary).get("foresight") is int:
@@ -143,13 +143,13 @@ func advance_preparation(expected_revision: int) -> Dictionary:
 	_discard_stale_terminal()
 	if not _held_terminal.is_empty():
 		if has_pending_settlement():
-			var unsettled: Dictionary = _held_terminal.duplicate(true)
+			var unsettled: Dictionary = _held_terminal
 			var settled: Dictionary = _board_port.settle_pending()
 			var assignments: Dictionary = ASSIGNMENTS.from_sources(_game_state, _catalog)
 			if not assignments.get("ok", false): return _unavailable()
 			if not settled.get("ok", false) or not settled.get("value") is Dictionary:
 				_clear_held_terminal()
-				_present_failure(unsettled)
+				_record_view(unsettled, _session_marker())
 				return {"ok": false, "code": &"minesweeper_panel_command_refused", "value": unsettled}
 			var terminal := _terminal_view(settled.value, unsettled.register, assignments.value, true)
 			if terminal.is_empty(): return _unavailable()
@@ -280,24 +280,22 @@ func _routine_view(board: Dictionary, context: Dictionary, inputs: Dictionary,
 func _hold_terminal(value: Dictionary) -> Dictionary:
 	var marker := _session_marker()
 	if marker.is_empty(): return _unavailable()
-	_held_terminal = value.duplicate(true)
+	_record_view(value, marker)
+	_held_terminal = _presented_view
 	_held_session = marker
-	return _present_success(value)
-
-
-func _present_success(value: Dictionary) -> Dictionary:
-	_presented = true
-	_presented_difficulty = str(value.register.difficulty)
-	_presented_view = value.duplicate(true)
-	_presented_session = _session_marker()
 	return {"ok": true, "value": value}
 
 
-func _present_failure(value: Dictionary) -> void:
+func _present_success(value: Dictionary) -> Dictionary:
+	_record_view(value, _session_marker())
+	return {"ok": true, "value": value}
+
+
+func _record_view(value: Dictionary, marker: Dictionary) -> void:
 	_presented = true
 	_presented_difficulty = str(value.register.difficulty)
 	_presented_view = value.duplicate(true)
-	_presented_session = _session_marker()
+	_presented_session = marker
 
 
 func _session_marker() -> Dictionary:

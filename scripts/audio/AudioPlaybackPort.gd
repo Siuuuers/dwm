@@ -256,7 +256,7 @@ func _complete_tween(channel_id: StringName) -> void:
 			continue
 		var stopped := stop_and_clear(track["player_id"])
 		if not stopped.get("ok", false):
-			runtime_failure.emit(channel_id, stopped.duplicate(true))
+			runtime_failure.emit(channel_id, stopped)
 			continue
 	_tweens.erase(channel_id)
 	_tween_specs.erase(channel_id)

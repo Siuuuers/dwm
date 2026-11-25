@@ -120,7 +120,7 @@ func _begin_physical(command: Dictionary) -> Dictionary:
 	var stored: Dictionary = captured.value
 	if not stored.is_empty() and (str(stored.get("completion_transaction_id", "")) == completion_id 			or (_attempt_gate != null and stored.get("context") is Dictionary and not ATTEMPTS.semantic_slot(stored.context).is_empty() and ATTEMPTS.semantic_slot(stored.context) == ATTEMPTS.semantic_slot(command.context))):
 		if not _valid_record(stored, {}): return _fail(&"invalid_restored_dating_challenge")
-		_record = stored.duplicate(true)
+		_record = stored
 		var restored_context := _validate_retained_frozen_contexts()
 		if not restored_context.ok: return restored_context
 		_record = _rebind_record(stored, command)
@@ -508,12 +508,12 @@ func _restore_attempt(command: Dictionary, silent: bool = false, certified_entry
 			_history_selection = {"mode": "fresh"}
 			return _ok({})
 		return source
-	var selected_record := _record.duplicate(true)
-	selected_record["context"] = source.value.record.context.duplicate(true)
+	var selected_record := _record.duplicate()
+	selected_record["context"] = source.value.record.context
 	var preview: Dictionary = _profile.prepare_dating_continuation(run_id, slot, attempt_id,
 		str(source.value.branch_id), branch_id, selected_record)
 	if not preview.get("ok", false): return preview
-	_history_selection = preview.value.selection.duplicate(true)
+	_history_selection = preview.value.selection
 	_history_reference = {"attempt_id": attempt_id, "branch_id": branch_id,
 		"generation": preview.value.attempt.generation}
 	_history_target_branch = branch_id
@@ -525,14 +525,14 @@ func _commit_attempt() -> Dictionary:
 	var identity := _attempt_identity()
 	var run_id := str(identity.run_id)
 	var slot := ATTEMPTS.semantic_slot(_record.context)
-	var retained_record := _record.duplicate(true)
-	var selection := _history_selection.duplicate(true)
+	var retained_record := _record.duplicate()
+	var selection := _history_selection
 	var expected_revision := _history_revision
 	var branch_id := str(identity.branch_id)
 	if not _post_ending_history():
 		var first: Dictionary = _profile.get_dating_attempt(run_id, slot)
 		if not first.get("ok", false): return first
-		if not first.value.is_empty(): retained_record["context"] = first.value.record.context.duplicate(true)
+		if not first.value.is_empty(): retained_record["context"] = first.value.record.context
 		expected_revision = int(first.value.get("revision", 0))
 		selection = {}
 	elif selection.get("mode") == "continue":
@@ -542,7 +542,7 @@ func _commit_attempt() -> Dictionary:
 		var current: Dictionary = _profile.get_dating_attempt(run_id, slot,
 			str(_history_reference.attempt_id), branch_id)
 		if not current.get("ok", false): return current
-		retained_record["context"] = current.value.record.context.duplicate(true)
+		retained_record["context"] = current.value.record.context
 		selection = {"mode": "branch"}
 	elif selection.get("mode") != "fresh":
 		return _fail(&"dating_attempt_selection_required")
@@ -1300,7 +1300,7 @@ func _adopt(token: String) -> bool:
 	if not captured.get("ok",false) or captured.value.is_empty() or captured.value.get("physical_token")!=token: return false
 	if captured.value.get("schema_version") == 4 and not _scene_command(): return false
 	if not _valid_record(captured.value, _admitted_command): return false
-	_record=captured.value.duplicate(true)
+	_record = captured.value
 	return true
 
 func _valid_record(value: Dictionary, command: Dictionary) -> bool:

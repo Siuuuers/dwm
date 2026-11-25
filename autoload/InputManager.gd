@@ -37,7 +37,7 @@ func begin_suspend(handle: Variant) -> Dictionary:
 	if not _suspension_handle.is_empty() and _suspension_handle != handle:
 		return _input_lifecycle_failure(&"input_already_suspended")
 	if _suspension_handle.is_empty():
-		_suspension_handle = handle.duplicate(true)
+		_suspension_handle = handle.duplicate()
 		source_input_custody_changed.emit()
 	return {"ok": true, "code": &"ok", "value": {"frontier_id": "input:%s" % handle.handle_id}}
 
@@ -63,9 +63,9 @@ func retire_suspended_source(handle: Variant) -> Dictionary:
 		return _input_lifecycle_failure(&"invalid_suspension_handle")
 	if _suspension_handle != handle:
 		return _input_lifecycle_failure(&"invalid_suspension_handle")
-	_retired_suspension_handle = handle.duplicate(true)
+	_retired_suspension_handle = _suspension_handle
 	_retired_suspension_ids[handle.handle_id] = true
-	_suspension_handle.clear()
+	_suspension_handle = {}
 	_resume_quarantine = _physical_contacts.duplicate()
 	_resume_frame = Engine.get_process_frames()
 	source_input_custody_changed.emit()

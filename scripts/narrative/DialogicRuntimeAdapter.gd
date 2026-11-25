@@ -152,7 +152,7 @@ func _scene_source_boundary(session: RefCounted, allow_suspended_read: bool = fa
 		native = detached
 	if not native is DialogicLabelEvent or native.name != marker.label:
 		return _fail(&"scene_source_boundary_invalid", "")
-	return {"ok": true, "value": {"frontier": frontier.value.duplicate(true),
+	return {"ok": true, "value": {"frontier": frontier.value,
 		"reading": saved.value, "marker": marker.duplicate(true), "native_index": native_index}}
 
 func install_scene_target(session: RefCounted, checkpoint: Dictionary, target: Dictionary,
@@ -166,7 +166,7 @@ func install_scene_target(session: RefCounted, checkpoint: Dictionary, target: D
 		return _fail(&"scene_native_target_unavailable", "held source capability required")
 	var checked: Dictionary = session.validate_saved(checkpoint.reading_session, checkpoint.entry_id)
 	if not checked.ok: return checked
-	var frame := NarrativeCaptionLedger.resolve_scene_frame(checkpoint.reading_session.ledger.entry_contexts,
+	var frame := NarrativeCaptionLedger._scene_frame_view(checkpoint.reading_session.ledger.entry_contexts,
 		checkpoint.reading_session.occurrence_id, checkpoint.entry_id)
 	if not frame.ok or frame.value != checkpoint.get("frozen_context"):
 		return _fail(&"scene_native_target_invalid", "target context differs from its admitted frame")
@@ -229,8 +229,8 @@ func _install_scene_control(session: RefCounted, reading: Dictionary,
 	var source_session: RefCounted = _scene_source.get("session")
 	var source_checked := validate_scene_source(source_token, source_session)
 	if not source_checked.ok: return source_checked
-	var source: Dictionary = _scene_source.boundary.reading.duplicate(true)
-	var marker: Dictionary = _scene_source.boundary.marker.duplicate(true)
+	var source: Dictionary = _scene_source.boundary.reading
+	var marker: Dictionary = _scene_source.boundary.marker
 	var control_native_index: int = _scene_source.boundary.native_index
 	if source.boundary != "line" or marker.kind != "challenge.playable" \
 			or session == source_session or session.family != "scene" \
@@ -305,7 +305,7 @@ func _install_scene_frontier(session: RefCounted, checkpoint: Dictionary, source
 		var retained: Dictionary = session._retain_scene_live(saved)
 		if not retained.ok: return retained
 		control_state = retained.value
-	var frame := NarrativeCaptionLedger.resolve_scene_frame(saved.ledger.entry_contexts, saved.occurrence_id, checkpoint.entry_id)
+	var frame := NarrativeCaptionLedger._scene_frame_view(saved.ledger.entry_contexts, saved.occurrence_id, checkpoint.entry_id)
 	if not frame.ok or frame.value != checkpoint.get("frozen_context"):
 		return _fail(&"scene_restore_native_invalid", "saved context mismatch")
 	var presentation := FrozenPresentationContext.validate(checkpoint.entry_id, frame.value.presentation)
@@ -321,7 +321,7 @@ func _install_scene_frontier(session: RefCounted, checkpoint: Dictionary, source
 	if saved.program_index >= compiled.value.nodes.size():
 		return _fail(&"scene_restore_native_invalid", "installed programme changed")
 	var native_program_index: int = saved.program_index
-	var restore_frontier: Dictionary = saved.frontier.duplicate(true)
+	var restore_frontier: Dictionary = saved.frontier
 	var control_marker := {}
 	if saved.boundary == "control":
 		var predecessor := _scene_control_predecessor(saved, compiled.value, programme.markers)
@@ -1234,7 +1234,7 @@ func _reading_seek_source_matches(prepared: Dictionary) -> bool:
 		and not _dialogic.Inputs.auto_skip.enabled and not _dialogic.Inputs.auto_advance.is_enabled() \
 		and _caption_seek_result.is_empty() and prepared.ledger == _caption_ledger \
 		and prepared.event == _current_skip_text() and prepared.request_id == _request_id \
-		and prepared.generation == _runtime_generation and prepared.snapshot == _caption_ledger.snapshot()
+		and prepared.generation == _runtime_generation and _caption_ledger.matches_snapshot(prepared.snapshot)
 
 
 func _check_reading_seek_target(prepared: Dictionary, candidate: NarrativeCaptionLedger,
@@ -1335,7 +1335,7 @@ func _finish_reading_seek(request_id: String, event: DialogicTextEvent) -> void:
 	if not _caption_source_is_current() or event != _current_skip_text(true):
 		_fail_reading_seek(_fail(&"reading_seek_changed", "the visible destination was replaced"))
 		return
-	var result := _caption_seek_result.duplicate(true)
+	var result := _caption_seek_result
 	var captured := capture_reading_frontier()
 	if not captured.ok or captured.value != _caption_seek_frontier:
 		_fail_reading_seek(_fail(&"reading_seek_changed", "the committed destination occurrence changed"))
@@ -1534,7 +1534,7 @@ func _install_frozen_projection(presentation: Dictionary) -> Dictionary:
 
 func release_frozen_presentation() -> void:
 	if not _frozen_variables_installed: return
-	_dialogic.current_state_info["variables"] = _frozen_variables_before.duplicate(true)
+	_dialogic.current_state_info["variables"] = _frozen_variables_before
 	_frozen_variables_before = {}
 	_frozen_variables_installed = false
 
@@ -1774,7 +1774,7 @@ func _on_timeline_started() -> void:
 
 
 func _on_timeline_ended() -> void:
-	var seek := _caption_seek_result.duplicate(true)
+	var seek := _caption_seek_result
 	_retire_caption_binding()
 	release_frozen_presentation()
 	_activity_phase = ""
@@ -1908,7 +1908,7 @@ func marker_source_identity() -> Dictionary:
 	if not captured.ok: return captured
 	return {"ok": true, "value": {"request": _request_id, "generation": _runtime_generation,
 		"session": _caption_token, "entry": _caption_entry, "event_index": int(_dialogic.current_event_idx),
-		"frontier": captured.value.duplicate(true)}}
+		"frontier": captured.value}}
 
 func _marker_hold_current() -> bool:
 	return _marker_hold_identity_current() and _caption_ledger.matches_live_history(_marker_hold.live_history) \
@@ -1935,7 +1935,7 @@ func hold_marker_source(source: Dictionary) -> Dictionary:
 	var completed := complete_reading_frontier()
 	if not completed.ok: return completed
 	var after := marker_source_identity()
-	if not after.ok or after.value != identity.value or ledger != _caption_ledger or snapshot != ledger.snapshot():
+	if not after.ok or after.value != identity.value or ledger != _caption_ledger or not ledger.matches_snapshot(snapshot):
 		return _fail(&"reading_marker_source_changed", "")
 	var event := _caption_event
 	var continuation := Callable(_dialogic, "handle_next_event")
@@ -1948,7 +1948,7 @@ func hold_marker_source(source: Dictionary) -> Dictionary:
 	if event.event_finished.is_connected(callback): event.event_finished.disconnect(callback)
 	after = marker_source_identity()
 	if not observed.finished or not after.ok or after.value != identity.value \
-			or ledger != _caption_ledger or snapshot != ledger.snapshot():
+			or ledger != _caption_ledger or not ledger.matches_snapshot(snapshot):
 		var failed := _fail(&"reading_marker_source_changed", "source retirement could not be proved")
 		halt_with_error(failed)
 		return failed
@@ -1957,15 +1957,15 @@ func hold_marker_source(source: Dictionary) -> Dictionary:
 	if not _scene_caption_occurrence.is_empty() and _scene_activation_event == event \
 			and _scene_activation_generation == cleanup_generation and _caption_event == event \
 			and event._execution_generation == cleanup_generation + 1 \
-			and _caption_source_is_current() and ledger == _caption_ledger and snapshot == ledger.snapshot():
+			and _caption_source_is_current() and ledger == _caption_ledger and ledger.matches_snapshot(snapshot):
 		_scene_activation_generation = event._execution_generation
 	after = marker_source_identity()
-	if not after.ok or after.value != identity.value or ledger != _caption_ledger or snapshot != ledger.snapshot():
+	if not after.ok or after.value != identity.value or ledger != _caption_ledger or not ledger.matches_snapshot(snapshot):
 		var failed := _fail(&"reading_marker_source_changed", "source cleanup changed the admitted occurrence")
 		halt_with_error(failed)
 		return failed
-	_marker_hold = {"identity": identity.value.duplicate(true), "source_line": source.line_id,
-		"frontier": {}, "ledger": _caption_ledger, "snapshot": _caption_ledger.snapshot(),
+	_marker_hold = {"identity": identity.value, "source_line": source.line_id,
+		"frontier": {}, "ledger": ledger, "snapshot": snapshot,
 		"live_history": _caption_ledger.fork_live(),
 		"event": event, "execution_generation": event._execution_generation}
 	return {"ok": true}

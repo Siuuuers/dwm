@@ -287,8 +287,8 @@ func _play_cue(cue_id: String, record: Dictionary, stream: AudioStream = null) -
 	_play_sequence += 1
 	play_sequences[player_id] = _play_sequence
 	var receipt := {"cue_id": cue_id, "bus": bus, "player_slot": cursor}
-	sfx_requested.emit(cue_id, receipt.duplicate(true))
-	return {"ok": true, "code": &"ok", "value": receipt.duplicate(true), "receipt": receipt.duplicate(true)}
+	sfx_requested.emit(cue_id, receipt.duplicate())
+	return {"ok": true, "code": &"ok", "value": receipt, "receipt": receipt.duplicate()}
 
 
 func get_music_context_id() -> String:
@@ -660,7 +660,6 @@ func _set_context(channel_id: StringName, context_id: String, context: Dictionar
 	var captured: Dictionary = _playback_port.call(&"capture_runtime")
 	if not captured.get("ok", false):
 		return captured
-	var prior_semantic := _semantic.duplicate(true)
 	var prior_record: Dictionary = _records[channel_id]
 	var old_player: StringName = _active_players[channel_id]
 	var players := MUSIC_PLAYERS if channel_id == &"music" else AMBIENCE_PLAYERS
@@ -676,7 +675,7 @@ func _set_context(channel_id: StringName, context_id: String, context: Dictionar
 	for operation in operations:
 		var result: Dictionary = _playback_port.callv(operation[0], operation[1])
 		if not result.get("ok", false):
-			return _rollback_failed_context(channel_id, captured["value"], prior_semantic, result, not silent)
+			return _rollback_failed_context(channel_id, captured["value"], result, not silent)
 	if duration <= 0.0:
 		for operation in [
 			[&"set_player_db", [new_player, target_db]],
@@ -685,7 +684,7 @@ func _set_context(channel_id: StringName, context_id: String, context: Dictionar
 		]:
 			var result: Dictionary = _playback_port.callv(operation[0], operation[1])
 			if not result.get("ok", false):
-				return _rollback_failed_context(channel_id, captured["value"], prior_semantic, result, not silent)
+				return _rollback_failed_context(channel_id, captured["value"], result, not silent)
 	else:
 		var captured_players: Dictionary = captured["value"].get("players", {})
 		var old_from_db := float(captured_players.get(old_player, {}).get("volume_db", target_db))
@@ -695,9 +694,9 @@ func _set_context(channel_id: StringName, context_id: String, context: Dictionar
 		]
 		var tweened: Dictionary = _playback_port.call(&"create_parallel_tween", channel_id, tracks, duration)
 		if not tweened.get("ok", false):
-			return _rollback_failed_context(channel_id, captured["value"], prior_semantic, tweened, not silent)
+			return _rollback_failed_context(channel_id, captured["value"], tweened, not silent)
 	_active_players[channel_id] = new_player
-	_records[channel_id] = record.duplicate(true)
+	_records[channel_id] = record
 	_semantic[id_key] = context_id
 	_semantic[context_key] = context.duplicate(true)
 	if not silent:
@@ -712,7 +711,6 @@ func _clear_channel(channel_id: StringName, silent: bool) -> Dictionary:
 	var captured: Dictionary = _playback_port.call(&"capture_runtime")
 	if not captured.get("ok", false):
 		return captured
-	var prior_semantic := _semantic.duplicate(true)
 	var players := MUSIC_PLAYERS if channel_id == &"music" else AMBIENCE_PLAYERS
 	var operations: Array = [[&"kill_tween", [channel_id]]]
 	for player_id in players:
@@ -721,7 +719,7 @@ func _clear_channel(channel_id: StringName, silent: bool) -> Dictionary:
 	for operation in operations:
 		var result: Dictionary = _playback_port.callv(operation[0], operation[1])
 		if not result.get("ok", false):
-			return _rollback_failed_context(channel_id, captured["value"], prior_semantic, result, not silent)
+			return _rollback_failed_context(channel_id, captured["value"], result, not silent)
 	var id_key := "%s_context_id" % channel_id
 	var context_key := "%s_context" % channel_id
 	_semantic[id_key] = ""
@@ -735,12 +733,10 @@ func _clear_channel(channel_id: StringName, silent: bool) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true), "receipt": {}}
 
 
-func _rollback_failed_context(channel_id: StringName, backup: Dictionary, prior_semantic: Dictionary, cause: Dictionary, restart_music: bool) -> Dictionary:
-	var recovery := backup.duplicate(true)
+func _rollback_failed_context(channel_id: StringName, backup: Dictionary, cause: Dictionary, restart_music: bool) -> Dictionary:
 	if channel_id == &"music" and restart_music:
-		_restart_music_in_backup(recovery)
-	var rollback: Dictionary = _playback_port.call(&"restore_runtime", recovery)
-	_semantic = prior_semantic.duplicate(true)
+		_restart_music_in_backup(backup)
+	var rollback: Dictionary = _playback_port.call(&"restore_runtime", backup)
 	if not rollback.get("ok", false):
 		_playback_port.call(&"kill_tween", channel_id)
 		var players := MUSIC_PLAYERS if channel_id == &"music" else AMBIENCE_PLAYERS

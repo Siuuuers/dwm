@@ -75,6 +75,10 @@ func test_selected_receipt_projection_is_owned_frozen_and_matches_fresh_validati
 	assert_true(RUN.validate_current_scene(fixture.snapshot.scene, selected.bundle).ok)
 	var fresh := CONTRACT.validate_bundle_structure(fixture.bundle)
 	assert_true(fresh.ok)
+	var passages := preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(fixture.bundle)
+	assert_true(passages.ok, str(passages))
+	if not passages.ok: return
+	fresh.value["passages"] = passages.value.records
 	assert_eq(selected.value, fresh.value)
 	fresh.value.entries.clear()
 	assert_false(manifest.scene_contract_tables().value.entries.is_empty())

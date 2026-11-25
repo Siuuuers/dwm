@@ -86,7 +86,7 @@ static func project_player_state(snapshot: Dictionary) -> Dictionary:
 func prepare_player_restore_scene(snapshot: Dictionary, issuer: Object) -> Dictionary:
 	if snapshot.has("command_receipts"):
 		return _fail(&"player_board_contains_retry_state", "", {})
-	var current := snapshot.duplicate(true)
+	var current := snapshot.duplicate()
 	current["command_receipts"] = {}
 	return prepare_restore_scene(current, issuer)
 
@@ -214,10 +214,10 @@ func prepare_debug_candidate(input: Dictionary, generation: Dictionary) -> Dicti
 		return _fail(&"invalid_generation_frontier", "generation.frontier must be a dictionary", {})
 
 	var candidate_after := {"spec": (spec_valid["value"] as Dictionary)["spec"],
-		"frontier": (generation["frontier"] as Dictionary).duplicate(true)}
+		"frontier": generation["frontier"]}
 	if _phase == _PHASE_PAID:
 		if input.identity != _identity or input.spec != _candidate.spec: return _fail(&"identity_mismatch", "", {})
-		if not _scene_snapshot_format: candidate_after["paid_start_receipt"] = _candidate.paid_start_receipt.duplicate(true)
+		if not _scene_snapshot_format: candidate_after["paid_start_receipt"] = _candidate.paid_start_receipt
 	if _phase in [_PHASE_UNPAID, _PHASE_PAID]:
 		candidate_after.merge(shell_state())
 	return _envelope(input, &"debug_begin", _PHASE_PREPARING, identity, candidate_after, null, null)
@@ -247,7 +247,7 @@ func prepare_debug_slice(input: Dictionary, generation: Dictionary) -> Dictionar
 			return progress_shape
 		if typeof(generation["frontier"]) != TYPE_DICTIONARY:
 			return _fail(&"invalid_generation_progress", "generation.frontier must be a dictionary", {})
-		var candidate_after := {"spec": spec.duplicate(true), "frontier": (generation["frontier"] as Dictionary).duplicate(true)}
+		var candidate_after := {"spec": spec, "frontier": generation["frontier"]}
 		_copy_preparation_shell(candidate_after)
 		return _envelope(input, &"debug_slice_progress", _PHASE_PREPARING, _identity, candidate_after, null, null)
 
@@ -272,13 +272,13 @@ func prepare_debug_slice(input: Dictionary, generation: Dictionary) -> Dictionar
 		return _fail(&"invalid_generation_progress", "generation.proof_sha256 must be a string or null", {})
 
 	var certified_candidate := {
-		"spec": spec.duplicate(true), "layout": layout, "forced_cell": int(forced_cell),
+		"spec": spec, "layout": layout, "forced_cell": int(forced_cell),
 		"proof_sha256": proof_sha256,
 	}
 	if _candidate.has("actions"):
 		certified_candidate.merge(_BOARD_SCHEMA.clear_debug_flags(_candidate))
 	if _candidate.has("paid_start_receipt"):
-		certified_candidate["paid_start_receipt"] = _candidate.paid_start_receipt.duplicate(true)
+		certified_candidate["paid_start_receipt"] = _candidate.paid_start_receipt
 	return _envelope(input, &"debug_slice_certified", _PHASE_PREPARED_UNSTARTED, _identity,
 		certified_candidate, null, null)
 
@@ -346,13 +346,13 @@ func prepare_first_reveal(input: Dictionary, materialized: Dictionary,
 		return _fail(&"invalid_materialized_input", "first Reveal must retain the saved shell history", {})
 	if not (board["revealed_indices"] as Array).has(int(input["cell_index"])):
 		return _fail(&"invalid_materialized_input", "the forced cell must be revealed", {})
-	var board_after := {"board": board, "spec": spec.duplicate(true)}
+	var board_after := {"board": board, "spec": spec}
 	if not _scene_snapshot_format:
 		if paid_start_receipt.is_empty():
 			return _fail(&"invalid_paid_start_receipt", "paid_start_receipt must be a nonempty dictionary", {})
 		if _candidate is Dictionary and _candidate.has("paid_start_receipt") and paid_start_receipt != _candidate.paid_start_receipt:
 			return _fail(&"paid_start_receipt_mismatch", "", {})
-		board_after["paid_start_receipt"] = paid_start_receipt.duplicate(true)
+		board_after["paid_start_receipt"] = paid_start_receipt
 		if _phase != _PHASE_PAID and not (_candidate is Dictionary and _candidate.has("paid_start_receipt")):
 			board_after.erase("spec")
 	return _envelope(input, &"first_reveal", _PHASE_ACTIVE_VISIBLE, identity, null, board_after, null)
@@ -380,8 +380,8 @@ func prepare_board_command(input: Dictionary, reduced_board: Dictionary) -> Dict
 	var board: Dictionary = (board_valid["value"] as Dictionary)["board"]
 	var live_board: Dictionary = _board
 	var board_after := {"board": board}
-	if not _scene_snapshot_format: board_after["paid_start_receipt"] = live_board.paid_start_receipt.duplicate(true)
-	if live_board.has("spec"): board_after["spec"] = live_board.spec.duplicate(true)
+	if not _scene_snapshot_format: board_after["paid_start_receipt"] = live_board.paid_start_receipt
+	if live_board.has("spec"): board_after["spec"] = live_board.spec
 	return _envelope(input, &"board_command", _PHASE_ACTIVE_VISIBLE, _identity, null, board_after, null)
 
 
@@ -400,8 +400,7 @@ func prepare_visibility(input: Dictionary, visible: bool) -> Dictionary:
 	if not identity_check.get("ok", false):
 		return identity_check
 	var phase_after := _PHASE_ACTIVE_VISIBLE if visible else _PHASE_ACTIVE_SUSPENDED
-	var board_after: Dictionary = (_board as Dictionary).duplicate(true)
-	return _envelope(input, &"visibility", phase_after, _identity, null, board_after, null)
+	return _envelope(input, &"visibility", phase_after, _identity, null, _board, null)
 
 
 func prepare_settlement(input: Dictionary, settlement: Dictionary) -> Dictionary:
@@ -422,9 +421,7 @@ func prepare_settlement(input: Dictionary, settlement: Dictionary) -> Dictionary
 		return identity_check
 	if typeof(settlement) != TYPE_DICTIONARY or settlement.is_empty():
 		return _fail(&"invalid_settlement", "settlement must be a nonempty dictionary", {})
-	var board_after: Dictionary = live_board.duplicate(true)
-	return _envelope(input, &"settlement", _PHASE_SETTLING, _identity, null, board_after,
-		settlement.duplicate(true))
+	return _envelope(input, &"settlement", _PHASE_SETTLING, _identity, null, live_board, settlement)
 
 
 
@@ -441,14 +438,16 @@ func commit(candidate: Dictionary) -> Dictionary:
 			var checked := prepare_restore(snapshot)
 			if not checked.ok: return checked
 			snapshot = checked.value.candidate.snapshot_after
+		else:
+			snapshot = snapshot.duplicate(true)
 		_phase = String(snapshot["phase"])
 		_revision = int(snapshot["revision"])
-		_identity = _dup_or_null(snapshot["identity"])
-		_candidate = _dup_or_null(snapshot["candidate"])
-		_board = _dup_or_null(snapshot["board"])
-		_settlement = _dup_or_null(snapshot["settlement"])
-		_command_receipts = (snapshot["command_receipts"] as Dictionary).duplicate(true)
-		_terminal_receipts = snapshot.get("terminal_receipts", {}).duplicate(true)
+		_identity = snapshot["identity"]
+		_candidate = snapshot["candidate"]
+		_board = snapshot["board"]
+		_settlement = snapshot["settlement"]
+		_command_receipts = snapshot["command_receipts"]
+		_terminal_receipts = snapshot.get("terminal_receipts", {})
 		_scene_snapshot_format = snapshot.has("settled_inspection")
 		_settled_inspection = is_settled_inspection(snapshot)
 		_round_paid = bool(snapshot.get("round_paid", false))
@@ -483,8 +482,12 @@ func commit(candidate: Dictionary) -> Dictionary:
 	_board = _dup_or_null(candidate.get("board_after"))
 	_settlement = _dup_or_null(candidate.get("settlement_after"))
 	_revision += 1
-	_settled_inspection = bool(projected.settled_inspection) if _scene_snapshot_format else is_settled_inspection(capture())
-	if _scene_snapshot_format: _round_paid = projected.round_paid
+	if _scene_snapshot_format:
+		_settled_inspection = projected.settled_inspection
+		_round_paid = projected.round_paid
+	else:
+		_settled_inspection = is_settled_inspection({"phase": _phase, "identity": _identity,
+			"board": _board, "terminal_receipts": _terminal_receipts})
 
 	var result: Dictionary = _committed_state_view()
 	if candidate.has("result_override"):
@@ -498,7 +501,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 			"pre_revision": int(candidate["pre_revision"]), "post_revision": _revision,
 			"command_kind": String(kind), "result": result.duplicate(true),
 		}
-	return result.duplicate(true)
+	return result
 
 
 func lookup_command_receipt(transaction_id: String, fingerprint: String) -> Dictionary:
@@ -636,7 +639,7 @@ func prepare_unpaid_shell(input: Dictionary, difficulty: String, shell: Dictiona
 	if not dimensions.ok: return dimensions
 	var valid := _BOARD_SCHEMA.validate_shell(shell, dimensions.value.width, dimensions.value.height)
 	if not valid.ok: return valid
-	var candidate: Dictionary = valid.value.shell.duplicate(true)
+	var candidate: Dictionary = valid.value.shell
 	candidate["difficulty_id"] = difficulty
 	candidate["width"] = int(dimensions.value.width)
 	candidate["height"] = int(dimensions.value.height)
@@ -656,7 +659,7 @@ func prepare_paid_replacement(input: Dictionary, spec: Dictionary) -> Dictionary
 	var candidate := {"spec": valid.value.spec, "flagged_indices": [], "actions": []}
 	if not _scene_snapshot_format:
 		var receipt: Dictionary = _board.paid_start_receipt if _phase == _PHASE_ACTIVE_VISIBLE else _candidate.paid_start_receipt
-		candidate["paid_start_receipt"] = receipt.duplicate(true)
+		candidate["paid_start_receipt"] = receipt
 	return _envelope(input, &"replace_board", _PHASE_PAID, _identity, candidate, null, null)
 
 
@@ -667,14 +670,14 @@ func prepare_shell_flag(input: Dictionary, shell: Dictionary) -> Dictionary:
 	if _phase != _PHASE_PAID: return _fail(&"shell_flag_requires_unstarted_phase", "", {})
 	var valid := _BOARD_SCHEMA.validate_shell(shell, int(_candidate.spec.width), int(_candidate.spec.height))
 	if not valid.ok: return valid
-	var candidate: Dictionary = _candidate.duplicate(true)
+	var candidate: Dictionary = _candidate.duplicate()
 	candidate["flagged_indices"] = valid.value.shell.flagged_indices
 	candidate["actions"] = valid.value.shell.actions
 	return _envelope(input, &"shell", _phase, _identity, candidate, null, null)
 
 
 func _validate_shell_input(input: Dictionary) -> Dictionary:
-	var copy := input.duplicate(true)
+	var copy := input.duplicate()
 	if copy.get("identity") == null: copy["identity"] = {}
 	var checked := _validate_common(copy)
 	if not checked.ok: return checked
@@ -716,7 +719,7 @@ func _copy_preparation_shell(target: Dictionary) -> void:
 	var fields: Array[String] = ["flagged_indices", "actions"]
 	if not _scene_snapshot_format: fields.append("paid_start_receipt")
 	for key: String in fields:
-		if _candidate.has(key): target[key] = _candidate[key].duplicate(true)
+		if _candidate.has(key): target[key] = _candidate[key]
 
 
 func has_settled_inspection() -> bool:
@@ -763,14 +766,14 @@ static func _validate_scene_settlement(snapshot: Dictionary) -> Dictionary:
 
 
 static func dismissed_inspection_snapshot(snapshot: Dictionary) -> Dictionary:
-	var cleared := snapshot.duplicate(true)
+	var cleared := snapshot.duplicate()
 	if cleared.has("settled_inspection"):
 		cleared.settled_inspection = false
 		cleared.round_paid = false
 	cleared["phase"] = _PHASE_NONE
 	cleared["revision"] = int(snapshot.revision) + 1
 	for key: String in ["identity", "candidate", "board", "settlement"]: cleared[key] = null
-	return cleared
+	return cleared.duplicate(true)
 
 
 func prepare_dismiss_inspection(input: Dictionary) -> Dictionary:
@@ -803,29 +806,15 @@ static func _inspection_normalize(value: Variant) -> Variant:
 
 
 func _scene_candidate_snapshot(candidate: Dictionary) -> Dictionary:
-	var projected := capture()
-	projected.phase = str(candidate.get("phase_after", ""))
-	projected.revision = _revision + 1
-	for slot: String in ["identity", "candidate", "board", "settlement"]:
-		projected[slot] = candidate.get(slot + "_after")
-	if _scene_snapshot_format:
-		projected.round_paid = _round_paid
-		if projected.phase in [_PHASE_NONE, _PHASE_UNPAID]: projected.round_paid = false
-		elif candidate.get("kind") == &"first_reveal": projected.round_paid = true
-		projected.settled_inspection = _settled_inspection \
-			and projected.phase in [_PHASE_ACTIVE_VISIBLE, _PHASE_ACTIVE_SUSPENDED] \
-			and _same_typed(projected.identity, _identity) and _same_typed(projected.board, _board)
-	var result := {"ok": true, "code": &"ok", "value": {
-		"phase": projected.phase, "revision": projected.revision, "identity": projected.identity,
-		"candidate": projected.candidate, "board": projected.board, "settlement": projected.settlement}, "receipt": {}}
-	if candidate.has("result_override"):
-		result = candidate.result_override
-	projected.command_receipts[str(candidate.get("transaction_id", ""))] = {
-		"request_fingerprint": candidate.get("request_fingerprint"),
-		"identity_fingerprint": candidate.get("identity_fingerprint"),
-		"pre_revision": candidate.get("pre_revision"), "post_revision": projected.revision,
-		"command_kind": str(candidate.get("kind", "")), "result": result}
-	return projected
+	var phase := str(candidate.get("phase_after", ""))
+	var paid := _round_paid
+	if phase in [_PHASE_NONE, _PHASE_UNPAID]: paid = false
+	elif candidate.get("kind") == &"first_reveal": paid = true
+	var settled := _settled_inspection and phase in [_PHASE_ACTIVE_VISIBLE, _PHASE_ACTIVE_SUSPENDED] \
+		and _same_typed(candidate.get("identity_after"), _identity) and _same_typed(candidate.get("board_after"), _board)
+	return {"phase": phase, "round_paid": paid, "settled_inspection": settled,
+		"identity": candidate.get("identity_after"), "candidate": candidate.get("candidate_after"),
+		"board": candidate.get("board_after"), "settlement": candidate.get("settlement_after")}
 
 
 static func _validate_current_payment_status(snapshot: Dictionary) -> Dictionary:

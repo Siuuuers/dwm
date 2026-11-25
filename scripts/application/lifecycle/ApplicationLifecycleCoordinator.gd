@@ -59,19 +59,20 @@ func request_pause(holder_id: StringName) -> Dictionary:
 	var captured := _capture_source()
 	if not captured.get("ok", false): return captured
 	var view: Object = _source_view.get_ref()
-	var anchor: Dictionary = view.capture_pause_view(captured.value)
+	var source: Dictionary = captured.value.duplicate(true)
+	var anchor: Dictionary = view.capture_pause_view(source)
 	if not anchor.get("ok", false): return anchor
 	_generation += 1
 	_handle = {"generation": _generation, "handle_id": "pause:%d:%d" % [get_instance_id(), _generation],
 		"holder": holder_id, "reason": &"universal_pause"}
-	_source = captured.value.duplicate(true)
+	_source = source.duplicate(true)
 	_anchor = anchor.value.duplicate(true)
 	_phase = &"Acquiring"
 	for port: Object in _ports:
 		var prior: Dictionary = port.get_state()
 		if not prior.get("ok", false) or prior.get("value", {}).get("state") != &"Active":
 			return await _cancel_acquire(_failure(&"pause_port_unavailable"))
-		var begun: Dictionary = await port.begin_suspend(_handle.duplicate(true))
+		var begun: Dictionary = await port.begin_suspend(_handle.duplicate())
 		var state: Dictionary = port.get_state()
 		var port_state: StringName = state.get("value", {}).get("state", &"") if state.get("ok", false) else &""
 		if port_state != &"Active":
@@ -93,7 +94,7 @@ func request_pause(holder_id: StringName) -> Dictionary:
 	_owns_tree_pause = true
 	_phase = &"Suspended"
 	pause_opened.emit(_source.duplicate(true))
-	return _success(_handle.duplicate(true))
+	return _success(_handle.duplicate())
 
 func request_resume(handle: Dictionary) -> Dictionary:
 	if _phase not in [&"Suspended", &"Recovery"] or _handle.is_empty() or handle != _handle:
@@ -231,7 +232,7 @@ func request_lifecycle_command(command_id: StringName) -> Dictionary:
 	return _success({"admitted": true})
 
 func get_state() -> Dictionary:
-	return _success({"state": _phase, "handle": _handle.duplicate(true)})
+	return _success({"state": _phase, "handle": _handle.duplicate()})
 
 func is_foreground_admitted() -> bool:
 	return _phase == &"Active"
@@ -253,7 +254,7 @@ func _capture_source() -> Dictionary:
 		if command.get(key) != source.value.get(key): return _failure(&"pause_source_mismatch")
 	if _router.get_current_route_id() != source.value.route_id:
 		return _failure(&"pause_source_mismatch")
-	return _success(source.value.duplicate(true))
+	return source
 
 func _cancel_acquire(cause: Dictionary) -> Dictionary:
 	var compensated := await _resume_ports()
@@ -266,7 +267,7 @@ func _resume_ports() -> Dictionary:
 		var port: Object = _suspended.back()
 		var state: Dictionary = port.get_state()
 		if not state.get("ok", false) or state.get("value", {}).get("state") != &"Active":
-			var resumed: Dictionary = await port.resume(_handle.duplicate(true))
+			var resumed: Dictionary = await port.resume(_handle.duplicate())
 			state = port.get_state()
 			if not resumed.get("ok", false) or not state.get("ok", false) \
 				or state.get("value", {}).get("state") != &"Active":

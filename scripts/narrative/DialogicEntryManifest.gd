@@ -82,7 +82,7 @@ static func configure_test_scene_registration(bundle: Dictionary) -> Dictionary:
 	if not passages.ok: return passages
 	var structural := SCENE_EVENTS.validate_bundle_structure(bundle)
 	if not structural.ok: return structural
-	return _configure_scene_registration(bundle, passages.value, structural.value.fingerprint)
+	return _configure_scene_registration(checked.value, passages.value, structural.value.fingerprint, true)
 
 static func _configure_scene_registration(bundle: Dictionary, passages: Dictionary, fingerprint: String, owns_inputs: bool = false) -> Dictionary:
 	if _registration_used or not _scene_bundle.is_empty():
@@ -167,7 +167,7 @@ static func _registered_alone_row(path: String, field: String) -> Dictionary:
 	var parsed := STRICT_JSON.parse_object(FileAccess.get_file_as_string(path))
 	if not parsed.ok: return {}
 	for row: Dictionary in parsed.value.get(field, []):
-		if row.entry_id == "ending.alone.normal": return row.duplicate(true)
+		if row.entry_id == "ending.alone.normal": return row
 	return {}
 
 static func _validate_scene_manifest(document: Dictionary) -> Dictionary:
@@ -187,7 +187,7 @@ static func _validate_scene_manifest(document: Dictionary) -> Dictionary:
 			return _scene_fail("namespace")
 		if row.role == "alone_step":
 			var canonical := _registered_alone_row("res://data/manifests/dialogic_entries.json", "entries")
-			var comparison: Dictionary = row.duplicate(true)
+			var comparison: Dictionary = row.duplicate()
 			comparison.erase("locators")
 			canonical.erase("locators")
 			if canonical.is_empty() or comparison != canonical: return _scene_fail("ending presentation definition")

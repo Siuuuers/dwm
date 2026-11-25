@@ -316,6 +316,9 @@ func test_every_registered_child_kind_derives_the_frozen_child_id() -> void:
 		if not _require_ok(issuer.validate_child(provenance, child_kind),
 				"validate_child(%s)" % String(child_kind)):
 			return
+		provenance.source_ids.clear()
+		assert_eq(derived.receipt.source_ids, ["source.a", "source.b"])
+		assert_eq(source_ids, ["source.a", "source.b"])
 
 
 func test_an_unregistered_child_kind_is_refused() -> void:

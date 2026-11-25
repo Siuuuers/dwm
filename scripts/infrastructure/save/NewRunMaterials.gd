@@ -70,7 +70,7 @@ static func _validate_scene(materials: Dictionary, initial_context: Dictionary,
 	var autosave := _validate_autosave(materials.autosave, initial_context, allocation.value,
 		assignment.receipt, materials.profile, scene_bundle, scene_issuer)
 	if not autosave.get("ok", false): return autosave
-	return {"ok": true, "code": &"ok", "value": {"materials": materials.duplicate(true)}}
+	return {"ok": true, "code": &"ok", "value": {"materials": materials}}
 
 
 static func _validate_allocation(value: Variant, transaction_id: String,
@@ -135,7 +135,7 @@ static func _validate_allocation(value: Variant, transaction_id: String,
 		var receipt_ok := _validate_receipt(row[0], namespace_value, str(row[1]), row[2], row[3])
 		if not receipt_ok.get("ok", false):
 			return receipt_ok
-	return {"ok": true, "code": &"ok", "value": candidate.duplicate(true)}
+	return {"ok": true, "code": &"ok", "value": candidate}
 
 
 static func _validate_receipt(value: Variant, namespace_value: String, purpose: String,
@@ -217,7 +217,7 @@ static func _validate_autosave(value: Variant, initial_context: Dictionary,
 			or snapshot.get("content_version") != initial_context.get("content_version") \
 			or not SAVE_DOCUMENT_SCHEMA.RUN_SNAPSHOT_SCHEMA._scene_exact_value(snapshot.get("narrative_checkpoint"), projected.value):
 		return _fail(&"new_run_autosave_invalid", "scene Autosave differs from its allocated assignment or initial context")
-	return {"ok": true, "code": &"ok", "value": autosave.duplicate(true)}
+	return {"ok": true, "code": &"ok"}
 
 static func _canonical_text(value: Variant) -> String:
 	var emitted: Dictionary = CANONICAL_WRITER.stringify(value)
@@ -291,6 +291,4 @@ static func _project_acknowledged_initial_checkpoint(checkpoint: Dictionary, ver
 	if not live.has("player_progress"):
 		return _fail(&"new_run_autosave_invalid", "reading7 creation must retain its player progress")
 	compact.merge(live.player_progress)
-	var projected := checkpoint.duplicate(true)
-	projected.reading_session = compact
-	return {"ok": true, "value": projected}
+	return {"ok": true, "value": READING.with_reading_session(checkpoint, compact)}

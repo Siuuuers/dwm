@@ -136,11 +136,10 @@ static func validate_scene_new_run_material(material: Dictionary) -> Dictionary:
 		material.scene_assignment.run_id, receipt.value.creation_transaction_id, receipt.value.rng_nonce)
 	if not selected.ok: return selected
 	if selected.value != receipt.value: return {"ok": false, "code": &"scene_assignment_conflict"}
-	var candidate: Dictionary = material.before.duplicate(true)
-	candidate.pair_deck_draws[material.scene_assignment.run_id] = receipt.value.duplicate(true)
+	var candidate: Dictionary = before.value
+	candidate.pair_deck_draws[material.scene_assignment.run_id] = receipt.value
 	var expected: Dictionary = WRITER.stringify(candidate)
-	var supplied: Dictionary = WRITER.stringify(material.candidate)
-	if not expected.ok or not supplied.ok or expected.value != supplied.value \
+	if not expected.ok or expected.value != original_after.value \
 			or material.outgoing_text != expected.value or material.outgoing_text.sha256_text() != material.outgoing_hash:
 		return {"ok": false, "code": &"invalid_scene_new_run_material"}
 	return {"ok": true, "code": &"ok"}
@@ -267,7 +266,7 @@ func _commit_profile_candidate(candidate: Dictionary, defer_signals: bool = fals
 	if defer_signals:
 		_publication_counter += 1
 		var publication_id := "profile-publication-%d" % _publication_counter
-		_deferred_publications[publication_id] = publication.duplicate(true)
+		_deferred_publications[publication_id] = publication
 		for transaction_id in _profile["gallery_transaction_receipts"]:
 			if not old["gallery_transaction_receipts"].has(transaction_id):
 				_pending_gallery_publications[transaction_id] = publication_id
@@ -344,8 +343,9 @@ func mark_line_visited(line_id: String) -> Dictionary:
 		return _failure(&"unregistered_line_id", "Line ID is absent from the configured registry")
 	if is_line_visited(line_id):
 		return {"ok": true, "code": &"ok", "value": {"visited": true}, "unchanged": true}
-	var candidate := _profile.duplicate(true)
-	candidate["visited_line_ids"].append(line_id)
+	var candidate := _profile.duplicate()
+	candidate.visited_line_ids = _profile.visited_line_ids.duplicate()
+	candidate.visited_line_ids.append(line_id)
 	return commit_prepared_profile(candidate)
 
 
@@ -361,13 +361,13 @@ func mark_caption_variant_witnessed(beat: Dictionary, registry: Dictionary, chec
 	var admitted := CAPTION_WITNESSES.admit(beat, registry)
 	if not admitted.ok: return admitted
 	var witness_id: String = admitted.value.witness_id
-	var discovery: Dictionary = DIALOGUE_LIBRARY.discovery_for_beat(admitted.value.beat, checkpoint_id) if not checkpoint_id.is_empty() else {}
+	var discovery: Dictionary = DIALOGUE_LIBRARY.discovery_for_witness(witness_id, checkpoint_id) if not checkpoint_id.is_empty() else {}
 	var library: Dictionary = _profile.dialogue_library
 	var discovered: bool = not discovery.is_empty() and (discovery.checkpoint_id not in library.checkpoints \
 		or (not discovery.witness_id.is_empty() and not library.witnesses.has(discovery.witness_id)))
 	if not discovered and _profile.witnessed_caption_variants.has(witness_id):
 		return {"ok": true, "code": &"ok", "value": {"witness_id": witness_id}, "unchanged": true}
-	var candidate := _profile.duplicate(true)
+	var candidate := _caption_history_candidate()
 	_discover_dialogue(candidate.dialogue_library, discovery)
 	candidate.witnessed_caption_variants[witness_id] = admitted.value.beat
 	if beat.line_id not in candidate.visited_line_ids:
@@ -380,20 +380,20 @@ func stage_caption_history(beats: Array[Dictionary], checkpoint_id: String) -> D
 	if not guarded.ok: return guarded
 	if not _initialized: return _failure(&"not_initialized", "ProfileManager is not initialized")
 	if _mutation_blocked: return _failure(&"indeterminate_commit", "Profile mutation is blocked", true)
-	var descriptions: Array[Dictionary] = []
+	var witness_ids: Array[String] = []
 	for beat: Dictionary in beats:
 		var described := CAPTION_WITNESSES.describe(beat)
 		if not described.ok: return described
-		descriptions.append(described.value)
+		witness_ids.append(described.value.witness_id)
 	var changes: Array[Dictionary] = []
 	var library_changed := false
-	for described: Dictionary in descriptions:
-		var beat: Dictionary = described.beat
-		var witness_id: String = described.witness_id
-		var discovery := DIALOGUE_LIBRARY.discovery_for_beat(beat, checkpoint_id)
+	for index in beats.size():
+		var beat: Dictionary = beats[index]
+		var witness_id := witness_ids[index]
+		var discovery := DIALOGUE_LIBRARY.discovery_for_witness(witness_id, checkpoint_id)
 		library_changed = _discover_dialogue(_profile.dialogue_library, discovery) or library_changed
 		if _profile.witnessed_caption_variants.has(witness_id): continue
-		_profile.witnessed_caption_variants[witness_id] = beat
+		_profile.witnessed_caption_variants[witness_id] = beat.duplicate(true)
 		changes.append({"kind": &"caption_witness", "id": witness_id, "value": true})
 		if beat.line_id not in _profile.visited_line_ids:
 			_profile.visited_line_ids.append(beat.line_id)
@@ -425,12 +425,12 @@ func merge_caption_history(beats: Array[Dictionary], registry: Dictionary, expec
 		var admitted := CAPTION_WITNESSES.admit(beat, registry)
 		if not admitted.ok: return admitted
 		admitted_beats[admitted.value.witness_id] = admitted.value.beat
-	var candidate := _profile.duplicate(true)
+	var candidate := _caption_history_candidate()
 	var changed := false
 	var history_added := false
 	for witness_id: String in admitted_beats:
 		var beat: Dictionary = admitted_beats[witness_id]
-		var discovery: Dictionary = DIALOGUE_LIBRARY.discovery_for_beat(beat, checkpoint_id) if not checkpoint_id.is_empty() else {}
+		var discovery: Dictionary = DIALOGUE_LIBRARY.discovery_for_witness(witness_id, checkpoint_id) if not checkpoint_id.is_empty() else {}
 		if _discover_dialogue(candidate.dialogue_library, discovery): changed = true
 		if candidate.witnessed_caption_variants.has(witness_id): continue
 		candidate.witnessed_caption_variants[witness_id] = beat
@@ -443,6 +443,14 @@ func merge_caption_history(beats: Array[Dictionary], registry: Dictionary, expec
 	var committed := _commit_profile_candidate(candidate, false, expected_revision)
 	if not committed.ok: return committed
 	return {"ok": true, "code": &"ok", "value": {"history_added": history_added}}
+
+
+func _caption_history_candidate() -> Dictionary:
+	var candidate := _profile.duplicate()
+	candidate.dialogue_library = _profile.dialogue_library.duplicate(true)
+	candidate.witnessed_caption_variants = _profile.witnessed_caption_variants.duplicate()
+	candidate.visited_line_ids = _profile.visited_line_ids.duplicate()
+	return candidate
 
 
 static func _discover_dialogue(library: Dictionary, discovery: Dictionary) -> bool:
@@ -466,7 +474,8 @@ func record_pair_form_witness(form: String, transaction_id: String) -> Dictionar
 		if ledger[transaction_id] != form:
 			return _failure(&"pair_form_witness_conflict", "the presentation already witnessed another form")
 		return {"ok": true, "value": {"form": form, "already_recorded": true}}
-	var candidate := _profile.duplicate(true)
+	var candidate := _profile.duplicate()
+	candidate.pair_form_witness_receipts = ledger.duplicate()
 	candidate.pair_form_witness_receipts[transaction_id] = form
 	return commit_prepared_profile(candidate)
 
@@ -494,7 +503,7 @@ func prepare_dating_attempt(run_id: String, slot_id: String, branch_id: String, 
 		run_id, slot_id, branch_id, record, expected_revision, first_cell_index, frozen_effect, selection)
 	if not prepared.get("ok", false): return prepared
 	var material := {
-		"profile_revision": _profile_revision, "attempt": prepared.value.attempt.duplicate(true),
+		"profile_revision": _profile_revision, "attempt": prepared.value.attempt,
 		"changed": prepared.value.changed, "request": {"run_id": run_id, "slot_id": slot_id,
 			"branch_id": branch_id, "record": record.duplicate(true), "expected_revision": expected_revision,
 			"first_cell_index": first_cell_index, "frozen_effect": frozen_effect.duplicate(true),
@@ -541,14 +550,15 @@ func commit_dating_attempt(material: Dictionary) -> Dictionary:
 			return _failure(&"pair_form_witness_conflict", "The completed attempt already witnessed another form")
 		requires_witness = not witnesses.has(witness_id)
 	if not prepared.value.changed and not requires_witness:
-		return {"ok": true, "code": &"ok", "value": {"attempt": attempt.duplicate(true), "already_recorded": true}}
-	var candidate := _profile.duplicate(true)
-	candidate["dating_attempts"] = prepared.value.ledger.duplicate(true)
+		return {"ok": true, "code": &"ok", "value": {"attempt": attempt, "already_recorded": true}}
+	var candidate := _profile.duplicate()
+	candidate["dating_attempts"] = prepared.value.ledger
 	if requires_witness:
+		candidate["pair_form_witness_receipts"] = _profile.pair_form_witness_receipts.duplicate()
 		candidate["pair_form_witness_receipts"][witness_id] = attempt.record.pair_form
 	var committed := _commit_profile_candidate(candidate, false, material.profile_revision)
 	if not committed.get("ok", false): return committed
-	return {"ok": true, "code": &"ok", "value": {"attempt": prepared.value.attempt.duplicate(true), "already_recorded": false}}
+	return {"ok": true, "code": &"ok", "value": {"attempt": attempt, "already_recorded": false}}
 
 
 func get_observer_evidence() -> Dictionary:
@@ -563,7 +573,7 @@ func record_observer_evidence(receipt: Dictionary) -> Dictionary:
 	var prepared := OBSERVER_EVIDENCE.prepare(_profile.observer_evidence, receipt)
 	if not prepared.ok: return prepared
 	if prepared.already_recorded: return {"ok": true, "value": {"already_recorded": true}}
-	var candidate := _profile.duplicate(true)
+	var candidate := _profile.duplicate()
 	candidate["observer_evidence"] = prepared.value
 	var committed := _commit_profile_candidate(candidate)
 	return {"ok": true, "value": {"already_recorded": false}} if committed.ok else committed
@@ -608,7 +618,7 @@ func _prove_scene_assignment_observed_body(run_id: String, receipt: Dictionary) 
 	if not retained_text.ok or not expected_text.ok or retained_text.value != expected_text.value:
 		return _failure(&"scene_assignment_unproven", "Stored assignment differs from the creation")
 	return {"ok": true, "code": &"ok", "value": {"run_id": run_id,
-		"receipt": retained.value.duplicate(true), "source_revision": disk.revision}}
+		"receipt": retained.value, "source_revision": disk.revision}}
 
 
 func prepare_pair_deck_draw(run_id: String, receipt: Dictionary) -> Dictionary:
@@ -638,8 +648,9 @@ func commit_pair_deck_draw(material: Dictionary) -> Dictionary:
 		return {"ok": true, "value": material.receipt.duplicate(true), "already_recorded": true}
 	var revision := _check_profile_revision(material.profile_revision)
 	if not revision.ok: return revision
-	var candidate := _profile.duplicate(true)
-	candidate["pair_deck_draws"][material.run_id] = material.receipt.duplicate(true)
+	var candidate := _profile.duplicate()
+	candidate["pair_deck_draws"] = _profile.pair_deck_draws.duplicate()
+	candidate["pair_deck_draws"][material.run_id] = material.receipt
 	var committed := _commit_profile_candidate(candidate)
 	return {"ok": true, "value": material.receipt.duplicate(true), "already_recorded": false} if committed.ok else committed
 
@@ -930,7 +941,7 @@ func commit_controls_import(proposal: Dictionary) -> Dictionary:
 	for field: String in ["revision", "before", "legacy_bindings", "after"]:
 		if not proposal.has(field):
 			return _failure(&"invalid_binding_proposal", "Import proposal is malformed")
-	var source := _profile.duplicate(true)
+	var source := _profile.duplicate()
 	source.controls_bindings = proposal.before
 	source.input_mappings = proposal.legacy_bindings
 	if not SCHEMA.validate(source).get("ok", false):
@@ -939,8 +950,8 @@ func commit_controls_import(proposal: Dictionary) -> Dictionary:
 	if not recomputed.get("ok", false): return recomputed
 	if proposal != recomputed.value:
 		return _failure(&"invalid_binding_proposal", "Import proposal no longer matches the complete source")
-	var candidate := _profile.duplicate(true)
-	candidate.controls_bindings = recomputed.value.after.duplicate(true)
+	var candidate := _profile.duplicate()
+	candidate.controls_bindings = recomputed.value.after
 	candidate.controls_import_pending = false
 	return commit_prepared_profile(candidate, false, proposal.revision)
 
@@ -971,8 +982,8 @@ func commit_controls_change(proposal: Dictionary) -> Dictionary:
 		return _failure(&"invalid_binding_proposal", "The complete binding proposal is not valid")
 	if proposal.before == proposal.after:
 		return {"ok": true, "code": &"ok", "unchanged": true}
-	var candidate := _profile.duplicate(true)
-	candidate.controls_bindings = proposal.after.duplicate(true)
+	var candidate := _profile.duplicate()
+	candidate.controls_bindings = recomputed.value.after
 	return commit_prepared_profile(candidate, false, proposal.revision)
 
 
@@ -1050,7 +1061,7 @@ func reset_visited_history(expected_revision: int = -1) -> Dictionary:
 		return _failure(&"not_initialized", "ProfileManager is not initialized")
 	var checked := _check_profile_revision(expected_revision)
 	if not checked.get("ok", false): return checked
-	var candidate := _profile.duplicate(true)
+	var candidate := _profile.duplicate()
 	candidate["visited_line_ids"] = []
 	candidate["witnessed_caption_variants"] = {}
 	return _commit_reset(candidate, &"visited_history", expected_revision)
@@ -1065,7 +1076,7 @@ func reset_dialogue_library(expected_revision: int = -1) -> Dictionary:
 		return _failure(&"not_initialized", "ProfileManager is not initialized")
 	var checked := _check_profile_revision(expected_revision)
 	if not checked.ok: return checked
-	var candidate := _profile.duplicate(true)
+	var candidate := _profile.duplicate()
 	candidate.dialogue_library = {"checkpoints": [], "witnesses": {}}
 	return _commit_reset(candidate, &"dialogue_library", expected_revision)
 
@@ -1135,7 +1146,7 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 			return _failure(&"profile_evidence_rewind", "Run restoration cannot rewind durable Profile evidence")
 	if not _preserves_presentation_chronology(_profile, validation.value):
 		return _failure(&"presentation_chronology_rewrite", "Run restoration cannot rewrite reached-presentation chronology")
-	_restore_backup = _profile.duplicate(true)
+	_restore_backup = _profile
 	_profile = validation["value"]
 	_profile_revision += 1
 	return {"ok": true, "code": &"ok"}

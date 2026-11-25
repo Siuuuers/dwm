@@ -151,8 +151,8 @@ static func create(
 		"command_id": command_id,
 		"source_day": source_day,
 		"stages": stages,
-		"committed_schedule": committed_schedule.duplicate(true),
-		"route_plan": route_plan.duplicate(true),
+		"committed_schedule": committed_schedule,
+		"route_plan": route_plan,
 		"schedule_commit_receipt_id": schedule_commit_receipt_id,
 		"board_fate_receipt_id": board_fate_receipt_id,
 		"resolution_issuer_receipt": resolution_start.get("resolution_issuer_receipt"),
@@ -275,7 +275,7 @@ static func from_dict(data: Dictionary) -> Dictionary:
 	var entries_value: Variant = (data["committed_schedule"] as Dictionary).get("entries", [])
 	if typeof(entries_value) != TYPE_ARRAY:
 		return _fail(&"invalid_committed_schedule", "committed_schedule.entries must be an array")
-	var ordered: Array = (entries_value as Array).duplicate(true)
+	var ordered: Array = (entries_value as Array).duplicate()
 	ordered.sort_custom(func(a: Variant, b: Variant) -> bool:
 		return int((a as Dictionary).get("slot_index", 0)) < int((b as Dictionary).get("slot_index", 0)))
 	var expected_by_stage: Dictionary = {}

@@ -75,6 +75,21 @@ func test_absent_reconcile_write_read_replace_and_restart() -> void:
 	assert_true(restarted.get("ok", false), str(restarted))
 	assert_eq(restarted.get("hash"), _hash(NEW_TEXT))
 
+func test_storage_results_detach_nested_validator_data() -> void:
+	var storage: RefCounted = _storage_script.new(ROOT, _fake_ops_script.new())
+	var document := {"reading": {"line": "opening"}}
+	var validator := func(_text: String) -> Dictionary: return {"ok": true, "value": document}
+	var written: Dictionary = storage.write_atomic(RELATIVE_PATH, '{"reading":{"line":"opening"}}', validator)
+	assert_true(written.ok, str(written))
+	if not written.ok: return
+	written.value.reading.line = "edited"
+	var reopened: Dictionary = storage.reconcile(RELATIVE_PATH, validator)
+	assert_true(reopened.ok, str(reopened))
+	if not reopened.ok: return
+	assert_eq(reopened.value.reading.line, "opening")
+	reopened.value.reading.clear()
+	assert_eq(document.reading, {"line": "opening"})
+
 func test_read_and_remove_require_a_fresh_unchanged_lease() -> void:
 	var fake: RefCounted = _fake_ops_script.new(_seed({FINAL_PATH: OLD_TEXT}))
 	var storage: RefCounted = _storage_script.new(ROOT, fake)

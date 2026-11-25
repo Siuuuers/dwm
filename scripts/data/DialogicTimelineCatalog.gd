@@ -119,26 +119,26 @@ static func build_missing_timeline_report(locale: String = "en") -> Dictionary:
 
 static func _ensure_entries() -> Dictionary:
 	if _entries_initialized:
-		return {"ok": true, "value": _entry_document.duplicate(true)}
+		return {"ok": true}
 	var loaded := DialogicEntryManifest.load_default()
 	if not loaded.get("ok", false):
 		return loaded
 	var validated := DialogicEntryManifest.validate_document(loaded["value"])
 	if not validated.get("ok", false):
 		return validated
-	_entry_document = loaded["value"].duplicate(true)
+	_entry_document = loaded["value"]
 	_entries_initialized = true
-	return {"ok": true, "value": _entry_document.duplicate(true)}
+	return {"ok": true}
 
 
 static func get_entry(entry_id: String, locale: String = "") -> Dictionary:
-	var document := _ensure_entries()
-	if not document.get("ok", false):
-		return document
+	var initialized := _ensure_entries()
+	if not initialized.get("ok", false):
+		return initialized
 	var selected := locale
 	if selected.is_empty():
 		selected = DEFAULT_LOCALE
-	return DialogicEntryManifest.resolve_entry(document["value"], entry_id, selected)
+	return DialogicEntryManifest.resolve_entry(_entry_document, entry_id, selected)
 
 
 static func has_entry_id(entry_id: String) -> bool:
@@ -147,10 +147,10 @@ static func has_entry_id(entry_id: String) -> bool:
 
 static func get_required_entry_ids() -> Array[String]:
 	var ids: Array[String] = []
-	var document := _ensure_entries()
-	if not document.get("ok", false):
+	var initialized := _ensure_entries()
+	if not initialized.get("ok", false):
 		return ids
-	var records: Array = (document["value"] as Dictionary)["entries"]
+	var records: Array = _entry_document.entries
 	for record: Dictionary in records:
 		ids.append(str(record["entry_id"]))
 	ids.sort()

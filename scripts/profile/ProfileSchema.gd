@@ -124,7 +124,7 @@ static func make_defaults() -> Dictionary:
 			"invalid_persisted_skip_mode_v1": false,
 		},
 		"legacy_preferences_v1": {},
-	}.duplicate(true)
+	}
 
 
 static func validate(profile: Dictionary) -> Dictionary:

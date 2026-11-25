@@ -171,7 +171,7 @@ static func apply_presentation_commands(commands: Array, previous: Dictionary) -
 	else:
 		var resolved := resolve_saved_presentation(previous)
 		if not resolved.ok: return resolved
-		state = resolved.value.duplicate(true)
+		state = resolved.value
 		for overlay: Dictionary in state.overlays:
 			if not overlay.has("slot"): overlay["slot"] = overlay.label
 	var autosave := false
@@ -270,8 +270,7 @@ static func _presentation_reference_error(kind: String, reference: String) -> Di
 
 static func get_expected_art_paths() -> Dictionary:
 	var result: Dictionary = {}
-	var assets: Dictionary = _catalog().get("assets", {}).duplicate(true)
-	assets.merge(_overlay_records, true)
+	var assets: Dictionary = _catalog().get("assets", {}).merged(_overlay_records, true)
 	for asset_id: String in assets:
 		result[asset_id] = str(_asset(asset_id).get("path", ""))
 	return result
@@ -360,7 +359,7 @@ static func validate_visual_record(record: Variant) -> Dictionary:
 	if fallback != null and (typeof(fallback) != TYPE_STRING or (fallback as String).is_empty()):
 		return _visual_fail(ART_MANIFEST_FALLBACK_INVALID,
 			"%s: fallback_visual_id must be null or a nonempty visual id" % str(visual_id))
-	return {"ok": true, "value": fields.duplicate(true)}
+	return {"ok": true, "value": fields.duplicate()}
 
 static func validate_visual_registry(records: Array) -> Dictionary:
 	var declared: Dictionary = {}
@@ -399,7 +398,7 @@ static func resolve_visual(records: Array, visual_id: String, required: bool) ->
 		if required and fields["fallback_visual_id"] != null:
 			return _visual_fail(ART_MANIFEST_REQUIRED_SUBSTITUTION_FORBIDDEN,
 				"%s: a required visual may not be substituted by a fallback" % visual_id)
-		return {"ok": true, "value": fields.duplicate(true)}
+		return {"ok": true, "value": fields.duplicate()}
 	if required:
 		return _visual_fail(ART_MANIFEST_REQUIRED_VISUAL_MISSING,
 			"%s: a required visual has no record and must reject before playback" % visual_id)

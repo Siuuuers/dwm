@@ -89,7 +89,8 @@ func test_compact_line_and_control_projection_is_idempotent_and_detached() -> vo
 		if session == null: return
 		assert_true(FIXTURE.advance_detached(session).ok)
 		if held: assert_true(FIXTURE.advance_detached(session).ok)
-		var player := SESSION.project_player_checkpoint(_checkpoint(session))
+		var live := _checkpoint(session)
+		var player := SESSION.project_player_checkpoint(live)
 		assert_true(player.ok, str(player))
 		if not player.ok: return
 		var before: Dictionary = player.value.duplicate(true)
@@ -101,6 +102,13 @@ func test_compact_line_and_control_projection_is_idempotent_and_detached() -> vo
 		projected.value.reading_session.recovery_anchor.line_id = "changed.anchor"
 		projected.value.frozen_context.presentation.fields.entry_id = "changed.context"
 		assert_eq(player.value, before, "mutating a projected checkpoint cannot change its source")
+		var expanded := SESSION.expand_player_checkpoint(player.value)
+		assert_true(expanded.ok, str(expanded))
+		if not expanded.ok: return
+		expanded.value.frozen_context.presentation.fields.entry_id = "changed.expanded"
+		assert_eq(player.value, before)
+		player.value.frozen_context.presentation.fields.entry_id = "changed.compact"
+		assert_eq(live.frozen_context, before.frozen_context)
 
 func test_live_projection_preserves_loop_history_and_multiple_occurrences() -> void:
 	for held: bool in [false, true]:

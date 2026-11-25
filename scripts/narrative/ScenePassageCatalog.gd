@@ -87,7 +87,7 @@ static func inspect(bundle: Dictionary, compiled: Dictionary = {}) -> Dictionary
 				var index: int = indices[marker.after_line_id]
 				if index >= first - 1 and index <= last:
 					return _fail(&"scene_passage_control_inside_range")
-		var selected: Array = lines.slice(first, last + 1).duplicate(true)
+		var selected: Array = lines.slice(first, last + 1, 1, true)
 		for line: Dictionary in selected:
 			if paired_text.has(line.line_id): line["self_talk"] = paired_text[line.line_id].duplicate(true)
 		var line_ids: Array[String] = []

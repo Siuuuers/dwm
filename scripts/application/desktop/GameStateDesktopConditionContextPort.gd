@@ -68,7 +68,7 @@ func snapshot_for(request: Dictionary) -> Dictionary:
 		"causal_day_instance": str(action_receipt["causal_day_instance"]),
 		"day": int(action_receipt["day"]),
 		"run_revision": int(sequence_receipt["run_revision"]),
-		"dark_mode": _dark_mode_active(),
+		"dark_mode": _game_state._run_lifecycle.is_dark_mode(),
 		"schedule_done_state": _schedule_done_state(),
 		"condition_after": (action_receipt["condition_after"] as Dictionary).duplicate(true),
 		"accepted_unfulfilled_sources": sources,
@@ -139,10 +139,6 @@ func _sylvia_source(sources: Array) -> Variant:
 		if ((source as Dictionary).get("participants", []) as Array).has("sylvia"):
 			return (source as Dictionary).duplicate(true)
 	return null
-
-
-func _dark_mode_active() -> bool:
-	return bool(_game_state._run_lifecycle.to_dict().get("dark_mode", false))
 
 
 func _schedule_done_state() -> String:

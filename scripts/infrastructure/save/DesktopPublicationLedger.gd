@@ -556,33 +556,7 @@ static func _ledger_key(kind: String, receipt_id: String) -> String:
 
 
 static func _normalize_engine_text(value: Variant) -> Variant:
-	match typeof(value):
-		TYPE_STRING_NAME: return String(value)
-		TYPE_ARRAY:
-			var source_array: Array = value
-			var array: Array = []
-			var array_converted := false
-			for element: Variant in source_array:
-				var normalized_element: Variant = _normalize_engine_text(element)
-				if not is_same(normalized_element, element):
-					array_converted = true
-				array.append(normalized_element)
-			return array if array_converted else source_array
-		TYPE_DICTIONARY:
-			var source_dictionary: Dictionary = value
-			var dictionary := {}
-			var dictionary_converted := false
-			for raw_key: Variant in source_dictionary:
-				var key: Variant = String(raw_key) if typeof(raw_key) == TYPE_STRING_NAME else raw_key
-				if not is_same(key, raw_key):
-					dictionary_converted = true
-				var member: Variant = source_dictionary[raw_key]
-				var normalized_member: Variant = _normalize_engine_text(member)
-				if not is_same(normalized_member, member):
-					dictionary_converted = true
-				dictionary[key] = normalized_member
-			return dictionary if dictionary_converted else source_dictionary
-	return value
+	return _CANON.normalize_engine_text(value)
 
 
 func _digest_source(value: Variant) -> String:

@@ -62,9 +62,9 @@ static func prepare(passages: Array, registered_beats: Array, checkpoints: Dicti
 				return {"ok": false, "code": &"library_thought_unpaired"}
 			membership[id] = true
 			entries.append({"witness_id": id, "line_id": entry.beat.line_id, "kind": entry.kind,
-				"text": entry.text.duplicate(true), "requirements": entry.get("requirements", {}).duplicate(true)})
+				"text": entry.text.duplicate(), "requirements": entry.get("requirements", {}).duplicate(true)})
 		index[passage.id] = membership
-		prepared.append({"id": passage.id, "title": passage.title.duplicate(true), "entries": entries})
+		prepared.append({"id": passage.id, "title": passage.title.duplicate(), "entries": entries})
 	return {"ok": true, "value": {"passages": prepared, "index": index,
 		"conditions": condition_labels.duplicate(true)}}
 
@@ -99,13 +99,10 @@ static func configure_generated(document: Dictionary, registration: Dictionary) 
 	return configure(document.passages, beats, checkpoints, document.condition_labels)
 
 
-static func discovery_for_beat(beat: Dictionary, checkpoint_id: String) -> Dictionary:
+static func discovery_for_witness(witness_id: String, checkpoint_id: String) -> Dictionary:
 	if not ensure_loaded().ok: return {}
 	if not _witnesses_by_checkpoint.has(checkpoint_id): return {}
-	var described := WITNESSES.describe(beat)
-	var witness_id := ""
-	if described.ok and _witnesses_by_checkpoint[checkpoint_id].has(described.value.witness_id):
-		witness_id = described.value.witness_id
+	if not _witnesses_by_checkpoint[checkpoint_id].has(witness_id): witness_id = ""
 	return {"checkpoint_id": checkpoint_id, "witness_id": witness_id}
 
 

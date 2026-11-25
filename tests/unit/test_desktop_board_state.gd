@@ -386,6 +386,9 @@ func test_commit_duplicate_transaction_id_same_payload_replays_result() -> void:
 	var replay := _state.commit(_last_candidate)
 	assert_true(replay.get("ok", false), JSON.stringify(replay))
 	assert_eq(replay, first, "an identical replay returns the exact original result")
+	first.value.candidate.spec.clear()
+	assert_false(replay.value.candidate.spec.is_empty())
+	assert_eq(_state.commit(_last_candidate), replay, "the receipt owns its result")
 	assert_eq(_state.capture()["revision"], 1, "a duplicate commit must not advance revision again")
 
 
@@ -793,9 +796,9 @@ func test_scene_first_board_preserves_frozen_spec_without_payment_proof_or_histo
 	assert_eq(restored.capture(), saved)
 	assert_true(restored.capture().round_paid)
 	var before := restored.capture()
-	var changed := before.duplicate(true)
-	changed.board.spec.pressure += 1
-	assert_eq(restored.capture(), before, "captured spec must remain detached")
+	saved.board.spec.pressure += 1
+	prepared.value.candidate.snapshot_after.board.board.revealed_indices.clear()
+	assert_eq(restored.capture(), before, "the committed board owns its spec and cells")
 
 
 func test_scene_current_board_rejects_missing_spec_extra_proof_and_inconsistent_layout() -> void:

@@ -180,6 +180,41 @@ static func _utf8_less(left: String, right: String) -> bool:
 			return left_bytes[index] < right_bytes[index]
 	return left_bytes.size() < right_bytes.size()
 
+static func normalize_engine_text(value: Variant) -> Variant:
+	match typeof(value):
+		TYPE_STRING_NAME: return String(value)
+		TYPE_ARRAY:
+			var source_array: Array = value
+			var array: Variant = null
+			for index: int in source_array.size():
+				var element: Variant = source_array[index]
+				var normalized_element: Variant = normalize_engine_text(element)
+				if array == null and not is_same(normalized_element, element):
+					array = []
+					for prior: int in index:
+						array.append(source_array[prior])
+				if array != null: array.append(normalized_element)
+			return source_array if array == null else array
+		TYPE_DICTIONARY:
+			var source_dictionary: Dictionary = value
+			var dictionary: Variant = null
+			var visited := 0
+			for raw_key: Variant in source_dictionary:
+				var key: Variant = String(raw_key) if typeof(raw_key) == TYPE_STRING_NAME else raw_key
+				var member: Variant = source_dictionary[raw_key]
+				var normalized_member: Variant = normalize_engine_text(member)
+				if dictionary == null and (not is_same(key, raw_key) or not is_same(normalized_member, member)):
+					dictionary = {}
+					var copied := 0
+					for prior_key: Variant in source_dictionary:
+						if copied == visited: break
+						dictionary[prior_key] = source_dictionary[prior_key]
+						copied += 1
+				if dictionary != null: dictionary[key] = normalized_member
+				visited += 1
+			return source_dictionary if dictionary == null else dictionary
+	return value
+
 static func _deep_same(left: Variant, right: Variant) -> bool:
 	var left_type := typeof(left)
 	if left_type == TYPE_STRING_NAME:

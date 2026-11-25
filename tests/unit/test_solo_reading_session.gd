@@ -20,6 +20,8 @@ func test_next_plan_is_pure_and_stops_before_first_exact_unseen_variant() -> voi
 	assert_true(session.admit(PRE, _context(PRE)).ok)
 	var frontier := _publish(session, PRE, "fixture.solo.pre.a")
 	var before: Dictionary = session.capture(frontier).value
+	var reserved: Dictionary = session.ledger.allocate_publication(TOKEN, PRE)
+	assert_true(reserved.ok)
 	var queried: Array = []
 	var planned: Dictionary = session.prepare_next(frontier, func(variant: Dictionary) -> bool:
 		queried.append(variant.duplicate(true))
@@ -27,6 +29,7 @@ func test_next_plan_is_pure_and_stops_before_first_exact_unseen_variant() -> voi
 	assert_true(planned.ok, str(planned))
 	assert_eq(planned.value.traversed_captions, [])
 	assert_eq(planned.value.destination.kind, "line")
+	assert_eq(planned.value.destination.caption.publication_id, reserved.value, "the save records published captions only")
 	assert_eq(planned.value.destination.caption.beat.line_id, "fixture.solo.pre.b")
 	assert_eq(queried, [planned.value.destination.caption.beat])
 	assert_eq(session.capture(frontier).value, before, "planning cannot allocate in the live ledger")

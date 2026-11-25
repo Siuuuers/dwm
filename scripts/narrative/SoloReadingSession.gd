@@ -286,9 +286,7 @@ static func project_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 	if not prepared.ok: return prepared
 	var projected: Dictionary = session._project_player_reading(reading)
 	if not projected.ok: return projected
-	var result := checkpoint.duplicate(true)
-	result.reading_session = projected.value
-	return {"ok": true, "value": result}
+	return {"ok": true, "value": with_reading_session(checkpoint, projected.value)}
 
 static func normalize_player_checkpoint(checkpoint: Dictionary, _choices: Dictionary,
 		_outcomes: Dictionary) -> Dictionary:
@@ -328,7 +326,7 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, _choices: Dictio
 	if saved.boundary != "control" and saved.position_id != tail.line_id:
 		return _fail(&"reading_frontier_invalid")
 	var progress := {"story_day": saved.story_day, "recovery_anchor": saved.recovery_anchor,
-		"history_sections": saved.history_sections}.duplicate(true)
+		"history_sections": saved.history_sections}
 	if not TRAVERSAL.valid_player_progress(progress): return _fail(&"reading_checkpoint_invalid")
 	var session: RefCounted = load("res://scripts/narrative/SoloReadingSession.gd").new()
 	var configured: Dictionary = session.configure_scene()
@@ -385,11 +383,11 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, _choices: Dictio
 		current.boundary = "line"
 		restored = session.restore_player(current, current.entry_id)
 	if not restored.ok: return restored
-	var result := checkpoint.duplicate(true)
+	var result := checkpoint.duplicate()
 	result.entry_id = current.entry_id
 	result.content_version = session.catalogue[current.entry_id].content_version
 	result.manifest_fingerprint = session.fingerprint
-	result.frozen_context = session.ledger.snapshot().entry_contexts[LEDGER.scene_frame_key(current.occurrence_id, current.entry_id)].duplicate(true)
+	result.frozen_context = session.ledger.check_session(current.session_token, current.entry_id, current.occurrence_id).value
 	result.reading_session = current
 	return {"ok": true, "value": {"checkpoint": result, "story_day": current.story_day, "fallback": fallback}}
 
@@ -417,9 +415,14 @@ static func expand_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 		frontier = {"line_id": tail.line_id, "publication_id": tail.publication_id}
 	var captured: Dictionary = session.capture(frontier)
 	if not captured.ok: return captured
-	var result := checkpoint.duplicate(true)
-	result.reading_session = captured.value
-	return {"ok": true, "value": result, "session": session}
+	return {"ok": true, "value": with_reading_session(checkpoint, captured.value), "session": session}
+
+static func with_reading_session(checkpoint: Dictionary, reading: Dictionary) -> Dictionary:
+	var envelope := checkpoint.duplicate()
+	envelope.reading_session = null
+	var result := envelope.duplicate(true)
+	result.reading_session = reading
+	return result
 
 func _project_player_reading(saved: Dictionary) -> Dictionary:
 	var caption := {}
@@ -487,7 +490,7 @@ func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 				{"entry_id": entry_id, "line_id": value.line_id})
 		publications[value.publication_id] = true
 		rows.append({"publication_id": value.publication_id, "occurrence_id": saved.occurrence_id,
-			"beat": beat.duplicate(true)})
+			"beat": beat})
 	if saved.publication_serial != _scene_publication_high_water(rows):
 		return _fail(&"reading_frontier_invalid")
 	var nodes: Array = _scene_nodes[entry_id]
@@ -536,7 +539,7 @@ func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 			"entry_contexts": {LEDGER.scene_frame_key(saved.occurrence_id, entry_id): frame}, "captions": rows},
 		"frontier": {"line_id": tail.beat.line_id, "publication_id": tail.publication_id} if saved.boundary == "line" else {},
 		"next_operation": null}
-	live["player_progress"] = progress.duplicate(true)
+	live["player_progress"] = progress
 	return restore(live, entry_id)
 
 static func _scene_publication_high_water(captions: Array) -> int:
@@ -582,7 +585,8 @@ func prepare_scene_control_continuation() -> Dictionary:
 	var node: Dictionary = nodes[scene_index]
 	var target: int = scene_index + 1
 	if node.kind != "control" or target >= nodes.size() or nodes[target].kind != "caption": return _content_error("Cannot continue dialogue in: " + latest_entry, {"entry_id": latest_entry, "program_index": scene_index})
-	var reading: Dictionary = TRAVERSAL.without_operation(source.value)
+	var reading: Dictionary = source.value
+	reading.next_operation = null
 	var candidate := ledger.fork_live()
 	if not _caption_variants_by_line.has(nodes[target].line_id):
 		return _content_error("Unregistered dialogue ID: " + nodes[target].line_id,
@@ -609,7 +613,8 @@ func prepare_scene_next(frontier: Dictionary, is_witnessed: Callable) -> Diction
 	if family != "scene" or boundary != "line" or not is_witnessed.is_valid(): return _fail(&"reading_next_unavailable")
 	var source := _capture_scene(frontier)
 	if not source.ok: return source
-	var reading: Dictionary = TRAVERSAL.without_operation(source.value)
+	var reading: Dictionary = source.value
+	reading.next_operation = null
 	var candidate := ledger.fork_live()
 	var nodes: Array = _scene_nodes[latest_entry]
 	var index: int = scene_index
@@ -927,26 +932,16 @@ func _validate_base_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 	return {"ok": true, "value": candidate, "programs": programs.value.entries, "registry": programs.value.registry}
 
 func validate_scene_event_anchors(anchors: Array[Dictionary]) -> Dictionary:
-	if anchors.is_empty(): return {"ok": true}
-	var retained := {}
 	for anchor: Dictionary in anchors:
 		var shape := validate_scene_anchor_shape(anchor)
 		if not shape.ok: return shape
-		if retained.is_empty():
-			if family != "scene" or ledger == null: return _scene_anchor_failure(&"event_anchor_invalid")
-			retained = ledger.snapshot()
+		if family != "scene" or ledger == null: return _scene_anchor_failure(&"event_anchor_invalid")
 		if anchor.catalogue_fingerprint != fingerprint or not catalogue.has(anchor.entry_id) \
 				or catalogue[anchor.entry_id].content_version != anchor.content_version:
 			return _scene_anchor_failure(&"event_anchor_catalogue_mismatch")
-		var frame := LEDGER.resolve_scene_frame(retained.entry_contexts, anchor.session_id, anchor.entry_id)
-		if not frame.ok: return _scene_anchor_failure(&"event_anchor_invalid")
-		var found := false
-		for row: Dictionary in retained.captions:
-			if row.publication_id == anchor.publication_id and row.occurrence_id == anchor.session_id \
-					and row.beat.owning_entry_id == anchor.entry_id and row.beat.line_id == anchor.line_id:
-				found = true
-				break
-		if not found: return _scene_anchor_failure(&"event_anchor_invalid")
+		var frontier := {"line_id": anchor.line_id, "publication_id": anchor.publication_id}
+		if not ledger.is_current_occurrence(command_id, anchor.entry_id, frontier, anchor.session_id):
+			return _scene_anchor_failure(&"event_anchor_invalid")
 	return {"ok": true}
 
 static func validate_scene_anchor_shape(anchor: Dictionary) -> Dictionary:
@@ -1000,16 +995,14 @@ func prepare_next(frontier: Dictionary, is_witnessed: Callable) -> Dictionary:
 	if family != "solo" or not is_witnessed.is_valid() or boundary != "line": return _fail(&"reading_next_unavailable")
 	var source := capture(frontier)
 	if not source.ok: return source
-	var lines: Array = entry_program(latest_entry).value.lines
+	var entries := catalogue if catalogue_schema_version == 1 else _selected_entries
+	var lines: Array = entries[latest_entry].lines
 	var index := -1
 	for ordinal: int in lines.size():
 		if lines[ordinal].line_id == frontier.line_id: index = ordinal
 	if index < 0: return _fail(&"reading_frontier_invalid")
 	var retained: Dictionary = source.value.ledger
-	var candidate := LEDGER.new()
-	var copied := candidate.restore_snapshot(command_id, retained.frozen_context, manifest,
-		registry, retained, retained.entry_contexts, true)
-	if not copied.ok: return copied
+	var candidate := ledger.fork_legacy_checkpoint()
 	var traversed: Array = []
 	var destination := {"kind": "completion", "caption": null}
 	for ordinal: int in range(index + 1, lines.size()):
@@ -1026,9 +1019,9 @@ func prepare_next(frontier: Dictionary, is_witnessed: Callable) -> Dictionary:
 			break
 		traversed.append(row)
 	var plan := {"entry_id": latest_entry, "catalogue_fingerprint": fingerprint,
-		"source_ledger": retained.duplicate(true), "source_frontier": frontier.duplicate(true),
+		"source_ledger": retained, "source_frontier": source.value.frontier,
 		"traversed_captions": traversed, "destination": destination}
-	var checked := TRAVERSAL.create(plan, "source")
+	var checked := TRAVERSAL.encode_plan(plan, 1)
 	return {"ok": true, "value": plan} if checked.ok else checked
 
 func project(frontier: Dictionary) -> Dictionary:
@@ -1036,8 +1029,9 @@ func project(frontier: Dictionary) -> Dictionary:
 	var captured := capture(frontier)
 	if not captured.ok: return captured
 	var rows: Array[Dictionary] = []
+	var entries := catalogue if catalogue_schema_version == 1 else _selected_entries
 	for row: Dictionary in captured.value.ledger.captions:
-		for line: Dictionary in entry_program(row.beat.owning_entry_id).value.lines:
+		for line: Dictionary in entries[row.beat.owning_entry_id].lines:
 			if line.line_id == row.beat.line_id:
 				rows.append({"publication_id": row.publication_id, "beat_id": row.beat.beat_id,
 					"line_id": line.line_id, "entry_id": row.beat.owning_entry_id, "text": line.text})
@@ -1071,9 +1065,10 @@ func _programs_for_frames(frames: Dictionary, transaction_id: String) -> Diction
 		var context: Dictionary = frames[key]
 		var checked := _validate_frame(key, context, transaction_id)
 		if not checked.ok: return checked
-		var programme := entry_program(key, context)
-		if not programme.ok: return programme
-		selected[key] = programme.value
+		if catalogue_schema_version != 1:
+			var programme := entry_program(key, context)
+			if not programme.ok: return programme
+			selected[key] = programme.value
 	if catalogue_schema_version == 1:
 		for key: String in catalogue: selected[key] = entry_program(key).value
 		return {"ok": true, "value": {"entries": selected, "registry": registry}}
@@ -1100,11 +1095,10 @@ func _admit_authored(entry_id: String, context: Dictionary) -> Dictionary:
 	else:
 		var completed_source := capture({})
 		if not completed_source.ok: return completed_source
-	var frames: Dictionary = source.entry_contexts.duplicate(true)
-	frames[entry_id] = context.duplicate(true)
+	var frames: Dictionary = source.entry_contexts
+	frames[entry_id] = context
 	var programs := _programs_for_frames(frames, command_id)
 	if not programs.ok: return programs
-	source.entry_contexts = frames
 	var candidate := LEDGER.new()
 	var copied := candidate.restore_snapshot(command_id, source.frozen_context, manifest,
 		programs.value.registry, source, frames, true)
@@ -1114,8 +1108,8 @@ func _admit_authored(entry_id: String, context: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 func _install_programs(entries: Dictionary, registered: Dictionary) -> void:
-	_selected_entries = entries.duplicate(true)
-	registry = registered.duplicate(true)
+	_selected_entries = entries
+	registry = registered
 	FROZEN._freeze(_selected_entries)
 	FROZEN._freeze(registry)
 	_caption_variants_by_line = {}
@@ -1198,7 +1192,8 @@ func configure_markers(document: Dictionary) -> Dictionary:
 			or not document.get("entries") is Array or document.entries.is_empty(): return _fail(&"reading_markers_invalid")
 	var selected := {}
 	var ids := {}
-	for raw: Variant in document.entries:
+	var owned := document.duplicate(true)
+	for raw: Variant in owned.entries:
 		if not raw is Dictionary or not FROZEN._exact(raw, ["entry_id", "content_version", "catalogue_fingerprint", "marker"]) \
 				or not raw.entry_id is String or not catalogue.has(raw.entry_id) or selected.has(raw.entry_id) \
 				or typeof(raw.content_version) != TYPE_INT or raw.content_version != catalogue[raw.entry_id].content_version \
@@ -1220,15 +1215,15 @@ func configure_markers(document: Dictionary) -> Dictionary:
 		for index: int in range(lines.size() - 1):
 			if lines[index].line_id == marker.after_line_id and lines[index + 1].line_id == marker.before_line_id: gap = index
 		if gap < 0: return _fail(&"reading_marker_position_invalid")
-		selected[raw.entry_id] = marker.duplicate(true)
+		selected[raw.entry_id] = marker
 		ids[marker.event_id] = true
 	var encoded := JSON_WRITER.stringify(document)
 	if not encoded.ok: return encoded
-	marker_document = document.duplicate(true)
+	marker_document = owned
 	marker_entries = selected
 	marker_fingerprint = str(encoded.value).sha256_text()
 	FROZEN._freeze(marker_document)
-	FROZEN._freeze(marker_entries)
+	marker_entries.make_read_only()
 	return {"ok": true}
 
 func _capture_marker(frontier: Dictionary) -> Dictionary:
@@ -1257,7 +1252,7 @@ func _validate_marker_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 
 func _validate_marker_base(saved: Dictionary, entry_id: String) -> Dictionary:
 	var base := {"schema_version": 1, "catalogue_fingerprint": saved.catalogue_fingerprint,
-		"boundary": saved.boundary, "ledger": saved.ledger.duplicate(true), "frontier": saved.frontier.duplicate(true)}
+		"boundary": saved.boundary, "ledger": saved.ledger, "frontier": saved.frontier}
 	if saved.boundary == "notification":
 		var marker: Dictionary = marker_entries[entry_id]
 		var anchor: Dictionary = saved.frontier.anchor
@@ -1297,7 +1292,8 @@ func prepare_marker_next(frontier: Dictionary, is_witnessed: Callable, semantic:
 			or boundary not in ["line", "notification"]: return _fail(&"reading_next_unavailable")
 	var captured := capture(frontier)
 	if not captured.ok: return captured
-	var source := TRAVERSAL.without_operation(captured.value)
+	var source: Dictionary = captured.value
+	source.next_operation = null
 	var marker: Dictionary = marker_entries[latest_entry]
 	var lines: Array = catalogue[latest_entry].lines
 	var tail: Dictionary = source.ledger.captions.back()
@@ -1305,20 +1301,17 @@ func prepare_marker_next(frontier: Dictionary, is_witnessed: Callable, semantic:
 	for ordinal: int in lines.size():
 		if lines[ordinal].line_id == tail.beat.line_id: index = ordinal
 	if index < 0: return _fail(&"reading_frontier_invalid")
-	var candidate := LEDGER.new()
-	var copied := candidate.restore_snapshot(command_id, source.ledger.frozen_context, manifest,
-		registry, source.ledger, source.ledger.entry_contexts, true)
-	if not copied.ok: return copied
+	var candidate := ledger.fork_legacy_checkpoint()
 	var traversed: Array = []
 	var destination := {"kind": "completion"}
 	var crossed := _marker_crossed(source, latest_entry)
 	for ordinal: int in range(index, lines.size()):
 		if not crossed and lines[ordinal].line_id == marker.after_line_id:
 			if semantic.is_empty(): return {"ok": true, "needs_event": true}
-			var anchor_row: Dictionary = candidate.snapshot().captions.back()
+			var anchor_frontier := candidate.latest_frontier()
 			destination = {"kind": "notification", "semantic": semantic.duplicate(true), "anchor": {
 				"session_id": command_id, "entry_id": latest_entry, "content_version": catalogue[latest_entry].content_version,
-				"catalogue_fingerprint": fingerprint, "line_id": anchor_row.beat.line_id, "publication_id": anchor_row.publication_id}}
+				"catalogue_fingerprint": fingerprint, "line_id": anchor_frontier.line_id, "publication_id": anchor_frontier.publication_id}}
 			break
 		if ordinal + 1 >= lines.size(): break
 		var variant: Dictionary = _caption_variants_by_line[lines[ordinal + 1].line_id]
@@ -1335,8 +1328,8 @@ func prepare_marker_next(frontier: Dictionary, is_witnessed: Callable, semantic:
 		traversed.append(row)
 	var plan := {"schema_version": 2, "entry_id": latest_entry, "source_reading": source,
 		"traversed_captions": traversed, "destination": destination}
-	var made := TRAVERSAL.create(plan, "source")
-	if not made.ok: return made
+	var checked := TRAVERSAL.encode_plan(plan, 2)
+	if not checked.ok: return checked
 	var route := _validate_marker_route(plan)
 	return {"ok": true, "value": plan} if route.ok else route
 

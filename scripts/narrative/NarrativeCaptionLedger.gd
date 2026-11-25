@@ -35,6 +35,11 @@ func fork_live() -> NarrativeCaptionLedger:
 	candidate._publication_serial = _publication_serial
 	return candidate
 
+func fork_legacy_checkpoint() -> NarrativeCaptionLedger:
+	var candidate := fork_live()
+	candidate._publication_serial = _sequence.size()
+	return candidate
+
 func matches_live_history(retained: NarrativeCaptionLedger) -> bool:
 	if retained == null or _scene != retained._scene or _session_token != retained._session_token \
 			or _entry_contexts_required != retained._entry_contexts_required \
@@ -162,7 +167,7 @@ func restore_snapshot(session_token: String, frozen_context: Dictionary,
 	return {"ok": true}
 
 func allocate_publication(session_token: String, entry_id: String, occurrence_id: String = "") -> Dictionary:
-	var checked := check_session(session_token, entry_id, occurrence_id)
+	var checked := _check_session(session_token, entry_id, occurrence_id)
 	if not checked.ok: return checked
 	if _publication_serial == 9223372036854775807: return _fail(&"caption_publication_exhausted")
 	_publication_serial += 1
@@ -174,13 +179,18 @@ func allocate_publication(session_token: String, entry_id: String, occurrence_id
 	return {"ok": true, "value": publication_id}
 
 func check_session(session_token: String, entry_id: String, occurrence_id: String = "") -> Dictionary:
+	var checked := _check_session(session_token, entry_id, occurrence_id)
+	if checked.ok and _scene: checked.value = checked.value.duplicate(true)
+	return checked
+
+func _check_session(session_token: String, entry_id: String, occurrence_id: String) -> Dictionary:
 	if _session_token.is_empty(): return _fail(&"caption_session_uninitialized")
 	if session_token != _session_token: return _fail(&"caption_foreign_session")
 	if not _has_registered_entry(entry_id): return _fail(&"caption_entry_unregistered")
 	if _scene:
 		var key := scene_frame_key(occurrence_id, entry_id)
 		if key.is_empty() or not _entry_contexts.has(key): return _fail(&"caption_entry_context_missing")
-		return {"ok": true, "value": _entry_contexts[key].duplicate(true)}
+		return {"ok": true, "value": _entry_contexts[key]}
 	if not occurrence_id.is_empty(): return _fail(&"caption_entry_context_invalid")
 	if _entry_contexts_required and not _entry_contexts.has(entry_id):
 		return _fail(&"caption_entry_context_missing")
@@ -191,7 +201,7 @@ func _has_registered_entry(entry_id: String) -> bool:
 
 func publish_line(session_token: String, publication_id: String, entry_id: String, line_id: String,
 		occurrence_id: String = "") -> Dictionary:
-	var session := check_session(session_token, entry_id, occurrence_id)
+	var session := _check_session(session_token, entry_id, occurrence_id)
 	if not session.ok: return session
 	if not _by_line.has(line_id): return _fail(&"caption_line_unregistered")
 	var beat: Dictionary = _by_line[line_id]
@@ -218,7 +228,7 @@ func publish_caption(session_token: String, publication_id: String, beat: Dictio
 			return _fail(&"caption_publication_expired")
 	if not _registered.has(beat.beat_id): return _fail(&"caption_beat_unregistered")
 	if _registered[beat.beat_id] != beat: return _fail(&"caption_registration_mismatch")
-	var session := check_session(session_token, beat.owning_entry_id, occurrence_id)
+	var session := _check_session(session_token, beat.owning_entry_id, occurrence_id)
 	if not session.ok: return session
 	var admitted: Dictionary = _registered[beat.beat_id]
 	var row := {"publication_id": publication_id, "beat": admitted}
@@ -252,10 +262,21 @@ func is_current_occurrence(session_token: String, entry_id: String, frontier: Di
 	return last.publication_id == frontier.publication_id and last.beat.line_id == frontier.line_id \
 		and last.beat.owning_entry_id == entry_id and str(last.get("occurrence_id", "")) == occurrence_id
 
+func latest_frontier() -> Dictionary:
+	if _sequence.is_empty(): return {}
+	var tail: Dictionary = _sequence.back()
+	return {"line_id": tail.beat.line_id, "publication_id": tail.publication_id}
+
 func snapshot() -> Dictionary:
-	var result := {"session_token": _session_token, "frozen_context": _frozen_context.duplicate(true),
-		"captions": _sequence.duplicate(true)}
-	if _entry_contexts_required: result["entry_contexts"] = _entry_contexts.duplicate(true)
+	return _snapshot_fields().duplicate(true)
+
+func matches_snapshot(saved: Dictionary) -> bool:
+	return _snapshot_fields() == saved
+
+func _snapshot_fields() -> Dictionary:
+	var result := {"session_token": _session_token, "frozen_context": _frozen_context,
+		"captions": _sequence}
+	if _entry_contexts_required: result["entry_contexts"] = _entry_contexts
 	if _scene: result["schema_version"] = 2
 	return result
 
@@ -294,12 +315,17 @@ static func valid_scene_frame(frame: Dictionary, occurrence_id: String, entry_id
 		and not fields.admission_receipt_id.strip_edges().is_empty() and FROZEN._primitive(frame)
 
 static func resolve_scene_frame(frames: Dictionary, occurrence_id: String, entry_id: String) -> Dictionary:
+	var frame := _scene_frame_view(frames, occurrence_id, entry_id)
+	if frame.ok: frame.value = frame.value.duplicate(true)
+	return frame
+
+static func _scene_frame_view(frames: Dictionary, occurrence_id: String, entry_id: String) -> Dictionary:
 	var key := scene_frame_key(occurrence_id, entry_id)
 	if key.is_empty() or not frames.has(key):
 		return {"ok": false, "code": &"caption_entry_context_missing"}
 	if not frames[key] is Dictionary or not valid_scene_frame(frames[key], occurrence_id, entry_id):
 		return {"ok": false, "code": &"caption_entry_context_invalid"}
-	return {"ok": true, "value": frames[key].duplicate(true)}
+	return {"ok": true, "value": frames[key]}
 
 func _restore_scene_snapshot(session_token: String, frozen_context: Dictionary,
 		entry_manifest: Dictionary, registry: Dictionary, saved: Dictionary,

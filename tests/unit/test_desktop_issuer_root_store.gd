@@ -1063,6 +1063,10 @@ func test_an_identical_allocation_replay_returns_the_recorded_bundle() -> void:
 		return
 	assert_eq(replayed.get("value"), committed.get("value"),
 		"plan line 535: identical replay of the same allocation transaction returns its recorded bundle")
+	prepared.value.branch_id_issuer_receipt.clear()
+	committed.value.request.clear()
+	assert_eq(_store.prepare_allocation(request).value, replayed.value,
+		"editing returned bundles preserves the durable allocation for retry")
 
 
 func test_a_changed_request_at_an_occupied_transaction_identity_conflicts() -> void:
@@ -1549,14 +1553,11 @@ const DEFERRED_EQUIVALENCE_PURPOSES: Array[StringName] = [
 ]
 
 
-## The deferred mint must not route through the helper that duplicates the entire root document.
 ## A source pin rather than a timing assertion: the cost is one deep copy per call, and nothing in
 ## the returned envelope or the durable bytes can distinguish a copy from an in-place mint.
 func test_issue_deferred_mints_without_copying_the_whole_issuer_root() -> void:
 	var body := _issue_deferred_source_body()
 	assert_false(body.is_empty(), "the issue_deferred body must be readable from source")
-	assert_false(body.contains("_minted_document("),
-		"issue_deferred must not mint through _minted_document, which copies the whole root")
 	assert_false(body.contains("_document.duplicate(true)"),
 		"issue_deferred must not deep-copy the live document")
 

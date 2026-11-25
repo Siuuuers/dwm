@@ -171,6 +171,11 @@ func _failure(code: StringName) -> Dictionary:
 const SCENE_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 static func validate_scene_catalogue(catalogue: Variant, entry_ids: Array) -> Dictionary:
+	var checked := _check_scene_catalogue(catalogue, entry_ids)
+	if not checked.ok: return checked
+	return {"ok": true, "value": catalogue.duplicate(true)}
+
+static func _check_scene_catalogue(catalogue: Variant, entry_ids: Array) -> Dictionary:
 	if not _scene_keys(catalogue, ["kind", "schema_version", "assets", "plans", "bindings"]):
 		return _scene_failure()
 	if typeof(catalogue.kind) != TYPE_STRING or catalogue.kind != "scene_audio_catalogue" or typeof(catalogue.schema_version) != TYPE_INT or catalogue.schema_version not in [1, 2, 3]:
@@ -240,7 +245,7 @@ static func validate_scene_catalogue(catalogue: Variant, entry_ids: Array) -> Di
 		if binding.plan_id != null and (not _scene_id(binding.plan_id) or not plans.has(binding.plan_id)):
 			return _scene_failure()
 		previous = binding.entry_id
-	return {"ok": true, "value": catalogue.duplicate(true)}
+	return {"ok": true, "value": catalogue}
 
 
 static func make_scene_context(registration: Dictionary, entry_id: String, admission_receipt_id: String) -> Dictionary:
@@ -322,7 +327,7 @@ static func resolve_scene_context(context: Dictionary, registration: Dictionary)
 		var asset_id: String = plan.music if plan.music != null else plan.ambience_asset_id
 		for asset: Dictionary in checked.value.assets:
 			if asset.asset_id == asset_id:
-				result.record = {"asset": asset.duplicate(true), "plan": plan.duplicate(true)}
+				result.record = {"asset": asset.duplicate(), "plan": plan.duplicate(true)}
 				if plan.music != null: result["channel"] = &"music"
 				result.entrance_seconds = float(plan.entrance_ms) / 1000.0
 				result.load_seconds = result.entrance_seconds if result.inline_audio else float(plan.load_anchor_ms) / 1000.0
@@ -345,7 +350,7 @@ static func _scene_registration(registration: Dictionary) -> Dictionary:
 		if typeof(entry) != TYPE_DICTIONARY or not _scene_id(entry.get("entry_id")):
 			return _scene_failure(&"invalid_scene_audio_registration")
 		ids.append(entry.entry_id)
-	return validate_scene_catalogue(registration.get("audio_catalogue"), ids)
+	return _check_scene_catalogue(registration.get("audio_catalogue"), ids)
 
 
 static func _scene_selection(plan: Dictionary) -> Dictionary:

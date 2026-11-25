@@ -541,7 +541,7 @@ func _construct_identity_issuer_and_contact_commands() -> Dictionary:
 			_profile_storage, CRYPTO_DESKTOP_NAMESPACE_SOURCE.new())
 		if not root_configured.get("ok", false):
 			return root_configured
-		var loaded: Dictionary = _desktop_issuer_root_store.load_or_create()
+		var loaded: Dictionary = _desktop_issuer_root_store.ensure_loaded()
 		if not loaded.get("ok", false):
 			return loaded
 	if _desktop_identity_nonce_issuer == null:
@@ -1083,7 +1083,7 @@ func _on_day_changed(new_day: int) -> void:
 	if not _is_exact_eviction_command(command, new_day):
 		_desktop_day_change_fatal(&"DESKTOP_EVICTION_COMMAND_INVALID", new_day, [])
 		return
-	var raw_result: Dictionary = _desktop_eviction_port.dispatch_desktop_eviction(command.duplicate(true))
+	var raw_result: Dictionary = _desktop_eviction_port.dispatch_desktop_eviction(command)
 	if not raw_result.get("ok", false):
 		_desktop_day_change_fatal(&"DESKTOP_EVICTION_DISPATCH_FAILED", new_day,
 			[{"owner_id": "desktop_eviction_port", "operation": "dispatch_desktop_eviction", "result": raw_result}])
@@ -1240,7 +1240,7 @@ func _on_live_session_ready() -> void:
 	if game_state == null: return
 	var session: Dictionary = game_state.capture_live_session()
 	if session.get("ok", false) and session.value.active:
-		_pending_live_continuation = session.value.duplicate(true)
+		_pending_live_continuation = session.value
 		_queue_live_continuation()
 
 
@@ -1417,7 +1417,7 @@ func _complete_scene_challenge(host: Control, panel: Control) -> void:
 	var game := _target(&"GameState")
 	var current: Dictionary = game.capture_scene_challenge_command()
 	if not current.get("ok", false): return
-	var presented: Dictionary = panel._command.duplicate(true)
+	var presented: Dictionary = panel._command.duplicate()
 	presented.erase("physical_token")
 	if presented != current.value.command: return
 	var released: Dictionary = close_scene_computer(host)

@@ -266,7 +266,7 @@ func _complete_owned(completion_id: String, result: Dictionary) -> void:
 		physical_completion_failed.emit(_fail(&"physical_completion_malformed",
 			"the emitted receipt member set is not exact", {}))
 		return
-	_completed[completion_id] = receipt.duplicate(true)
+	_completed[completion_id] = receipt
 	physical_completion_ready.emit(receipt.duplicate(true))
 
 

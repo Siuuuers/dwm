@@ -44,7 +44,7 @@ func present(next_rail: Dictionary, next_maximum: int, next_value: int, next_pag
 	if not _valid(next_rail,next_maximum,next_value,next_page): return false
 	if _dragging and (not next_interactive or maximum != next_maximum or page != next_page or rail.get("rect") != next_rail.rect):
 		_dragging = false
-	rail = next_rail.duplicate(true)
+	rail = next_rail.duplicate()
 	maximum = next_maximum
 	value = next_value
 	page = next_page

@@ -27,14 +27,13 @@ func _ready() -> void:
 
 
 func set_parameters(value: Dictionary) -> Dictionary:
-	var candidate := value.duplicate(true)
 	var validated := _validate_contract()
 	if not validated.get("ok", false):
 		return validated
-	var translated: String = _localization.t(key, candidate)
+	var translated: String = _localization.t(key, value)
 	if translated == "[format_error:%s]" % key:
 		return _fail(&"parameter_mismatch")
-	parameters = candidate.duplicate(true)
+	parameters = value.duplicate(true)
 	_target.set(target_property, translated)
 	return _success()
 
@@ -43,7 +42,7 @@ func refresh() -> Dictionary:
 	var validated := _validate_contract()
 	if not validated.get("ok", false):
 		return validated
-	var translated: String = _localization.t(key, parameters.duplicate(true))
+	var translated: String = _localization.t(key, parameters)
 	if translated == "[format_error:%s]" % key:
 		return _fail(&"parameter_mismatch")
 	_target.set(target_property, translated)

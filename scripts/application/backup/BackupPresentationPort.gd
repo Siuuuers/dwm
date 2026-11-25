@@ -120,7 +120,7 @@ static func _quick_refusal(capability: Dictionary) -> Dictionary:
 		status = "unavailable"
 	return {"ok": false, "code": &"backup_action_unavailable",
 		"status_key": status,
-		"condition": value.get("condition", {}).duplicate(true)}
+		"condition": value.get("condition", {})}
 
 func prepare_action(action: String, locator: String) -> Dictionary:
 	if not is_instance_valid(_owner):
