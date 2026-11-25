@@ -53,6 +53,24 @@ func test_continuation_plans_one_visible_caption_without_mutating_held_custody()
 	plan.destination.caption.beat.line_id = "TEST.changed.detached.copy"
 	assert_eq(session.capture({}), before)
 
+func test_continuation_records_the_authored_thought_on_the_same_reading_step() -> void:
+	var session := _at_playable()
+	if session == null: return
+	var target: int = session.scene_index + 1
+	var nodes: Array = session._scene_nodes[FIXTURE.B].duplicate(true)
+	nodes[target]["self_talk"] = {"line_id": "line.scene.test.b.thought"}
+	session._scene_nodes[FIXTURE.B] = nodes
+	var planned: Dictionary = session.prepare_scene_control_continuation()
+	assert_true(planned.ok, str(planned))
+	if not planned.ok: return
+	assert_eq(planned.value.paired_lines, {nodes[target].line_id: "line.scene.test.b.thought"})
+	var projected := OP.project(planned.value, "destination")
+	assert_true(projected.ok, str(projected))
+	if not projected.ok: return
+	assert_eq(projected.value.frontier.line_id, nodes[target].line_id)
+	assert_eq(projected.value.player_progress.history_sections.back().last_line_id, "line.scene.test.b.thought")
+	assert_true(OP.validate_scene_operation_path(projected.value, FIXTURE.B, nodes).ok)
+
 func test_retained_live_state_binds_history_cursor_progress_and_operation() -> void:
 	var session := _at_playable()
 	if session == null: return

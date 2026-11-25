@@ -461,12 +461,18 @@ static func validate_scene_operation_path(reading: Dictionary, entry_id: String,
 	opposite.next_operation = operation
 	return {"ok": true, "value": opposite}
 
+static func finish_scene_plan(plan: Dictionary, nodes: Array) -> Dictionary:
+	var checked := _validate_scene_plan_shape(plan)
+	if not checked.ok: return checked
+	var path := _validate_scene_path(plan, nodes, true)
+	return {"ok": true, "value": plan} if path.ok else path
+
 static func validate_scene_path(plan: Dictionary, nodes: Array) -> Dictionary:
 	var checked := _validate_scene_plan_shape(plan)
 	if not checked.ok: return checked
 	return _validate_scene_path(plan, nodes)
 
-static func _validate_scene_path(plan: Dictionary, nodes: Array) -> Dictionary:
+static func _validate_scene_path(plan: Dictionary, nodes: Array, attach_pairs: bool = false) -> Dictionary:
 	var source: Dictionary = plan.source_reading
 	if source.program_index >= nodes.size() or not nodes[source.program_index] is Dictionary:
 		return _fail(&"reading_next_source_invalid")
@@ -475,11 +481,14 @@ static func _validate_scene_path(plan: Dictionary, nodes: Array) -> Dictionary:
 		if source_node.get("kind") != "control": return _fail(&"reading_next_source_invalid")
 	elif source_node.get("kind") != "caption" or source_node.get("line_id") != source.frontier.line_id:
 		return _fail(&"reading_next_source_invalid")
-	var expected_pairs := {}
+	var pairs := {}
 	for edge: Dictionary in plan.path:
 		if edge.to < nodes.size() and nodes[edge.to].has("self_talk"):
-			expected_pairs[nodes[edge.to].line_id] = nodes[edge.to].self_talk.line_id
-	if plan.get("paired_lines", {}) != expected_pairs: return _fail(&"reading_next_path_invalid")
+			pairs[nodes[edge.to].line_id] = nodes[edge.to].self_talk.line_id
+	if attach_pairs:
+		if not pairs.is_empty(): plan["paired_lines"] = pairs
+	elif plan.get("paired_lines", {}) != pairs:
+		return _fail(&"reading_next_path_invalid")
 	var expected_lines: Array = []
 	var stopped := false
 	var visited := {}

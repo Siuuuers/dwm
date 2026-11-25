@@ -596,13 +596,7 @@ func prepare_scene_control_continuation() -> Dictionary:
 		"path": [{"from": scene_index, "to": target}], "traversed_captions": [],
 		"destination": {"kind": "line", "program_index": target, "caption": {
 			"publication_id": allocation.value, "occurrence_id": scene_occurrence, "beat": beat.duplicate(true)}}}
-	var paired_lines := {}
-	for edge: Dictionary in plan.path:
-		var target_node: Dictionary = nodes[edge.to]
-		if target_node.has("self_talk"): paired_lines[target_node.line_id] = target_node.self_talk.line_id
-	if not paired_lines.is_empty(): plan["paired_lines"] = paired_lines
-	var checked := TRAVERSAL.validate_scene_path(plan, nodes)
-	return {"ok": true, "value": plan} if checked.ok else checked
+	return TRAVERSAL.finish_scene_plan(plan, nodes)
 
 func prepare_scene_next(frontier: Dictionary, is_witnessed: Callable) -> Dictionary:
 	if family != "scene" or boundary != "line" or not is_witnessed.is_valid(): return _fail(&"reading_next_unavailable")
@@ -650,13 +644,7 @@ func prepare_scene_next(frontier: Dictionary, is_witnessed: Callable) -> Diction
 		index = target
 	var plan := {"schema_version": 3, "entry_id": latest_entry, "source_reading": reading,
 		"path": path, "traversed_captions": captions, "destination": destination}
-	var paired_lines := {}
-	for edge: Dictionary in plan.path:
-		var target_node: Dictionary = nodes[edge.to]
-		if target_node.has("self_talk"): paired_lines[target_node.line_id] = target_node.self_talk.line_id
-	if not paired_lines.is_empty(): plan["paired_lines"] = paired_lines
-	var checked := TRAVERSAL.validate_scene_path(plan, nodes)
-	return {"ok": true, "value": plan} if checked.ok else checked
+	return TRAVERSAL.finish_scene_plan(plan, nodes)
 
 func project_scene_day_history(frontier: Dictionary) -> Dictionary:
 	if family != "scene": return _fail(&"reading_session_unavailable")

@@ -343,27 +343,25 @@ static func build_scene(snapshot_input: Dictionary, dialogic_checkpoint: Diction
 	if not selected.ok: return selected
 	var live := validate_scene_input_fields(snapshot_input, selected.bundle)
 	if not live.ok: return live
-	var snapshot: Dictionary = snapshot_input.duplicate(true)
-	for member: String in ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
-		snapshot.erase(member)
-	if not snapshot.get("desktop") is Dictionary or not snapshot.desktop.get("board") is Dictionary:
-		return _fail(&"invalid_desktop_aggregate", "desktop board input is required")
-	var player_board: Dictionary = DESKTOP_BOARD_STATE.project_player_state(snapshot.desktop.board)
+	var player_board: Dictionary = DESKTOP_BOARD_STATE.project_player_state(snapshot_input.desktop.board)
 	if not player_board.ok: return player_board
-	snapshot.desktop.board = player_board.value.snapshot
-	snapshot.merge({"schema_version": SCENE_SCHEMA_VERSION, "content_version": content_version,
-		"run_id": snapshot_input.lifecycle.get("run_id"), "checkpoint_sequence": checkpoint_sequence,
-		"checkpoint_id": "%s:%d" % [str(snapshot_input.lifecycle.get("run_id", "")), checkpoint_sequence],
-		"route_id": route_id,
-		"narrative_checkpoint": dialogic_checkpoint.duplicate(true)})
-	var player_reading: Dictionary = SCENE_READING.project_player_checkpoint(snapshot.narrative_checkpoint)
+	var player_reading: Dictionary = SCENE_READING.project_player_checkpoint(dialogic_checkpoint)
 	if not player_reading.ok: return player_reading
-	snapshot.narrative_checkpoint = player_reading.value
+	var snapshot := {"schema_version": SCENE_SCHEMA_VERSION, "content_version": content_version,
+		"run_id": snapshot_input.lifecycle.run_id, "checkpoint_sequence": checkpoint_sequence,
+		"checkpoint_id": "%s:%d" % [snapshot_input.lifecycle.run_id, checkpoint_sequence],
+		"route_id": route_id, "narrative_checkpoint": player_reading.value,
+		"lifecycle": snapshot_input.lifecycle, "gameplay": snapshot_input.gameplay,
+		"contacts": snapshot_input.contacts, "scene": snapshot_input.scene,
+		"desktop": {"board": player_board.value.snapshot, "consequence": snapshot_input.desktop.consequence}}
 	if is_scene_terminal(snapshot):
-		if not snapshot.lifecycle.ending_plan.get("source_reading_checkpoint") is Dictionary:
+		var ending: Dictionary = snapshot.lifecycle.ending_plan
+		if not ending.get("source_reading_checkpoint") is Dictionary:
 			return _fail(&"reading_checkpoint_invalid", "terminal source reading must be an object")
-		var source_reading: Dictionary = SCENE_READING.project_player_checkpoint(snapshot.lifecycle.ending_plan.source_reading_checkpoint)
+		var source_reading: Dictionary = SCENE_READING.project_player_checkpoint(ending.source_reading_checkpoint)
 		if not source_reading.ok: return source_reading
+		snapshot.lifecycle = snapshot.lifecycle.duplicate()
+		snapshot.lifecycle.ending_plan = ending.duplicate()
 		snapshot.lifecycle.ending_plan.source_reading_checkpoint = source_reading.value
 	var checked := validate(snapshot)
 	if not checked.ok: return checked
