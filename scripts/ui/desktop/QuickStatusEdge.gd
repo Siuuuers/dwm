@@ -52,6 +52,9 @@ func publish_status(next_key: StringName, binding: Dictionary, validator: Callab
 	remaining_seconds = 2.0 if key == &"saved" else (0.0 if key == &"saving" else 4.0)
 	if _eligible: _show_current()
 
+func matches_source(source: Dictionary) -> bool:
+	return _binding.get("source", {}) == source
+
 func clear_status() -> void:
 	set_process(false)
 	_generation += 1

@@ -138,7 +138,7 @@ func _request(action: String) -> void:
 		return
 	var value: Dictionary = prepared.value
 	_pending_token = str(value.token)
-	_condition = value.condition.duplicate(true)
+	_condition = value.condition.duplicate()
 	if action == "load":
 		edge.clear_status()
 		var shown: Dictionary = _desktop.present_confirmation(_load_copy(value.record), _confirm_load, _cancel_load)
@@ -206,16 +206,12 @@ func _restore_focus() -> void:
 			replacement = app.drawer_buttons.get(app.selected_locator)
 		if is_instance_valid(replacement) and replacement.get_focus_mode_with_override() != Control.FOCUS_NONE: replacement.grab_focus()
 
-func _status_source(source: Dictionary, _key: StringName) -> Dictionary:
-	return source
-
 func _publish(key: String, condition: Dictionary, source: Dictionary) -> void:
 	if (condition.is_empty() and key != "saved") or not is_instance_valid(edge): return
 	_refresh_edge()
-	var captured := condition.duplicate(true)
-	var context := _status_source(source, StringName(key)).duplicate(true)
-	edge.publish_status(StringName(key), {"condition": captured, "source": context}, func() -> bool:
-		return is_instance_valid(_port) and _status_source(_source_snapshot(), StringName(key)) == context \
+	var captured := condition.duplicate()
+	edge.publish_status(StringName(key), {"condition": captured, "source": source}, func() -> bool:
+		return is_instance_valid(_port) and _source_snapshot() == source \
 			and (captured.is_empty() or _port.is_quick_condition_current(captured)))
 
 func _process(delta: float) -> void:
@@ -225,7 +221,7 @@ func _process(delta: float) -> void:
 	if current_source != _observed_source:
 		_observed_source = current_source
 		retain_contacts()
-		if edge.current_binding.get("source", {}) != _status_source(current_source, edge.key): edge.clear_status()
+		if not edge.matches_source(current_source): edge.clear_status()
 	var admitted := _admitted()
 	if admitted != _was_admitted:
 		retain_contacts()

@@ -167,7 +167,7 @@ func _request(action: String) -> void:
 		_publish(str(prepared.get("status_key", "unavailable")), prepared.get("condition", {}), _source)
 		return
 	_pending_token = str(prepared.value.token)
-	_condition = prepared.value.condition.duplicate(true)
+	_condition = prepared.value.condition.duplicate()
 	if action == "load":
 		edge.clear_status()
 		var shown: Dictionary = _surface.present_quick_confirmation(_load_copy(prepared.value.record), _confirm_load, _cancel_load)
@@ -250,7 +250,7 @@ func _restore_focus() -> void:
 
 func _publish(key: String, condition: Dictionary, source: Dictionary) -> void:
 	if not is_instance_valid(edge): return
-	var captured := condition.duplicate(true)
+	var captured := condition.duplicate()
 	var context := source.duplicate(true)
 	edge.publish_status(StringName(key), {"condition": captured, "source": context}, func() -> bool:
 		return is_instance_valid(_port) and _base_admitted() and _current_source() == context \
@@ -263,7 +263,7 @@ func _process(delta: float) -> void:
 	if source != _observed_source:
 		_observed_source = source.duplicate(true)
 		retain_contacts()
-		if edge.current_binding.get("source", {}) != source: edge.clear_status()
+		if not edge.matches_source(source): edge.clear_status()
 	var admitted := _admitted("save")
 	if admitted != _was_admitted:
 		_was_admitted = admitted

@@ -77,7 +77,7 @@ func get_quick_capability(action: String) -> Dictionary:
 	var result: Dictionary = _owner.get_backup_quick_capability(action)
 	if not _pending.is_empty():
 		return {"ok": true, "value": {"enabled": false, "status_key": "unavailable",
-			"condition": result.get("value", {}).get("condition", {}).duplicate(true)}}
+			"condition": result.get("value", {}).get("condition", {}).duplicate()}}
 	return result.duplicate(true)
 
 func is_quick_condition_current(condition: Dictionary) -> bool:
@@ -103,7 +103,7 @@ func prepare_quick_action(action: String) -> Dictionary:
 	_pending[token] = {"action": action, "locator": "quick", "quick": true}
 	return {"ok": true, "value": {"token": token, "record": record,
 		"confirmation_required": action == "load", "confirmation_kind": kind,
-		"condition": value["condition"].duplicate(true)}}
+		"condition": value["condition"].duplicate()}}
 
 func _quick_available(action: String) -> bool:
 	if action not in ["save", "load"] or _context != "in_run" or not is_instance_valid(_owner):

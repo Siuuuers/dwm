@@ -724,7 +724,7 @@ func present_confirmation(request: Dictionary, accept: Callable, cancel: Callabl
 	if is_instance_valid(_confirmation):
 		return {"ok": false, "code": &"confirmation_already_open"}
 	_confirmation = CONFIRMATION.new()
-	_confirmation.request = request.duplicate(true)
+	_confirmation.request = request.duplicate()
 	_confirmation.theme = request.get("theme", theme)
 	_confirmation.finished.connect(func(accepted: bool):
 		_confirmation = null
