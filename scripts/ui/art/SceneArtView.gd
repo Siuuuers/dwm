@@ -168,10 +168,10 @@ func _queue_artwork_observation() -> void:
 	_artwork_observation_pending = true
 	await RenderingServer.frame_post_draw
 	_artwork_observation_pending = false
-	var bridge := get_node_or_null("/root/DialogicBridge")
-	if bridge != null and (bridge.is_scene_transition_active() or bridge.is_rehearsal_playback()): return
 	if not is_visible_in_tree() or not is_instance_valid(_view_profile) \
 			or not _view_profile.has_method("record_displayed_artwork") or not is_instance_valid(_background): return
+	var bridge := get_node_or_null("/root/DialogicBridge")
+	if bridge != null and (bridge.is_scene_transition_active() or bridge.is_rehearsal_playback()): return
 	var displayed: Array[String] = []
 	var textures: Array = [_background, _cg] + _portraits + _overlays.get_children()
 	for rect: TextureRect in textures:

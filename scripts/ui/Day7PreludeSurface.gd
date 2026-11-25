@@ -149,6 +149,9 @@ func present_card(card: Dictionary, allow_auto_advance: bool = false) -> Diction
 	if is_node_ready(): _append_card()
 	return {"ok": true}
 
+func has_drawn_card(card: Dictionary) -> bool:
+	return _drawn and _card == card
+
 func get_presentation_history() -> Array[Dictionary]:
 	var cards: Array[Dictionary] = []
 	for card: Dictionary in _history: cards.append(_detach_card(card))
@@ -342,7 +345,7 @@ func _append_card() -> void:
 	_current_body.text = _card.body
 	_current_body.add_theme_color_override("font_color", Color("252b34"))
 	_current_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_current_body.draw.connect(_on_body_drawn.bind(_card.receipt.duplicate(true)))
+	_current_body.draw.connect(_on_body_drawn.bind(_card.receipt))
 	_current_body.item_rect_changed.connect(_redraw_current_body)
 	_history_list.add_child(_current_body)
 	_reveal_current_card.call_deferred(str(_card.receipt.view_token))
@@ -360,10 +363,10 @@ func _on_body_drawn(receipt: Dictionary) -> void:
 	if _presentation_receipts and not _beginning_is_visible(): return
 	_drawn = true
 	_reset_auto_delay()
-	_history.append(_detach_card(_card))
+	_history.append(_card)
 	if _presentation_receipts:
 		_acknowledgment_pending = true
-		_acknowledge_drawn_card.call_deferred(receipt.duplicate(true))
+		_acknowledge_drawn_card.call_deferred(receipt)
 	else:
 		_next.disabled = false
 		_focus_next.call_deferred()
@@ -401,7 +404,7 @@ func _on_next() -> void:
 func _submit_acknowledgment() -> void:
 	_busy = true
 	_next.disabled = true
-	_invoke_acknowledgment(weakref(self), _acknowledge, _card.receipt.duplicate(true))
+	_invoke_acknowledgment(weakref(self), _acknowledge, _card.receipt)
 
 static func _invoke_acknowledgment(target: WeakRef, acknowledge: Callable, receipt: Dictionary) -> void:
 	var result: Variant = await acknowledge.call(receipt.duplicate(true))
