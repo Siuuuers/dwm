@@ -104,7 +104,7 @@ static func _presentation_commands_view(entry_id: String) -> Dictionary:
 static func apply_entry_presentation(entry_id: String, previous: Dictionary) -> Dictionary:
 	var commands := _presentation_commands_view(entry_id)
 	if not commands.ok: return commands
-	var state := previous.duplicate(true)
+	var state := previous
 	var autosave := false
 	for command: Dictionary in commands.value:
 		match command.get("kind", ""):
@@ -119,10 +119,14 @@ static func apply_entry_presentation(entry_id: String, previous: Dictionary) -> 
 					var applied := apply_presentation_commands([inline_command], state)
 					if not applied.ok: return applied
 					state = applied.value.state
-				elif command.kind == "show":
-					if not state.overlays.has(command.id): state.overlays.append(command.id)
 				else:
-					state.overlays.erase(command.id)
+					var show: bool = command.kind == "show"
+					if state.overlays.has(command.id) == show: continue
+					if is_same(state, previous):
+						state = state.duplicate()
+						state.overlays = state.overlays.duplicate()
+					if show: state.overlays.append(command.id)
+					else: state.overlays.erase(command.id)
 			_:
 				return {"ok": false, "code": &"presentation_command_invalid", "reference": entry_id}
 	if not state.is_empty():
@@ -166,7 +170,7 @@ static func entry_base_presentation(commands: Array) -> Dictionary:
 	return make_scene_presentation(preset_id) if not preset_id.is_empty() else {}
 
 static func apply_presentation_commands(commands: Array, previous: Dictionary) -> Dictionary:
-	if commands.is_empty(): return {"ok": true, "value": {"state": previous.duplicate(true), "autosave": false}}
+	if commands.is_empty(): return {"ok": true, "value": {"state": previous, "autosave": false}}
 	var state: Dictionary
 	if previous.is_empty():
 		state = {"checkpoint_id": "", "scene_entry_id": "", "background": "", "portraits": [],
