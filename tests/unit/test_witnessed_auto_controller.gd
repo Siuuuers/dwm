@@ -280,7 +280,8 @@ func test_completion_barrier_spends_foreground_delay_concurrently_then_holds_at_
 		"Auto exposes the host-owned speech completion barrier")
 	if not f.controller.has_method("bind_completion_barrier"): return
 	var speech := {"complete": false}
-	f.controller.call("bind_completion_barrier", func(_frontier: Dictionary) -> bool:
+	f.controller.call("bind_completion_barrier", func(frontier: Dictionary) -> bool:
+		frontier.value.clear()
 		return bool(speech.complete))
 	_arm(f)
 	f.controller._process(0.4)

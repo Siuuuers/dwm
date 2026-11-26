@@ -103,7 +103,7 @@ func arm_after_reveal(frontier: Dictionary) -> void:
 		_retire_without_rearm()
 		return
 	_generation += 1
-	_last_frontier = frontier.duplicate(true)
+	_last_frontier = current
 	_remaining = DELAYS[_delay_key]
 	_armed = true
 	_eligible_last_tick = false
@@ -112,7 +112,7 @@ func arm_after_reveal(frontier: Dictionary) -> void:
 
 func retire_current() -> void:
 	_retire_without_rearm()
-	_last_frontier.clear()
+	_last_frontier = {}
 
 
 func suspend_current() -> void:
@@ -147,15 +147,14 @@ func _process(delta: float) -> void:
 	_remaining = maxf(0.0, _remaining - maxf(delta, 0.0))
 	if _remaining > 0.0:
 		return
-	if _completion_barrier.is_valid() and not bool(_completion_barrier.call(_last_frontier.duplicate(true))):
+	if _completion_barrier.is_valid() and not bool(_completion_barrier.call(current)):
 		return
-	var expected := _last_frontier.duplicate(true)
 	var request_generation := _generation
 	_armed = false
 	_remaining = 0.0
 	set_process(false)
 	_request_in_progress = true
-	_bridge.call("request_auto_step", expected)
+	_bridge.call("request_auto_step", _last_frontier)
 	_request_in_progress = false
 	if request_generation == _generation:
 		_eligible_last_tick = false
