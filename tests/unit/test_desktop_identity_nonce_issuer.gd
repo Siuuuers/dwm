@@ -116,6 +116,9 @@ class CandidateFaithfulRootAdapter extends RefCounted:
 	func flush() -> Dictionary:
 		return root.call(&"flush")
 
+	func resolve_child_parent(receipt_id: String) -> Dictionary:
+		return root.resolve_child_parent(receipt_id)
+
 	func verify_receipt(receipt: Dictionary, expected_purpose: StringName) -> Dictionary:
 		return root.call(&"verify_receipt", receipt, expected_purpose)
 
@@ -319,6 +322,7 @@ func test_every_registered_child_kind_derives_the_frozen_child_id() -> void:
 		provenance.source_ids.clear()
 		assert_eq(derived.receipt.source_ids, ["source.a", "source.b"])
 		assert_eq(source_ids, ["source.a", "source.b"])
+	assert_eq(_issuer_root.calls_to(&"capture").size(), 0, "child lookup reads only the named receipt")
 
 
 func test_an_unregistered_child_kind_is_refused() -> void:

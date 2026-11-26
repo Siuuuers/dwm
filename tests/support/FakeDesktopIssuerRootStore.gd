@@ -161,6 +161,12 @@ func flush() -> Dictionary:
 	return {"ok": true, "value": {"written": written}}
 
 
+func resolve_child_parent(receipt_id: String) -> Dictionary:
+	if not receipts.has(receipt_id):
+		return _failed(&"child_parent_absent", receipt_id)
+	return verify_receipt(receipts[receipt_id], &"transaction_id")
+
+
 func verify_receipt(receipt: Dictionary, expected_purpose: StringName) -> Dictionary:
 	_log(&"verify_receipt", {"receipt": receipt, "expected_purpose": expected_purpose})
 	for key: String in RECEIPT_KEYS:
