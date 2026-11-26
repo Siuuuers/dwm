@@ -193,7 +193,7 @@ func get_current_bundle() -> Dictionary:
 func get_bundles_for_disk() -> Array[Dictionary]:
 	if _current.get("snapshot", {}).get("schema_version") == RUN_SNAPSHOT_SCHEMA.SCENE_SCHEMA_VERSION:
 		return []
-	return _earlier.duplicate(true)
+	return _earlier
 
 func prepare_seed(document: Dictionary, selected_bundle: Dictionary) -> Dictionary:
 	var current_snapshot: Variant = document.get("current_snapshot")
@@ -217,10 +217,7 @@ func prepare_seed(document: Dictionary, selected_bundle: Dictionary) -> Dictiona
 			"checkpoint_kind": str(bundle.get("checkpoint_kind", "")),
 			"snapshot": validated["value"]["candidate"],
 		})
-	return _prepare_seed_from_valid_bundles(valid_bundles, selected_bundle, diagnostics)
 
-func _prepare_seed_from_valid_bundles(valid_bundles: Array, selected_bundle: Dictionary,
-		diagnostics: Array[Dictionary]) -> Dictionary:
 	var selected_id := ""
 	if typeof(selected_bundle.get("snapshot")) == TYPE_DICTIONARY:
 		selected_id = str((selected_bundle["snapshot"] as Dictionary).get("checkpoint_id", ""))
@@ -242,15 +239,14 @@ func _prepare_seed_from_valid_bundles(valid_bundles: Array, selected_bundle: Dic
 	earlier.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return int(a["snapshot"]["checkpoint_sequence"]) < int(b["snapshot"]["checkpoint_sequence"]))
 	return {"ok": true, "code": &"ok", "value": {
-		"candidate": {
-			"candidate_kind": "seed",
-			"run_id": selected_run,
-			"next_sequence": selected_sequence + 1,
-			"current": selected.duplicate(true),
-			"earlier": _retained(earlier),
-		},
+		"candidate": seed_candidate(selected, _retained(earlier)),
 		"diagnostics": diagnostics,
 	}}
+
+static func seed_candidate(owned_bundle: Dictionary, earlier: Array[Dictionary] = []) -> Dictionary:
+	return {"candidate_kind": "seed", "run_id": str(owned_bundle.snapshot.run_id),
+		"next_sequence": int(owned_bundle.snapshot.checkpoint_sequence) + 1,
+		"current": owned_bundle, "earlier": earlier}
 
 func current_bundle_hash() -> String:
 	return "" if _current.is_empty() else CANONICAL_JSON.sha256(_current)
