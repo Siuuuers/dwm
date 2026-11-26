@@ -307,7 +307,7 @@ func prepare_return_to_title() -> Dictionary:
 	var source: Node = tree.current_scene if tree != null else null
 	if not _return_source_alive(source): return _startup_failure("return_title_source_unavailable")
 	if not _return_title_prepared.is_empty():
-		if _return_title_preparation_current(): return _return_title_receipt(_return_title_prepared)
+		if _return_title_preparation_current(): return _return_title_receipt(_return_title_prepared.token, _return_title_prepared.target)
 		_free_prepared_return_title()
 	var revision := _route_custody_revision
 	var generation := _route_generation
@@ -326,7 +326,7 @@ func prepare_return_to_title() -> Dictionary:
 	_return_title_counter += 1
 	_return_title_prepared = {"token": "return-title:%d:%d" % [get_instance_id(), _return_title_counter],
 		"source": weakref(source), "target": target, "revision": revision, "generation": generation}
-	return _return_title_receipt(_return_title_prepared)
+	return _return_title_receipt(_return_title_prepared.token, _return_title_prepared.target)
 
 func validate_prepared_return_to_title(token: String) -> Dictionary:
 	var admitted := _return_title_admission(true)
@@ -334,7 +334,7 @@ func validate_prepared_return_to_title(token: String) -> Dictionary:
 	if token.is_empty() or token != _return_title_prepared.get("token", "") \
 			or not _return_title_preparation_current():
 		return _startup_failure("stale_return_title_preparation")
-	return _return_title_receipt(_return_title_prepared)
+	return _return_title_receipt(_return_title_prepared.token, _return_title_prepared.target)
 
 func cancel_prepared_return_to_title(token: String) -> Dictionary:
 	var admitted := _return_title_admission(true)
@@ -352,7 +352,7 @@ func publish_prepared_return_to_title(token: String) -> Dictionary:
 		var prior: Node = _return_title_published.target.get_ref()
 		if _return_source_alive(prior) and get_tree().current_scene == prior \
 				and _return_title_published.revision == _route_custody_revision:
-			return _return_title_published.receipt.duplicate(true)
+			return _return_title_receipt(token, prior)
 		return _startup_failure("stale_return_title_publication")
 	var validated := validate_prepared_return_to_title(token)
 	if not validated.get("ok", false): return validated
@@ -376,12 +376,11 @@ func publish_prepared_return_to_title(token: String) -> Dictionary:
 	_route_custody_revision += 1
 	_route_generation += 1
 	_return_title_prepared.clear()
-	var receipt := {"ok": true, "value": {"token": token, "route_id": "menu", "scene_instance_id": target.get_instance_id()}}
 	_return_title_published = {"token": token, "target": weakref(target),
-		"revision": _route_custody_revision, "receipt": receipt.duplicate(true)}
+		"revision": _route_custody_revision}
 	source.queue_free()
 	_return_title_publishing = false
-	return receipt
+	return _return_title_receipt(token, target)
 
 func _return_title_admission(allow_internal: bool) -> Dictionary:
 	if _return_title_publishing: return _startup_failure("return_title_publication_busy")
@@ -410,9 +409,9 @@ static func _return_source_alive(source: Node) -> bool:
 		ancestor = ancestor.get_parent()
 	return true
 
-static func _return_title_receipt(prepared: Dictionary) -> Dictionary:
-	return {"ok": true, "value": {"token": prepared.token, "route_id": "menu",
-		"scene_instance_id": prepared.target.get_instance_id()}}
+static func _return_title_receipt(token: String, target: Node) -> Dictionary:
+	return {"ok": true, "value": {"token": token, "route_id": "menu",
+		"scene_instance_id": target.get_instance_id()}}
 
 func _free_prepared_return_title() -> void:
 	var target: Node = _return_title_prepared.get("target")
@@ -427,7 +426,7 @@ func _exit_tree() -> void:
 var _startup_hold_token := ""
 var _startup_hold_active := false
 var _startup_publishing := false
-var _startup_request: Dictionary = {}
+var _startup_requested_route := ""
 var _startup_published_result: Dictionary = {}
 
 func begin_startup_route_hold() -> Dictionary:
@@ -448,8 +447,8 @@ func publish_startup_route_hold(token: String) -> Dictionary:
 	if not _startup_hold_active: return _startup_failure("stale_startup_route_hold")
 	_startup_publishing = true
 	var result: Dictionary = {"ok": true, "value": {"route_id": get_current_route_id()}}
-	if not _startup_request.is_empty():
-		result = _change_to(_startup_request.route_id, true)
+	if not _startup_requested_route.is_empty():
+		result = _change_to(_startup_requested_route, true)
 	_startup_publishing = false
 	if not result.get("ok", false): return result
 	_startup_hold_active = false
@@ -460,38 +459,8 @@ func publish_startup_route_hold(token: String) -> Dictionary:
 	_startup_published_result = result.duplicate(true)
 	return result
 
-func _hold_startup_request(request: Dictionary) -> Dictionary:
-	_route_custody_revision += 1
-	_startup_request = request
-	_current_scene_id = request.route_id
-	var value := {"route_id": request.route_id, "deferred": true}
-	if request.has("port_instance_id"): value["port_instance_id"] = request.port_instance_id
-	return {"ok": true, "code": &"ok", "value": value}
-
 static func _startup_failure(code: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": ""}
-
-static func _plain_startup_value(value: Variant) -> bool:
-	match typeof(value):
-		TYPE_NIL, TYPE_BOOL, TYPE_INT, TYPE_STRING: return true
-		TYPE_FLOAT: return is_finite(value)
-		TYPE_ARRAY:
-			for item: Variant in value:
-				if not _plain_startup_value(item): return false
-			return true
-		TYPE_DICTIONARY:
-			for key: Variant in value:
-				if not key is String or not _plain_startup_value(value[key]): return false
-			return true
-	return false
-
-func _valid_startup_request(request: Variant) -> bool:
-	if not request is Dictionary or not _plain_startup_value(request): return false
-	if request.is_empty(): return true
-	if not request.get("route_id") is String or not _SCENE_PATHS.has(request.route_id): return false
-	return request.get("kind") == "scene" and request.size() == 2
-
-
 
 func configure_mutation_gate(gate: Object) -> Dictionary:
 	if gate == null or not gate.has_signal("capability_changed"):
@@ -568,7 +537,10 @@ func _change_to(scene_id: String, startup_publish: bool = false) -> Dictionary:
 		return {"ok": false, "code": &"scene_tree_unavailable", "message": scene_id}
 	if _startup_hold_active and not startup_publish:
 		if not ResourceLoader.load(path) is PackedScene: return _startup_failure("scene_missing")
-		return _hold_startup_request({"kind": "scene", "route_id": scene_id})
+		_route_custody_revision += 1
+		_startup_requested_route = scene_id
+		_current_scene_id = scene_id
+		return {"ok": true, "code": &"ok", "value": {"route_id": scene_id, "deferred": true}}
 	if scene_id == "ending":
 		return _change_to_ending(path)
 	var changed := tree.change_scene_to_file(path)
@@ -647,7 +619,7 @@ func capture_restore_state() -> Dictionary:
 	var backup := {"scene_id": _current_scene_id, "route_generation": _route_generation}
 	if _startup_hold_active:
 		backup["startup_route_hold"] = {"token": _startup_hold_token,
-			"request": _startup_request.duplicate(true), "pending_scene_id": _pending_restore_scene_id}
+			"requested_route": _startup_requested_route, "pending_scene_id": _pending_restore_scene_id}
 	return {"ok": true, "code": &"ok", "value": {"backup": backup}}
 
 
@@ -685,11 +657,12 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 	var held: Variant = source.get("startup_route_hold")
 	if _startup_hold_active or held != null:
 		if not _startup_hold_active or not held is Dictionary or held.size() != 3 \
-				or held.get("token") != _startup_hold_token or not _valid_startup_request(held.get("request")) \
+				or held.get("token") != _startup_hold_token or not held.get("requested_route") is String \
+				or (held.requested_route != "" and not _SCENE_PATHS.has(held.requested_route)) \
 				or not held.get("pending_scene_id") is String \
 				or (held.pending_scene_id != "" and not _SCENE_PATHS.has(held.pending_scene_id)):
 			return _startup_failure("stale_startup_route_backup")
-		_startup_request = held.request.duplicate(true)
+		_startup_requested_route = held.requested_route
 	_pending_restore_scene_id = held.pending_scene_id if _startup_hold_active else ""
 	_scene_activation.clear()
 	_route_custody_revision += 1
