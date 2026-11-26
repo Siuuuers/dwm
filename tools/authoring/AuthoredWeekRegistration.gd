@@ -112,7 +112,7 @@ static func prepare(source_path: String = SOURCE_PATH) -> Dictionary:
 static func prepare_audio_catalogue(authored: Variant, fallback: Dictionary,
 		entry_ids: Array, first_entry_id: String) -> Dictionary:
 	var owner := preload("res://scripts/data/AudioManifest.gd")
-	var catalogue: Dictionary = fallback.duplicate(true)
+	var catalogue: Dictionary = fallback.duplicate(authored == null)
 	catalogue.schema_version = 3
 	catalogue.bindings = []
 	var initial_music: String = BASE.MUSIC_PLAN_ID
@@ -161,7 +161,7 @@ static func prepare_audio_catalogue(authored: Variant, fallback: Dictionary,
 		catalogue.bindings.append({"entry_id": id,
 			"plan_id": initial_music if id == first_entry_id and not initial_music.is_empty() else null})
 	catalogue.bindings.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.entry_id < b.entry_id)
-	return owner.validate_scene_catalogue(catalogue, entry_ids)
+	return owner.scene_catalogue_view(catalogue, entry_ids)
 
 ## Authors select entry groups, never copy dialogue, revisions or thought roles.
 ## The native compiler and freshly rebuilt caption registry supply those facts.
