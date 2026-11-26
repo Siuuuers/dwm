@@ -1205,7 +1205,8 @@ func capture_current_speech_presentation() -> Dictionary:
 			or int(identity.get("publication_generation", -1)) != _speech_publication_generation \
 			or str(_speech_publication.get("content_locale", "")) != str(owner.get("content_locale", "")):
 		return _command_failure(&"speech_presentation_changed")
-	var publication := _speech_publication.duplicate(true)
+	var publication := _speech_publication.duplicate()
+	publication.identity = identity.duplicate()
 	var thoughts := capture_self_talk_presentation()
 	if thoughts.ok and not str(thoughts.value.current_thought).is_empty():
 		publication.primary_text += "\n" + str(thoughts.value.current_thought)

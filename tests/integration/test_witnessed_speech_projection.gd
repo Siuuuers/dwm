@@ -141,6 +141,8 @@ func test_semantic_entry_projects_native_primary_and_resolved_fallback_locale_wi
 	for forbidden: String in ["line_id", "visited", "receipt_id", "speaker"]:
 		assert_false(result.value.has(forbidden) or result.value.identity.has(forbidden),
 			"speech projection must not invent " + forbidden)
+	result.value.identity.clear()
+	assert_eq(_capture().value.identity.owner_token, "playback-1")
 
 
 func test_append_projects_only_new_primary_suffix_while_retaining_full_display_proof() -> void:
