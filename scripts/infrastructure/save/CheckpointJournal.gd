@@ -187,6 +187,9 @@ func _forget_unretained_bundle_proofs() -> void:
 func has_current_bundle() -> bool:
 	return not _current.is_empty()
 
+func current_bundle_for_save() -> Dictionary:
+	return _current
+
 func get_current_bundle() -> Dictionary:
 	if _current.is_empty():
 		return _fail(&"empty_journal", _run_id)
