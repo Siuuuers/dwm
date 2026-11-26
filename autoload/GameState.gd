@@ -1550,6 +1550,11 @@ func capture_new_day_gameplay() -> Dictionary:
 		gameplay = _capture_scene_gameplay()
 	else:
 		gameplay = _capture_legacy_gameplay()
+	_reset_day_fields(gameplay)
+	return gameplay
+
+
+func _reset_day_fields(gameplay: Dictionary) -> void:
 	gameplay.merge({
 		"minesweeper_rounds_left": 2,
 		"minesweeper_app_rounds_finished_today": 0,
@@ -1561,11 +1566,12 @@ func capture_new_day_gameplay() -> Dictionary:
 		"pending_date_entry_index": 0, "pending_date_friend_id": "",
 	}, true)
 	gameplay["stats"][STAT_MOTIVATION] = 7
-	return gameplay
 
 
 func _begin_new_day() -> void:
-	_apply_gameplay_silent(capture_new_day_gameplay())
+	var changes := {"stats": stats.duplicate()}
+	_reset_day_fields(changes)
+	_apply_gameplay_silent(changes)
 	unfinished_minesweeper_result = {}
 	emit_signal("stat_changed", STAT_MOTIVATION, get_stat(STAT_MOTIVATION), _stat_min(STAT_MOTIVATION), _stat_max(STAT_MOTIVATION))
 	emit_signal("daily_state_reset")
