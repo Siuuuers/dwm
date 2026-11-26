@@ -145,24 +145,7 @@ func hold_scene_entry_source() -> Dictionary:
 	_scene_stage_busy = false
 	return held
 
-func retire_scene_for_ending(admission_id: String) -> Dictionary:
-	var game := get_node_or_null("/root/GameState")
-	if game == null or not game.has_method("capture_run_snapshot_input"):
-		return _command_failure(&"scene_terminal_unavailable")
-	var snapshot: Dictionary = game.capture_run_snapshot_input()
-	var lifecycle: Dictionary = snapshot.get("lifecycle", {})
-	var plan: Variant = lifecycle.get("ending_plan")
-	var occurrence := ""
-	if lifecycle.get("state") == "COMPLETED" and not lifecycle.has("ending_plan"):
-		if admission_id != "passage:" + str(lifecycle.get("run_id", "")):
-			return _command_failure(&"scene_terminal_admission_mismatch")
-		occurrence = str(snapshot.get("scene", {}).get("active_occurrence_id", ""))
-	else:
-		if not plan is Dictionary or plan.get("source_kind") != "scene":
-			return _command_failure(&"scene_terminal_unavailable")
-		if plan.admission.admission_id != admission_id:
-			return _command_failure(&"scene_terminal_admission_mismatch")
-		occurrence = plan.admission.source_occurrence_id
+func retire_completed_scene_passage(admission_id: String, occurrence: String) -> Dictionary:
 	if not has_reading_session():
 		_publish_scene_terminal_retirement(admission_id)
 		return {"ok": true}
