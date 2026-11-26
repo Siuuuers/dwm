@@ -93,3 +93,7 @@ Pause uses the Settings palette registry. Both previously contained the same 16 
 The Phase 2R desktop handoff still uses its four-row Logout policy. Its generator now owns that script under tools. The Computer desktop continues to use its live confirmation and session-exit code.
 
 The calendar desktop consequence, departure and shop transaction adapters now live under `tests/support/retained`. Retained checks use them to drive the issuer, board state, checkpoint participants and storage refusal cases. The current game uses the Scene contact, shop and round publication owners; it never wires those calendar adapters.
+
+MinesweeperSheetCopy was folded into MinesweeperChromeCopy. The action dock,
+status register and information sheet read the same localized Rules and
+Assignments labels. The information sheet still owns its layout and input.

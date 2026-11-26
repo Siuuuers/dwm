@@ -17,7 +17,6 @@ var mode: StringName = &"reveal"
 var _enabled: Array = []
 var _custody := false
 var _host := "desktop_app"
-var _selected_copy := ""
 var _copy: Dictionary = {}
 var _view := "board"
 
@@ -67,7 +66,6 @@ func _configure_context(host: String = "desktop_app", locale: String = "en", per
 		buttons[key].queue_free()
 	buttons = candidates
 	_host = host
-	_selected_copy = copy.selected
 	_copy = copy
 	_scene_presentation = scene
 	theme = next_theme
@@ -107,7 +105,7 @@ func _apply_state() -> void:
 		var enabled: bool = key in _enabled
 		if key == "flag": enabled = ("reveal" if mode == &"flag" else "flag") in _enabled
 		buttons[key].present_state(not _custody and enabled,selected)
-		buttons[key].accessibility_description = _selected_copy if selected else ""
+		buttons[key].accessibility_description = _copy.selected if selected else ""
 		if key == "flag":
 			buttons[key].accessibility_name = _copy.flag + ": " + _copy[String(mode)]
 			buttons[key].tooltip_text = buttons[key].accessibility_name

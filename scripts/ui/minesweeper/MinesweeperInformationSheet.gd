@@ -3,7 +3,7 @@ extends Control
 signal return_requested()
 
 const MS_THEME := preload("res://scripts/ui/minesweeper/MinesweeperTheme.gd")
-const COPY := preload("res://scripts/ui/minesweeper/MinesweeperSheetCopy.gd")
+const COPY := preload("res://scripts/ui/minesweeper/MinesweeperChromeCopy.gd")
 const ROW := preload("res://scripts/ui/minesweeper/MinesweeperSheetRow.gd")
 const RETURN := preload("res://scripts/ui/minesweeper/MinesweeperActionButton.gd")
 const RAIL := preload("res://scripts/ui/minesweeper/MinesweeperScrollRail.gd")
@@ -87,7 +87,7 @@ func _present(next_kind: String, claimed: Array) -> bool:
 
 static func _compose(next_theme: Theme, band: Vector2i, large: bool, locale: String, next_kind: String,
 		claimed: Array) -> Dictionary:
-	var copy: Dictionary = COPY.BY_LOCALE[locale]
+	var copy: Dictionary = COPY.get_copy(locale)
 	var target := 32 if large else 24
 	var button: Button = RETURN.new()
 	if not button.configure(copy["return"],next_theme,large):
