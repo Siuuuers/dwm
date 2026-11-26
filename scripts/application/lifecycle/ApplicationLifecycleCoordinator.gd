@@ -81,14 +81,12 @@ func request_pause(holder_id: StringName) -> Dictionary:
 			return _recover(_failure(&"pause_suspend_unproven"))
 		if not begun.get("ok", false) or not _suspended.has(port):
 			return await _cancel_acquire(begun if not begun.get("ok", false) else _failure(&"pause_suspend_unproven"))
-		var current := _capture_source()
-		if not current.get("ok", false) or current.value != _source:
+		if not _source_is_current():
 			return await _cancel_acquire(_failure(&"pause_source_changed"))
 	view = _source_view.get_ref()
 	if view == null or not view.cover_pause_view(_anchor):
 		return await _cancel_acquire(_failure(&"pause_view_unavailable"))
-	var covered_source := _capture_source()
-	if not covered_source.get("ok", false) or covered_source.value != _source:
+	if not _source_is_current():
 		return _recover(_failure(&"pause_source_changed"))
 	get_tree().paused = true
 	_owns_tree_pause = true
@@ -99,24 +97,18 @@ func request_pause(holder_id: StringName) -> Dictionary:
 func request_resume(handle: Dictionary) -> Dictionary:
 	if _phase not in [&"Suspended", &"Recovery"] or _handle.is_empty() or handle != _handle:
 		return _failure(&"invalid_suspension_handle")
-	var current := _capture_source()
-	if not current.get("ok", false) or current.value != _source:
+	if not _source_is_current():
 		return _recover(_failure(&"pause_source_changed"))
 	_phase = &"Releasing"
 	var view: Object = _source_view.get_ref()
 	if view == null or not view.restore_pause_view(_anchor):
 		return _recover(_failure(&"pause_view_unavailable"))
-	current = _capture_source()
-	if not current.get("ok", false) or current.value != _source:
+	if not _source_is_current():
 		return _recover(_failure(&"pause_source_changed"))
 	var released := await _resume_ports()
 	if not released.get("ok", false):
 		return _recover(released)
-	if _owns_tree_pause:
-		get_tree().paused = false
-	_owns_tree_pause = false
-	_reset_pause()
-	pause_closed.emit()
+	_close_pause()
 	return _success({"resumed": true})
 
 func retire_suspended_source(handle: Dictionary) -> Dictionary:
@@ -139,16 +131,12 @@ func retire_suspended_source(handle: Dictionary) -> Dictionary:
 
 func finish_retirement(handle: Dictionary) -> Dictionary:
 	if _phase != &"Retired" or handle != _handle: return _failure(&"invalid_suspension_retirement")
-	if _owns_tree_pause: get_tree().paused = false
-	_owns_tree_pause = false
-	_reset_pause()
-	pause_closed.emit()
+	_close_pause()
 	return _success({"retired": true})
 
 func begin_restore_handoff(handle: Dictionary) -> Dictionary:
 	if _phase != &"Suspended" or handle != _handle: return _failure(&"invalid_suspension_handle")
-	var current := _capture_source()
-	if not current.get("ok", false) or current.value != _source: return _failure(&"pause_source_changed")
+	if not _source_is_current(): return _failure(&"pause_source_changed")
 	var narrative: Object = _ports[1]
 	for method: String in ["begin_restore", "cancel_restore", "complete_restore"]:
 		if not narrative.has_method(method): return _failure(&"pause_load_unavailable")
@@ -173,8 +161,7 @@ func begin_restore_handoff(handle: Dictionary) -> Dictionary:
 
 func cancel_restore_handoff(handle: Dictionary) -> Dictionary:
 	if _phase != &"Restoring" or handle != _handle: return _failure(&"invalid_suspension_handle")
-	var current := _capture_source()
-	if not current.get("ok", false) or current.value != _source: return _failure(&"pause_source_changed")
+	if not _source_is_current(): return _failure(&"pause_source_changed")
 	var cancelled: Dictionary = _ports[1].cancel_restore(handle)
 	if not cancelled.get("ok", false): return cancelled
 	cancelled = _router.cancel_restore_publication_hold(handle)
@@ -214,10 +201,7 @@ func complete_restore_handoff(handle: Dictionary, trusted_load: bool = false) ->
 	if not trusted_load: _gate.release(&"restore", acquired.value.token)
 	if not restored.get("ok", false): return restored
 	_suspended.clear()
-	if _owns_tree_pause: get_tree().paused = false
-	_owns_tree_pause = false
-	_reset_pause()
-	pause_closed.emit()
+	_close_pause()
 	return _success({"restored": true})
 
 
@@ -225,8 +209,7 @@ func request_lifecycle_command(command_id: StringName) -> Dictionary:
 	if _phase != &"Suspended": return _failure(&"pause_busy")
 	if command_id not in [&"pause.resume", &"pause.backup", &"pause.settings", &"pause.return"]:
 		return _failure(&"unknown_pause_command")
-	var current := _capture_source()
-	if not current.get("ok", false) or current.value != _source:
+	if not _source_is_current():
 		return _failure(&"pause_source_changed")
 	return _success({"admitted": true})
 
@@ -235,6 +218,10 @@ func get_state() -> Dictionary:
 
 func is_foreground_admitted() -> bool:
 	return _phase == &"Active"
+
+func _source_is_current() -> bool:
+	var current := _capture_source()
+	return current.get("ok", false) and current.value == _source
 
 func _capture_source() -> Dictionary:
 	if _source_owner == null or _source_scene == null or _source_view == null:
@@ -271,8 +258,7 @@ func _resume_ports() -> Dictionary:
 			if not resumed.get("ok", false) or not state.get("ok", false) \
 				or state.get("value", {}).get("state") != &"Active":
 				return _failure(&"pause_resume_unproven")
-		var current := _capture_source()
-		if not current.get("ok", false) or current.value != _source:
+		if not _source_is_current():
 			return _failure(&"pause_source_changed")
 		_suspended.pop_back()
 	return _success({"resumed": true})
@@ -286,6 +272,12 @@ func _recover(cause: Dictionary) -> Dictionary:
 	_phase = &"Recovery"
 	pause_recovery_required.emit()
 	return cause
+
+func _close_pause() -> void:
+	if _owns_tree_pause: get_tree().paused = false
+	_owns_tree_pause = false
+	_reset_pause()
+	pause_closed.emit()
 
 func _reset_pause() -> void:
 	_handle = {}

@@ -2,6 +2,7 @@ class_name MinesweeperNoGuessVerifier
 extends RefCounted
 
 
+const _SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 const _RULE_ADJACENT_ZERO := &"adjacent_zero"
@@ -84,7 +85,7 @@ static func _build_constraints(revealed: Dictionary, deduced_mine: Dictionary, w
 		var true_count: int = int(revealed[cell])
 		var hidden: Array[int] = []
 		var known_mine_neighbors := 0
-		for neighbor: int in _neighbors(idx, width, height):
+		for neighbor: int in _SCHEMA.neighbors(idx, width, height):
 			if revealed.has(neighbor):
 				continue
 			if deduced_mine.has(neighbor):
@@ -193,26 +194,10 @@ static func _as_set(array: Array) -> Dictionary:
 
 static func _true_count(index: int, mine_set: Dictionary, width: int, height: int) -> int:
 	var count := 0
-	for neighbor: int in _neighbors(index, width, height):
+	for neighbor: int in _SCHEMA.neighbors(index, width, height):
 		if mine_set.has(neighbor):
 			count += 1
 	return count
-
-
-static func _neighbors(index: int, width: int, height: int) -> Array[int]:
-	var x: int = index % width
-	var y: int = index / width
-	var result: Array[int] = []
-	for dy in range(-1, 2):
-		for dx in range(-1, 2):
-			if dx == 0 and dy == 0:
-				continue
-			var nx: int = x + dx
-			var ny: int = y + dy
-			if nx >= 0 and nx < width and ny >= 0 and ny < height:
-				result.append(ny * width + nx)
-	result.sort()
-	return result
 
 
 static func _parse_layout(layout: Dictionary) -> Dictionary:

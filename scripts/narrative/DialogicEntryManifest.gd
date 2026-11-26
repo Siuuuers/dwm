@@ -97,8 +97,8 @@ static func _configure_scene_registration(bundle: Dictionary, passages: Dictiona
 	for entry: Dictionary in _scene_bundle.scene_programme.entries:
 		for marker: Dictionary in entry.markers:
 			_scene_contract_tables.markers[marker.marker_id] = {"entry_id": entry.entry_id, "marker": marker}
-	_scene_freeze(_scene_contract_tables)
-	_scene_freeze(_scene_bundle)
+	FrozenPresentationContext._freeze(_scene_contract_tables)
+	FrozenPresentationContext._freeze(_scene_bundle)
 	return {"ok": true, "value": fingerprint}
 
 static func scene_registration() -> Dictionary:
@@ -128,12 +128,6 @@ static func scene_registration_fingerprint() -> String:
 	if not _select_startup_fixture().ok: return ""
 	_registration_used = true
 	return _scene_contract_tables.get("fingerprint", "")
-
-static func _scene_freeze(value: Variant) -> void:
-	if value is Dictionary or value is Array:
-		for child: Variant in (value.values() if value is Dictionary else value):
-			_scene_freeze(child)
-		value.make_read_only()
 
 static func _scene_exact(value: Variant, keys: Array) -> bool:
 	if not value is Dictionary or value.size() != keys.size(): return false

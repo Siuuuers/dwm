@@ -2,8 +2,6 @@ class_name DesktopBoardRestoreParticipant
 extends RefCounted
 
 
-const DESKTOP_BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
-
 var _state: Object = null
 var _issuer: Object = null
 

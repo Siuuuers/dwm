@@ -13,13 +13,11 @@ extends "res://addons/gut/test.gd"
 # pass), so every dependency is preloaded by path -- this repo's established answer (see
 # test_desktop_identity_nonce_issuer.gd).
 
-const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 const IDENTITY := preload("res://scripts/domain/desktop/DesktopIdentity.gd")
 const BOARD_SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
 const REDUCER := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")
 
-const STATE_PATH := "res://scripts/domain/minesweeper/DesktopBoardState.gd"
 
 const IDENTITY_A := {
 	"run_id": "run-a", "branch_id": "branch-a", "desktop_timeline_generation": 0,
@@ -35,18 +33,6 @@ var _state: STATE
 
 func before_each() -> void:
 	_state = STATE.new()
-
-
-# ---- Step 5.1 parse proof ----
-
-func test_state_script_loads() -> void:
-	var loaded: Dictionary = PROBE.load_script(STATE_PATH)
-	assert_true(loaded.get("ok", false), "DesktopBoardState.gd must load")
-
-
-func test_state_instantiates() -> void:
-	var instantiated: Dictionary = PROBE.instantiate(STATE_PATH)
-	assert_true(instantiated.get("ok", false), "DesktopBoardState.gd must instantiate")
 
 
 # ---- fresh/reset invariants ----

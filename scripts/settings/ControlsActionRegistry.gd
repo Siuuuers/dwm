@@ -1,5 +1,6 @@
 extends RefCounted
 
+const TRANSFER_ACTIONS := ["game_quick_save", "game_quick_load", "game_new_board"]
 const RUN_CONTEXTS := [
 	&"run_launcher", &"run_app", &"run_witnessed",
 	&"run_desktop_grid", &"run_challenge_grid", &"run_pause",

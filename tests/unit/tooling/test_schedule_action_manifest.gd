@@ -66,20 +66,14 @@ func _records() -> Array:
 	return records if records is Array else []
 
 
-func test_the_manifest_file_exists_and_parses_as_strict_json() -> void:
-	assert_true(FileAccess.file_exists(MANIFEST_PATH),
-		"expected RED: missing " + MANIFEST_PATH)
+func test_the_manifest_top_level_is_exactly_four_keys() -> void:
 	if not FileAccess.file_exists(MANIFEST_PATH):
+		fail_test("Missing schedule action manifest at " + MANIFEST_PATH)
 		return
 	var parsed: Dictionary = STRICT_JSON.parse_object(FileAccess.get_file_as_string(MANIFEST_PATH))
-	assert_true(parsed.get("ok", false), "the manifest must parse under StrictJson")
-
-
-func test_the_manifest_top_level_is_exactly_four_keys() -> void:
-	var manifest := _manifest()
-	assert_false(manifest.is_empty(), "expected RED: manifest absent or unparseable")
-	if manifest.is_empty():
-		return
+	assert_true(parsed.ok, "The schedule action manifest must parse under StrictJson")
+	if not parsed.ok: return
+	var manifest: Dictionary = parsed.value
 	var keys: Array = manifest.keys()
 	keys.sort()
 	assert_eq(keys, ["kind", "records", "registry_version", "schema_version"],

@@ -206,8 +206,7 @@ func _eligible(control: Control) -> bool:
 	if not is_instance_valid(control) or not control.is_inside_tree() \
 			or not control.is_visible_in_tree() or not control.can_process() \
 			or control.get_viewport() != get_viewport() \
-			or control.get_focus_mode_with_override() != Control.FOCUS_ALL \
-			or not _focus_behavior_enabled(control):
+			or control.get_focus_mode_with_override() != Control.FOCUS_ALL:
 		return false
 	return not (control is BaseButton and (control as BaseButton).disabled)
 

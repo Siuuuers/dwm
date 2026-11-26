@@ -18,7 +18,6 @@ extends "res://addons/gut/test.gd"
 # Overlap with the existing per-class suites is intentional (downstream gates name suites by
 # exact path).
 
-const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 
 const REGISTRY := preload("res://scripts/domain/desktop/DesktopAppRegistry.gd")
 const HOST := preload("res://scripts/domain/desktop/DesktopAppHostState.gd")
@@ -39,14 +38,6 @@ func _registry() -> RefCounted:
 
 func _host() -> RefCounted:
 	return HOST.new()
-
-
-# ---- Step 2.2 parse proof ----
-
-func test_identity_script_loads() -> void:
-	var loaded: Dictionary = PROBE.load_script("res://scripts/domain/desktop/DesktopIdentity.gd")
-	assert_true(loaded.get("ok", false), "DesktopIdentity.gd must load")
-
 
 
 func test_registry_lists_current_desktop_apps() -> void:

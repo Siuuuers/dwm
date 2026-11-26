@@ -2,6 +2,7 @@ class_name MinesweeperGeneratorKernel
 extends RefCounted
 
 
+const _SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
 const _RNG := preload("res://scripts/domain/minesweeper/DeterministicRng32.gd")
 const _VERIFIER := preload("res://scripts/domain/minesweeper/MinesweeperNoGuessVerifier.gd")
 
@@ -16,22 +17,7 @@ const STATUSES: Array[StringName] = [STATUS_SEARCHING, STATUS_CERTIFIED, STATUS_
 
 const _DISPOSITIONS: Array[String] = ["hatred", "upset", "amused"]
 
-const SPEC_KEYS := [
-	"schema_version", "board_kind", "difficulty_id", "width", "height", "base_mine_count",
-	"raw_extra_mines", "requested_mine_count", "capability_ids", "placement_stream_id",
-	"placement_nonce", "debug_stream_id", "debug_nonce", "explosion_stream_id", "explosion_nonce",
-	"generator_version", "verifier_version",
-]
-const _BLANK_CHECK_FIELDS := [
-	"difficulty_id", "placement_nonce", "debug_nonce", "explosion_nonce",
-]
-const _BOARD_KINDS := ["desktop", "solo_challenge", "pair_challenge"]
-const _PLACEMENT_STREAM_ID := "minesweeper_placement_v1"
-const _DEBUG_STREAM_ID := "minesweeper_debug_v1"
-const _EXPLOSION_STREAM_ID := "minesweeper_explosion_v1"
-const _GENERATOR_VERSION := "dwm_generator_v1"
-const _VERIFIER_VERSION := "visible_deduction_v1"
-
+const SPEC_KEYS := _SCHEMA.GENERATOR_SPEC_KEYS
 const FRONTIER_KEYS := [
 	"status", "mode", "spec", "forced_cell", "placement_rng_state", "debug_rng_state",
 	"explosion_rng_state", "extra_tier", "candidate_ordinal", "candidate_state", "operations_used",
@@ -96,7 +82,7 @@ static func begin(kernel_spec: Dictionary, forced_cell: int, mode: StringName,
 
 
 static func advance(frontier: Dictionary, operation_limit: int) -> Dictionary:
-	var shape := _exact_keys(frontier, FRONTIER_KEYS, &"frontier_member_set_invalid")
+	var shape := _SCHEMA.check_keys(frontier, FRONTIER_KEYS, &"frontier_member_set_invalid")
 	if not shape.get("ok", false):
 		return shape
 	if typeof(operation_limit) != TYPE_INT or operation_limit <= 0:
@@ -207,66 +193,10 @@ static func advance(frontier: Dictionary, operation_limit: int) -> Dictionary:
 
 
 static func validate_spec(spec: Dictionary) -> Dictionary:
-	var shape := _exact_keys(spec, SPEC_KEYS, &"spec_member_set_invalid")
-	if not shape.get("ok", false):
-		return shape
-	if typeof(spec["schema_version"]) != TYPE_INT or int(spec["schema_version"]) != 1:
-		return _fail(&"spec_field_invalid", "schema_version must be exactly 1", {"field": "schema_version"})
-	var board_kind: Variant = spec["board_kind"]
-	if typeof(board_kind) != TYPE_STRING or not _BOARD_KINDS.has(String(board_kind)):
-		return _fail(&"spec_field_invalid", "board_kind must be one of the frozen kinds", {"field": "board_kind"})
-	for field: String in _BLANK_CHECK_FIELDS:
-		var nonblank := _nonblank_string(spec.get(field), field)
-		if not nonblank.get("ok", false):
-			return nonblank
-
-	var width_v: Variant = spec["width"]
-	if typeof(width_v) != TYPE_INT or int(width_v) <= 0:
-		return _fail(&"spec_field_invalid", "width must be a positive integer", {"field": "width"})
-	var height_v: Variant = spec["height"]
-	if typeof(height_v) != TYPE_INT or int(height_v) <= 0:
-		return _fail(&"spec_field_invalid", "height must be a positive integer", {"field": "height"})
-	var base_mine_count_v: Variant = spec["base_mine_count"]
-	if typeof(base_mine_count_v) != TYPE_INT or int(base_mine_count_v) < 0:
-		return _fail(&"spec_field_invalid", "base_mine_count must be a nonnegative integer", {"field": "base_mine_count"})
-	var raw_extra_v: Variant = spec["raw_extra_mines"]
-	if typeof(raw_extra_v) != TYPE_INT or int(raw_extra_v) < 0:
-		return _fail(&"spec_field_invalid", "raw_extra_mines must be a nonnegative integer", {"field": "raw_extra_mines"})
-
-	var requested_v: Variant = spec["requested_mine_count"]
-	if typeof(requested_v) != TYPE_INT:
-		return _fail(&"spec_field_invalid", "requested_mine_count must be an integer", {"field": "requested_mine_count"})
-	var requested: int = int(requested_v)
-	var base: int = int(base_mine_count_v)
-	var raw_extra: int = int(raw_extra_v)
-	if requested < base or requested > base + raw_extra:
-		return _fail(&"spec_field_invalid",
-			"requested_mine_count must be between base_mine_count and base_mine_count+raw_extra_mines",
-			{"field": "requested_mine_count"})
-	if requested > int(width_v) * int(height_v) - 1:
-		return _fail(&"spec_field_invalid", "requested_mine_count must leave at least one safe cell",
-			{"field": "requested_mine_count"})
-
-	var capability_ids: Variant = spec["capability_ids"]
-	if typeof(capability_ids) != TYPE_ARRAY:
-		return _fail(&"spec_field_invalid", "capability_ids must be an array", {"field": "capability_ids"})
-	for entry: Variant in (capability_ids as Array):
-		if typeof(entry) != TYPE_STRING:
-			return _fail(&"spec_field_invalid", "capability_ids must contain only strings", {"field": "capability_ids"})
-
-	if String(spec["placement_stream_id"]) != _PLACEMENT_STREAM_ID:
-		return _fail(&"spec_field_invalid", "placement_stream_id is frozen", {"field": "placement_stream_id"})
-	if String(spec["debug_stream_id"]) != _DEBUG_STREAM_ID:
-		return _fail(&"spec_field_invalid", "debug_stream_id is frozen", {"field": "debug_stream_id"})
-	if String(spec["explosion_stream_id"]) != _EXPLOSION_STREAM_ID:
-		return _fail(&"spec_field_invalid", "explosion_stream_id is frozen", {"field": "explosion_stream_id"})
-	if String(spec["generator_version"]) != _GENERATOR_VERSION:
-		return _fail(&"spec_field_invalid", "generator_version is frozen", {"field": "generator_version"})
-	if String(spec["verifier_version"]) != _VERIFIER_VERSION:
-		return _fail(&"spec_field_invalid", "verifier_version is frozen", {"field": "verifier_version"})
-
+	var checked := _SCHEMA.check_spec(spec, true)
+	if not checked.ok: return checked
 	var detached := spec.duplicate()
-	detached["capability_ids"] = capability_ids.duplicate()
+	detached["capability_ids"] = spec.capability_ids.duplicate()
 	return {"ok": true, "code": &"ok", "value": {"spec": detached}, "receipt": {}}
 
 
@@ -301,25 +231,9 @@ static func _restore_rng(stream_id: StringName, nonce: String, state: Dictionary
 static func excluded_cells(forced_cell: int, zero_mode: bool, width: int, height: int) -> Dictionary:
 	var excluded: Dictionary = {forced_cell: true}
 	if zero_mode:
-		for neighbor: int in _neighbors(forced_cell, width, height):
+		for neighbor: int in _SCHEMA.neighbors(forced_cell, width, height):
 			excluded[neighbor] = true
 	return excluded
-
-
-static func _neighbors(index: int, width: int, height: int) -> Array[int]:
-	var x: int = index % width
-	var y: int = index / width
-	var result: Array[int] = []
-	for dy in range(-1, 2):
-		for dx in range(-1, 2):
-			if dx == 0 and dy == 0:
-				continue
-			var nx: int = x + dx
-			var ny: int = y + dy
-			if nx >= 0 and nx < width and ny >= 0 and ny < height:
-				result.append(ny * width + nx)
-	result.sort()
-	return result
 
 
 static func sample_mine_indices(pool: Array[int], mine_count: int, rng: RefCounted) -> Array[int]:
@@ -333,25 +247,6 @@ static func sample_mine_indices(pool: Array[int], mine_count: int, rng: RefCount
 		working[i] = working[j]
 		working[j] = tmp
 	return working.slice(0, mine_count)
-
-
-static func _exact_keys(value: Dictionary, expected: Array, code: StringName) -> Dictionary:
-	if typeof(value) != TYPE_DICTIONARY:
-		return _fail(code, "value must be a dictionary", {})
-	if value.size() != expected.size():
-		return _fail(code, "expected %d members, saw %d" % [expected.size(), value.size()], {"size": value.size()})
-	for key: String in expected:
-		if not value.has(key):
-			return _fail(code, "missing member: %s" % key, {"missing": key})
-	return {"ok": true}
-
-
-static func _nonblank_string(value: Variant, field: String) -> Dictionary:
-	if typeof(value) != TYPE_STRING:
-		return _fail(&"spec_field_invalid", "%s must be a string" % field, {"field": field})
-	if String(value).strip_edges().is_empty():
-		return _fail(&"spec_field_invalid", "%s must be nonblank" % field, {"field": field})
-	return {"ok": true}
 
 
 static func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary:

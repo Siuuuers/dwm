@@ -70,7 +70,7 @@ func test_selected_receipt_projection_is_owned_frozen_and_matches_fresh_validati
 	assert_true(is_same(prepared.value, selected.value), "selected immutable bundle reuses prepared tables")
 	assert_true(manifest.prepared_scene_contract(fixture.bundle).is_empty(), "equal detached input is not owner identity")
 	var frozen_copy: Dictionary = selected.bundle.duplicate(true)
-	manifest._scene_freeze(frozen_copy)
+	FrozenPresentationContext._freeze(frozen_copy)
 	assert_true(manifest.prepared_scene_contract(frozen_copy).is_empty(), "read-only flags do not grant owner identity")
 	assert_true(RUN.validate_current_scene(fixture.snapshot.scene, selected.bundle).ok)
 	var fresh := CONTRACT.validate_bundle_structure(fixture.bundle)

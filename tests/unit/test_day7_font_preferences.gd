@@ -1,7 +1,7 @@
 extends GutTest
 
 const SURFACE := preload("res://scripts/ui/Day7PreludeSurface.gd")
-const TYPOGRAPHY := preload("res://scripts/ui/gallery/GalleryTypography.gd")
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const GALLERY_THEME := preload("res://scripts/ui/gallery/GalleryTheme.gd")
 const STYLE := &"preferences.accessibility.font_style"
 const SIZE := &"preferences.accessibility.text_size"

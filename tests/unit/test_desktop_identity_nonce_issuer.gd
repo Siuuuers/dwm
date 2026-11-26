@@ -38,7 +38,6 @@ extends "res://addons/gut/test.gd"
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const FAKE_ROOT_STORE := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
 
-const ISSUER_PATH := "res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd"
 
 # The plan's own Step 1.1 fixture values.
 const NAMESPACE := "1111111111111111111111111111111111111111111111111111111111111111"
@@ -158,16 +157,6 @@ class CandidateFaithfulRootAdapter extends RefCounted:
 func before_each() -> void:
 	_issuer_root = null
 	_issuer = null
-
-
-# ---------------------------------------------------------------------------------------------
-# Retained skeleton probe (Step 1.1 first half)
-# ---------------------------------------------------------------------------------------------
-
-func test_desktop_identity_nonce_issuer_skeleton_loads() -> void:
-	var probe := DynamicScriptProbe.load_script(ISSUER_PATH)
-	assert_true(probe.get("ok", false),
-		"DesktopIdentityNonceIssuer must parse and load: " + str(probe.get("message", "")))
 
 
 # ---------------------------------------------------------------------------------------------

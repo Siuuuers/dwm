@@ -585,6 +585,14 @@ func _action_pressed(action: String) -> void:
 		return
 	_commit_pending()
 
+static func quick_load_confirmation(record: Dictionary, locale: String, confirmation_theme: Theme) -> Dictionary:
+	var copy: Dictionary = COPY.get(locale, COPY.en)
+	var time: Variant = record.get("saved_time")
+	var stamp := str(time) if time != null else "--:--"
+	return {"title": copy.load_title.replace("{record}", copy.quick),
+		"body": stamp + "\n\n" + copy.replace_progress, "cancel": copy.cancel, "confirm": copy.load,
+		"risk": "danger", "theme": confirmation_theme}
+
 func _confirmation_copy(record: Dictionary) -> Dictionary:
 	var kind := _confirmation_kind
 	var title_key := "overwrite_title" if kind == "overwrite" else ("delete_title" if kind == "delete" else "load_title")
@@ -648,6 +656,19 @@ func _operation_failed(result: Dictionary) -> void:
 	if action_buttons.has("cancel"):
 		action_buttons.cancel.accessibility_description = _t("failure_details")
 		action_buttons.cancel.grab_focus()
+
+func restore_quick_focus(semantic: String) -> void:
+	var replacement: Control
+	if semantic.begins_with("action:"):
+		replacement = action_buttons.get(semantic.trim_prefix("action:"))
+	elif semantic.begins_with("mode:"):
+		replacement = mode_buttons.get(semantic.trim_prefix("mode:"))
+	elif semantic == "information":
+		replacement = info_scroll
+	if not is_instance_valid(replacement) or replacement.get_focus_mode_with_override() == Control.FOCUS_NONE:
+		replacement = drawer_buttons.get(selected_locator)
+	if is_instance_valid(replacement) and replacement.get_focus_mode_with_override() != Control.FOCUS_NONE:
+		replacement.grab_focus()
 
 func _restore_source_focus() -> void:
 	if not is_visible_in_tree() or focus_behavior_recursive == Control.FOCUS_BEHAVIOR_DISABLED: return

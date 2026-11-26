@@ -140,14 +140,10 @@ static func _validate_receipt(value: Variant, namespace_value: String, purpose: 
 			or receipt.get("token") != token or receipt.get("numeric_value") != numeric_value \
 			or typeof(receipt.get("counter")) != TYPE_INT or int(receipt["counter"]) < 0:
 		return _fail(&"new_run_allocation_invalid", "issuer receipt does not match identity")
-	var expected_token := "%s.%s" % [purpose,
-		_sha256_text("%s\n%d\n%s" % [namespace_value, int(receipt["counter"]), purpose])]
+	var expected_token := DesktopIssuerRootStore.token_for(namespace_value, receipt.counter, purpose)
 	if str(receipt["token"]) != expected_token:
 		return _fail(&"new_run_allocation_invalid", "issuer token is not reproducible")
-	var expected_receipt_id := "issuer_receipt." + _sha256_text(
-		"desktop_issuer_receipt_v1\n%s\n%d\n%s\n%s" % [
-			namespace_value, int(receipt["counter"]), purpose, expected_token,
-		])
+	var expected_receipt_id := DesktopIssuerRootStore.receipt_id_for(namespace_value, receipt.counter, purpose, expected_token)
 	if receipt.get("receipt_id") != expected_receipt_id:
 		return _fail(&"new_run_allocation_invalid", "issuer receipt ID is not reproducible")
 	return {"ok": true, "code": &"ok"}
@@ -164,7 +160,7 @@ static func _validate_autosave(value: Variant, initial_context: Dictionary,
 			or typeof(autosave.get("outgoing_text")) != TYPE_STRING:
 		return _fail(&"new_run_autosave_invalid", "Autosave revisions are malformed")
 	var outgoing_text := str(autosave["outgoing_text"])
-	if _sha256_text(outgoing_text) != str(autosave["outgoing_hash"]):
+	if outgoing_text.sha256_text() != str(autosave["outgoing_hash"]):
 		return _fail(&"new_run_autosave_invalid", "Autosave outgoing hash does not match bytes")
 	var parsed: Dictionary = STRICT_JSON.parse_object(outgoing_text)
 	if not parsed.get("ok", false):
@@ -219,14 +215,7 @@ static func _canonical_text(value: Variant) -> String:
 
 static func _canonical_sha256(value: Variant) -> String:
 	var text := _canonical_text(value)
-	return _sha256_text(text) if not text.is_empty() else ""
-
-
-static func _sha256_text(text: String) -> String:
-	var context := HashingContext.new()
-	context.start(HashingContext.HASH_SHA256)
-	context.update(text.to_utf8_buffer())
-	return context.finish().hex_encode()
+	return text.sha256_text() if not text.is_empty() else ""
 
 
 static func _is_revision(value: Variant) -> bool:

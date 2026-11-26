@@ -153,7 +153,7 @@ func check_snapshot(snapshot: Dictionary) -> Dictionary:
 		keys.erase("terminal_receipts")
 		keys.append("settled_inspection")
 		keys.append("round_paid")
-	var shape := _exact_keys(snapshot, keys, &"snapshot_member_set_invalid")
+	var shape := _BOARD_SCHEMA.check_keys(snapshot, keys, &"snapshot_member_set_invalid")
 	if not shape.get("ok", false):
 		return shape
 	if typeof(snapshot["schema_version"]) != TYPE_INT or int(snapshot["schema_version"]) != 1:
@@ -245,7 +245,7 @@ func prepare_debug_candidate(input: Dictionary, generation: Dictionary) -> Dicti
 	var spec_valid := _BOARD_SCHEMA.check_spec(input["spec"])
 	if not spec_valid.get("ok", false):
 		return spec_valid
-	var frontier_check := _exact_keys(generation, ["frontier"], &"invalid_generation_frontier")
+	var frontier_check := _BOARD_SCHEMA.check_keys(generation, ["frontier"], &"invalid_generation_frontier")
 	if not frontier_check.get("ok", false):
 		return frontier_check
 	if typeof(generation["frontier"]) != TYPE_DICTIONARY:
@@ -281,7 +281,7 @@ func prepare_debug_slice(input: Dictionary, generation: Dictionary) -> Dictionar
 	if typeof(done) != TYPE_BOOL:
 		return _fail(&"invalid_generation_progress", "generation.done must be a boolean", {})
 	if not done:
-		var progress_shape := _exact_keys(generation, ["done", "frontier"], &"invalid_generation_progress")
+		var progress_shape := _BOARD_SCHEMA.check_keys(generation, ["done", "frontier"], &"invalid_generation_progress")
 		if not progress_shape.get("ok", false):
 			return progress_shape
 		if typeof(generation["frontier"]) != TYPE_DICTIONARY:
@@ -290,7 +290,7 @@ func prepare_debug_slice(input: Dictionary, generation: Dictionary) -> Dictionar
 		_copy_preparation_shell(candidate_after)
 		return _envelope(input, &"debug_slice_progress", _PHASE_PREPARING, _identity, candidate_after, null, null)
 
-	var certified_shape := _exact_keys(generation, ["done", "layout", "forced_cell", "proof_sha256"],
+	var certified_shape := _BOARD_SCHEMA.check_keys(generation, ["done", "layout", "forced_cell", "proof_sha256"],
 		&"invalid_generation_progress")
 	if not certified_shape.get("ok", false):
 		return certified_shape
@@ -686,15 +686,6 @@ func _dup_or_null(value: Variant) -> Variant:
 	return (value as Dictionary).duplicate(true)
 
 
-func _exact_keys(value: Dictionary, expected: Array, code: StringName) -> Dictionary:
-	if value.size() != expected.size():
-		return _fail(code, "expected %d members, saw %d" % [expected.size(), value.size()], {"size": value.size()})
-	for key: String in expected:
-		if not value.has(key):
-			return _fail(code, "missing member: %s" % key, {"missing": key})
-	return {"ok": true}
-
-
 func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": details}
 
@@ -766,7 +757,7 @@ func _validate_candidate_shell(candidate: Dictionary, phase: String, scene: bool
 	var width: int
 	var height: int
 	if phase == _PHASE_UNPAID:
-		var shape := _exact_keys(candidate, ["difficulty_id", "width", "height", "flagged_indices", "actions"], &"invalid_unpaid_shell")
+		var shape := _BOARD_SCHEMA.check_keys(candidate, ["difficulty_id", "width", "height", "flagged_indices", "actions"], &"invalid_unpaid_shell")
 		if not shape.ok: return shape
 		if not candidate.difficulty_id is String: return _fail(&"invalid_unpaid_shell", "", {})
 		var dimensions := _CATALOG.lookup("desktop_app", candidate.difficulty_id)
@@ -778,7 +769,7 @@ func _validate_candidate_shell(candidate: Dictionary, phase: String, scene: bool
 	else:
 		var keys: Array = ["spec", "flagged_indices", "actions"]
 		if not scene: keys.append("paid_start_receipt")
-		var shape := _exact_keys(candidate, keys, &"invalid_paid_shell")
+		var shape := _BOARD_SCHEMA.check_keys(candidate, keys, &"invalid_paid_shell")
 		if not shape.ok: return shape
 		if not candidate.spec is Dictionary: return _fail(&"invalid_paid_shell", "", {})
 		if not scene and (not candidate.paid_start_receipt is Dictionary or candidate.paid_start_receipt.is_empty()):
@@ -927,7 +918,7 @@ func _validate_current_scene_board(snapshot: Dictionary) -> Dictionary:
 	var spec: Dictionary = slot.spec
 	if spec.board_kind != "desktop": return _fail(&"invalid_board_kind", "", {})
 	if snapshot.board is Dictionary:
-		var shape := _exact_keys(slot, ["board", "spec"], &"invalid_current_board_wrapper")
+		var shape := _BOARD_SCHEMA.check_keys(slot, ["board", "spec"], &"invalid_current_board_wrapper")
 		if not shape.ok: return shape
 		if not slot.board is Dictionary: return _fail(&"invalid_current_board_wrapper", "", {})
 		var board := _BOARD_SCHEMA.check_board(slot.board)
@@ -940,7 +931,7 @@ func _validate_current_scene_board(snapshot: Dictionary) -> Dictionary:
 	var keys: Array = ["spec", "frontier"] if phase == _PHASE_PREPARING else ["spec", "layout", "forced_cell", "proof_sha256"]
 	if slot.has("flagged_indices") or slot.has("actions"):
 		keys.append_array(["flagged_indices", "actions"])
-	var shape := _exact_keys(slot, keys, &"invalid_current_preparation")
+	var shape := _BOARD_SCHEMA.check_keys(slot, keys, &"invalid_current_preparation")
 	if not shape.ok: return shape
 	var shell := _BOARD_SCHEMA.validate_shell({"flagged_indices": slot.get("flagged_indices", []), "actions": slot.get("actions", [])}, spec.width, spec.height, true)
 	if not shell.ok: return shell

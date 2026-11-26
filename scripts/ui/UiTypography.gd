@@ -91,6 +91,10 @@ static func font_size(locale: String, percent: int, existing_base_size: int = 24
 	return int(base_size * percent / 100.0)
 
 
+static func gallery_font_size(percent: int) -> int:
+	return int(16 * percent / 100.0) if _PIXEL_FONTS.has(percent) else 0
+
+
 static func _locale_key(locale: String) -> String:
 	match locale.strip_edges().replace("_", "-").to_lower():
 		"en": return "en"

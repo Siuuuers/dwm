@@ -93,11 +93,6 @@ func after_all() -> void:
 # The validator exists at all.
 # =================================================================================================
 
-func test_the_closeout_gate_validator_script_exists() -> void:
-	assert_not_null(load(VALIDATOR_PATH),
-		"tools/evidence/validate_phase2r_closeout_gate.gd must exist")
-
-
 func test_the_closeout_gate_schema_exists_and_is_the_one_the_validator_binds() -> void:
 	assert_true(FileAccess.file_exists(SCHEMA_PATH), "the closeout gate schema must exist")
 	var script: Script = _validator()

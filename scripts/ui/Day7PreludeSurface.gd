@@ -22,7 +22,7 @@ class AccessibleNextButton extends Button:
 		accessibility_requested.emit(generation)
 
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
-const TYPOGRAPHY := preload("res://scripts/ui/gallery/GalleryTypography.gd")
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const SCENE_ART := preload("res://scripts/ui/art/SceneArtView.gd")
 const AUTO_DELAYS := {"short": 1.0, "normal": 2.0, "long": 4.0}
 const AUTO_COPY := {"ja": ["オート：オフ", "オート：オン"], "ko": ["자동: 꺼짐", "자동: 켜짐"], "en": ["Auto Off", "Auto On"],
@@ -181,7 +181,7 @@ func _refresh_typography_preferences() -> void:
 	var percent: Variant = _typography_profile.get_preference(&"preferences.accessibility.text_size", 100)
 	var style := str(_typography_profile.get_preference(&"preferences.accessibility.font_style", "pixel"))
 	var face: Font = TYPOGRAPHY.font(_locale, int(percent), style)
-	var size: int = TYPOGRAPHY.font_size(int(percent))
+	var size: int = TYPOGRAPHY.gallery_font_size(int(percent))
 	if face == null or size == 0: return
 	if _presentation_theme != null and _presentation_theme.default_font == face \
 			and _presentation_theme.default_font_size == size: return

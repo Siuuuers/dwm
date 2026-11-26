@@ -378,7 +378,7 @@ func test_reached_date_card_uses_its_bound_profile_fonts_without_changing_replay
 	assert_true(replay.begin(identity).ok)
 	var surface: Node = bridge._reached_replay.surface
 	var card: Dictionary = bridge._reached_replay.card.duplicate(true)
-	var typography := preload("res://scripts/ui/gallery/GalleryTypography.gd")
+	var typography := preload("res://scripts/ui/UiTypography.gd")
 	assert_same(surface._typography_profile, profile)
 	assert_same(surface._current_body.get_theme_font("font"), typography.font("en", 125, "readable"))
 	assert_eq(surface._current_body.get_theme_font_size("font_size"), 20)

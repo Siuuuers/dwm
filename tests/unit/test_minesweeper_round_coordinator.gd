@@ -10,7 +10,6 @@ extends "res://addons/gut/test.gd"
 # configured over FakeDesktopIssuerRootStore (this repo's own established issuer test double,
 # reused per the task's instruction rather than inventing a fake issuer).
 
-const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const COORDINATOR := preload("res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd")
 const COORDINATOR_PATH := "res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd"
 const STATE_PORT := preload("res://tests/support/FakeDesktopBoardStatePort.gd")
@@ -410,18 +409,6 @@ func _minimal_round_action_receipt(transaction_id: String, identity: Dictionary)
 		"action_id": action_id, "action_id_provenance": provenance,
 		"commit_receipt_id": action_id, "commit_receipt_provenance": provenance.duplicate(true),
 	}
-
-
-# ---- Step 5.1 parse proof ----
-
-func test_coordinator_script_loads() -> void:
-	var loaded: Dictionary = PROBE.load_script(COORDINATOR_PATH)
-	assert_true(loaded.get("ok", false), "MinesweeperRoundCoordinator.gd must load")
-
-
-func test_coordinator_instantiates() -> void:
-	var instantiated: Dictionary = PROBE.instantiate(COORDINATOR_PATH)
-	assert_true(instantiated.get("ok", false), "MinesweeperRoundCoordinator.gd must instantiate")
 
 
 # ---- configure() ----

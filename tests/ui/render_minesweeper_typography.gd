@@ -6,9 +6,7 @@ const PANEL := preload("res://scripts/ui/minesweeper/MinesweeperPanel.gd")
 const THEME := preload("res://scripts/ui/minesweeper/MinesweeperTheme.gd")
 const BUTTON := preload("res://scripts/ui/minesweeper/MinesweeperActionButton.gd")
 const COPY := preload("res://scripts/ui/minesweeper/MinesweeperChromeCopy.gd")
-const QUERY := preload("res://scripts/application/minesweeper/MinesweeperBoardPresentationQuery.gd")
-const STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
-const REDUCER := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")
+const FIXTURE := preload("res://tests/support/MinesweeperRenderFixture.gd")
 const WORDS := ["beginner","intermediate","expert","reveal","assignments"]
 const CONTACTS := ["resting","hover","pressed","selected_focus"]
 var _folder := ""
@@ -39,7 +37,7 @@ func _render() -> void:
 	if not _check(DirAccess.make_dir_recursive_absolute(_folder) == OK,"cannot create evidence directory"):
 		quit(1)
 		return
-	var public := _public_fixture()
+	var public := FIXTURE.expert_board(_check)
 	if public.is_empty():
 		quit(1)
 		return
@@ -75,7 +73,8 @@ func _panel_capture(public: Dictionary, next_theme: Theme, locale: String, perce
 	if not _check(panel.size == Vector2(800,656) and panel.dock.position.y+panel.dock.size.y == 656 and panel.worksheet.position.y == panel.register.size.y,"fixed body geometry changed"): return false
 	if not _check(panel.dock.buttons.new_board.disabled and panel.worksheet.grid.cell_nodes[0].size == Vector2.ONE*(64 if large else 48),"disabled action or cell target changed"): return false
 	for button: Button in panel.dock.buttons.values():
-		if not _check(not button.public_copy.contains("\u00ad") and button.accessibility_name == button.public_copy,"discretionary characters leaked into semantic copy"): return false
+		var expected: String = button.public_copy + ": " + button.public_copy if button == panel.dock.buttons.flag else button.public_copy
+		if not _check(not button.public_copy.contains("\u00ad") and button.accessibility_name == expected,"button accessible text differs from its selected mode or label"): return false
 	if not _check(panel.dock.get_theme_default_font_size() == next_theme.default_font_size,"full requested font was lost"): return false
 	var pixels: Image = viewport.get_texture().get_image()
 	if not _check(pixels.save_png(_folder.path_join(name+"-panel.png")) == OK,"cannot save panel capture"): return false
@@ -85,7 +84,7 @@ func _panel_capture(public: Dictionary, next_theme: Theme, locale: String, perce
 	return true
 
 func _contact_atlas(next_theme: Theme, locale: String, percent: int, large: bool, name: String) -> bool:
-	var viewport := _viewport(Vector2i(672,224))
+	var viewport := _viewport(Vector2i(672,240))
 	# Image rows are actual buttons at native size; empty padding separates samples.
 	var atlas := Image.create(800,880,false,Image.FORMAT_RGBA8)
 	atlas.fill(Color("30343d"))
@@ -207,33 +206,3 @@ func _same_color(actual: Color, expected: Color) -> bool:
 func _check(condition: bool, message: String) -> bool:
 	if not condition: push_error("TYPOGRAPHY_RENDER_FAILED: "+message)
 	return condition
-
-func _public_fixture() -> Dictionary:
-	var mines: Array[int] = []
-	for index in range(1,100): mines.append(index)
-	var layout := {"schema_version":1,"width":22,"height":22,"mine_indices":mines,"mine_count":99}
-	var first: Dictionary = REDUCER.first_reveal(layout,0)
-	if not _check(first.get("ok",false),"reducer first-Reveal fixture failed"): return {}
-	var identity := {"run_id":"evidence-run","branch_id":"evidence-branch","desktop_timeline_generation":0,"causal_day_instance":"evidence-day","app_round_ordinal":1}
-	var spec := {"schema_version":1,"board_kind":"desktop","board_token":"evidence-token","board_token_receipt_id":"evidence-receipt",
-		"difficulty_id":"expert","width":22,"height":22,"base_mine_count":99,"pressure":0,"penalty_points_today":0,
-		"raw_extra_mines":0,"requested_mine_count":99,"capability_ids":["first_cell_safe"],
-		"placement_stream_id":"minesweeper_placement_v1","placement_nonce":"evidence-p","placement_nonce_receipt_id":"evidence-pr",
-		"debug_stream_id":"minesweeper_debug_v1","debug_nonce":"evidence-d","debug_nonce_receipt_id":"evidence-dr",
-		"explosion_stream_id":"minesweeper_explosion_v1","explosion_nonce":"evidence-e","explosion_nonce_receipt_id":"evidence-er",
-		"generator_version":"dwm_generator_v1","verifier_version":"visible_deduction_v1"}
-	var state := STATE.new()
-	var prepared: Dictionary = state.prepare_first_reveal({"transaction_id":"evidence-first","identity":identity,"expected_revision":0,
-		"cell_index":0,"spec":spec,"request_fingerprint":"evidence-first"},{"layout":layout,"board":first.value.board},{"checkpoint_id":"evidence-checkpoint"})
-	if not _check(prepared.get("ok",false) and state.commit(prepared.value.candidate).get("ok",false),"fixture state first-Reveal commit failed"): return {}
-	var flagged: Dictionary = REDUCER.set_flag(first.value.board,1,true,"evidence-flag")
-	if not _check(flagged.get("ok",false),"fixture Flag reducer failed"): return {}
-	var command: Dictionary = state.prepare_board_command({"transaction_id":"evidence-flag","identity":identity,"expected_revision":1,
-		"kind":&"set_flag","request_fingerprint":"evidence-flag"},flagged.value.board)
-	if not _check(command.get("ok",false) and state.commit(command.value.candidate).get("ok",false),"fixture Flag state commit failed"): return {}
-	var projected: Dictionary = QUERY.desktop(state.capture(),"expert")
-	if not _check(projected.get("ok",false),"fixture public projection failed"): return {}
-	return {"board":projected.value,"register":{"difficulty":"expert","rounds":1,"mine_estimate":projected.value.mine_estimate,
-		"foresight":null,"no_flag":"lost","custody":false,"difficulty_enabled":[]},
-		"assignments":[false,false,false,false,false,false,false,false,false],
-		"actions":["reveal","flag","drag","assignments","rules"],"settled":false}
