@@ -1173,7 +1173,8 @@ func prepare_reading_seek(source_frontier: Dictionary, entry_label: String,
 	var snapshot := _caption_ledger.snapshot_view()
 	snapshot.captions = snapshot.captions.duplicate()
 	if snapshot.has("entry_contexts"): snapshot.entry_contexts = snapshot.entry_contexts.duplicate()
-	_prepared_reading_seek = {"plan": intent.merged({"source": source.value.duplicate()}, true), "lines": ordered_lines.duplicate(true),
+	# The reading catalogue freezes its ordered lines and every nested row at registration.
+	_prepared_reading_seek = {"plan": intent.merged({"source": source.value.duplicate()}, true), "lines": ordered_lines,
 		"entry_label": entry_label, "indices": indices.value, "event": _caption_event,
 		"ledger": _caption_ledger, "snapshot": snapshot,
 		"request_id": _request_id, "generation": _runtime_generation}
