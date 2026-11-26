@@ -72,8 +72,8 @@ func prepare_accept(request: Dictionary) -> Dictionary:
 	if int(_run_lifecycle.call(&"get_day")) > _LAST_SOURCE_DAY:
 		return _fail(&"invalid_day",
 			"day 7 has no next day for a condition-Hospital resolution to advance into", {})
-	var live := _live()
-	if live["active_resolution_plan"] != null and not _completed_prior_resolution(live["active_resolution_plan"]):
+	var snapshot := _live()
+	if snapshot["active_resolution_plan"] != null and not _completed_prior_resolution(snapshot["active_resolution_plan"]):
 		return _fail(&"resolution_conflict",
 			"a Plan-01 day resolution is still incomplete on this run", {})
 	var shape := _accept_request_error(request)
@@ -82,7 +82,7 @@ func prepare_accept(request: Dictionary) -> Dictionary:
 	var intent_key := _fingerprint(request)
 	if intent_key.is_empty():
 		return _fail(&"noncanonical_request", "the accept request does not canonicalize", {})
-	var replayed := _accept_replay(live, intent_key)
+	var replayed := _accept_replay(snapshot, intent_key)
 	if not replayed.is_empty():
 		return replayed
 	var action_receipt: Dictionary = request["action_receipt"]
@@ -101,7 +101,7 @@ func prepare_accept(request: Dictionary) -> Dictionary:
 		"child_kind": _RESOLUTION_CHILD_KIND,
 		"parent_receipt_id": str(issuer.get("receipt_id", "")),
 		"ordinal": 0,
-		"source_ids": source_receipt_ids.duplicate(true),
+		"source_ids": source_receipt_ids.duplicate(),
 	})
 	if not derived.get("ok", false):
 		return _fail(&"identity_derivation_failed",
@@ -118,25 +118,25 @@ func prepare_accept(request: Dictionary) -> Dictionary:
 		"intent_id": str(record.get("key", "")),
 		"intent_id_provenance": _detached(record.get("provenance")),
 		"condition_receipt_id": str(condition_receipt["receipt_id"]),
-		"accepted_source_receipt_ids": source_receipt_ids.duplicate(true),
+		"accepted_source_receipt_ids": source_receipt_ids,
 		"payload_sha256": payload_sha256,
 		"status": "accepted",
 	}
-	var plan := _cursor_zero_plan(live, request, acceptance, sources)
+	var plan := _cursor_zero_plan(snapshot, request, acceptance, sources)
 	var validated: Dictionary = CONDITION_HOSPITAL_PLAN.validate(plan)
 	if not validated.get("ok", false):
 		return _fail(&"invalid_plan",
 			"the accepted plan is not a valid condition-Hospital plan: " + _reason(validated), {})
-	var lifecycle_candidate: Dictionary = live.duplicate(true)
-	lifecycle_candidate["active_resolution_plan"] = null
-	lifecycle_candidate["active_condition_hospital_plan"] = plan
-	var restorable: Dictionary = _run_lifecycle.call(&"prepare_restore", lifecycle_candidate)
+	var before_fingerprint := _fingerprint(snapshot)
+	snapshot["active_resolution_plan"] = null
+	snapshot["active_condition_hospital_plan"] = plan
+	var restorable: Dictionary = _run_lifecycle.call(&"prepare_restore", snapshot)
 	if not restorable.get("ok", false):
 		return _fail(&"invalid_lifecycle_candidate",
 			"the accepted candidate is not a restorable lifecycle: " + _reason(restorable), {})
 	var candidate: Dictionary = {
-		"before_fingerprint": _fingerprint(live),
-		"lifecycle_candidate": lifecycle_candidate.duplicate(true),
+		"before_fingerprint": before_fingerprint,
+		"lifecycle_candidate": restorable.value.candidate,
 	}
 	var envelope := _ok({
 		"condition_hospital_candidate": candidate,
@@ -271,13 +271,13 @@ func prepare_stage_identity(request: Dictionary) -> Dictionary:
 	var provenance: Dictionary = value["provenance"]
 	var stage_identity: Dictionary = {
 		"child_id": str(value["child_id"]),
-		"input_receipt_ids": inputs.duplicate(true),
+		"input_receipt_ids": inputs,
 		"provenance": provenance.duplicate(true),
 	}
 	_stage_identities[key] = stage_identity.duplicate(true)
 	return _ok({
 		"before_fingerprint": _fingerprint(live),
-		"stage_identity": stage_identity.duplicate(true),
+		"stage_identity": stage_identity,
 	}, {})
 
 
@@ -291,8 +291,8 @@ func prepare_stage(request: Dictionary) -> Dictionary:
 	for member: String in ["prepared", "stage_identity"]:
 		if typeof(request[member]) != TYPE_DICTIONARY:
 			return _fail(&"invalid_request", member + " is a Dictionary", {"member": member})
-	var live := _live()
-	var located := _locate_stage(live, request)
+	var snapshot := _live()
+	var located := _locate_stage(snapshot, request)
 	if located.has("error"):
 		return located["error"] as Dictionary
 	var stage_id := str(located["stage_id"])
@@ -314,27 +314,26 @@ func prepare_stage(request: Dictionary) -> Dictionary:
 			return _fail(&"stage_conflict",
 				"the active record already carries another identity or prepared value", {})
 		return _ok({
-			"before_fingerprint": _fingerprint(live),
-			"lifecycle_candidate": live.duplicate(true),
+			"before_fingerprint": _fingerprint(snapshot),
+			"lifecycle_candidate": snapshot,
 			"stage_identity": offered.duplicate(true),
 		}, {})
 	if state != "pending":
 		return _fail(&"stage_conflict", "only a pending cursor record can be prepared", {})
 	var prepared_value: Dictionary = request["prepared"]
-	var lifecycle_candidate: Dictionary = live.duplicate(true)
-	var candidate_record := _candidate_record(lifecycle_candidate, index)
-	candidate_record["state"] = "active"
-	candidate_record["stage_identity"] = offered.duplicate(true)
-	candidate_record["prepared"] = prepared_value.duplicate(true)
-	candidate_record["receipt"] = null
-	var restorable: Dictionary = _run_lifecycle.call(&"prepare_restore", lifecycle_candidate)
+	var before_fingerprint := _fingerprint(snapshot)
+	record["state"] = "active"
+	record["stage_identity"] = offered.duplicate(true)
+	record["prepared"] = prepared_value.duplicate(true)
+	record["receipt"] = null
+	var restorable: Dictionary = _run_lifecycle.call(&"prepare_restore", snapshot)
 	if not restorable.get("ok", false):
 		return _fail(&"invalid_lifecycle_candidate",
 			"the prepared stage candidate is not a restorable lifecycle: " + _reason(restorable),
 			{})
 	return _ok({
-		"before_fingerprint": _fingerprint(live),
-		"lifecycle_candidate": lifecycle_candidate.duplicate(true),
+		"before_fingerprint": before_fingerprint,
+		"lifecycle_candidate": restorable.value.candidate,
 		"stage_identity": offered.duplicate(true),
 	}, {})
 
@@ -349,8 +348,8 @@ func complete_stage(request: Dictionary) -> Dictionary:
 	for member: String in ["prepared", "stage_identity", "stage_receipt"]:
 		if typeof(request[member]) != TYPE_DICTIONARY:
 			return _fail(&"invalid_request", member + " is a Dictionary", {"member": member})
-	var live := _live()
-	var located := _locate_stage(live, request)
+	var snapshot := _live()
+	var located := _locate_stage(snapshot, request)
 	if located.has("error"):
 		return located["error"] as Dictionary
 	var stage_id := str(located["stage_id"])
@@ -368,8 +367,8 @@ func complete_stage(request: Dictionary) -> Dictionary:
 			return _fail(&"stage_conflict",
 				"the completed record carries another receipt than the one offered", {})
 		return _ok({
-			"before_fingerprint": _fingerprint(live),
-			"lifecycle_candidate": live.duplicate(true),
+			"before_fingerprint": _fingerprint(snapshot),
+			"lifecycle_candidate": snapshot,
 			"stage_receipt": stage_receipt.duplicate(true),
 		}, stage_receipt.duplicate(true))
 	if index != int(located["cursor"]):
@@ -384,12 +383,10 @@ func complete_stage(request: Dictionary) -> Dictionary:
 	if record["prepared"] != request["prepared"]:
 		return _fail(&"stage_conflict",
 			"the active record carries another prepared value than the one offered", {})
-	var lifecycle_candidate: Dictionary = live.duplicate(true)
-	var candidate_record := _candidate_record(lifecycle_candidate, index)
-	candidate_record["state"] = "completed"
-	candidate_record["receipt"] = stage_receipt.duplicate(true)
-	var candidate_plan: Dictionary = lifecycle_candidate["active_condition_hospital_plan"]
-	candidate_plan["cursor"] = index + 1
+	var before_fingerprint := _fingerprint(snapshot)
+	record["state"] = "completed"
+	record["receipt"] = stage_receipt.duplicate(true)
+	plan["cursor"] = index + 1
 	if stage_id == "advance_day":
 		var advance: Dictionary = record["prepared"]
 		var target: Variant = advance.get("target_causal_day_instance_issuer_receipt")
@@ -402,17 +399,17 @@ func complete_stage(request: Dictionary) -> Dictionary:
 		for key: String in ["target_day", "target_causal_day_instance", "target_causal_day_instance_issuer_receipt"]:
 			if stage_receipt["output"].get(key) != advance.get(key):
 				return _fail(&"advance_stage_output_invalid", "advance output differs from the persisted allocation", {})
-		lifecycle_candidate["day"] = int(advance["target_day"])
-		lifecycle_candidate["causal_day_instance"] = str(advance["target_causal_day_instance"])
-		lifecycle_candidate["causal_day_instance_issuer_receipt"] = target.duplicate(true)
-	var restorable: Dictionary = _run_lifecycle.call(&"prepare_restore", lifecycle_candidate)
+		snapshot["day"] = int(advance["target_day"])
+		snapshot["causal_day_instance"] = str(advance["target_causal_day_instance"])
+		snapshot["causal_day_instance_issuer_receipt"] = target.duplicate(true)
+	var restorable: Dictionary = _run_lifecycle.call(&"prepare_restore", snapshot)
 	if not restorable.get("ok", false):
 		return _fail(&"invalid_lifecycle_candidate",
 			"the completed stage candidate is not a restorable lifecycle: " + _reason(restorable),
 			{})
 	return _ok({
-		"before_fingerprint": _fingerprint(live),
-		"lifecycle_candidate": lifecycle_candidate.duplicate(true),
+		"before_fingerprint": before_fingerprint,
+		"lifecycle_candidate": restorable.value.candidate,
 		"stage_receipt": stage_receipt.duplicate(true),
 	}, stage_receipt.duplicate(true))
 
@@ -447,10 +444,10 @@ func prepare_retirement(request: Dictionary) -> Dictionary:
 			or str(autosave["receipt_id"]).strip_edges().is_empty():
 		return _fail(&"invalid_request",
 			"autosave_stage_receipt.receipt_id is a nonblank String", {})
-	var live := _live()
-	if typeof(live["active_condition_hospital_plan"]) != TYPE_DICTIONARY:
+	var snapshot := _live()
+	if typeof(snapshot["active_condition_hospital_plan"]) != TYPE_DICTIONARY:
 		return _fail(&"no_active_plan", "no condition-Hospital plan is active to retire", {})
-	var plan: Dictionary = live["active_condition_hospital_plan"]
+	var plan: Dictionary = snapshot["active_condition_hospital_plan"]
 	var complete: Dictionary = CONDITION_HOSPITAL_PLAN.is_complete(plan)
 	if not complete.get("ok", false):
 		return _fail(&"invalid_plan",
@@ -477,7 +474,7 @@ func prepare_retirement(request: Dictionary) -> Dictionary:
 			return minted["error"] as Dictionary
 		retirement_receipt = minted["receipt"] as Dictionary
 	var history_record: Dictionary = {
-		"completed_plan": plan.duplicate(true),
+		"completed_plan": plan,
 		"retirement_receipt": retirement_receipt.duplicate(true),
 	}
 	var validated: Dictionary = CONDITION_HOSPITAL_PLAN.validate_history_record(
@@ -485,22 +482,22 @@ func prepare_retirement(request: Dictionary) -> Dictionary:
 	if not validated.get("ok", false):
 		return _fail(&"invalid_history_record",
 			"the retirement record is not a valid history record: " + _reason(validated), {})
-	var lifecycle_candidate: Dictionary = live.duplicate(true)
-	lifecycle_candidate["active_condition_hospital_plan"] = null
-	var history: Dictionary = lifecycle_candidate["condition_hospital_history"]
-	history[receipt_id] = history_record.duplicate(true)
-	var restorable: Dictionary = _run_lifecycle.call(&"prepare_restore", lifecycle_candidate)
+	var before_fingerprint := _fingerprint(snapshot)
+	snapshot["active_condition_hospital_plan"] = null
+	var history: Dictionary = snapshot["condition_hospital_history"]
+	history[receipt_id] = history_record
+	var restorable: Dictionary = _run_lifecycle.call(&"prepare_restore", snapshot)
 	if not restorable.get("ok", false):
 		return _fail(&"invalid_lifecycle_candidate",
 			"the retirement candidate is not a restorable lifecycle: " + _reason(restorable), {})
 	_retirements[receipt_id] = {
 		"receipt": retirement_receipt.duplicate(true),
-		"prepare_sha": _fingerprint(live),
-		"lifecycle_candidate": lifecycle_candidate.duplicate(true),
+		"prepare_sha": before_fingerprint,
+		"lifecycle_candidate": snapshot,
 	}
 	return _ok({
 		"history_record": history_record.duplicate(true),
-		"lifecycle_candidate": lifecycle_candidate.duplicate(true),
+		"lifecycle_candidate": restorable.value.candidate,
 		"retirement_receipt": retirement_receipt.duplicate(true),
 	}, retirement_receipt.duplicate(true))
 
@@ -805,13 +802,6 @@ func _stage_receipt_error(request: Dictionary, located: Dictionary) -> Dictionar
 	if typeof(receipt["output"]) != TYPE_DICTIONARY:
 		return _fail(&"invalid_stage_receipt", "stage_receipt.output is a Dictionary", {})
 	return {}
-
-
-static func _candidate_record(lifecycle_candidate: Dictionary, index: int) -> Dictionary:
-	var plan: Dictionary = lifecycle_candidate["active_condition_hospital_plan"]
-	var stages: Array = plan["stages"]
-	return stages[index]
-
 
 
 func _mint_retirement_receipt(plan: Dictionary, receipt_id: String,

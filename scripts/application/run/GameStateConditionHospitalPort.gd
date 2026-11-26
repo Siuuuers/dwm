@@ -39,7 +39,7 @@ var _pair_deck: Object = null
 func configure(game_state: Object, identity_issuer: Object, causal_day_advance: Object,
 		schedule_view: Object, board_state: Object, consequence_state: Object,
 		checkpoint_inputs: Callable) -> Dictionary:
-	if game_state == null or not game_state.has_method("capture_run_snapshot_input") \
+	if game_state == null or not game_state.has_method("capture_run_gameplay") \
 			or not game_state.has_method("_apply_gameplay_silent"):
 		return _fail(&"invalid_game_state")
 	if identity_issuer == null or not identity_issuer.has_method("derive_child") \
@@ -112,8 +112,8 @@ func prepare_stage(plan: Dictionary, stage_id: String) -> Dictionary:
 		"present_hospital":
 			var closure: Dictionary = plan.stages[0].receipt.output
 			var context := {"kind": "hospital", "day": int(plan.source_day),
-				"source_entry_ids": closure.source_receipt_ids.duplicate(true),
-				"miss_receipt_ids": closure.miss_receipt_ids.duplicate(true)}
+				"source_entry_ids": closure.source_receipt_ids.duplicate(),
+				"miss_receipt_ids": closure.miss_receipt_ids.duplicate()}
 			if _frozen_hospital_contexts_enabled:
 				var frozen := HOSPITAL_CONTEXT.from_condition(context, _game.contacts, closure)
 				if not frozen.get("ok", false): return frozen
@@ -163,7 +163,7 @@ func execute_stage(_plan: Dictionary, stage: Dictionary) -> Dictionary:
 				"owner_candidate": null})
 		var port: Object = _hospital if stage_id == "present_hospital" else _dating
 		if port == null: return _fail(&"condition_hospital_presentation_unconfigured")
-		_commands[key] = request.duplicate(true)
+		_commands[key] = {"resolution_id": request.resolution_id, "stage_id": request.stage_id}
 		var begun: Dictionary = port.begin(request)
 		if not begun.get("ok", false): return begun
 		if not _routed.has(key):
@@ -292,7 +292,7 @@ func _presentation_request(plan: Dictionary, stage_id: String, context: Dictiona
 	return _ok({"request": request})
 
 func _closure_gameplay(misses: Array) -> Dictionary:
-	var gameplay: Dictionary = _game.capture_run_snapshot_input().gameplay
+	var gameplay: Dictionary = _game.capture_run_gameplay()
 	var retained: Array = gameplay.get("missed_invitations", [])
 	for miss: Dictionary in misses:
 		for friend: String in miss.participants:
