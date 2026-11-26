@@ -1874,7 +1874,7 @@ func dispatch_scene_event_acknowledged(envelope: Dictionary, dispatch: Callable)
 	var held := set_paused(true)
 	if not held.ok: return held
 	_scene_event_ack_active = true
-	var result: Dictionary = dispatch.call(envelope.duplicate(true))
+	var result: Dictionary = dispatch.call(envelope)
 	_scene_event_ack_active = false
 	if not result.get("ok", false): return result
 	var after := capture_reading_frontier()
