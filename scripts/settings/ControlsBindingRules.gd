@@ -13,7 +13,9 @@ static func defaults() -> Dictionary:
 	return result
 
 static func validate(bindings: Variant) -> Dictionary:
-	var records := REGISTRY.records()
+	return _validate(bindings, REGISTRY.records())
+
+static func _validate(bindings: Variant, records: Array[Dictionary]) -> Dictionary:
 	var ids: Array = []
 	for record in records: ids.append(String(record.id))
 	if not _exact_fields(bindings, ids): return _failure(&"invalid_binding_inventory")
@@ -37,12 +39,17 @@ static func validate(bindings: Variant) -> Dictionary:
 	return {"ok": true, "code": &"ok"}
 
 static func propose(bindings: Variant, action: String, slot: String, binding: Variant, revision: Variant) -> Dictionary:
-	var checked := validate(bindings)
+	var proposed := propose_view(bindings, action, slot, binding, revision)
+	if proposed.ok: proposed.value = proposed.value.duplicate(true)
+	return proposed
+
+static func propose_view(bindings: Variant, action: String, slot: String, binding: Variant, revision: Variant) -> Dictionary:
+	var records := REGISTRY.records()
+	var checked := _validate(bindings, records)
 	if not checked.ok: return checked
 	if typeof(revision) != TYPE_INT or revision < 0: return _failure(&"invalid_profile_revision")
 	if not bindings.has(action): return _failure(&"unknown_action", action)
 	if slot not in SLOTS: return _failure(&"invalid_binding_slot", action)
-	var records := REGISTRY.records()
 	var source: Dictionary = {}
 	for record in records:
 		if record.id == action: source = record
@@ -51,19 +58,18 @@ static func propose(bindings: Variant, action: String, slot: String, binding: Va
 		checked.action = action
 		checked.slot = slot
 		return checked
-	var before: Dictionary = bindings.duplicate(true)
-	var after := before.duplicate(true)
+	var after: Dictionary = bindings.duplicate()
 	var conflicts: Array[String] = []
 	for record in records:
 		var other := String(record.id)
-		if other != action and _contexts_overlap(source.contexts, record.contexts) and before[other][slot] == binding:
+		if other != action and _contexts_overlap(source.contexts, record.contexts) and bindings[other][slot] == binding:
 			conflicts.append(other)
-			after[other][slot] = after[action][slot]
-	after[action][slot] = binding.duplicate()
-	checked = validate(after)
+			after[other] = bindings[other].merged({slot: bindings[action][slot]}, true)
+	after[action] = bindings[action].merged({slot: binding}, true)
+	checked = _validate(after, records)
 	return {"ok": true, "code": &"ok", "value": {
 		"action": action, "slot": slot, "revision": revision,
-		"before": before, "after": after, "conflicts": conflicts,
+		"before": bindings, "after": after, "conflicts": conflicts,
 		"operation": &"rebind" if conflicts.is_empty() else &"swap",
 		"can_commit": checked.ok, "validation": checked,
 	}}

@@ -973,7 +973,8 @@ func commit_controls_change(proposal: Dictionary) -> Dictionary:
 	var after: Variant = proposal.get("after")
 	if not after is Dictionary or not after.get(proposal.action) is Dictionary or not after[proposal.action].has(proposal.slot):
 		return _failure(&"invalid_binding_proposal", "Binding proposal is malformed")
-	var recomputed := prepare_controls_change(proposal.action, proposal.slot, after[proposal.action][proposal.slot])
+	var recomputed := CONTROLS_RULES.propose_view(_profile.controls_bindings, proposal.action, proposal.slot,
+		after[proposal.action][proposal.slot], _profile_revision)
 	if not recomputed.get("ok", false): return recomputed
 	if recomputed.value != proposal or not recomputed.value.can_commit:
 		return _failure(&"invalid_binding_proposal", "The complete binding proposal is not valid")

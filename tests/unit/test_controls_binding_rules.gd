@@ -81,6 +81,7 @@ func test_direct_proposal_preserves_other_slots_before_map_and_revision() -> voi
 	assert_eq(result.value.after, expected)
 	result.value.before.game_quick_save.keyboard.physical_keycode = KEY_F7
 	result.value.after.game_quick_load.controller.device = 7
+	assert_eq(result.value.before.game_quick_load.controller.device, -1)
 	assert_eq(before, RULES.defaults(), "The proposal owns detached before/after snapshots")
 
 func test_single_conflict_swap_validates_entire_result() -> void:
