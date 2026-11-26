@@ -663,26 +663,25 @@ func get_reached_presentation(signature_id: String) -> Dictionary:
 func get_reached_presentations(entry_id: String = "") -> Dictionary:
 	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
 	var chronology: Dictionary = _profile.reached_presentation_chronology
-	var ids: Array = chronology.first_witnessed.duplicate()
-	ids.reverse()
-	ids.append_array(chronology.legacy_unordered)
 	var records: Array = []
 	var projected := {"first_witnessed": [], "legacy_unordered": []}
-	for index: int in range(ids.size()):
-		var id: String = ids[index]
-		var signature: Dictionary = _profile.reached_presentations[id]
-		if entry_id.is_empty() or signature.entry_id == entry_id:
-			records.append({"signature_id": id, "signature": signature.duplicate(true)})
-			projected["first_witnessed" if index < chronology.first_witnessed.size() else "legacy_unordered"].append(id)
-	projected.first_witnessed.reverse()
+	for partition: String in ["first_witnessed", "legacy_unordered"]:
+		for id: String in chronology[partition]:
+			var signature: Dictionary = _profile.reached_presentations[id]
+			if entry_id.is_empty() or signature.entry_id == entry_id:
+				projected[partition].append(id)
+				records.append({"signature_id": id, "signature": signature.duplicate(true)})
+		if partition == "first_witnessed": records.reverse()
 	return {"ok": true, "value": {"records": records, "chronology": projected}}
 
 static func _preserves_presentation_chronology(before: Dictionary, after: Dictionary) -> bool:
 	var prior: Dictionary = before.reached_presentation_chronology
 	var next: Dictionary = after.reached_presentation_chronology
-	return next.legacy_unordered == prior.legacy_unordered \
-		and next.first_witnessed.size() >= prior.first_witnessed.size() \
-		and next.first_witnessed.slice(0, prior.first_witnessed.size()) == prior.first_witnessed
+	if next.legacy_unordered != prior.legacy_unordered or next.first_witnessed.size() < prior.first_witnessed.size():
+		return false
+	for index: int in prior.first_witnessed.size():
+		if next.first_witnessed[index] != prior.first_witnessed[index]: return false
+	return true
 
 func _evidence_custody() -> Dictionary:
 	if _mutation_gate != null and not _mutation_gate.is_internal_owner_active(&"causal_transaction"):

@@ -133,22 +133,24 @@ static func validate_receipts(receipts: Dictionary) -> Dictionary:
 			var prior_anchor: Dictionary = group.receipts[0].scene_event.reading_anchor
 			for field: String in ["session_id", "entry_id", "content_version", "catalogue_fingerprint"]:
 				if prior_anchor[field] != saved.reading_anchor[field]: return _fail(&"event_anchor_changed")
-		group.receipts.append(receipt.duplicate(true))
+		group.receipts.append(rebuilt.value)
 	for key: String in occurrences:
 		var group: Dictionary = occurrences[key]
 		group.receipts.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 			return a.scene_event.semantic.ordinal < b.scene_event.semantic.ordinal)
 		var seen_events := {}
+		var notification: Dictionary = {}
 		for receipt: Dictionary in group.receipts:
 			var semantic: Dictionary = receipt.scene_event.semantic
 			if semantic.ordinal != group.next_ordinal or semantic.predecessor != group.predecessor \
 					or seen_events.has(semantic.event_id): return _fail(&"event_receipt_chain_invalid")
-			if semantic.kind == "notification.clear" and group.notification.get("notification_id", "") != semantic.payload.notification_id:
+			if semantic.kind == "notification.clear" and notification.get("notification_id", "") != semantic.payload.notification_id:
 				return _fail(&"event_notification_clear_invalid")
 			seen_events[semantic.event_id] = true
-			group.notification = receipt.scene_event.result.notification.duplicate(true)
+			notification = receipt.scene_event.result.notification
 			group.next_ordinal += 1
 			group.predecessor = semantic.event_id
+		if not notification.is_empty(): group.notification = notification.duplicate(true)
 	return {"ok": true, "value": {"occurrences": occurrences}}
 
 static func _same_types(actual: Variant, expected: Variant) -> bool:
@@ -780,7 +782,7 @@ static func _validate_scene_receipts_registered(receipts: Dictionary, bundle: Di
 			var prior_anchor: Dictionary = group.receipts[0].scene_event.reading_anchor
 			for field: String in ["session_id", "entry_id", "content_version", "catalogue_fingerprint"]:
 				if not _equal(prior_anchor[field], saved.reading_anchor[field]): return _fail(&"event_anchor_changed")
-		group.receipts.append(receipt.duplicate(true))
+		group.receipts.append(rebuilt.value)
 		commands[command] = receipt.duplicate(true)
 	for purchase_receipt: Dictionary in shop_purchases.values():
 		var source_id: String = purchase_receipt.source_id
@@ -801,21 +803,23 @@ static func _validate_scene_receipts_registered(receipts: Dictionary, bundle: Di
 			return a.scene_event.semantic.ordinal < b.scene_event.semantic.ordinal)
 		var seen := {}
 		var transitioned := false
+		var notification: Dictionary = {}
 		var contact_child: bool = admission.get("return_to") != null
 		for receipt: Dictionary in group.receipts:
 			var semantic: Dictionary = receipt.scene_event.semantic
 			if transitioned or semantic.ordinal != group.next_ordinal or semantic.predecessor != group.predecessor \
 					or seen.has(semantic.event_id): return _fail(&"scene_receipt_chain_invalid")
-			if semantic.kind == "notification.clear" and group.notification.get("notification_id") != semantic.payload.notification_id:
+			if semantic.kind == "notification.clear" and notification.get("notification_id") != semantic.payload.notification_id:
 				return _fail(&"event_notification_clear_invalid")
 			if semantic.kind in ["notification.set", "notification.clear"]:
-				group.notification = receipt.scene_event.result.notification.duplicate(true)
+				notification = receipt.scene_event.result.notification
 			if contact_child and semantic.kind in ["passage.finish", "contact.enter", "scene.transition", "challenge.end", "challenge.recall", "thought.accept", "thought.pass", "thought.options", "thought.select"]:
 				return _fail(&"scene_contact_exit_refused")
 			transitioned = semantic.kind in ["passage.finish", "scene.transition", "contact.return", "challenge.recall", "thought.accept", "thought.pass", "thought.options", "thought.select"]
 			seen[semantic.event_id] = true
 			group.next_ordinal += 1
 			group.predecessor = semantic.event_id
+		if not notification.is_empty(): group.notification = notification.duplicate(true)
 	for receipt: Dictionary in commands.values():
 		var semantic: Dictionary = receipt.scene_event.semantic
 		var result: Dictionary = receipt.scene_event.result

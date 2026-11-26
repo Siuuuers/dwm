@@ -4222,7 +4222,7 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 			return _command_failure(&"scene_playable_retry_mismatch")
 		_scene_playable.lease = lease
 	if not _scene_playable_current(): return _command_failure(&"scene_playable_source_changed")
-	var checkpoint: Dictionary = _scene_playable.checkpoint.duplicate(true)
+	var checkpoint: Dictionary = _scene_playable.checkpoint
 	if departing:
 		var candidate: RefCounted = _scene_playable.candidate
 		var source_token: RefCounted = _scene_playable.native_token
