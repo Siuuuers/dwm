@@ -128,15 +128,16 @@ static func build_scene(plan: Dictionary, playback_id: String) -> Dictionary:
 			or plan.get("steps") != [{"ending_id": "ending.alone", "role": "core"}] \
 			or not CONTEXT._field(playback_id, "id"):
 		return _fail(&"ending_scene_plan_invalid")
-	var signature := SIGNATURE.validate({"entry_id": "ending.alone.normal", "schema_version": 1,
-		"fields": {"ending_role": "core", "ending_form": "alone_normal"}})
-	if not signature.ok: return signature
+	var signature := {"entry_id": "ending.alone.normal", "schema_version": 1,
+		"fields": {"ending_role": "core", "ending_form": "alone_normal"}}
+	var checked := SIGNATURE.signature_id(signature)
+	if not checked.ok: return checked
 	var frozen := CONTEXT.build("ending.alone.normal", {"entry_id": "ending.alone.normal",
 		"entry_role": "alone_step", "ending_id": "ending.alone", "ending_role": "core",
 		"ending_form": "alone_normal", "playback_mode": "full", "prerequisite_receipt_ids": [],
 		"step_token": playback_id, "alone_cause": "scene_terminal"})
 	if not frozen.ok: return frozen
-	return _ok({"signature": signature.value.signature, "presentation": frozen.value})
+	return _ok({"signature": signature, "presentation": frozen.value})
 
 static func validate_cache(cache: Variant, lifecycle: Dictionary) -> Dictionary:
 	if not cache is Dictionary or not _exact(cache, ["schema_version", "seed", "presentations"]) \
@@ -165,11 +166,7 @@ static func validate_cache(cache: Variant, lifecycle: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 static func _exact(value: Dictionary, expected: Array) -> bool:
-	var keys := value.keys()
-	keys.sort()
-	var other := expected.duplicate()
-	other.sort()
-	return keys == other
+	return value.size() == expected.size() and value.has_all(expected)
 
 static func _ok(value: Dictionary) -> Dictionary:
 	return {"ok": true, "value": value}
