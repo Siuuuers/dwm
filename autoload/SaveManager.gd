@@ -320,9 +320,7 @@ func _prepare_scene_new_run_plans(snapshot: Dictionary, candidate_profile: Dicti
 		"localization": {"locale_id": profile.value.locale_id, "font_style": profile.value.get("font_style", "pixel"),
 			"text_size": profile.value.get("text_size", 100)},
 		"audio": {"preferences": candidate_profile.preferences, "audio_context": audio_context.value},
-		"route": {"route_id": "scene", "route_context": {"run_id": snapshot.run_id,
-			"lifecycle_state": snapshot.lifecycle.state, "active_app_id": null,
-			"scene": snapshot.scene, "contacts": snapshot.contacts}}}
+		"route": {"route_id": "scene", "route_context": {"scene": true, "active_app_id": null}}}
 	if _scene_new_run_bundle.get("schema_version") == 3:
 		inputs.audio["scene_audio_mode"] = "entry"
 	var names := {"desktop_consequence": "consequence_plan", "desktop_board": "board_plan",

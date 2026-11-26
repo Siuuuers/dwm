@@ -373,7 +373,7 @@ func test_scene_app_metadata_is_omitted_and_cannot_select_restore_surface() -> v
 	assert_true(context.ok, str(context))
 	if not context.ok: return
 	assert_null(context.value.active_app_id, "a scene without an active visible desktop board resumes with no app")
-	assert_eq(context.value.contacts, source.contacts, "Contacts progress is independent of its window")
+	assert_eq(context.value, {"scene": true, "active_app_id": null}, "only the derived desktop surface is routed")
 	for old_app: Variant in ["contacts", "shop", "backup", "settings", "minesweeper", "unknown-app", 42, {"invalid": true}]:
 		var with_metadata := source.duplicate(true)
 		with_metadata["active_app_id"] = old_app
