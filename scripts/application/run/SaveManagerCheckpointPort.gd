@@ -155,26 +155,10 @@ func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_wr
 	var validated_texts := {}
 	if str(disk_write["kind"]) == "autosave":
 		var reason := str(disk_write["reason"])
-		var projected_earlier: Array = journal_candidate["earlier"]
-		var proven_journal: Array = []
 		var sub_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
-		if not profile.is_empty():
-			profile["document_proof_entries"] = projected_earlier.size()
-			profile["document_proof_hits"] = 0
-			profile["document_proof_misses"] = 0
-		for entry: Variant in projected_earlier:
-			var proof: Dictionary = _journal().get_retained_bundle_document(
-				str(((entry as Dictionary)["snapshot"] as Dictionary)["checkpoint_id"]))
-			if proof.is_empty():
-				_profile_count(profile, "document_proof_misses")
-				proven_journal.clear()
-				break
-			_profile_count(profile, "document_proof_hits")
-			proven_journal.append(proof)
-		sub_tick = _profile_phase(profile, "document_proof_lookup_us", sub_tick)
 		var document: Dictionary = SAVE_DOCUMENT_SCHEMA.build(
-			&"autosave", null, StringName(reason), journal_candidate["current"], projected_earlier,
-			{}, proven_journal, profile)
+			&"autosave", null, StringName(reason), journal_candidate["current"], journal_candidate["earlier"],
+			{}, profile)
 		_profile_phase(profile, "document_schema_build_us", sub_tick)
 		tick = _profile_phase(profile, "document_build_us", tick)
 		if not document.get("ok", false):

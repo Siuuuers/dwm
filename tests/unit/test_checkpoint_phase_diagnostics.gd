@@ -122,7 +122,7 @@ func test_profile_on_and_off_preserve_documents_journal_and_every_physical_opera
 		assert_true(measured.manager._journal.capture_state() == plain.manager._journal.capture_state(), "profile preserves exact journal state")
 	assert_true(plain.port.records.is_empty(), "disabled diagnostics emit no records")
 	var prepared := _last(measured, "save_checkpoint_prepare")
-	_assert_timers(prepared, ["document_build_us", "document_proof_lookup_us", "document_schema_build_us",
+	_assert_timers(prepared, ["document_build_us", "document_schema_build_us",
 		"document_schema_normalize_current_us", "document_schema_normalize_journal_us",
 		"document_schema_validate_current_us", "document_schema_validate_journal_us", "document_schema_compose_us"])
 	var committed := _last(measured, "save_checkpoint")

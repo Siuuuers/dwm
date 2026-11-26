@@ -8,8 +8,7 @@ const PORT := preload("res://scripts/application/run/DatingPresentationPort.gd")
 class SelectedClosedState extends RefCounted:
 	var record: Dictionary
 	var closure: Dictionary
-	func capture_dating_challenge_state() -> Dictionary:
-		return {"ok": true, "value": record.duplicate(true)}
+	func matches_dating_challenge_state(candidate: Dictionary) -> bool: return record == candidate
 	func capture_scene_challenge_closure(_context: Dictionary) -> Dictionary:
 		return {"ok": true, "value": closure.duplicate(true)}
 

@@ -79,34 +79,28 @@ static func build(
 		current_bundle: Dictionary,
 		journal: Array,
 		saved_time: Dictionary = {},
-		proven_journal: Array = [],
 		profile: Dictionary = {},
-		proven_current_snapshot: Dictionary = {}
+		owned_current_snapshot: Dictionary = {}
 ) -> Dictionary:
 	var tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 	var discriminator_error := _validate_discriminators(String(kind), slot_id, String(save_reason))
 	tick = _profile_phase(profile, "document_schema_discriminators_us", tick)
 	if discriminator_error != "":
 		return _fail(&"invalid_discriminator", discriminator_error)
-	var proven := _journal_is_proven(journal, proven_journal)
-	tick = _profile_phase(profile, "document_schema_proof_selection_us", tick)
-	if not profile.is_empty(): profile["document_schema_journal_proven"] = proven
-	var current_proven := not proven_current_snapshot.is_empty() \
-		and is_same(current_bundle.get("snapshot"), proven_current_snapshot)
-	current_bundle = current_bundle.duplicate(true) if current_proven else _normalize_engine_text(current_bundle)
+	var current_proven := not owned_current_snapshot.is_empty() \
+		and is_same(current_bundle.get("snapshot"), owned_current_snapshot)
+	if not current_proven: current_bundle = _normalize_engine_text(current_bundle)
 	tick = _profile_phase(profile, "document_schema_normalize_current_us", tick)
-	if not proven:
-		journal = _normalize_engine_text(journal)
+	journal = _normalize_engine_text(journal)
 	tick = _profile_phase(profile, "document_schema_normalize_journal_us", tick)
-	var bundle_error := _validate_bundle(current_bundle, current_bundle.get("snapshot", {}) if current_proven else {})
+	var bundle_error := _validate_bundle(current_bundle, owned_current_snapshot if current_proven else {})
 	tick = _profile_phase(profile, "document_schema_validate_current_us", tick)
 	if not bundle_error.get("ok", false):
 		return bundle_error
-	if not proven:
-		var journal_error := _validate_journal(journal)
-		if journal_error != "":
-			_profile_phase(profile, "document_schema_validate_journal_us", tick)
-			return _fail(&"invalid_recovery_journal", journal_error)
+	var journal_error := _validate_journal(journal)
+	if journal_error != "":
+		_profile_phase(profile, "document_schema_validate_journal_us", tick)
+		return _fail(&"invalid_recovery_journal", journal_error)
 	tick = _profile_phase(profile, "document_schema_validate_journal_us", tick)
 	var document := {
 		"schema_version": SCENE_DOCUMENT_VERSION,
@@ -116,14 +110,9 @@ static func build(
 			"checkpoint_kind": str(current_bundle["checkpoint_kind"]),
 			"snapshot": bundle_error["value"]["candidate"],
 		},
-		"recovery_journal": (_profile_compose_build_journal(journal, proven_journal, proven, profile)),
+		"recovery_journal": RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(journal),
 	}
 	tick = _profile_phase(profile, "document_schema_compose_us", tick)
-	if proven:
-		var proof_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
-		var proof_error := _scene_proof_error(journal, proven_journal)
-		_profile_phase(profile, "document_schema_proof_equality_us", proof_tick)
-		if not proof_error.is_empty(): return _fail(&"invalid_recovery_journal", proof_error)
 	var scene_error := _profile_scene_journal_error(document.current_snapshot, document.recovery_journal, profile, "document_schema")
 	if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
 	var display_time := normalize_optional_saved_time(saved_time)
@@ -281,14 +270,6 @@ static func _scene_proof_error(journal: Array, proofs: Array) -> String:
 		if not entry is Dictionary or not proof is Dictionary or entry != proof:
 			return "scene journal proof does not match its bundle"
 	return ""
-
-static func _profile_compose_build_journal(journal: Array, proofs: Array, proven: bool,
-		profile: Dictionary) -> Array:
-	var started := Time.get_ticks_usec() if not profile.is_empty() else 0
-	var composed: Array = (_proven_entries(proofs) if proven
-		else RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(journal))
-	_profile_phase(profile, "document_schema_journal_composition_us", started)
-	return composed
 
 static func _profile_scene_journal_error(current: Dictionary, journal: Array,
 		profile: Dictionary, phase: String) -> String:
