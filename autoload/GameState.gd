@@ -4486,19 +4486,15 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 	var art_arrival := prepare_scene_presentation_arrival(next_scene, registration.bundle, target.label)
 	if not art_arrival.ok: return art_arrival
 	if not art_arrival.value.state.is_empty(): next_scene["presentation"] = art_arrival.value.state
-	var presentation := preload("res://scripts/narrative/FrozenPresentationContext.gd").build(next_scene.entry_id,
-		{"entry_id": next_scene.entry_id, "entry_role": "scene", "occurrence_id": occurrence,
-			"admission_receipt_id": occurrence})
-	if not presentation.ok: return presentation
-	var frame := {"expected_stage": "scene", "playback_id": occurrence, "role": "scene",
-		"transaction_id": occurrence, "presentation": presentation.value}
+	var frame := FrozenPresentationContext.build_scene_frame(next_scene.entry_id, occurrence)
+	if not frame.ok: return frame
 	var binding := {"operation_id": trigger_command_id, "source_checkpoint": source_ref,
 		"source_occurrence_id": _scene_snapshot_references.active_occurrence_id,
 		"trigger_command_id": trigger_command_id, "target_id": target_id,
 		"target_occurrence_id": occurrence, "admission_receipt_id": occurrence,
 		"registration_sha256": next_scene.registration_sha256}
 	_scene_entry_operation = {"lease": lease, "live_session": session.value,
-		"entry_id": next_scene.entry_id, "frame": frame, "binding": binding,
+		"entry_id": next_scene.entry_id, "frame": frame.value, "binding": binding,
 		"prior_input": prior_input,
 		"recovery": not recovery_trigger.is_empty(), "named_autosave": visual.value.autosave or art_arrival.value.autosave}
 	if registration.bundle.get("audio_catalogue", {}).get("schema_version") == 3:
@@ -4536,7 +4532,7 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 	candidate.scene = next_scene
 	var held: Dictionary = _scene_event_bridge.hold_scene_entry_source()
 	if not held.get("ok", false): return held
-	var staged: Dictionary = _scene_event_bridge.prepare_day_entry(next_scene.entry_id, frame)
+	var staged: Dictionary = _scene_event_bridge.prepare_day_entry(next_scene.entry_id, frame.value)
 	if not staged.get("ok", false): return staged
 	_scene_entry_operation["candidate"] = candidate
 	_scene_entry_operation["result"] = trigger.scene_event.result.duplicate(true)

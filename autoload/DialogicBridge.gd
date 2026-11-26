@@ -197,17 +197,14 @@ static func _build_current_scene_initial_checkpoint(scene: Dictionary, bundle: D
 	if index < 0 or index >= compiled.value.nodes.size() or compiled.value.nodes[index].kind != "caption":
 		return _READING_SESSION._content_error("Dialogue target has no caption: " + target.label,
 			{"entry_id": entry_id, "label": target.label})
-	var presentation := FrozenPresentationContext.build(entry_id, {"entry_id": entry_id,
-		"entry_role": "scene", "occurrence_id": occurrence, "admission_receipt_id": occurrence})
-	if not presentation.ok: return presentation
-	var frame := {"expected_stage": "scene", "playback_id": occurrence, "role": "scene",
-		"transaction_id": occurrence, "presentation": presentation.value}
+	var frame := FrozenPresentationContext.build_scene_frame(entry_id, occurrence)
+	if not frame.ok: return frame
 	var candidate := _READING_SESSION.new()
 	var configured: Dictionary = candidate.configure_scene()
 	if not configured.ok: return configured
 	var begun: Dictionary = candidate.begin_scene(occurrence)
 	if not begun.ok: return begun
-	var entered: Dictionary = candidate.admit_scene(entry_id, frame, index)
+	var entered: Dictionary = candidate.admit_scene(entry_id, frame.value, index)
 	if not entered.ok: return entered
 	var allocation: Dictionary = candidate.ledger.allocate_publication(occurrence, entry_id, occurrence)
 	if not allocation.ok: return allocation
@@ -219,7 +216,7 @@ static func _build_current_scene_initial_checkpoint(scene: Dictionary, bundle: D
 	var frames := FrozenRunContext.derive_current_scene_frames(scene, captured.value)
 	if not frames.ok: return frames
 	var checkpoint := {"content_version": target.content_version, "entry_id": entry_id,
-		"frozen_context": frame, "manifest_fingerprint": _ENTRY_MANIFEST.scene_registration_fingerprint(),
+		"frozen_context": frame.value, "manifest_fingerprint": _ENTRY_MANIFEST.scene_registration_fingerprint(),
 		"stage": "scene", "transaction_id": occurrence, "reading_session": captured.value}
 	return {"ok": true, "value": checkpoint}
 

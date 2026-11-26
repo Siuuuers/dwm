@@ -539,16 +539,13 @@ func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 			if index < 0 or index >= nodes.size() or nodes[index].kind != "completion":
 				return _content_error("Dialogue no longer ends at: " + saved.position_id,
 					{"entry_id": entry_id, "position_id": saved.position_id})
-	var presentation := FROZEN.build(entry_id, {"entry_id": entry_id, "entry_role": "scene",
-		"occurrence_id": saved.occurrence_id, "admission_receipt_id": saved.occurrence_id})
-	if not presentation.ok: return presentation
-	var frame := {"expected_stage": "scene", "playback_id": saved.occurrence_id, "role": "scene",
-		"transaction_id": saved.occurrence_id, "presentation": presentation.value}
+	var frame := FROZEN.build_scene_frame(entry_id, saved.occurrence_id)
+	if not frame.ok: return frame
 	var live := {"schema_version": 5, "registration_sha256": fingerprint, "entry_id": entry_id,
 		"occurrence_id": saved.occurrence_id, "program_index": index, "boundary": saved.boundary,
 		"ledger": {"schema_version": 2, "session_token": saved.session_token,
 			"frozen_context": {"family": "scene", "session_token": saved.session_token, "registration_sha256": fingerprint},
-			"entry_contexts": {LEDGER.scene_frame_key(saved.occurrence_id, entry_id): frame}, "captions": [
+			"entry_contexts": {LEDGER.scene_frame_key(saved.occurrence_id, entry_id): frame.value}, "captions": [
 				{"publication_id": caption.publication_id, "occurrence_id": saved.occurrence_id, "beat": beat}]},
 		"frontier": caption if saved.boundary == "line" else {},
 		"next_operation": null}
