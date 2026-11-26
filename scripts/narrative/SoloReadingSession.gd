@@ -302,8 +302,7 @@ static func project_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 	if not projected.ok: return projected
 	return {"ok": true, "value": with_reading_session(checkpoint, projected.value)}
 
-static func normalize_player_checkpoint(checkpoint: Dictionary, _choices: Dictionary,
-		_outcomes: Dictionary) -> Dictionary:
+static func normalize_player_checkpoint(checkpoint: Dictionary, owns_reading: bool = false) -> Dictionary:
 	var saved: Variant = checkpoint.get("reading_session")
 	if not saved is Dictionary or saved.get("schema_version") != 7:
 		return _fail(&"reading_checkpoint_invalid")
@@ -345,9 +344,9 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, _choices: Dictio
 	var session: RefCounted = load("res://scripts/narrative/SoloReadingSession.gd").new()
 	var configured: Dictionary = session.configure_scene()
 	if not configured.ok: return configured
-	var current: Dictionary = saved.duplicate(true)
-	current.registration_sha256 = session.fingerprint
 	var fallback: bool = saved.registration_sha256 != session.fingerprint and not session._caption_variants_by_line.has(tail.line_id)
+	var current: Dictionary = saved if owns_reading else saved.duplicate(true)
+	current.registration_sha256 = session.fingerprint
 	if fallback:
 		while not current.history_sections.is_empty():
 			var section: Dictionary = current.history_sections.back()
@@ -417,7 +416,7 @@ static func expand_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 	var restored: Dictionary = session.restore_player(reading, str(checkpoint.get("entry_id", "")))
 	if not restored.ok and restored.get("code") == &"reading_content_error" \
 			and reading.boundary in ["control", "between_entries"]:
-		var normalized := normalize_player_checkpoint(checkpoint, {}, {})
+		var normalized := normalize_player_checkpoint(checkpoint)
 		if not normalized.ok: return normalized
 		checkpoint = normalized.value.checkpoint
 		reading = checkpoint.reading_session

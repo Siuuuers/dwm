@@ -295,8 +295,7 @@ static func normalize_scene_content(snapshot: Dictionary, trusted: bool = false)
 			and candidate.scene.registration_sha256 != SCENE_MANIFEST.scene_registration_fingerprint():
 		candidate.lifecycle["completed_registration_sha256"] = candidate.scene.registration_sha256
 	if not trusted or candidate.scene.registration_sha256 != SCENE_MANIFEST.scene_registration_fingerprint():
-		var normalized: Dictionary = SCENE_READING.normalize_player_checkpoint(candidate.narrative_checkpoint,
-			gameplay.scene_choices, gameplay.scene_challenge_outcomes)
+		var normalized: Dictionary = SCENE_READING.normalize_player_checkpoint(candidate.narrative_checkpoint, true)
 		if not normalized.ok: return normalized
 		candidate.narrative_checkpoint = normalized.value.checkpoint
 		candidate.content_version = candidate.narrative_checkpoint.content_version
@@ -436,9 +435,20 @@ static func _scene_initial_types_error(snapshot: Dictionary) -> String:
 		if snapshot.has(member) and typeof(snapshot[member]) != TYPE_INT:
 			return "Scene snapshot header must retain integer types"
 	var lifecycle: Variant = snapshot.get("lifecycle")
-	if lifecycle is Dictionary and not SCENE_EVENT_CONTRACT._same_types(lifecycle, _normalize_integral_floats(lifecycle)):
+	if lifecycle is Dictionary and not _lifecycle_types_preserved(lifecycle):
 		return "Scene lifecycle must retain exact identity types"
 	return ""
+
+static func _lifecycle_types_preserved(value: Variant) -> bool:
+	if value is Dictionary:
+		for key: Variant in value:
+			if typeof(key) != TYPE_STRING or not _lifecycle_types_preserved(value[key]): return false
+	elif value is Array:
+		for item: Variant in value:
+			if not _lifecycle_types_preserved(item): return false
+	elif value is float:
+		return not (is_finite(value) and value == floorf(value))
+	return true
 
 static func _scene_exact_value(left: Variant, right: Variant) -> bool:
 	return SCENE_EVENT_CONTRACT._same_types(left, right) and _scene_equal(left, right)
