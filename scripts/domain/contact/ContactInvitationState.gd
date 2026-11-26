@@ -308,8 +308,8 @@ static func prepare_open_contact(state: Dictionary, friend_id: String, day: int,
 		opened = _ok(detached, [], receipt)
 	var candidate: Dictionary = opened.value.candidate
 	var claim := {"witness_ids": [], "witnesses": {}, "message_ids": [], "message_sequences": []}
-	for projected: Dictionary in pending:
-		var witness_id: String = projected.parameters.witness_id
+	for message: Dictionary in pending:
+		var witness_id: String = message.parameters.witness_id
 		var witness: Dictionary = state.sylvia_hospital_witness_receipts[witness_id]
 		var source: Dictionary = state.schedule_source_receipts[witness.source_receipt_id]
 		var proof: Dictionary = identity_issuer.validate_child(source.receipt_provenance, &"contact_source")
@@ -317,7 +317,6 @@ static func prepare_open_contact(state: Dictionary, friend_id: String, day: int,
 		if witness.resolution_kind == "condition_hospital":
 			proof = identity_issuer.validate_child(witness.receipt_provenance, &"sylvia_hospital_witness")
 			if not proof.get("ok", false): return proof
-		var message := projected.duplicate(true)
 		message.sequence = candidate.next_sequence
 		message.transaction_id = "%s:care:%d" % [transaction_id, claim.witness_ids.size()]
 		candidate.messages.sylvia.append(message)
@@ -972,29 +971,27 @@ static func _replay_authenticated(detached: Dictionary, transaction_id: String,
 	if not operation_linkage.get("ok", false):
 		return operation_linkage
 	var source_id := str(receipt.get("source_receipt_id", ""))
-	var outer: Dictionary = receipt.duplicate(true)
-	if not source_id.is_empty():
-		var found := get_schedule_source_receipt(detached, source_id)
-		if not found.get("ok", false):
-			return found
-		var linkage := _validate_source_receipt_linkage(detached, source_id,
-			found["value"]["receipt"])
-		if not linkage.get("ok", false):
-			return linkage
-		var source_receipt: Dictionary = found["value"]["receipt"]
-		var validated: Variant = identity_issuer.call(
-			&"validate_child", source_receipt["receipt_provenance"], &"contact_source")
-		var validated_value: Variant = (validated as Dictionary).get("value") \
-			if typeof(validated) == TYPE_DICTIONARY else null
-		if typeof(validated) != TYPE_DICTIONARY \
-				or not (validated as Dictionary).get("ok", false) \
-				or typeof(validated_value) != TYPE_DICTIONARY \
-				or (validated_value as Dictionary).get("provenance") \
-					!= source_receipt["receipt_provenance"]:
-			return _fail(&"schedule_source_derivation_invalid",
-				"authenticated replay could not reproduce the retained source child")
-		outer = source_receipt
-	return _ok(detached, [], outer)
+	if source_id.is_empty(): return _ok(detached, [], receipt.duplicate(true))
+	var found := get_schedule_source_receipt(detached, source_id)
+	if not found.get("ok", false):
+		return found
+	var linkage := _validate_source_receipt_linkage(detached, source_id,
+		found["value"]["receipt"])
+	if not linkage.get("ok", false):
+		return linkage
+	var source_receipt: Dictionary = found["value"]["receipt"]
+	var validated: Variant = identity_issuer.call(
+		&"validate_child", source_receipt["receipt_provenance"], &"contact_source")
+	var validated_value: Variant = (validated as Dictionary).get("value") \
+		if typeof(validated) == TYPE_DICTIONARY else null
+	if typeof(validated) != TYPE_DICTIONARY \
+			or not (validated as Dictionary).get("ok", false) \
+			or typeof(validated_value) != TYPE_DICTIONARY \
+			or (validated_value as Dictionary).get("provenance") \
+				!= source_receipt["receipt_provenance"]:
+		return _fail(&"schedule_source_derivation_invalid",
+			"authenticated replay could not reproduce the retained source child")
+	return _ok(detached, [], source_receipt)
 
 static func _replay(detached: Dictionary, transaction_id: String) -> Dictionary:
 	var receipt: Dictionary = detached["transaction_receipts"][transaction_id]

@@ -685,7 +685,7 @@ func _commit_ordinary_candidate(prepared: Dictionary, friend_id: String, command
 	var previous_contacts := contacts
 	var previous_route := route_context
 	contacts = prepared.value.candidate.duplicate(true)
-	if _frozen_contacts_contexts_enabled: route_context = frozen.value.route_context.duplicate(true)
+	if _frozen_contacts_contexts_enabled: route_context = frozen.value.route_context
 	var saved: Dictionary = _contact_checkpoint_writer.call()
 	if not saved.get("ok", false):
 		contacts = previous_contacts
@@ -788,7 +788,7 @@ func open_contact(friend_id: String, command_id: String, command_issuer_receipt:
 			return captured
 		backup = captured.value.backup
 	contacts = opened.value.candidate
-	if _frozen_contacts_contexts_enabled: route_context = frozen.value.route_context.duplicate(true)
+	if _frozen_contacts_contexts_enabled: route_context = frozen.value.route_context
 	if not replayed:
 		if operation.kind != "open_sylvia_care":
 			daily_opened_contacts["day:%d:friend:%s" % [day, friend_id]] = true
@@ -849,7 +849,7 @@ func unlock_contact_message_after_minesweeper_finished(result: Dictionary) -> Di
 		var frozen := _prepare_contact_presentation_candidate(offered.value.candidate)
 		if not frozen.ok: return frozen
 		contacts = offered["value"]["candidate"]
-		if _frozen_contacts_contexts_enabled: route_context = frozen.value.route_context.duplicate(true)
+		if _frozen_contacts_contexts_enabled: route_context = frozen.value.route_context
 	elif _frozen_contacts_contexts_enabled:
 		return offered
 	if _frozen_contacts_contexts_enabled: contact_message_unlocks[key] = true
@@ -905,7 +905,7 @@ func _bridge_maybe_activate_group() -> void:
 		var frozen := _prepare_contact_presentation_candidate(activated.value.candidate)
 		if not frozen.ok: return
 		contacts = activated["value"]["candidate"]
-		if _frozen_contacts_contexts_enabled: route_context = frozen.value.route_context.duplicate(true)
+		if _frozen_contacts_contexts_enabled: route_context = frozen.value.route_context
 
 
 func reply_invitation(friend_id: String, command_id: String, command_issuer_receipt: Dictionary) -> Dictionary:
@@ -978,7 +978,7 @@ func resolve_invitations_for_day(attendance: Dictionary, command_id: String) -> 
 	var frozen := _prepare_contact_presentation_candidate(result.value.candidate)
 	if not frozen.ok: return frozen
 	contacts = result["value"]["candidate"]
-	if _frozen_contacts_contexts_enabled: route_context = frozen.value.route_context.duplicate(true)
+	if _frozen_contacts_contexts_enabled: route_context = frozen.value.route_context
 	emit_signal("save_relevant_state_changed")
 	return {"ok": true, "code": &"ok", "value": {"receipt": result["receipt"], "replayed": false}}
 
@@ -3120,15 +3120,19 @@ func configure_frozen_contacts_contexts() -> Dictionary:
 func frozen_contacts_contexts_enabled() -> bool:
 	return _frozen_contacts_contexts_enabled
 
+func _contact_presentation_inputs() -> Dictionary:
+	return {"route_context": route_context, "missed_invitations": missed_invitations,
+		"dating_route_state": dating_route_state, "friend_attitude": friend_attitude}
+
 func _prepare_contact_presentation_candidate(candidate: Dictionary) -> Dictionary:
-	if not _frozen_contacts_contexts_enabled: return {"ok": true, "value": to_save_dict()}
-	return _CONTACTS_FROZEN.capture_candidate(contacts, candidate, to_save_dict(), day)
+	if not _frozen_contacts_contexts_enabled: return {"ok": true}
+	return _CONTACTS_FROZEN.capture_candidate(contacts, candidate, _contact_presentation_inputs(), day)
 
 func ensure_contact_presentation_contexts(friend_id: String = "") -> Dictionary:
 	if not _frozen_contacts_contexts_enabled: return {"ok": true, "value": {}}
 	if friend_id != "" and friend_id not in _CONTACT_INVITATION_STATE.FRIEND_IDS:
 		return _transaction_failure(&"unknown_friend", "")
-	var prepared := _CONTACTS_FROZEN.prepare_projection(contacts, to_save_dict(), day, friend_id)
+	var prepared := _CONTACTS_FROZEN.prepare_projection(contacts, _contact_presentation_inputs(), day, friend_id)
 	if not prepared.ok: return prepared
 	var candidate: Dictionary = prepared.value.route_context
 	if candidate == route_context:
@@ -3140,7 +3144,7 @@ func ensure_contact_presentation_contexts(friend_id: String = "") -> Dictionary:
 	var lease: Dictionary = _mutation_gate.acquire(&"causal_transaction")
 	if not lease.ok: return lease
 	var previous_route := route_context
-	route_context = candidate.duplicate(true)
+	route_context = candidate
 	var saved: Dictionary = _contact_checkpoint_writer.call()
 	if not saved.get("ok", false):
 		route_context = previous_route
