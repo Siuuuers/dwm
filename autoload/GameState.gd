@@ -3308,7 +3308,6 @@ const _PRESENTATION_ART := preload("res://scripts/data/ArtManifest.gd")
 var _scene_snapshot_references: Dictionary = {}
 
 var _scene_new_run_plan: Dictionary = {}
-var _scene_new_run_plan_owner: Object
 
 static func make_scene_new_run_gameplay() -> Dictionary:
 	var gameplay := {"coins": 0, "inventory": {}, "minesweeper_app_rounds_finished_today": 0,
@@ -3360,25 +3359,24 @@ func prepare_scene_new_run_snapshot_input(allocation_candidate: Dictionary, entr
 
 func prepare_scene_new_run(snapshot: Dictionary, issuer: Object, creation_owner: Object) -> Dictionary:
 	_scene_new_run_plan = {}
-	_scene_new_run_plan_owner = null
 	if not is_instance_valid(creation_owner) or creation_owner != get_node_or_null("/root/SaveManager") \
 			or issuer != _identity_issuer or not is_instance_valid(_mutation_gate) \
 			or not _mutation_gate.is_internal_owner_active(&"new_run"):
 		return _transaction_failure(&"scene_creation_owner_required", "")
-	_scene_new_run_plan = {"snapshot": snapshot}
-	_scene_new_run_plan_owner = creation_owner
-	return {"ok": true, "value": {"run_plan": _scene_new_run_plan.duplicate(true)}}
+	var handle := {"run_id": snapshot.run_id}
+	handle.make_read_only()
+	_scene_new_run_plan = {"snapshot": snapshot, "handle": handle, "owner": creation_owner}
+	return {"ok": true, "value": {"run_plan": handle}}
 
 func apply_scene_new_run_silent(plan: Dictionary, creation_owner: Object) -> Dictionary:
-	if not is_instance_valid(creation_owner) or creation_owner != _scene_new_run_plan_owner \
-			or creation_owner != get_node_or_null("/root/SaveManager") or _scene_new_run_plan.is_empty() \
-			or not _SCENE_EVENT._equal(plan, _scene_new_run_plan) or not is_instance_valid(_mutation_gate) \
+	if not is_instance_valid(creation_owner) or creation_owner != _scene_new_run_plan.get("owner") \
+			or creation_owner != get_node_or_null("/root/SaveManager") \
+			or not is_same(plan, _scene_new_run_plan.handle) or not is_instance_valid(_mutation_gate) \
 			or not _mutation_gate.is_internal_owner_active(&"new_run"):
 		return _transaction_failure(&"scene_creation_plan_mismatch", "")
 	var installed := _install_scene_snapshot_silent(_scene_new_run_plan.snapshot)
 	if installed.get("ok", false):
 		_scene_new_run_plan = {}
-		_scene_new_run_plan_owner = null
 	return installed
 
 func validate_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary) -> Dictionary:
