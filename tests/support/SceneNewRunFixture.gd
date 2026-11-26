@@ -31,6 +31,7 @@ class DiagnosticParticipant:
 	var started := ""
 	var publications := 0
 	var applies := 0
+	var captures := 0
 	var narrative_preparer: RefCounted
 	func _init(key: String) -> void: plan_key = key
 	func prepare(input: Dictionary) -> Dictionary:
@@ -40,7 +41,9 @@ class DiagnosticParticipant:
 		return narrative_preparer.prepare_scene_new_run(snapshot, bundle, creation_owner)
 	func prepare_scene_load(snapshot: Dictionary) -> Dictionary:
 		return narrative_preparer.prepare_scene_load(snapshot)
-	func capture() -> Dictionary: return {"ok": true, "value": {}}
+	func capture() -> Dictionary:
+		captures += 1
+		return {"ok": true, "value": {}}
 	func apply_silent(_plan: Dictionary) -> Dictionary:
 		applies += 1
 		return {"ok": true, "value": {"route_ready_token": {"generation": 1}}}

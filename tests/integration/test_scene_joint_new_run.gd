@@ -91,12 +91,16 @@ func test_new_runs_preserve_disk_and_profile_then_normal_save_load_restores_prog
 		"starting a later run preserves the previous real save")
 	assert_eq(fixture.profile.get_profile_snapshot(), profile_before)
 
+	for key: String in ["desktop_consequence", "desktop_board", "route", "narrative"]:
+		assert_eq(fixture.participants[key].captures, 0, key + " backup during New Run")
 	var prepared: Dictionary = fixture.manager.prepare_restore_autosave()
 	assert_true(prepared.ok, str(prepared))
 	if not prepared.ok: return
 	var loaded: Dictionary = fixture.manager.commit_prepared_restore(prepared.value.prepared)
 	assert_eq(loaded.get("code"), &"scene_activation_pending", str(loaded))
 	if loaded.get("code") != &"scene_activation_pending": return
+	for key: String in ["desktop_consequence", "desktop_board", "route", "narrative"]:
+		assert_eq(fixture.participants[key].captures, 1, key + " backup during Load")
 	fixture.confirm_activation()
 	assert_eq(fixture.game.money, 17)
 	assert_eq(fixture.game.inventory, {"debug_key": 1})

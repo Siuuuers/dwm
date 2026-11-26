@@ -1412,15 +1412,19 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Dictio
 	var held: Dictionary = _restore_participants.route.begin_scene_publication_hold(operation_id)
 	if not held.get("ok", false): return _scene_restore_early_failure(held, creating)
 	var backups := {}
+	var participants: Array[String] = []
 	var applied: Array[String] = []
 	for key: String in _SCENE_PARTICIPANT_ORDER:
 		if key in ["profile", "localization"] and plans[key].get("reuse_current", false): continue
+		participants.append(key)
+		# New Run never restores these backups. Other captures also check owner readiness.
+		if creating and key in ["desktop_consequence", "desktop_board", "route", "narrative"]: continue
 		var backup: Dictionary = _restore_participants[key].capture()
 		if not backup.get("ok", false):
 			return _scene_restore_prepare_failure(backup, creating, applied, backups, operation_id)
 		backups[key] = backup.value
 	var route_token: Dictionary = {}
-	for key: String in backups:
+	for key: String in participants:
 		var plan: Dictionary = plans[key]
 		if key == "narrative":
 			plan = plan.duplicate()

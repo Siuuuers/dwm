@@ -2902,13 +2902,13 @@ func _scene_day_history(frontier: Dictionary) -> Dictionary:
 
 
 func validate_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Dictionary = {}) -> Dictionary:
-	var expanded := _READING_SESSION.expand_player_checkpoint(checkpoint)
+	var expanded := _READING_SESSION.expanded_checkpoint_view(checkpoint)
 	if not expanded.ok: return expanded
 	checkpoint = expanded.value
 	if checkpoint.get("reading_session") is Dictionary and typeof(checkpoint.reading_session.get("schema_version")) == TYPE_INT and checkpoint.reading_session.schema_version == 5:
 		var scene := _prepare_scene_reading_candidate(expanded, entry_contexts)
 		if not scene.ok: return scene
-		return {"ok": true, "value": {"entry_contexts": checkpoint.reading_session.ledger.entry_contexts}}
+		return {"ok": true}
 	var catalogue := _reading_catalogue_for_entry(str(checkpoint.get("entry_id", "")))
 	if catalogue == null: return _command_failure(&"reading_catalogue_unavailable")
 	var keys := _RESUME_CHECKPOINT_KEYS.duplicate()
@@ -2941,7 +2941,7 @@ func validate_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Diction
 		if not _exact_context_keys(context): return _command_failure(&"reading_context_invalid")
 		var validated := _validate_reading_entry(candidate, entry_id)
 		if not validated.ok: return validated
-	return {"ok": true, "value": {"entry_contexts": frames}}
+	return {"ok": true}
 
 
 func _validate_reading_entry(session: RefCounted, entry_id: String, context: Dictionary = {}) -> Dictionary:
