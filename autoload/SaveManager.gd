@@ -1190,7 +1190,7 @@ func _prepare_restore_content(locator: Dictionary, expected_revision: String) ->
 		return read
 	if not expected_revision.is_empty() and str(read["value"]["revision"]) != expected_revision:
 		return _fail(&"stale_backup_target", "")
-	var parsed: Dictionary = _parse_document_text(str(read["value"]["text"]))
+	var parsed: Dictionary = _parse_document_text(str(read["value"]["text"]), true)
 	if not parsed.get("ok", false):
 		return _fail(&"corrupt_save_document", relative_path)
 
@@ -1341,7 +1341,7 @@ func _document_text_validator(text: String) -> Dictionary:
 		return validated
 	return {"ok": true, "code": &"ok", "value": validated["value"]["candidate"]}
 
-func _parse_document_text(text: String, for_inspection: bool = false) -> Dictionary:
+func _parse_document_text(text: String, borrow_cached: bool = false) -> Dictionary:
 	var disabled := OS.get_environment("DWM_SAVE_PARSE_CACHE_DISABLED") == "1"
 	var profile := _save_load_profile_begin("document_parse")
 	if not profile.is_empty():
@@ -1356,7 +1356,7 @@ func _parse_document_text(text: String, for_inspection: bool = false) -> Diction
 			_document_parse_cache.append(entry)
 			if not profile.is_empty(): profile["cache_hit"] = true
 			var cached: Dictionary = entry["parsed"]
-			return _save_load_profile_finish(profile, cached if for_inspection else cached.duplicate(true))
+			return _save_load_profile_finish(profile, cached if borrow_cached else cached.duplicate(true))
 	var parsed := STRICT_JSON.parse_object(text)
 	if not parsed.get("ok", false):
 		return _save_load_profile_finish(profile, parsed)
@@ -1371,7 +1371,7 @@ func _parse_document_text(text: String, for_inspection: bool = false) -> Diction
 	_document_parse_cache.append({"text": text, "text_bytes": text_bytes,
 		"parsed": parsed})
 	_document_parse_cache_text_bytes += text_bytes
-	return _save_load_profile_finish(profile, parsed if for_inspection else parsed.duplicate(true))
+	return _save_load_profile_finish(profile, parsed if borrow_cached else parsed.duplicate(true))
 
 func _validate_checkpoint_inputs(checkpoint_inputs: Dictionary) -> String:
 	var keys: Array = checkpoint_inputs.keys()
