@@ -245,7 +245,10 @@ func test_prepare_checks_complete_catalogue_before_staging_and_finalization_is_o
 	assert_eq(owner.validations, [snapshot.narrative_checkpoint.reading_session.ledger.entry_contexts])
 	assert_true(owner.staged.is_empty())
 	assert_true(owner.resumed.is_empty())
-	assert_true(_apply(participant, prepared).ok)
+	var plan: Dictionary = prepared.value.narrative_plan
+	plan["route_ready_token"] = {"route_id": "dating"}
+	assert_true(participant.apply_silent(plan).ok)
+	plan.reading_session.ledger.captions.clear()
 	assert_eq(owner.staged, snapshot.narrative_checkpoint)
 	assert_true(owner.resumed.is_empty(), "apply cannot project or begin native playback")
 	assert_true(participant.finalize().ok)
