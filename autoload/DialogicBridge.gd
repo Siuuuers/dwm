@@ -2487,7 +2487,8 @@ func provide_transaction_narrative_checkpoint(transaction_id: String, source_id:
 			or String(_active_transaction["kind"]) != String(checkpoint_kind):
 		return _command_failure(&"transaction_identity_mismatch")
 	return {"ok": true, "code": &"ok",
-		"value": {"narrative_checkpoint": (_active_transaction["narrative_checkpoint"] as Dictionary).duplicate(true)},
+		"value": {"narrative_checkpoint": {"timeline_id": _active_transaction.timeline_id,
+			"boundary": {"kind": _active_transaction.kind, "transaction_id": transaction_id}}},
 		"receipt": {}}
 
 
@@ -2508,7 +2509,7 @@ func _handle_narrative_transaction(kind: String, payload: Dictionary) -> void:
 		return
 	_active_transaction = {
 		"kind": kind, "transaction_id": transaction_id, "source_id": source_id,
-		"narrative_checkpoint": {"timeline_id": _current_timeline_id, "boundary": {"kind": kind, "transaction_id": transaction_id}},
+		"timeline_id": _current_timeline_id,
 	}
 	var committed: Dictionary = {}
 	if kind == "effect_transaction":

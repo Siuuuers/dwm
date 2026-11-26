@@ -2542,7 +2542,7 @@ func commit_effect_transaction(transaction_id: String, effect_ids: Array[String]
 	var guarded := _guard_transaction(&"commit_effect_transaction")
 	if not guarded.get("ok", true):
 		return guarded
-	var normalized := {"kind": "effect_transaction", "transaction_id": transaction_id, "effect_ids": effect_ids.duplicate(true), "source_id": source_id}
+	var normalized := {"kind": "effect_transaction", "transaction_id": transaction_id, "effect_ids": effect_ids, "source_id": source_id}
 	var identity := _transaction_identity(transaction_id, normalized)
 	if identity.has("result"):
 		return identity["result"]

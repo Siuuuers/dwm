@@ -6,6 +6,8 @@ extends "res://addons/gut/test.gd"
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const FAKE_GATE := preload("res://tests/support/FakeApplicationMutationGate.gd")
 
+@onready var GameState: Node = get_node("/root/GameState")
+
 var _bridge: Node
 
 
@@ -102,9 +104,25 @@ func test_malformed_transaction_payload_rejects_without_mutation() -> void:
 
 
 func test_transaction_checkpoint_provider_serves_only_the_active_event() -> void:
-	_adapter()
-	# With no transient transaction in flight the provider must refuse.
-	var idle: Dictionary = _bridge.provide_transaction_narrative_checkpoint("run:effect:x", "src", &"effect_transaction")
+	var adapter := _adapter()
+	var payload := _effect_payload()
+	var observed: Array[Dictionary] = []
+	GameState.stat_changed.connect(func(_id: String, _value: int, _min: int, _max: int) -> void:
+		for i in 2:
+			var reply: Dictionary = _bridge.provide_transaction_narrative_checkpoint(
+				payload.transaction_id, payload.source_id, &"effect_transaction")
+			assert_true(reply.ok, str(reply))
+			if not reply.ok: return
+			observed.append(reply.value.narrative_checkpoint)
+			if i == 0: observed[0].boundary.clear()
+	, CONNECT_ONE_SHOT)
+	adapter.runtime_signal_event.emit(payload)
+	assert_eq(observed.size(), 2)
+	if observed.size() == 2:
+		assert_eq(observed[1], {"timeline_id": _bridge.get_current_timeline_id(),
+			"boundary": {"kind": "effect_transaction", "transaction_id": payload.transaction_id}})
+	var idle: Dictionary = _bridge.provide_transaction_narrative_checkpoint(
+		payload.transaction_id, payload.source_id, &"effect_transaction")
 	assert_false(idle.get("ok", false), "provider refuses outside an active transaction")
 	assert_false(idle.has("value"), "no checkpoint is exposed on refusal")
 
