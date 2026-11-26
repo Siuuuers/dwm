@@ -111,6 +111,14 @@ func test_registry_rejects_non_finite_audio_and_wrong_numeric_shapes() -> void:
 	assert_eq(_validate(&"preferences.accessibility.text_size", 125.0).get("code"), &"invalid_profile")
 
 
+func test_shared_preference_catalogue_is_read_only_through_its_choices() -> void:
+	var catalogue := _records()
+	assert_true(catalogue.is_read_only())
+	for record: Dictionary in catalogue:
+		assert_true(record.is_read_only(), String(record.path))
+		assert_true(record.allowed_values.is_read_only(), String(record.path))
+
+
 func test_visible_records_are_section_authority_and_audio_uses_five_percent_steps() -> void:
 	var audio_paths := []
 	for record in _visible_records(&"audio"):
