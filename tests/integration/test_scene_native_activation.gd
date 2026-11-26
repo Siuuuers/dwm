@@ -25,7 +25,8 @@ class Native extends RefCounted:
 class ControlNative extends Native:
 	var saved: Dictionary = {}
 	var retained_session: RefCounted
-	func capture_scene_control_position(session: RefCounted) -> Dictionary:
+	func capture_scene_control_position(session: RefCounted, include_reading: bool = true) -> Dictionary:
+		if not include_reading: return {"ok": session == retained_session}
 		return {"ok": session == retained_session, "value": saved.duplicate(true)}
 	func restore_scene_frontier(session: RefCounted, value: Dictionary) -> Dictionary:
 		starts += 1

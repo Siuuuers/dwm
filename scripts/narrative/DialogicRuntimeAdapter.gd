@@ -426,7 +426,7 @@ func project_scene_control_frontier(session: RefCounted) -> Dictionary:
 	return {"ok": true, "value": {"marker_id": marker.marker_id, "occurrence_id": session.scene_occurrence,
 		"program_index": index, "native": identity}}
 
-func capture_scene_control_position(session: RefCounted) -> Dictionary:
+func capture_scene_control_position(session: RefCounted, include_reading: bool = true) -> Dictionary:
 	if _scene_control_restore.is_empty() or session != _scene_control_restore.session \
 			or not _marker_hold_current():
 		return _fail(&"scene_restore_control_unproven", "")
@@ -434,6 +434,7 @@ func capture_scene_control_position(session: RefCounted) -> Dictionary:
 		return _fail(&"scene_restore_control_changed", "")
 	var physical := _scene_source_boundary(session, true, _scene_control_restore.reading)
 	if not physical.ok: return physical
+	if not include_reading: return {"ok": true}
 	return {"ok": true, "value": physical.value.reading.duplicate(true)}
 
 
