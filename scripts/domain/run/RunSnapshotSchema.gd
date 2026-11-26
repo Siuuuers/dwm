@@ -122,12 +122,8 @@ static func prepare_candidate(snapshot: Dictionary) -> Dictionary:
 static func derive_route_restore_context(snapshot: Dictionary) -> Dictionary:
 	if snapshot.get("schema_version") != SCENE_SCHEMA_VERSION:
 		return _fail(&"unsupported_schema_version", str(snapshot.get("schema_version")))
-	var lifecycle: Dictionary = snapshot.lifecycle
-	var context := {"run_id": snapshot.run_id, "lifecycle_state": lifecycle.state,
-		"active_app_id": "minesweeper" if snapshot.desktop.board.phase == "ACTIVE_VISIBLE" else null,
-		"scene": snapshot.scene.duplicate(true), "contacts": snapshot.contacts.duplicate(true)}
-	if is_scene_terminal(snapshot): context["ending_plan"] = lifecycle.ending_plan.duplicate(true)
-	return {"ok": true, "code": &"ok", "value": context}
+	var app_id: Variant = "minesweeper" if snapshot.desktop.board.phase == "ACTIVE_VISIBLE" else null
+	return {"ok": true, "code": &"ok", "value": {"scene": true, "active_app_id": app_id}}
 
 static func _validate_desktop(desktop: Variant) -> String:
 	if typeof(desktop) != TYPE_DICTIONARY:
