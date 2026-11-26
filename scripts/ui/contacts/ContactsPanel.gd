@@ -21,7 +21,6 @@ var messages: VBoxContainer
 var font_size := 24
 var _fonts: Dictionary = {}
 var _entries: Array = []
-var _unread: Dictionary = {}
 var _primary := "en"
 var _secondary := ""
 var _header: Label
@@ -128,11 +127,10 @@ func set_projection(friend_id: String, entries: Array, unread: Dictionary, prima
 	for entry: Dictionary in _entries:
 		if entry.has("presentation"):
 			FROZEN._freeze(entry.presentation)
-	_unread = unread.duplicate(true)
 	_primary = primary_locale
 	_secondary = secondary_locale
 	_clear_thread()
-	_update_rows()
+	_update_rows(unread)
 	if not friend_id.is_empty():
 		_build_thread()
 		if not same_friend or had_transcript_focus:
@@ -184,10 +182,10 @@ func _valid_projection(friend_id: String, entries: Array, unread: Dictionary, pr
 				return false
 	return true
 
-func _update_rows() -> void:
+func _update_rows(unread: Dictionary) -> void:
 	for i in range(rows.size()):
 		rows[i].selected = selected_friend == FRIENDS[i]
-		rows[i].unread = _unread.get(FRIENDS[i], false)
+		rows[i].unread = unread.get(FRIENDS[i], false)
 		var words := {"en": ["Open thread", "Unread"], "zh-CN": ["已打开的会话", "未读"], "zh-HK": ["已開啟的對話", "未讀"], "ja": ["開いている会話", "未読"], "ko": ["열린 대화", "읽지 않음"]}
 		var facts: Array[String] = []
 		if rows[i].selected:
