@@ -187,6 +187,11 @@ func test_legacy_manifest_only_root_restores_original_explicit_font() -> void:
 		assert_true(plan.get("ok", false), str(plan))
 		if not plan.get("ok", false): continue
 		assert_true(presentation.apply_presentation_silent(plan.value).get("ok", false))
+		if font_profile != "project_default":
+			var source := load("res://localization/fonts/%s.tres" % font_profile.trim_suffix("_pixel")) as FontVariation
+			var applied := target.theme.default_font as FontVariation
+			assert_ne(applied, source)
+			assert_eq(applied.base_font, source.base_font)
 	var restored := target.theme.default_font as FontVariation
 	assert_not_null(restored)
 	if restored != null:
