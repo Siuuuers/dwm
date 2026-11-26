@@ -264,7 +264,7 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 		native_source = retained_source.value
 		if not can_capture_reading_checkpoint(): return _command_failure(&"reading_frontier_unavailable")
 		if source_session.boundary == "control":
-			var held: Dictionary = _runtime_adapter.capture_scene_control_position(source_session, false)
+			var held: Dictionary = _runtime_adapter.scene_control_position_view(source_session)
 			if not held.ok: return held
 		candidate = source_session._fork_scene_live()
 		var source_marker := capture_scene_pending_marker()
@@ -407,7 +407,7 @@ func _adopt_scene_target() -> Dictionary:
 	_reading_session = _scene_stage.candidate
 	_active_entry = {"entry_id": checkpoint.entry_id, "token": _scene_stage.transport.capability_id,
 		"stage": "scene", "execution_mode": &"canonical", "transaction_id": checkpoint.transaction_id,
-		"content_version": checkpoint.content_version, "frozen_context": checkpoint.frozen_context.duplicate(true),
+		"content_version": checkpoint.content_version, "frozen_context": checkpoint.frozen_context,
 		"context_fingerprint": _scene_digest(checkpoint.frozen_context), "path": _scene_stage.path,
 		"label": target.label, "used_fallback": false, "content_locale": "en", "suppress_first_speech": false}
 	_scene_stage.clear()
@@ -2875,7 +2875,7 @@ func get_reading_history_source() -> Dictionary:
 	if not can_capture_reading_checkpoint(): return _command_failure(&"reading_frontier_unavailable")
 	var frontier := {}
 	if _reading_session.family == "scene" and _reading_session.boundary == "control":
-		var held: Dictionary = _runtime_adapter.capture_scene_control_position(_reading_session, false)
+		var held: Dictionary = _runtime_adapter.scene_control_position_view(_reading_session)
 		if not held.ok: return held
 	if _reading_session.boundary == "line":
 		var captured: Dictionary = _runtime_adapter.capture_reading_frontier()
@@ -3013,7 +3013,7 @@ func stage_scene_reading_restore(checkpoint: Dictionary, operation_id: String, r
 	var checked := prepare_scene_reading_candidate(expanded)
 	if not checked.ok: return checked
 	if checkpoint.reading_session.boundary == "control" and (_runtime_adapter == null \
-			or not _runtime_adapter.has_method("capture_scene_control_position")):
+			or not _runtime_adapter.has_method("scene_control_position_view")):
 		return _command_failure(&"scene_restore_control_unproven")
 	if has_active_playback() and not is_pause_restore_pending(): return _command_failure(&"narrative_playback_active")
 	if is_pause_restore_pending():
@@ -3229,9 +3229,9 @@ func _capture_scene_restore_position() -> Dictionary:
 		if _scene_restore.get("confirmed", false) and _active_entry.get("token") != _scene_restore.get("playback_token"):
 			return _command_failure(&"scene_activation_changed")
 	if _scene_restore.checkpoint.reading_session.boundary == "control":
-		if not _runtime_adapter.has_method("capture_scene_control_position"):
+		if not _runtime_adapter.has_method("scene_control_position_view"):
 			return _command_failure(&"scene_restore_control_unproven")
-		return _runtime_adapter.capture_scene_control_position(_scene_restore.candidate)
+		return _runtime_adapter.scene_control_position_view(_scene_restore.candidate)
 	return _runtime_adapter.capture_reading_frontier()
 
 
@@ -4158,7 +4158,7 @@ func commit_scene_playable(event: Dictionary, prepared: Dictionary, lease: Strin
 	if not is_instance_valid(owner) or not owner.has_method("_validate_scene_playable_source"):
 		return _command_failure(&"scene_playable_unavailable")
 	_scene_playable_busy = true
-	var result := _commit_scene_playable_owned(event.duplicate(true), prepared.duplicate(true), lease, owner)
+	var result := _commit_scene_playable_owned(event, prepared, lease, owner)
 	_scene_playable_busy = false
 	if result.get("committed", false) and not result.get("ok", false): _scene_stage_fatal = true
 	return result
@@ -4166,6 +4166,8 @@ func commit_scene_playable(event: Dictionary, prepared: Dictionary, lease: Strin
 func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease: String, owner: Object) -> Dictionary:
 	var departing: bool = event.is_empty()
 	if _scene_playable.is_empty():
+		event = event.duplicate(true)
+		prepared = prepared.duplicate(true)
 		if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary != ("control" if departing else "line") \
 				or not prepared.get("source_context") is Dictionary or not prepared.get("source_input") is Dictionary:
 			return _command_failure(&"scene_playable_source_invalid")
@@ -4190,7 +4192,7 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 			return _command_failure(&"scene_playable_edge_invalid")
 		var candidate: Dictionary = _reading_session._fork_scene_transition(plan)
 		if not candidate.ok: return candidate
-		var target_checkpoint := _READING_SESSION.with_reading_session(source, candidate.value.reading)
+		var target_checkpoint := source.merged({"reading_session": candidate.value.reading}, true)
 		var scene: Dictionary = {}
 		var presentation_autosave := false
 		if departing:
@@ -4400,18 +4402,20 @@ func capture_scene_optional_frontier(guard_mutation: bool = true) -> Dictionary:
 	return projected
 
 func capture_scene_challenge_control() -> Dictionary:
-	var boundary := capture_scene_event_boundary()
-	if not boundary.get("ok", false): return boundary
-	var reading: Dictionary = boundary.value.checkpoint.get("reading_session", {})
-	if reading.get("schema_version") != 5 or reading.get("boundary") != "control":
+	var guard := _check_scene_event_boundary()
+	if not guard.ok: return guard
+	if _reading_session.family != "scene" or _reading_session.boundary != "control":
 		return _command_failure(&"scene_challenge_control_required")
-	var nodes: Array = _reading_session._scene_nodes.get(reading.entry_id, [])
-	var index: int = int(reading.get("program_index", -1))
+	if not can_capture_reading_checkpoint(): return _command_failure(&"reading_frontier_unavailable")
+	var held: Dictionary = _runtime_adapter.scene_control_position_view(_reading_session)
+	if not held.ok: return held
+	var nodes: Array = _reading_session._scene_nodes.get(_reading_session.latest_entry, [])
+	var index: int = _reading_session.scene_index
 	if index < 0 or index >= nodes.size() or not nodes[index].get("marker_id") is String:
 		return _command_failure(&"scene_challenge_control_required")
 	return {"ok": true, "value": {"marker_id": nodes[index].marker_id}}
 
-func capture_scene_event_boundary() -> Dictionary:
+func _check_scene_event_boundary() -> Dictionary:
 	if not _computer_hold_frontier.is_empty() and (_computer_hold_changing or not _computer_frontier_matches(true)):
 		return _command_failure(&"computer_source_changed")
 	if not has_reading_session() or _reading_session.family not in ["solo", "scene"] or (_reading_session.boundary != "line" and not (_reading_session.family == "scene" and _reading_session.boundary == "control")) \
@@ -4419,6 +4423,11 @@ func capture_scene_event_boundary() -> Dictionary:
 			or not _pause_handle.is_empty() or _pause_changing or _progression_phase == ProgressionPhase.NEXT_ACTIVE \
 			or not _active_transaction.is_empty() or not _reading_restore_pending.is_empty():
 		return _command_failure(&"event_presentation_held")
+	return {"ok": true}
+
+func capture_scene_event_boundary() -> Dictionary:
+	var guard := _check_scene_event_boundary()
+	if not guard.ok: return guard
 	var captured := capture_reading_checkpoint(false)
 	if not captured.ok: return captured
 	var checkpoint: Dictionary = captured.value
