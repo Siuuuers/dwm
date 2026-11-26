@@ -409,7 +409,7 @@ func _capture_scene_target_audio(audio: Dictionary) -> Dictionary:
 	if captured_audio.get("value") != null:
 		if not captured_audio.value is Dictionary:
 			return _fail(&"scene_entry_audio_invalid", "target context must be an object")
-		audio = {"ok": true, "value": captured_audio.value.duplicate(true)}
+		audio = {"ok": true, "value": captured_audio.value}
 	return audio
 
 func _save_named_presentation(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
@@ -816,7 +816,7 @@ func _call_provider(key: String, args: Array) -> Dictionary:
 		"snapshot_input", "audio_context":
 			if typeof(raw) != TYPE_DICTIONARY:
 				return _fail(&"invalid_provider_result", key + " must return a dictionary")
-			return {"ok": true, "value": (raw as Dictionary).duplicate(true)}
+			return {"ok": true, "value": raw.duplicate(true) if key == "snapshot_input" else raw}
 		"route_id":
 			if (typeof(raw) != TYPE_STRING and typeof(raw) != TYPE_STRING_NAME) or String(raw).is_empty():
 				return _fail(&"invalid_provider_result", "route_id must be a nonempty string")
@@ -840,7 +840,7 @@ func _call_narrative(transaction_id: String, source_id: String, checkpoint_kind:
 	var value: Variant = (raw as Dictionary).get("value")
 	if typeof(value) != TYPE_DICTIONARY or typeof((value as Dictionary).get("narrative_checkpoint")) != TYPE_DICTIONARY:
 		return _fail(&"narrative_provider_failed", "provider returned no narrative_checkpoint")
-	return {"ok": true, "value": {"narrative_checkpoint": ((value as Dictionary)["narrative_checkpoint"] as Dictionary).duplicate(true)}}
+	return {"ok": true, "value": {"narrative_checkpoint": value.narrative_checkpoint}}
 
 
 func _fingerprint(value: Variant) -> String:
