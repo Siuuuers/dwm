@@ -43,6 +43,15 @@ static func build(entry_id: String, fields: Dictionary) -> Dictionary:
 	return validate(entry_id, {"schema_id": schema.value.schema_id, "schema_version": 1,
 		"fields": fields})
 
+static func build_scene_frame(entry_id: String, occurrence: String) -> Dictionary:
+	var fields := {"entry_id": entry_id, "entry_role": "scene",
+		"occurrence_id": occurrence, "admission_receipt_id": occurrence}
+	var presentation := validated_view(entry_id, {"schema_id": "context.scene.%s.v1" % entry_id,
+		"schema_version": 1, "fields": fields})
+	if not presentation.ok: return presentation
+	return _ok({"expected_stage": "scene", "playback_id": occurrence, "role": "scene",
+		"transaction_id": occurrence, "presentation": presentation.value})
+
 static func validate(entry_id: String, presentation: Variant) -> Dictionary:
 	var checked := validated_view(entry_id, presentation)
 	return _ok(checked.value.duplicate(true)) if checked.ok else checked

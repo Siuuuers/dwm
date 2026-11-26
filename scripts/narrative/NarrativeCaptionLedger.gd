@@ -97,13 +97,12 @@ func admit_entry_context(session_token: String, entry_id: String, context: Dicti
 	if session_token != _session_token: return _fail(&"caption_foreign_session")
 	if not _entry_contexts_required: return _fail(&"caption_entry_contexts_disabled")
 	if not _has_registered_entry(entry_id): return _fail(&"caption_entry_unregistered")
-	if context.is_empty() or not FROZEN._primitive(context): return _fail(&"caption_entry_context_invalid")
 	var key := entry_id
 	if _scene:
 		if not valid_scene_frame(context, occurrence_id, entry_id):
 			return _fail(&"caption_entry_context_invalid")
 		key = scene_frame_key(occurrence_id, entry_id)
-	elif not occurrence_id.is_empty():
+	elif not occurrence_id.is_empty() or context.is_empty() or not FROZEN._primitive(context):
 		return _fail(&"caption_entry_context_invalid")
 	if _entry_contexts.has(key):
 		if _entry_contexts[key] != context: return _fail(&"caption_entry_context_conflict")

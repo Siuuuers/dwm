@@ -261,12 +261,9 @@ static func derive_current_scene_frames(scene: Dictionary, reading: Dictionary) 
 		if row.target.entry_id == entry_id and row.target.kind == role:
 			found = true
 	if not found: return _fail(&"reading_scene_admission_invalid")
-	var presentation := FROZEN.build(entry_id, {"entry_id": entry_id,
-		"entry_role": "scene", "occurrence_id": occurrence, "admission_receipt_id": occurrence})
-	if not presentation.ok: return presentation
-	var frame := {"expected_stage": "scene", "playback_id": occurrence, "role": "scene",
-		"transaction_id": occurrence, "presentation": presentation.value}
-	var frames := {SCENE_LEDGER.scene_frame_key(occurrence, entry_id): frame}
+	var frame := FROZEN.build_scene_frame(entry_id, occurrence)
+	if not frame.ok: return frame
+	var frames := {SCENE_LEDGER.scene_frame_key(occurrence, entry_id): frame.value}
 	if reading.ledger.entry_contexts != frames: return _fail(&"reading_entry_context_mismatch")
 	return {"ok": true, "value": {"entry_contexts": frames}}
 
@@ -345,13 +342,10 @@ static func derive_scene_frames(admissions: Dictionary, reading: Dictionary) -> 
 				return _fail(&"reading_scene_admission_invalid")
 		elif not initial:
 			if admission.return_to != null: return _fail(&"reading_scene_admission_invalid")
-		var presentation := FROZEN.build(admission.entry_id, {"entry_id": admission.entry_id,
-			"entry_role": "scene", "occurrence_id": id, "admission_receipt_id": id})
-		if not presentation.ok: return presentation
-		var expected := {"expected_stage": "scene", "playback_id": id, "role": "scene",
-			"transaction_id": id, "presentation": presentation.value}
-		if frame != expected: return _fail(&"reading_entry_context_mismatch")
-		frames[key] = expected
+		var expected := FROZEN.build_scene_frame(admission.entry_id, id)
+		if not expected.ok: return expected
+		if frame != expected.value: return _fail(&"reading_entry_context_mismatch")
+		frames[key] = expected.value
 	return {"ok": true, "value": {"entry_contexts": frames}}
 
 static func _scene_checkpoint_reference(value: Variant) -> bool:
