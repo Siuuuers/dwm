@@ -1434,8 +1434,8 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Dictio
 	for key: String in backups:
 		var plan: Dictionary = plans[key]
 		if key == "narrative":
-			plan = plan.duplicate(true)
-			plan["route_ready_token"] = route_token.duplicate(true)
+			plan = plan.duplicate()
+			plan["route_ready_token"] = route_token
 			plan["scene_restore_operation_id"] = operation_id
 			plan["read_only_restore"] = not creating
 		var result: Dictionary = _restore_participants[key].apply_silent(plan)

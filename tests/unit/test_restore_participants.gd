@@ -70,7 +70,7 @@ class FakeOwner extends RefCounted:
 		return {"ok": true, "value": {"transaction": transaction, "allocation": allocation, "source": source}}
 	func validate_scene_event_snapshot(snapshot: Dictionary) -> Dictionary:
 		_r("validate_scene_event_snapshot")
-		return {"ok": snapshot == {"run_id": "r"}}
+		return {"ok": snapshot == {"run_id": "r", "gameplay": {"money": 10}}}
 	func capture_restore_state() -> Dictionary:
 		_r("capture_restore_state")
 		return {"ok": true, "value": {"backup": id}}
@@ -103,9 +103,12 @@ func test_run_participant_prepare_and_delegation() -> void:
 	var log := _log()
 	var owner := FakeOwner.new("run", log)
 	var participant: RefCounted = load(RUN_PATH).new(owner)
-	var prepared: Dictionary = participant.prepare({"snapshot": {"run_id": "r"}})
+	var snapshot := {"run_id": "r", "gameplay": {"money": 10}}
+	var prepared: Dictionary = participant.prepare({"snapshot": snapshot})
 	assert_true(prepared["ok"])
-	assert_eq(prepared["value"]["run_plan"]["snapshot"], {"run_id": "r"})
+	assert_eq(prepared.value.run_plan.snapshot, snapshot)
+	snapshot.gameplay.money = 20
+	assert_eq(prepared.value.run_plan.snapshot.gameplay.money, 10)
 	assert_false(participant.prepare({}).get("ok", true), "missing snapshot rejects")
 	var receipt := {"receipt_id": "issuer_receipt.fixture-causal-day-b", "purpose": "causal_day_instance",
 		"namespace": "fixturenamespace", "counter": 1, "token": "causal-day-b", "numeric_value": null}

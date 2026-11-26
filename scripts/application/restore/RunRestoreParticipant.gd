@@ -34,11 +34,11 @@ func prepare(input: Dictionary) -> Dictionary:
 	elif _owner.has_method("validate_scene_event_snapshot"):
 		var events: Dictionary = _owner.validate_scene_event_snapshot(input["snapshot"])
 		if not events.get("ok", false): return events
-	return _prepare_admitted_snapshot(input.snapshot)
+	return _prepare_admitted_snapshot(input.snapshot.duplicate(true))
 
 func _prepare_admitted_snapshot(snapshot: Dictionary) -> Dictionary:
 	_scene_creation_owner = null
-	return {"ok": true, "code": &"ok", "value": {"run_plan": {"snapshot": snapshot.duplicate(true)}}}
+	return {"ok": true, "code": &"ok", "value": {"run_plan": {"snapshot": snapshot}}}
 
 func prepare_scene_new_run_snapshot_input(allocation_candidate: Dictionary, entry_id: String,
 		occurrence: String) -> Dictionary:
