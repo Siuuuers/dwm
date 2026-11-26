@@ -162,20 +162,20 @@ func apply_silent(plan: Dictionary) -> Dictionary:
 		return {"ok": true}
 	_scene_operation = ""
 	_scene_activation_proof = false
+	var checkpoint := _projected(plan) if plan.has("entry_id") or plan.has("reading_session") else plan
 	var pause_pending: bool = _owner.has_method("is_pause_restore_pending") and _owner.is_pause_restore_pending()
 	if plan.has("reading_session"):
 		if not pause_pending and _owner.has_active_playback():
 			return _fail(&"narrative_playback_active", "a narrative playback is standing; the reading restore cannot be staged")
-		var staged: Dictionary = _owner.stage_reading_restore(_projected(plan))
+		var staged: Dictionary = _owner.stage_reading_restore(checkpoint)
 		if not staged.get("ok", false): return staged
 	if pause_pending:
-		return _owner.stage_pause_restore(_projected(plan) if plan.has("entry_id") else plan,
-			plan.has("entry_id"))
+		return _owner.stage_pause_restore(checkpoint if plan.has("entry_id") else plan, plan.has("entry_id"))
 	if plan.has("entry_id"):
 		if _owner.has_active_playback():
 			return _fail(&"narrative_playback_active",
 				"a narrative playback is standing; the semantic restore cannot be staged")
-		_pending_semantic_plan = _projected(plan)
+		_pending_semantic_plan = checkpoint.duplicate(true) if plan.has("reading_session") else checkpoint
 		return {"ok": true, "code": &"ok"}
 	return _owner.apply_restore_silent(plan)
 
@@ -326,15 +326,12 @@ func _prepare_reading(checkpoint: Dictionary, snapshot: Variant) -> Dictionary:
 	return base
 
 static func _projected(source: Dictionary) -> Dictionary:
-	if source.has("reading_session"):
-		var reading := {}
-		for key: String in _SEMANTIC_PLAN_KEYS:
-			reading[key] = source.get(key)
-		reading["reading_session"] = source.get("reading_session")
-		return reading.duplicate(true)
 	var projected := {}
-	for key: String in _RESUME_CHECKPOINT_KEYS:
+	var keys := _SEMANTIC_PLAN_KEYS if source.has("reading_session") else _RESUME_CHECKPOINT_KEYS
+	for key: String in keys:
 		projected[key] = source.get(key)
+	if source.has("reading_session"):
+		projected["reading_session"] = source.get("reading_session")
 	return projected
 
 static func _entry_document_fingerprint() -> String:

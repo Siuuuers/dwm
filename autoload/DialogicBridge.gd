@@ -3184,8 +3184,7 @@ func _start_scene_restore_native(operation_id: String) -> void:
 	_scene_restore.erase("arrival_audio_cues")
 	_scene_restore.native_started = true
 	_scene_restore.in_call = true
-	var installed: Dictionary = _runtime_adapter.restore_scene_frontier(_scene_restore.candidate,
-		_scene_restore.checkpoint.duplicate(true))
+	var installed: Dictionary = _runtime_adapter.restore_scene_frontier(_scene_restore.candidate, _scene_restore.checkpoint)
 	_scene_restore.in_call = false
 	if not installed.get("ok", false):
 		_fail_scene_activation(installed)
