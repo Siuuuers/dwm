@@ -263,7 +263,7 @@ func _cancel_speech() -> void:
 	var retired_source := _speech_source
 	_speech_source = ""
 	_speech_token = 0
-	_speech_identity.clear()
+	_speech_identity = {}
 	if is_instance_valid(_speech_status): _speech_status.clear_status()
 	if not retired_source.is_empty() and is_instance_valid(_speech_owner):
 		_speech_owner.stop_source(retired_source, &"source_retired")
@@ -291,7 +291,7 @@ func _speak_publication(generation: int) -> void:
 	if publication.suppress_replay or publication.display_text != caption_text.get_parsed_text(): return
 	if not bool(_speech_profile.get_preference(&"preferences.reading.read_aloud_enabled", false)): return
 	_speech_source = "witnessed.%d.%d" % [get_instance_id(), generation]
-	_speech_identity = publication.identity.duplicate(true)
+	_speech_identity = publication.identity
 	var result: Dictionary = _speech_owner.request_speech(publication.primary_text, publication.content_locale,
 		StringName(_speech_profile.get_preference(&"preferences.reading.read_aloud_rate", "normal")), _speech_source)
 	if generation != _speech_generation or _speech_source.is_empty(): return
