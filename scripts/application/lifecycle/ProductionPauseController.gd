@@ -21,9 +21,9 @@ class NarrativeSuspension extends RefCounted:
 		if live:
 			var result: Dictionary = bridge.begin_suspend(handle)
 			var state: Dictionary = bridge.get_state()
-			if not state.get("ok", false) or state.value.state != &"Active": held = handle.duplicate(true)
+			if not state.get("ok", false) or state.value.state != &"Active": held = handle.duplicate()
 			return result
-		held = handle.duplicate(true)
+		held = handle.duplicate()
 		return {"ok": true}
 	func get_state() -> Dictionary:
 		if held.is_empty(): return {"ok": true, "value": {"state": &"Active"}}
@@ -55,14 +55,14 @@ class NarrativeSuspension extends RefCounted:
 		if handle != held: return {"ok": false, "code": &"invalid_suspension_handle"}
 		if not live:
 			if not restoring_idle: return {"ok": false, "code": &"invalid_suspension_handle"}
-			restored_handle = handle.duplicate(true)
-			held.clear()
+			restored_handle = held
+			held = {}
 			restoring_idle = false
 			return {"ok": true}
 		var completed: Dictionary = await bridge.complete_pause_restore(handle)
 		if completed.get("ok", false):
-			restored_handle = handle.duplicate(true)
-			held.clear()
+			restored_handle = held
+			held = {}
 		return completed
 	func retire_suspended_source(handle: Dictionary) -> Dictionary:
 		if handle != held: return {"ok": false, "code": &"invalid_suspension_handle"}
@@ -320,7 +320,7 @@ func request_pause(show_surface: bool = true) -> Dictionary:
 	var source := capture_pause_source()
 	if not source.get("ok", false): return source
 	_scene = get_tree().current_scene as Control
-	_captured_source = source.value.duplicate(true)
+	_captured_source = source.value
 	var bound: Dictionary = coordinator.bind_source(_scene, self)
 	if not bound.get("ok", false): return bound
 	_exit = EXIT.new()
@@ -334,9 +334,9 @@ func request_pause(show_surface: bool = true) -> Dictionary:
 	if not last_result.get("ok", false):
 		var state: Dictionary = coordinator.get_state()
 		if state.value.state != &"Recovery": return last_result
-		_handle = state.value.handle.duplicate(true)
+		_handle = state.value.handle
 	else:
-		_handle = last_result.value.duplicate(true)
+		_handle = last_result.value.duplicate()
 	_ensure_hosts(show_surface or not last_result.get("ok", false))
 	_refresh_presentation()
 	if show_surface or not last_result.get("ok", false): surface.open_surface()
@@ -398,7 +398,7 @@ func capture_pause_source() -> Dictionary:
 	if not admitted.get("ok", false): return admitted
 	var source := capture_scene_projection(scene)
 	if source.is_empty(): return _failure(&"pause_source_unavailable")
-	source["session"] = session.value.duplicate(true)
+	source["session"] = session.value.duplicate()
 	var prelude := _capture_day7_projection()
 	if not prelude.get("ok", false): return prelude
 	if not prelude.value.is_empty() and route != "main": return _failure(&"pause_source_changed")
@@ -407,7 +407,7 @@ func capture_pause_source() -> Dictionary:
 		if not source.day7_prelude.is_empty(): return _failure(&"pause_frontier_unavailable")
 		var frontier: Dictionary = _services.bridge.capture_pause_frontier(source.timeline_id if route == "hospital" else "")
 		if not frontier.get("ok", false): return frontier
-		source["frontier"] = frontier.value.duplicate(true)
+		source["frontier"] = frontier.value
 	elif route in ["hospital", "ending", "scene"]:
 		return _failure(&"pause_frontier_unavailable")
 	else:
@@ -768,10 +768,10 @@ func finish_backup_load(result: Dictionary) -> Dictionary:
 	if not rebound.get("ok", false): return rebound
 	var reacquired: Dictionary = await coordinator.request_pause(&"production_pause")
 	if reacquired.get("ok", false):
-		_handle = reacquired.value.duplicate(true)
+		_handle = reacquired.value
 	else:
 		var state: Dictionary = coordinator.get_state()
-		if state.value.state == &"Recovery": _handle = state.value.handle.duplicate(true)
+		if state.value.state == &"Recovery": _handle = state.value.handle
 		else:
 			surface.close_surface()
 			_handle.clear()
@@ -788,7 +788,7 @@ func _await_scene_backup_load(pending: Dictionary) -> Dictionary:
 			or not _services.saves.has_method("capture_scene_restore_activation"):
 		return {"ok": false, "code": &"pause_scene_activation_unproven", "recovery_required": true,
 			"transaction_id": _pending_scene_load if not _pending_scene_load.is_empty() else operation_id}
-	var handle := _handle.duplicate(true)
+	var handle := _handle.duplicate()
 	var source := _captured_source.duplicate(true)
 	_pending_scene_load = operation_id
 	_scene_load_waiting = true
