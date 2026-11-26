@@ -35,6 +35,7 @@ func test_slot_replacement_and_removal_preserve_unrelated_art_order() -> void:
 	assert_eq(replaced.value.state.overlays.size(), 2)
 	assert_eq(replaced.value.state.overlays[0].slot, "portrait")
 	assert_eq(replaced.value.state.overlays[0].label, "template.right")
+	assert_same(replaced.value.state.overlays[1], first.value.state.overlays[1])
 	assert_eq(replaced.value.state.overlays[1], before.overlays[1])
 	var removed := ART.apply_presentation_commands([{"kind": "hide", "slot": "portrait"}], replaced.value.state)
 	assert_true(removed.ok, str(removed))

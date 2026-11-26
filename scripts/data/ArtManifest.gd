@@ -176,7 +176,8 @@ static func apply_presentation_commands(commands: Array, previous: Dictionary) -
 		state = {"checkpoint_id": "", "scene_entry_id": "", "background": "", "portraits": [],
 			"cg": "", "split_panels": false, "audio_plan_id": "", "overlays": []}
 	elif previous.has("background"):
-		state = previous.duplicate(true)
+		state = previous.duplicate()
+		state.overlays = previous.overlays.duplicate()
 	else:
 		var resolved := resolve_saved_presentation_view(previous)
 		if not resolved.ok: return resolved
@@ -339,7 +340,7 @@ const ART_MANIFEST_REQUIRED_NOT_ELIGIBLE := &"ART_MANIFEST_REQUIRED_NOT_ELIGIBLE
 const ART_MANIFEST_REQUIRED_SUBSTITUTION_FORBIDDEN := &"ART_MANIFEST_REQUIRED_SUBSTITUTION_FORBIDDEN"
 
 static func visual_records() -> Array:
-	return VISUAL_RECORDS.duplicate(true)
+	return VISUAL_RECORDS.duplicate()
 
 static func validate_visual_record(record: Variant) -> Dictionary:
 	if not (record is Dictionary):
