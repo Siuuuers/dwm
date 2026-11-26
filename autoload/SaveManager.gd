@@ -1399,7 +1399,7 @@ func capture_scene_restore_activation(transaction_id: String) -> Dictionary:
 func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Dictionary,
 		route_id: String, checkpoint_id: String, operation_id: String, creating: bool) -> Dictionary:
 	if not _scene_restore_activation.is_empty(): return _fail(&"scene_restore_busy", "")
-	var activation := _prepare_live_session_activation(plans, operation_id)
+	var activation := _prepare_live_session_activation(journal_candidate, operation_id)
 	if not activation.get("ok", false):
 		return _scene_restore_early_failure(activation, creating)
 	for key: String in ["route", "narrative"]:
@@ -1545,9 +1545,8 @@ func _drive_scene_restore_activation_owned() -> Dictionary:
 	return {"ok": true, "value": destination}
 
 
-func _prepare_live_session_activation(plans: Dictionary, operation_id: String) -> Dictionary:
-	var plan: Dictionary = plans.get("run", {})
-	if not plan.has("snapshot"):
+func _prepare_live_session_activation(journal_candidate: Dictionary, operation_id: String) -> Dictionary:
+	if not journal_candidate.has("run_id"):
 		return {"ok": true, "value": {}}
 	var run: Object = _restore_participants["run"]
 	if not run.has_method("capture_live_session"):
@@ -1556,7 +1555,7 @@ func _prepare_live_session_activation(plans: Dictionary, operation_id: String) -
 	if not captured.get("ok", false): return captured
 	var session: Dictionary = captured["value"]
 	var ticket := {"operation_id": operation_id, "expected_generation": session["generation"],
-		"owner_id": session["owner_id"], "run_id": plan["snapshot"]["run_id"]}
+		"owner_id": session["owner_id"], "run_id": journal_candidate.run_id}
 	return {"ok": true, "value": ticket}
 
 
