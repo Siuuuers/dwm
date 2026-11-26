@@ -1054,7 +1054,7 @@ func entry_program(entry_id: String, context: Dictionary = {}) -> Dictionary:
 		return {"ok": true, "value": catalogue[entry_id].merged({"label": entry_id})}
 	if not context.is_empty():
 		if not _context_shape(context): return _fail(&"reading_context_invalid")
-		return AUTHORED.select(catalogue[entry_id], context.presentation)
+		return AUTHORED.select_view(catalogue[entry_id], context.presentation)
 	if not _selected_entries.has(entry_id): return _fail(&"reading_context_unavailable")
 	return {"ok": true, "value": _selected_entries[entry_id]}
 

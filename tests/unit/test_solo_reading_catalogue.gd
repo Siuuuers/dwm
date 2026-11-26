@@ -52,7 +52,14 @@ func test_exact_frame_selects_same_line_variant_and_detached_projection() -> voi
 	assert_true(compiled.ok, str(compiled))
 	if not compiled.ok: return
 	for entry_id: String in [PRE, POST]:
-		var sweet := CATALOGUE.select(compiled.value.entries[entry_id], _presentation(entry_id))
+		var entry: Dictionary = compiled.value.entries[entry_id]
+		var frame := _presentation(entry_id)
+		var view := CATALOGUE.select_view(entry, frame)
+		assert_true(is_same(view.value.lines, entry.variants[0].lines))
+		assert_true(is_same(view.value.selectors, entry.variants[0].selector_values))
+		frame.fields.due_echoes.append({"caller": true})
+		assert_true(view.value.selectors.due_echoes.is_empty())
+		var sweet := CATALOGUE.select(entry, _presentation(entry_id))
 		var dark := CATALOGUE.select(compiled.value.entries[entry_id], _presentation(entry_id, "dark"))
 		assert_true(sweet.ok)
 		assert_true(dark.ok)
