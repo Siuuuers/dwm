@@ -2911,7 +2911,7 @@ func get_reading_history_source() -> Dictionary:
 	if not can_capture_reading_checkpoint(): return _command_failure(&"reading_frontier_unavailable")
 	var frontier := {}
 	if _reading_session.family == "scene" and _reading_session.boundary == "control":
-		var held: Dictionary = _runtime_adapter.capture_scene_control_position(_reading_session)
+		var held: Dictionary = _runtime_adapter.capture_scene_control_position(_reading_session, false)
 		if not held.ok: return held
 	if _reading_session.boundary == "line":
 		var captured: Dictionary = _runtime_adapter.capture_reading_frontier()
