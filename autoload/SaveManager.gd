@@ -895,7 +895,7 @@ func _capture_backup_inputs() -> Dictionary:
 		return raw.duplicate(true)
 	if not raw.get("value") is Dictionary:
 		return _fail(&"invalid_backup_capture", "Capture inputs are required")
-	var inputs: Dictionary = raw["value"].duplicate(true)
+	var inputs: Dictionary = raw["value"].duplicate()
 	var shape_error := _validate_checkpoint_inputs(inputs)
 	if shape_error != "":
 		return _fail(&"invalid_backup_capture", shape_error)
