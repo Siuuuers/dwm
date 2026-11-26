@@ -1063,6 +1063,7 @@ func test_an_identical_allocation_replay_returns_the_recorded_bundle() -> void:
 		return
 	assert_eq(replayed.get("value"), committed.get("value"),
 		"plan line 535: identical replay of the same allocation transaction returns its recorded bundle")
+	prepared.value.request.transaction_issuer_receipt.clear()
 	prepared.value.branch_id_issuer_receipt.clear()
 	committed.value.request.clear()
 	assert_eq(_store.prepare_allocation(request).value, replayed.value,
