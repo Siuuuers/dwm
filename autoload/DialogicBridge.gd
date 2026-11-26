@@ -2900,13 +2900,16 @@ func _scene_day_history(frontier: Dictionary) -> Dictionary:
 
 
 func validate_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Dictionary = {}) -> Dictionary:
+	var prepared := _prepare_reading_checkpoint(checkpoint, entry_contexts)
+	return {"ok": true} if prepared.ok else prepared
+
+
+func _prepare_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Dictionary = {}) -> Dictionary:
 	var expanded := _READING_SESSION.expanded_checkpoint_view(checkpoint)
 	if not expanded.ok: return expanded
 	checkpoint = expanded.value
 	if checkpoint.get("reading_session") is Dictionary and typeof(checkpoint.reading_session.get("schema_version")) == TYPE_INT and checkpoint.reading_session.schema_version == 5:
-		var scene := prepare_scene_reading_candidate(expanded, entry_contexts)
-		if not scene.ok: return scene
-		return {"ok": true}
+		return prepare_scene_reading_candidate(expanded, entry_contexts)
 	var catalogue := _reading_catalogue_for_entry(str(checkpoint.get("entry_id", "")))
 	if catalogue == null: return _command_failure(&"reading_catalogue_unavailable")
 	var keys := _RESUME_CHECKPOINT_KEYS.duplicate()
@@ -2939,7 +2942,7 @@ func validate_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Diction
 		if not _exact_context_keys(context): return _command_failure(&"reading_context_invalid")
 		var validated := _validate_reading_entry(candidate, entry_id)
 		if not validated.ok: return validated
-	return {"ok": true}
+	return {"ok": true, "value": {"candidate": candidate}}
 
 
 func _validate_reading_entry(session: RefCounted, entry_id: String, context: Dictionary = {}) -> Dictionary:
@@ -3043,13 +3046,11 @@ func stage_scene_terminal_restore(checkpoint: Dictionary, operation_id: String, 
 		if plan.get("playback_stage") != "PRIMARY_PENDING" or plan.get("next_step_index") != 0:
 			return _command_failure(&"reading_checkpoint_invalid")
 	else:
-		var checked := validate_reading_checkpoint(checkpoint)
+		var checked := _prepare_reading_checkpoint(checkpoint)
 		if not checked.ok: return checked
 		if checkpoint.reading_session.family != "ending" or checkpoint.reading_session.boundary not in ["line", "between_entries"]:
 			return _command_failure(&"reading_checkpoint_invalid")
-		candidate = _reading_catalogues["ending"].fork_catalogue()
-		var restored: Dictionary = candidate.restore(checkpoint.reading_session, checkpoint.entry_id)
-		if not restored.ok: return restored
+		candidate = checked.value.candidate
 	if has_active_playback() and not is_pause_restore_pending(): return _command_failure(&"narrative_playback_active")
 	checkpoint = checkpoint.duplicate(true)
 	if is_pause_restore_pending():
@@ -3284,12 +3285,10 @@ func _resume_reading_checkpoint(checkpoint: Dictionary, execution_mode: StringNa
 	if checkpoint.get("reading_session") is Dictionary and typeof(checkpoint.reading_session.get("schema_version")) == TYPE_INT and checkpoint.reading_session.schema_version in [5, 6, 7]:
 		return _command_failure(&"scene_restore_owner_unavailable")
 	if execution_mode != &"canonical": return _command_failure(&"rehearsal_commit_denied")
-	var checked := validate_reading_checkpoint(checkpoint)
+	var checked := _prepare_reading_checkpoint(checkpoint)
 	if not checked.ok: return checked
 	if has_active_playback(): return _command_failure(&"narrative_playback_active")
-	var candidate: _READING_SESSION = _reading_catalogue_for_entry(checkpoint.entry_id).fork_catalogue()
-	var restored: Dictionary = candidate.restore(checkpoint.reading_session, checkpoint.entry_id)
-	if not restored.ok: return restored
+	var candidate: _READING_SESSION = checked.value.candidate
 	if candidate.family == "hospital" and not _hospital_reading_command.is_empty() \
 			and not _reading_command_matches(_hospital_reading_command, checkpoint):
 		return _command_failure(&"reading_restore_command_mismatch")

@@ -2410,7 +2410,7 @@ func _complete_play_ending(stage: String, transaction_id: String, receipt: Dicti
 			return {"ok": false, "code": &"transaction_mismatch", "message": transaction_id}
 		lifecycle_transaction = "ending:" + stage
 	var result: Dictionary = _run_lifecycle.complete_ending_playback_stage(
-		lifecycle_transaction, StringName(stage), {"value": receipt.duplicate(true)})
+		lifecycle_transaction, StringName(stage), {"value": receipt})
 	return result
 
 func _complete_record_gallery(stage: String, lifecycle_plan: Dictionary) -> Dictionary:

@@ -31,7 +31,7 @@ static func validate(state: Dictionary, lifecycle: Dictionary, schedule: Diction
 		if int(prior.get("source_day", 7)) >= 7: return _fail("Day 7 resolution already started")
 		for stage: Dictionary in prior.get("stages", []):
 			if stage.get("state") != "completed": return _fail("the preceding day is incomplete")
-	var valid: Dictionary = CONSEQUENCE.validate(state)
+	var valid: Dictionary = CONSEQUENCE.check_state(state)
 	if not valid.get("ok", false): return valid
 	if state.pending != null: return _fail("the source action has not completed cleanup")
 	var raw: Variant = state.outbox.get("hospital")

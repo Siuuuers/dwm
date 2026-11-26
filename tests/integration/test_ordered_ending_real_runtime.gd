@@ -344,8 +344,10 @@ class ReadingBoundaryBridge extends BRIDGE:
 	var fail_start := false
 	func start_ending_presentation(ending_id: String, context: Dictionary, signature: Dictionary, presentation: Dictionary = {}) -> Dictionary:
 		return _start_ending_reading(ending_id, context, signature, presentation)
-	func validate_reading_checkpoint(_checkpoint: Dictionary, _frames: Dictionary = {}) -> Dictionary:
-		return {"ok": true}
+	func _prepare_reading_checkpoint(checkpoint: Dictionary, _frames: Dictionary = {}) -> Dictionary:
+		var candidate: RefCounted = _reading_catalogue_for_entry(checkpoint.entry_id).fork_catalogue()
+		var restored: Dictionary = candidate.restore(checkpoint.reading_session, checkpoint.entry_id)
+		return {"ok": true, "value": {"candidate": candidate}} if restored.ok else restored
 	func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode: StringName,
 			token_kind: String, _expected_version: int = -1, _scene_restore_operation: String = "") -> Dictionary:
 		var admitted: Dictionary = _reading_session.admit(entry_id, context)

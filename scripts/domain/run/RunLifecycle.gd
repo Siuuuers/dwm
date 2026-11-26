@@ -341,13 +341,14 @@ func complete_ending_playback_stage(transaction_id: String, expected_stage: Stri
 		return _fail(&"invalid_receipt", "receipt must be {\"value\": Dictionary}")
 	if _ending_plan.has("steps"):
 		if _ending_plan.get("source_kind") == "scene":
-			var trial: Dictionary = _ending_plan.duplicate(true)
+			var trial := _ending_plan.duplicate()
+			trial.playback_receipts = _ending_plan.playback_receipts.duplicate()
 			if expected == "PRIMARY_PENDING":
-				trial.playback_receipts["step:0"] = receipt.duplicate(true)
+				trial.playback_receipts["step:0"] = receipt
 				trial.next_step_index = 1
 				trial.playback_stage = "EPILOGUE_PLAYED"
 			elif expected == "EPILOGUE_PLAYED":
-				trial.playback_receipts["gallery"] = receipt.duplicate(true)
+				trial.playback_receipts["gallery"] = receipt
 				trial.playback_stage = "GALLERY_RECORDED"
 			var valid := validate_scene_ending_plan(trial, _scene_issuer)
 			if not valid.ok: return valid
@@ -976,7 +977,7 @@ static func validate_scene(data: Dictionary, issuer: Object) -> Dictionary:
 		if not child.get("ok", false): return child
 		if provenance.remap_receipt_provenance.get("child_id") != provenance.remap_receipt_id:
 			return _fail(&"invalid_scene_restore_provenance", "remap identity mismatch")
-	return {"ok": true, "value": data.duplicate(true)}
+	return {"ok": true}
 
 
 const SCENE_ENDING_PLAN_KEYS := ["schema_version", "source_kind", "admission", "ending_id", "epilogue_ending_id",
