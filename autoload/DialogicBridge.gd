@@ -126,7 +126,7 @@ func validate_scene_entry_authority(capability_id: String, binding: Dictionary,
 	var was_busy := _scene_stage_busy
 	_scene_authority_validating = true
 	_scene_stage_busy = true
-	var source: Variant = _scene_stage_source.call(binding.duplicate(true))
+	var source: Variant = _scene_stage_source.call(_scene_stage.binding)
 	var valid: bool = source is Dictionary and source.get("ok", false) \
 		and _scene_source_current() and _scene_candidate_current()
 	_scene_stage_busy = was_busy
@@ -309,15 +309,15 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 	_scene_stage_serial += 1
 	var capability := "scene-stage:%s:%s" % [get_instance_id(), _scene_stage_serial]
 	var transport := {"capability_id": capability, "narrative_checkpoint": checkpoint}
-	var candidate_state: Dictionary = candidate._retain_scene_live(reading.value)
-	if not candidate_state.ok: return candidate_state
 	var retained_transport := transport.duplicate(true)
 	FrozenPresentationContext._freeze(retained_transport)
-	_scene_stage = {"candidate": candidate, "candidate_state": candidate_state.value, "transport": retained_transport, "binding": binding.duplicate(true),
+	var retained_binding := binding.duplicate(true)
+	FrozenPresentationContext._freeze(retained_binding)
+	_scene_stage = {"candidate": candidate, "candidate_state": candidate._fork_scene_live(), "transport": retained_transport, "binding": retained_binding,
 		"target": target, "binding_sha256": _scene_digest(binding), "checkpoint_sha256": _scene_digest(checkpoint),
 		"source_session": source_session, "native_source": native_source, "source_state": source_state,
 		"source_entry": source_entry, "runtime": _runtime_adapter, "path": path}
-	var retained: Variant = _scene_stage_port.call("retain_scene_entry", self, capability, binding.duplicate(true), checkpoint.duplicate(true))
+	var retained: Variant = _scene_stage_port.call("retain_scene_entry", self, capability, retained_binding, retained_transport.narrative_checkpoint)
 	if not retained is Dictionary or not retained.get("ok", false):
 		_scene_stage.clear()
 		return _command_failure(&"scene_staging_owner_refused")
@@ -335,7 +335,7 @@ func commit_day_entry(candidate: Dictionary) -> Dictionary:
 func _commit_scene_entry(candidate: Dictionary) -> Dictionary:
 	if _scene_stage_fatal or _scene_stage.is_empty() or not _READING_TRAVERSAL._same(candidate, _scene_stage.transport):
 		return _command_failure(&"scene_staging_candidate_invalid")
-	candidate = _scene_stage.transport.duplicate(true)
+	candidate = _scene_stage.transport
 	var ack: Variant = _scene_stage_port.call("consume_scene_entry_ack", candidate.capability_id)
 	if not ack is Dictionary or not ack.get("ok", false):
 		if not ack is Dictionary or ack.get("committed", true) != false: _scene_stage_fatal = true
@@ -355,7 +355,7 @@ func _commit_scene_entry(candidate: Dictionary) -> Dictionary:
 		return _command_failure(&"scene_staging_ack_invalid")
 	_scene_stage_fatal = true
 	_scene_stage["live_publication"] = target_ref.duplicate()
-	var confirmed_source: Variant = _scene_stage_source.call(_scene_stage.binding.duplicate(true))
+	var confirmed_source: Variant = _scene_stage_source.call(_scene_stage.binding)
 	if not confirmed_source is Dictionary or not confirmed_source.get("ok", false):
 		return _command_failure(&"scene_staging_source_invalid")
 	if not _scene_source_current() or not _scene_candidate_current():
