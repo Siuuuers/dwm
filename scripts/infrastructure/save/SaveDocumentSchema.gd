@@ -30,8 +30,9 @@ static func load_current_document(raw: Dictionary) -> Dictionary:
 		return _fail(&"unsupported_save_format", "Only the current Run9 fields can be loaded")
 	var normalized := RUN_SNAPSHOT_SCHEMA.normalize_scene_content(snapshot, true)
 	if not normalized.ok: return normalized
-	raw.current_snapshot.snapshot = normalized.value
-	return {"ok": true, "value": raw}
+	var document := raw.duplicate()
+	document.current_snapshot = {"checkpoint_kind": raw.current_snapshot.checkpoint_kind, "snapshot": normalized.value}
+	return {"ok": true, "value": document}
 
 static func _has_current_document_keys(document: Dictionary) -> bool:
 	return RUN_SNAPSHOT_SCHEMA._scene_keys(document, SCENE_DOCUMENT_KEYS + ["saved_time"] if document.has("saved_time") else SCENE_DOCUMENT_KEYS)

@@ -42,6 +42,16 @@ func test_current_documents_are_admitted_for_their_exact_locator() -> void:
 		admitted.value.current_snapshot.snapshot.gameplay.coins += 1
 		assert_eq(raw, before)
 
+func test_loading_current_snapshot_keeps_the_parsed_snapshot_untouched() -> void:
+	var raw := _document()
+	var source: Dictionary = raw.current_snapshot.snapshot
+	var loaded := DOCUMENT.load_current_document(raw)
+	assert_true(loaded.ok, str(loaded))
+	if not loaded.ok: return
+	loaded.value.current_snapshot.snapshot.gameplay.clear()
+	assert_true(is_same(source, raw.current_snapshot.snapshot))
+	assert_false(source.gameplay.is_empty())
+
 func test_previous_formats_and_future_versions_are_refused_unchanged() -> void:
 	for version in range(DOCUMENT.SCENE_DOCUMENT_VERSION):
 		_assert_refused_unchanged({"schema_version": version}, {"kind": "slot", "slot_id": 1},
