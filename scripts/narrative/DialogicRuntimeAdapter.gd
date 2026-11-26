@@ -171,8 +171,8 @@ func install_scene_target(session: RefCounted, checkpoint: Dictionary, target: D
 		checkpoint.reading_session.occurrence_id, checkpoint.entry_id)
 	if not frame.ok or frame.value != checkpoint.get("frozen_context"):
 		return _fail(&"scene_native_target_invalid", "target context differs from its admitted frame")
-	var presentation := FrozenPresentationContext.validate(checkpoint.entry_id, frame.value.presentation)
-	if not presentation.ok: return presentation
+	var fields := _prepare_scene_fields(checkpoint.entry_id, frame.value.presentation)
+	if not fields.ok: return fields
 	var owner := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 	var selected := owner.scene_contract_tables()
 	if not selected.ok: return selected
@@ -203,7 +203,7 @@ func install_scene_target(session: RefCounted, checkpoint: Dictionary, target: D
 		_runtime_generation = 0
 	var bound := bind_caption_ledger(session.ledger, session.command_id, checkpoint.entry_id, false, session.scene_occurrence)
 	if not bound.ok: return bound
-	var frozen := install_frozen_presentation(presentation.value)
+	var frozen := _install_frozen_fields(fields.value)
 	if not frozen.ok: return frozen
 	_caption_restore_frontier = checkpoint.reading_session.frontier.duplicate()
 	_caption_restore_queued = false
@@ -309,8 +309,8 @@ func _install_scene_frontier(session: RefCounted, checkpoint: Dictionary, source
 	var frame := NarrativeCaptionLedger._scene_frame_view(saved.ledger.entry_contexts, saved.occurrence_id, checkpoint.entry_id)
 	if not frame.ok or frame.value != checkpoint.get("frozen_context"):
 		return _fail(&"scene_restore_native_invalid", "saved context mismatch")
-	var presentation := FrozenPresentationContext.validate(checkpoint.entry_id, frame.value.presentation)
-	if not presentation.ok: return presentation
+	var fields := _prepare_scene_fields(checkpoint.entry_id, frame.value.presentation)
+	if not fields.ok: return fields
 	var selected := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_contract_tables()
 	if not selected.ok: return selected
 	var programmes: Dictionary = selected.value.entries
@@ -345,7 +345,7 @@ func _install_scene_frontier(session: RefCounted, checkpoint: Dictionary, source
 		_runtime_generation = 0
 	var bound := bind_caption_ledger(session.ledger, session.command_id, checkpoint.entry_id, false, saved.occurrence_id)
 	if not bound.ok: return bound
-	var frozen := install_frozen_presentation(presentation.value)
+	var frozen := _install_frozen_fields(fields.value)
 	if not frozen.ok: return frozen
 	_scene_control_restore = {}
 	if saved.boundary == "control":
@@ -1509,6 +1509,14 @@ func start_timeline(path: String, label_or_index: Variant = 0) -> Dictionary:
 var _frozen_variables_before: Dictionary = {}
 var _frozen_variables_installed := false
 
+func _prepare_scene_fields(entry_id: String, presentation: Dictionary) -> Dictionary:
+	var checked := FrozenPresentationContext.validated_view(entry_id, presentation)
+	if not checked.ok: return checked
+	# The admitted scene frame contains four string fields.
+	var fields: Dictionary = presentation.fields.duplicate()
+	fields.make_read_only()
+	return {"ok": true, "value": fields}
+
 func install_frozen_presentation(presentation: Dictionary) -> Dictionary:
 	if not _bound or has_active_playback() or _frozen_variables_installed:
 		return _fail(&"frozen_context_runtime_busy", "no idle presentation slot")
@@ -1527,6 +1535,8 @@ func install_frozen_replay(signature: Dictionary, mode: String = "gallery_replay
 	return _install_frozen_fields(checked.value)
 
 func _install_frozen_fields(fields: Dictionary) -> Dictionary:
+	if not _bound or has_active_playback() or _frozen_variables_installed:
+		return _fail(&"frozen_context_runtime_busy", "no idle presentation slot")
 	var prior: Variant = _dialogic.current_state_info.get("variables", {})
 	if not prior is Dictionary: return _fail(&"frozen_context_variables_invalid", "variables must be a dictionary")
 	var projected: Dictionary = prior.duplicate(true)
