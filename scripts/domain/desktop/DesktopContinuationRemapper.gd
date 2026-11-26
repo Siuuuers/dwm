@@ -599,7 +599,7 @@ static func _pending_day7_terminal(consequence: Dictionary) -> Dictionary:
 	var raw: Variant = outbox.get("hospital")
 	if not raw is Dictionary or raw.get("consumer") != "day7_terminal" or raw.get("status") != "pending":
 		return {"ok": true, "value": {}}
-	var valid: Dictionary = _CONSEQUENCE.validate(consequence)
+	var valid: Dictionary = _CONSEQUENCE.check_state(consequence)
 	if not valid.get("ok", false): return valid
 	if consequence.get("pending") != null or raw.size() != 9:
 		return _fail(&"remap_day7_source_invalid", "terminal source must be a complete cleaned outbox record", {})

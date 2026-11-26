@@ -223,7 +223,7 @@ func on_ending_playback_completed(completion: Dictionary) -> void:
 	if not _completion_matches_pending(completion):
 		return
 	if _pending_completion.is_empty():
-		_pending_completion = completion.duplicate(true)
+		_pending_completion = completion.duplicate()
 	elif _pending_completion != completion: return
 	var context: Dictionary = _pending_ending_command["playback_context"]
 	var receipt := {

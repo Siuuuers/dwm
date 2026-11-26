@@ -141,7 +141,7 @@ static func _validate_desktop(desktop: Variant) -> String:
 		return str(board_check.get("message", board_check.get("code", "invalid desktop.board")))
 	if typeof((desktop as Dictionary)["consequence"]) != TYPE_DICTIONARY:
 		return "desktop.consequence must be an object"
-	var consequence_check: Dictionary = DESKTOP_CONSEQUENCE_STATE.validate((desktop as Dictionary)["consequence"])
+	var consequence_check: Dictionary = DESKTOP_CONSEQUENCE_STATE.check_state((desktop as Dictionary)["consequence"])
 	if not consequence_check.get("ok", false):
 		return str(consequence_check.get("message", consequence_check.get("code", "invalid desktop.consequence")))
 	return ""
@@ -517,7 +517,7 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 	if not board.ok: return board
 	var board_identity := _validate_scene_board_identity(candidate.desktop.board, candidate.lifecycle)
 	if not board_identity.ok: return board_identity
-	var consequence: Dictionary = DESKTOP_CONSEQUENCE_STATE.validate(candidate.desktop.consequence)
+	var consequence: Dictionary = DESKTOP_CONSEQUENCE_STATE.check_state(candidate.desktop.consequence)
 	if not consequence.ok: return consequence
 	var audio := derive_scene_audio_context(candidate, bundle)
 	if not audio.ok: return audio
@@ -655,7 +655,7 @@ static func validate_scene_input_fields(input: Dictionary, bundle: Dictionary) -
 	if not board.ok: return board
 	var board_identity := _validate_scene_board_identity(input.desktop.board, input.lifecycle)
 	if not board_identity.ok: return board_identity
-	var consequence: Dictionary = DESKTOP_CONSEQUENCE_STATE.validate(input.desktop.consequence)
+	var consequence: Dictionary = DESKTOP_CONSEQUENCE_STATE.check_state(input.desktop.consequence)
 	if not consequence.ok: return consequence
 	for member: String in ["applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
 		var ids_error := _validate_transaction_ids(input[member], member)

@@ -119,6 +119,8 @@ func test_physical_completion_and_gallery_are_ordered_and_persisted() -> void:
 	var physical := {"value": {"outcome": "completed", "timeline_completion_receipt_id": "TEST.physical"}}
 	assert_true(lifecycle.complete_ending_playback_stage("ending:step:0", &"PRIMARY_PENDING", physical).ok)
 	assert_false(lifecycle.complete_ending_playback_stage("ending:step:0", &"PRIMARY_PENDING", physical).ok)
+	physical.value.timeline_completion_receipt_id = "changed by caller"
+	assert_eq(lifecycle.to_dict().ending_plan.playback_receipts["step:0"].value.timeline_completion_receipt_id, "TEST.physical")
 	assert_false(lifecycle.complete_ending().ok)
 	assert_true(lifecycle.complete_ending_playback_stage("ending:EPILOGUE_PLAYED", &"EPILOGUE_PLAYED",
 		{"value": {"step:0": {"ending_id": "ending.alone"}}}).ok)

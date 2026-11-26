@@ -100,14 +100,12 @@ static func make_empty(issuer_provenance: Dictionary) -> Dictionary:
 
 
 static func validate(state: Dictionary, proven_recovery_payload_sha256: String = "") -> Dictionary:
-	return _validate_impl(state, false, proven_recovery_payload_sha256)
+	var checked := check_state(state, false, proven_recovery_payload_sha256)
+	if not checked.ok: return checked
+	return {"ok": true, "code": &"ok", "value": {"state": state.duplicate(true)}, "receipt": {}}
 
 
-static func _validate_for_preimage(state: Dictionary, proven_recovery_payload_sha256: String = "") -> Dictionary:
-	return _validate_impl(state, true, proven_recovery_payload_sha256)
-
-
-static func _validate_impl(state: Dictionary, allow_pending_admission: bool,
+static func check_state(state: Dictionary, allow_pending_admission: bool = false,
 		proven_recovery_payload_sha256: String = "") -> Dictionary:
 	var shape := _exact_keys(state, _STATE_KEYS, &"consequence_member_set_invalid")
 	if not shape.get("ok", false):
@@ -137,7 +135,7 @@ static func _validate_impl(state: Dictionary, allow_pending_admission: bool,
 	var shop_ledger_check := _validate_shop_ledger(state["shop_ledger"])
 	if not shop_ledger_check.get("ok", false):
 		return shop_ledger_check
-	return {"ok": true, "code": &"ok", "value": {"state": state.duplicate(true)}, "receipt": {}}
+	return {"ok": true}
 
 
 static func validate_recovery_payload(source_kind: StringName, payload: Dictionary,
@@ -193,10 +191,10 @@ static func checkpoint_content_preimage(checkpoint_header: Dictionary, stage_can
 	var normalized_header := checkpoint_header.duplicate(true)
 	(normalized_header["source_ids"] as Array).sort()
 
-	var candidate_validation := _validate_for_preimage(stage_candidate, proven_recovery_payload_sha256)
+	var candidate_validation := check_state(stage_candidate, true, proven_recovery_payload_sha256)
 	if not candidate_validation.get("ok", false):
 		return candidate_validation
-	var candidate: Dictionary = (candidate_validation["value"] as Dictionary)["state"]
+	var candidate := stage_candidate.duplicate(true)
 	if candidate["pending"] == null:
 		return {"ok": true, "code": &"ok", "value": {"preimage": {
 			"header": normalized_header,
