@@ -4352,8 +4352,7 @@ static func _reset_scene_day_counters(renewed: Dictionary) -> void:
 	renewed.minesweeper_money_earned_today = 0
 	renewed.penalty_points_today = 0
 
-func _prepare_scene_day_renewal(trigger: Dictionary, target_id: String, registration: Dictionary,
-		identity: Dictionary) -> Dictionary:
+func _prepare_scene_day_renewal(trigger: Dictionary, target_id: String, registration: Dictionary) -> Dictionary:
 	var tables := _SCENE_EVENT.validate_bundle_structure(registration)
 	if not tables.ok: return tables
 	var target: Dictionary = tables.value.targets[target_id].target
@@ -4380,12 +4379,13 @@ func _prepare_scene_day_renewal(trigger: Dictionary, target_id: String, registra
 		return _transaction_failure(&"scene_day_pending_settlement", "")
 	var lifecycle: Dictionary = capture_run_lifecycle()
 	var gameplay := _capture_scene_gameplay()
+	var identity: Dictionary = _run_lifecycle.get_desktop_identity_context()
 	var derived: Dictionary = _identity_issuer.derive_child(_SCENE_EVENT.scene_day_renewal_request(trigger, identity))
 	if not derived.get("ok", false): return derived
 	var request := {"resolution_kind": "scene_day_complete", "run_id": identity.run_id,
 		"branch_id": identity.branch_id, "desktop_timeline_generation": identity.desktop_timeline_generation,
 		"source_causal_day_instance": identity.causal_day_instance,
-		"source_causal_day_instance_issuer_receipt": identity.causal_day_instance_issuer_receipt.duplicate(true),
+		"source_causal_day_instance_issuer_receipt": identity.causal_day_instance_issuer_receipt,
 		"source_resolution_receipt": {"receipt_id": derived.value.child_id, "provenance": derived.value.provenance}}
 	var prepared: Dictionary = _scene_day_allocator.prepare_advance(request)
 	if not prepared.get("ok", false): return prepared
@@ -4436,9 +4436,9 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 			"details": {"target_id": target_id}}
 	var target: Dictionary = tables.value.targets[target_id].target
 	if target.kind == "ending": return _transaction_failure(&"scene_target_unavailable", "ordinary DTL Finish is required")
-	var source_ref := {"kind": "live", "state_sha256": _SCENE_EVENT._sha(capture_run_snapshot_input())}
-	var full_identity: Dictionary = _run_lifecycle.get_desktop_identity_context()
-	var day_plan := _prepare_scene_day_renewal(trigger, target_id, registration.bundle, full_identity)
+	var prior_input := capture_run_snapshot_input()
+	var source_ref := {"kind": "live", "state_sha256": _SCENE_EVENT._sha(prior_input)}
+	var day_plan := _prepare_scene_day_renewal(trigger, target_id, registration.bundle)
 	if not day_plan.ok: return day_plan
 	var next_scene := {"registration_sha256": _SCENE_MANIFEST.scene_registration_fingerprint(),
 		"active_occurrence_id": "", "entry_id": target.entry_id, "notification": {}, "active_challenge": {}, "return_to": null}
@@ -4485,7 +4485,7 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 		"registration_sha256": next_scene.registration_sha256}
 	_scene_entry_operation = {"lease": lease, "live_session": session.value,
 		"entry_id": next_scene.entry_id, "frame": frame, "binding": binding,
-		"prior_input": capture_run_snapshot_input(),
+		"prior_input": prior_input,
 		"recovery": not recovery_trigger.is_empty(), "named_autosave": visual.value.autosave or art_arrival.value.autosave}
 	if registration.bundle.get("audio_catalogue", {}).get("schema_version") == 3:
 		var arrival := prepare_scene_audio_arrival(next_scene, registration.bundle, target.label, visual.value.autosave and not next_scene.get("presentation", {}).has("background"))
