@@ -153,7 +153,7 @@ func ensure_loaded() -> Dictionary:
 		var lawful := _validate_document(existing)
 		if not lawful.get("ok", false):
 			return lawful
-		_document = existing.duplicate(true)
+		_document = existing
 		_rebuild_issue_canonical_cache(_document)
 		_loaded = true
 		return {"ok": true}
@@ -255,7 +255,7 @@ func prepare_allocation(request: Dictionary) -> Dictionary:
 			return _failed(&"allocation_transaction_conflict", transaction_id)
 		return {"ok": true, "value": recorded.duplicate(true)}
 	return {"ok": true, "value": _continuation_candidate_from(
-		request, str(_document["namespace"]), int(_document["next_counter"]))}
+		request.duplicate(true), str(_document["namespace"]), int(_document["next_counter"]))}
 
 
 func commit_allocation(candidate: Dictionary) -> Dictionary:
@@ -965,7 +965,7 @@ func _continuation_candidate_from(request: Dictionary, namespace_value: String, 
 	return {
 		"schema_version": SCHEMA_VERSION,
 		"kind": kind,
-		"request": request.duplicate(true),
+		"request": request,
 		"root_namespace": namespace_value,
 		"root_next_counter": root_next_counter,
 		"run_id": str(request["existing_run_id"]) if kind == "restore" else str((run_receipt as Dictionary)["token"]),

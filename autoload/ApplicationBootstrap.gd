@@ -929,7 +929,7 @@ func _configure_desktop_production_graph() -> Dictionary:
 		var ledger_configured: Dictionary = ledger.configure(_profile_storage)
 		if not ledger_configured.get("ok", false):
 			return ledger_configured
-		var ledger_loaded: Dictionary = ledger.load()
+		var ledger_loaded: Dictionary = ledger.load(false)
 		if not ledger_loaded.get("ok", false):
 			return ledger_loaded
 		_retained_desktop_publication_ledger = ledger
