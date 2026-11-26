@@ -48,7 +48,7 @@ func _capture(fixture: RefCounted) -> void:
 	var inputs := {"snapshot_input": input, "route_id": "scene", "active_app_id": null,
 		"dialogic_checkpoint": expanded.value, "audio_context": {},
 		"content_version": snapshot.content_version}
-	var capture := func() -> Dictionary: return {"ok": true, "value": inputs.duplicate(true)}
+	var capture := func() -> Dictionary: return {"ok": true, "value": inputs}
 	_check(manager.configure_backup_capture_provider(capture).ok, "configure current scene capture")
 	var before: Dictionary = manager._journal.capture_state()
 	var disk_before: Dictionary = files.snapshot_persisted()
@@ -62,11 +62,12 @@ func _capture(fixture: RefCounted) -> void:
 		var saved: Dictionary = manager.commit_backup_action(prepared.value.token)
 		_check(saved.ok, str(saved))
 		if saved.ok:
+			input.gameplay.money = 201
 			var parsed: Dictionary = StrictJson.parse_object(storage.read_text("slot_1.json").value)
 			var checked: Dictionary = SCHEMA.validate(parsed.value)
 			_check(checked.ok, str(checked))
 			var current: Dictionary = checked.value.candidate.current_snapshot
-			_check(current.snapshot.gameplay.money == 200, "save captures current gameplay")
+			_check(current.snapshot.gameplay.money == 200, "saved balance survives the next live change")
 			_check(current.snapshot.narrative_checkpoint == snapshot.narrative_checkpoint, "save retains exact reading anchor")
 			_check(current == manager.get_latest_stable_checkpoint().value.bundle, "journal agrees with durable manual checkpoint")
 	manager.free()
