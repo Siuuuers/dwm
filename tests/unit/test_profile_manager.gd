@@ -118,6 +118,13 @@ func test_manager_initializes_once_and_uses_detached_snapshots() -> void:
 	assert_false(manager.is_line_visited("edited"))
 	snapshot["preferences"]["audio"]["music_volume"] = 0.1
 	assert_eq(manager.call(&"get_preference", &"preferences.audio.music_volume"), 0.8)
+	var restored: Array[Dictionary] = []
+	manager.profile_restored.connect(func(value: Dictionary) -> void: restored.append(value))
+	assert_true(manager.finalize_restore().ok)
+	assert_eq(restored.size(), 1)
+	restored[0].visited_line_ids.append("listener-edit")
+	assert_false(manager.is_line_visited("listener-edit"))
+
 
 func test_flat_fully_qualified_preference_batch_is_atomic() -> void:
 	var manager: Node = _new_manager()["manager"]
