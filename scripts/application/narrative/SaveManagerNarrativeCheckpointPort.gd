@@ -374,8 +374,7 @@ func _scene_mutation_validate(phase: String) -> bool:
 	if _scene_callback_busy or _scene_mutation.is_empty() or not _next_commit_in_progress \
 			or not is_instance_valid(_scene_mutation.authority) or not _scene_mutation.validator.is_valid(): return false
 	_scene_callback_busy = true
-	var checked: Variant = _scene_mutation.validator.call(_scene_mutation.input.duplicate(true),
-		_scene_mutation.checkpoint.duplicate(true), phase)
+	var checked: Variant = _scene_mutation.validator.call(_scene_mutation.input, _scene_mutation.checkpoint, phase)
 	_scene_callback_busy = false
 	return typeof(checked) == TYPE_BOOL and checked == true \
 		and not _scene_mutation.input_hash.is_empty() and not _scene_mutation.checkpoint_hash.is_empty() \
@@ -479,7 +478,7 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 	if not audio.ok: return audio
 	var content := _call_provider("content_version", [])
 	if not content.ok: return content
-	var inputs := _checkpoint_inputs(active.value, audio.value, content.value, checkpoint.duplicate(true), route.value, snapshot_input.duplicate(true))
+	var inputs := _checkpoint_inputs(active.value, audio.value, content.value, checkpoint, route.value, snapshot_input)
 	var captured: Dictionary = _real_port.capture()
 	if not captured.get("ok", false): return captured
 	var prepared: Dictionary = _real_port.prepare(inputs, &"safe_marker",

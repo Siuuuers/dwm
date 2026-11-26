@@ -4709,14 +4709,13 @@ func _validate_scene_contact_checkpoint(candidate: Dictionary, checkpoint: Dicti
 func _validate_scene_mutation_checkpoint(op: Dictionary, candidate: Dictionary, checkpoint: Dictionary) -> bool:
 	if op.is_empty(): return false
 	var session := capture_live_session()
-	var boundary: Dictionary = _scene_event_bridge.capture_scene_event_boundary()
-	return session.get("ok", false) and boundary.get("ok", false) \
+	var reading_matches: bool = _scene_event_bridge.matches_scene_event_checkpoint(op.checkpoint)
+	return session.get("ok", false) and reading_matches \
 		and _mutation_gate.is_lease_active(&"causal_transaction", op.lease) \
 		and _SCENE_EVENT._equal(session.value, op.session) \
 		and _SCENE_EVENT._equal(capture_run_snapshot_input(), op.before) \
 		and _SCENE_EVENT._equal(candidate, op.candidate) \
-		and _SCENE_EVENT._equal(checkpoint, op.checkpoint) \
-		and _SCENE_EVENT._equal(boundary.value.checkpoint, op.checkpoint)
+		and _SCENE_EVENT._equal(checkpoint, op.checkpoint)
 
 
 var _scene_shop_catalog: Object

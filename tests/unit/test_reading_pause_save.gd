@@ -62,6 +62,7 @@ class Bridge extends Node:
 		"reading_session": {"version": 1, "session_id": "reading-session", "history": ["first"]}}
 	func can_capture_reading_checkpoint() -> bool: return qualified
 	func has_reading_session() -> bool: return retained
+	func matches_reading_checkpoint(expected: Dictionary) -> bool: return qualified and checkpoint == expected
 	func capture_reading_checkpoint(complete_reveal: bool = false) -> Dictionary:
 		captures.append(complete_reveal)
 		return {"ok": true, "value": checkpoint.duplicate(true)} if qualified else {"ok": false}
@@ -85,6 +86,7 @@ class DatingOwner extends RefCounted:
 	var record := {"physical_token": "reading-physical", "command_sha256": "reading-command",
 		"completion_transaction_id": "reading-completion", "context": {"kind": "solo"}, "phase": "pre_challenge"}
 	func capture_dating_challenge_state() -> Dictionary: return {"ok": true, "value": record.duplicate(true)}
+	func matches_dating_challenge_state(expected: Dictionary) -> bool: return record == expected
 	func pull_physical(_command: Dictionary) -> Dictionary: return {"ok": true, "value": {"phase": record.phase}}
 
 class HospitalOwner extends RefCounted:
@@ -349,7 +351,7 @@ func test_qualified_full_line_save_captures_same_semantics_without_revealing_or_
 	assert_true(result.get("ok", false), str(result))
 	if not result.get("ok", false): return
 	assert_eq(result.value, _inputs)
-	assert_eq(_bridge.captures, [false, false], "suspended capture never completes live reveal")
+	assert_eq(_bridge.captures, [false], "suspended capture never completes live reveal")
 	assert_eq(_provider_calls, 1)
 	assert_eq(_controller._handle, held)
 	assert_eq(_controller._captured_source, source)
@@ -367,7 +369,7 @@ func test_partial_pause_capability_and_capture_are_available_without_finishing_l
 	assert_eq(_provider_calls, 0)
 	var captured: Dictionary = _controller.capture_backup_checkpoint_inputs()
 	assert_true(captured.get("ok", false), str(captured))
-	assert_eq(_bridge.captures, [false, false])
+	assert_eq(_bridge.captures, [false])
 	assert_eq(_provider_calls, 1)
 	assert_true(_native.revealing, "SaveManager also calls providers for background capability")
 	assert_eq(_native.visible_characters, 7)
