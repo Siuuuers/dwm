@@ -1792,16 +1792,14 @@ func store_dating_challenge_state(candidate: Dictionary, emit_changes: bool = tr
 	return {"ok": true, "code": &"ok", "value": {"stored": true}, "receipt": {}}
 
 
-func to_save_dict() -> Dictionary:
+func to_save_dict(deep: bool = false) -> Dictionary:
 	var out: Dictionary = {}
 	for key in _SAVE_WHITELIST:
 		var v = self.get(key)
 		if v == null:
 			continue
-		if v is Dictionary:
-			out[key] = v.duplicate()
-		elif v is Array:
-			out[key] = v.duplicate()
+		if v is Dictionary or v is Array:
+			out[key] = v.duplicate(deep)
 		else:
 			out[key] = v
 	return out
@@ -2496,29 +2494,30 @@ func capture_restore_state() -> Dictionary:
 		var captured: Dictionary = _dating_restore_owner.capture_reconciliation_state()
 		if not captured.get("ok", false): return captured
 		dating_backup = captured.value
-	var gameplay: Dictionary
+	var backup: Dictionary
 	if _run_lifecycle.is_scene_run():
-		gameplay = _capture_scene_gameplay()
+		backup = capture_run_snapshot_input()
 	else:
-		gameplay = to_save_dict().duplicate(true)
+		var gameplay := to_save_dict(true)
 		gameplay["narrative_variables"] = _narrative_variables.duplicate(true)
-	return {"ok": true, "code": &"ok", "value": {"backup": {
-		"gameplay": gameplay,
-		"dating_reconciliation": dating_backup,
-		"scene_live_closures": _scene_live_closures.duplicate(true),
-		"scene_choices": scene_choices.duplicate(),
-		"scene_challenge_outcomes": scene_challenge_outcomes.duplicate(true),
-		"command_receipts": _command_receipts.duplicate(true),
-		"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(),
-		"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(),
-		"lifecycle": _run_lifecycle.to_dict(),
-		"run_configuration_installed": _run_configuration_installed,
-		"session_generation": _live_session_generation,
-		"scene": _scene_snapshot_references.duplicate(true),
-		"contacts": contacts.duplicate(true),
-		"committed_schedule": _canonical_committed_schedule(),
-		"desktop": _capture_desktop_snapshot(),
-	}}}
+		backup = {
+			"gameplay": gameplay,
+			"scene_choices": scene_choices.duplicate(),
+			"scene_challenge_outcomes": scene_challenge_outcomes.duplicate(true),
+			"command_receipts": _command_receipts.duplicate(true),
+			"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(),
+			"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(),
+			"lifecycle": _run_lifecycle.to_dict(),
+			"scene": _scene_snapshot_references.duplicate(true),
+			"contacts": contacts.duplicate(true),
+			"committed_schedule": _canonical_committed_schedule(),
+			"desktop": _capture_desktop_snapshot(),
+		}
+	backup["dating_reconciliation"] = dating_backup
+	backup["scene_live_closures"] = _scene_live_closures.duplicate(true)
+	backup["run_configuration_installed"] = _run_configuration_installed
+	backup["session_generation"] = _live_session_generation
+	return {"ok": true, "code": &"ok", "value": {"backup": backup}}
 
 
 

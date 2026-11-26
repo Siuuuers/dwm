@@ -109,3 +109,17 @@ func test_new_runs_preserve_disk_and_profile_then_normal_save_load_restores_prog
 	assert_eq(restored.narrative_checkpoint, saved_snapshot.narrative_checkpoint)
 	assert_false(restored.lifecycle.has("scene_assignment"))
 	assert_eq(fixture.profile.get_profile_snapshot(), profile_before)
+
+	# The diagnostic board participant leaves the compact board in place after Load.
+	fixture.game._desktop_snapshot.board["command_receipts"] = {}
+	var occurrence := "a".repeat(64)
+	fixture.game.scene_choices = {"opportunity": "choice"}
+	fixture.game.scene_challenge_outcomes = {occurrence: {"challenge_id": "challenge", "outcome": "won", "physical_slot": ""}}
+	var backup: Dictionary = fixture.game.capture_restore_state().value.backup
+	fixture.game.scene_choices.clear()
+	fixture.game.scene_challenge_outcomes[occurrence].outcome = "lost"
+	var rolled: Dictionary = fixture.game.rollback_restore_silent(backup)
+	assert_true(rolled.ok, str(rolled))
+	if not rolled.ok: return
+	assert_eq(fixture.game.scene_choices, {"opportunity": "choice"})
+	assert_eq(fixture.game.scene_challenge_outcomes[occurrence].outcome, "won")
