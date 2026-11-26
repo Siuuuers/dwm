@@ -35,7 +35,7 @@ static func first_reveal(layout: Dictionary, cell_index: int, shell: Dictionary 
 	var flagged: Array[int] = []
 	flagged.assign(retained_shell.flagged_indices)
 	for index: int in flagged: blocked[index] = true
-	var adjacency := _recompute_adjacency(mine_set, width, height)
+	var adjacency := _SCHEMA.adjacency_counts(mine_set, width, height)
 	var revealed_set := {}
 	_flood_reveal([cell_index], revealed_set, mine_set, adjacency, width, height, blocked)
 	var revealed: Array[int] = []
@@ -161,7 +161,7 @@ static func chord(board: Dictionary, cell_index: int, transaction_id: String) ->
 		return _fail(&"chord_not_applicable", "chord requires a revealed cell with a nonzero count",
 			{"cell_index": cell_index})
 
-	var neighbors := _neighbors(cell_index, width, height)
+	var neighbors := _SCHEMA.neighbors(cell_index, width, height)
 	var flagged_neighbor_count := 0
 	var hidden_unflagged: Array[int] = []
 	for neighbor: int in neighbors:
@@ -246,7 +246,7 @@ static func _parse_board(board: Dictionary) -> Dictionary:
 	var total_cells: int = width * height
 	var mine_set: Dictionary = layout_parsed["mine_set"]
 	var mine_indices: Array[int] = layout_parsed["mine_indices"]
-	var adjacency := _recompute_adjacency(mine_set, width, height)
+	var adjacency := _SCHEMA.adjacency_counts(mine_set, width, height)
 
 	var revealed_indices := _index_array(board["revealed_indices"], total_cells)
 	if not revealed_indices.get("ok", false):
@@ -364,7 +364,7 @@ static func _flood_reveal(pending: Array[int], revealed: Dictionary, mine_set: D
 			continue
 		revealed[idx] = true
 		if adjacency[idx] == 0:
-			for neighbor: int in _neighbors(idx, width, height):
+			for neighbor: int in _SCHEMA.neighbors(idx, width, height):
 				if not revealed.has(neighbor) and not mine_set.has(neighbor):
 					pending.append(neighbor)
 
@@ -384,37 +384,6 @@ static func _index_array(value: Variant, total_cells: int) -> Dictionary:
 		indices.append(index)
 	indices.sort()
 	return {"ok": true, "value": indices}
-
-
-static func _recompute_adjacency(mine_set: Dictionary, width: int, height: int) -> Array[int]:
-	var counts: Array[int] = []
-	counts.resize(width * height)
-	for index in range(width * height):
-		if mine_set.has(index):
-			counts[index] = 0
-			continue
-		var count := 0
-		for neighbor: int in _neighbors(index, width, height):
-			if mine_set.has(neighbor):
-				count += 1
-		counts[index] = count
-	return counts
-
-
-static func _neighbors(index: int, width: int, height: int) -> Array[int]:
-	var x: int = index % width
-	var y: int = index / width
-	var result: Array[int] = []
-	for dy in range(-1, 2):
-		for dx in range(-1, 2):
-			if dx == 0 and dy == 0:
-				continue
-			var nx: int = x + dx
-			var ny: int = y + dy
-			if nx >= 0 and nx < width and ny >= 0 and ny < height:
-				result.append(ny * width + nx)
-	result.sort()
-	return result
 
 
 static func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary:

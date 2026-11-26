@@ -12,6 +12,43 @@ static func defaults() -> Dictionary:
 		result[String(record.id)] = {"keyboard": record.keyboard, "controller": record.controller}
 	return result
 
+static func prepare_import(legacy: Dictionary) -> Dictionary:
+	var candidate := defaults()
+	var issues: Array[Dictionary] = []
+	for registered in REGISTRY.records():
+		var action := String(registered.id)
+		if action not in REGISTRY.TRANSFER_ACTIONS: continue
+		if not legacy.has(action) or not legacy[action] is Array:
+			issues.append({"code": &"invalid_legacy_action", "action": action})
+			continue
+		var slots := {"keyboard": [], "controller": []}
+		for index: int in range(legacy[action].size()):
+			var record: Variant = legacy[action][index]
+			if not record is Dictionary or record.get("kind") not in ["key", "joypad_button"]:
+				issues.append({"code": &"unsupported_legacy_record", "action": action, "index": index})
+				continue
+			var slot := "keyboard" if record.kind == "key" else "controller"
+			slots[slot].append(record)
+		for slot: String in slots:
+			if slots[slot].is_empty():
+				continue
+			if slots[slot].size() > 1:
+				issues.append({"code": &"multiple_legacy_records", "action": action, "slot": slot, "count": slots[slot].size()})
+				continue
+			var record: Dictionary = slots[slot][0]
+			var supported := _validate_binding(record, slot, registered.contexts)
+			if not supported.ok:
+				supported.action = action
+				supported.slot = slot
+				issues.append(supported)
+				continue
+			candidate[action][slot] = record.duplicate()
+	var complete := validate(candidate)
+	if not complete.ok:
+		issues.append(complete)
+	var pending := not issues.is_empty()
+	return {"bindings": defaults() if pending else candidate, "pending": pending, "issues": issues}
+
 static func validate(bindings: Variant) -> Dictionary:
 	return _validate(bindings, REGISTRY.records())
 

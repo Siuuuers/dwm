@@ -10,7 +10,7 @@ const SCHEMA := preload("res://scripts/localization/LocalizationSchema.gd")
 const ROOT := preload("res://scripts/ui/LocalePresentationRoot.gd")
 const FIXTURES := preload("res://tests/unit/test_localization.gd")
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
-const GALLERY := preload("res://scripts/ui/gallery/GalleryTypography.gd")
+const GALLERY := preload("res://scripts/ui/gallery/GalleryTheme.gd")
 const LOCALES := ["en", "zh_CN", "zh_HK", "ja", "ko"]
 const MEMORY_ROOT := "japanese-korean-ui.memory"
 
@@ -163,9 +163,10 @@ func test_ui_and_gallery_use_native_pixel_masters_at_their_intended_sizes() -> v
 			var font := TYPOGRAPHY.font(language, percent) as FontFile
 			assert_not_null(font)
 			if font == null: continue
-			assert_eq(font, GALLERY.font(language, percent))
 			assert_eq(TYPOGRAPHY.font_size(language, percent, 20), int(24 * percent / 100.0))
-			assert_eq(GALLERY.font_size(percent), int(16 * percent / 100.0))
+			var theme := GALLERY.build(language, percent, &"after_hours")
+			assert_same(theme.default_font, font)
+			assert_eq(theme.default_font_size, int(16 * percent / 100.0))
 			assert_eq(font.antialiasing, TextServer.FONT_ANTIALIASING_NONE)
 			assert_eq(font.hinting, TextServer.HINTING_NONE)
 			assert_eq(font.subpixel_positioning, TextServer.SUBPIXEL_POSITIONING_DISABLED)

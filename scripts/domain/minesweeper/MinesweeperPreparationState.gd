@@ -2,6 +2,7 @@ class_name MinesweeperPreparationState
 extends RefCounted
 
 
+const _BOARD_SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
 const _KERNEL := preload("res://scripts/domain/minesweeper/MinesweeperGeneratorKernel.gd")
 
 
@@ -13,7 +14,7 @@ static func make(kernel_spec: Dictionary, forced_cell: int, mode: StringName,
 
 
 static func check(state: Dictionary) -> Dictionary:
-	var shape := _exact_keys(state, _KERNEL.FRONTIER_KEYS, &"preparation_member_set_invalid")
+	var shape := _BOARD_SCHEMA.check_keys(state, _KERNEL.FRONTIER_KEYS, &"preparation_member_set_invalid")
 	if not shape.get("ok", false):
 		return shape
 	if not _KERNEL.is_legal_status(state.get("status")):
@@ -24,10 +25,10 @@ static func check(state: Dictionary) -> Dictionary:
 	if not (state["mode"] is StringName or state["mode"] is String) or not _KERNEL.MODES.has(StringName(state["mode"])):
 		return _fail(&"preparation_mode_invalid", "mode must be candidate_search or fallback_construction", {})
 
-	var spec_check: Dictionary = _KERNEL.validate_spec(state["spec"])
+	var spec: Dictionary = state["spec"]
+	var spec_check := _BOARD_SCHEMA.check_spec(spec, true)
 	if not spec_check.get("ok", false):
 		return spec_check
-	var spec: Dictionary = (spec_check["value"] as Dictionary)["spec"]
 	var width: int = int(spec["width"])
 	var height: int = int(spec["height"])
 	var total_cells: int = width * height
@@ -170,17 +171,6 @@ static func _validate_candidate_state(candidate_state: Variant, spec: Dictionary
 	for entry: Variant in (dispositions_v as Array):
 		if typeof(entry) != TYPE_STRING or not ["hatred", "upset", "amused"].has(String(entry)):
 			return _fail(&"preparation_candidate_state_invalid", "an unknown mine disposition was recorded", {})
-	return {"ok": true}
-
-
-static func _exact_keys(value: Dictionary, expected: Array, code: StringName) -> Dictionary:
-	if typeof(value) != TYPE_DICTIONARY:
-		return _fail(code, "value must be a dictionary", {})
-	if value.size() != expected.size():
-		return _fail(code, "expected %d members, saw %d" % [expected.size(), value.size()], {"size": value.size()})
-	for key: String in expected:
-		if not value.has(key):
-			return _fail(code, "missing member: %s" % key, {"missing": key})
 	return {"ok": true}
 
 

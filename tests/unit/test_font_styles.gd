@@ -1,7 +1,6 @@
 extends "res://addons/gut/test.gd"
 
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
-const GALLERY_TYPE := preload("res://scripts/ui/gallery/GalleryTypography.gd")
 const DESKTOP := preload("res://scripts/ui/desktop/DesktopTheme.gd")
 const MINES := preload("res://scripts/ui/minesweeper/MinesweeperTheme.gd")
 const SHOP := preload("res://scripts/ui/shop/ShopTheme.gd")
@@ -30,8 +29,7 @@ func test_explicit_style_resolves_locale_correct_faces_and_size_contracts() -> v
 				var base := 24 if style == "pixel" else 20
 				assert_eq(TYPOGRAPHY.font_size(locale, percent, 20, style), int(base * percent / 100.0))
 				assert_eq(TYPOGRAPHY.font_size(locale, percent, 24, style), int(24 * percent / 100.0))
-				assert_same(GALLERY_TYPE.font(locale, percent, style), font)
-				assert_eq(GALLERY_TYPE.font_size(percent), int(16 * percent / 100.0))
+				assert_eq(TYPOGRAPHY.gallery_font_size(percent), int(16 * percent / 100.0))
 				assert_true(font.fallbacks.is_empty(), "Primary faces do not acquire another theme's fallback list")
 				if style == "pixel":
 					pixel_paths[font.resource_path] = true
@@ -80,7 +78,7 @@ func test_every_theme_uses_requested_style_and_all_caption_font_slots() -> void:
 					var actual: Font = theme.default_font.base_font if theme.default_font is FontVariation else theme.default_font
 					assert_same(actual, font, "Theme %d honors %s/%s/%d" % [index, locale, style, percent])
 					var base := 20 if index in [1, 2, 6] else 24
-					var expected_size := GALLERY_TYPE.font_size(percent) if index == 5 else TYPOGRAPHY.font_size(locale, percent, base, style)
+					var expected_size := TYPOGRAPHY.gallery_font_size(percent) if index == 5 else TYPOGRAPHY.font_size(locale, percent, base, style)
 					assert_eq(theme.default_font_size, expected_size)
 				var caption: Theme = themes[6]
 				for slot: StringName in [&"normal_font", &"bold_font", &"italics_font", &"bold_italics_font", &"mono_font"]:
@@ -137,7 +135,7 @@ func test_story_fallbacks_preserve_shared_primary_faces() -> void:
 		for percent: int in PERCENTS:
 			for style: String in STYLES:
 				var primary := TYPOGRAPHY.font(locale, percent, style) as FontFile
-				var size := GALLERY_TYPE.font_size(percent)
+				var size := TYPOGRAPHY.gallery_font_size(percent)
 				var metrics := Vector2(primary.get_ascent(size), primary.get_descent(size))
 				var story := TYPOGRAPHY.story_font(locale, percent, style)
 				assert_not_same(story, primary)

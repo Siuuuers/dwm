@@ -4,17 +4,11 @@ extends "res://addons/gut/test.gd"
 # MinesweeperCapabilityRules is a brand-new file with no frozen-class precedent, so its
 # interface matches the brief exactly and the verbatim composition example runs unmodified.
 
-const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const RULES := preload("res://scripts/domain/minesweeper/MinesweeperCapabilityRules.gd")
 const SHOP_REGISTRY := preload("res://scripts/domain/shop/MinesweeperShopRegistry.gd")
 
 const _DAY := "day-alpha"
 const _OTHER_DAY := "day-beta"
-
-
-func test_capability_rules_script_loads() -> void:
-	var loaded: Dictionary = PROBE.load_script("res://scripts/domain/minesweeper/MinesweeperCapabilityRules.gd")
-	assert_true(loaded.get("ok", false), "MinesweeperCapabilityRules.gd must load")
 
 
 # ---- resolve_owned: composition ----

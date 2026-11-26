@@ -17,6 +17,15 @@ const _BLANK_CHECK_FIELDS := [
 	"placement_nonce_receipt_id", "debug_nonce", "debug_nonce_receipt_id", "explosion_nonce",
 	"explosion_nonce_receipt_id",
 ]
+const GENERATOR_SPEC_KEYS := [
+	"schema_version", "board_kind", "difficulty_id", "width", "height", "base_mine_count",
+	"raw_extra_mines", "requested_mine_count", "capability_ids", "placement_stream_id",
+	"placement_nonce", "debug_stream_id", "debug_nonce", "explosion_stream_id", "explosion_nonce",
+	"generator_version", "verifier_version",
+]
+const _GENERATOR_BLANK_CHECK_FIELDS := [
+	"difficulty_id", "placement_nonce", "debug_nonce", "explosion_nonce",
+]
 const _BOARD_KINDS := ["desktop", "solo_challenge", "pair_challenge"]
 const _PLACEMENT_STREAM_ID := "minesweeper_placement_v1"
 const _DEBUG_STREAM_ID := "minesweeper_debug_v1"
@@ -33,8 +42,8 @@ const _BOARD_KEYS := [
 const _ACTION_KINDS: Array[StringName] = [&"reveal", &"set_flag", &"chord"]
 
 
-static func check_spec(spec: Dictionary) -> Dictionary:
-	var shape := _exact_keys(spec, _SPEC_KEYS, &"spec_member_set_invalid")
+static func check_spec(spec: Dictionary, generator_only: bool = false) -> Dictionary:
+	var shape := check_keys(spec, GENERATOR_SPEC_KEYS if generator_only else _SPEC_KEYS, &"spec_member_set_invalid")
 	if not shape.get("ok", false):
 		return shape
 	if typeof(spec["schema_version"]) != TYPE_INT or int(spec["schema_version"]) != 1:
@@ -42,7 +51,7 @@ static func check_spec(spec: Dictionary) -> Dictionary:
 	var board_kind: Variant = spec["board_kind"]
 	if typeof(board_kind) != TYPE_STRING or not _BOARD_KINDS.has(String(board_kind)):
 		return _fail(&"spec_field_invalid", "board_kind must be one of the frozen kinds", {"field": "board_kind"})
-	for field: String in _BLANK_CHECK_FIELDS:
+	for field: String in (_GENERATOR_BLANK_CHECK_FIELDS if generator_only else _BLANK_CHECK_FIELDS):
 		var nonblank := _nonblank_string(spec.get(field), field)
 		if not nonblank.get("ok", false):
 			return nonblank
@@ -56,27 +65,31 @@ static func check_spec(spec: Dictionary) -> Dictionary:
 	var base_mine_count_v: Variant = spec["base_mine_count"]
 	if typeof(base_mine_count_v) != TYPE_INT or int(base_mine_count_v) < 0:
 		return _fail(&"spec_field_invalid", "base_mine_count must be a nonnegative integer", {"field": "base_mine_count"})
-	var pressure_v: Variant = spec["pressure"]
-	if typeof(pressure_v) != TYPE_INT or int(pressure_v) < 0:
-		return _fail(&"spec_field_invalid", "pressure must be a nonnegative integer", {"field": "pressure"})
-	var penalty_v: Variant = spec["penalty_points_today"]
-	if typeof(penalty_v) != TYPE_INT or int(penalty_v) < 0:
-		return _fail(&"spec_field_invalid", "penalty_points_today must be a nonnegative integer",
-			{"field": "penalty_points_today"})
-
-	var expected_raw_extra: int = floori(float(pressure_v) / 3.0) + int(penalty_v)
 	var raw_extra_v: Variant = spec["raw_extra_mines"]
-	if typeof(raw_extra_v) != TYPE_INT or int(raw_extra_v) != expected_raw_extra:
-		return _fail(&"spec_field_invalid",
-			"raw_extra_mines must equal floor(pressure/3)+penalty_points_today",
-			{"field": "raw_extra_mines", "expected": expected_raw_extra, "actual": raw_extra_v})
+	if generator_only:
+		if typeof(raw_extra_v) != TYPE_INT or int(raw_extra_v) < 0:
+			return _fail(&"spec_field_invalid", "raw_extra_mines must be a nonnegative integer", {"field": "raw_extra_mines"})
+	else:
+		var pressure_v: Variant = spec["pressure"]
+		if typeof(pressure_v) != TYPE_INT or int(pressure_v) < 0:
+			return _fail(&"spec_field_invalid", "pressure must be a nonnegative integer", {"field": "pressure"})
+		var penalty_v: Variant = spec["penalty_points_today"]
+		if typeof(penalty_v) != TYPE_INT or int(penalty_v) < 0:
+			return _fail(&"spec_field_invalid", "penalty_points_today must be a nonnegative integer",
+				{"field": "penalty_points_today"})
+
+		var expected_raw_extra: int = floori(float(pressure_v) / 3.0) + int(penalty_v)
+		if typeof(raw_extra_v) != TYPE_INT or int(raw_extra_v) != expected_raw_extra:
+			return _fail(&"spec_field_invalid",
+				"raw_extra_mines must equal floor(pressure/3)+penalty_points_today",
+				{"field": "raw_extra_mines", "expected": expected_raw_extra, "actual": raw_extra_v})
 
 	var requested_v: Variant = spec["requested_mine_count"]
 	if typeof(requested_v) != TYPE_INT:
 		return _fail(&"spec_field_invalid", "requested_mine_count must be an integer", {"field": "requested_mine_count"})
 	var requested: int = int(requested_v)
 	var base: int = int(base_mine_count_v)
-	if requested < base or requested > base + expected_raw_extra:
+	if requested < base or requested > base + int(raw_extra_v):
 		return _fail(&"spec_field_invalid",
 			"requested_mine_count must be between base_mine_count and base_mine_count+raw_extra_mines",
 			{"field": "requested_mine_count"})
@@ -109,7 +122,7 @@ static func validate_layout(layout: Dictionary, spec: Dictionary) -> Dictionary:
 	var spec_check := check_spec(spec)
 	if not spec_check.get("ok", false):
 		return spec_check
-	var shape := _exact_keys(layout, _LAYOUT_KEYS, &"layout_member_set_invalid")
+	var shape := check_keys(layout, _LAYOUT_KEYS, &"layout_member_set_invalid")
 	if not shape.get("ok", false):
 		return shape
 	if typeof(layout["schema_version"]) != TYPE_INT or int(layout["schema_version"]) != 1:
@@ -149,7 +162,7 @@ static func validate_layout(layout: Dictionary, spec: Dictionary) -> Dictionary:
 
 
 static func check_board(board: Dictionary) -> Dictionary:
-	var shape := _exact_keys(board, _BOARD_KEYS, &"board_member_set_invalid")
+	var shape := check_keys(board, _BOARD_KEYS, &"board_member_set_invalid")
 	if not shape.get("ok", false):
 		return shape
 	if not _is_int_like(board["schema_version"]) or int(board["schema_version"]) != 1:
@@ -199,7 +212,7 @@ static func check_board(board: Dictionary) -> Dictionary:
 	if typeof(adjacency_v) != TYPE_ARRAY or (adjacency_v as Array).size() != total_cells:
 		return _fail(&"board_field_invalid", "adjacency_counts must have width*height entries",
 			{"field": "adjacency_counts"})
-	var expected_adjacency := _recompute_adjacency(mine_set, width, height)
+	var expected_adjacency := adjacency_counts(mine_set, width, height)
 	var adjacency_array: Array = adjacency_v
 	for index in range(total_cells):
 		if not _is_int_like(adjacency_array[index]) or int(adjacency_array[index]) != expected_adjacency[index]:
@@ -295,7 +308,7 @@ static func _sorted_unique_indices(value: Variant, total_cells: int) -> Dictiona
 	return {"ok": true, "value": indices}
 
 
-static func _recompute_adjacency(mine_set: Dictionary, width: int, height: int) -> Array[int]:
+static func adjacency_counts(mine_set: Dictionary, width: int, height: int) -> Array[int]:
 	var counts: Array[int] = []
 	counts.resize(width * height)
 	for index in range(width * height):
@@ -303,14 +316,14 @@ static func _recompute_adjacency(mine_set: Dictionary, width: int, height: int) 
 			counts[index] = 0
 			continue
 		var count := 0
-		for neighbor: int in _neighbors(index, width, height):
+		for neighbor: int in neighbors(index, width, height):
 			if mine_set.has(neighbor):
 				count += 1
 		counts[index] = count
 	return counts
 
 
-static func _neighbors(index: int, width: int, height: int) -> Array[int]:
+static func neighbors(index: int, width: int, height: int) -> Array[int]:
 	var x: int = index % width
 	var y: int = index / width
 	var result: Array[int] = []
@@ -322,11 +335,10 @@ static func _neighbors(index: int, width: int, height: int) -> Array[int]:
 			var ny: int = y + dy
 			if nx >= 0 and nx < width and ny >= 0 and ny < height:
 				result.append(ny * width + nx)
-	result.sort()
 	return result
 
 
-static func _exact_keys(value: Dictionary, expected: Array, code: StringName) -> Dictionary:
+static func check_keys(value: Dictionary, expected: Array, code: StringName) -> Dictionary:
 	if value.size() != expected.size():
 		return _fail(code, "expected %d members, saw %d" % [expected.size(), value.size()], {"size": value.size()})
 	for key: String in expected:

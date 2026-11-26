@@ -2,7 +2,6 @@ extends Node
 signal load_cancelled
 signal load_finished(result: Dictionary)
 const EDGE := preload("res://scripts/ui/desktop/QuickStatusEdge.gd")
-const COPY := preload("res://scripts/ui/BackupApp.gd").COPY
 const BACKUP_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 const ACTIONS := {&"game_quick_save": "save", &"game_quick_load": "load"}
 
@@ -170,7 +169,11 @@ func _request(action: String) -> void:
 	_condition = prepared.value.condition.duplicate()
 	if action == "load":
 		edge.clear_status()
-		var shown: Dictionary = _surface.present_quick_confirmation(_load_copy(prepared.value.record), _confirm_load, _cancel_load)
+		var modal_theme := BACKUP_THEME.build(_surface._locale, _surface._percent,
+			&"midnight" if _surface._palette == "Midnight" else &"after_hours", _surface._day,
+			_surface._high_contrast, _surface._colour_preset, _surface._font_style)
+		var request := BackupApp.quick_load_confirmation(prepared.value.record, _surface._locale, modal_theme)
+		var shown: Dictionary = _surface.present_quick_confirmation(request, _confirm_load, _cancel_load)
 		if shown.get("ok", false): _confirmation = shown.value.confirmation
 		else: _cancel_load()
 		return
@@ -237,16 +240,7 @@ func _restore_focus() -> void:
 	var backup: Control = _surface._hosts.get(&"backup")
 	if _return_host != &"backup" or _surface.entered_action != &"backup" \
 			or not is_instance_valid(backup) or not backup.can_return_home(): return
-	var replacement: Control
-	if _return_semantic.begins_with("action:"):
-		replacement = backup.action_buttons.get(_return_semantic.trim_prefix("action:"))
-	elif _return_semantic.begins_with("mode:"):
-		replacement = backup.mode_buttons.get(_return_semantic.trim_prefix("mode:"))
-	elif _return_semantic == "information": replacement = backup.info_scroll
-	if not is_instance_valid(replacement) or replacement.get_focus_mode_with_override() == Control.FOCUS_NONE:
-		replacement = backup.drawer_buttons.get(backup.selected_locator)
-	if is_instance_valid(replacement) and replacement.get_focus_mode_with_override() != Control.FOCUS_NONE:
-		replacement.grab_focus()
+	backup.restore_quick_focus(_return_semantic)
 
 func _publish(key: String, condition: Dictionary, source: Dictionary) -> void:
 	if not is_instance_valid(edge): return
@@ -283,14 +277,3 @@ func _process(delta: float) -> void:
 		edge.set_presentation(presentation.locale, presentation.percent, presentation.font)
 		edge.theme = _surface.theme
 	edge.set_eligible(admitted)
-
-func _load_copy(record: Dictionary) -> Dictionary:
-	var copy: Dictionary = COPY.get(_surface._locale, COPY.en)
-	var time: Variant = record.get("saved_time")
-	var stamp := str(time) if time != null else "--:--"
-	var body: String = stamp + "\n\n" + copy.replace_progress
-	return {"title": copy.load_title.replace("{record}", copy.quick),
-		"body": body, "cancel": copy.cancel, "confirm": copy.load, "risk": "danger",
-		"theme": BACKUP_THEME.build(_surface._locale, _surface._percent,
-			&"midnight" if _surface._palette == "Midnight" else &"after_hours", _surface._day,
-			_surface._high_contrast, _surface._colour_preset, _surface._font_style)}

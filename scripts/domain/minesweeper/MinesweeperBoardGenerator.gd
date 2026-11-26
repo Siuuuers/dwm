@@ -324,7 +324,7 @@ static func _load_budget_manifest() -> Dictionary:
 
 
 static func validate_budget_schema(budget: Dictionary) -> Dictionary:
-	var shape := _exact_keys(budget, _BUDGET_KEYS, &"budget_member_set_invalid")
+	var shape := _BOARD_SCHEMA.check_keys(budget, _BUDGET_KEYS, &"budget_member_set_invalid")
 	if not shape.get("ok", false):
 		return shape
 	if typeof(budget["schema_version"]) != TYPE_INT or int(budget["schema_version"]) != 1:
@@ -335,7 +335,7 @@ static func validate_budget_schema(budget: Dictionary) -> Dictionary:
 	var device: Variant = budget["device_evidence"]
 	if typeof(device) != TYPE_DICTIONARY:
 		return _fail(&"budget_field_invalid", "device_evidence must be an object", {})
-	var device_shape := _exact_keys(device, _DEVICE_EVIDENCE_KEYS, &"budget_device_evidence_invalid")
+	var device_shape := _BOARD_SCHEMA.check_keys(device, _DEVICE_EVIDENCE_KEYS, &"budget_device_evidence_invalid")
 	if not device_shape.get("ok", false):
 		return device_shape
 	if String((device as Dictionary).get("declaration", "")) != "lowest_target_windows_v1":
@@ -351,7 +351,7 @@ static func validate_budget_schema(budget: Dictionary) -> Dictionary:
 	var sources: Variant = budget["source_sha256"]
 	if typeof(sources) != TYPE_DICTIONARY:
 		return _fail(&"budget_field_invalid", "source_sha256 must be an object", {})
-	var sources_shape := _exact_keys(sources, _SOURCE_SHA256_KEYS, &"budget_source_sha256_invalid")
+	var sources_shape := _BOARD_SCHEMA.check_keys(sources, _SOURCE_SHA256_KEYS, &"budget_source_sha256_invalid")
 	if not sources_shape.get("ok", false):
 		return sources_shape
 	for key: String in _SOURCE_SHA256_KEYS:
@@ -380,7 +380,7 @@ static func _validate_row_shape(entry: Variant) -> Dictionary:
 	if typeof(entry) != TYPE_DICTIONARY:
 		return _fail(&"budget_row_invalid", "each row must be an object", {})
 	var row: Dictionary = entry
-	var shape := _exact_keys(row, _ROW_KEYS, &"budget_row_member_set_invalid")
+	var shape := _BOARD_SCHEMA.check_keys(row, _ROW_KEYS, &"budget_row_member_set_invalid")
 	if not shape.get("ok", false):
 		return shape
 	if not (String(row["kind"]) == "search" or String(row["kind"]) == "fallback"):
@@ -439,7 +439,7 @@ static func _load_fallback_manifest() -> Dictionary:
 
 
 static func validate_fallback_schema(artifact: Dictionary) -> Dictionary:
-	var shape := _exact_keys(artifact, _FALLBACK_MANIFEST_KEYS, &"fallback_member_set_invalid")
+	var shape := _BOARD_SCHEMA.check_keys(artifact, _FALLBACK_MANIFEST_KEYS, &"fallback_member_set_invalid")
 	if not shape.get("ok", false):
 		return shape
 	if typeof(artifact["schema_version"]) != TYPE_INT or int(artifact["schema_version"]) != 1:
@@ -459,7 +459,7 @@ static func validate_fallback_schema(artifact: Dictionary) -> Dictionary:
 		if typeof(entry) != TYPE_DICTIONARY:
 			return _fail(&"fallback_record_invalid", "each record must be an object", {})
 		var record: Dictionary = entry
-		var record_shape := _exact_keys(record, _FALLBACK_RECORD_KEYS, &"fallback_record_member_set_invalid")
+		var record_shape := _BOARD_SCHEMA.check_keys(record, _FALLBACK_RECORD_KEYS, &"fallback_record_member_set_invalid")
 		if not record_shape.get("ok", false):
 			return record_shape
 		if typeof(record["difficulty_id"]) != TYPE_STRING or String(record["difficulty_id"]).is_empty():
@@ -511,17 +511,6 @@ static func _is_sha256_hex(value: Variant) -> bool:
 		if not (is_digit or is_lower_hex):
 			return false
 	return true
-
-
-static func _exact_keys(value: Dictionary, expected: Array, code: StringName) -> Dictionary:
-	if typeof(value) != TYPE_DICTIONARY:
-		return _fail(code, "value must be a dictionary", {})
-	if value.size() != expected.size():
-		return _fail(code, "expected %d members, saw %d" % [expected.size(), value.size()], {"size": value.size()})
-	for key: String in expected:
-		if not value.has(key):
-			return _fail(code, "missing member: %s" % key, {"missing": key})
-	return {"ok": true}
 
 
 static func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary:

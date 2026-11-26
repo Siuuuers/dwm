@@ -25,7 +25,6 @@ const PREFERENCE_REGISTRY := preload("res://scripts/settings/SettingsPreferenceR
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const CONTROLS_RULES := preload("res://scripts/settings/ControlsBindingRules.gd")
-const CONTROLS_IMPORT := preload("res://scripts/settings/ControlsBindingImport.gd")
 
 const SCENE_NEW_RUN_MATERIAL_KEYS := ["before", "candidate", "profile_revision", "source_revision",
 	"outgoing_text", "outgoing_hash", "scene_assignment"]
@@ -893,7 +892,7 @@ func get_controls_binding_snapshot() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {
 		"bindings": _profile.controls_bindings.duplicate(true),
 		"revision": _profile_revision, "import_pending": pending,
-		"import_issues": CONTROLS_IMPORT.prepare(_profile.input_mappings).issues if pending else [],
+		"import_issues": CONTROLS_RULES.prepare_import(_profile.input_mappings).issues if pending else [],
 	}}
 
 
@@ -912,7 +911,7 @@ func get_controls_import_review() -> Dictionary:
 		"revision": _profile_revision,
 		"bindings": _profile.controls_bindings.duplicate(true),
 		"legacy_bindings": _profile.input_mappings.duplicate(true),
-		"issues": CONTROLS_IMPORT.prepare(_profile.input_mappings).issues,
+		"issues": CONTROLS_RULES.prepare_import(_profile.input_mappings).issues,
 	}}
 
 

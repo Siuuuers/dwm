@@ -114,7 +114,7 @@ func prepare_advance(request: Dictionary) -> Dictionary:
 			&"causal_day_advance_source_resolution_receipt_id_invalid",
 			"source_resolution_receipt.receipt_id")
 
-	var before := _capture_root()
+	var before: Dictionary = _identity_issuer.call(&"capture_root")
 	if not before.get("ok", false):
 		return before
 	var before_root: Dictionary = before["value"]
@@ -201,7 +201,7 @@ func prepare_advance(request: Dictionary) -> Dictionary:
 		"target_causal_day_instance": str(target_receipt.get("token", "")),
 		"target_causal_day_instance_issuer_receipt": target_receipt,
 		"request_sha256": str(request_sha256["value"]),
-		"root_before_fingerprint": _root_fingerprint(before_root),
+		"root_before_fingerprint": _sha256(before_root).get("value", ""),
 		"counter_start": counter_start,
 		"counter_end": counter_start + 1,
 		"disposition": DISPOSITION_ALLOCATED,
@@ -309,39 +309,21 @@ func _ensure_source_tuple_uniqueness(request: Dictionary, document: Dictionary) 
 		if str(key) == current_key:
 			continue
 		var recorded := existing[key] as Dictionary
-		if _tuple_equals(tuple, _tuple_from_receipt(recorded)):
+		if tuple == _source_tuple_key(recorded):
 			return _failed(&"causal_day_advance_identity_conflict", str(key))
 	return {"ok": true}
 
 
-func _source_tuple_key(request: Dictionary) -> Array:
+func _source_tuple_key(source: Dictionary) -> Array:
 	var tuple: Array = [
-		str(request["run_id"]),
-		str(request["branch_id"]),
-		int(request["desktop_timeline_generation"]),
-		str(request["source_causal_day_instance"]),
+		str(source.get("run_id", "")),
+		str(source.get("branch_id", "")),
+		int(source.get("desktop_timeline_generation", 0)),
+		str(source.get("source_causal_day_instance", "")),
 	]
-	if not _is_scene(request):
-		tuple.append(int(request["source_day"]))
+	if not _is_scene(source):
+		tuple.append(int(source.get("source_day", 0)))
 	return tuple
-
-
-func _tuple_from_receipt(receipt: Dictionary) -> Array:
-	var tuple: Array = [
-		str(receipt.get("run_id", "")),
-		str(receipt.get("branch_id", "")),
-		int(receipt.get("desktop_timeline_generation", 0)),
-		str(receipt.get("source_causal_day_instance", "")),
-	]
-	if not _is_scene(receipt):
-		tuple.append(int(receipt.get("source_day", 0)))
-	return tuple
-
-
-func _tuple_equals(a: Array, b: Array) -> bool:
-	if a.size() != b.size() or not a.size() in [4, 5]:
-		return false
-	return a == b
 
 
 func _map_prepare_failure(prepared: Dictionary) -> Dictionary:
@@ -358,17 +340,6 @@ func _map_commit_failure(committed: Dictionary) -> Dictionary:
 		"causal_day_advance_conflict":
 			return _failed(&"causal_day_advance_identity_conflict", str(committed.get("message", "")))
 	return _failed(&"causal_day_advance_identity_commit_rejected", str(committed.get("message", code)))
-
-
-func _capture_root() -> Dictionary:
-	return _identity_issuer.call(&"capture_root")
-
-
-func _root_fingerprint(document: Dictionary) -> String:
-	var emitted := CANONICAL_JSON.stringify(document)
-	if not emitted.get("ok", false):
-		return ""
-	return String(emitted["value"]).sha256_text()
 
 
 func _prepared_result(receipt: Dictionary) -> Dictionary:

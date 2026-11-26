@@ -1,5 +1,6 @@
 extends RefCounted
 
+const CALENDAR := preload("res://scripts/domain/contact/SevenDayCalendar.gd")
 const CATALOG := preload("res://scripts/domain/minesweeper/MinesweeperBoardCatalog.gd")
 const BOARD := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
 const REDUCER := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")
@@ -377,10 +378,9 @@ static func semantic_slot(context: Dictionary) -> String:
 	var day: int = context.day
 	if context.get("kind") == "solo" and context.participants.size() == 1:
 		var friend: String = str(context.participants[0])
-		var windows := {"priscilla": [1, 2, 4, 6], "lavinia": [2, 3, 5, 6], "sylvia": [1, 3, 4, 5]}
-		if windows.has(friend) and day in windows[friend]: return "dating.solo.%s.day%d" % [friend, day]
+		if CALENDAR.is_solo_day(friend, day): return "dating.solo.%s.day%d" % [friend, day]
 	if context.get("kind") in ["group", "twofriends_if_deferred"] \
-			and context.participants == ["priscilla", "lavinia"] and day in [2, 6]:
+			and context.participants == ["priscilla", "lavinia"] and CALENDAR.is_group_day(day):
 		return "dating.pair.priscilla_lavinia.day%d" % day
 	return ""
 

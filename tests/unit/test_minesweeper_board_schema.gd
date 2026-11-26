@@ -4,7 +4,6 @@ extends "res://addons/gut/test.gd"
 # MinesweeperBoardReducer behavioral coverage live together here per the task brief (downstream
 # gates name suites by exact path -- this is the one named home for reducer cases).
 
-const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
 const REDUCER := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")
 
@@ -41,18 +40,6 @@ const VALID_SPEC := {
 const LAYOUT_4X4 := {
 	"schema_version": 1, "width": 4, "height": 4, "mine_indices": [2, 3, 10], "mine_count": 3,
 }
-
-
-# ---- Step 3.1 parse proof ----
-
-func test_schema_script_loads() -> void:
-	var loaded: Dictionary = PROBE.load_script("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
-	assert_true(loaded.get("ok", false), "MinesweeperBoardSchema.gd must load")
-
-
-func test_reducer_script_loads() -> void:
-	var loaded: Dictionary = PROBE.load_script("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")
-	assert_true(loaded.get("ok", false), "MinesweeperBoardReducer.gd must load")
 
 
 # ==== MinesweeperBoardSchema.check_spec ====

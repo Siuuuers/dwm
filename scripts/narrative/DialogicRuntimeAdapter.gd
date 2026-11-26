@@ -526,7 +526,7 @@ static func _compile_scene_programme_observed_body(path: String, entry_label: St
 		result["message"] = "%s:%d: %s" % [path, int(result.get("line", 1)), str(result.get("code", "scene_compile_error"))]
 	if cacheable and result.get("ok", false):
 		if cached.results.size() >= 256: cached.results.clear()
-		preload("res://scripts/narrative/DialogicEntryManifest.gd")._scene_freeze(result)
+		FrozenPresentationContext._freeze(result)
 		cached.results[key] = result
 	return result
 

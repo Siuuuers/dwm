@@ -1,6 +1,5 @@
 extends RefCounted
 const REGISTRY := preload("res://scripts/settings/ControlsActionRegistry.gd")
-const TRANSFER_ACTIONS := ["game_quick_save", "game_quick_load", "game_new_board"]
 
 static func rows(legacy: Dictionary, locale: String, lookup: Callable) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
@@ -15,7 +14,7 @@ static func rows(legacy: Dictionary, locale: String, lookup: Callable) -> Array[
 		for record: Dictionary in legacy[action]:
 			bindings.append(_record_label(record, lookup))
 		if bindings.is_empty(): bindings.append(_text(lookup, "settings.controls.import.no_binding"))
-		result.append({"action_id": action, "label": label, "bindings": bindings, "retired": action not in TRANSFER_ACTIONS})
+		result.append({"action_id": action, "label": label, "bindings": bindings, "retired": action not in REGISTRY.TRANSFER_ACTIONS})
 	return result
 
 static func _record_label(record: Dictionary, lookup: Callable) -> String:

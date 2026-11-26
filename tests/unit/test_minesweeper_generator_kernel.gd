@@ -5,7 +5,6 @@ extends "res://addons/gut/test.gd"
 # empirically in task-4-report.md via a throwaway calibration probe (deleted before commit), not by
 # iterating every cell of every real difficulty inside this GUT suite.
 
-const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const KERNEL := preload("res://scripts/domain/minesweeper/MinesweeperGeneratorKernel.gd")
 const RNG := preload("res://scripts/domain/minesweeper/DeterministicRng32.gd")
 
@@ -16,13 +15,6 @@ var _fixture: Dictionary
 
 func before_each() -> void:
 	_fixture = JSON.parse_string(FileAccess.get_file_as_string(FIXTURE_PATH))
-
-
-# ---- Step 4.1 parse proof ----
-
-func test_kernel_script_loads() -> void:
-	var loaded: Dictionary = PROBE.load_script("res://scripts/domain/minesweeper/MinesweeperGeneratorKernel.gd")
-	assert_true(loaded.get("ok", false), "MinesweeperGeneratorKernel.gd must load")
 
 
 # ---- shared spec/state builders ----

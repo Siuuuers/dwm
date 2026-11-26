@@ -1,4 +1,4 @@
-extends "res://addons/gut/test.gd"
+extends "res://tests/integration/dialogic_runtime_fixture.gd"
 ## Semantic restore uses the real mounted Dialogic coroutine. Fixture text and
 ## catalogue are non-canon; this suite installs no Profile/Run writer.
 
@@ -20,23 +20,10 @@ class HeldRevealPort extends RefCounted:
 			return {"ok": false, "code": &"invalid_suspension_handle"}
 		return adapter.complete_paused_reading_frontier(node)
 
-var _runtime: DialogicGameHandler
-var _adapter: DialogicRuntimeAdapter
 var _ledger: NarrativeCaptionLedger
-var _viewport: SubViewport
-var _original_runtime: Node
-var _original_runtime_index := 0
-var _original_layout: Node
-var _original_layout_parent: Node
-var _original_layout_index := 0
-var _settings: Dictionary = {}
-var _style_directory: Dictionary = {}
-var _persistent: Variant
-var _had_persistent := false
 var _results: Array[Dictionary] = []
 var _completion_at_publication: Array[bool] = []
 var _restored: Array[Dictionary] = []
-var _profile_before: Dictionary = {}
 var _seek_results: Array[Dictionary] = []
 
 func before_each() -> void:
@@ -44,36 +31,13 @@ func before_each() -> void:
 	_restored.clear()
 	_completion_at_publication.clear()
 	_seek_results.clear()
-	_profile_before = get_node("/root/ProfileManager").get_profile_snapshot().duplicate(true)
+	_profile_before = get_node("/root/ProfileManager").get_profile_snapshot()
 	var parsed := STRICT_JSON.parse_object(FileAccess.get_file_as_string(REGISTRY))
 	assert_true(parsed.ok, str(parsed))
 	_ledger = LEDGER.new()
 	assert_true(_ledger.initialize(TOKEN, parsed.value.frozen_context,
 		parsed.value.entry_manifest, parsed.value.registry).ok)
-	_had_persistent = Engine.has_meta("dialogic_persistent_style_info")
-	_persistent = Engine.get_meta("dialogic_persistent_style_info", {})
-	_style_directory = DialogicStylesUtil.style_directory.duplicate(true)
-	_original_runtime = get_node("/root/Dialogic")
-	_original_runtime_index = _original_runtime.get_index()
-	_original_layout = _original_runtime.Styles.get_layout_node()
-	if is_instance_valid(_original_layout) and _original_layout.is_inside_tree():
-		_original_layout_parent = _original_layout.get_parent()
-		_original_layout_index = _original_layout.get_index()
-		_original_layout_parent.remove_child(_original_layout)
-	get_tree().remove_meta("dialogic_layout_node")
-	get_tree().root.remove_child(_original_runtime)
-	for key: String in ["dialogic/save/autosave", "dialogic/layout/end_behaviour"]:
-		_settings[key] = {"exists": ProjectSettings.has_setting(key), "value": ProjectSettings.get_setting(key)}
-	ProjectSettings.set_setting("dialogic/save/autosave", false)
-	ProjectSettings.set_setting("dialogic/layout/end_behaviour", 0)
-	_runtime = DialogicGameHandler.new()
-	_runtime.name = "Dialogic"
-	get_tree().root.add_child(_runtime)
-	_runtime.History.save_visited_history_on_save = false
-	_runtime.History.save_visited_history_on_autosave = false
-	_viewport = SubViewport.new()
-	_viewport.size = Vector2i(1280, 720)
-	add_child(_viewport)
+	_mount_dialogic_runtime()
 	assert_not_null(_runtime.Styles.load_style(STYLE, _viewport))
 	_adapter = ADAPTER.new()
 	assert_true(_adapter.bind_runtime(_runtime).ok)
@@ -84,34 +48,6 @@ func before_each() -> void:
 		_restored.append(result.duplicate(true)))
 	_adapter.reading_seek_finished.connect(func(result: Dictionary) -> void:
 		_seek_results.append(result.duplicate(true)))
-
-func after_each() -> void:
-	assert_eq(get_node("/root/ProfileManager").get_profile_snapshot(), _profile_before,
-		"internal publication capture cannot write the real Profile")
-	for text_node: Node in get_tree().get_nodes_in_group("dialogic_dialog_text"):
-		text_node.set_process(false)
-	if is_instance_valid(_runtime):
-		_runtime.paused = false
-		await _runtime.clear()
-		var remaining: Node = _runtime.Styles.get_layout_node()
-		if is_instance_valid(remaining) and not _viewport.is_ancestor_of(remaining): remaining.queue_free()
-	_viewport.queue_free()
-	await get_tree().process_frame
-	if is_instance_valid(_runtime): _runtime.free()
-	_adapter = null
-	get_tree().remove_meta("dialogic_layout_node")
-	get_tree().root.add_child(_original_runtime)
-	get_tree().root.move_child(_original_runtime, _original_runtime_index)
-	if is_instance_valid(_original_layout) and is_instance_valid(_original_layout_parent):
-		_original_layout_parent.add_child(_original_layout)
-		_original_layout_parent.move_child(_original_layout, _original_layout_index)
-		get_tree().set_meta("dialogic_layout_node", _original_layout)
-	for key: String in _settings:
-		ProjectSettings.set_setting(key, _settings[key].value if _settings[key].exists else null)
-	if _had_persistent: Engine.set_meta("dialogic_persistent_style_info", _persistent)
-	else: Engine.remove_meta("dialogic_persistent_style_info")
-	DialogicStylesUtil.style_directory = _style_directory
-	_original_layout_parent = null
 
 func _settle() -> void:
 	for frame: int in 6: await get_tree().process_frame

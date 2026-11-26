@@ -5,7 +5,6 @@ extends "res://addons/gut/test.gd"
 # tests/fixtures/minesweeper/rng_reference_vectors.v1.json; see task-3-report.md for the
 # Python-vs-GDScript cross-check evidence.
 
-const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const RNG := preload("res://scripts/domain/minesweeper/DeterministicRng32.gd")
 
 const FIXTURE_PATH := "res://tests/fixtures/minesweeper/rng_reference_vectors.v1.json"
@@ -19,13 +18,6 @@ func before_each() -> void:
 
 func _rng() -> RefCounted:
 	return RNG.new()
-
-
-# ---- Step 3.1 parse proof ----
-
-func test_rng_script_loads() -> void:
-	var loaded: Dictionary = PROBE.load_script("res://scripts/domain/minesweeper/DeterministicRng32.gd")
-	assert_true(loaded.get("ok", false), "DeterministicRng32.gd must load")
 
 
 # ---- seed() basics ----

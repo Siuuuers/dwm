@@ -13,8 +13,6 @@ extends "res://addons/gut/test.gd"
 ## coordinator (see its report's C2/D handoff), rather than hand-building MinesweeperBoardSchema
 ## board dictionaries from scratch.
 
-const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
-const PORT_PATH := "res://tests/support/retained/DesktopBoardFatePort.gd"
 const PORT := preload("res://tests/support/retained/DesktopBoardFatePort.gd")
 const BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 const COORDINATOR := preload("res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd")
@@ -208,18 +206,6 @@ func _projected_request(command_id: String, action_receipt: Dictionary, projecte
 		"expected_board_revision": live["revision"], "source_action_receipt": action_receipt,
 		"projected_board_candidate": projected, "projected_board_candidate_sha256": _canonical_sha256(projected),
 	}
-
-
-# ---- Step 8.1 parse proof ----
-
-func test_port_script_loads() -> void:
-	var loaded: Dictionary = PROBE.load_script(PORT_PATH)
-	assert_true(loaded.get("ok", false), "DesktopBoardFatePort.gd must load")
-
-
-func test_port_instantiates() -> void:
-	var instantiated: Dictionary = PROBE.instantiate(PORT_PATH)
-	assert_true(instantiated.get("ok", false), "DesktopBoardFatePort.gd must instantiate")
 
 
 # ---- configuration ----

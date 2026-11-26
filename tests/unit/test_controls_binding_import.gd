@@ -1,6 +1,5 @@
 extends "res://addons/gut/test.gd"
 const SCHEMA := preload("res://scripts/profile/ProfileSchema.gd")
-const IMPORT := preload("res://scripts/settings/ControlsBindingImport.gd")
 const RULES := preload("res://scripts/settings/ControlsBindingRules.gd")
 const JSON_RULES := preload("res://scripts/validation/JsonSchemaValidator.gd")
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
@@ -35,7 +34,7 @@ func test_cross_swapped_imports_validate_after_all_transfers() -> void:
 	source.input_mappings.game_quick_save = [_key(KEY_F9), _pad(JOY_BUTTON_RIGHT_STICK)]
 	source.input_mappings.game_quick_load = [_key(KEY_F5), _pad(JOY_BUTTON_LEFT_STICK)]
 	var before := source.duplicate(true)
-	var imported := IMPORT.prepare(source.input_mappings)
+	var imported := RULES.prepare_import(source.input_mappings)
 	assert_false(imported.pending)
 	assert_eq(imported.issues, [])
 	assert_eq(imported.bindings.game_quick_save.keyboard, _key(KEY_F9))
@@ -50,7 +49,7 @@ func test_missing_slots_use_defaults_without_replacing_existing_n() -> void:
 	var source := _profile_with_mappings()
 	source.input_mappings.game_quick_save = []
 	source.input_mappings.game_quick_load = [_pad(JOY_BUTTON_RIGHT_STICK)]
-	var imported := IMPORT.prepare(source.input_mappings)
+	var imported := RULES.prepare_import(source.input_mappings)
 	assert_false(imported.pending)
 	assert_eq(imported.bindings.game_quick_save, RULES.defaults().game_quick_save)
 	assert_eq(imported.bindings.game_quick_load, RULES.defaults().game_quick_load)
@@ -69,7 +68,7 @@ func test_unsupported_records_preserve_source_and_make_entire_import_pending() -
 		var source := _profile_with_mappings()
 		source.input_mappings.game_quick_save = [record]
 		var before := source.duplicate(true)
-		var imported := IMPORT.prepare(source.input_mappings)
+		var imported := RULES.prepare_import(source.input_mappings)
 		assert_true(imported.pending, str(record))
 		assert_false(imported.issues.is_empty())
 		assert_eq(imported.issues[0].action, "game_quick_save")
@@ -83,7 +82,7 @@ func test_multiple_same_kind_records_never_choose_a_winner() -> void:
 		var source := _profile_with_mappings()
 		source.input_mappings.game_quick_save = records
 		var before := source.duplicate(true)
-		var imported := IMPORT.prepare(source.input_mappings)
+		var imported := RULES.prepare_import(source.input_mappings)
 		assert_true(imported.pending)
 		assert_eq(imported.issues[0].code, &"multiple_legacy_records")
 		assert_eq(imported.issues[0].count, 2)
@@ -96,7 +95,7 @@ func test_complete_import_collision_including_new_mode_stays_pending() -> void:
 		var source := _profile_with_mappings()
 		source.input_mappings.game_quick_save = [collision]
 		var before := source.duplicate(true)
-		var imported := IMPORT.prepare(source.input_mappings)
+		var imported := RULES.prepare_import(source.input_mappings)
 		assert_true(imported.pending)
 		assert_eq(imported.issues[-1].code, &"binding_conflict")
 		assert_eq(imported.issues[-1].action, "game_quick_save")
@@ -109,7 +108,7 @@ func test_retired_actions_do_not_claim_new_semantics_or_block_import() -> void:
 	source.input_mappings.game_hint = [_key(KEY_F), _key(KEY_H)]
 	source.input_mappings.game_skip_text = [_key(KEY_CTRL), _pad(JOY_BUTTON_A, 27)]
 	var before := source.duplicate(true)
-	var result := IMPORT.prepare(source.input_mappings)
+	var result := RULES.prepare_import(source.input_mappings)
 	assert_false(result.pending)
 	assert_eq(result.bindings.game_toggle_board_mode.keyboard, _key(KEY_F))
 	assert_eq(source, before)
@@ -120,7 +119,7 @@ func test_multiple_independent_import_issues_are_retained() -> void:
 	source.input_mappings.game_quick_save = [_key(KEY_ENTER)]
 	source.input_mappings.game_quick_load = [_pad(JOY_BUTTON_RIGHT_STICK, 9)]
 	source.input_mappings.game_new_board = [_key(KEY_N), _key(KEY_F8)]
-	var imported := IMPORT.prepare(source.input_mappings)
+	var imported := RULES.prepare_import(source.input_mappings)
 	assert_true(imported.pending)
 	assert_eq(imported.issues.size(), 3)
 	assert_eq(imported.issues[0].action, "game_quick_save")

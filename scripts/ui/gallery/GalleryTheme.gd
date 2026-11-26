@@ -1,7 +1,7 @@
 extends RefCounted
 
 const PALETTES := preload("res://scripts/settings/SettingsPaletteRegistry.gd")
-const TYPOGRAPHY := preload("res://scripts/ui/gallery/GalleryTypography.gd")
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const ACTION_STYLE := preload("res://scripts/ui/gallery/GalleryActionStyle.gd")
 
 static func build(locale: String, percent: int, palette: StringName, font_style: String = "pixel") -> Theme:
@@ -9,7 +9,7 @@ static func build(locale: String, percent: int, palette: StringName, font_style:
 	var result := Theme.new()
 	result.default_font = TYPOGRAPHY.font(locale, percent, font_style)
 	if result.default_font == null: return null
-	result.default_font_size = TYPOGRAPHY.font_size(percent)
+	result.default_font_size = TYPOGRAPHY.gallery_font_size(percent)
 	result.set_constant("line_spacing", "Label", 0)
 	result.set_constant("paragraph_spacing", "Label", 0)
 	for role: String in roles: result.set_color(role, "Gallery", roles[role])

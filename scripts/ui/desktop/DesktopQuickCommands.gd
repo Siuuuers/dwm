@@ -1,6 +1,5 @@
 extends Node
 const EDGE := preload("res://scripts/ui/desktop/QuickStatusEdge.gd")
-const BACKUP_COPY := preload("res://scripts/ui/BackupApp.gd").COPY
 const BACKUP_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 const ACTIONS := {&"game_quick_save": "save", &"game_quick_load": "load"}
 
@@ -141,7 +140,9 @@ func _request(action: String) -> void:
 	_condition = value.condition.duplicate()
 	if action == "load":
 		edge.clear_status()
-		var shown: Dictionary = _desktop.present_confirmation(_load_copy(value.record), _confirm_load, _cancel_load)
+		var modal_theme := BACKUP_THEME.build(_desktop._locale, _desktop._percent, &"after_hours", 1, false, "standard", _desktop._font_style)
+		var request := BackupApp.quick_load_confirmation(value.record, _desktop._locale, modal_theme)
+		var shown: Dictionary = _desktop.present_confirmation(request, _confirm_load, _cancel_load)
 		if not shown.get("ok", false): _cancel_load()
 		return
 	var token := _pending_token
@@ -196,15 +197,7 @@ func _restore_focus() -> void:
 		return
 	var app: Node = _desktop._cached_app_windows.get(&"backup")
 	if _source.app == "backup" and is_instance_valid(app) and app.can_return_home():
-		var replacement: Control
-		if _return_semantic.begins_with("action:"):
-			replacement = app.action_buttons.get(_return_semantic.trim_prefix("action:"))
-		elif _return_semantic.begins_with("mode:"):
-			replacement = app.mode_buttons.get(_return_semantic.trim_prefix("mode:"))
-		elif _return_semantic == "information": replacement = app.info_scroll
-		if not is_instance_valid(replacement) or replacement.get_focus_mode_with_override() == Control.FOCUS_NONE:
-			replacement = app.drawer_buttons.get(app.selected_locator)
-		if is_instance_valid(replacement) and replacement.get_focus_mode_with_override() != Control.FOCUS_NONE: replacement.grab_focus()
+		app.restore_quick_focus(_return_semantic)
 
 func _publish(key: String, condition: Dictionary, source: Dictionary) -> void:
 	if (condition.is_empty() and key != "saved") or not is_instance_valid(edge): return
@@ -247,12 +240,3 @@ func _refresh_edge() -> void:
 		edge.set_presentation(presentation.locale, presentation.percent, presentation.font_style)
 		edge.theme = _desktop.theme
 	edge.set_eligible(_admitted() and rect.has_area())
-
-func _load_copy(record: Dictionary) -> Dictionary:
-	var copy: Dictionary = BACKUP_COPY.get(_desktop._locale, BACKUP_COPY.en)
-	var time: Variant = record.get("saved_time")
-	var stamp := str(time) if time != null else "--:--"
-	var body: String = stamp + "\n\n" + copy.replace_progress
-	return {"title": copy.load_title.replace("{record}", copy.quick),
-		"body": body, "cancel": copy.cancel, "confirm": copy.load, "risk": "danger",
-		"theme": BACKUP_THEME.build(_desktop._locale, _desktop._percent, &"after_hours", 1, false, "standard", _desktop._font_style)}

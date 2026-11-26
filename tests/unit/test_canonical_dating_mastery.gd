@@ -45,7 +45,7 @@ func test_all_required_solo_boards_are_perfect_and_inputs_stay_detached() -> voi
 	assert_true(MASTERY.evaluate("mastery-run", priscilla.heads, priscilla.attempts).priscilla)
 
 func test_each_missing_head_or_completion_refuses_mastery_without_filling_from_history() -> void:
-	for scope: String in MASTERY.WINDOWS:
+	for scope: String in FIXTURE.WINDOWS:
 		var evidence := _scope(scope)
 		if evidence.is_empty(): return
 		for slot: String in MASTERY.slots_for(scope):

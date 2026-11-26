@@ -51,7 +51,7 @@ static func solo_days_for(friend_id: String) -> Array[int]:
 
 
 static func is_solo_day(friend_id: String, day: int) -> bool:
-	return friend_id in solo_order(day)
+	return SOLO_ORDER_BY_DAY.has(day) and friend_id in SOLO_ORDER_BY_DAY[day]
 
 
 static func is_group_day(day: int) -> bool:

@@ -847,22 +847,3 @@ func test_scene_rejects_legacy_resolution_proof() -> void:
 		request["resolution_kind"] = "scene_day_complete"
 		request.erase("source_day")
 		_assert_rejected(port.prepare_advance(request), "scene must require its own completion proof")
-
-
-func test_tuple_comparison_refuses_malformed_cardinality_and_mixed_families() -> void:
-	var port := PORT.new()
-	for malformed: Array in [[], ["run", "branch", 0], ["run", "branch", 0, "causal", 1, "extra"]]:
-		assert_false(port.call("_tuple_equals", malformed, malformed),
-			"only four-member scene and five-member legacy tuples are comparable")
-	var scene: Array = ["run", "branch", 0, "causal"]
-	var legacy: Array = ["run", "branch", 0, "causal", 1]
-	assert_false(port.call("_tuple_equals", scene, legacy), "scene cannot alias legacy")
-	assert_false(port.call("_tuple_equals", legacy, scene), "legacy cannot alias scene")
-	assert_true(port.call("_tuple_equals", scene, scene.duplicate()))
-	assert_true(port.call("_tuple_equals", legacy, legacy.duplicate()))
-	var other_scene := scene.duplicate()
-	other_scene[3] = "different-causal"
-	assert_false(port.call("_tuple_equals", scene, other_scene))
-	var other_legacy := legacy.duplicate()
-	other_legacy[4] = 2
-	assert_false(port.call("_tuple_equals", legacy, other_legacy))

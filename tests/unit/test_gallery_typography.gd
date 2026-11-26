@@ -1,7 +1,7 @@
 extends GutTest
 
 const GALLERY_THEME := preload("res://scripts/ui/gallery/GalleryTheme.gd")
-const GALLERY_TYPOGRAPHY := preload("res://scripts/ui/gallery/GalleryTypography.gd")
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const RECORD_CATALOG := preload("res://scripts/ui/gallery/GalleryRecordCatalog.gd")
 const PROFILE := preload("res://autoload/ProfileManager.gd")
 const LOCALIZATION := preload("res://autoload/LocalizationManager.gd")
@@ -38,7 +38,7 @@ func test_gallery_theme_uses_the_exact_regular_proportional_face_and_metrics_for
 	for locale: String in LOCALES:
 		for percent: int in PERCENTS:
 			var theme: Theme = GALLERY_THEME.build(locale, percent, &"after_hours")
-			var registered: Font = GALLERY_TYPOGRAPHY.font(locale, percent)
+			var registered: Font = TYPOGRAPHY.font(locale, percent)
 			assert_not_null(theme)
 			assert_not_null(registered)
 			if theme == null or registered == null: continue
@@ -48,9 +48,7 @@ func test_gallery_theme_uses_the_exact_regular_proportional_face_and_metrics_for
 			assert_same(font, registered, "%s/%d uses its registered Gallery face" % [locale, percent])
 			assert_eq(font.resource_path, expected_path)
 			assert_eq(size, FONT_SIZES[percent], "%s/%d uses the exact logical glyph master" % [locale, percent])
-			assert_eq(GALLERY_TYPOGRAPHY.font_size(percent), FONT_SIZES[percent])
-			assert_eq(GALLERY_TYPOGRAPHY.line_height(percent), LINE_HEIGHTS[percent])
-			assert_eq(GALLERY_TYPOGRAPHY.baseline(percent), ASCENTS[percent])
+			assert_eq(TYPOGRAPHY.gallery_font_size(percent), FONT_SIZES[percent])
 			assert_true(font is FontFile, "%s/%d uses one registered face directly" % [locale, percent])
 			assert_false(font is FontVariation, "Gallery has no fallback or synthetic variation chain")
 			if not font is FontFile: continue
@@ -72,11 +70,9 @@ func test_gallery_theme_uses_the_exact_regular_proportional_face_and_metrics_for
 			assert_eq(roundi(font.get_height(size)), LINE_HEIGHTS[percent])
 			identities[font.resource_path] = true
 	assert_eq(identities.size(), 9, "each locale and native pixel master has one exact face")
-	assert_null(GALLERY_TYPOGRAPHY.font("fr", 100))
-	assert_null(GALLERY_TYPOGRAPHY.font("en", 110))
-	assert_eq(GALLERY_TYPOGRAPHY.font_size(110), 0)
-	assert_eq(GALLERY_TYPOGRAPHY.line_height(110), 0)
-	assert_eq(GALLERY_TYPOGRAPHY.baseline(110), 0)
+	assert_null(TYPOGRAPHY.font("fr", 100))
+	assert_null(TYPOGRAPHY.font("en", 110))
+	assert_eq(TYPOGRAPHY.gallery_font_size(110), 0)
 
 func test_actual_localized_record_captions_wrap_without_hidden_lines_or_missing_glyphs() -> void:
 	for locale: String in LOCALES:

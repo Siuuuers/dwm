@@ -7,8 +7,6 @@ extends "res://addons/gut/test.gd"
 ## point named in the brief's Step 8.2 enumeration. See the Task-8 report for an explicit, honest note
 ## on what is representative rather than exhaustive here.
 
-const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
-const COORDINATOR_PATH := "res://tests/support/retained/DesktopConsequenceCoordinator.gd"
 const COORDINATOR := preload("res://tests/support/retained/DesktopConsequenceCoordinator.gd")
 const CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
 const CAUSAL_SEQUENCE_PORT := preload("res://tests/support/retained/DesktopCausalSequencePort.gd")
@@ -437,18 +435,6 @@ func _armed_notification_intent(action_receipt: Dictionary, transaction_id: Stri
 		"source_condition_receipt_provenance": {"schema_version": 1, "parent_receipt_id": "",
 			"child_kind": "condition", "ordinal": 0, "source_ids": [transaction_id], "child_id": ""},
 	}
-
-
-# ---- Step 8.1 parse proof ----
-
-func test_coordinator_script_loads() -> void:
-	var loaded: Dictionary = PROBE.load_script(COORDINATOR_PATH)
-	assert_true(loaded.get("ok", false), "DesktopConsequenceCoordinator.gd must load")
-
-
-func test_coordinator_instantiates() -> void:
-	var instantiated: Dictionary = PROBE.instantiate(COORDINATOR_PATH)
-	assert_true(instantiated.get("ok", false), "DesktopConsequenceCoordinator.gd must instantiate")
 
 
 # ---- configuration ----

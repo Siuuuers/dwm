@@ -97,3 +97,9 @@ The calendar desktop consequence, departure and shop transaction adapters now li
 MinesweeperSheetCopy was folded into MinesweeperChromeCopy. The action dock,
 status register and information sheet read the same localized Rules and
 Assignments labels. The information sheet still owns its layout and input.
+
+ControlsBindingRules now prepares imports with the same slot checks used for rebinding. The settings import review and the importer share ControlsActionRegistry’s list of transferable actions.
+
+GalleryTheme and Day7PreludeSurface now obtain their font and Gallery sizes
+from UiTypography. GalleryTypography’s baseline and line-height tables had
+only test callers. The Gallery tests measure those metrics on the selected font.

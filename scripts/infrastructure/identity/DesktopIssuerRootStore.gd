@@ -519,9 +519,9 @@ func _storage_failure(result: Dictionary, fallback: StringName) -> Dictionary:
 
 static func _mint_receipt(namespace_value: String, counter: int, purpose: String,
 		numeric_value: Variant) -> Dictionary:
-	var token := _token_for(namespace_value, counter, purpose)
+	var token := token_for(namespace_value, counter, purpose)
 	return {
-		"receipt_id": _receipt_id_for(namespace_value, counter, purpose, token),
+		"receipt_id": receipt_id_for(namespace_value, counter, purpose, token),
 		"purpose": purpose,
 		"namespace": namespace_value,
 		"counter": counter,
@@ -530,23 +530,14 @@ static func _mint_receipt(namespace_value: String, counter: int, purpose: String
 	}
 
 
-static func _token_for(namespace_value: String, counter: int, purpose: String) -> String:
-	return "%s.%s" % [purpose, _sha256_hex("%s\n%d\n%s" % [namespace_value, counter, purpose])]
+static func token_for(namespace_value: String, counter: int, purpose: String) -> String:
+	var input := "%s\n%d\n%s" % [namespace_value, counter, purpose]
+	return "%s.%s" % [purpose, input.sha256_text()]
 
 
-static func _receipt_id_for(namespace_value: String, counter: int, purpose: String,
-		token: String) -> String:
-	return "issuer_receipt." + _sha256_hex("desktop_issuer_receipt_v1\n%s\n%d\n%s\n%s" % [
-		namespace_value, counter, purpose, token,
-	])
-
-
-static func _sha256_hex(text: String) -> String:
-	var context := HashingContext.new()
-	context.start(HashingContext.HASH_SHA256)
-	context.update(text.to_utf8_buffer())
-	return context.finish().hex_encode()
-
+static func receipt_id_for(namespace_value: String, counter: int, purpose: String, token: String) -> String:
+	var input := "desktop_issuer_receipt_v1\n%s\n%d\n%s\n%s" % [namespace_value, counter, purpose, token]
+	return "issuer_receipt." + input.sha256_text()
 
 
 func _day_advance_candidate(request: Dictionary, key: String) -> Dictionary:
@@ -842,10 +833,10 @@ func _validate_document(document: Dictionary) -> Dictionary:
 		if seen_counters.has(counter):
 			return _failed(&"root_receipt_counter_duplicated", str(counter))
 		seen_counters[counter] = true
-		var expected_token := _token_for(namespace_value, counter, str(receipt["purpose"]))
+		var expected_token := token_for(namespace_value, counter, str(receipt["purpose"]))
 		if str(receipt["token"]) != expected_token:
 			return _failed(&"root_receipt_token_mismatch", str(key))
-		if str(receipt["receipt_id"]) != _receipt_id_for(namespace_value, counter, str(receipt["purpose"]), expected_token):
+		if str(receipt["receipt_id"]) != receipt_id_for(namespace_value, counter, str(receipt["purpose"]), expected_token):
 			return _failed(&"root_receipt_id_mismatch", str(key))
 	var allocations: Dictionary = document["allocation_receipts"]
 	var day_advances: Dictionary = document["day_advance_allocation_receipts"]

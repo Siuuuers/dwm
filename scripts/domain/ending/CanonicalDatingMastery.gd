@@ -1,25 +1,27 @@
 extends RefCounted
 const ATTEMPTS := preload("res://scripts/profile/DatingAttemptLedger.gd")
-const WINDOWS := {"priscilla": [1, 2, 4, 6], "lavinia": [2, 3, 5, 6],
-	"priscilla_lavinia": [2, 6]}
+const CALENDAR := preload("res://scripts/domain/contact/SevenDayCalendar.gd")
+const SCOPES := ["priscilla", "lavinia", "priscilla_lavinia"]
 
 static func slots_for(scope: String) -> Array[String]:
 	var slots: Array[String] = []
-	for day: int in WINDOWS.get(scope, []):
+	if scope not in SCOPES: return slots
+	var days := CALENDAR.group_days() if scope == "priscilla_lavinia" else CALENDAR.solo_days_for(scope)
+	for day: int in days:
 		slots.append("dating.pair.priscilla_lavinia.day%d" % day if scope == "priscilla_lavinia"
 			else "dating.solo.%s.day%d" % [scope, day])
 	return slots
 
 static func required_slots() -> Array[String]:
 	var slots: Array[String] = []
-	for scope: String in WINDOWS:
+	for scope: String in SCOPES:
 		slots.append_array(slots_for(scope))
 	return slots
 
 static func evaluate(run_id: String, heads: Dictionary, selected_attempts: Dictionary) -> Dictionary:
 	var mastery := {"priscilla": false, "lavinia": false, "priscilla_lavinia": false}
 	if run_id.strip_edges().is_empty(): return mastery
-	for scope: String in WINDOWS:
+	for scope: String in SCOPES:
 		var complete := true
 		for slot: String in slots_for(scope):
 			if not _perfect_head(run_id, slot, heads.get(slot), selected_attempts.get(slot)):

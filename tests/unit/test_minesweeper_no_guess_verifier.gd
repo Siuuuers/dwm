@@ -8,7 +8,6 @@ extends "res://addons/gut/test.gd"
 # exact trace equality, since canonical-byte constraint ordering can legitimately interleave
 # differently from the Python oracle's tie-breaking while still reaching the same certified result.
 
-const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const VERIFIER := preload("res://scripts/domain/minesweeper/MinesweeperNoGuessVerifier.gd")
 
 const ALLOWED_RULES: Array[StringName] = [
@@ -47,13 +46,6 @@ func _layout_from_case(record: Dictionary) -> Dictionary:
 		"mine_indices": mine_indices,
 		"mine_count": mine_indices.size(),
 	}
-
-
-# ---- Step 3.1 parse proof ----
-
-func test_verifier_script_loads() -> void:
-	var loaded: Dictionary = PROBE.load_script("res://scripts/domain/minesweeper/MinesweeperNoGuessVerifier.gd")
-	assert_true(loaded.get("ok", false), "MinesweeperNoGuessVerifier.gd must load")
 
 
 # ---- shared structural assertions for every certified case ----

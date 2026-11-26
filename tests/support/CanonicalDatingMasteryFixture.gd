@@ -1,6 +1,7 @@
 extends RefCounted
 ## Test-only physical board/effect evidence, validated and persisted by the real Profile owner.
-const MASTERY := preload("res://scripts/domain/ending/CanonicalDatingMastery.gd")
+const WINDOWS := {"priscilla": [1, 2, 4, 6], "lavinia": [2, 3, 5, 6],
+	"priscilla_lavinia": [2, 6]}
 const LEDGER := preload("res://scripts/profile/DatingAttemptLedger.gd")
 const OWNER := preload("res://scripts/application/run/DatingPhysicalOwner.gd")
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
@@ -81,7 +82,7 @@ static func for_scope(run_id: String, scope: String, branch: String = "original-
 	var heads := {}
 	var attempts := {}
 	var ledger := {run_id: {}}
-	for day: int in MASTERY.WINDOWS.get(scope, []):
+	for day: int in WINDOWS.get(scope, []):
 		var made := completed(run_id, scope, day, branch)
 		if not made.ok: return made
 		var attempt: Dictionary = made.value.attempt
