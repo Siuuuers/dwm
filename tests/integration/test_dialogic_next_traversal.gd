@@ -136,11 +136,15 @@ func before_each() -> void:
 
 func test_catalogue_registration_keeps_authored_order_and_owns_its_lines() -> void:
 	assert_true(_bridge.configure_reading_catalogue(_document).ok)
-	var retained: Dictionary = _bridge._reading_catalogue_for_entry(PRE)
-	assert_eq(retained, _document)
-	var original: String = retained.entries[0].lines[0].text
+	var registered: RefCounted = _bridge._reading_catalogue_for_entry(PRE)
+	var session: RefCounted = registered.fork_catalogue()
+	assert_true(is_same(session.catalogue, registered.catalogue))
+	assert_eq(registered.catalogue.values(), _document.entries)
+	assert_true(session.begin("independent", PRE).ok)
+	assert_null(registered.ledger)
+	var original: String = registered.catalogue[PRE].lines[0].text
 	_document.entries[0].lines[0].text = original + " edited"
-	assert_eq(retained.entries[0].lines[0].text, original)
+	assert_eq(registered.catalogue[PRE].lines[0].text, original)
 	assert_eq(_bridge.configure_reading_catalogue(_document).get("code"), &"reading_catalogue_already_configured")
 	_document.entries[0].lines[0].text = original
 	assert_true(_bridge.configure_reading_catalogue(_document).ok)

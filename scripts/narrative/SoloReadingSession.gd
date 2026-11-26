@@ -113,7 +113,7 @@ func _ensure_scene_programme(entry_id: String) -> Dictionary:
 		return {"ok": true}
 	return _content_error("Missing passage: " + entry_id, {"entry_id": entry_id})
 
-func _fork_scene_configuration() -> RefCounted:
+func fork_catalogue() -> RefCounted:
 	var sibling: RefCounted = get_script().new()
 	sibling.family = family
 	sibling.catalogue_schema_version = catalogue_schema_version
@@ -121,13 +121,17 @@ func _fork_scene_configuration() -> RefCounted:
 	sibling.manifest = manifest
 	sibling.catalogue = catalogue
 	sibling.registry = registry
+	sibling._caption_variants_by_line = _caption_variants_by_line
+	return sibling
+
+func _fork_scene_configuration() -> RefCounted:
+	var sibling := fork_catalogue()
 	sibling._scene_nodes = _scene_nodes.duplicate()
 	sibling._scene_text = _scene_text.duplicate()
 	sibling._scene_display = _scene_display.duplicate()
 	sibling._scene_thought_ids = _scene_thought_ids.duplicate()
 	sibling._scene_registration = _scene_registration
 	sibling._scene_bundle = _scene_bundle
-	sibling._caption_variants_by_line = _caption_variants_by_line
 	return sibling
 
 func _fork_scene_ledger() -> RefCounted:
@@ -714,6 +718,9 @@ func configure(document: Dictionary) -> Dictionary:
 		for entry: Dictionary in document.entries:
 			manifest.entries.append({"entry_id": entry.entry_id})
 		FROZEN._freeze(catalogue)
+		FROZEN._freeze(manifest)
+		registry.make_read_only()
+		_caption_variants_by_line.make_read_only()
 		fingerprint = str(encoded.value).sha256_text()
 		return {"ok": true}
 	var hospital: bool = document.get("kind") == "hospital_reading_catalogue"
@@ -763,6 +770,8 @@ func configure(document: Dictionary) -> Dictionary:
 	for beat: Dictionary in registry.beats:
 		_caption_variants_by_line[beat.line_id] = beat
 	manifest = entry_manifest
+	FROZEN._freeze(manifest)
+	_caption_variants_by_line.make_read_only()
 	fingerprint = str(encoded.value).sha256_text()
 	return {"ok": true}
 
