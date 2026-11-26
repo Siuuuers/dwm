@@ -1383,7 +1383,7 @@ func _validate_scene_restore_preparation(prepared: Dictionary) -> Dictionary:
 
 func retry_scene_activation(transaction_id: String) -> Dictionary:
 	if _completed_scene_restore.get("transaction_id") == transaction_id:
-		return _completed_scene_restore.duplicate(true)
+		return capture_scene_restore_activation(transaction_id)
 	if _scene_activation_busy or _scene_restore_commit_busy: return _fail(&"scene_restore_busy", "")
 	if not _scene_restore_activation.is_empty():
 		if _scene_restore_activation.operation_id != transaction_id: return _fail(&"scene_restore_busy", "")
@@ -1393,7 +1393,7 @@ func retry_scene_activation(transaction_id: String) -> Dictionary:
 func capture_scene_restore_activation(transaction_id: String) -> Dictionary:
 	if _completed_scene_restore.get("transaction_id") != transaction_id:
 		return _fail(&"scene_restore_not_activated", "Load has not reached live-session readiness")
-	return _completed_scene_restore.duplicate(true)
+	return {"ok": true, "transaction_id": transaction_id, "value": _completed_scene_restore.duplicate()}
 
 func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Dictionary,
 		route_id: String, checkpoint_id: String, operation_id: String, creating: bool) -> Dictionary:
@@ -1528,17 +1528,16 @@ func _drive_scene_restore_activation_owned() -> Dictionary:
 		if not published.get("ok", false): return _scene_restore_activation_failure(published)
 	var completed := _scene_restore_activation
 	_scene_restore_activation = {}
+	var destination := {"transaction_id": operation_id, "checkpoint_id": completed.checkpoint_id,
+		"route_id": completed.route_id}
 	if activation_owner == &"restore":
-		_completed_scene_restore = {"ok": true, "transaction_id": operation_id,
-			"value": {"transaction_id": operation_id, "checkpoint_id": completed.checkpoint_id,
-				"route_id": completed.route_id}}
+		_completed_scene_restore = destination.duplicate()
 	else:
 		var released := _release_new_run_custody()
 		if not released.get("ok", false): return released
 	live_session_ready.emit()
 	if activation_owner == &"restore": run_restored.emit(completed.checkpoint_id, completed.route_id)
-	return {"ok": true, "value": {"transaction_id": operation_id, "checkpoint_id": completed.checkpoint_id,
-		"route_id": completed.route_id}}
+	return {"ok": true, "value": destination}
 
 
 func _prepare_live_session_activation(plans: Dictionary, operation_id: String) -> Dictionary:
