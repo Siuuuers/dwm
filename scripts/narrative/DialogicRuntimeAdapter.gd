@@ -1170,9 +1170,12 @@ func prepare_reading_seek(source_frontier: Dictionary, entry_label: String,
 			return {"ok": true, "value": intent}
 	_reading_seek_serial += 1
 	intent["seek_id"] = "reading-seek:%d:%d" % [get_instance_id(), _reading_seek_serial]
-	_prepared_reading_seek = {"plan": intent.duplicate(true), "lines": ordered_lines.duplicate(true),
+	var snapshot := _caption_ledger.snapshot_view()
+	snapshot.captions = snapshot.captions.duplicate()
+	if snapshot.has("entry_contexts"): snapshot.entry_contexts = snapshot.entry_contexts.duplicate()
+	_prepared_reading_seek = {"plan": intent.merged({"source": source.value.duplicate()}, true), "lines": ordered_lines.duplicate(true),
 		"entry_label": entry_label, "indices": indices.value, "event": _caption_event,
-		"ledger": _caption_ledger, "snapshot": _caption_ledger.fork_live().snapshot_view(),
+		"ledger": _caption_ledger, "snapshot": snapshot,
 		"request_id": _request_id, "generation": _runtime_generation}
 	return {"ok": true, "value": intent}
 
@@ -1984,8 +1987,11 @@ func prepare_marker_seek(entry_label: String, lines: Array, destination_line: St
 	if not valid.ok: return valid
 	var indices := _reading_seek_indices(entry_label, lines, destination_line)
 	if not indices.ok: return indices
+	var native_lines: Array[Dictionary] = []
+	for line: Dictionary in lines:
+		native_lines.append({"line_id": line.line_id, "text": line.text})
 	return {"ok": true, "value": {"identity": source.value, "entry_label": entry_label,
-		"lines": lines.duplicate(true), "destination": destination_line, "indices": indices.value}}
+		"lines": native_lines, "destination": destination_line, "indices": indices.value}}
 
 func install_marker_candidate(plan: Dictionary, candidate: NarrativeCaptionLedger, frontier: Dictionary) -> Dictionary:
 	if not _marker_hold_current() or _marker_hold.identity != plan.get("identity") \
