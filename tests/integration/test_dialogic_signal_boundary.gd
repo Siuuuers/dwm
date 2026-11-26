@@ -70,6 +70,14 @@ class NullResolutionCatalog:
 		return null
 
 
+var _reading_scope := preload("res://tests/support/SceneValidationScope.gd").new()
+
+func before_all() -> void:
+	_reading_scope.install(true)
+
+func after_all() -> void:
+	_reading_scope.restore()
+
 func _make_bridge(catalog: Script = null, adapter: RefCounted = null) -> Node:
 	var bridge: Node = BRIDGE.new()
 	add_child_autofree(bridge)
@@ -384,6 +392,10 @@ func test_a_duplicate_identical_receipt_replays_the_stored_receipt() -> void:
 	assert_true(bool((replay.get("value", {}) as Dictionary).get("duplicate", false)),
 		"an identical replay reports duplicate")
 	assert_eq(replay.get("receipt", {}), receipt, "the replay returns the STORED receipt verbatim")
+	receipt.clear()
+	replay.receipt.clear()
+	var repeated := _invoke(bridge, &"acknowledge_signal", ["history.line.witness", payload])
+	assert_eq(repeated.receipt.receipt_id, "r-dup")
 	assert_eq((rig["signal_port"] as RefCounted).calls.size(), 1,
 		"the state owner is invoked exactly once for one receipt id")
 
