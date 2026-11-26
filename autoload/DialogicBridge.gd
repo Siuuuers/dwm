@@ -1756,7 +1756,7 @@ func _acknowledge_reached_caption(expected: Dictionary) -> Dictionary:
 
 
 func configure_reached_replay(profile: Object) -> Dictionary:
-	if profile == null or not profile.has_method("get_reached_presentations") \
+	if profile == null or not profile.has_method("get_reached_presentation") \
 			or not profile.has_method("get_gallery_discovery_snapshot"):
 		return _command_failure(&"invalid_replay_profile")
 	if _replay_profile != null and _replay_profile != profile:
@@ -1769,7 +1769,7 @@ func get_scene_passage(passage_id: String) -> Dictionary:
 	if not registered.ok: return registered
 	var passages: Dictionary = registered.value.passages
 	if not passages.has(passage_id): return _command_failure(&"scene_passage_unavailable")
-	return {"ok": true, "value": passages[passage_id].duplicate(true)}
+	return {"ok": true, "value": passages[passage_id]}
 
 func replay_scene_passage(passage_id: String) -> Dictionary:
 	if not _initialized or _replay_profile == null or not is_inside_tree(): return _command_failure(&"replay_unconfigured")
@@ -1835,15 +1835,9 @@ func replay_reached_signature(signature_id: String) -> Dictionary:
 	if _mutation_gate != null:
 		var guarded: Dictionary = _mutation_gate.guard_external(&"gallery_replay")
 		if not guarded.get("ok", false): return guarded
-	var records: Dictionary = _replay_profile.get_reached_presentations()
-	if not records.get("ok", false): return records
-	var signature: Dictionary = {}
-	for record: Dictionary in records.value.records:
-		if str(record.signature_id) == signature_id: signature = record.signature
-	if signature.is_empty(): return _command_failure(&"presentation_not_reached")
-	var checked := _PRESENTATION_SIGNATURE.validate(signature)
-	if not checked.ok or checked.value.signature_id != signature_id: return _command_failure(&"invalid_presentation_signature")
-	signature = checked.value.signature
+	var reached: Dictionary = _replay_profile.get_reached_presentation(signature_id)
+	if not reached.ok: return reached
+	var signature: Dictionary = reached.value
 	var entry: Dictionary = _PRESENTATION_SIGNATURE.entry_record_view(signature.entry_id).value
 	if entry.ending_id != null:
 		var discovered: Dictionary = _replay_profile.get_gallery_discovery_snapshot()
