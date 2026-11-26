@@ -104,10 +104,10 @@ func test_projection_does_not_issue_read_or_reply_facts() -> void:
 	var before: Dictionary = fixture.contacts.duplicate(true)
 	var port: RefCounted = fixture.make_port()
 	var presentation: RefCounted = fixture.make_presentation(port)
-	var projected: Dictionary = presentation.get_projection("lavinia")
+	var projected: Dictionary = presentation.get_projection("lavinia", "en", "ja")
 	assert_true(projected.ok)
 	assert_true(projected.value.unread.lavinia)
-	assert_eq(projected.value.entries[0].texts.en, "TEST incoming.")
+	assert_eq(projected.value.entries[0].texts, {"en": "TEST incoming.", "ja": "TEST incoming."})
 	projected.value.entries[0].texts.en = "Edited presentation"
 	projected.value.unread.lavinia = false
 	var refreshed: Dictionary = presentation.get_projection("lavinia")
