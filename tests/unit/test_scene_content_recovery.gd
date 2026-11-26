@@ -81,7 +81,7 @@ func test_wording_and_insertion_keep_saved_moment_and_only_encountered_history()
 	var before := saved.duplicate(true)
 	_install(_source().replace("B second.", "B revised second.").replace("B first.",
 		"B inserted. #id:line.scene.test.b.new\nB first."))
-	var normalized := SESSION.normalize_player_checkpoint(saved, {}, {})
+	var normalized := SESSION.normalize_player_checkpoint(saved)
 	assert_true(normalized.ok, str(normalized))
 	if not normalized.ok: return
 	assert_false(normalized.value.fallback)
@@ -138,16 +138,22 @@ func test_deleted_saved_line_resumes_at_reached_checkpoint_without_mutating_save
 	var saved := _saved_second()
 	var before := saved.duplicate(true)
 	_install(_source().replace("B second. #id:line.scene.test.b.two\n", ""))
-	var normalized := SESSION.normalize_player_checkpoint(saved, {}, {})
+	var normalized := SESSION.normalize_player_checkpoint(saved)
 	assert_true(normalized.ok, str(normalized))
 	if not normalized.ok: return
 	assert_true(normalized.value.fallback)
 	assert_eq(normalized.value.checkpoint.reading_session.position_id, "line.scene.test.b.one")
 	assert_true(SESSION.expand_player_checkpoint(normalized.value.checkpoint).ok)
 	assert_eq(saved, before)
+	var candidate := saved.duplicate(true)
+	var owned := SESSION.normalize_player_checkpoint(candidate, true)
+	assert_true(owned.ok, str(owned))
+	if not owned.ok: return
+	assert_eq(owned.value.checkpoint, normalized.value.checkpoint)
+	assert_true(is_same(owned.value.checkpoint.reading_session, candidate.reading_session))
 	saved.reading_session.history_sections = [{"checkpoint_id": "line.scene.test.b.two", "last_line_id": "line.scene.test.b.two"}]
 	saved.reading_session.recovery_anchor.line_id = "line.scene.test.b.two"
-	var exhausted := SESSION.normalize_player_checkpoint(saved, {}, {})
+	var exhausted := SESSION.normalize_player_checkpoint(saved)
 	assert_false(exhausted.ok)
 	assert_eq(exhausted.details.line_id, "line.scene.test.b.two")
 
@@ -261,7 +267,7 @@ func test_nonplayable_held_control_resumes_same_caption_after_content_update() -
 	var saved := _saved_second(true)
 	assert_eq(saved.reading_session.boundary, "control")
 	_install(_source().replace("B second.", "B revised second."))
-	var normalized := SESSION.normalize_player_checkpoint(saved, {}, {})
+	var normalized := SESSION.normalize_player_checkpoint(saved)
 	assert_true(normalized.ok, str(normalized))
 	if not normalized.ok: return
 	assert_false(normalized.value.fallback)
@@ -284,12 +290,12 @@ func test_player_format_requires_supported_schema_and_progress() -> void:
 		var broken: Dictionary = saved.duplicate(true)
 		broken.reading_session.schema_version = schema
 		for key: String in ["story_day", "recovery_anchor", "history_sections"]: broken.reading_session.erase(key)
-		assert_false(SESSION.normalize_player_checkpoint(broken, {}, {}).ok)
+		assert_false(SESSION.normalize_player_checkpoint(broken).ok)
 		assert_false(SESSION.project_player_checkpoint(broken).ok)
 		assert_false(SESSION.expand_player_checkpoint(broken).ok)
 		assert_false(session.restore_player(broken.reading_session, FIXTURE.B).ok)
 	saved.frozen_context.playback_id = "wrong-occurrence"
-	assert_false(SESSION.normalize_player_checkpoint(saved, {}, {}).ok)
+	assert_false(SESSION.normalize_player_checkpoint(saved).ok)
 
 func test_sections_roll_and_deleted_history_does_not_backfill_or_change_registration() -> void:
 	var progress := {}
@@ -325,19 +331,19 @@ func test_normalization_rejects_source_corruption_before_current_or_stale_rebind
 				"transaction":
 					broken.transaction_id = "different.transaction"
 					broken.frozen_context.transaction_id = broken.transaction_id
-			assert_false(SESSION.normalize_player_checkpoint(broken, {}, {}).ok, field + str(stale))
+			assert_false(SESSION.normalize_player_checkpoint(broken).ok, field + str(stale))
 	var wrong_day: Dictionary = saved.duplicate(true)
 	wrong_day.reading_session.story_day = 0
-	assert_false(SESSION.normalize_player_checkpoint(wrong_day, {}, {}).ok)
+	assert_false(SESSION.normalize_player_checkpoint(wrong_day).ok)
 	var revisited: Dictionary = saved.duplicate(true)
 	revisited.reading_session.story_day = 2
-	var preserved := SESSION.normalize_player_checkpoint(revisited, {}, {})
+	var preserved := SESSION.normalize_player_checkpoint(revisited)
 	assert_true(preserved.ok, str(preserved))
 	if preserved.ok: assert_eq(preserved.value.story_day, 2, "earlier-day revisit cannot rewind renewal high-water")
 	var absent: Dictionary = saved.duplicate(true)
 	absent.reading_session.position_id = "absent.line"
 	absent.reading_session.captions[0].line_id = "absent.line"
-	assert_false(SESSION.normalize_player_checkpoint(absent, {}, {}).ok, "unchanged registration cannot contain a deleted line")
+	assert_false(SESSION.normalize_player_checkpoint(absent).ok, "unchanged registration cannot contain a deleted line")
 
 func test_normalization_keeps_encountered_previous_day_sections() -> void:
 	_install(_source())
@@ -354,7 +360,7 @@ func test_normalization_keeps_encountered_previous_day_sections() -> void:
 	if not expanded.ok: return
 	compact.value.frozen_context = expanded.value.reading_session.ledger.entry_contexts.values()[0].duplicate(true)
 	compact.value.transaction_id = compact.value.reading_session.occurrence_id
-	var normalized := SESSION.normalize_player_checkpoint(compact.value, {}, {})
+	var normalized := SESSION.normalize_player_checkpoint(compact.value)
 	assert_true(normalized.ok, str(normalized))
 	if normalized.ok:
 		assert_eq(normalized.value.checkpoint.reading_session.history_sections,
@@ -391,7 +397,7 @@ func test_ordinary_lower_day_admission_does_not_rotate_high_water_history() -> v
 func test_wording_change_does_not_require_a_day_route_map() -> void:
 	_install(_source(), false)
 	var saved := _saved_second()
-	var normalized := SESSION.normalize_player_checkpoint(saved, {}, {})
+	var normalized := SESSION.normalize_player_checkpoint(saved)
 	assert_true(normalized.ok, str(normalized))
 	if normalized.ok:
 		assert_eq(normalized.value.checkpoint.reading_session.schema_version, 7)
@@ -400,8 +406,8 @@ func test_wording_change_does_not_require_a_day_route_map() -> void:
 	var broken: Dictionary = saved.duplicate(true)
 	broken.reading_session.position_id = "missing"
 	broken.reading_session.captions[0].line_id = "missing"
-	assert_false(SESSION.normalize_player_checkpoint(broken, {}, {}).ok)
+	assert_false(SESSION.normalize_player_checkpoint(broken).ok)
 	_install(_source().replace("B second.", "B changed."), false)
-	var stale := SESSION.normalize_player_checkpoint(saved, {}, {})
+	var stale := SESSION.normalize_player_checkpoint(saved)
 	assert_true(stale.ok, str(stale))
 	if stale.ok: assert_eq(stale.value.checkpoint.reading_session.position_id, "line.scene.test.b.two")
