@@ -2923,7 +2923,7 @@ func validate_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Diction
 	if not expanded.ok: return expanded
 	checkpoint = expanded.value
 	if checkpoint.get("reading_session") is Dictionary and typeof(checkpoint.reading_session.get("schema_version")) == TYPE_INT and checkpoint.reading_session.schema_version == 5:
-		var scene := _prepare_scene_reading_candidate(checkpoint, entry_contexts)
+		var scene := _prepare_scene_reading_candidate(expanded, entry_contexts)
 		if not scene.ok: return scene
 		return {"ok": true, "value": {"entry_contexts": checkpoint.reading_session.ledger.entry_contexts}}
 	var catalogue := _reading_catalogue_for_entry(str(checkpoint.get("entry_id", "")))
@@ -2978,7 +2978,8 @@ func _validate_reading_entry(session: RefCounted, entry_id: String, context: Dic
 	return {"ok": true, "label": label} if checked.ok else checked
 
 
-func _prepare_scene_reading_candidate(checkpoint: Dictionary, entry_contexts: Dictionary = {}) -> Dictionary:
+func _prepare_scene_reading_candidate(expanded: Dictionary, entry_contexts: Dictionary = {}) -> Dictionary:
+	var checkpoint: Dictionary = expanded.value
 	var keys := _RESUME_CHECKPOINT_KEYS.duplicate()
 	keys.append("manifest_fingerprint")
 	keys.append("reading_session")
@@ -2993,11 +2994,13 @@ func _prepare_scene_reading_candidate(checkpoint: Dictionary, entry_contexts: Di
 	var selected := _ENTRY_MANIFEST.scene_contract_tables()
 	if not selected.ok or checkpoint.manifest_fingerprint != selected.value.fingerprint:
 		return _command_failure(&"reading_catalogue_mismatch")
-	var candidate := _READING_SESSION.new()
-	var configured: Dictionary = candidate.configure_scene()
-	if not configured.ok: return configured
-	var restored: Dictionary = candidate.restore(checkpoint.reading_session, checkpoint.entry_id)
-	if not restored.ok: return restored
+	var candidate: _READING_SESSION = expanded.get("session")
+	if candidate == null:
+		candidate = _READING_SESSION.new()
+		var configured: Dictionary = candidate.configure_scene()
+		if not configured.ok: return configured
+		var restored: Dictionary = candidate.restore(checkpoint.reading_session, checkpoint.entry_id)
+		if not restored.ok: return restored
 	var saved: Dictionary = checkpoint.reading_session
 	if saved.boundary not in ["line", "control"]: return _command_failure(&"scene_restore_boundary_unsupported")
 	var frame := NarrativeCaptionLedger._scene_frame_view(saved.ledger.entry_contexts, saved.occurrence_id, checkpoint.entry_id)
@@ -3026,7 +3029,7 @@ func stage_scene_reading_restore(checkpoint: Dictionary, operation_id: String, r
 	if operation_id.strip_edges().is_empty() or not _scene_stage.is_empty() \
 			or (not _scene_restore.is_empty() and not _scene_restore.get("confirmed", false)):
 		return _command_failure(&"scene_restore_staging_invalid")
-	var checked := _prepare_scene_reading_candidate(checkpoint)
+	var checked := _prepare_scene_reading_candidate(expanded)
 	if not checked.ok: return checked
 	if checkpoint.reading_session.boundary == "control" and (_runtime_adapter == null \
 			or not _runtime_adapter.has_method("capture_scene_control_position")):
