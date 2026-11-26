@@ -772,7 +772,7 @@ func _prepare_backup_action_profiled(action: String, locator_id: String, profile
 			earlier = candidate["journal_candidate"]["earlier"]
 			proven_snapshot = bundle.snapshot
 		else:
-			bundle = get_latest_stable_checkpoint()["value"]["bundle"]
+			bundle = _journal.current_bundle_for_save()
 			earlier = _journal.get_bundles_for_disk()
 		_save_load_profile_phase(profile, "capture_us")
 		var built := SAVE_DOCUMENT_SCHEMA.build(StringName(locator["kind"]), locator["slot_id"],
@@ -1116,12 +1116,12 @@ func _write_latest(locator: Dictionary, save_reason: String, session_exit: bool 
 			_pending_deferred_save = true
 			return {"ok": false, "code": &"save_locked", "message": "",
 				"details": {"silent": true, "deferred": true}}
-	var bundle: Dictionary = _journal.get_current_bundle()
-	if not bundle.get("ok", false):
+	var bundle: Dictionary = _journal.current_bundle_for_save()
+	if bundle.is_empty():
 		return _fail(&"no_stable_checkpoint", "")
 	var built: Dictionary = SAVE_DOCUMENT_SCHEMA.build(
 		StringName(str(locator["kind"])), locator["slot_id"], StringName(save_reason),
-		bundle["value"]["bundle"], _journal.get_bundles_for_disk(), _capture_saved_time())
+		bundle, _journal.get_bundles_for_disk(), _capture_saved_time())
 	if not built.get("ok", false):
 		save_failed.emit(built)
 		return built
