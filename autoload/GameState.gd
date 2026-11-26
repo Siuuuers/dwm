@@ -3526,7 +3526,7 @@ func _prepare_scene_playable_event(event: Dictionary, digest: String, lease: Str
 	if not retained.ok: return retained
 	var material := {}
 	if retained.found:
-		material = {"result": retained.value.duplicate(true)}
+		material = {"result": retained.value}
 	else:
 		if not _SCENE_EVENT._equal(current.get("next_ordinal"), event.ordinal) \
 				or current.get("predecessor") != event.predecessor:
@@ -3554,8 +3554,8 @@ func _prepare_scene_playable_event(event: Dictionary, digest: String, lease: Str
 		if scene_physical_consumed(previous_physical, candidate.gameplay.scene_challenge_outcomes):
 			candidate.gameplay.route_context.erase("active_dating_challenge")
 			candidate.gameplay.route_context.erase("dating_active_attempt_ref")
-		material = {"source_context": current.duplicate(true), "source_input": source_input,
-			"snapshot_input": candidate, "receipt": made.value.duplicate(true), "result": result.duplicate(true)}
+		material = {"source_context": current, "source_input": source_input,
+			"snapshot_input": candidate, "receipt": made.value, "result": result}
 	var after := _scene_runtime_event_context()
 	if not after.get("ok", false) or not _SCENE_EVENT._equal(after.get("value"), current) \
 			or not _SCENE_EVENT._equal(_command_receipts, prior) \
@@ -3587,8 +3587,8 @@ func _accept_scene_playable_event(event: Dictionary, digest: String, lease: Stri
 	if not _scene_event_bridge.has_method("commit_scene_playable"):
 		return _transaction_failure(&"event_dependency_invalid", "playable Bridge required")
 	var material: Dictionary = prepared.value
-	_scene_playable_operation = {"material": material.duplicate(true), "lease": lease}
-	var committed: Dictionary = _scene_event_bridge.commit_scene_playable(event.duplicate(true), material.duplicate(true), lease)
+	_scene_playable_operation = {"material": material, "lease": lease}
+	var committed: Dictionary = _scene_event_bridge.commit_scene_playable(event, material, lease)
 	_scene_playable_operation = {}
 	if not committed.get("ok", false):
 		return _scene_event_fatal(committed.get("code", &"event_commit_ack_invalid")) if committed.get("committed", false) else committed
@@ -3601,10 +3601,10 @@ func _accept_scene_playable_event(event: Dictionary, digest: String, lease: Stri
 			or not _SCENE_EVENT._equal(boundary.value.checkpoint, committed.value.checkpoint) \
 			or not _SCENE_EVENT._equal(boundary.value.anchor, material.source_context.anchor):
 		return _scene_event_fatal(&"event_adoption_source_changed")
-	_command_receipts = material.snapshot_input.command_receipts.duplicate(true)
-	_scene_snapshot_references = material.snapshot_input.scene.duplicate(true)
-	route_context = material.snapshot_input.gameplay.route_context.duplicate(true)
-	return {"ok": true, "duplicate": false, "value": material.result.duplicate(true)}
+	_command_receipts = material.snapshot_input.command_receipts
+	_scene_snapshot_references = material.snapshot_input.scene
+	route_context = material.snapshot_input.gameplay.route_context
+	return {"ok": true, "duplicate": false, "value": material.result}
 
 
 func continue_optional_scene_challenge() -> Dictionary:

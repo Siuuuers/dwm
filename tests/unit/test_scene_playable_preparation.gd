@@ -158,6 +158,7 @@ func test_returned_material_is_detached_and_preparation_reuses_issued_command() 
 	first.value.source_context.anchor.line_id = "TEST.changed"
 	first.value.receipt.scene_event.result.kind = "TEST.changed"
 	first.value.result.kind = "TEST.other"
+	assert_eq(first.value.snapshot_input.command_receipts[event.command_id], expected.value.receipt)
 	assert_eq(_prepare(), expected)
 	assert_eq(state._command_receipts.size(), 1, "preparation never installs its new receipt")
 
