@@ -123,7 +123,7 @@ func _stage(lease: String) -> void:
 	candidate.scene.active_admission_receipt_id = "TEST.target"
 	game._scene_entry_operation = {"lease": lease, "live_session": game._live_session_fact(),
 		"binding": {"target_id": "TEST.target", "trigger_command_id": fixture.event.command_id},
-		"prior_receipts": before.command_receipts.duplicate(true), "prior_input": before.duplicate(true),
+		"prior_input": before.duplicate(true),
 		"day_plan": day_plan.duplicate(true), "candidate": candidate,
 		"staged": {"narrative_checkpoint": {"TEST": "staged target"}}, "admitted": {"entry_id": "TEST.next"}}
 
