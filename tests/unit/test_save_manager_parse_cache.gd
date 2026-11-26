@@ -139,6 +139,14 @@ func test_cold_and_warm_results_preserve_types_and_are_detached() -> void:
 	second.value.nested.items.append("second caller edit")
 	assert_true(CANONICAL._deep_same(manager._parse_document_text(text), expected))
 
+func test_cold_and_warm_inspection_share_only_the_cached_parse() -> void:
+	var manager := _manager()
+	var text := '{"nested":[1]}'
+	var inspection: Dictionary = manager._parse_document_text(text, true)
+	assert_true(is_same(inspection, manager._parse_document_text(text, true)))
+	manager._parse_document_text(text).value.nested.clear()
+	assert_eq(inspection.value.nested, [1])
+
 func test_exact_text_changes_and_malformed_inputs_keep_strict_results() -> void:
 	var manager := _manager()
 	for text: String in ['{"value":1}', '{ "value":1}', '{"value":2}']:
