@@ -144,7 +144,7 @@ func evaluate(request: Dictionary) -> Dictionary:
 		}
 
 	return {"ok": true, "code": &"ok", "value": {
-		"condition_receipt": condition_receipt.duplicate(true),
+		"condition_receipt": condition_receipt,
 		"destination_intent": destination_intent,
 		"notification_intent": notification_intent,
 	}, "receipt": condition_receipt.duplicate(true)}
@@ -162,8 +162,7 @@ static func _decision(trigger: bool, day: int, dark_mode: bool, sylvia_read: boo
 	return "day7_hospital_alone"
 
 
-func _derive(child_kind: String, action_receipt: Dictionary, projections: Array) -> Dictionary:
-	var source_ids: Array = projections.duplicate()
+func _derive(child_kind: String, action_receipt: Dictionary, source_ids: Array) -> Dictionary:
 	source_ids.sort()
 	var derived: Variant = _context_port.call(&"derive_child", {
 		"child_kind": child_kind, "ordinal": 0,
