@@ -345,8 +345,8 @@ func mark_caption_variant_witnessed(beat: Dictionary, registry: Dictionary, chec
 		or (not discovery.witness_id.is_empty() and not library.witnesses.has(discovery.witness_id)))
 	if not discovered and _profile.witnessed_caption_variants.has(witness_id):
 		return {"ok": true, "code": &"ok", "value": {"witness_id": witness_id}, "unchanged": true}
-	var candidate := _caption_history_candidate()
-	_discover_dialogue(candidate.dialogue_library, discovery)
+	var candidate := _caption_history_candidate(discovered)
+	if discovered: _discover_dialogue(candidate.dialogue_library, discovery)
 	candidate.witnessed_caption_variants[witness_id] = beat
 	if beat.line_id not in candidate.visited_line_ids:
 		candidate.visited_line_ids.append(beat.line_id)
@@ -402,8 +402,10 @@ func merge_caption_history(beats: Array[Dictionary], registry: Dictionary, expec
 	for beat: Dictionary in beats:
 		var admitted := CAPTION_WITNESSES.admit(beat, registry)
 		if not admitted.ok: return admitted
-		admitted_beats[admitted.value.witness_id] = beat
-	var candidate := _caption_history_candidate()
+		var witness_id: String = admitted.value.witness_id
+		if not checkpoint_id.is_empty() or not _profile.witnessed_caption_variants.has(witness_id):
+			admitted_beats[witness_id] = beat
+	var candidate := {} if admitted_beats.is_empty() else _caption_history_candidate(not checkpoint_id.is_empty())
 	var changed := false
 	var history_added := false
 	for witness_id: String in admitted_beats:
@@ -423,9 +425,9 @@ func merge_caption_history(beats: Array[Dictionary], registry: Dictionary, expec
 	return {"ok": true, "code": &"ok", "value": {"history_added": history_added}}
 
 
-func _caption_history_candidate() -> Dictionary:
+func _caption_history_candidate(copy_library: bool) -> Dictionary:
 	var candidate := _profile.duplicate()
-	candidate.dialogue_library = get_dialogue_library()
+	if copy_library: candidate.dialogue_library = get_dialogue_library()
 	candidate.witnessed_caption_variants = _profile.witnessed_caption_variants.duplicate()
 	candidate.visited_line_ids = _profile.visited_line_ids.duplicate()
 	return candidate
