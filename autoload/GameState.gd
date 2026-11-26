@@ -4301,7 +4301,8 @@ func return_completed_scene_passage() -> void:
 	var callback := _on_scene_passage_retired.bind(_live_session_fact())
 	if _scene_event_bridge.scene_terminal_retired.is_connected(callback): return
 	_scene_event_bridge.scene_terminal_retired.connect(callback, CONNECT_ONE_SHOT | CONNECT_DEFERRED)
-	var retired: Dictionary = _scene_event_bridge.retire_scene_for_ending("passage:" + run_id)
+	var retired: Dictionary = _scene_event_bridge.retire_completed_scene_passage("passage:" + run_id,
+		_scene_snapshot_references.active_occurrence_id)
 	if not retired.get("ok", false):
 		_scene_event_bridge.scene_terminal_retired.disconnect(callback)
 		_scene_event_fatal(&"scene_passage_retirement_failed")

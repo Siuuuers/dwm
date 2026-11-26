@@ -135,7 +135,7 @@ func test_physical_completion_and_gallery_are_ordered_and_persisted() -> void:
 
 class TerminalReaderSpy extends RefCounted:
 	var retire_calls := 0
-	func retire_scene_for_ending(_admission_id: String) -> Dictionary:
+	func retire_completed_scene_passage(_admission_id: String, _occurrence: String) -> Dictionary:
 		retire_calls += 1
 		return {"ok": true}
 
