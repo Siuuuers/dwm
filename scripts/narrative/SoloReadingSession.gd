@@ -579,7 +579,7 @@ func _validate_scene_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 	var checked := _validate_scene_base(saved, entry_id)
 	if not checked.ok: return checked
 	if saved.next_operation == null: return checked
-	var operation := TRAVERSAL.validate_scene_operation_path(saved, entry_id, _scene_nodes[entry_id])
+	var operation := TRAVERSAL.validated_scene_opposite_view(saved, entry_id, _scene_nodes[entry_id])
 	if not operation.ok: return operation
 	var endpoint := _validate_scene_base(operation.value, entry_id)
 	if not endpoint.ok: return endpoint

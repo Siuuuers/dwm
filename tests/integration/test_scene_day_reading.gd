@@ -419,7 +419,7 @@ func test_next_planning_is_detached_and_stops_at_registered_control() -> void:
 		func(_beat: Dictionary) -> bool: return false).ok,
 		"ordinary Next cannot cross a held owner boundary")
 
-func test_scene_operation_path_returns_exact_detached_opposite_for_both_phases() -> void:
+func test_scene_operation_validates_the_opposite_position_for_both_phases() -> void:
 	var created := FIXTURE.create_session()
 	assert_true(created.ok, str(created))
 	if not created.ok: return
@@ -440,18 +440,16 @@ func test_scene_operation_path_returns_exact_detached_opposite_for_both_phases()
 		assert_true(is_same(view.value.plan, selected.value.next_operation.plan))
 		var expected := OP.project(planned.value, "destination" if phase == "source" else "source")
 		assert_true(expected.ok, str(expected))
-		var checked := OP.validate_scene_operation_path(selected.value, FIXTURE.A, session._scene_nodes[FIXTURE.A])
+		var checked := OP.validated_scene_opposite_view(selected.value, FIXTURE.A, session._scene_nodes[FIXTURE.A])
 		assert_true(checked.ok, str(checked))
 		if not checked.ok: return
-		assert_eq(checked.value, expected.value)
+		assert_eq(checked.value, OP.without_operation_view(expected.value))
+		assert_true(is_same(checked.value.ledger.entry_contexts,
+			selected.value.next_operation.plan.source_reading.ledger.entry_contexts))
 		assert_true(session.restore(selected.value, FIXTURE.A).ok, phase)
-		checked.value.ledger.captions.clear()
-		checked.value.next_operation.plan.source_reading.ledger.captions.clear()
-		assert_eq(selected.value, before, "returned endpoint and operation cannot mutate caller input")
-		assert_eq(OP.validate_scene_operation_path(selected.value, FIXTURE.A,
-			session._scene_nodes[FIXTURE.A]).value, expected.value)
+		assert_eq(selected.value, before, "validation and restore preserve the selected checkpoint")
 		selected.value.next_operation.operation_id = "0".repeat(64)
-		assert_false(OP.validate_scene_operation_path(selected.value, FIXTURE.A,
+		assert_false(OP.validated_scene_opposite_view(selected.value, FIXTURE.A,
 			session._scene_nodes[FIXTURE.A]).ok, "each call freshly authenticates the plan hash")
 
 func test_scene_validation_leaves_live_ledger_and_restore_installs_detached_selected_endpoint() -> void:

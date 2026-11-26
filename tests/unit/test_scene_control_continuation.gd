@@ -69,7 +69,7 @@ func test_continuation_records_the_authored_thought_on_the_same_reading_step() -
 	if not projected.ok: return
 	assert_eq(projected.value.frontier.line_id, nodes[target].line_id)
 	assert_eq(projected.value.player_progress.history_sections.back().last_line_id, "line.scene.test.b.thought")
-	assert_true(OP.validate_scene_operation_path(projected.value, FIXTURE.B, nodes).ok)
+	assert_true(OP.validated_scene_opposite_view(projected.value, FIXTURE.B, nodes).ok)
 
 func test_retained_live_state_binds_history_cursor_progress_and_operation() -> void:
 	var session := _at_playable()
