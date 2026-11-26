@@ -87,6 +87,10 @@ static func compile(document: Dictionary) -> Dictionary:
 	return {"ok": true, "value": {"entries": entries}}
 
 static func select(entry: Dictionary, presentation: Dictionary) -> Dictionary:
+	var selected := select_view(entry, presentation)
+	return {"ok": true, "value": selected.value.duplicate(true)} if selected.ok else selected
+
+static func select_view(entry: Dictionary, presentation: Dictionary) -> Dictionary:
 	var entry_id: Variant = entry.get("entry_id")
 	if not entry_id is String or entry_id not in [PRE_ENTRY, POST_ENTRY] \
 			or not entry.get("variants") is Array \
@@ -104,10 +108,10 @@ static func select(entry: Dictionary, presentation: Dictionary) -> Dictionary:
 	if chosen.is_empty(): return _fail(&"reading_selector_unavailable")
 	var beats: Array = []
 	for line: Dictionary in chosen.lines:
-		beats.append(_descriptor(entry_id, line, selectors))
+		beats.append(_descriptor(entry_id, line, chosen.selector_values))
 	return {"ok": true, "value": {"entry_id": entry_id, "content_version": entry.content_version,
-		"label": chosen.label, "lines": chosen.lines.duplicate(true), "beats": beats,
-		"selectors": selectors}}
+		"label": chosen.label, "lines": chosen.lines, "beats": beats,
+		"selectors": chosen.selector_values}}
 
 static func _descriptor(entry_id: String, line: Dictionary, selectors: Dictionary) -> Dictionary:
 	return {"beat_id": line.beat_id, "line_id": line.line_id, "owning_entry_id": entry_id,
@@ -117,7 +121,7 @@ static func _descriptor(entry_id: String, line: Dictionary, selectors: Dictionar
 static func _project(fields: Dictionary, names: Array) -> Dictionary:
 	var result := {}
 	for field: String in names: result[field] = fields[field]
-	return result.duplicate(true)
+	return result
 
 static func _same_fields(value: Variant, expected: Array) -> bool:
 	return value is Array and value.size() == expected.size() and _subset_fields(value, expected)
