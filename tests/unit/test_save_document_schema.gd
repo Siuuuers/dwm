@@ -56,36 +56,31 @@ func test_owned_snapshot_build_matches_independent_document_validation() -> void
 	var checked: Dictionary = preload("res://scripts/domain/run/RunSnapshotSchema.gd").validate(current.snapshot)
 	assert_true(checked.ok)
 	if not checked.ok: return
+	var source: Dictionary = current.snapshot
 	current.snapshot = checked.value.candidate
 	var full: Dictionary = SCHEMA.build(&"slot", 1, &"manual", current, [])
-	var owned: Dictionary = SCHEMA.build(&"slot", 1, &"manual", current, [], {}, [], {}, current.snapshot)
+	var owned: Dictionary = SCHEMA.build(&"slot", 1, &"manual", current, [], {}, {}, current.snapshot)
 	assert_true(full.ok and owned.ok)
 	if not full.ok or not owned.ok: return
 	var encoded: Dictionary = WRITER.stringify(owned.value)
 	assert_true(encoded.ok)
 	assert_eq(encoded.value, WRITER.stringify(full.value).value)
 	assert_true(SCHEMA.validate(StrictJson.parse_object(encoded.value).value).ok)
-	current.snapshot.gameplay.story_flags["TEST.after_build"] = true
+	assert_true(is_same(owned.value.current_snapshot.snapshot, checked.value.candidate))
+	source.gameplay.story_flags["TEST.after_build"] = true
 	assert_false(owned.value.current_snapshot.snapshot.gameplay.story_flags.has("TEST.after_build"))
 
-func test_proven_scene_journal_matches_full_builder_and_remains_detached() -> void:
+func test_scene_journal_remains_detached_and_supports_outgoing_validation() -> void:
 	var first := _bundle(2)
 	var current := _bundle(3)
-	var proof: Dictionary = SCHEMA.build(&"autosave", null, &"automatic", first, []).value.current_snapshot
-	var journal: Array = [first]
-	var proofs: Array = [proof]
-	var full: Dictionary = SCHEMA.build(&"autosave", null, &"automatic", current, journal)
-	var proven: Dictionary = SCHEMA.build(&"autosave", null, &"automatic", current, journal, {}, proofs)
-	assert_true(full.ok, str(full))
-	assert_true(proven.ok, str(proven))
-	if not full.ok or not proven.ok: return
-	assert_eq(WRITER.stringify(proven.value).value, WRITER.stringify(full.value).value)
-	assert_true(SCHEMA.validate(proven.value).ok)
-	assert_true(SCHEMA.validate_outgoing(proven.value, proofs).ok)
-	proof.snapshot.gameplay.story_flags["TEST.after_proof"] = true
-	assert_false(proven.value.recovery_journal[0].snapshot.gameplay.story_flags.has("TEST.after_proof"))
-	proven.value.recovery_journal[0].snapshot.gameplay.story_flags["TEST.after_document"] = true
-	assert_false(proof.snapshot.gameplay.story_flags.has("TEST.after_document"))
+	var built: Dictionary = SCHEMA.build(&"autosave", null, &"automatic", current, [first])
+	assert_true(built.ok, str(built))
+	if not built.ok: return
+	assert_true(SCHEMA.validate(built.value).ok)
+	assert_true(SCHEMA.validate_outgoing(built.value, [first]).ok)
+	first.snapshot.gameplay.story_flags["TEST.after_build"] = true
+	assert_false(built.value.recovery_journal[0].snapshot.gameplay.story_flags.has("TEST.after_build"))
+
 func test_normalize_engine_text_returns_stringname_free_subtrees_by_identity() -> void:
 	# A3: _normalize_engine_text rebuilds the whole current bundle AND the whole recovery journal on
 	# every build, even though a StringName is rare and the rebuild is the identity in that case.

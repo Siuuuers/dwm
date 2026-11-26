@@ -103,9 +103,8 @@ function Get-HistoryMedian {
 
 function Assert-CheckpointDiagnostics {
     param([object[]]$Records)
-    $prepareFields = @('document_proof_entries', 'document_proof_hits', 'document_proof_misses',
-        'document_proof_lookup_us', 'document_schema_build_us', 'document_schema_discriminators_us',
-        'document_schema_proof_selection_us', 'document_schema_normalize_current_us',
+    $prepareFields = @('document_schema_build_us', 'document_schema_discriminators_us',
+        'document_schema_normalize_current_us',
         'document_schema_normalize_journal_us', 'document_schema_validate_current_us',
         'document_schema_validate_journal_us', 'document_schema_compose_us', 'document_schema_metadata_us')
     $commitFields = @('outgoing_normalize_us', 'outgoing_validate_us', 'outgoing_history_capture_us',
@@ -126,7 +125,7 @@ function Assert-CheckpointDiagnostics {
         }
         if ($record.scope -ceq 'save_checkpoint_prepare') {
             $fields = $prepareFields
-            $booleans = @('document_schema_journal_proven')
+            $booleans = @()
             $counts.prepare_records += 1
         } elseif ($record.scope -ceq 'save_checkpoint') {
             $journalField = if ($record.journal_spliced) { 'outgoing_schema_compose_proven_journal_us' } else { 'outgoing_schema_validate_journal_us' }
