@@ -332,6 +332,23 @@ func test_duplicate_and_empty_batches_are_write_signal_and_revision_free() -> vo
 	assert_signal_emit_count(f.manager, "visited_history_changed", 0)
 	assert_signal_emit_count(f.manager, "caption_variant_witness_changed", 0)
 
+func test_known_caption_can_still_discover_a_checkpoint() -> void:
+	var library := preload("res://tests/support/DialogueLibraryFixture.gd")
+	assert_true(library.install().ok)
+	var f := _fixture()
+	var beats: Array[Dictionary] = [library.beat()]
+	var registry := library.registry(beats[0])
+	assert_true(f.manager.merge_caption_history(beats, registry).ok)
+	var writes: int = f.storage.writes
+	var result: Dictionary = f.manager.merge_caption_history(beats, registry, -1, library.CHECKPOINT)
+	assert_true(result.ok)
+	assert_eq(result.value, {"history_added": false})
+	assert_eq(f.manager.get_dialogue_library(), library.discovery())
+	assert_eq(f.storage.writes, writes + 1)
+	assert_true(f.manager.merge_caption_history(beats, registry, -1, library.CHECKPOINT).unchanged)
+	assert_eq(f.storage.writes, writes + 1)
+	assert_true(library.CATALOGUE.configure([], [], {}).ok)
+
 func test_new_exact_variant_of_visited_line_commits_without_history_added_status() -> void:
 	var f := _merge_fixture()
 	var first: Array[Dictionary] = [_merge_beat()]
