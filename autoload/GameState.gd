@@ -1549,7 +1549,7 @@ func capture_new_day_gameplay() -> Dictionary:
 	if _run_lifecycle.is_scene_run():
 		gameplay = _capture_scene_gameplay()
 	else:
-		gameplay = _legacy_run_gameplay(to_save_dict(), _narrative_variables).duplicate(true)
+		gameplay = _capture_legacy_gameplay()
 	gameplay.merge({
 		"minesweeper_rounds_left": 2,
 		"minesweeper_app_rounds_finished_today": 0,
@@ -2746,6 +2746,10 @@ static func _legacy_run_gameplay(saved: Dictionary, variables: Dictionary) -> Di
 	return gameplay
 
 
+func _capture_legacy_gameplay() -> Dictionary:
+	return _legacy_run_gameplay(to_save_dict(), _narrative_variables).duplicate(true)
+
+
 func capture_run_snapshot_input() -> Dictionary:
 	return capture_run_snapshot_with_contacts(contacts)
 
@@ -2758,15 +2762,13 @@ func capture_run_snapshot_with_contacts(snapshot_contacts: Dictionary) -> Dictio
 			"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(),
 			"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(),
 			"command_receipts": _command_receipts.duplicate(true)}
-	var current: Dictionary = to_save_dict()
-	var gameplay := _legacy_run_gameplay(current, _narrative_variables.duplicate(true))
 	return {
 		"lifecycle": _run_lifecycle.to_dict(),
-		"gameplay": gameplay,
+		"gameplay": _capture_legacy_gameplay(),
 		"contacts": snapshot_contacts.duplicate(true),
 		"committed_schedule": _canonical_committed_schedule(),
 		"desktop": _capture_desktop_snapshot(),
-		"dating": current.get("dating_route_state", {}).duplicate(true) if typeof(current.get("dating_route_state")) == TYPE_DICTIONARY else {},
+		"dating": dating_route_state.duplicate(true),
 		"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(),
 		"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(),
 		"command_receipts": _command_receipts.duplicate(true),

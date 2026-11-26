@@ -816,7 +816,7 @@ func _call_provider(key: String, args: Array) -> Dictionary:
 		"snapshot_input", "audio_context":
 			if typeof(raw) != TYPE_DICTIONARY:
 				return _fail(&"invalid_provider_result", key + " must return a dictionary")
-			return {"ok": true, "value": raw.duplicate(true) if key == "snapshot_input" else raw}
+			return {"ok": true, "value": raw}
 		"route_id":
 			if (typeof(raw) != TYPE_STRING and typeof(raw) != TYPE_STRING_NAME) or String(raw).is_empty():
 				return _fail(&"invalid_provider_result", "route_id must be a nonempty string")

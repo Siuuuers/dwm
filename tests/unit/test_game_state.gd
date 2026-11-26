@@ -491,6 +491,15 @@ func test_contacts_restored_from_run_snapshot() -> void:
 	GameState._apply_run_snapshot_silent(snapshot)
 	assert_eq((GameState.contacts["messages"]["lavinia"] as Array).size(), 1, "snapshot contacts section restores into GameState")
 
+func test_run_snapshot_owns_nested_gameplay_at_capture() -> void:
+	GameState.route_context = {"selection": {"lines": ["first"]}}
+	var captured := GameState.capture_run_snapshot_input()
+	assert_true(captured.has("committed_schedule"), "exercise the non-scene capture")
+	GameState.route_context.selection.lines.append("second")
+	assert_eq(captured.gameplay.route_context.selection.lines, ["first"])
+	captured.gameplay.route_context.selection.lines.clear()
+	assert_eq(GameState.route_context.selection.lines, ["first", "second"])
+
 func test_new_run_snapshot_input_carries_contacts_defaults() -> void:
 	GameState.reset_game()
 	# Plan 02 Task 6 (dwm-p2r.32): branch_id/desktop_timeline_generation/causal_day_instance/receipt
