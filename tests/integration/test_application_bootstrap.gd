@@ -559,7 +559,6 @@ func test_title_core_initializes_profile_before_runtime_and_reuses_one_gate() ->
 		&"WindowModeManager": autofree(WINDOW_MODE_MANAGER.new(UnavailableWindowOutput.new())),
 		&"InputManager": autofree(INPUT_MANAGER.new()),
 		&"AccessibilityManager": autofree(ACCESSIBILITY_MANAGER.new()),
-		&"DialogicBridge": autofree(DIALOGIC_BRIDGE.new()),
 	}
 	watch_signals(bootstrap)
 	var title: Dictionary = bootstrap.start_title()
@@ -574,6 +573,7 @@ func test_title_core_initializes_profile_before_runtime_and_reuses_one_gate() ->
 	assert_false(bootstrap.injected_targets.has(&"SceneRouter"))
 	var gate: Object = bootstrap.get("_application_gate")
 	var issuer: Object = bootstrap.get("_desktop_identity_nonce_issuer")
+	bootstrap.injected_targets[&"DialogicBridge"] = autofree(DIALOGIC_BRIDGE.new())
 	bootstrap.injected_targets[&"GameState"] = autofree(GAME_STATE.new())
 	add_child(bootstrap.injected_targets[&"GameState"])
 	bootstrap.injected_targets[&"SceneRouter"] = autofree(SCENE_ROUTER.new())
