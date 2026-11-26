@@ -40,6 +40,11 @@ class SwitchingRoot:
 		if frozen_checkpoint and schema_reading:
 			switches += 1
 			switch_owner.call()
+	func resolve_child_parent(receipt_id: String) -> Dictionary:
+		var result: Dictionary = delegate.resolve_child_parent(receipt_id)
+		_maybe_switch()
+		return result
+
 	func verify_receipt(receipt: Dictionary, purpose: StringName) -> Dictionary:
 		var result: Dictionary = delegate.verify_receipt(receipt, purpose)
 		_maybe_switch()

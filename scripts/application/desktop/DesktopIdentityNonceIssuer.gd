@@ -7,8 +7,6 @@ const _CANONICAL_WRITER := preload("res://scripts/validation/CanonicalJsonWriter
 const GENERATION_PURPOSE := &"desktop_timeline_generation"
 const CAUSAL_DAY_PURPOSE := &"causal_day_instance"
 
-const CHILD_PARENT_PURPOSE := &"transaction_id"
-
 const CHILD_KINDS: Array[String] = [
 	"schedule_entry",
 	"schedule_commit",
@@ -124,10 +122,10 @@ func derive_child(request: Dictionary) -> Dictionary:
 	var ordinal_check := _validate_child_shape(child_kind, request["ordinal"], request["source_ids"])
 	if not ordinal_check.get("ok", false):
 		return ordinal_check
-	var parent := _resolve_parent(str(request["parent_receipt_id"]))
+	var parent: Dictionary = _root.resolve_child_parent(str(request["parent_receipt_id"]))
 	if not parent.get("ok", false):
 		return parent
-	var derived := _child_id(parent["value"], child_kind, int(request["ordinal"]),
+	var derived := _child_id(parent.value.receipt, child_kind, int(request["ordinal"]),
 		request["source_ids"])
 	if not derived.get("ok", false):
 		return derived
@@ -161,10 +159,10 @@ func validate_child(provenance: Dictionary, expected_kind: StringName) -> Dictio
 	var shape := _validate_child_shape(child_kind, provenance["ordinal"], provenance["source_ids"])
 	if not shape.get("ok", false):
 		return shape
-	var parent := _resolve_parent(str(provenance["parent_receipt_id"]))
+	var parent: Dictionary = _root.resolve_child_parent(str(provenance["parent_receipt_id"]))
 	if not parent.get("ok", false):
 		return parent
-	var derived := _child_id(parent["value"], child_kind, int(provenance["ordinal"]),
+	var derived := _child_id(parent.value.receipt, child_kind, int(provenance["ordinal"]),
 		provenance["source_ids"])
 	if not derived.get("ok", false):
 		return derived
@@ -213,20 +211,6 @@ func capture_root() -> Dictionary:
 	var captured: Dictionary = _root.call(&"capture")
 	return captured
 
-
-
-func _resolve_parent(parent_receipt_id: String) -> Dictionary:
-	var captured: Dictionary = _root.call(&"capture")
-	if not captured.get("ok", false):
-		return captured
-	var receipts: Dictionary = (captured.get("value", {}) as Dictionary).get("receipts", {})
-	if not receipts.has(parent_receipt_id):
-		return _failed(&"child_parent_absent", parent_receipt_id)
-	var parent: Dictionary = receipts[parent_receipt_id]
-	var proven: Dictionary = _root.call(&"verify_receipt", parent, CHILD_PARENT_PURPOSE)
-	if not proven.get("ok", false):
-		return proven
-	return {"ok": true, "value": parent}
 
 
 func _child_id(parent: Dictionary, child_kind: String, ordinal: int, source_ids: Variant) -> Dictionary:

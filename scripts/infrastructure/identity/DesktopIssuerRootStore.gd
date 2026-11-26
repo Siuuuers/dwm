@@ -240,6 +240,14 @@ func verify_receipt(receipt: Dictionary, expected_purpose: StringName) -> Dictio
 	return {"ok": true, "value": {"receipt": receipt.duplicate()}}
 
 
+func resolve_child_parent(receipt_id: String) -> Dictionary:
+	var ready := _require_loaded("resolve_child_parent")
+	if not ready.ok: return ready
+	if not _document.receipts.has(receipt_id):
+		return _failed(&"child_parent_absent", receipt_id)
+	return verify_receipt(_document.receipts[receipt_id], &"transaction_id")
+
+
 func prepare_allocation(request: Dictionary) -> Dictionary:
 	var ready := _require_loaded("prepare_allocation")
 	if not ready.get("ok", false):
