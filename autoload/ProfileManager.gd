@@ -81,8 +81,8 @@ func initialize(storage: RefCounted = null) -> Dictionary:
 		_profile = reconciled["value"]
 	_profile_revision += 1
 	_initialized = true
-	profile_restored.emit(_profile.duplicate(true))
-	return {"ok": true, "code": &"ok", "value": _profile.duplicate(true)}
+	_notify_profile_restored()
+	return {"ok": true, "code": &"ok", "value": get_profile_snapshot()}
 
 
 static func validate_scene_new_run_material(material: Dictionary) -> Dictionary:
@@ -94,11 +94,11 @@ static func validate_scene_new_run_material(material: Dictionary) -> Dictionary:
 			or not PAIR_DECK._scene_keys(material.scene_assignment, ["run_id", "receipt"]) \
 			or not PAIR_DECK._scene_id(material.scene_assignment.run_id):
 		return {"ok": false, "code": &"invalid_scene_new_run_material"}
-	var before: Dictionary = SCHEMA.validate(material.before)
+	var before: Dictionary = SCHEMA.check(material.before)
 	if not before.ok: return before
-	var after: Dictionary = SCHEMA.validate(material.candidate)
+	var after: Dictionary = SCHEMA.check(material.candidate)
 	if not after.ok: return after
-	var original_after: Dictionary = WRITER.stringify(after.value)
+	var original_after: Dictionary = WRITER.stringify(material.candidate)
 	if not original_after.ok: return original_after
 	var receipt: Dictionary = PAIR_DECK.validate_scene(material.scene_assignment.receipt)
 	if not receipt.ok: return receipt
@@ -106,7 +106,8 @@ static func validate_scene_new_run_material(material: Dictionary) -> Dictionary:
 		material.scene_assignment.run_id, receipt.value.creation_transaction_id, receipt.value.rng_nonce)
 	if not selected.ok: return selected
 	if selected.value != receipt.value: return {"ok": false, "code": &"scene_assignment_conflict"}
-	var candidate: Dictionary = before.value
+	var candidate: Dictionary = material.before.duplicate()
+	candidate.pair_deck_draws = candidate.pair_deck_draws.duplicate()
 	candidate.pair_deck_draws[material.scene_assignment.run_id] = receipt.value
 	var expected: Dictionary = WRITER.stringify(candidate)
 	if not expected.ok or expected.value != original_after.value \
@@ -207,7 +208,7 @@ func _commit_profile_candidate(candidate: Dictionary, defer_signals: bool = fals
 			if not is_instance_valid(_storage) or not _storage.has_method(&"inspect_revision"): return _failure(&"invalid_storage", "Revision-aware storage is required")
 			var stored: Dictionary = _storage.inspect_revision("profile.json")
 			if not stored.ok: return stored
-			var stored_profile: Dictionary = _profile_text_validator(str(stored.value.get("text", "")))
+			var stored_profile: Dictionary = _checked_profile_text(str(stored.value.get("text", "")))
 			if not stored_profile.ok or _scene_assignment_records(stored_profile.value.pair_deck_draws) != scene_draws:
 				return _failure(&"scene_assignment_joint_new_run_required", "Silent adoption cannot persist an uncommitted assignment")
 	if not allow_library_reset and not _preserves_dialogue_library(_profile.dialogue_library, detached.dialogue_library):
@@ -580,7 +581,7 @@ func _prove_scene_assignment_observed_body(run_id: String, receipt: Dictionary) 
 	if typeof(disk.get("text")) != TYPE_STRING or typeof(disk.get("revision")) != TYPE_STRING \
 			or disk.text.sha256_text() != disk.revision:
 		return _failure(&"scene_assignment_unproven", "Current Profile bytes are unavailable")
-	var decoded: Dictionary = _profile_text_validator(disk.text)
+	var decoded: Dictionary = _checked_profile_text(disk.text)
 	if not decoded.ok: return decoded
 	var canonical: Dictionary = WRITER.stringify(decoded.value)
 	if not canonical.ok or canonical.value != disk.text:
@@ -1135,11 +1136,15 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 
 
 func validate_restore_ready() -> Dictionary:
-	return SCHEMA.validate(_profile)
+	return SCHEMA.check(_profile)
 
 func publish_restore() -> void:
 	_restore_backup = {}
-	profile_restored.emit(_profile.duplicate(true))
+	_notify_profile_restored()
+
+func _notify_profile_restored() -> void:
+	if profile_restored.has_connections():
+		profile_restored.emit(get_profile_snapshot())
 
 func finalize_restore() -> Dictionary:
 	var ready := validate_restore_ready()
@@ -1177,8 +1182,8 @@ func _persist_candidate(candidate: Dictionary) -> Dictionary:
 
 func _write_profile_text_validator(text: String, validated_texts: Dictionary) -> Dictionary:
 	if validated_texts.has(text): return {"ok": true, "code": &"ok", "value": {}}
-	var result := _profile_text_validator(text)
-	if not result.get("ok", false) or typeof(result.get("value")) != TYPE_DICTIONARY: return result
+	var result := _checked_profile_text(text)
+	if not result.ok: return result
 	validated_texts[text] = true
 	return {"ok": true, "code": &"ok", "value": {}}
 
@@ -1188,6 +1193,11 @@ var _profile_parsed_text := ""
 var _profile_parsed_document: Dictionary = {}
 
 func _profile_text_validator(text: String) -> Dictionary:
+	var checked := _checked_profile_text(text)
+	if not checked.ok: return checked
+	return {"ok": true, "code": &"ok", "value": checked.value.duplicate(true)}
+
+func _checked_profile_text(text: String) -> Dictionary:
 	var parsed: Dictionary
 	if not _profile_parsed_document.is_empty() and text == _profile_parsed_text:
 		parsed = _profile_parsed_document
@@ -1199,7 +1209,8 @@ func _profile_text_validator(text: String) -> Dictionary:
 		if text.to_utf8_buffer().size() <= _PROFILE_PARSE_MAX_BYTES:
 			_profile_parsed_text = text
 			_profile_parsed_document = parsed
-	return SCHEMA.validate(parsed["value"])
+	var checked := SCHEMA.check(parsed.value)
+	return parsed if checked.ok else checked
 
 
 func _build_publication(old: Dictionary, current: Dictionary) -> Dictionary:

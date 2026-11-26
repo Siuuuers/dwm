@@ -8,9 +8,9 @@ const SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature
 
 class CountingProfile extends "res://autoload/ProfileManager.gd":
 	var validated_texts: Array[String] = []
-	func _profile_text_validator(text: String) -> Dictionary:
+	func _checked_profile_text(text: String) -> Dictionary:
 		validated_texts.append(text)
-		return super._profile_text_validator(text)
+		return super._checked_profile_text(text)
 
 var _entries_before: Dictionary
 

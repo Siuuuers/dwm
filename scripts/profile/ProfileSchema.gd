@@ -112,7 +112,12 @@ static func make_defaults() -> Dictionary:
 
 
 static func validate(source: Dictionary) -> Dictionary:
-	var profile := source.duplicate(true)
+	var checked := check(source)
+	if checked.ok: checked["value"] = source.duplicate(true)
+	return checked
+
+
+static func check(profile: Dictionary) -> Dictionary:
 	if not profile.has("schema_version") or typeof(profile["schema_version"]) != TYPE_INT:
 		return _invalid("schema_version", "schema_version must be an integer")
 	if profile["schema_version"] != SCHEMA_VERSION:
@@ -170,7 +175,7 @@ static func validate(source: Dictionary) -> Dictionary:
 	for beat: Dictionary in profile.witnessed_caption_variants.values():
 		if beat.line_id not in profile.visited_line_ids:
 			return _invalid("witnessed_caption_variants", "An exact caption witness also retains its base-line visit")
-	return {"ok": true, "code": &"ok", "value": profile}
+	return {"ok": true, "code": &"ok"}
 
 
 static func _validate_dialogue_library(value: Variant) -> Dictionary:
