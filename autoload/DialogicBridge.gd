@@ -1736,8 +1736,8 @@ func _reached_caption_frontier(expected: Dictionary = {}, guard_mutation: bool =
 	var beat: Dictionary = _reached_caption_variants[line_id]
 	var captured := {"ok": true, "value": {"token": _reached_replay.token,
 		"signature_id": _reached_replay.signature_id, "entry_id": _active_entry.entry_id,
-		"line_id": line_id, "frontier": frontier.duplicate(true),
-		"caption_publication": publication.value.duplicate(true), "caption_variant": beat.duplicate(true)}}
+		"line_id": line_id, "frontier": frontier,
+		"caption_publication": publication.value, "caption_variant": beat}}
 	if not expected.is_empty() and captured != expected: return _command_failure(&"presentation_frontier_changed")
 	return captured
 
@@ -2236,8 +2236,8 @@ func is_current_line_presentation_acknowledged() -> bool:
 func capture_current_line_presentation_frontier() -> Dictionary:
 	if has_reading_session() and _reading_session.family == "scene" and _reading_session.boundary == "control":
 		return project_scene_optional_frontier(false)
-	if _reached_replay.has("caption_ledger"): return _reached_caption_frontier({}, false)
-	return _capture_line_presentation_context({}, false)
+	if _reached_replay.has("caption_ledger"): return _detach_presentation_variant(_reached_caption_frontier({}, false))
+	return _detach_presentation_variant(_line_presentation_context({}, false))
 
 
 func can_auto_advance_current_line() -> bool:
@@ -2369,8 +2369,7 @@ func _retain_line_presentation(identity: Dictionary) -> void:
 				"token": identity.token, "caption_publication": identity.caption_publication}}
 
 
-func _capture_line_presentation_context(expected: Dictionary, guard_mutation: bool) -> Dictionary:
-	var current := _line_presentation_context(expected, guard_mutation)
+func _detach_presentation_variant(current: Dictionary) -> Dictionary:
 	if current.ok and current.value.has("caption_variant"):
 		current.value.caption_variant = current.value.caption_variant.duplicate(true)
 	return current
@@ -2876,7 +2875,7 @@ func get_scene_caption_memory(expected_presentation: Dictionary) -> Dictionary:
 	if expected_presentation.is_empty() or not has_reading_session() \
 			or _reading_session.family != "scene" or _reading_session.boundary != "line":
 		return _command_failure(&"reading_frontier_unavailable")
-	var current := _capture_line_presentation_context(expected_presentation, true)
+	var current := _detach_presentation_variant(_line_presentation_context(expected_presentation))
 	if not current.ok: return current
 	var projected: Dictionary = _scene_day_history(current.value.caption_publication)
 	if not projected.ok: return projected

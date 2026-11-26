@@ -269,6 +269,11 @@ func test_publication_is_not_acknowledgement_and_snapshot_is_detached_exact_sess
 	snapshot.value.captions.clear()
 	snapshot.value.signature_id = "tampered"
 	assert_eq(_captions(), [proof.value.caption_variant])
+	proof.value.caption_variant.line_id = "changed outside replay"
+	proof.value.frontier.value.clear()
+	proof.value.caption_publication.clear()
+	assert_eq(_proof().value.caption_variant.line_id, FIRST)
+	assert_true(_bridge.is_current_line_presentation_acknowledged())
 
 func test_duplicate_acknowledgements_and_repeated_occurrences_collect_once() -> void:
 	_configure()
