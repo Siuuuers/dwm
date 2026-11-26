@@ -43,14 +43,10 @@ func test_selected_load_preserves_identity_disk_and_current_settings_then_allows
 	var prepared: Dictionary = fixture.manager.prepare_restore_autosave()
 	assert_true(prepared.ok, str(prepared))
 	if not prepared.ok: return
-	assert_false(prepared.value.prepared.has("source_locator"))
-	assert_false(prepared.value.prepared.has("remap_source_transaction_ids"))
-	prepared.value.prepared.bundle.snapshot.gameplay.money = selected.gameplay.money + 1
-	assert_eq(prepared.value.prepared.journal_seed.current.snapshot.gameplay.money, selected.gameplay.money)
+	assert_eq(prepared.value.prepared.keys(), ["scene_preparation_token"])
 	var loaded: Dictionary = fixture.manager.commit_prepared_restore(prepared.value.prepared)
 	assert_eq(loaded.get("code"), &"scene_activation_pending", str(loaded))
 	if loaded.get("code") != &"scene_activation_pending": return
-	prepared.value.prepared.journal_seed.current.snapshot.gameplay.clear()
 	assert_eq(fixture.manager.get_latest_stable_checkpoint().value.bundle.snapshot.gameplay, selected.gameplay)
 	assert_false(fixture.gate.is_active(), "ordinary Load does not retain a mutation gate")
 	assert_false(fixture.manager.is_save_locked(), "ordinary Load does not retain a save lock")
@@ -84,12 +80,11 @@ func test_selected_load_preserves_identity_disk_and_current_settings_then_allows
 	assert_true(saved.ok, str(saved))
 	if saved.ok: assert_eq(saved.value.current_snapshot, document.current_snapshot)
 
-	# The token selects SaveManager's plan; caller transport is not a second owner.
+	# A second Load prepares and consumes its own token.
 	var offered: Dictionary = fixture.manager.prepare_restore_autosave()
 	assert_true(offered.ok, str(offered))
 	if not offered.ok: return
 	var transport: Dictionary = offered.value.prepared
-	transport.journal_seed.current.snapshot.gameplay.money += 1
 	var committed: Dictionary = fixture.manager.commit_prepared_restore(transport)
 	assert_eq(committed.get("code"), &"scene_activation_pending", str(committed))
 	if committed.get("code") != &"scene_activation_pending": return

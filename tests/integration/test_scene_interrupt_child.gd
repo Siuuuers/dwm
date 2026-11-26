@@ -63,7 +63,8 @@ func interrupt_selected_load() -> void:
 	assert_true(prepared.ok, str(prepared))
 	if not prepared.ok: return
 	var snapshot: Dictionary = document.value.current_snapshot.snapshot
-	assert_eq(prepared.value.prepared.bundle.snapshot, snapshot)
+	var selected_plan: Dictionary = fixture.manager._scene_restore_preparations[prepared.value.prepared.scene_preparation_token]
+	assert_eq(selected_plan.journal_seed.current.snapshot, snapshot)
 	var context := {"creator_operation_id": str(created.transaction_id), "autosave_sha256": str(bytes.value.revision),
 		"run_id": snapshot.run_id, "checkpoint_id": snapshot.checkpoint_id,
 		"profile": fixture.profile.get_profile_snapshot().duplicate(true), "snapshot": snapshot.duplicate(true),

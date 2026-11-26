@@ -94,7 +94,8 @@ func test_real_bootstrap_scene_text_and_selected_load_keep_owner_authority() -> 
 	var prepared: Dictionary = pause._backup_port.prepare_action("load", "slot:1")
 	if not _ok(prepared): return
 	var opaque: Dictionary = saves._backup_actions[prepared.value.token].prepared_restore
-	assert_eq(typeof(opaque.participant_plans.run.snapshot.schema_version), TYPE_INT)
+	var plan: Dictionary = saves._scene_restore_preparations[opaque.scene_preparation_token]
+	assert_eq(typeof(plan.participant_plans.run.snapshot.schema_version), TYPE_INT)
 	assert_eq(game.capture_run_snapshot_input(), source)
 	assert_eq(profile.get_profile_snapshot(), profile_before)
 	if not _ok(await pause._backup_port.commit_action(prepared.value.token)): return
