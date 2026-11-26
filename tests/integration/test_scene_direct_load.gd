@@ -50,6 +50,8 @@ func test_selected_load_preserves_identity_disk_and_current_settings_then_allows
 	var loaded: Dictionary = fixture.manager.commit_prepared_restore(prepared.value.prepared)
 	assert_eq(loaded.get("code"), &"scene_activation_pending", str(loaded))
 	if loaded.get("code") != &"scene_activation_pending": return
+	prepared.value.prepared.journal_seed.current.snapshot.gameplay.clear()
+	assert_eq(fixture.manager.get_latest_stable_checkpoint().value.bundle.snapshot.gameplay, selected.gameplay)
 	assert_false(fixture.gate.is_active(), "ordinary Load does not retain a mutation gate")
 	assert_false(fixture.manager.is_save_locked(), "ordinary Load does not retain a save lock")
 	assert_false(fixture.game.validate_live_session(old_session).ok, "old input handles expire before route mounting")

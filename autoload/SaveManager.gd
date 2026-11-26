@@ -1444,7 +1444,7 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Dictio
 			return _scene_restore_prepare_failure(result, creating, applied, backups, operation_id)
 		applied.append(key)
 		if key == "route": route_token = result.get("value", {}).get("route_ready_token", {})
-	var seeded: Dictionary = _journal._install_prepared(journal_candidate)
+	var seeded: Dictionary = _journal._install_prepared(journal_candidate.duplicate(true) if creating else journal_candidate)
 	if not seeded.get("ok", false):
 		return _scene_restore_prepare_failure(seeded, creating, applied, backups, operation_id)
 	if not creating:
