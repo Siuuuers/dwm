@@ -20,7 +20,6 @@ var transcript: ScrollContainer
 var messages: VBoxContainer
 var font_size := 24
 var _fonts: Dictionary = {}
-var _entries: Array = []
 var _primary := "en"
 var _secondary := ""
 var _header: Label
@@ -123,16 +122,12 @@ func set_projection(friend_id: String, entries: Array, unread: Dictionary, prima
 	var anchor := _scroll_anchor() if same_friend else {}
 	var had_transcript_focus := transcript != null and transcript.has_focus()
 	selected_friend = friend_id
-	_entries = entries.duplicate(true)
-	for entry: Dictionary in _entries:
-		if entry.has("presentation"):
-			FROZEN._freeze(entry.presentation)
 	_primary = primary_locale
 	_secondary = secondary_locale
 	_clear_thread()
 	_update_rows(unread)
 	if not friend_id.is_empty():
-		_build_thread()
+		_build_thread(entries)
 		if not same_friend or had_transcript_focus:
 			transcript.grab_focus()
 	elif not rows.is_empty() and (not same_friend or get_viewport().gui_get_focus_owner() == null):
@@ -208,7 +203,7 @@ func _clear_thread() -> void:
 	messages = null
 	_continuation = null
 
-func _build_thread() -> void:
+func _build_thread(entries: Array) -> void:
 	_header = Label.new()
 	_header.text = NAMES[FRIENDS.find(selected_friend)]
 	_header.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
@@ -238,7 +233,7 @@ func _build_thread() -> void:
 	messages.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	messages.add_theme_constant_override("separation", 0)
 	transcript.add_child(messages)
-	for entry in _entries:
+	for entry: Dictionary in entries:
 		_append_entry(entry, [_primary, _secondary])
 	_continuation = Control.new()
 	_continuation.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -253,7 +248,10 @@ func _append_entry(entry: Dictionary, locales: Array) -> Label:
 	var first_label: Label
 	var margin := MarginContainer.new()
 	margin.set_meta("entry_id", entry.id)
-	if entry.has("presentation"): margin.set_meta("frozen_presentation", entry.presentation)
+	if entry.has("presentation"):
+		var presentation: Dictionary = entry.presentation.duplicate(true)
+		FROZEN._freeze(presentation)
+		margin.set_meta("frozen_presentation", presentation)
 	margin.add_theme_constant_override("margin_left", 56 if entry.outgoing else 24)
 	margin.add_theme_constant_override("margin_right", 24)
 	margin.add_theme_constant_override("margin_top", 24)

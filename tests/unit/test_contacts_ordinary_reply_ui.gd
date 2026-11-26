@@ -90,8 +90,8 @@ func test_selected_outgoing_draw_commits_once_and_save_failure_keeps_exact_choic
 	assert_true(f.port.committed)
 	assert_eq(f.port.acknowledged.size(), 2)
 	assert_eq(f.port.acknowledged[1], f.port.acknowledged[0])
-	assert_eq(f.app.contacts_panel._entries.size(), 3)
-	assert_true(f.app.contacts_panel._entries[1].outgoing)
+	assert_eq(f.app.contacts_panel.messages.get_child_count(), 3)
+	assert_eq(f.app.contacts_panel.messages.get_child(1).get_meta("entry_id"), "ordinary-outgoing")
 	assert_true(f.app._ordinary_pending.is_empty())
 	f.app.refresh_view()
 	assert_eq(f.port.acknowledged.size(), 2, "history refresh never acknowledges again")
@@ -128,7 +128,7 @@ func test_locale_refresh_keeps_the_frozen_line_and_does_not_treat_choice_buttons
 	assert_eq(f.app.contacts_panel._pending_label.text, line.text)
 	assert_eq(f.app.contacts_panel._pending_label.language, "en", "the pending command retains its actual registered original locale")
 	assert_eq(f.port.acknowledged, [])
-	assert_eq(f.app.contacts_panel._entries.size(), 1, "uncommitted choices are not stored correspondence")
+	assert_eq(f.app.last_result.value.entries.size(), 1, "uncommitted choices are not stored correspondence")
 	f.app.contacts_panel._pending_label.draw.emit()
 	await get_tree().process_frame
 	await get_tree().process_frame

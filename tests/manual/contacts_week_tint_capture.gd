@@ -98,9 +98,10 @@ func _mount(palette: StringName, day: int) -> Dictionary:
 	if not _check(configured.get("ok", false), "Contacts installation: " + str(configured)):
 		app.free()
 		return {}
+	_viewport.add_child(app)
+	app.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	app.position = Vector2(480, 64)
 	app.size = Vector2(800, 656)
-	_viewport.add_child(app)
 	await _settle()
 	app.contacts_panel.rows[1].pressed.emit()
 	await _settle()
@@ -122,7 +123,7 @@ func _view_state(app: ContactListApp) -> Dictionary:
 	var buttons: Array[int] = []
 	for button: Button in app._ordinary_choices: buttons.append(button.get_instance_id())
 	var focused: Control = _viewport.gui_get_focus_owner()
-	return {"labels": labels, "buttons": buttons, "entries": app.contacts_panel._entries.duplicate(true),
+	return {"labels": labels, "buttons": buttons,
 		"friend": app.contacts_panel.selected_friend, "scroll": app.contacts_panel.transcript.scroll_vertical,
 		"transcript": app.contacts_panel.transcript.get_instance_id(),
 		"row": app.contacts_panel.rows[1].get_instance_id(),
@@ -151,7 +152,15 @@ func _capture(wired: Dictionary, name: String, pending: bool = false) -> void:
 	var tolerance := 1 if wired.day > 1 and not profile.high_contrast else 0
 	_check(panel.get_global_rect() == Rect2(480, 64, 800, 656), name + " full Contacts placement")
 	_check(panel.selected_friend == "lavinia", name + " selected conversation retained")
-	_check(panel._entries == wired.source_entries and provider.entries == wired.source_entries, name + " exact committed correspondence retained")
+	_check(provider.entries == wired.source_entries, name + " exact committed correspondence retained")
+	for index: int in range(wired.source_entries.size()):
+		var entry: Dictionary = wired.source_entries[index]
+		var block: Node = panel.messages.get_child(index)
+		_check(block.get_meta("entry_id") == entry.id, name + " committed message order")
+		var labels := block.find_children("*", "Label", true, false)
+		if _check(labels.size() == 2, name + " message and timestamp rendered"):
+			_check(labels[0].text == entry.texts.en and labels[0].get_meta("outgoing") == entry.outgoing
+				and labels[1].text == entry.timestamp, name + " committed message content")
 	_check(not app.get_node("VBoxContainer/TopBar").visible, name + " no duplicate top bar")
 	for role: String in ["instrument", "paper", "plum", "bone", "ink", "gold"]:
 		_check(panel.theme.get_color(role, "Contacts") == roles[role], name + " installed role: " + role)
@@ -181,7 +190,7 @@ func _capture(wired: Dictionary, name: String, pending: bool = false) -> void:
 	if is_instance_valid(focused):
 		# The 2-logical-pixel border expands four pixels beyond the button.
 		# Its bottom strip occupies height+2..height+4, clear of the caption.
-		focus_pixel = _pixel(pixels, focused.global_position + Vector2(focused.size.x * 0.65, focused.size.y + 3), roles.ink, name + " exact focus ring")
+		focus_pixel = _pixel(pixels, focused.global_position + Vector2(focused.size.x * 0.65, focused.size.y + 2), roles.ink, name + " exact focus ring")
 	_check(pixels.save_png(FOLDER.path_join(name + ".png")) == OK, name + " PNG saved")
 	_samples.append({"file": name + ".png", "palette": str(wired.palette), "day": wired.day,
 		"high_contrast": profile.high_contrast, "colour_preset": profile.colour_preset,

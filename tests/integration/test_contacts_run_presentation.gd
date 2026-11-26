@@ -233,7 +233,7 @@ func test_live_accessibility_recolours_existing_transcript_without_owner_or_focu
 	var scroll_before: int = transcript.scroll_vertical
 	assert_gt(scroll_before,0)
 	var labels_before: Dictionary = _label_identity_and_copy(panel)
-	var entries_before: Array = panel._entries.duplicate(true)
+	var entries_before: Array = app.last_result.value.entries.duplicate(true)
 	var calls_before: Dictionary = f.port.call_counts()
 	var row: Button = panel.rows[1]
 	var portrait: Texture2D = row.portrait_texture
@@ -264,7 +264,7 @@ func test_live_accessibility_recolours_existing_transcript_without_owner_or_focu
 	assert_same(panel.transcript,transcript)
 	assert_same(panel.rows[1],row)
 	assert_eq(_label_identity_and_copy(panel),labels_before,"Text, timestamps and Label instances remain exact.")
-	assert_eq(panel._entries,entries_before)
+	assert_eq(app.last_result.value.entries,entries_before)
 	assert_eq(panel.selected_friend,"lavinia")
 	assert_eq(transcript.scroll_vertical,scroll_before)
 	assert_true(transcript.has_focus())
