@@ -118,9 +118,9 @@ func prepare_scene_new_run(snapshot: Dictionary, bundle: Dictionary, creation_ow
 	if not expanded.ok: return expanded
 	var frames := FROZEN_RUN.derive_current_scene_frames(snapshot.scene, expanded.value.reading_session)
 	if not frames.ok: return frames
-	if not _owner.has_method("validate_reading_checkpoint") or not _owner.has_method("stage_scene_reading_restore"):
+	if not _owner.has_method("prepare_scene_reading_candidate") or not _owner.has_method("stage_scene_reading_restore"):
 		return _content_unavailable("scene creation owner unavailable")
-	var admitted: Dictionary = _owner.validate_reading_checkpoint(expanded.value, frames.value.entry_contexts)
+	var admitted: Dictionary = _owner.prepare_scene_reading_candidate(expanded, frames.value.entry_contexts)
 	if not admitted.get("ok", false): return admitted
 	_prepared_scene_arrival_cues = []
 	var game: Node = _owner.get_node("/root/GameState")

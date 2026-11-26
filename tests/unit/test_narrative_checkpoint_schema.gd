@@ -51,7 +51,12 @@ func test_effect_boundary_builds_and_validates() -> void:
 	if _schema == null:
 		return
 	var boundary := {"kind": "effect_transaction", "semantic_id": "T.effect.tx", "transaction_id": "run:effect:1"}
-	var built: Dictionary = _schema.build(_record(), boundary, _evt(1), _post("before_event", _evt(2)), null, false)
+	var event := _evt(1)
+	var post_event := _post("before_event", _evt(2))
+	var built: Dictionary = _schema.build(_record(), boundary, event, post_event, null, false)
+	boundary.clear()
+	event.clear()
+	post_event.clear()
 	assert_true(built.get("ok", false), str(built))
 	assert_true(_schema.validate(built["value"], _record()).get("ok", false), "round-trip validate")
 

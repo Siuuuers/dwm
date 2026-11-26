@@ -243,12 +243,10 @@ func prepare_sequence_reservation(request: Dictionary, causal_sequence_receipt: 
 	var receipt_check := _validate_causal_sequence_receipt(causal_sequence_receipt, request, pending)
 	if not receipt_check.get("ok", false):
 		return receipt_check
-	var pending_after: Dictionary = pending.duplicate(true)
-	pending_after["stage"] = STAGE_SEQUENCE_COMMITTED
 	var state_after := _live_state()
+	state_after.pending.stage = STAGE_SEQUENCE_COMMITTED
 	state_after["run_revision"] = int(causal_sequence_receipt["run_revision"])
 	state_after["causal_sequence"] = int(causal_sequence_receipt["causal_sequence"])
-	state_after["pending"] = pending_after
 	return {"ok": true, "code": &"ok", "value": {"candidate": {
 		"kind": &"sequence_reservation", "pre_run_revision": _run_revision, "state_after": state_after,
 		"transaction_id": str(pending["transaction_id"]),
@@ -272,8 +270,8 @@ func prepare_action_handoff(action_receipt: Dictionary, expected_run_revision: i
 			"source_commit_receipt_provenance"]:
 		if not action_receipt.has(required):
 			return _fail(&"consequence_field_invalid", "action_receipt missing " + required, {})
-	var payload_check := validate_recovery_payload(StringName(source_kind), recovery_payload,
-		_canonical_sha256(recovery_payload))
+	var payload_hash := _canonical_sha256(recovery_payload)
+	var payload_check := validate_recovery_payload(StringName(source_kind), recovery_payload, payload_hash)
 	if not payload_check.get("ok", false):
 		return payload_check
 	var pending_after := {
@@ -283,8 +281,8 @@ func prepare_action_handoff(action_receipt: Dictionary, expected_run_revision: i
 		"transaction_issuer_receipt": (action_receipt["transaction_issuer_receipt"] as Dictionary).duplicate(true),
 		"source_commit_receipt_id": str(action_receipt["source_commit_receipt_id"]),
 		"source_commit_receipt_provenance": (action_receipt["source_commit_receipt_provenance"] as Dictionary).duplicate(true),
-		"recovery_payload": recovery_payload.duplicate(true),
-		"recovery_payload_sha256": _canonical_sha256(recovery_payload),
+		"recovery_payload": payload_check.value.payload,
+		"recovery_payload_sha256": payload_hash,
 		"participant_receipts": {},
 		"publication_progress": null,
 		"destination_intent": null,
@@ -317,8 +315,8 @@ func prepare_schedule_recovery_transport(header: Dictionary, recovery_payload: D
 	if int(header["expected_run_revision"]) != _run_revision:
 		return _fail(&"stale_run_revision", "header.expected_run_revision no longer matches live run_revision",
 			{"expected": header["expected_run_revision"], "live": _run_revision})
-	var payload_check := validate_recovery_payload(&"schedule_done", recovery_payload,
-		_canonical_sha256(recovery_payload))
+	var payload_hash := _canonical_sha256(recovery_payload)
+	var payload_check := validate_recovery_payload(&"schedule_done", recovery_payload, payload_hash)
 	if not payload_check.get("ok", false):
 		return payload_check
 	var pending_after := {
@@ -328,8 +326,8 @@ func prepare_schedule_recovery_transport(header: Dictionary, recovery_payload: D
 		"transaction_issuer_receipt": (header["transaction_issuer_receipt"] as Dictionary).duplicate(true),
 		"source_commit_receipt_id": str(header["source_commit_receipt_id"]),
 		"source_commit_receipt_provenance": (header["source_commit_receipt_provenance"] as Dictionary).duplicate(true),
-		"recovery_payload": recovery_payload.duplicate(true),
-		"recovery_payload_sha256": _canonical_sha256(recovery_payload),
+		"recovery_payload": payload_check.value.payload,
+		"recovery_payload_sha256": payload_hash,
 		"participant_receipts": {},
 		"publication_progress": null,
 		"destination_intent": null,

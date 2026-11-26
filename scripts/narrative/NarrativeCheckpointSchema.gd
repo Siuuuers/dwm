@@ -20,16 +20,13 @@ static func build(timeline_record: Dictionary, boundary: Dictionary, event: Dict
 		"schema_version": SCHEMA_VERSION,
 		"timeline_id": str(timeline_record.get("id", "")),
 		"content_fingerprint": str(timeline_record.get("content_fingerprint", "")),
-		"last_committed_line_id": _copy(last_committed_line_id),
-		"boundary": _copy(boundary),
-		"event": _copy(event),
-		"post_event": _copy(post_event),
+		"last_committed_line_id": last_committed_line_id,
+		"boundary": boundary,
+		"event": event,
+		"post_event": post_event,
 		"timeline_completed": timeline_completed,
 	}
-	var validated := validate(checkpoint, timeline_record)
-	if not validated.get("ok", false):
-		return validated
-	return {"ok": true, "code": &"ok", "value": checkpoint}
+	return validate(checkpoint, timeline_record)
 
 
 static func validate(checkpoint: Dictionary, timeline_record: Dictionary) -> Dictionary:
@@ -197,12 +194,6 @@ static func _all_null_event(event: Dictionary) -> bool:
 
 static func _exact_keys(target: Dictionary, keys: Array) -> bool:
 	return target.size() == keys.size() and target.has_all(keys)
-
-
-static func _copy(value: Variant) -> Variant:
-	if typeof(value) == TYPE_DICTIONARY or typeof(value) == TYPE_ARRAY:
-		return value.duplicate(true)
-	return value
 
 
 static func _fail(code: StringName, message: String) -> Dictionary:
