@@ -838,8 +838,8 @@ static func _validate_scene_receipts_registered(receipts: Dictionary, bundle: Di
 				contacts, result.source_fact_ids, registered.value.fingerprint, issuer)
 			if not facts.get("ok", false): return facts
 			for fact: Dictionary in facts.value.receipts:
-				if fact.receipt.context.identity.run_id != semantic.source.run_id \
-						or fact.receipt.command_issuer_receipt.counter >= semantic.issuer_receipt.counter:
+				if fact.run_id != semantic.source.run_id \
+						or fact.counter >= semantic.issuer_receipt.counter:
 					return _fail(&"scene_contact_fact_source_mismatch")
 			if admissions[semantic.source.scene_occurrence].get("return_to") != null:
 				return _fail(&"scene_contact_nested")

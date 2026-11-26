@@ -17,7 +17,8 @@ func configure(game_state: Object, profile: Object, gate: Object,
 		return _fail(&"pair_deck_game_state_unavailable")
 	if profile == null: return _fail(&"pair_deck_profile_unavailable")
 	for method: String in ["get_pair_deck_draw", "get_pair_form_witnesses",
-			"prepare_pair_deck_draw", "commit_pair_deck_draw", "get_dating_attempt", "get_profile_snapshot"]:
+			"prepare_pair_deck_draw", "commit_pair_deck_draw", "get_dating_attempt",
+			"get_pair_form_witness_receipts", "has_gallery_receipt"]:
 		if not profile.has_method(method): return _fail(&"pair_deck_profile_unavailable")
 	if gate == null or not gate.has_method("is_lease_active"):
 		return _fail(&"pair_deck_gate_unavailable")
@@ -131,16 +132,15 @@ func _established_form(pair: Dictionary, inspect_legacy_history: bool) -> Dictio
 				return _fail(&"pair_deck_established_form_conflict")
 			established = portrayed
 			reached = true
-		var profile: Dictionary = _profile.get_profile_snapshot()
+		var witnesses: Dictionary = _profile.get_pair_form_witness_receipts()
 		var prefix: String = "ending:%s:pair-form:" % run_id
-		for witness_id: String in profile.pair_form_witness_receipts:
+		for witness_id: String in witnesses:
 			if not witness_id.begins_with(prefix): continue
-			var portrayed: String = str(profile.pair_form_witness_receipts[witness_id])
+			var portrayed: String = str(witnesses[witness_id])
 			if portrayed not in DRAW.FORMS or witness_id != prefix + portrayed:
 				return _fail(&"pair_deck_legacy_ending_source_invalid")
 			var ending_id: String = "ending.priscilla_lavinia." + ("dark" if portrayed.ends_with("_dark") else "sweet")
-			var completion: Variant = profile.gallery_transaction_receipts.get("ending:%s:gallery:%s" % [run_id, ending_id])
-			if not completion is Dictionary or completion.get("ending_id") != ending_id:
+			if not _profile.has_gallery_receipt(ending_id, "ending:%s:gallery:%s" % [run_id, ending_id]):
 				return _fail(&"pair_deck_legacy_ending_source_invalid")
 			if not established.is_empty() and established != portrayed:
 				return _fail(&"pair_deck_established_form_conflict")
