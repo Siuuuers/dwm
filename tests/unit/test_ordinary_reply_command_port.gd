@@ -126,6 +126,9 @@ func test_projection_is_read_only_until_ack_then_shows_exact_three_rows_and_no_c
 	if not initial.ok: return
 	assert_eq(initial.value.entries.size(), 1)
 	assert_eq(initial.value.ordinary_choices.size(), 3)
+	initial.value.ordinary_choices[0].message_ids.clear()
+	var refreshed: Dictionary = view.get_projection("lavinia")
+	assert_eq(refreshed.value.ordinary_choices[0].message_ids.size(), 3)
 	assert_true(initial.value.unread.lavinia)
 	assert_eq(deps.state.contacts, CONTACTS.make_defaults())
 	var prepared: Dictionary = view.prepare_ordinary_reply("lavinia", initial.value.ordinary_choices[1].reply_id)

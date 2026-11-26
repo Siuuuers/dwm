@@ -2321,7 +2321,7 @@ static func validate_scene_definitions(definitions: Variant) -> Dictionary:
 		previous = row.definition_id
 		for field: String in ["message_fact_ids", "read_fact_ids"]:
 			if not _s_claim_facts(row[field], facts): return _s_fail("scene_contact_fact_definition_invalid")
-		messages[row.definition_id] = row.duplicate(true)
+		messages[row.definition_id] = row
 	previous = ""
 	for row: Variant in definitions.replies:
 		if not _has_exact_keys(row, ["reply_id", "definition_id", "line_id", "texts", "source_fact_ids"]) \
@@ -2329,7 +2329,7 @@ static func validate_scene_definitions(definitions: Variant) -> Dictionary:
 				or not messages.has(row.definition_id) or not _s_id(row.line_id) or not _s_texts(row.texts) \
 				or not _s_claim_facts(row.source_fact_ids, facts): return _s_fail("scene_contact_reply_definition_invalid")
 		previous = row.reply_id
-		replies[row.reply_id] = row.duplicate(true)
+		replies[row.reply_id] = row
 	return {"ok": true, "value": {"messages": messages, "replies": replies,
 		"definitions_sha256": _s_hash(definitions)}}
 
@@ -2339,7 +2339,7 @@ static func capture_scene_definitions(registration_sha256: String) -> Dictionary
 	var bundle: Variant = loaded.get("bundle")
 	if not bundle is Dictionary or typeof(bundle.get("schema_version")) != TYPE_INT or bundle.schema_version not in [2, 3] \
 			or not bundle.has("contact_definitions") or not _s_digest(registration_sha256) \
-			or _SCENE_MANIFEST.scene_registration_fingerprint() != registration_sha256: return _s_fail("scene_contact_registration_unbound")
+			or loaded.value.fingerprint != registration_sha256: return _s_fail("scene_contact_registration_unbound")
 	return validate_scene_definitions(bundle.contact_definitions)
 
 static func validate_scene_state(state: Dictionary, registration_sha256: String, identity_issuer: Object) -> Dictionary:
