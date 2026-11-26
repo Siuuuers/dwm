@@ -1231,10 +1231,7 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary) -> Dictionary:
 	var narr_prep: Dictionary = _restore_participants.narrative.prepare_scene_load(snapshot)
 	if not narr_prep.ok: return narr_prep
 	plans.narrative = narr_prep.value.narrative_plan
-	var diagnostics: Array[Dictionary] = []
-	var seed: Dictionary = _journal._prepare_seed_from_valid_bundles([bundle], bundle, diagnostics)
-	if not seed.ok: return seed
-	var prepared := {"journal_seed": seed.value.candidate,
+	var prepared := {"journal_seed": CHECKPOINT_JOURNAL.seed_candidate(bundle.duplicate(true)),
 		"participant_plans": plans, "route_id": snapshot.route_id, "checkpoint_id": snapshot.checkpoint_id}
 	_scene_restore_preparation_counter += 1
 	var token := "scene_restore_preparation:%d" % _scene_restore_preparation_counter

@@ -265,6 +265,8 @@ func test_new_scene_writes_omit_fallback_snapshots_without_changing_admitted_his
 	var seeded: Dictionary = journal.prepare_seed(admitted.value, admitted.value.current_snapshot)
 	assert_true(seeded.ok, str(seeded))
 	if not seeded.ok: return
+	assert_false(is_same(seeded.value.candidate.current.snapshot.gameplay, admitted.value.current_snapshot.snapshot.gameplay),
+		"prepared gameplay is independent of the input document")
 	assert_true(journal.commit_prepared(seeded.value.candidate).ok)
 	var rollback: Dictionary = journal.capture_state().value.backup
 	assert_eq(rollback.earlier, [original], "existing source history is still admitted and retained for rollback")
