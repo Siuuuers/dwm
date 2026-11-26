@@ -2990,12 +2990,13 @@ func _validate_reading_entry(session: RefCounted, entry_id: String, context: Dic
 	var row: Dictionary = programme.value
 	var resolved := _resolve_entry_for_playback(entry_id, row.content_version)
 	if not resolved.ok: return resolved
-	if not session.marker_entries.has(entry_id):
-		return _runtime_adapter.validate_reading_entry(resolved.value.path,
-			row.label if session.catalogue_schema_version == 2 else resolved.value.label, row.lines)
-	return _runtime_adapter.validate_reading_entry(resolved.value.path,
-		row.label if session.catalogue_schema_version == 2 else resolved.value.label, row.lines,
-		session.marker_entries.get(entry_id, {}))
+	var label: String = row.label if session.catalogue_schema_version == 2 else resolved.value.label
+	var checked: Dictionary
+	if session.marker_entries.has(entry_id):
+		checked = _runtime_adapter.validate_reading_entry(resolved.value.path, label, row.lines, session.marker_entries[entry_id])
+	else:
+		checked = _runtime_adapter.validate_reading_entry(resolved.value.path, label, row.lines)
+	return {"ok": true, "label": label} if checked.ok else checked
 
 
 func _prepare_scene_reading_candidate(checkpoint: Dictionary, entry_contexts: Dictionary = {}) -> Dictionary:
@@ -3826,9 +3827,7 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 	if reading:
 		var compatible := _validate_reading_entry(_reading_session, entry_id, frozen)
 		if not compatible.ok: return compatible
-		var programme: Dictionary = _reading_session.entry_program(entry_id, frozen)
-		if not programme.ok: return programme
-		if _reading_session.catalogue_schema_version == 2: label = programme.value.label
+		if _reading_session.catalogue_schema_version == 2: label = compatible.label
 		var retained_boundary: String = _reading_session.boundary
 		var frame: Dictionary = _reading_session.admit(entry_id, frozen)
 		if not frame.ok: return frame

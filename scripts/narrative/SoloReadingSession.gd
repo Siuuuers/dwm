@@ -756,6 +756,7 @@ func configure(document: Dictionary) -> Dictionary:
 	var encoded := JSON_WRITER.stringify(document)
 	if not encoded.ok: return encoded
 	catalogue = compiled
+	FROZEN._freeze(catalogue)
 	family = "ending" if ending else ("hospital" if hospital else "solo")
 	registry = registered
 	FROZEN._freeze(registry)
@@ -1039,20 +1040,23 @@ func entry_program(entry_id: String, context: Dictionary = {}) -> Dictionary:
 	if family == "scene":
 		if not catalogue.has(entry_id): return _fail(&"reading_entry_unavailable")
 		if not context.is_empty() and not LEDGER.valid_scene_frame(context, str(context.get("playback_id", "")), entry_id): return _fail(&"reading_context_invalid")
-		var programme: Dictionary = catalogue[entry_id].duplicate(true)
-		for line: Dictionary in programme.lines:
-			if _scene_text.has(line.line_id): line.text = _scene_text[line.line_id]
+		var programme: Dictionary = catalogue[entry_id]
+		var lines: Array = programme.lines
+		for index: int in lines.size():
+			var line: Dictionary = lines[index]
+			if _scene_text.has(line.line_id) and _scene_text[line.line_id] != line.get("text"):
+				if is_same(lines, programme.lines): lines = lines.duplicate()
+				lines[index] = line.merged({"text": _scene_text[line.line_id]}, true)
+		if not is_same(lines, programme.lines): programme = programme.merged({"lines": lines}, true)
 		return {"ok": true, "value": programme}
 	if not catalogue.has(entry_id): return _fail(&"reading_entry_unavailable")
 	if catalogue_schema_version == 1:
-		var row: Dictionary = catalogue[entry_id].duplicate(true)
-		row["label"] = entry_id
-		return {"ok": true, "value": row}
+		return {"ok": true, "value": catalogue[entry_id].merged({"label": entry_id})}
 	if not context.is_empty():
 		if not _context_shape(context): return _fail(&"reading_context_invalid")
 		return AUTHORED.select(catalogue[entry_id], context.presentation)
 	if not _selected_entries.has(entry_id): return _fail(&"reading_context_unavailable")
-	return {"ok": true, "value": _selected_entries[entry_id].duplicate(true)}
+	return {"ok": true, "value": _selected_entries[entry_id]}
 
 func _programs_for_frames(frames: Dictionary, transaction_id: String) -> Dictionary:
 	var selected := {}
