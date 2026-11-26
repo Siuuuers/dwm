@@ -52,14 +52,13 @@ func _validate_export() -> void:
 		push_error("Generated registration is not the canonical fingerprint input")
 		quit(1)
 		return
-	var authored: Dictionary = manifest.validate_scene_registration(installed.value)
-	if not authored.ok:
-		push_error(str(authored))
+	var passages: Dictionary = manifest.validate_scene_registration_passages(installed.value)
+	if not passages.ok:
+		push_error(str(passages))
 		quit(1)
 		return
-	var passages: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(installed.value)
 	var generated: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(FileAccess.get_file_as_string(PASSAGES_PATH))
-	if not passages.ok or not generated.ok or not WRITER._deep_same(generated.value, passages.value):
+	if not generated.ok or not WRITER._deep_same(generated.value, passages.value):
 		push_error("Generated passage catalogue differs from authored registration")
 		quit(1)
 		return

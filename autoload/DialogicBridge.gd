@@ -4187,7 +4187,7 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 		if not held.ok: return held
 		var native: Dictionary = _runtime_adapter.retain_scene_source(_reading_session)
 		if not native.ok: return native
-		var planned: Dictionary = _reading_session.prepare_scene_control_continuation() if departing else \
+		var planned: Dictionary = _reading_session.scene_control_continuation_view() if departing else \
 			_reading_session.prepare_scene_next(source.reading_session.frontier, func(_beat: Dictionary) -> bool: return false)
 		if not planned.ok: return planned
 		var plan: Dictionary = planned.value

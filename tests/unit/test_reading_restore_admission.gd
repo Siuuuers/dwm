@@ -330,13 +330,13 @@ func test_next_plan_refuses_duplicate_source_and_foreign_entry_suffix() -> void:
 	var plan := NEXT_FIXTURE.plan(NEXT_FIXTURE.snapshot().narrative_checkpoint)
 	var duplicate := plan.duplicate(true)
 	duplicate.traversed_captions[0] = duplicate.source_ledger.captions[0].duplicate(true)
-	assert_eq(NEXT.create(duplicate, "source").get("code"), &"reading_next_sequence_invalid")
+	assert_eq(NEXT.project_view(duplicate, "source").get("code"), &"reading_next_sequence_invalid")
 	var foreign := plan.duplicate(true)
 	foreign.traversed_captions[0].beat.owning_entry_id = POST
-	assert_eq(NEXT.create(foreign, "source").get("code"), &"reading_next_sequence_invalid")
+	assert_eq(NEXT.project_view(foreign, "source").get("code"), &"reading_next_sequence_invalid")
 	var changed := plan.duplicate(true)
 	changed.traversed_captions[0].beat.presentation_signature.content_revision = "fixture-v2"
-	assert_ne(NEXT.create(plan, "source").value.operation_id, NEXT.create(changed, "source").value.operation_id)
+	assert_ne(NEXT.project_view(plan, "source").value.next_operation.operation_id, NEXT.project_view(changed, "source").value.next_operation.operation_id)
 
 func test_next_completion_record_survives_exact_physical_board_boundary() -> void:
 	var snapshot := NEXT_FIXTURE.snapshot()
