@@ -437,13 +437,6 @@ static func expanded_checkpoint_view(checkpoint: Dictionary) -> Dictionary:
 	if not captured.ok: return captured
 	return {"ok": true, "value": checkpoint.merged({"reading_session": captured.value}, true), "session": session}
 
-static func with_reading_session(checkpoint: Dictionary, reading: Dictionary) -> Dictionary:
-	var envelope := checkpoint.duplicate()
-	envelope.reading_session = null
-	var result := envelope.duplicate(true)
-	result.reading_session = reading
-	return result
-
 func _project_player_reading(saved: Dictionary) -> Dictionary:
 	var caption := {}
 	for index: int in range(saved.ledger.captions.size() - 1, -1, -1):

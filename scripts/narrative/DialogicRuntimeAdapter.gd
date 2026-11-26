@@ -272,7 +272,7 @@ func _install_scene_control(session: RefCounted, reading: Dictionary,
 	_marker_hold.live_history = candidate_ledger.fork_live()
 	_scene_control_restore = {"session": session, "state": session._fork_scene_live(), "reading": retained,
 		"marker": marker, "native_index": control_native_index}
-	var adopted := capture_scene_control_position(session)
+	var adopted := scene_control_position_view(session)
 	if not adopted.ok:
 		halt_with_error(adopted)
 		return adopted
@@ -428,7 +428,12 @@ func project_scene_control_frontier(session: RefCounted, include_identity: bool 
 	return {"ok": true, "value": {"marker_id": marker.marker_id, "occurrence_id": session.scene_occurrence,
 		"program_index": index, "native": identity}}
 
-func capture_scene_control_position(session: RefCounted, include_reading: bool = true) -> Dictionary:
+func capture_scene_control_position(session: RefCounted) -> Dictionary:
+	var view := scene_control_position_view(session)
+	if not view.ok: return view
+	return {"ok": true, "value": view.value.duplicate(true)}
+
+func scene_control_position_view(session: RefCounted) -> Dictionary:
 	if _scene_control_restore.is_empty() or session != _scene_control_restore.session \
 			or not _marker_hold_current():
 		return _fail(&"scene_restore_control_unproven", "")
@@ -436,8 +441,7 @@ func capture_scene_control_position(session: RefCounted, include_reading: bool =
 		return _fail(&"scene_restore_control_changed", "")
 	var physical := _scene_source_boundary(session, true, _scene_control_restore.reading)
 	if not physical.ok: return physical
-	if not include_reading: return {"ok": true}
-	return {"ok": true, "value": physical.value.reading.duplicate(true)}
+	return {"ok": true, "value": physical.value.reading}
 
 
 func _start_held_scene_target(path: String, native_index: int) -> Dictionary:
@@ -1446,7 +1450,7 @@ func _finish_reading_restore(request_id: String, event: DialogicTextEvent) -> vo
 		if not parked.ok:
 			_fail_reading_restore(parked)
 			return
-		var position := capture_scene_control_position(_scene_control_restore.session)
+		var position := scene_control_position_view(_scene_control_restore.session)
 		if not position.ok:
 			_fail_reading_restore(position)
 			return

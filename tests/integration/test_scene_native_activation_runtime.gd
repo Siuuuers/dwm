@@ -499,7 +499,11 @@ func test_held_control_actions_revalidate_history_and_preserve_read_only_custody
 	var position: Dictionary = _adapter.capture_scene_control_position(held.session)
 	assert_true(position.ok)
 	if not position.ok: return
-	assert_eq(_adapter.capture_scene_control_position(held.session, false), {"ok": true})
+	var view := _adapter.scene_control_position_view(held.session)
+	assert_true(view.ok)
+	assert_true(view.value.is_read_only())
+	assert_true(view.value.ledger.captions.is_read_only())
+	assert_true(is_same(view.value, _adapter.scene_control_position_view(held.session).value))
 	assert_eq(position.value, held.checkpoint.reading_session)
 	assert_eq(held.session.captures, 0, "control capture validates live identity without rebuilding history")
 	assert_eq(held.ledger.snapshots, 0, "held marker checks reuse immutable history")
