@@ -181,7 +181,8 @@ func commit_prepared_profile(candidate: Dictionary, defer_signals: bool = false,
 	var guarded := _guard(&"profile_commit")
 	if not guarded.get("ok", false):
 		return guarded
-	return _commit_profile_candidate(candidate, defer_signals, expected_revision)
+	var committed := _commit_profile_candidate(candidate, defer_signals, expected_revision)
+	return committed if defer_signals else _with_profile_snapshot(committed)
 
 
 func _commit_profile_candidate(candidate: Dictionary, defer_signals: bool = false, expected_revision: int = -1, allow_dating_reset: bool = false, allow_gallery_reset: bool = false, allow_visited_reset: bool = false, allow_library_reset: bool = false) -> Dictionary:
@@ -243,7 +244,12 @@ func _commit_profile_candidate(candidate: Dictionary, defer_signals: bool = fals
 				_pending_gallery_publications[transaction_id] = publication_id
 		return {"ok": true, "code": &"ok", "value": {"publication_id": publication_id}}
 	_publish(publication)
-	return {"ok": true, "code": &"ok", "value": _profile.duplicate(true)}
+	return {"ok": true, "code": &"ok"}
+
+
+func _with_profile_snapshot(committed: Dictionary) -> Dictionary:
+	if committed.ok: committed["value"] = get_profile_snapshot()
+	return committed
 
 
 func publish_deferred_profile_signals(publication_id: String) -> Dictionary:
@@ -343,7 +349,7 @@ func mark_caption_variant_witnessed(beat: Dictionary, registry: Dictionary, chec
 	candidate.witnessed_caption_variants[witness_id] = beat
 	if beat.line_id not in candidate.visited_line_ids:
 		candidate.visited_line_ids.append(beat.line_id)
-	return _commit_profile_candidate(candidate)
+	return _with_profile_snapshot(_commit_profile_candidate(candidate))
 
 
 func stage_caption_history(beats: Array[Dictionary], checkpoint_id: String) -> Dictionary:
@@ -418,8 +424,7 @@ func merge_caption_history(beats: Array[Dictionary], registry: Dictionary, expec
 
 func _caption_history_candidate() -> Dictionary:
 	var candidate := _profile.duplicate()
-	candidate.dialogue_library = {"checkpoints": _profile.dialogue_library.checkpoints.duplicate(),
-		"witnesses": _profile.dialogue_library.witnesses.duplicate()}
+	candidate.dialogue_library = get_dialogue_library()
 	candidate.witnessed_caption_variants = _profile.witnessed_caption_variants.duplicate()
 	candidate.visited_line_ids = _profile.visited_line_ids.duplicate()
 	return candidate
@@ -710,7 +715,7 @@ func record_displayed_artwork(asset_ids: Array[String]) -> Dictionary:
 			return _failure(&"invalid_artwork", "Unknown gallery artwork")
 		if asset_id not in candidate.displayed_artwork_ids: candidate.displayed_artwork_ids.append(asset_id)
 	if candidate.displayed_artwork_ids == _profile.displayed_artwork_ids: return {"ok": true}
-	return _commit_profile_candidate(candidate)
+	return _with_profile_snapshot(_commit_profile_candidate(candidate))
 
 
 func has_gallery_unlock(ending_id: String) -> bool:
@@ -1026,7 +1031,9 @@ func reset_visited_history(expected_revision: int = -1) -> Dictionary:
 
 
 func get_dialogue_library() -> Dictionary:
-	return _profile.get("dialogue_library", {"checkpoints": [], "witnesses": {}}).duplicate(true)
+	var library: Dictionary = _profile.get("dialogue_library", {})
+	return {"checkpoints": library.get("checkpoints", []).duplicate(),
+		"witnesses": library.get("witnesses", {}).duplicate()}
 
 
 func reset_dialogue_library(expected_revision: int = -1) -> Dictionary:
