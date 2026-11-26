@@ -291,6 +291,8 @@ func test_get_entry_resolves_the_exact_registered_english_locator() -> void:
 	if not _guard():
 		return
 	var result := _entry(SAMPLE_ENTRY_ID, DEFAULT_LOCALE)
+	assert_true(is_same(CATALOG._entry_document, ENTRY_MANIFEST.scene_contract_tables().bundle.entry_manifest),
+		"lookup reads the installed manifest directly")
 	assert_true(result.get("ok", false), "English resolves: " + str(result.get("message", "")))
 	var value: Dictionary = result.get("value", {})
 	assert_eq(str(value.get("entry_id", "")), SAMPLE_ENTRY_ID, "the entry answers for itself")

@@ -203,7 +203,7 @@ static func _validate_scene_manifest(document: Dictionary) -> Dictionary:
 		seen[pair] = true
 		var signals := _check_allowlist(row.entry_id, row.allowed_signals)
 		if not signals.ok: return signals
-	return {"ok": true, "value": document.duplicate(true)}
+	return {"ok": true, "value": document}
 
 static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 	var header := validate_scene_bundle_header(bundle)
@@ -553,12 +553,12 @@ const PAYLOAD_ENVELOPE := ["entry_id", "playback_token", "receipt_id"]
 const OPAQUE_PAYLOAD_FIELDS := ["combination_id", "evidence_id", "playback_token", "receipt_id"]
 
 
-static func load_default() -> Dictionary:
+static func load_default(detach_selected: bool = true) -> Dictionary:
 	var startup := _select_startup_fixture()
 	if not startup.ok: return startup
 	_registration_used = true
 	if not _scene_bundle.is_empty():
-		return {"ok": true, "value": _scene_bundle.entry_manifest.duplicate(true)}
+		return {"ok": true, "value": _scene_bundle.entry_manifest.duplicate(true) if detach_selected else _scene_bundle.entry_manifest}
 	if not FileAccess.file_exists(MANIFEST_PATH):
 		return _fail(&"ENTRY_MANIFEST_FILE_MISSING", MANIFEST_PATH + " is absent")
 	var parsed: Dictionary = STRICT_JSON.parse_object(FileAccess.get_file_as_string(MANIFEST_PATH))
@@ -882,7 +882,7 @@ static func validate_ids_document(ids_document: Dictionary) -> Dictionary:
 					"%s: %s is registered more than once" % [str(pair[0]), id_value])
 			seen[id_value] = true
 
-	var entries := load_default()
+	var entries := load_default(false)
 	if not entries.get("ok", false):
 		return _fail(&"IDS_MANIFEST_ENTRIES_UNAVAILABLE",
 			"the entry manifest this registry is measured against is unreadable: "
