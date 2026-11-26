@@ -87,7 +87,7 @@ const RECORDS: Array[Dictionary] = [
 
 
 static func records() -> Array[Dictionary]:
-	return RECORDS.duplicate(true)
+	return RECORDS
 
 
 static func validate(path: StringName, value: Variant) -> Dictionary:
@@ -127,7 +127,7 @@ static func visible_records(section_id: StringName) -> Array[Dictionary]:
 	var output: Array[Dictionary] = []
 	for record in RECORDS:
 		if bool(record.get("visible", false)) and record.get("section_id") == section_id:
-			output.append(record.duplicate(true))
+			output.append(record)
 	return output
 
 
