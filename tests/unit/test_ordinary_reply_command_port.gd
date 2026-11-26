@@ -31,10 +31,10 @@ class ReplyState:
 		var line := {"view_token": id, "line_id": definition.value.line_id, "text": definition.value.text}
 		var prepared: Dictionary = REPLIES.prepare_reply(contacts, day, reply, locale, id, proof, line)
 		if not prepared.ok: return prepared
-		prepared.value["command"] = {"command_id": id, "command_issuer_receipt": proof.duplicate(true),
+		var command := {"command_id": id, "command_issuer_receipt": proof.duplicate(true),
 			"live_session": session.duplicate(true), "source_contacts_sha256": JSON.stringify(contacts).sha256_text(),
 			"source_day": day, "friend_id": friend, "reply_id": reply, "locale": locale, "rendered_line": line}
-		return prepared
+		return {"ok": true, "value": {"command": command}}
 	func commit_ordinary_reply(command: Dictionary, line: Dictionary) -> Dictionary:
 		commits += 1
 		if fail_save: return {"ok": false, "code": &"save_failed"}

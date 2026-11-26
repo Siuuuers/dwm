@@ -119,21 +119,19 @@ static func prepare_reply(state: Dictionary, day: int, reply_id: String, locale:
 			return _fail("ordinary_reply_conflict")
 		var validated := validate_state(state)
 		return _candidate(state.duplicate(true), [], prior.duplicate(true)) if validated.ok else validated
-	var choices := available(state, day, row.friend_id, locale)
-	if not choices.ok: return choices
-	if choices.value.is_empty(): return _fail("ordinary_reply_already_chosen")
+	if expiry_entry_id(state, day).is_empty(): return _fail("ordinary_reply_already_chosen")
 	var safe := safe_snapshot(row.text)
 	if not safe.ok: return safe
 	var candidate: Dictionary = state.duplicate(true)
 	var sequence: int = int(candidate.next_sequence)
 	var sequences: Array = [sequence, sequence + 1, sequence + 2]
 	var receipt := {"kind": "ordinary_reply", "transaction_id": command_id,
-		"command_issuer_receipt": issuer_receipt.duplicate(true), "day": day,
+		"command_issuer_receipt": issuer_receipt.duplicate(), "day": day,
 		"friend_id": row.friend_id, "entry_id": row.entry_id, "reply_id": reply_id,
 		"witnessed_line_id": row.line_id, "content_version": row.content_version, "locale": locale,
 		"plain_text_snapshot": safe.value, "echo_id": row.echo_id,
-		"presentation_atom_id": row.presentation_atom_id, "rendered_line": rendered_line.duplicate(true),
-		"message_ids": row.message_ids.duplicate(), "message_sequences": sequences}
+		"presentation_atom_id": row.presentation_atom_id, "rendered_line": rendered_line.duplicate(),
+		"message_ids": row.message_ids, "message_sequences": sequences}
 	var batch: Array = []
 	for index: int in range(3):
 		var message := {"message_id": row.message_ids[index], "type": MESSAGE_KINDS[index],
@@ -161,7 +159,7 @@ static func pending_echoes_oldest_first(state: Dictionary) -> Array[Dictionary]:
 			row[key] = receipt[key]
 		pending.append(row)
 	pending.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a.day) < int(b.day))
-	return pending.duplicate(true)
+	return pending
 
 static func prepare_echo_presented(state: Dictionary, echo_id: String, atom_id: String,
 		command_id: String, issuer_receipt: Dictionary, presentation_receipt: Dictionary) -> Dictionary:
@@ -181,7 +179,7 @@ static func prepare_echo_presented(state: Dictionary, echo_id: String, atom_id: 
 	if pending.is_empty() or pending[0].echo_id != echo_id or pending[0].presentation_atom_id != atom_id:
 		return _fail("ordinary_echo_out_of_order")
 	var receipt := {"kind": "ordinary_echo_presented", "transaction_id": command_id,
-		"command_issuer_receipt": issuer_receipt.duplicate(true), "echo_id": echo_id,
+		"command_issuer_receipt": issuer_receipt.duplicate(), "echo_id": echo_id,
 		"presentation_atom_id": atom_id, "reply_transaction_id": pending[0].reply_transaction_id,
 		"presentation_receipt": expected}
 	var candidate := state.duplicate(true)

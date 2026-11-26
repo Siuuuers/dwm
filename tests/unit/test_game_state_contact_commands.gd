@@ -54,7 +54,9 @@ func _preview(f: Dictionary, day: int, choice: int = 0) -> Dictionary:
 	var preview: Dictionary = f.game.preview_ordinary_reply(friend, available.value.choices[choice].reply_id,
 		"en", issued.token, issued.issuer_receipt)
 	assert_true(preview.ok, str(preview))
-	return preview.value.command if preview.ok else {}
+	if not preview.ok: return {}
+	assert_eq(preview.value.keys(), ["command"])
+	return preview.value.command
 
 func _choose(f: Dictionary, day: int) -> Dictionary:
 	var command := _preview(f, day)

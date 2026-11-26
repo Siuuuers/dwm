@@ -611,12 +611,12 @@ func preview_ordinary_reply(friend_id: String, reply_id: String, locale: String,
 	if not prepared.get("ok", false): return prepared
 	var hashed: Dictionary = _CANONICAL_JSON.stringify(contacts)
 	if not hashed.get("ok", false): return hashed
-	prepared.value["command"] = {"command_id": command_id,
-		"command_issuer_receipt": command_issuer_receipt.duplicate(true),
-		"live_session": session.value.duplicate(true), "source_contacts_sha256": str(hashed.value).sha256_text(),
+	var command := {"command_id": command_id,
+		"command_issuer_receipt": command_issuer_receipt.duplicate(),
+		"live_session": session.value, "source_contacts_sha256": str(hashed.value).sha256_text(),
 		"source_day": day, "friend_id": friend_id, "reply_id": reply_id, "locale": locale,
-		"rendered_line": line.duplicate(true)}
-	return prepared
+		"rendered_line": line}
+	return {"ok": true, "value": {"command": command}}
 
 func commit_ordinary_reply(command: Dictionary, rendered_line: Dictionary) -> Dictionary:
 	if not _ordinary_command_has_keys(command, ["command_id", "command_issuer_receipt", "live_session",
