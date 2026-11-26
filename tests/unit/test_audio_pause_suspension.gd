@@ -182,6 +182,21 @@ func test_real_players_and_native_crossfade_suspend_and_resume_in_place() -> voi
 	assert_eq(_manager.get_state().value.state,&"Active")
 
 
+func test_restored_fade_starts_at_captured_gain_and_preserves_the_backup() -> void:
+	_initialize(PORT.new())
+	var tracks: Array[Dictionary] = [{"player_id": &"MusicA", "from_db": -30.0, "to_db": 0.0}]
+	assert_true(_port.create_parallel_tween(&"music", tracks, 5.0).ok)
+	tracks[0].to_db = -55.0
+	assert_true(_port.set_player_db(&"MusicA", -12.0).ok)
+	var backup: Dictionary = _port.capture_runtime().value
+	assert_eq(backup.transitions.music.tracks[0].to_db, 0.0)
+	assert_true(_port.restore_runtime(backup).ok)
+	var restored: Dictionary = _port.capture_runtime().value
+	assert_eq(restored.players.MusicA.volume_db, -12.0)
+	assert_eq(restored.transitions.music.tracks[0].from_db, -12.0)
+	assert_eq(backup.transitions.music.tracks[0].from_db, -30.0)
+
+
 func test_handle_contract_is_exact_idempotent_and_consumed_once() -> void:
 	var fault := FaultPort.new()
 	_initialize(fault)
