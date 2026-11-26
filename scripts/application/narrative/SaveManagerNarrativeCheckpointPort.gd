@@ -204,8 +204,6 @@ func commit_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary, name
 	if not _configured: return _fail(&"not_configured", "configure first")
 	if _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy:
 		return _fail(&"transaction_in_progress", "another checkpoint command owns publication")
-	snapshot_input = snapshot_input.duplicate(true)
-	checkpoint = checkpoint.duplicate(true)
 	if not checkpoint.get("reading_session") is Dictionary:
 		return _fail(&"scene_event_checkpoint_invalid", "a reading checkpoint is required")
 	if checkpoint.reading_session.get("schema_version") == 4:
@@ -213,6 +211,10 @@ func commit_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary, name
 	if checkpoint.reading_session.get("boundary") != "line":
 		return _fail(&"scene_event_checkpoint_invalid", "a reading line checkpoint is required")
 	var scene_entry := not _scene_entry.is_empty()
+	if not scene_entry and not named_autosave and checkpoint.get("stage") == "scene":
+		return _publish_scene_event(snapshot_input, checkpoint)
+	snapshot_input = snapshot_input.duplicate(true)
+	checkpoint = checkpoint.duplicate(true)
 	if scene_entry:
 		if _scene_entry.state != "prepared" \
 				or not READING_NEXT._same(checkpoint, _scene_entry.checkpoint) \

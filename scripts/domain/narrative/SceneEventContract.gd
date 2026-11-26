@@ -125,7 +125,7 @@ static func validate_receipts(receipts: Dictionary) -> Dictionary:
 			return _fail(&"event_receipt_mismatch")
 		var key: String = occurrence_key(envelope.source)
 		if not occurrences.has(key):
-			occurrences[key] = {"source": envelope.source.duplicate(true), "next_ordinal": 0,
+			occurrences[key] = {"source": envelope.source.duplicate(), "next_ordinal": 0,
 				"predecessor": "", "notification": {}, "receipts": []}
 		var group: Dictionary = occurrences[key]
 		if group.source != envelope.source: return _fail(&"event_receipt_source_changed")
@@ -772,7 +772,7 @@ static func _validate_scene_receipts_registered(receipts: Dictionary, bundle: Di
 			resolved_thoughts[thought_key] = command
 		var key := occurrence_key(envelope.source)
 		if not occurrences.has(key):
-			occurrences[key] = {"source": envelope.source.duplicate(true), "next_ordinal": 0,
+			occurrences[key] = {"source": envelope.source.duplicate(), "next_ordinal": 0,
 				"predecessor": "", "receipts": [], "notification": {}}
 		var group: Dictionary = occurrences[key]
 		if not _equal(group.source, envelope.source): return _fail(&"scene_receipt_source_changed")
