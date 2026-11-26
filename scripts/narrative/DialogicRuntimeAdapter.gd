@@ -37,6 +37,7 @@ func retain_scene_source(session: RefCounted) -> Dictionary:
 		return {"ok": true, "value": _scene_source_token} if checked.ok else checked
 	var retained: Dictionary = session._retain_scene_live(boundary.value.reading)
 	if not retained.ok: return retained
+	boundary.value.reading = boundary.value.reading.duplicate(true)
 	FrozenPresentationContext._freeze(boundary.value.reading)
 	_scene_source_token = RefCounted.new()
 	_scene_source = {"session": session, "ledger": _caption_ledger,
@@ -104,7 +105,7 @@ func _scene_source_boundary(session: RefCounted, allow_suspended_read: bool = fa
 		return _fail(&"scene_source_unavailable", "")
 	var frontier := capture_reading_frontier()
 	if not frontier.ok: return frontier
-	var saved: Dictionary = session.capture({} if session.boundary == "control" else frontier.value) \
+	var saved: Dictionary = session.capture_view({} if session.boundary == "control" else frontier.value) \
 		if retained_reading.is_empty() else {"ok": true, "value": retained_reading}
 	if not saved.ok: return saved
 	var owner := preload("res://scripts/narrative/DialogicEntryManifest.gd")
@@ -250,7 +251,7 @@ func _install_scene_control(session: RefCounted, reading: Dictionary,
 	var candidate_ledger: NarrativeCaptionLedger = session.ledger
 	var checked: Dictionary = session.validate_saved(retained, source.entry_id)
 	if not checked.ok: return checked
-	var captured: Dictionary = session.capture({})
+	var captured: Dictionary = session.capture_view({})
 	if not captured.ok or not traversal._same(captured.get("value"), retained):
 		return _fail(&"scene_control_candidate_changed", "candidate changed during preflight")
 	source_checked = validate_scene_source(source_token, source_session)
