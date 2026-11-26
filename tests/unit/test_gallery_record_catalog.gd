@@ -16,7 +16,9 @@ func _base() -> Dictionary:
 		"media_asset_id": "archive.ending.alone.media"}}
 
 func test_shipped_metadata_is_valid() -> void:
-	assert_true(CATALOG.new().valid)
+	var catalog := CATALOG.new()
+	assert_true(catalog.valid)
+	assert_true(is_same(catalog._records["ending.alone"], CATALOG.new()._records["ending.alone"]))
 
 func test_reached_date_accepts_defaults_and_exact_details() -> void:
 	var signature := {"entry_id": "dating.solo.priscilla.day1.pre_challenge",
