@@ -428,7 +428,7 @@ func _save_named_presentation(snapshot_input: Dictionary, checkpoint: Dictionary
 	if not content.ok: return content
 	var captured: Dictionary = _real_port.capture()
 	if not captured.get("ok", false): return captured
-	var inputs := _checkpoint_inputs(active.value, audio.value, content.value, checkpoint.duplicate(true), "scene", snapshot_input.duplicate(true))
+	var inputs := _checkpoint_inputs(active.value, audio.value, content.value, checkpoint, "scene", snapshot_input)
 	var prepared: Dictionary = _real_port.prepare(inputs, &"safe_marker", {"kind": &"autosave", "reason": &"automatic"})
 	if not prepared.get("ok", false): return prepared
 	var candidate: Dictionary = prepared.value.candidate
@@ -747,7 +747,7 @@ func prepare_candidate(owner_id: StringName, snapshot_input: Dictionary, transac
 	var candidate: Variant = (prepared["value"] as Dictionary)["candidate"]
 	_active_owner = owner_id
 	_active_candidate = {"checkpoint_id": checkpoint_id, "hash": _fingerprint(candidate)}
-	return {"ok": true, "code": &"ok", "value": {"candidate": _copy(candidate), "checkpoint_id": checkpoint_id}, "receipt": {}}
+	return {"ok": true, "code": &"ok", "value": {"candidate": candidate, "checkpoint_id": checkpoint_id}, "receipt": {}}
 
 
 func commit(owner_id: StringName, candidate: Dictionary) -> Dictionary:
@@ -858,12 +858,6 @@ func _configured_result(already: bool) -> Dictionary:
 
 func _exact_keys(target: Dictionary, keys: Array) -> bool:
 	return target.size() == keys.size() and target.has_all(keys)
-
-
-func _copy(value: Variant) -> Variant:
-	if typeof(value) == TYPE_DICTIONARY or typeof(value) == TYPE_ARRAY:
-		return value.duplicate(true)
-	return value
 
 
 func _fail(code: StringName, message: String) -> Dictionary:
