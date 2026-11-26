@@ -316,7 +316,7 @@ func _refresh_thought_options(payload: Dictionary) -> void:
 			button.accessibility_labeled_by_nodes = [NodePath("Wording/Primary"), NodePath("Wording/Secondary")]
 			button.custom_minimum_size = wording.get_combined_minimum_size() + Vector2(24, 16)
 			paired_height = maxf(paired_height, button.custom_minimum_size.y + 18)
-		button.pressed.connect(_select_thought.bind(str(option.choice_id), _thought_frontier.duplicate(true)))
+		button.pressed.connect(_select_thought.bind(str(option.choice_id), _thought_frontier))
 	if is_instance_valid(_thought_panel):
 		_thought_panel.set_choice_row_height(paired_height)
 		_layout_thought_controls()
@@ -328,7 +328,7 @@ func _refresh_thought_options(payload: Dictionary) -> void:
 			panel.ensure_control_visible(focused_button)
 
 func _accept_thought() -> void:
-	_select_thought("", _thought_frontier.duplicate(true))
+	_select_thought("", _thought_frontier)
 
 func _select_thought(choice_id: String, expected: Dictionary) -> void:
 	get_viewport().set_input_as_handled()
