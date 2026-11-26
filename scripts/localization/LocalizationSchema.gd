@@ -3,7 +3,7 @@ extends RefCounted
 
 static var _placeholder := RegEx.create_from_string("\\{([A-Za-z_][A-Za-z0-9_]*)\\}")
 
-static func validate_manifest(manifest: Dictionary, base_path: String) -> Dictionary:
+static func validate_manifest(manifest: Dictionary) -> Dictionary:
 	if not _exact_keys(manifest, ["schema_version", "source_locale", "aliases", "font_profiles", "locales"]): return _fail("invalid_manifest_keys")
 	if manifest["schema_version"] != 1 or typeof(manifest["source_locale"]) != TYPE_STRING: return _fail("invalid_manifest_header")
 	var records := {}
@@ -36,7 +36,7 @@ static func validate_manifest(manifest: Dictionary, base_path: String) -> Dictio
 		if not _chain_terminates(id, records, "fallback_locale", manifest["source_locale"]): return _fail("locale_fallback_cycle")
 	for id in fonts:
 		if not _nullable_chain_terminates(id, fonts, "fallback_profile"): return _fail("font_fallback_cycle")
-	return {"ok": true, "value": manifest.duplicate(true), "base_path": base_path}
+	return {"ok": true}
 
 static func _message_placeholders(catalog: Dictionary, expected_locale: String) -> Dictionary:
 	if not _exact_keys(catalog, ["schema_version", "locale", "messages"]) or catalog.get("schema_version") != 1 or catalog.get("locale") != expected_locale: return _fail("invalid_locale_file")
@@ -57,11 +57,11 @@ static func extract_named_placeholders(text: String) -> PackedStringArray:
 	output.sort(); return output
 
 static func validate_bundle(manifest: Dictionary, catalogs: Dictionary) -> Dictionary:
-	var manifest_result := validate_manifest(manifest, "res://localization/")
+	var manifest_result := validate_manifest(manifest)
 	if not manifest_result.get("ok", false): return manifest_result
 	var checked := check_catalogs(manifest, catalogs)
 	if not checked.ok: return checked
-	return {"ok": true, "value": {"manifest": manifest_result.value, "catalogs": catalogs.duplicate(true)}}
+	return {"ok": true, "value": {"manifest": manifest, "catalogs": catalogs}}
 
 static func check_catalogs(manifest: Dictionary, catalogs: Dictionary) -> Dictionary:
 	var source_id: String = manifest["source_locale"]
@@ -83,7 +83,7 @@ static func build_legacy_subset_records(tables: Dictionary) -> Dictionary:
 	for locale in tables:
 		for id in tables[locale]: records.append({"locale": locale, "id": id, "text": tables[locale][id]})
 	records.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return [a["locale"], a["id"]] < [b["locale"], b["id"]])
-	return {"ok": true, "value": records.duplicate(true)}
+	return {"ok": true, "value": records}
 
 static func fingerprint_records(records: Array[Dictionary]) -> String:
 	var context := HashingContext.new(); context.start(HashingContext.HASH_SHA256)

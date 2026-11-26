@@ -9,7 +9,7 @@ static func load_bundle(manifest_path: String) -> Dictionary:
 	if not manifest_read.get("ok", false): return manifest_read
 	var manifest: Dictionary = manifest_read["value"]
 	var base_path := manifest_path.get_base_dir() + "/"
-	var manifest_validation := SCHEMA.validate_manifest(manifest, base_path)
+	var manifest_validation := SCHEMA.validate_manifest(manifest)
 	if not manifest_validation.get("ok", false): return manifest_validation
 	var catalogs := {}
 	for record in manifest["locales"]:
@@ -18,7 +18,7 @@ static func load_bundle(manifest_path: String) -> Dictionary:
 		catalogs[record["id"]] = catalog_read["value"]
 	var checked := SCHEMA.check_catalogs(manifest, catalogs)
 	if not checked.ok: return checked
-	return {"ok": true, "value": {"manifest": manifest_validation.value, "catalogs": catalogs}}
+	return {"ok": true, "value": {"manifest": manifest, "catalogs": catalogs}}
 
 static func _read_object(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path): return {"ok": false, "code": &"localization_file_missing", "message": path}

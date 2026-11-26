@@ -214,7 +214,7 @@ func test_restore_apply_and_rollback_are_silent_and_detached() -> void:
 	assert_true(_manager.register_presentation_root(root).get("ok", false))
 	var signals: Array[String] = []
 	_manager.locale_changed.connect(func(locale_id: String) -> void: signals.append(locale_id))
-	var plan: Dictionary = _manager.prepare_locale("zh_CN")["value"]
+	var plan: Dictionary = _manager.prepare_locale("zh_CN", "", 100)["value"]
 	var backup: Dictionary = _manager.capture_restore_state()
 	var profile_backup: Dictionary = _profile.capture_restore_state()
 	assert_true(_profile.apply_restore_silent({"profile": plan["profile_candidate"]}).get("ok", false))
@@ -224,6 +224,8 @@ func test_restore_apply_and_rollback_are_silent_and_detached() -> void:
 	assert_eq(_manager.get_locale(), "zh_CN")
 	assert_eq(root.applied_profile["locale_id"], "zh_CN")
 	plan["canonical_locale_id"] = "en"
+	plan["presentation_profile"]["text_size"] = 150
+	assert_eq(_manager.get_presentation_profile()["text_size"], 100)
 	assert_eq(_manager.t("app.minesweeper"), "扫雷")
 	assert_true(_manager.rollback_restore_silent(backup).get("ok", false))
 	assert_true(_profile.rollback_restore_silent(profile_backup["value"]).get("ok", false))

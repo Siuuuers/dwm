@@ -108,7 +108,7 @@ func get_locale() -> String:
 
 
 func get_presentation_profile() -> Dictionary:
-	return _presentation_profile.duplicate(true)
+	return _presentation_profile.duplicate()
 
 
 func get_selectable_locales() -> Array[Dictionary]:
@@ -117,7 +117,7 @@ func get_selectable_locales() -> Array[Dictionary]:
 		return output
 	for record in _catalog_store["manifest"]["locales"]:
 		if record["selectable"]:
-			output.append((record as Dictionary).duplicate(true))
+			output.append((record as Dictionary).duplicate())
 	return output
 
 
@@ -289,7 +289,7 @@ func capture_restore_state() -> Dictionary:
 		return root_states
 	return _success({
 		"locale_id": _locale_id,
-		"presentation_profile": _presentation_profile.duplicate(true),
+		"presentation_profile": _presentation_profile.duplicate(),
 		"root_states": root_states["value"],
 	})
 
@@ -306,7 +306,7 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 		return applied
 	_restore_applied = applied["applied"]
 	_locale_id = plan["canonical_locale_id"]
-	_presentation_profile = (plan["presentation_profile"] as Dictionary).duplicate(true)
+	_presentation_profile = (plan["presentation_profile"] as Dictionary).duplicate()
 	return _success()
 
 
@@ -317,7 +317,7 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 		return _fail(&"invalid_localization_restore_backup")
 	_rollback_root_states(value.get("root_states", []))
 	_locale_id = value["locale_id"]
-	_presentation_profile = (value["presentation_profile"] as Dictionary).duplicate(true)
+	_presentation_profile = (value["presentation_profile"] as Dictionary).duplicate()
 	_finalize_roots(_restore_applied)
 	_restore_applied = []
 	return _success()
@@ -341,12 +341,12 @@ func _prepare_root_plans(presentation: Dictionary) -> Dictionary:
 
 
 func _prepare_one_root(root: Node, presentation: Dictionary) -> Dictionary:
-	var prepared: Variant = root.prepare_presentation(presentation.duplicate(true))
+	var prepared: Variant = root.prepare_presentation(presentation)
 	if not prepared is Dictionary or not prepared.get("ok", false):
 		return prepared if prepared is Dictionary else _fail(&"invalid_root_prepare_result")
 	return _success({
 		"root_instance_id": root.get_instance_id(),
-		"plan": (prepared.get("value", {}) as Dictionary).duplicate(true),
+		"plan": prepared.get("value", {}) as Dictionary,
 	})
 
 
@@ -364,9 +364,9 @@ func _apply_root_plans(root_plans: Array) -> Dictionary:
 			return captured if captured is Dictionary else _fail(&"invalid_root_capture_result")
 		var applied_record := {
 			"root": root,
-			"backup": (captured.get("value", {}) as Dictionary).duplicate(true),
+			"backup": captured.get("value", {}) as Dictionary,
 		}
-		var result: Variant = root.apply_presentation_silent((root_plan["plan"] as Dictionary).duplicate(true))
+		var result: Variant = root.apply_presentation_silent(root_plan["plan"])
 		if not result is Dictionary or not result.get("ok", false):
 			_rollback_applied_roots(applied)
 			return result if result is Dictionary else _fail(&"invalid_root_apply_result")
@@ -379,7 +379,7 @@ func _rollback_applied_roots(applied: Array) -> void:
 		var record: Dictionary = applied[index]
 		var root: Node = record.get("root")
 		if is_instance_valid(root):
-			root.rollback_presentation_silent((record["backup"] as Dictionary).duplicate(true))
+			root.rollback_presentation_silent(record["backup"])
 
 
 func _finalize_roots(applied: Array) -> void:
@@ -396,7 +396,7 @@ func _capture_root_states() -> Dictionary:
 		var captured: Variant = root.capture_presentation_state()
 		if not captured is Dictionary or not captured.get("ok", false):
 			return captured if captured is Dictionary else _fail(&"invalid_root_capture_result")
-		states.append({"root_instance_id": root_id, "backup": (captured.get("value", {}) as Dictionary).duplicate(true)})
+		states.append({"root_instance_id": root_id, "backup": captured.get("value", {}) as Dictionary})
 	return _success(states)
 
 
@@ -405,7 +405,7 @@ func _rollback_root_states(states: Array) -> void:
 		var record: Dictionary = states[index]
 		var root: Node = _root_for_id(record.get("root_instance_id", -1))
 		if is_instance_valid(root):
-			root.rollback_presentation_silent((record["backup"] as Dictionary).duplicate(true))
+			root.rollback_presentation_silent(record["backup"])
 
 
 func _live_root_ids() -> Array:
