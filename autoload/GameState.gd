@@ -528,8 +528,11 @@ func check_and_claim_minesweeper_task_rewards(result: Dictionary) -> Array:
 
 
 func _prepare_scene_round_reward(result: Dictionary) -> Dictionary:
-	var gameplay := _capture_scene_gameplay()
-	var reward := _round_money_reward(result, gameplay.minesweeper_round_floor, gameplay.minesweeper_money_earned_today)
+	var gameplay := {"money": money, "coins": coins, "stats": stats.duplicate(),
+		"minesweeper_money_earned_today": minesweeper_money_earned_today,
+		"minesweeper_task_rewards_claimed": minesweeper_task_rewards_claimed.duplicate(),
+		"minesweeper_app_rounds_finished_today": minesweeper_app_rounds_finished_today + 1}
+	var reward := calculate_minesweeper_money_reward(result)
 	if reward.money > 0:
 		gameplay.money = maxi(-30, gameplay.money + reward.money)
 		gameplay.minesweeper_money_earned_today += reward.money
@@ -538,7 +541,6 @@ func _prepare_scene_round_reward(result: Dictionary) -> Dictionary:
 			_stat_min(STAT_PRESSURE), _stat_max(STAT_PRESSURE))
 	var claimed := _claim_round_tasks(result.task_ids, gameplay.minesweeper_task_rewards_claimed,
 		func(amount: int) -> void: gameplay.coins = maxi(0, gameplay.coins + amount))
-	gameplay.minesweeper_app_rounds_finished_today += 1
 	return {"ok": true, "value": {"gameplay": gameplay, "reward": reward, "claimed": claimed, "outcome": result.outcome}}
 
 
@@ -4914,7 +4916,7 @@ func _commit_scene_round_owned(request: Dictionary, lease: String) -> Dictionary
 	if not reward.get("ok", false): return reward
 	var candidate := before.duplicate()
 	candidate.desktop = before.desktop.duplicate()
-	candidate.gameplay = reward.value.gameplay
+	candidate.gameplay = before.gameplay.merged(reward.value.gameplay, true)
 	var board_after := captured.merged({"revision": captured.revision + 1, "settled_inspection": true}, true)
 	var prepared_board: Dictionary = _scene_round_board.prepare_restore(board_after)
 	if not prepared_board.get("ok", false): return prepared_board
@@ -4949,7 +4951,7 @@ func _commit_scene_round_owned(request: Dictionary, lease: String) -> Dictionary
 		if not adopted.get("ok", false): return _scene_event_fatal(&"scene_round_consequence_adoption_failed")
 	var board_adopted: Dictionary = _scene_round_board.commit(prepared_board.value.candidate)
 	if not board_adopted.get("ok", false): return _scene_event_fatal(&"scene_round_board_adoption_failed")
-	_apply_gameplay_silent(candidate.gameplay)
+	_apply_gameplay_silent(reward.value.gameplay)
 	return {"ok": true, "committed": true}
 
 func _validate_scene_round_checkpoint(candidate: Dictionary, checkpoint: Dictionary, _phase: String) -> bool:
