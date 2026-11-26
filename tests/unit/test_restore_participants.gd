@@ -116,6 +116,8 @@ func test_run_participant_prepare_and_delegation() -> void:
 	assert_true(new_run["ok"], JSON.stringify(new_run))
 	assert_eq(new_run["value"]["snapshot_input"]["lifecycle"]["run_id"], "run-b")
 	assert_eq(new_run["value"]["snapshot_input"]["lifecycle"]["dark_mode"], true)
+	new_run.value.snapshot_input.lifecycle.run_id = "edited"
+	assert_eq(new_run.value.run_plan.snapshot_input.lifecycle.run_id, "run-b")
 	assert_eq(owner.received_pair_witnessed_forms, [], "Omitted public argument forwards the participant default.")
 	var witnessed_forms := ["ambiguous_dark", "love_sweet"]
 	var witnessed_run: Dictionary = participant.prepare_new_run("run-c", "branch-c", 0, "causal-day-b", receipt, true, witnessed_forms)
