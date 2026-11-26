@@ -37,8 +37,7 @@ static func load_current_document(raw: Dictionary) -> Dictionary:
 static func _has_current_document_keys(document: Dictionary) -> bool:
 	return RUN_SNAPSHOT_SCHEMA._scene_keys(document, SCENE_DOCUMENT_KEYS + ["saved_time"] if document.has("saved_time") else SCENE_DOCUMENT_KEYS)
 
-static func admit_document(raw: Dictionary, expected_locator: Dictionary,
-		scene_seed_receiver: Callable = Callable()) -> Dictionary:
+static func admit_document(raw: Dictionary, expected_locator: Dictionary) -> Dictionary:
 	if not RUN_SNAPSHOT_SCHEMA._scene_keys(expected_locator, ["kind", "slot_id"]):
 		return _fail(&"invalid_expected_locator", "expected_locator must have exactly kind and slot_id")
 	var locator_error := _validate_locator(str(expected_locator.kind), expected_locator.slot_id)
@@ -66,7 +65,7 @@ static func admit_document(raw: Dictionary, expected_locator: Dictionary,
 	var admitted := raw.duplicate()
 	admitted.current_snapshot = bundles.pop_front()
 	admitted.recovery_journal = bundles
-	var validated := validate(admitted, {}, scene_seed_receiver)
+	var validated := validate(admitted)
 	if not validated.get("ok", false): return validated
 	var document: Dictionary = validated["value"]["candidate"]
 	if document.kind != expected_locator.kind or document.slot_id != expected_locator.slot_id:
@@ -153,9 +152,8 @@ static func validate_scene_new_run_candidate(document: Dictionary, allocation_ca
 	return RUN_SNAPSHOT_SCHEMA.validate_scene_new_run_candidate(current.snapshot,
 		allocation_candidate, profile_material, bundle, issuer, acknowledged_checkpoint)
 
-static func validate(document: Dictionary, profile: Dictionary = {},
-		scene_seed_receiver: Callable = Callable()) -> Dictionary:
-	return _validate_document(document, [], false, profile, false, scene_seed_receiver)
+static func validate(document: Dictionary, profile: Dictionary = {}) -> Dictionary:
+	return _validate_document(document, [], false, profile)
 
 static func validate_outgoing(document: Dictionary, proven_journal: Array,
 		profile: Dictionary = {}) -> Dictionary:
@@ -168,8 +166,7 @@ static func _validate_outgoing_document_proofs(document: Dictionary, proven_jour
 	return validate_outgoing(document, proven_journal, profile)
 
 static func _validate_document(document: Dictionary, proven_journal: Array,
-		use_proven_journal: bool, profile: Dictionary = {}, normalized_proofs: bool = false,
-		scene_seed_receiver: Callable = Callable()) -> Dictionary:
+		use_proven_journal: bool, profile: Dictionary = {}, normalized_proofs: bool = false) -> Dictionary:
 	var type_guard := _validate_initial_types_before_normalization(document)
 	if not type_guard.ok: return type_guard
 	if use_proven_journal:
@@ -240,12 +237,8 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 	_profile_phase(profile, "outgoing_schema_validate_journal_us", tick)
 	if journal_error != "":
 		return _fail(&"invalid_recovery_journal", journal_error)
-	var admitted_bundles: Array = [candidate.current_snapshot]
-	var scene_error := _scene_journal_error(candidate.current_snapshot, candidate.recovery_journal,
-		{}, "", admitted_bundles if scene_seed_receiver.is_valid() else null)
+	var scene_error := _scene_journal_error(candidate.current_snapshot, candidate.recovery_journal)
 	if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
-	if scene_seed_receiver.is_valid():
-		scene_seed_receiver.call(candidate.duplicate(true), admitted_bundles.duplicate(true))
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
 
 static func _validate_initial_types_before_normalization(document: Dictionary) -> Dictionary:
@@ -261,7 +254,7 @@ static func _validate_initial_types_before_normalization(document: Dictionary) -
 	return {"ok": true}
 
 static func _scene_journal_error(current: Dictionary, journal: Array,
-		profile: Dictionary = {}, phase: String = "", admitted_bundles: Variant = null) -> String:
+		profile: Dictionary = {}, phase: String = "") -> String:
 	var source: Dictionary = current.snapshot
 	var seen := {source.checkpoint_id: true}
 	for raw: Variant in journal:
@@ -278,8 +271,6 @@ static func _scene_journal_error(current: Dictionary, journal: Array,
 		if saved.checkpoint_sequence >= source.checkpoint_sequence:
 			return "scene recovery must precede the current checkpoint"
 		seen[saved.checkpoint_id] = true
-		if admitted_bundles != null:
-			admitted_bundles.append({"checkpoint_kind": str(raw.checkpoint_kind), "snapshot": saved})
 	return ""
 
 static func _scene_proof_error(journal: Array, proofs: Array) -> String:

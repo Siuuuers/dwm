@@ -54,17 +54,12 @@ func prepare_record(snapshot: Dictionary, checkpoint_kind: StringName,
 	if int(candidate_snapshot["checkpoint_sequence"]) != _next_sequence:
 		return _fail(&"sequence_mismatch",
 			"expected %d, got %d" % [_next_sequence, int(candidate_snapshot["checkpoint_sequence"])])
-	var earlier: Array[Dictionary] = []
-	if candidate_snapshot.get("schema_version") != RUN_SNAPSHOT_SCHEMA.SCENE_SCHEMA_VERSION:
-		earlier = _earlier.duplicate(true)
-		if not _current.is_empty():
-			earlier.append(_current.duplicate(true))
 	return {"ok": true, "code": &"ok", "value": {"candidate": {
 		"candidate_kind": "record",
 		"run_id": _run_id,
 		"next_sequence": _next_sequence + 1,
 		"current": {"checkpoint_kind": kind, "snapshot": candidate_snapshot},
-		"earlier": _retained(earlier),
+		"earlier": [],
 	}}}
 
 func prepare_reset_with_initial(snapshot: Dictionary, checkpoint_kind: StringName) -> Dictionary:
