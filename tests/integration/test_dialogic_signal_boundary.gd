@@ -3,24 +3,19 @@ extends "res://addons/gut/test.gd"
 # rulings R-AA through R-KK). RED-first discipline, controller ruling (e) adapted to instance
 # methods: every new bridge method is reached DYNAMICALLY (has_method guard plus callv on the
 # instance), so this suite compiles and fails by NAMED assertions while the production surface is
-# still absent - zero SCRIPT_LOAD_FAILED, zero SUITE_NOT_EXECUTED. The two production ports are
-# probed by path for the same reason. The fakes are standalone duck-types so they load at RED.
+# still absent - zero SCRIPT_LOAD_FAILED, zero SUITE_NOT_EXECUTED.
 #
 # Conditions 6 through 11 of the plan's RED list cannot be driven end to end from real timelines
 # (the eight masters contain zero signal events), so they are driven by direct invocation of
 # acknowledge_signal and the runtime signal seam - DEVIATION-9 item 10, the same
 # fixture-reachability discipline as controller ruling (a).
 
-const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const FAKE_RUNTIME := preload("res://tests/support/FakeDialogicRuntime.gd")
 const FAKE_SIGNAL_PORT := preload("res://tests/support/FakeDialogicSignalCommandPort.gd")
 const FAKE_COMPLETION_PORT := preload("res://tests/support/FakeDialogicPlaybackCompletionPort.gd")
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
-
-const SIGNAL_PORT_PATH := "res://scripts/application/narrative/DialogicSignalCommandPort.gd"
-const COMPLETION_PORT_PATH := "res://scripts/application/narrative/DialogicPlaybackCompletionPort.gd"
 
 const LAVINIA_ENTRY := "contact.ordinary.lavinia.day1"
 const LAVINIA_MASTER := "res://dialogic/timelines/en/contacts/lavinia_day1.dtl"
@@ -134,26 +129,6 @@ func _token(started: Dictionary) -> String:
 
 func _witness_payload(token: String, receipt_id: String, line_id: String = LAVINIA_LINE_A) -> Dictionary:
 	return {"entry_id": LAVINIA_ENTRY, "line_id": line_id, "playback_token": token, "receipt_id": receipt_id}
-
-
-func test_the_two_production_ports_exist_with_fail_closed_defaults() -> void:
-	var both_present := true
-	for path: String in [SIGNAL_PORT_PATH, COMPLETION_PORT_PATH]:
-		var loaded: Dictionary = PROBE.load_script(path)
-		assert_true(loaded.get("ok", false), "%s: %s" % [path, str(loaded)])
-		both_present = both_present and loaded.get("ok", false)
-	if not both_present:
-		return
-	var command_port: Variant = PROBE.instantiate(SIGNAL_PORT_PATH)["value"]
-	var refused: Dictionary = command_port.commit_signal("entry", &"current_entry", "signal.id", {}, &"canonical")
-	assert_false(refused.get("ok", true), "an unconfigured signal command port fails closed")
-	assert_eq(str(refused.get("code", "")), "not_configured", str(refused))
-	assert_false(str(refused.get("message", "")).is_empty(), "the signal refusal carries a message")
-	var completion_port: Variant = PROBE.instantiate(COMPLETION_PORT_PATH)["value"]
-	var dropped: Dictionary = completion_port.complete_entry({"entry_id": "entry"})
-	assert_false(dropped.get("ok", true), "an unconfigured completion port fails closed")
-	assert_eq(str(dropped.get("code", "")), "not_configured", str(dropped))
-	assert_false(str(dropped.get("message", "")).is_empty(), "the completion refusal carries a message")
 
 
 func test_each_port_configures_exactly_once() -> void:

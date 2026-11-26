@@ -1,7 +1,7 @@
 extends "res://addons/gut/test.gd"
 
 const LIFECYCLE := preload("res://scripts/domain/run/RunLifecycle.gd")
-const HOSPITAL := preload("res://scripts/domain/run/ConditionHospitalState.gd")
+const HOSPITAL := preload("res://tests/support/retained/ConditionHospitalState.gd")
 
 class FakeIdentityPort extends RefCounted:
 	func derive_child(request: Dictionary) -> Dictionary:

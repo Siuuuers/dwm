@@ -9,11 +9,17 @@ signal close_requested()
 const WRITE_RECOVERY := preload("res://scenes/ui/witnessed/WitnessedTransportRecovery.tscn")
 const CONTROLLER := preload("res://scripts/ui/SettingsPanelController.gd")
 const REGISTRY := preload("res://scripts/settings/SettingsPreferenceRegistry.gd")
-const COMFORT := preload("res://scripts/audio/accessibility/ListeningComfortNoticeCoordinator.gd")
 const PRESENTATION := preload("res://scripts/ui/SettingsTheme.gd")
 const RESET_CONFIRMATION := preload("res://scripts/ui/SettingsResetConfirmation.gd")
 const INPUT_REGISTRY := preload("res://scripts/settings/ControlsActionRegistry.gd")
 const CONTROLS_SHEET := preload("res://scripts/ui/SettingsControlsSheet.gd")
+const FIRST_RUN_NOTES: Dictionary = {
+	"en": "Set a comfortable device volume. Stop and rest if sound feels uncomfortable.",
+	"zh_CN": "请将设备音量调至舒适水平。如果声音令你不适，请停止并休息。",
+	"zh_HK": "請將裝置音量調至舒適水平。如果聲音令你不適，請停止並休息。",
+	"ja": "機器の音量を心地よい大きさに調整してください。音がつらく感じたら、使用をやめて休憩してください。",
+	"ko": "기기의 음량을 편안한 수준으로 조절하세요. 소리가 불편하게 느껴지면 사용을 멈추고 쉬세요.",
+}
 const CATEGORY_FIELDS: Dictionary = {
 	"language": ["language.primary_locale_id", "language.dual_enabled", "language.secondary_locale_id"],
 	"reading": ["accessibility.font_style", "accessibility.text_size", "reading.reveal_speed", "reading.auto_enabled", "reading.auto_delay", "reading.skip_mode", "reading.read_aloud_enabled", "reading.read_aloud_rate"],
@@ -484,7 +490,7 @@ func refresh_labels() -> void:
 		confirmations[id].dialog_text = text("settings.confirm." + id)
 		confirmations[id].get_cancel_button().text = text("settings.cancel")
 		confirmations[id].get_ok_button().text = text("settings.reset." + id)
-	_comfort_note.text = COMFORT.first_run_note(current_locale())
+	_comfort_note.text = FIRST_RUN_NOTES.get(current_locale(), "")
 	if _controller != null:
 		refresh_binding_labels()
 		_controller.refresh()

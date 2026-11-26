@@ -14,8 +14,8 @@ const STORAGE_PATH := "res://scripts/infrastructure/storage/JsonFileStorage.gd"
 const GATE_PATH := "res://scripts/application/transaction/ApplicationMutationGate.gd"
 const CHECKPOINT_PORT_PATH := "res://scripts/application/run/SaveManagerCheckpointPort.gd"
 const GS_PATH := "res://autoload/GameState.gd"
-const STATE_PORT_PATH := "res://scripts/application/shop/GameStateMinesweeperShopPort.gd"
-const PARTICIPANT_PATH := "res://scripts/application/shop/MinesweeperShopPurchaseParticipant.gd"
+const STATE_PORT_PATH := "res://tests/support/retained/GameStateMinesweeperShopPort.gd"
+const PARTICIPANT_PATH := "res://tests/support/retained/MinesweeperShopPurchaseParticipant.gd"
 const CONSEQUENCE_STATE_PATH := "res://scripts/domain/desktop/DesktopConsequenceState.gd"
 const REGISTRY_PATH := "res://scripts/domain/shop/MinesweeperShopRegistry.gd"
 const ACTION_RECEIPT_PATH := "res://scripts/domain/desktop/DesktopActionReceipt.gd"
@@ -34,7 +34,7 @@ const IDENTITY_CONTEXT := {
 # The frozen v1 action receipt requires historical health facts. The production
 # scene Shop successor is pressure-only and is tested separately. Retain the old
 # receipt/recovery contract here without restoring health to the runtime port.
-class LegacyConditionShopPort extends "res://scripts/application/shop/GameStateMinesweeperShopPort.gd":
+class LegacyConditionShopPort extends "res://tests/support/retained/GameStateMinesweeperShopPort.gd":
 	func capture() -> Dictionary:
 		var result: Dictionary = super.capture()
 		if result.get("ok", false):

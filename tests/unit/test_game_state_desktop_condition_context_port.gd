@@ -13,7 +13,7 @@ extends "res://addons/gut/test.gd"
 ## refinement) stays owned by Plan 03 Task 7 and is NOT claimed here.
 
 const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
-const PORT_PATH := "res://scripts/application/desktop/GameStateDesktopConditionContextPort.gd"
+const PORT_PATH := "res://tests/support/retained/GameStateDesktopConditionContextPort.gd"
 const GAME_STATE_PATH := "res://autoload/GameState.gd"
 
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")

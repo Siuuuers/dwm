@@ -1,7 +1,7 @@
 extends "res://addons/gut/test.gd"
 
-const PORT := preload("res://scripts/application/run/GameStateConditionHospitalPort.gd")
-const STATE := preload("res://scripts/domain/run/ConditionHospitalState.gd")
+const PORT := preload("res://tests/support/retained/GameStateConditionHospitalPort.gd")
+const STATE := preload("res://tests/support/retained/ConditionHospitalState.gd")
 const GAME := preload("res://autoload/GameState.gd")
 
 class Identity extends RefCounted:
@@ -168,3 +168,10 @@ func test_real_root_day_advance_hashes_exact_identity_projection_and_replays_aft
 	changed.resolution_receipt.receipt_id += ".changed"
 	assert_false(fresh.port._prepare_day(changed).get("ok", true), "changed receipt/provenance binding is rejected")
 	assert_eq(fresh_root.capture().value, committed_root)
+
+func test_runtime_adapter_rejects_incomplete_real_owner_graph() -> void:
+	var result: Dictionary = PORT.new().configure(
+		RefCounted.new(), RefCounted.new(), RefCounted.new(), RefCounted.new(),
+		RefCounted.new(), RefCounted.new(), Callable())
+	assert_false(result.get("ok", true))
+	assert_eq(result.get("code"), &"invalid_game_state")

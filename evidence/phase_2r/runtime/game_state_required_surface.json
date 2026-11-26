@@ -2124,6 +2124,46 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_inline_art_checkpoint_and_load_keep_current_composition_without_replay"
+    },
+    {
+      "symbol": "capture_attempt_identity",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_canonical_scene_registration_reuses_manifest_identity_through_authorization"
+    },
+    {
+      "symbol": "capture_run_gameplay",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_scene_new_day_gameplay_detaches_stats_and_inventory"
+    },
+    {
+      "symbol": "contact_presentation_inputs",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_current_ordinary_freeze_is_durable_before_native_projection_and_failed_write_rolls_back"
+    },
+    {
+      "symbol": "get_scene_presentation_checkpoint_id",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_inline_art_checkpoint_and_load_keep_current_composition_without_replay"
+    },
+    {
+      "symbol": "matches_dating_challenge_state",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_paused_board_save_retains_earlier_reading_history_and_exact_board_without_reveal"
     }
   ]
 }

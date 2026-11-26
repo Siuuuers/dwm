@@ -165,7 +165,6 @@ $suites = @{
         'tests/unit/test_game_state_contact_commands.gd'
         'tests/unit/test_seven_day_calendar.gd'
         'tests/unit/test_pair_deck_draw.gd'
-        'tests/unit/test_pair_deck_draw_port.gd'
         'tests/unit/test_save_migrations.gd'
         'tests/integration/test_save_manager_journal.gd'
         'tests/integration/test_restore_transaction.gd'

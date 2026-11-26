@@ -2,7 +2,7 @@ extends "res://addons/gut/test.gd"
 
 ## RED/GREEN coverage for DesktopCausalSequencePort (Plan 02 Task 6, dwm-p2r.32).
 
-const _PORT_SCRIPT := preload("res://scripts/application/desktop/DesktopCausalSequencePort.gd")
+const _PORT_SCRIPT := preload("res://tests/support/retained/DesktopCausalSequencePort.gd")
 const _STATE_SCRIPT := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
 const _GATE_SCRIPT := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")

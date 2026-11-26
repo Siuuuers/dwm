@@ -6,7 +6,7 @@ const REDUCER := preload("res://scripts/domain/minesweeper/MinesweeperBoardReduc
 const SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
 const CATALOG := preload("res://scripts/domain/minesweeper/MinesweeperBoardCatalog.gd")
 const QUERY := preload("res://scripts/application/minesweeper/MinesweeperBoardPresentationQuery.gd")
-const FATE := preload("res://scripts/application/minesweeper/DesktopBoardFatePort.gd")
+const FATE := preload("res://tests/support/retained/DesktopBoardFatePort.gd")
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const ROOT_STORE := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
 const OLD_CHECKPOINT := preload("res://tests/support/FakeMinesweeperCheckpointPort.gd")
@@ -525,7 +525,7 @@ func _mint_fixture_day() -> Dictionary:
 
 
 func _cold_restore_paid_board(saved: Dictionary, source_day_receipt: Dictionary) -> Dictionary:
-	var remapper := preload("res://scripts/domain/desktop/DesktopContinuationRemapper.gd")
+	var remapper := preload("res://tests/support/retained/DesktopContinuationRemapper.gd")
 	var consequence: Dictionary = CONSEQUENCE.make_empty({
 		"causal_day_instance": str(source_day_receipt.token),
 		"causal_day_instance_issuer_receipt": source_day_receipt})

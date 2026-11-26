@@ -187,7 +187,7 @@ func test_retirement_keeps_desktop_capacity_fences() -> void:
 
 
 func test_shop_owner_refuses_retired_items_before_detached_or_live_mutation() -> void:
-	var shop_port: RefCounted = preload("res://scripts/application/shop/GameStateMinesweeperShopPort.gd").new()
+	var shop_port: RefCounted = preload("res://tests/support/retained/GameStateMinesweeperShopPort.gd").new()
 	assert_true(shop_port.configure(_game_state, IDENTITY_CONTEXT).ok)
 	_game_state.stats = {"pressure": 3}
 	var original: Dictionary = _game_state.to_save_dict().duplicate(true)

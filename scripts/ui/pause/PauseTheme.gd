@@ -1,6 +1,6 @@
 extends RefCounted
 
-const PALETTES := preload("res://scripts/ui/pause/PausePaletteRegistry.gd")
+const PALETTES := preload("res://scripts/settings/SettingsPaletteRegistry.gd")
 const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 

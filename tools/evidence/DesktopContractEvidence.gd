@@ -22,7 +22,7 @@ const _SCHEMA_VALIDATOR := preload("res://scripts/validation/JsonSchemaValidator
 
 const _REGISTRY := preload("res://scripts/domain/desktop/DesktopAppRegistry.gd")
 const _HOST_STATE := preload("res://scripts/domain/desktop/DesktopAppHostState.gd")
-const _LOGOUT_POLICY := preload("res://scripts/domain/desktop/LogoutPolicy.gd")
+const _LOGOUT_POLICY := preload("res://tools/evidence/LogoutPolicy.gd")
 const _PROJECTOR := preload("res://scripts/application/transaction/FatalDiagnosticProjector.gd")
 
 const ARTIFACT_PATH := "res://evidence/phase_2r/handoff/desktop_contract.json"
@@ -53,7 +53,6 @@ const SOURCE_BINDING_PATHS: Array[String] = [
 	"scripts/application/transaction/FatalDiagnosticProjector.gd",
 	"scripts/domain/desktop/DesktopAppHostState.gd",
 	"scripts/domain/desktop/DesktopAppRegistry.gd",
-	"scripts/domain/desktop/LogoutPolicy.gd",
 	"scripts/domain/run/RunSnapshotSchema.gd",
 	"tests/integration/test_application_bootstrap.gd",
 	"tests/integration/test_application_bootstrap.gd.uid",
@@ -70,6 +69,7 @@ const SOURCE_BINDING_PATHS: Array[String] = [
 	"tests/unit/test_fatal_diagnostic_projector.gd",
 	"tests/unit/test_logout_policy.gd",
 	"tests/unit/test_scene_save_schema.gd",
+	"tools/evidence/LogoutPolicy.gd",
 ]
 
 const REGISTRY_VERSION := 1
@@ -331,7 +331,7 @@ static func _day_change_owner() -> Dictionary:
 	}
 
 
-## Imported from the production planner so the artifact cannot certify a policy nobody implements.
+## Retains the Phase 2R logout decisions for this handoff.
 static func _logout_contract() -> Dictionary:
 	var rows: Array = []
 	for confirmed: bool in [false, true]:

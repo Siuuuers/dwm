@@ -17,11 +17,11 @@ extends "res://addons/gut/test.gd"
 ## retention behind that read is proven in test_desktop_consequence_coordinator.gd.
 
 const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
-const PORT_PATH := "res://scripts/application/desktop/DesktopConsequenceSourcePort.gd"
+const PORT_PATH := "res://tests/support/retained/DesktopConsequenceSourcePort.gd"
 
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const FAKE_ROOT_STORE := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
-const BOARD_FATE_PORT := preload("res://scripts/application/minesweeper/DesktopBoardFatePort.gd")
+const BOARD_FATE_PORT := preload("res://tests/support/retained/DesktopBoardFatePort.gd")
 const BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 
 const CAUSAL_DAY := "causal-day-source-1"

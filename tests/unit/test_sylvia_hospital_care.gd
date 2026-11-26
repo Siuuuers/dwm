@@ -2,7 +2,7 @@ extends GutTest
 const GAME := preload("res://autoload/GameState.gd")
 const CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const HOSPITAL := preload("res://scripts/domain/hospital/HospitalRules.gd")
-const CONDITION := preload("res://scripts/application/run/ConditionHospitalContactsAdapter.gd")
+const CONDITION := preload("res://tests/support/retained/ConditionHospitalContactsAdapter.gd")
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const ROOT := preload("res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")

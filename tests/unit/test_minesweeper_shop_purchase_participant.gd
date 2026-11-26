@@ -18,7 +18,7 @@ extends "res://addons/gut/test.gd"
 ## double accepting what production rejects), so this file now drives the real object and every
 ## ledger acceptance below is production's own decision.
 
-const _PARTICIPANT := preload("res://scripts/application/shop/MinesweeperShopPurchaseParticipant.gd")
+const _PARTICIPANT := preload("res://tests/support/retained/MinesweeperShopPurchaseParticipant.gd")
 const _STATE_PORT := preload("res://tests/support/FakeMinesweeperShopStatePort.gd")
 const _CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
 const _REGISTRY := preload("res://scripts/domain/shop/MinesweeperShopRegistry.gd")
@@ -28,7 +28,7 @@ const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.g
 const _PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const _PUBLICATION_LEDGER := preload("res://scripts/infrastructure/save/DesktopPublicationLedger.gd")
 
-const _PARTICIPANT_PATH := "res://scripts/application/shop/MinesweeperShopPurchaseParticipant.gd"
+const _PARTICIPANT_PATH := "res://tests/support/retained/MinesweeperShopPurchaseParticipant.gd"
 const _STATE_PORT_PATH := "res://tests/support/FakeMinesweeperShopStatePort.gd"
 const _ACTION_RECEIPT_PATH := "res://scripts/domain/desktop/DesktopActionReceipt.gd"
 

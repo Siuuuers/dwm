@@ -145,7 +145,7 @@ func test_hospital_rejects_three_friends_in_one_outcome() -> void:
 # -------------------------------------------------------------------------------------------------
 
 const PLAN_PATH := "res://scripts/domain/run/DayResolutionPlan.gd"
-const HOSPITAL_PORT_PATH := "res://scripts/application/run/HospitalPresentationPort.gd"
+const HOSPITAL_PORT_PATH := "res://tests/support/retained/HospitalPresentationPort.gd"
 const DATING_PORT_PATH := "res://scripts/application/run/DatingPresentationPort.gd"
 const OWNER_ADAPTER_PATH := "res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd"
 

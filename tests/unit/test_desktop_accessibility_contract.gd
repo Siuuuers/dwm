@@ -21,7 +21,7 @@ const ROOT_STORE_PATH := "res://scripts/infrastructure/identity/DesktopIssuerRoo
 const NAMESPACE_SOURCE_PATH := "res://tests/support/FakeDesktopNamespaceSource.gd"
 const FILE_OPS_PATH := "res://tests/support/FakeFileOps.gd"
 const STORAGE_PATH := "res://scripts/infrastructure/storage/JsonFileStorage.gd"
-const SHOP_PARTICIPANT_PATH := "res://scripts/application/shop/MinesweeperShopPurchaseParticipant.gd"
+const SHOP_PARTICIPANT_PATH := "res://tests/support/retained/MinesweeperShopPurchaseParticipant.gd"
 const DATA_CATALOG_PATH := "res://scripts/data/DataCatalog.gd"
 
 var _root_counter := 0

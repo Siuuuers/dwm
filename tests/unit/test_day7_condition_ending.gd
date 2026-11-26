@@ -1,6 +1,6 @@
 extends GutTest
 
-const REMAP := preload("res://scripts/domain/desktop/DesktopContinuationRemapper.gd")
+const REMAP := preload("res://tests/support/retained/DesktopContinuationRemapper.gd")
 const BOARD := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 const SOURCE := preload("res://scripts/application/ending/Day7ConditionEndingSource.gd")
 const MASTERY_FIXTURE := preload("res://tests/support/CanonicalDatingMasteryFixture.gd")
@@ -8,10 +8,10 @@ const STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd"
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const ROOT := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
-const SEQUENCE := preload("res://scripts/application/desktop/DesktopCausalSequencePort.gd")
+const SEQUENCE := preload("res://tests/support/retained/DesktopCausalSequencePort.gd")
 const CHECKPOINT := preload("res://tests/support/FakeDesktopConsequenceCheckpointPort.gd")
-const CONTEXT := preload("res://scripts/application/desktop/GameStateDesktopConditionContextPort.gd")
-const POLICY := preload("res://scripts/application/desktop/DesktopConditionPolicyPort.gd")
+const CONTEXT := preload("res://tests/support/retained/GameStateDesktopConditionContextPort.gd")
+const POLICY := preload("res://tests/support/retained/DesktopConditionPolicyPort.gd")
 const CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const JSON_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 

@@ -73,3 +73,23 @@ Profile initialization adopts the current document validated by storage. Earlier
 Minesweeper certification clears flags before it publishes a required first reveal. Loading and revealing that cell use the saved board directly. Dating Challenge no longer accepts the retired v2 board record or its scoring calculation. Backup and Quick Load no longer render the retired day-slot label.
 
 Save9 and Run9 use the current writer's fields. Opening a checkpoint no longer converts an older development layout or supplies a missing physical slot. Dialogue content revisions still use the game's checkpoint fallback. Minesweeper records each new move in its saved form and shares the read-only entries between successive boards.
+
+## Final passage Load
+
+Current Run9 saves store the final passage as an ordinary reading checkpoint. Its line and held control use the same native restore path as earlier passages. The retired Scene ending-plan loader required an `ending_plan` lifecycle field that current Run9 admission excludes. Gallery replay and ordinary ending playback have their own entry points.
+
+## Unconfigured dialogue ports
+
+The signal and playback completion port stubs only returned an unconfigured error. The dialogue bridge already reports a missing owner at each call site. Configured owners continue to receive their signal or completion directly.
+
+## Calendar pair draw adapter
+
+The retired schedule and hospital adapter imported an earlier calendar form or selected one when a counted pair encounter began. Current Scene runs receive their assignment from Profile during New Run. The pair draw domain rules still validate stored Profile receipts.
+
+## Settings presentation
+
+Pause uses the Settings palette registry. Both previously contained the same 16 palettes. The Settings audio sheet owns its five listening-comfort translations directly.
+
+The Phase 2R desktop handoff still uses its four-row Logout policy. Its generator now owns that script under tools. The Computer desktop continues to use its live confirmation and session-exit code.
+
+The calendar desktop consequence, departure and shop transaction adapters now live under `tests/support/retained`. Retained checks use them to drive the issuer, board state, checkpoint participants and storage refusal cases. The current game uses the Scene contact, shop and round publication owners; it never wires those calendar adapters.

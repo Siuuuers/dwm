@@ -1,7 +1,7 @@
 extends "res://addons/gut/test.gd"
 ## Remapper projection fixtures only. A owns full Run9/Save9, installed content,
 ## real selected-document provenance and silent participant admission.
-const REMAPPER := preload("res://scripts/domain/desktop/DesktopContinuationRemapper.gd")
+const REMAPPER := preload("res://tests/support/retained/DesktopContinuationRemapper.gd")
 const BOARD := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 const CONSEQUENCE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
 

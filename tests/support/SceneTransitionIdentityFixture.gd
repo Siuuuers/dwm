@@ -3,7 +3,7 @@ extends RefCounted
 ## The registration and scene save projection are invented nonwired fixtures, not
 ## installed DTL or an assertion that the production Run schema accepts scenes.
 const CONTRACT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
-const REMAPPER := preload("res://scripts/domain/desktop/DesktopContinuationRemapper.gd")
+const REMAPPER := preload("res://tests/support/retained/DesktopContinuationRemapper.gd")
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const ROOT := preload("res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd")
 const PORT := preload("res://scripts/application/run/CausalDayAdvanceIdentityPort.gd")

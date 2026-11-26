@@ -5,7 +5,7 @@ extends "res://addons/gut/test.gd"
 ## members v4 actually has today; the "current-causal-day base-completion and Supportz records"
 ## clause is Task 7's (amendment SS8.3) and is not implemented here.
 
-const REMAPPER_PATH := "res://scripts/domain/desktop/DesktopContinuationRemapper.gd"
+const REMAPPER_PATH := "res://tests/support/retained/DesktopContinuationRemapper.gd"
 const IDENTITY_PATH := "res://scripts/domain/desktop/DesktopIdentity.gd"
 const CANONICAL_JSON_PATH := "res://scripts/validation/CanonicalJsonWriter.gd"
 

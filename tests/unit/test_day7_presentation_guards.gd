@@ -1,7 +1,7 @@
 extends "res://addons/gut/test.gd"
 
 const BOARD := preload("res://scripts/application/minesweeper/GameStateDesktopBoardPort.gd")
-const SHOP := preload("res://scripts/application/shop/GameStateMinesweeperShopPort.gd")
+const SHOP := preload("res://tests/support/retained/GameStateMinesweeperShopPort.gd")
 const CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const FOLLOWUPS := preload("res://scripts/domain/contact/Day7FollowupState.gd")
 const PRESENTATION := preload("res://scripts/application/contact/ContactsPresentationPort.gd")

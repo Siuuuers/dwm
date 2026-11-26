@@ -115,26 +115,14 @@ func test_game_owner_admits_ending_with_real_nullable_day_closures_and_retains_o
 	state.reset_game()
 	var gate := GATE.new()
 	assert_true(state.configure_mutation_gate(gate).ok)
-	var profile: Node = autofree(preload("res://autoload/ProfileManager.gd").new())
-	var storage := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new(
-		"ending-nullable-closures", preload("res://tests/support/FakeFileOps.gd").new())
-	assert_true(profile.initialize(storage).ok)
-	assert_true(profile.configure_mutation_gate(gate).ok)
-	var condition := preload("res://scripts/application/run/ConditionHospitalCoordinator.gd").new()
-	condition._gate = gate
-	var draw := preload("res://scripts/application/run/PairDeckDrawPort.gd").new()
-	assert_true(draw.configure(state, profile, gate, condition, func() -> int: return 0).ok)
+	var draw := PairDeckDraw.build_draw([], 0)
+	assert_true(draw.ok, str(draw))
+	if not draw.ok: return
+	state.inter_friend_route_state["priscilla_lavinia"] = {"frozen_form": draw.value.form}
 	for closed_day: int in range(1, 8):
 		var closed := CONTACTS.prepare_resolve_day_end(state.contacts, closed_day, {}, "fixture:close:%d" % closed_day)
 		assert_true(closed.ok, str(closed))
 		if not closed.ok: return
-		if closed_day == 2:
-			# The first counted encounter selects and persists its form before the
-			# closure is installed, just as the production day-resolution owner does.
-			var selected := draw.prepare_schedule(true)
-			assert_true(selected.ok, str(selected))
-			if not selected.ok: return
-			assert_eq(profile.get_pair_deck_draw("run-local").value, selected.value.draw_receipt)
 		state.contacts = closed.value.candidate
 	assert_null(state.contacts.transaction_receipts["fixture:close:1"].pl_window)
 	assert_true(state.contacts.transaction_receipts["fixture:close:2"].pl_window.counts)
