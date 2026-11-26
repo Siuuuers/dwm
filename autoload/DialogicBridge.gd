@@ -2122,13 +2122,13 @@ func _perform_caption_next(expected_frontier: Dictionary) -> Dictionary:
 	_next_runtime_result = {}
 	next_traversal_changed.emit()
 	var operation_id: String = source_reading.value.next_operation.operation_id
-	var source_checkpoint := _READING_SESSION.with_reading_session(source.value, source_reading.value)
+	var source_checkpoint: Dictionary = source.value.merged({"reading_session": source_reading.value}, true)
 	var saved_source: Dictionary = _narrative_checkpoint_port.commit_reading_next(source_checkpoint, operation_id, "source")
 	if not saved_source.get("ok", false): return _finish_next(lease, saved_source)
 	if not _next_source_matches(expected_frontier, revision):
 		return _finish_next(lease, _next_fatal(&"reading_next_source_replaced", false))
 	_reading_session.next_operation = source_reading.value.next_operation.duplicate(true)
-	var destination_checkpoint := _READING_SESSION.with_reading_session(source.value, target_reading.value)
+	var destination_checkpoint: Dictionary = source.value.merged({"reading_session": target_reading.value}, true)
 	var saved_target: Dictionary = _narrative_checkpoint_port.commit_reading_next(destination_checkpoint, operation_id, "destination")
 	if not saved_target.get("ok", false): return _finish_next(lease, saved_target)
 	if not _next_source_matches(expected_frontier, revision):

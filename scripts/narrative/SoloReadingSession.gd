@@ -1012,7 +1012,7 @@ func restore(saved: Dictionary, entry_id: String) -> Dictionary:
 func prepare_next(frontier: Dictionary, is_witnessed: Callable) -> Dictionary:
 	if family == "scene": return prepare_scene_next(frontier, is_witnessed)
 	if family != "solo" or not is_witnessed.is_valid() or boundary != "line": return _fail(&"reading_next_unavailable")
-	var source := capture(frontier)
+	var source := _validated_reading_view(frontier)
 	if not source.ok: return source
 	var entries := catalogue if catalogue_schema_version == 1 else _selected_entries
 	var lines: Array = entries[latest_entry].lines
@@ -1020,7 +1020,8 @@ func prepare_next(frontier: Dictionary, is_witnessed: Callable) -> Dictionary:
 	for ordinal: int in lines.size():
 		if lines[ordinal].line_id == frontier.line_id: index = ordinal
 	if index < 0: return _fail(&"reading_frontier_invalid")
-	var retained: Dictionary = source.value.ledger
+	var retained := ledger.snapshot()
+	var source_frontier := frontier.duplicate()
 	var candidate := ledger.fork_legacy_checkpoint()
 	var traversed: Array = []
 	var destination := {"kind": "completion", "caption": null}
@@ -1038,7 +1039,7 @@ func prepare_next(frontier: Dictionary, is_witnessed: Callable) -> Dictionary:
 			break
 		traversed.append(row)
 	var plan := {"entry_id": latest_entry, "catalogue_fingerprint": fingerprint,
-		"source_ledger": retained, "source_frontier": source.value.frontier,
+		"source_ledger": retained, "source_frontier": source_frontier,
 		"traversed_captions": traversed, "destination": destination}
 	var checked := TRAVERSAL.encode_plan(plan, 1)
 	return {"ok": true, "value": plan} if checked.ok else checked
