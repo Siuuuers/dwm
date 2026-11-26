@@ -60,7 +60,6 @@ func _configure_scene_observed_body() -> Dictionary:
 		for entry: Dictionary in bundle.entry_manifest.entries: entries[entry.entry_id] = entry
 		var compiled_catalogue := {}
 		var beats: Array = []
-		var variants := {}
 		for entry: Dictionary in bundle.caption_registry.entries:
 			var row: Dictionary = entry.duplicate()
 			row["label"] = entry.entry_id
@@ -71,16 +70,15 @@ func _configure_scene_observed_body() -> Dictionary:
 				var beat := {"beat_id": line.beat_id, "line_id": line.line_id, "owning_entry_id": entry.entry_id,
 					"presentation_signature": {"content_revision": line.revision, "variant_id": line.beat_id}}
 				beats.append(beat)
-				variants[beat.line_id] = beat
 		prepared = {"bundle": bundle, "manifest": bundle.entry_manifest,
-			"catalogue": compiled_catalogue, "variants": variants,
+			"catalogue": compiled_catalogue,
 			"registry": {"kind": "narrative_caption_registry", "schema_version": 1, "beats": beats}}
-		var registration := LEDGER.prepare_registration(bundle.entry_manifest, prepared.registry)
-		if not registration.ok: return registration
-		prepared["registration"] = registration.value
+		var checked := NarrativeCaptionRegistry.check_document(prepared.registry, entries)
+		if not checked.ok: return checked
+		prepared["registration"] = LEDGER._index_owned_beats(beats)
 		compiled_catalogue.make_read_only()
-		FROZEN._freeze(prepared.registry)
-		variants.make_read_only()
+		beats.make_read_only()
+		prepared.registry.make_read_only()
 		prepared.make_read_only()
 		if cacheable: _prepared_scene_configuration = prepared
 	family = "scene"
@@ -91,7 +89,7 @@ func _configure_scene_observed_body() -> Dictionary:
 	registry = prepared.registry
 	_scene_registration = prepared.registration
 	_scene_bundle = bundle
-	_caption_variants_by_line = prepared.variants
+	_caption_variants_by_line = _scene_registration._by_line
 	return {"ok": true}
 
 func _ensure_scene_programme(entry_id: String) -> Dictionary:
