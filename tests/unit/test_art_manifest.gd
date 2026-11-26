@@ -519,6 +519,9 @@ func test_entry_presentation_commands_clear_once_and_keep_ordered_idempotent_ove
 	assert_eq(_script.call(&"apply_entry_presentation", "template.entry.checkpoint", shown.value.state), entered)
 	var carried: Dictionary = _script.call(&"apply_entry_presentation", "unbound.entry", shown.value.state)
 	assert_eq(carried, shown, "unbound entries carry presentation without Autosave")
+	assert_same(carried.value.state, shown.value.state)
+	var unchanged: Dictionary = _script.call(&"apply_presentation_commands", [], shown.value.state)
+	assert_same(unchanged.value.state, shown.value.state)
 
 
 func test_missing_presentation_references_use_the_persistent_content_error_boundary() -> void:
