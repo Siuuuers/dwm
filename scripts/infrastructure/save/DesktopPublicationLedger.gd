@@ -96,12 +96,12 @@ func configure(storage: Object) -> Dictionary:
 	return _accepted({"already_configured": false})
 
 
-func load() -> Dictionary:
+func load(include_document: bool = true) -> Dictionary:
 	var gate := _require_bound("load")
 	if not gate.is_empty():
 		return gate
 	var refreshed := _refresh_from_disk()
-	if not refreshed.get("ok", false):
+	if not refreshed.get("ok", false) or not include_document:
 		return refreshed
 	return _accepted({"document": _cached_document.duplicate(true)})
 

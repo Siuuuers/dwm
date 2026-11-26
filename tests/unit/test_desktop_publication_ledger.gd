@@ -149,7 +149,10 @@ func test_missing_file_initializes_the_exact_empty_document() -> void:
 		return
 	var path := _root.path_join(FIXED_PATH)
 	assert_false(FileAccess.file_exists(path))
-	var ledger := _loaded()
+	var ledger := _configured()
+	var opened: Dictionary = ledger.load(false)
+	assert_true(opened.ok, str(opened))
+	assert_false(opened.has("value"), "startup only requests the load status")
 	assert_true(FileAccess.file_exists(path))
 	var raw := FileAccess.get_file_as_string(path)
 	assert_eq(raw, _canonical({"schema_version": 1, "records": {}}) + "\n")
