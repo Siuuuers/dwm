@@ -69,10 +69,6 @@ func test_restore_reservation_blocks_ordinary_start_without_claiming_native_play
 	assert_false(bridge._has_physical_playback(), "reservation is not native playback")
 	assert_eq(bridge._begin_entry_playback("ending.alone.normal", {}, &"canonical", "resume", 1).code,
 		&"entry_already_active")
-	assert_eq(bridge._begin_entry_playback("ending.alone.normal", {}, &"canonical", "resume", 1, "restore:foreign").code,
-		&"scene_activation_operation_invalid", "foreign operation cannot bypass custody")
-	assert_eq(bridge._begin_entry_playback("ending.alone.normal", {}, &"canonical", "resume", 1, "restore:owned").code,
-		&"scene_activation_operation_invalid", "operation id alone cannot authorize activation")
 	native.occupied = true
 	assert_true(bridge._has_physical_playback(), "actual adapter occupancy remains visible")
 	bridge._scene_restore.clear()

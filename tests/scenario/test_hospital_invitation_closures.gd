@@ -254,7 +254,7 @@ func test_condition_hospital_closes_exact_sources_and_retains_distinct_sylvia_wi
 	state = _accepted_solo(state, "lavinia", FAINT_DAY)
 	var before := state.duplicate(true)
 	var plan := _condition_plan(state)
-	var helper := preload("res://scripts/application/run/ConditionHospitalContactsAdapter.gd")
+	var helper := preload("res://tests/support/retained/ConditionHospitalContactsAdapter.gd")
 	var result: Dictionary = helper.prepare(state, plan, _issuer)
 	assert_true(result.get("ok", false), str(result))
 	if not result.get("ok", false): return
@@ -286,7 +286,7 @@ func test_condition_hospital_refuses_changed_source_before_closure() -> void:
 	var before := state.duplicate(true)
 	var plan := _condition_plan(state)
 	plan.accepted_sources[0]["action_id"] = "solo:lavinia:day3"
-	var result: Dictionary = preload("res://scripts/application/run/ConditionHospitalContactsAdapter.gd").prepare(state, plan, _issuer)
+	var result: Dictionary = preload("res://tests/support/retained/ConditionHospitalContactsAdapter.gd").prepare(state, plan, _issuer)
 	assert_false(result.get("ok", true))
 	assert_eq(result.get("code"), &"condition_hospital_source_mismatch")
 	assert_eq(state, before)
@@ -295,7 +295,7 @@ func test_condition_hospital_preserves_offscreen_pair_window_without_a_fake_date
 	if not _require_fixture():
 		return
 	var state := CONTACT_STATE.make_defaults()
-	var result: Dictionary = preload("res://scripts/application/run/ConditionHospitalContactsAdapter.gd").prepare(
+	var result: Dictionary = preload("res://tests/support/retained/ConditionHospitalContactsAdapter.gd").prepare(
 		state, _condition_plan(state, 2), _issuer)
 	assert_true(result.get("ok", false), str(result))
 	if not result.get("ok", false): return
@@ -307,7 +307,7 @@ func test_condition_witness_cannot_be_retagged_as_schedule_done() -> void:
 	if not _require_fixture():
 		return
 	var state := _accepted_solo(CONTACT_STATE.make_defaults(), "sylvia", FAINT_DAY)
-	var result: Dictionary = preload("res://scripts/application/run/ConditionHospitalContactsAdapter.gd").prepare(
+	var result: Dictionary = preload("res://tests/support/retained/ConditionHospitalContactsAdapter.gd").prepare(
 		state, _condition_plan(state), _issuer)
 	assert_true(result.get("ok", false), str(result))
 	if not result.get("ok", false): return
@@ -322,7 +322,7 @@ func test_condition_hospital_stage_presentation_and_retirement_use_real_root_anc
 	var causal := {"receipt_id": "issuer.causal.source", "purpose": "causal_day_instance",
 		"namespace": "fixture", "counter": 1, "numeric_value": null, "token": "causal.source"}
 	lifecycle.reset("run", "branch", 0, "causal.source", {"causal_day_instance_issuer_receipt": causal}, false)
-	var hospital := preload("res://scripts/domain/run/ConditionHospitalState.gd").new()
+	var hospital := preload("res://tests/support/retained/ConditionHospitalState.gd").new()
 	assert_true(hospital.configure(lifecycle, _issuer).get("ok", false))
 	var root := _command("condition.stages")
 	var accepted: Dictionary = hospital.prepare_accept({
@@ -336,11 +336,11 @@ func test_condition_hospital_stage_presentation_and_retirement_use_real_root_anc
 	assert_true(hospital.commit(accepted.value.condition_hospital_candidate).get("ok", false))
 	var plan: Dictionary = lifecycle.to_dict().active_condition_hospital_plan
 	var resolution_id := str(plan.resolution_receipt.receipt_id)
-	var adapter := preload("res://scripts/application/run/GameStateConditionHospitalPort.gd").new()
+	var adapter := preload("res://tests/support/retained/GameStateConditionHospitalPort.gd").new()
 	adapter._issuer = _issuer
 	var presentation: Dictionary = adapter._presentation_request(plan, "present_hospital",
 		{"kind": "hospital", "day": 1, "source_entry_ids": [], "miss_receipt_ids": []},
-		"hospital.faint", preload("res://scripts/application/run/HospitalPresentationPort.gd").new())
+		"hospital.faint", preload("res://tests/support/retained/HospitalPresentationPort.gd").new())
 	assert_true(presentation.get("ok", false), str(presentation))
 	if not presentation.get("ok", false): return
 	assert_true(_issuer.validate_child(presentation.value.request.completion_transaction_provenance,

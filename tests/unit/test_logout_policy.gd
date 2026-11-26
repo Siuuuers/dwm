@@ -1,6 +1,6 @@
 extends "res://addons/gut/test.gd"
 
-const POLICY := preload("res://scripts/domain/desktop/LogoutPolicy.gd")
+const POLICY := preload("res://tools/evidence/LogoutPolicy.gd")
 
 func test_no_does_not_save_route_or_complete_but_restores_focus() -> void:
 	var decision: Dictionary = POLICY.plan(false, true)

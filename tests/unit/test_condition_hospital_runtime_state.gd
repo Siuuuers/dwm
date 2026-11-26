@@ -1,7 +1,7 @@
 extends "res://addons/gut/test.gd"
 
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
-const HOSPITAL := preload("res://scripts/domain/run/ConditionHospitalState.gd")
+const HOSPITAL := preload("res://tests/support/retained/ConditionHospitalState.gd")
 const LIFECYCLE := preload("res://scripts/domain/run/RunLifecycle.gd")
 
 

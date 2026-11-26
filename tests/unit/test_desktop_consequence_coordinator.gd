@@ -8,14 +8,14 @@ extends "res://addons/gut/test.gd"
 ## on what is representative rather than exhaustive here.
 
 const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
-const COORDINATOR_PATH := "res://scripts/application/desktop/DesktopConsequenceCoordinator.gd"
-const COORDINATOR := preload("res://scripts/application/desktop/DesktopConsequenceCoordinator.gd")
+const COORDINATOR_PATH := "res://tests/support/retained/DesktopConsequenceCoordinator.gd"
+const COORDINATOR := preload("res://tests/support/retained/DesktopConsequenceCoordinator.gd")
 const CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
-const CAUSAL_SEQUENCE_PORT := preload("res://scripts/application/desktop/DesktopCausalSequencePort.gd")
-const BOARD_FATE_PORT := preload("res://scripts/application/minesweeper/DesktopBoardFatePort.gd")
+const CAUSAL_SEQUENCE_PORT := preload("res://tests/support/retained/DesktopCausalSequencePort.gd")
+const BOARD_FATE_PORT := preload("res://tests/support/retained/DesktopBoardFatePort.gd")
 const BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 const ROUND_COORDINATOR := preload("res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd")
-const SHOP_PARTICIPANT := preload("res://scripts/application/shop/MinesweeperShopPurchaseParticipant.gd")
+const SHOP_PARTICIPANT := preload("res://tests/support/retained/MinesweeperShopPurchaseParticipant.gd")
 const SHOP_STATE_PORT := preload("res://tests/support/FakeDesktopBoardStatePort.gd")
 const SHOP_FAKE_STATE_PORT := preload("res://tests/support/FakeMinesweeperShopStatePort.gd")
 const SHOP_REGISTRY := preload("res://scripts/domain/shop/MinesweeperShopRegistry.gd")

@@ -4,7 +4,7 @@ const REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.
 const STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 const PLAN := preload("res://scripts/domain/run/DayResolutionPlan.gd")
 const DATING_PORT := preload("res://scripts/application/run/DatingPresentationPort.gd")
-const HOSPITAL_PORT := preload("res://scripts/application/run/HospitalPresentationPort.gd")
+const HOSPITAL_PORT := preload("res://tests/support/retained/HospitalPresentationPort.gd")
 const ROUTER_PATH := "res://autoload/SceneRouter.gd"
 
 
@@ -26,7 +26,7 @@ const RETAINED_ENTRY_FIELDS: Array[String] = ["action_id", "day", "slot_index"]
 const PSEUDO_ROUTE := "twofriends"
 const PAIR_STAGE := "twofriends_if_deferred"
 ## Every component dwm-p2r.14 installed or reworked on the presentation path.
-const HOSPITAL_PORT_PATH := "res://scripts/application/run/HospitalPresentationPort.gd"
+const HOSPITAL_PORT_PATH := "res://tests/support/retained/HospitalPresentationPort.gd"
 const DATING_PORT_PATH := "res://scripts/application/run/DatingPresentationPort.gd"
 const OWNER_ADAPTER_PATH := "res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd"
 const HOSPITAL_SCENE_PATH := "res://scripts/ui/HospitalScene.gd"

@@ -3,7 +3,7 @@ extends "res://addons/gut/test.gd"
 ## registration is TEST content; this does not activate the production save schema.
 const FIXTURE := preload("res://tests/support/SceneTransitionIdentityFixture.gd")
 const CONTRACT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
-const REMAPPER := preload("res://scripts/domain/desktop/DesktopContinuationRemapper.gd")
+const REMAPPER := preload("res://tests/support/retained/DesktopContinuationRemapper.gd")
 var fixture: RefCounted
 
 func before_each() -> void:

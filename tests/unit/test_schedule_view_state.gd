@@ -1,6 +1,6 @@
 extends "res://addons/gut/test.gd"
 
-const VIEW_STATE := preload("res://scripts/domain/schedule/ScheduleViewState.gd")
+const VIEW_STATE := preload("res://tests/support/retained/ScheduleViewState.gd")
 const CAUSAL_DAY := "causal_day_instance.1111111111111111111111111111111111111111111111111111111111111111"
 const ENVELOPE_SUCCESS_KEYS: Array = ["code", "ok", "receipt", "value"]
 const VIEW_KEYS: Array = [

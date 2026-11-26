@@ -31,6 +31,7 @@ var _scene_text: Dictionary = {}
 var _scene_display: Dictionary = {}
 var _scene_thought_ids: Dictionary = {}
 var _scene_bundle: Dictionary = {}
+var _scene_tables: Dictionary = {}
 var _scene_registration: NarrativeCaptionLedger
 var player_progress: Dictionary = {}
 var _progress_publication := 0
@@ -89,27 +90,27 @@ func _configure_scene_observed_body() -> Dictionary:
 	registry = prepared.registry
 	_scene_registration = prepared.registration
 	_scene_bundle = bundle
+	_scene_tables = selected.value
 	_caption_variants_by_line = _scene_registration._by_line
 	return {"ok": true}
 
 func _ensure_scene_programme(entry_id: String) -> Dictionary:
 	if _scene_nodes.has(entry_id): return {"ok": true}
+	var programme: Dictionary = _scene_tables.entries.get(entry_id, {})
+	if programme.is_empty(): return _content_error("Missing passage: " + entry_id, {"entry_id": entry_id})
 	var path := DialogicEntryManifest.scene_timeline_path(manifest, entry_id)
-	for programme: Dictionary in _scene_bundle.scene_programme.entries:
-		if programme.entry_id != entry_id: continue
-		var compiled := DialogicRuntimeAdapter.compile_runtime_scene_programme(path,
-			entry_id, programme.markers)
-		if not compiled.ok: return compiled
-		if not compiled.value.nodes.is_read_only(): FROZEN._freeze(compiled.value.nodes)
-		_scene_nodes[entry_id] = compiled.value.nodes
-		for node: Dictionary in compiled.value.nodes:
-			if node.kind != "caption": continue
-			_scene_display[node.line_id] = node
-			if node.has("self_talk"): _scene_thought_ids[node.self_talk.line_id] = true
-		for event: Dictionary in compiled.value.events:
-			if event.kind == "text": _scene_text[event.line_id] = event.text
-		return {"ok": true}
-	return _content_error("Missing passage: " + entry_id, {"entry_id": entry_id})
+	var compiled := DialogicRuntimeAdapter.compile_runtime_scene_programme(path,
+		entry_id, programme.markers)
+	if not compiled.ok: return compiled
+	if not compiled.value.nodes.is_read_only(): FROZEN._freeze(compiled.value.nodes)
+	_scene_nodes[entry_id] = compiled.value.nodes
+	for node: Dictionary in compiled.value.nodes:
+		if node.kind != "caption": continue
+		_scene_display[node.line_id] = node
+		if node.has("self_talk"): _scene_thought_ids[node.self_talk.line_id] = true
+	for event: Dictionary in compiled.value.events:
+		if event.kind == "text": _scene_text[event.line_id] = event.text
+	return {"ok": true}
 
 func fork_catalogue() -> RefCounted:
 	var sibling: RefCounted = get_script().new()
@@ -130,6 +131,7 @@ func _fork_scene_configuration() -> RefCounted:
 	sibling._scene_thought_ids = _scene_thought_ids.duplicate()
 	sibling._scene_registration = _scene_registration
 	sibling._scene_bundle = _scene_bundle
+	sibling._scene_tables = _scene_tables
 	return sibling
 
 func _fork_scene_ledger() -> RefCounted:
@@ -271,11 +273,8 @@ func _story_day(entry_id: String) -> int:
 		player_progress.get("story_day", 1)))
 
 func _is_major_marker(marker_id: String) -> bool:
-	for programme: Dictionary in _scene_bundle.scene_programme.entries:
-		for marker: Dictionary in programme.markers:
-			if marker.marker_id == marker_id:
-				return marker.kind in ["thought.pass", "thought.options", "challenge.end", "challenge.recall"]
-	return false
+	var registered: Dictionary = _scene_tables.markers.get(marker_id, {})
+	return not registered.is_empty() and registered.marker.kind in ["thought.pass", "thought.options", "challenge.end", "challenge.recall"]
 
 func mark_next_caption_as_checkpoint() -> void:
 	_pending_checkpoint = true
@@ -305,6 +304,10 @@ static func player_checkpoint_view(checkpoint: Dictionary) -> Dictionary:
 	return {"ok": true, "value": checkpoint.merged({"reading_session": projected.value}, true)}
 
 static func normalize_player_checkpoint(checkpoint: Dictionary, owns_reading: bool = false) -> Dictionary:
+	var session: RefCounted = load("res://scripts/narrative/SoloReadingSession.gd").new()
+	return session._normalize_player_checkpoint(checkpoint, owns_reading)
+
+func _normalize_player_checkpoint(checkpoint: Dictionary, owns_reading: bool) -> Dictionary:
 	var saved: Variant = checkpoint.get("reading_session")
 	if not saved is Dictionary or saved.get("schema_version") != 7:
 		return _fail(&"reading_checkpoint_invalid")
@@ -343,16 +346,16 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, owns_reading: bo
 	var progress := {"story_day": saved.story_day, "recovery_anchor": saved.recovery_anchor,
 		"history_sections": saved.history_sections}
 	if not TRAVERSAL.valid_player_progress(progress): return _fail(&"reading_checkpoint_invalid")
-	var session: RefCounted = load("res://scripts/narrative/SoloReadingSession.gd").new()
-	var configured: Dictionary = session.configure_scene()
-	if not configured.ok: return configured
-	var fallback: bool = saved.registration_sha256 != session.fingerprint and not session._caption_variants_by_line.has(tail.line_id)
+	if catalogue.is_empty():
+		var configured := configure_scene()
+		if not configured.ok: return configured
+	var fallback: bool = saved.registration_sha256 != fingerprint and not _caption_variants_by_line.has(tail.line_id)
 	var current: Dictionary = saved if owns_reading else saved.duplicate(true)
-	current.registration_sha256 = session.fingerprint
+	current.registration_sha256 = fingerprint
 	if fallback:
 		while not current.history_sections.is_empty():
 			var section: Dictionary = current.history_sections.back()
-			var beat: Dictionary = session._caption_variants_by_line.get(section.checkpoint_id, {})
+			var beat: Dictionary = _caption_variants_by_line.get(section.checkpoint_id, {})
 			if beat.is_empty():
 				current.history_sections.pop_back()
 				continue
@@ -366,12 +369,12 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, owns_reading: bo
 		if current.history_sections.is_empty():
 			return _content_error("Missing dialogue ID: " + tail.line_id,
 				{"entry_id": saved.entry_id, "line_id": tail.line_id})
-	var days: Dictionary = session._scene_bundle.scene_programme.get("story_days", {})
+	var days: Dictionary = _scene_bundle.scene_programme.get("story_days", {})
 	current.story_day = maxi(int(saved.story_day), int(days.get(current.entry_id, saved.story_day)))
 	if current.boundary == "control":
-		var prepared: Dictionary = session._ensure_scene_programme(current.entry_id)
+		var prepared: Dictionary = _ensure_scene_programme(current.entry_id)
 		if not prepared.ok: return prepared
-		var nodes: Array = session._scene_nodes[current.entry_id]
+		var nodes: Array = _scene_nodes[current.entry_id]
 		var saved_line: String = current.captions[0].line_id
 		var saved_line_found := false
 		for node: Dictionary in nodes:
@@ -381,28 +384,26 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, owns_reading: bo
 				{"entry_id": current.entry_id, "line_id": saved_line})
 		for index: int in nodes.size():
 			if nodes[index].kind != "control" or nodes[index].marker_id != current.position_id: continue
-			for programme: Dictionary in session._scene_bundle.scene_programme.entries:
-				if programme.entry_id != current.entry_id: continue
-				for marker: Dictionary in programme.markers:
-					if marker.marker_id != current.position_id: continue
-					if marker.kind != "challenge.playable":
-						current.boundary = "line"
-						current.position_id = saved_line
-				if current.boundary == "line": break
-				var preceding := DialogicRuntimeAdapter._scene_control_authored_predecessor(index, {"nodes": nodes}, programme.markers)
-				if preceding.ok:
-					current.captions[0].line_id = preceding.value.line_id
-					current.history_sections.back().last_line_id = preceding.value.line_id
-	var restored: Dictionary = session.restore_player(current, current.entry_id)
+			var registered: Dictionary = _scene_tables.markers.get(current.position_id, {})
+			if registered.get("entry_id") == current.entry_id and registered.marker.kind != "challenge.playable":
+				current.boundary = "line"
+				current.position_id = saved_line
+				break
+			var markers: Array = _scene_tables.entries[current.entry_id].markers
+			var preceding := DialogicRuntimeAdapter._scene_control_authored_predecessor(index, {"nodes": nodes}, markers)
+			if preceding.ok:
+				current.captions[0].line_id = preceding.value.line_id
+				current.history_sections.back().last_line_id = preceding.value.line_id
+	var restored: Dictionary = restore_player(current, current.entry_id)
 	if not restored.ok and current.boundary == "between_entries":
 		current.boundary = "line"
-		restored = session.restore_player(current, current.entry_id)
+		restored = restore_player(current, current.entry_id)
 	if not restored.ok: return restored
 	var result := checkpoint.duplicate()
 	result.entry_id = current.entry_id
-	result.content_version = session.catalogue[current.entry_id].content_version
-	result.manifest_fingerprint = session.fingerprint
-	result.frozen_context = session.ledger.check_session(current.session_token, current.entry_id, current.occurrence_id).value
+	result.content_version = catalogue[current.entry_id].content_version
+	result.manifest_fingerprint = fingerprint
+	result.frozen_context = ledger.check_session(current.session_token, current.entry_id, current.occurrence_id).value
 	result.reading_session = current
 	return {"ok": true, "value": {"checkpoint": result, "story_day": current.story_day, "fallback": fallback}}
 
@@ -423,12 +424,11 @@ static func expanded_checkpoint_view(checkpoint: Dictionary) -> Dictionary:
 	var restored: Dictionary = session.restore_player(reading, str(checkpoint.get("entry_id", "")))
 	if not restored.ok and restored.get("code") == &"reading_content_error" \
 			and reading.boundary in ["control", "between_entries"]:
-		var normalized := normalize_player_checkpoint(checkpoint)
+		var normalized: Dictionary = session._normalize_player_checkpoint(checkpoint, false)
 		if not normalized.ok: return normalized
 		checkpoint = normalized.value.checkpoint
 		reading = checkpoint.reading_session
-		restored = session.restore_player(reading, checkpoint.entry_id)
-	if not restored.ok: return restored
+	elif not restored.ok: return restored
 	var frontier := {}
 	if reading.boundary == "line":
 		var tail: Dictionary = reading.captions.back()
@@ -512,12 +512,8 @@ func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 	if index < 0:
 		return _content_error("Missing dialogue position: " + saved.position_id, {"entry_id": entry_id, "position_id": saved.position_id})
 	if saved.boundary == "control":
-		var registered := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_contract_tables()
-		if not registered.ok: return registered
-		var predecessor := _fail(&"reading_frontier_invalid")
-		for programme: Dictionary in registered.bundle.scene_programme.entries:
-			if programme.entry_id == entry_id:
-				predecessor = DialogicRuntimeAdapter._scene_control_authored_predecessor(index, {"nodes": nodes}, programme.markers)
+		var markers: Array = _scene_tables.entries[entry_id].markers
+		var predecessor := DialogicRuntimeAdapter._scene_control_authored_predecessor(index, {"nodes": nodes}, markers)
 		if not predecessor.ok or predecessor.value.line_id != caption.line_id:
 			return _content_error("Cannot restore held dialogue control: " + saved.position_id,
 				{"entry_id": entry_id, "position_id": saved.position_id, "line_id": caption.line_id})

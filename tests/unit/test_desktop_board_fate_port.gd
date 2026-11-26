@@ -14,8 +14,8 @@ extends "res://addons/gut/test.gd"
 ## board dictionaries from scratch.
 
 const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
-const PORT_PATH := "res://scripts/application/minesweeper/DesktopBoardFatePort.gd"
-const PORT := preload("res://scripts/application/minesweeper/DesktopBoardFatePort.gd")
+const PORT_PATH := "res://tests/support/retained/DesktopBoardFatePort.gd"
+const PORT := preload("res://tests/support/retained/DesktopBoardFatePort.gd")
 const BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 const COORDINATOR := preload("res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd")
 const STATE_PORT := preload("res://tests/support/FakeDesktopBoardStatePort.gd")

@@ -1,4 +1,3 @@
-class_name LogoutPolicy
 extends RefCounted
 
 

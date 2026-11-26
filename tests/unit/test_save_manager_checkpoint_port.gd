@@ -115,7 +115,7 @@ func _pre_admission_state_candidate(transaction_id: String = "txn-1", admission_
 	if admission_ready:
 		# Reuse the production builder, as test_desktop_cold_recovery_preparation does,
 		# so ordinal 1 carries its real payload shape and computed nested hashes.
-		var builder: RefCounted = preload("res://scripts/application/desktop/DesktopConsequenceCoordinator.gd").new()
+		var builder: RefCounted = preload("res://tests/support/retained/DesktopConsequenceCoordinator.gd").new()
 		var frozen: Dictionary = builder._build_admission_ready_payload("minesweeper_round",
 			action_receipt, {"result": "completed"}, {}, null, null, null, null, null, null,
 			false, {}, {}, null, null)

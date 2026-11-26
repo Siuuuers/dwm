@@ -304,6 +304,9 @@ func test_compact_later_caption_restores_current_publication_without_replay() ->
 	assert_true(_bridge.validate_scene_activation("restore.compact.caption").ok)
 	_assert_full_compact_caption("A loop.")
 	var restored: RefCounted = _bridge._reading_session
+	var frame: Dictionary = restored.ledger.check_session_view(restored.command_id, restored.latest_entry, restored.scene_occurrence).value
+	assert_true(is_same(_bridge._active_entry.frozen_context, frame))
+	assert_true(frame.presentation.fields.is_read_only())
 	var frontier: Dictionary = _adapter.capture_reading_frontier().value
 	assert_eq(frontier, fixture.live.reading_session.frontier)
 	assert_eq(restored.ledger.snapshot().captions, fixture.live.reading_session.ledger.captions)

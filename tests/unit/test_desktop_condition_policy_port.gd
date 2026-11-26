@@ -17,8 +17,8 @@ extends "res://addons/gut/test.gd"
 ## new action rather than creating a post-Done faint.
 
 const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
-const PORT_PATH := "res://scripts/application/desktop/DesktopConditionPolicyPort.gd"
-const CONTEXT_PORT_PATH := "res://scripts/application/desktop/GameStateDesktopConditionContextPort.gd"
+const PORT_PATH := "res://tests/support/retained/DesktopConditionPolicyPort.gd"
+const CONTEXT_PORT_PATH := "res://tests/support/retained/GameStateDesktopConditionContextPort.gd"
 const GAME_STATE_PATH := "res://autoload/GameState.gd"
 
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")

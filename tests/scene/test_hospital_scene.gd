@@ -11,7 +11,7 @@ extends "res://addons/gut/test.gd"
 # afterwards. A scene that mutated any of them fails here regardless of which seam it used.
 
 const HOSPITAL_SCENE_PATH := "res://scenes/hospital/HospitalScene.tscn"
-const PORT := preload("res://scripts/application/run/HospitalPresentationPort.gd")
+const PORT := preload("res://tests/support/retained/HospitalPresentationPort.gd")
 const FAKE_DATING_OWNER := preload("res://tests/support/FakeDatingPresentationOwner.gd")
 
 var _port: RefCounted

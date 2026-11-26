@@ -17,7 +17,7 @@ extends "res://addons/gut/test.gd"
 # that row up on the production path. It is still fully projected into the completion child, so
 # changing it still breaks the binding -- which is what the tests below assert.
 
-const PORT := preload("res://scripts/application/run/HospitalPresentationPort.gd")
+const PORT := preload("res://tests/support/retained/HospitalPresentationPort.gd")
 const RUNTIME_ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const OWNER := preload("res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd")
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")

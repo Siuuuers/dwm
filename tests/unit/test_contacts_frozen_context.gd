@@ -296,7 +296,7 @@ func test_care_snapshot_names_real_witness_source_before_native_read_and_refuses
 	var plan := {"source_day": 1, "accepted_sources": [{"receipt_id": accepted.receipt.receipt_id,
 		"action_id": "solo:sylvia:day1"}], "resolution_receipt": {"receipt_id": resolution.value.child_id,
 		"receipt_provenance": resolution.value.provenance}}
-	var closed := preload("res://scripts/application/run/ConditionHospitalContactsAdapter.gd").prepare(accepted.value.candidate, plan, issuer)
+	var closed := preload("res://tests/support/retained/ConditionHospitalContactsAdapter.gd").prepare(accepted.value.candidate, plan, issuer)
 	assert_true(closed.ok, str(closed))
 	if not closed.ok: return
 	gameplay = _capture(accepted.value.candidate, closed.value.contacts, gameplay, 1)

@@ -60,7 +60,7 @@ func _snapshot(run_id: String, sequence: int, day: int = 3) -> Dictionary:
 	snapshot["lifecycle"]["active_condition_hospital_plan"] = null
 	snapshot["lifecycle"]["condition_hospital_history"] = {}
 	snapshot["lifecycle"]["terminal_intent_handoff"] = null
-	snapshot["schedule_view"] = preload("res://scripts/domain/schedule/ScheduleViewState.gd").make_empty(day, "causal-day-1").value.view
+	snapshot["schedule_view"] = preload("res://tests/support/retained/ScheduleViewState.gd").make_empty(day, "causal-day-1").value.view
 	snapshot["desktop"] = _empty_desktop()
 	# v3 (dwm-p2r.13 Task 5): a snapshot names ONE day, so the committed aggregate moves with it.
 	(snapshot["committed_schedule"] as Dictionary)["day"] = day

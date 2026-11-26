@@ -120,3 +120,5 @@ checks the same requirement using the current compact saved position: exact
 `reading_saved_run_required`, `scene_envelope` phase, and unchanged input bytes.
 It passes 12 per-test assertions in isolated Godot 4.6.3 Linux (13 including
 fixture setup), exit 0. No production validation or failure handling changes.
+
+The former calendar hospital coordinator had no current game caller. Scene passages and checkpoint Load own current reading and progression. The calendar hospital state, contacts and presentation adapters used by retained issuer and reading checks live under `tests/support/retained`, which the game export excludes.

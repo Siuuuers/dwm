@@ -72,7 +72,7 @@ func _seed(manager: Node, run_id: String) -> void:
 				"registry_fingerprint": null, "entries": [], "commit_receipt": null,
 			},
 			"desktop": _empty_desktop(),
-			"schedule_view": preload("res://scripts/domain/schedule/ScheduleViewState.gd").make_empty(
+			"schedule_view": preload("res://tests/support/retained/ScheduleViewState.gd").make_empty(
 				int(lifecycle["day"]), str(lifecycle["causal_day_instance"])).value.view,
 			"dating": fixture["dating"],
 			"applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [],
