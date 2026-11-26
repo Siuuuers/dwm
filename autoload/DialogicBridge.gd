@@ -3019,7 +3019,7 @@ func stage_scene_reading_restore(checkpoint: Dictionary, operation_id: String, r
 		return _command_failure(&"scene_restore_control_unproven")
 	if has_active_playback() and not is_pause_restore_pending(): return _command_failure(&"narrative_playback_active")
 	if is_pause_restore_pending():
-		var staged := stage_pause_restore(checkpoint, true, read_only_restore)
+		var staged := _stage_owned_pause_restore(checkpoint, true, read_only_restore)
 		if not staged.ok: return staged
 	_scene_restore = {"operation_id": operation_id, "read_only": read_only_restore, "checkpoint": checkpoint,
 		"digest": _scene_digest(checkpoint), "candidate": checked.value.candidate,
@@ -3053,11 +3053,12 @@ func stage_scene_terminal_restore(checkpoint: Dictionary, operation_id: String, 
 		var restored: Dictionary = candidate.restore(checkpoint.reading_session, checkpoint.entry_id)
 		if not restored.ok: return restored
 	if has_active_playback() and not is_pause_restore_pending(): return _command_failure(&"narrative_playback_active")
+	checkpoint = checkpoint.duplicate(true)
 	if is_pause_restore_pending():
-		var staged := stage_pause_restore(checkpoint, true, read_only_restore)
+		var staged := _stage_owned_pause_restore(checkpoint, true, read_only_restore)
 		if not staged.ok: return staged
 	_scene_restore = {"operation_id": operation_id, "read_only": read_only_restore, "terminal": true, "lifecycle": lifecycle,
-		"checkpoint": checkpoint.duplicate(true), "digest": _scene_digest(checkpoint),
+		"checkpoint": checkpoint, "digest": _scene_digest(checkpoint),
 		"candidate": candidate, "runtime": _runtime_adapter, "started": false,
 		"in_call": false, "native_started": false, "proof": false, "confirmed": false}
 	_reading_restore_pending = _scene_restore.checkpoint
@@ -3602,6 +3603,9 @@ func validate_scene_pause_restore_handle(handle: Dictionary) -> Dictionary:
 
 
 func stage_pause_restore(plan: Dictionary, semantic: bool, trusted_load: bool = false) -> Dictionary:
+	return _stage_owned_pause_restore(plan.duplicate(true), semantic, trusted_load)
+
+func _stage_owned_pause_restore(plan: Dictionary, semantic: bool, trusted_load: bool) -> Dictionary:
 	if not is_pause_restore_pending() or _pause_restore.cancelled:
 		return _pause_failure(&"pause_restore_unavailable")
 	if not trusted_load and (_mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore")):
@@ -3613,7 +3617,7 @@ func stage_pause_restore(plan: Dictionary, semantic: bool, trusted_load: bool = 
 	expected["paused"] = true
 	if not physical.get("ok", false) or physical.value != expected:
 		return _pause_failure(&"pause_source_changed")
-	_pause_restore.plan = plan.duplicate(true)
+	_pause_restore.plan = plan
 	_pause_restore.semantic = semantic
 	_pause_restore.staged = true
 	return _pause_success({"staged": true})
