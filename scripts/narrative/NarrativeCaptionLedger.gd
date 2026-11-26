@@ -77,8 +77,11 @@ func initialize(session_token: String, frozen_context: Dictionary,
 static func prepare_registration(entry_manifest: Dictionary, registry: Dictionary) -> Dictionary:
 	var checked := MANIFEST.validate_caption_registry(entry_manifest, registry)
 	if not checked.ok: return checked
+	return {"ok": true, "value": _index_owned_beats(checked.value.beats)}
+
+static func _index_owned_beats(beats: Array) -> NarrativeCaptionLedger:
 	var registration := NarrativeCaptionLedger.new()
-	for beat: Dictionary in checked.value.beats:
+	for beat: Dictionary in beats:
 		FROZEN._freeze(beat)
 		registration._registered[beat.beat_id] = beat
 		registration._registered_entries[beat.owning_entry_id] = true
@@ -86,7 +89,7 @@ static func prepare_registration(entry_manifest: Dictionary, registry: Dictionar
 	registration._registered.make_read_only()
 	registration._registered_entries.make_read_only()
 	registration._by_line.make_read_only()
-	return {"ok": true, "value": registration}
+	return registration
 
 func admit_entry_context(session_token: String, entry_id: String, context: Dictionary,
 		occurrence_id: String = "") -> Dictionary:

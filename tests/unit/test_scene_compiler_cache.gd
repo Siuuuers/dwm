@@ -314,6 +314,9 @@ func test_prepared_configuration_shares_frozen_data_but_not_reading_progress() -
 	assert_false(is_same(first.ledger, second.ledger))
 	assert_true(is_same(first._scene_registration, second._scene_registration))
 	assert_true(is_same(first.ledger._registered, second.ledger._registered))
+	assert_same(first._caption_variants_by_line, first.ledger._by_line)
+	for beat: Dictionary in first.registry.beats:
+		assert_same(first.ledger._by_line[beat.line_id], beat)
 	assert_true(is_same(first._fork_scene_configuration()._scene_registration, first._scene_registration))
 	assert_true(READING.enter(first, READING.A, "test:first").ok)
 	assert_true(READING.enter(second, READING.A, "test:second").ok)
