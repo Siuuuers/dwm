@@ -755,7 +755,7 @@ func get_current_scene_art() -> Dictionary:
 		entry_id = str(_active_entry.get("entry_id", ""))
 		context = _active_entry.get("frozen_context", {})
 	elif not _active_playback.is_empty():
-		entry_id = str(_active_playback.get("presentation_signature", {}).get("entry_id", ""))
+		entry_id = str(_active_playback.get("entry_id", ""))
 	elif not _ordinary_playback.is_empty():
 		context = _ordinary_playback.get("context", {})
 		entry_id = str(context.get("entry_id", _ordinary_playback.get("timeline_id", "")))
@@ -1511,8 +1511,7 @@ func start_ending_presentation(ending_id: String, context: Dictionary, signature
 	_active_playback = {"token":token, "ending_id":ending_id, "role":str(context.role),
 		"stable_playback_id": str(context.playback_id),
 		"timeline_id":timeline_id, "label":str(locator.label), "cache_before":before,
-		"presentation_signature":signature.duplicate(true),
-		"presentation": presentation.duplicate(true),
+		"entry_id": signature.entry_id,
 		"content_locale": str(locator.get("content_locale", "")), "suppress_first_speech": false}
 	_start_in_progress = true
 	var started := _start_through_runtime(str(locator.path), str(locator.label))
@@ -4064,7 +4063,7 @@ func _start_through_runtime(path: String, label: String) -> Dictionary:
 
 func _on_runtime_timeline_ended() -> void:
 	if not _active_playback.is_empty():
-		var playback := _active_playback.duplicate(true)
+		var playback := _active_playback
 		_active_playback = {}
 		scene_art_changed.emit()
 		if _current_timeline_id == str(playback["timeline_id"]):
