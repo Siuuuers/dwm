@@ -371,16 +371,11 @@ func test_ordinary_lower_day_admission_does_not_rotate_high_water_history() -> v
 	_install(_source())
 	var saved := _saved_second()
 	saved.reading_session.story_day = 2
-	for fresh: bool in [false, true]:
+	for forked: bool in [false, true]:
 		var restored := SESSION.new()
 		assert_true(restored.configure_scene().ok)
 		assert_true(restored.restore_player(saved.reading_session, FIXTURE.B).ok)
-		var session: RefCounted = restored
-		if fresh:
-			var made := FIXTURE.create_session()
-			assert_true(made.ok)
-			session = made.value
-			session.inherit_player_progress(restored)
+		var session: RefCounted = restored._fork_scene_live() if forked else restored
 		var previous: Dictionary = session.player_progress.duplicate(true)
 		assert_true(FIXTURE.enter(session, FIXTURE.A, "test:ordinary").ok)
 		var captured: Dictionary = session.capture(FIXTURE.frontier(session))

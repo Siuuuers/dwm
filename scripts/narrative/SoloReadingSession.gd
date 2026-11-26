@@ -279,9 +279,8 @@ func _is_major_marker(marker_id: String) -> bool:
 				return marker.kind in ["thought.pass", "thought.options", "challenge.end", "challenge.recall"]
 	return false
 
-func inherit_player_progress(source_session: RefCounted, major_checkpoint: bool = false) -> void:
-	player_progress = source_session.player_progress.duplicate(true)
-	_pending_checkpoint = major_checkpoint
+func mark_next_caption_as_checkpoint() -> void:
+	_pending_checkpoint = true
 
 static func project_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 	if checkpoint.get("stage") != "scene": return {"ok": true, "value": checkpoint.duplicate(true)}

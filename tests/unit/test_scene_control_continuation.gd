@@ -129,7 +129,7 @@ func test_live_entry_fork_admission_keeps_source_progress_and_history_detached()
 	assert_eq(fork.capture({}), before)
 	assert_false(is_same(fork.player_progress, source.player_progress))
 	assert_false(is_same(fork.ledger, source.ledger))
-	fork.inherit_player_progress(source, true)
+	fork.mark_next_caption_as_checkpoint()
 	var entered: Dictionary = FIXTURE.enter(fork, FIXTURE.A, "fork:next-entry")
 	assert_true(entered.ok, str(entered))
 	if not entered.ok: return

@@ -107,7 +107,7 @@ func _start_source(target_id: String = "target_a", hold: bool = true) -> bool:
 		assert_true(_session.ledger.publish_line(_session.command_id, parent_allocation.value, BASE.A,
 			parent_programme.value.lines[0].line_id, "a:parent").ok)
 		assert_true(BASE.checkpoint(_session).ok)
-		_session.inherit_player_progress(_session, true)
+		_session.mark_next_caption_as_checkpoint()
 	var frame := _frame(BASE.B, "b:held")
 	assert_true(_session.admit_scene(BASE.B, frame).ok)
 	assert_true(_adapter.bind_caption_ledger(_session.ledger, _session.command_id,
@@ -139,7 +139,7 @@ func _start_source(target_id: String = "target_a", hold: bool = true) -> bool:
 		"narrative_checkpoint": _source_snapshot.duplicate(true)}
 	_binding.source_checkpoint = {"checkpoint_id": _lower.current.checkpoint_id,
 		"checkpoint_sequence": _lower.current.checkpoint_sequence, "snapshot_sha256": LOWER.digest(_lower.current)}
-	if target_id == "return_a": _session.inherit_player_progress(_session, true)
+	if target_id == "return_a": _session.mark_next_caption_as_checkpoint()
 	if not hold: return true
 	var held: Dictionary = _bridge.hold_scene_entry_source()
 	assert_true(held.ok, str(held))

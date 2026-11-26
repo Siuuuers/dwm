@@ -275,7 +275,7 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 		var source_marker := capture_scene_pending_marker()
 		if source_marker.ok and source_marker.value.kind in ["thought.pass", "thought.options",
 				"challenge.playable", "challenge.end", "challenge.recall"]:
-			candidate.inherit_player_progress(source_session, true)
+			candidate.mark_next_caption_as_checkpoint()
 	else:
 		candidate = _READING_SESSION.new()
 		var configured: Dictionary = candidate.configure_scene()
