@@ -61,6 +61,9 @@ func before_each() -> void:
 
 func test_async_native_proof_requires_exact_operation_and_actual_frontier() -> void:
 	assert_true(bridge.stage_scene_reading_restore(checkpoint, "restore.current").ok)
+	var backup: Dictionary = bridge.capture_restore_state().value.backup
+	backup.reading_pending.reading_session.frontier.line_id = "edited backup"
+	assert_eq(bridge._scene_restore.checkpoint.reading_session.frontier, checkpoint.reading_session.frontier)
 	assert_eq(native.starts, 0)
 	assert_false(bridge.validate_scene_activation("restore.current").ok)
 	assert_false(bridge.begin_scene_activation("restore.foreign").ok)

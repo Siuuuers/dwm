@@ -1321,7 +1321,7 @@ func capture_restore_state() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"backup": {
 		"timeline_id": _current_timeline_id,
 		"timeline_context": _current_timeline_context.duplicate(true),
-		"reading_owner": _reading_session, "reading_pending": _reading_restore_pending.duplicate(),
+		"reading_owner": _reading_session, "reading_pending": _reading_restore_pending.duplicate(true),
 		"scene_restore": _scene_restore.duplicate(true),
 		"reading_adoption": _reading_restore_adoption,
 		"reading_adoption_checkpoint": _reading_adoption_checkpoint.duplicate(true),
@@ -3056,7 +3056,7 @@ func stage_scene_reading_restore(checkpoint: Dictionary, operation_id: String, r
 		"in_call": false, "native_started": false, "proof": false, "confirmed": false}
 	if is_pause_restore_pending():
 		_scene_restore["pause_handle"] = _pause_restore.handle.duplicate()
-	_reading_restore_pending = checkpoint.duplicate(true)
+	_reading_restore_pending = _scene_restore.checkpoint
 	return {"ok": true}
 
 func stage_scene_terminal_restore(checkpoint: Dictionary, operation_id: String, read_only_restore: bool = false) -> Dictionary:
@@ -3091,7 +3091,7 @@ func stage_scene_terminal_restore(checkpoint: Dictionary, operation_id: String, 
 		"checkpoint": checkpoint.duplicate(true), "digest": _scene_digest(checkpoint),
 		"candidate": candidate, "runtime": _runtime_adapter, "started": false,
 		"in_call": false, "native_started": false, "proof": false, "confirmed": false}
-	_reading_restore_pending = checkpoint.duplicate(true)
+	_reading_restore_pending = _scene_restore.checkpoint
 	return {"ok": true}
 
 func _start_terminal_restore_native() -> void:
@@ -3099,7 +3099,7 @@ func _start_terminal_restore_native() -> void:
 	_reading_session = _scene_restore.candidate
 	_reading_restore_pending = {}
 	_reading_restore_adoption = false
-	_reading_adoption_checkpoint = checkpoint.duplicate(true)
+	_reading_adoption_checkpoint = checkpoint
 	_ending_reading.clear()
 	if checkpoint.is_empty() or checkpoint.reading_session.boundary == "between_entries":
 		_active_entry = {}
@@ -3111,7 +3111,7 @@ func _start_terminal_restore_native() -> void:
 	if ".observer." in str(checkpoint.entry_id): ending_id = str(checkpoint.entry_id)
 	_bind_ending_reading(ending_id, checkpoint.frozen_context)
 	_reading_restore_adoption = true
-	_reading_resume_frontier = checkpoint.reading_session.frontier.duplicate(true)
+	_reading_resume_frontier = checkpoint.reading_session.frontier
 	_scene_restore.native_started = true
 	_scene_restore.in_call = true
 	var installed := _begin_entry_playback(checkpoint.entry_id, checkpoint.frozen_context,
@@ -3350,7 +3350,7 @@ func _resume_reading_checkpoint(checkpoint: Dictionary, execution_mode: StringNa
 		var ending_id := str(entry.ending_id)
 		if ".observer." in str(checkpoint.entry_id): ending_id = str(checkpoint.entry_id)
 		_bind_ending_reading(ending_id, checkpoint.frozen_context)
-	_reading_resume_frontier = checkpoint.reading_session.frontier.duplicate(true)
+	_reading_resume_frontier = _reading_adoption_checkpoint.reading_session.frontier
 	if candidate.boundary == "notification":
 		_reading_resume_frontier = {"line_id": candidate.marker_frontier.anchor.line_id,
 			"publication_id": candidate.marker_frontier.anchor.publication_id}
