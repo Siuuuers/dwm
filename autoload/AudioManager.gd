@@ -338,7 +338,8 @@ func apply_profile_preferences(changed_path: StringName = &"") -> Dictionary:
 	if not applied.get("ok", false):
 		return applied
 	_settings = candidate
-	audio_settings_applied.emit(_settings.duplicate(true))
+	if audio_settings_applied.has_connections():
+		audio_settings_applied.emit(_settings.duplicate(true))
 	return {"ok": true, "code": &"ok", "value": _settings.duplicate(true), "receipt": {}}
 
 
@@ -445,7 +446,7 @@ func apply_scene_admission(plan: Dictionary) -> Dictionary:
 			and _semantic.get("registration_sha256") == plan.snapshot.registration_sha256 \
 			and _semantic.get("selection") == plan.snapshot.selection):
 		_semantic = resolved.value.snapshot
-		return {"ok": true, "code": &"ok", "value": get_semantic_audio_context(), "unchanged": true}
+		return {"ok": true, "code": &"ok", "unchanged": true}
 	var prepared: Dictionary = _prepare_scene_output(resolved.value)
 	if not prepared.get("ok", false): return prepared
 	var captured: Dictionary = capture_restore_state()
@@ -456,7 +457,7 @@ func apply_scene_admission(plan: Dictionary) -> Dictionary:
 			_restart_music_in_backup(captured.value.runtime)
 		var compensated: Dictionary = rollback_restore_silent(captured.value)
 		return applied if compensated.get("ok", false) else compensated
-	return {"ok": true, "code": &"ok", "value": get_semantic_audio_context()}
+	return {"ok": true, "code": &"ok"}
 
 
 func _install_scene_output(prepared: Dictionary, restoring: bool, fade_seconds: float = 0.0) -> Dictionary:
@@ -532,7 +533,7 @@ func capture_restore_state() -> Dictionary:
 	if not captured.get("ok", false):
 		return captured
 	return {"ok": true, "code": &"ok", "value": {
-		"snapshot": _semantic.duplicate(true), "settings": _settings.duplicate(true),
+		"snapshot": get_semantic_audio_context(), "settings": _settings.duplicate(true),
 		"runtime": captured["value"],
 		"records": _records.duplicate(true), "active_players": _active_players.duplicate(),
 	}, "receipt": {}}
@@ -655,7 +656,7 @@ func _set_context(channel_id: StringName, context_id: String, context: Dictionar
 	var id_key := "%s_context_id" % channel_id
 	var context_key := "%s_context" % channel_id
 	if not force_restart and _semantic[id_key] == context_id and _semantic[context_key] == context and _records[channel_id].get("path", "") == record["path"]:
-		return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true), "receipt": {}, "unchanged": true}
+		return {"ok": true, "code": &"ok", "value": get_semantic_audio_context(), "receipt": {}, "unchanged": true}
 	var loaded: Dictionary = _playback_port.call(&"load_stream", record["path"])
 	if not loaded.get("ok", false):
 		return _warn_missing(context_id)
@@ -701,12 +702,12 @@ func _set_context(channel_id: StringName, context_id: String, context: Dictionar
 	_records[channel_id] = record
 	_semantic[id_key] = context_id
 	_semantic[context_key] = context.duplicate()
-	if not silent:
-		if channel_id == &"music":
-			music_context_changed.emit(context_id, context.duplicate())
-		else:
-			ambience_context_changed.emit(context_id, context.duplicate())
-	return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true), "receipt": {}}
+	if silent: return {"ok": true}
+	if channel_id == &"music":
+		music_context_changed.emit(context_id, context.duplicate())
+	else:
+		ambience_context_changed.emit(context_id, context.duplicate())
+	return {"ok": true, "code": &"ok", "value": get_semantic_audio_context(), "receipt": {}}
 
 
 func _clear_channel(channel_id: StringName, silent: bool) -> Dictionary:
@@ -727,12 +728,12 @@ func _clear_channel(channel_id: StringName, silent: bool) -> Dictionary:
 	_semantic[id_key] = ""
 	_semantic[context_key] = {}
 	_records[channel_id] = {}
-	if not silent:
-		if channel_id == &"music":
-			music_context_changed.emit("", {})
-		else:
-			ambience_context_changed.emit("", {})
-	return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true), "receipt": {}}
+	if silent: return {"ok": true}
+	if channel_id == &"music":
+		music_context_changed.emit("", {})
+	else:
+		ambience_context_changed.emit("", {})
+	return {"ok": true, "code": &"ok", "value": get_semantic_audio_context(), "receipt": {}}
 
 
 func _rollback_failed_context(channel_id: StringName, backup: Dictionary, cause: Dictionary, restart_music: bool) -> Dictionary:
