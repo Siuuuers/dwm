@@ -89,7 +89,7 @@ func project(rows: Array, live_start: int) -> void:
 	if not new_publication:
 		for index: int in rows.size():
 			if rows[index].id != _rows[index].id: new_publication = true
-	_rows = rows.duplicate(true)
+	_rows = rows
 	_live_start = live_start
 	if new_publication: _review_start = -1
 	_shape()
@@ -121,7 +121,7 @@ func review_rows(delta: int) -> void:
 
 func _shape() -> void:
 	if _font == null: return
-	var anchor: Dictionary = _lines[_review_start].duplicate() if is_reviewing() and _review_start < _lines.size() else {}
+	var anchor: Dictionary = _lines[_review_start] if is_reviewing() and _review_start < _lines.size() else {}
 	_paragraphs.clear()
 	_lines.clear()
 	var first_live_line := 0
@@ -163,12 +163,12 @@ func _update_window() -> void:
 		_text_height = 240.0 - _choice_height - 8 if _choice_row_visible else 216.0
 	if not _dual: _choice_height = maxf(52, line_height + 16) + 18
 	size.y = _text_height + 8 + _choice_height if _choice_row_visible else _text_height
+	var visible_lines := _visible_rows()
 	var copy := PackedStringArray()
-	for row: Dictionary in _visible_rows():
+	for row: Dictionary in visible_lines:
 		copy.append(str(row.text).substr(row.start, row.end - row.start))
 	accessibility_name = _pane_name if copy.is_empty() or _dual else "\n".join(copy)
-	var visible_lines: Array[Dictionary] = []
-	if _dual: visible_lines = _visible_rows()
+	if not _dual: visible_lines.clear()
 	while _accessible_lines.size() > visible_lines.size():
 		var stale: AccessibleThoughtLine = _accessible_lines.pop_back()
 		remove_child(stale)

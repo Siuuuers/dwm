@@ -1074,7 +1074,7 @@ func _sync_timed_hold_projection() -> void:
 	if _pause_covered: return
 	var frontier := _capture_timed_hold_frontier()
 	if frontier == _timed_hold_frontier: return
-	_timed_hold_frontier = frontier.duplicate(true)
+	_timed_hold_frontier = frontier
 	var holding := not frontier.is_empty()
 	if holding:
 		_retire_transport()
