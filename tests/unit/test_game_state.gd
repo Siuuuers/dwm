@@ -116,8 +116,10 @@ func test_coin_spending_blocks_when_insufficient() -> void:
 func test_advance_day_resets_and_ends() -> void:
 	GameState.change_stat("motivation", -3)
 	GameState._lifecycle_set_playing_day(3)
+	var inventory := GameState.inventory
 	assert_true(GameState.advance_day_or_end(), "advance mid-week returns true")
 	assert_eq(GameState.day, 4)
+	assert_true(is_same(GameState.inventory, inventory), "day reset leaves inventory in place")
 	assert_eq(GameState.get_stat("motivation"), 7, "motivation resets on new day")
 	assert_eq(GameState.minesweeper_rounds_left, 2, "rounds reset on new day")
 	GameState._lifecycle_set_playing_day(7)
