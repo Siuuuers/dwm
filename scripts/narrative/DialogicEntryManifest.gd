@@ -416,9 +416,9 @@ static func validate_scene_bundle_header(bundle: Variant) -> Dictionary:
 				return _scene_fail("audio entry coverage")
 			entry_ids.append(row.entry_id)
 		var audio_owner: Script = load("res://scripts/data/AudioManifest.gd")
-		if audio_owner == null or not audio_owner.has_method("validate_scene_catalogue"):
+		if audio_owner == null or not audio_owner.has_method("scene_catalogue_view"):
 			return _scene_fail("audio catalogue owner unavailable")
-		var audio: Dictionary = audio_owner.call("validate_scene_catalogue", bundle.audio_catalogue, entry_ids)
+		var audio: Dictionary = audio_owner.call("scene_catalogue_view", bundle.audio_catalogue, entry_ids)
 		if not audio.get("ok", false): return audio
 	return {"ok": true}
 

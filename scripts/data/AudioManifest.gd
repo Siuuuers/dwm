@@ -171,11 +171,11 @@ func _failure(code: StringName) -> Dictionary:
 const SCENE_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 static func validate_scene_catalogue(catalogue: Variant, entry_ids: Array) -> Dictionary:
-	var checked := _check_scene_catalogue(catalogue, entry_ids)
+	var checked := scene_catalogue_view(catalogue, entry_ids)
 	if not checked.ok: return checked
 	return {"ok": true, "value": catalogue.duplicate(true)}
 
-static func _check_scene_catalogue(catalogue: Variant, entry_ids: Array) -> Dictionary:
+static func scene_catalogue_view(catalogue: Variant, entry_ids: Array) -> Dictionary:
 	if not _scene_keys(catalogue, ["kind", "schema_version", "assets", "plans", "bindings"]):
 		return _scene_failure()
 	if typeof(catalogue.kind) != TYPE_STRING or catalogue.kind != "scene_audio_catalogue" or typeof(catalogue.schema_version) != TYPE_INT or catalogue.schema_version not in [1, 2, 3]:
@@ -314,7 +314,7 @@ static func resolve_scene_context(context: Dictionary, registration: Dictionary)
 		fingerprint = str(encoded.value).sha256_text()
 	if context.registration_sha256 != fingerprint:
 		return _scene_failure(&"scene_audio_registration_mismatch")
-	var result: Dictionary = {"snapshot": context.duplicate(true), "record": null, "entrance_seconds": 0.0, "load_seconds": 0.0, "inline_audio": checked.value.schema_version >= 3}
+	var result: Dictionary = {"snapshot": context.duplicate(), "record": null, "entrance_seconds": 0.0, "load_seconds": 0.0, "inline_audio": checked.value.schema_version >= 3}
 	if context.selection == null:
 		return {"ok": true, "value": result}
 	if not _scene_keys(context.selection, ["plan_id", "plan_revision", "variant_id", "anchor_id"]):
@@ -322,12 +322,16 @@ static func resolve_scene_context(context: Dictionary, registration: Dictionary)
 	if not _scene_id(context.selection.plan_id) or typeof(context.selection.plan_revision) != TYPE_INT or typeof(context.selection.variant_id) != TYPE_STRING or not _scene_id(context.selection.anchor_id):
 		return _scene_failure(&"invalid_scene_audio_selection")
 	for plan: Dictionary in checked.value.plans:
-		if context.selection != _scene_selection(plan):
+		var selection := _scene_selection(plan)
+		if context.selection != selection:
 			continue
 		var asset_id: String = plan.music if plan.music != null else plan.ambience_asset_id
 		for asset: Dictionary in checked.value.assets:
 			if asset.asset_id == asset_id:
-				result.record = {"asset": asset.duplicate(), "plan": plan.duplicate(true)}
+				result.snapshot.selection = selection
+				var playback_plan := plan.duplicate()
+				playback_plan.cues = []
+				result.record = {"asset": asset.duplicate(), "plan": playback_plan}
 				if plan.music != null: result["channel"] = &"music"
 				result.entrance_seconds = float(plan.entrance_ms) / 1000.0
 				result.load_seconds = result.entrance_seconds if result.inline_audio else float(plan.load_anchor_ms) / 1000.0
@@ -350,7 +354,7 @@ static func _scene_registration(registration: Dictionary) -> Dictionary:
 		if typeof(entry) != TYPE_DICTIONARY or not _scene_id(entry.get("entry_id")):
 			return _scene_failure(&"invalid_scene_audio_registration")
 		ids.append(entry.entry_id)
-	return _check_scene_catalogue(registration.get("audio_catalogue"), ids)
+	return scene_catalogue_view(registration.get("audio_catalogue"), ids)
 
 
 static func _scene_selection(plan: Dictionary) -> Dictionary:

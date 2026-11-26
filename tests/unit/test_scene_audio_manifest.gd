@@ -175,6 +175,7 @@ func test_resolve_positions_and_all_returned_values_detached() -> void:
 	resolved.value.snapshot.selection.anchor_id = "changed"
 	resolved.value.record.asset.path = "changed"
 	resolved.value.record.plan.revision = 99
+	resolved.value.record.plan.cues.append("local cue")
 	assert_eq(context.selection.anchor_id, "load.01")
 	assert_eq(registration, _registration())
 
