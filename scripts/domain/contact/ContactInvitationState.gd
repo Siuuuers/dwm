@@ -2408,19 +2408,18 @@ static func _s_prepare(state: Dictionary, kind: String, request: Dictionary, com
 	if not registered.get("ok", false): return registered
 	var valid := _s_validate_state(state, context.registration_sha256, issuer, registered.value)
 	if not valid.get("ok", false): return valid
-	var verified := _s_verify(context, command_id, proof, context.registration_sha256, issuer)
-	if not verified.get("ok", false): return verified
 	if state.transaction_receipts.has(command_id):
+		var verified := _s_verify(context, command_id, proof, context.registration_sha256, issuer)
+		if not verified.get("ok", false): return verified
 		var prior: Dictionary = state.transaction_receipts[command_id]
 		if prior.kind != kind or not _s_equal(prior.context, context) or not _s_equal(prior.command_issuer_receipt, proof):
 			return _s_fail("scene_contact_command_conflict")
 		for key: String in request:
 			if not prior.result.has(key) or not _s_equal(prior.result[key], request[key]): return _s_fail("scene_contact_command_conflict")
 		return _ok(state.duplicate(true), [], prior.duplicate(true))
-	if context.contacts_sha256 != _s_hash(state): return _s_fail("scene_contact_context_stale")
 	var receipt := {"kind": kind, "transaction_id": command_id, "command_issuer_receipt": proof.duplicate(true),
 		"context": context.duplicate(true), "definitions_sha256": registered.value.definitions_sha256,
-		"registration_sha256": context.registration_sha256, "source_fact_ids": [], "result": request.duplicate(true)}
+		"registration_sha256": context.registration_sha256, "source_fact_ids": [], "result": request}
 	return _s_apply(state, receipt, registered.value, context.registration_sha256, issuer, true)
 
 static func _s_apply(state: Dictionary, receipt: Dictionary, definitions: Dictionary,
@@ -2562,7 +2561,7 @@ static func _s_verify(context: Dictionary, command_id: String, proof: Dictionary
 			or not issuer.has_method("verify_issued"): return _s_fail("scene_contact_issuer_unavailable")
 	var causal: Dictionary = context.identity.causal_day_instance_issuer_receipt
 	if causal.get("token") != context.identity.causal_day_instance: return _s_fail("scene_contact_identity_invalid")
-	var verified: Variant = issuer.call(&"verify_issued", causal.duplicate(true), &"causal_day_instance")
+	var verified: Variant = issuer.call(&"verify_issued", causal, &"causal_day_instance")
 	if not verified is Dictionary or not verified.get("ok", false): return _s_fail("scene_contact_identity_invalid")
 	return _verify_command(issuer, command_id, proof)
 

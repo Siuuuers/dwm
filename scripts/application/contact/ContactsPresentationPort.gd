@@ -154,7 +154,7 @@ func _admit_candidate(preview: Dictionary, prior: Dictionary, day: int, selected
 		return _fail(&"contact_preview_malformed")
 	var cache := {}
 	if _frozen_enabled():
-		var frozen := FROZEN.capture_candidate(prior, candidate, _game_state.to_save_dict(), day)
+		var frozen := FROZEN.capture_candidate(prior, candidate, _game_state.contact_presentation_inputs(), day)
 		if not frozen.ok: return frozen
 		cache = frozen.value.route_context[FROZEN.CACHE_KEY]
 	for friend_id: String in CONTACT_STATE.FRIEND_IDS:
