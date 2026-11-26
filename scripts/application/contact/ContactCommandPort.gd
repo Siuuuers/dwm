@@ -132,7 +132,7 @@ func prepare_ordinary_reply(friend_id: String, reply_id: String, locale: String 
 		return _fail(&"ordinary_preview_malformed", "")
 	_ordinary_pending = material.duplicate(true)
 	_ordinary_completed = {}
-	return preview.duplicate(true)
+	return preview
 
 func acknowledge_ordinary_reply(command: Dictionary, rendered_line: Dictionary) -> Dictionary:
 	if _scene_owner(_game_state): return _acknowledge_scene_reply(command, rendered_line)

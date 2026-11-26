@@ -86,7 +86,10 @@ func test_one_witness_owns_three_history_rows_and_exact_retry_does_not_duplicate
 	assert_eq(replay.value.candidate, candidate)
 	assert_eq(replay.value.message_batch, [])
 	assert_false(_choose(candidate, 1, "c").ok)
-	assert_eq(REPLIES.pending_echoes_oldest_first(candidate).size(), 1)
+	var pending := REPLIES.pending_echoes_oldest_first(candidate)
+	assert_eq(pending.size(), 1)
+	pending[0].clear()
+	assert_eq(REPLIES.pending_echoes_oldest_first(candidate)[0].reply_id, receipt.reply_id)
 
 func test_all_day_end_expiries_preserve_replied_exchanges_and_day7_silence() -> void:
 	var state := CONTACTS.make_defaults()
