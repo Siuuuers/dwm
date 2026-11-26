@@ -15,12 +15,14 @@ class _FakeBridge extends RefCounted:
 	signal ending_playback_failed(playback_token: String, ending_id: String, result: Dictionary)
 	var start_calls: Array = []
 	var fail_start := false
+	var finish_on_start := false
 	var _counter := 0
 	func start_ending_id(ending_id: String, context: Dictionary) -> Dictionary:
 		start_calls.append({"ending_id": ending_id, "context": context.duplicate(true)})
 		if fail_start:
 			return {"ok": false, "code": &"unknown_ending_id", "message": ending_id, "details": {}}
 		_counter += 1
+		if finish_on_start: finish("token-%d" % _counter, ending_id, {"receipt_id": "early-receipt"})
 		return {"ok": true, "code": &"started", "value": {}, "receipt": {
 			"playback_token": "token-%d" % _counter, "ending_id": ending_id,
 			"role": context.get("role"), "timeline_id": "ending.x", "label": ending_id, "started": true}}
@@ -134,6 +136,18 @@ func test_completion_emits_playback_completed() -> void:
 	assert_eq(captured[0]["outcome"], &"completed")
 	assert_eq(str(captured[0]["timeline_completion_receipt_id"]), "rcpt-1")
 	assert_eq(str(captured[0]["playback_id"]), "run:primary")
+
+
+func test_completion_during_start_keeps_its_receipt_id() -> void:
+	var bridge := _FakeBridge.new()
+	bridge.finish_on_start = true
+	var port: Object = _new_port(bridge)
+	var ids: Array[String] = []
+	port.playback_completed.connect(func(completion: Dictionary) -> void:
+		ids.append(completion.timeline_completion_receipt_id))
+	assert_true(port.start_ending_id("ending.alone", _primary_ctx()).ok)
+	await get_tree().process_frame
+	assert_eq(ids, ["early-receipt"])
 
 
 func test_mismatched_token_does_not_complete() -> void:

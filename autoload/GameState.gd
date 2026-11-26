@@ -1204,8 +1204,8 @@ func capture_ending_frozen_presentation(ending_id: String, context: Dictionary) 
 	if not _ending_checkpoint_writer.is_valid(): return _transaction_failure(&"ending_checkpoint_writer_unconfigured", "")
 	var lease := _acquire_ending_lease()
 	if not lease.ok: return lease
-	var candidate: Dictionary = cached.duplicate(true)
-	candidate.presentations[key] = projected.value.duplicate(true)
+	var candidate: Dictionary = cached.duplicate()
+	candidate.presentations = cached.presentations.merged({key: projected.value.duplicate(true)})
 	route_context["ending_frozen_contexts_v1"] = candidate
 	var saved: Dictionary = _ending_checkpoint_writer.call()
 	if not saved.ok:
@@ -1267,12 +1267,12 @@ func capture_ending_presentation_signature(ending_id: String, context: Dictionar
 		else:
 			var scope := ending_id.get_slice(".", 1)
 			if not inputs.get(scope) is Dictionary: return _transaction_failure(&"ending_presentation_scope_missing", scope)
-			fields = (inputs[scope] as Dictionary).duplicate(true)
+			fields = (inputs[scope] as Dictionary).duplicate()
 			fields.merge({"ending_role": role, "ending_form": form, "residue": form.ends_with("_residue")})
 	var signature := {"entry_id": entry_id, "schema_version": 1, "fields": fields}
 	var checked: Dictionary = preload("res://scripts/domain/narrative/PresentationSignature.gd").validate(signature)
 	if not checked.get("ok", false): return checked
-	return {"ok": true, "code": &"ok", "value": signature}
+	return {"ok": true, "code": &"ok", "value": checked.value.signature}
 
 
 func capture_provisional_day7_ending_plan() -> Dictionary:
