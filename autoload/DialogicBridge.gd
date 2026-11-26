@@ -2907,7 +2907,7 @@ func validate_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Diction
 	if not expanded.ok: return expanded
 	checkpoint = expanded.value
 	if checkpoint.get("reading_session") is Dictionary and typeof(checkpoint.reading_session.get("schema_version")) == TYPE_INT and checkpoint.reading_session.schema_version == 5:
-		var scene := _prepare_scene_reading_candidate(expanded, entry_contexts)
+		var scene := prepare_scene_reading_candidate(expanded, entry_contexts)
 		if not scene.ok: return scene
 		return {"ok": true}
 	var catalogue := _reading_catalogue_for_entry(str(checkpoint.get("entry_id", "")))
@@ -2962,7 +2962,7 @@ func _validate_reading_entry(session: RefCounted, entry_id: String, context: Dic
 	return {"ok": true, "label": label} if checked.ok else checked
 
 
-func _prepare_scene_reading_candidate(expanded: Dictionary, entry_contexts: Dictionary = {}) -> Dictionary:
+func prepare_scene_reading_candidate(expanded: Dictionary, entry_contexts: Dictionary = {}) -> Dictionary:
 	var checkpoint: Dictionary = expanded.value
 	var keys := _RESUME_CHECKPOINT_KEYS.duplicate()
 	keys.append("manifest_fingerprint")
@@ -3013,7 +3013,7 @@ func stage_scene_reading_restore(checkpoint: Dictionary, operation_id: String, r
 	if operation_id.strip_edges().is_empty() or not _scene_stage.is_empty() \
 			or (not _scene_restore.is_empty() and not _scene_restore.get("confirmed", false)):
 		return _command_failure(&"scene_restore_staging_invalid")
-	var checked := _prepare_scene_reading_candidate(expanded)
+	var checked := prepare_scene_reading_candidate(expanded)
 	if not checked.ok: return checked
 	if checkpoint.reading_session.boundary == "control" and (_runtime_adapter == null \
 			or not _runtime_adapter.has_method("capture_scene_control_position")):
