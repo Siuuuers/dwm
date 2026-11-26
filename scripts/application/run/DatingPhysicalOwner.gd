@@ -47,7 +47,7 @@ var _scene_lease := ""
 var _scene_first_reveal_cell := -1
 
 func configure_frozen_narrative_contexts() -> Dictionary:
-	if _game_state == null or not _game_state.has_method("capture_run_lifecycle"):
+	if _game_state == null or not _game_state.has_method("capture_attempt_identity") or not _game_state.has_method("capture_run_lifecycle"):
 		return _fail(&"frozen_context_state_unavailable")
 	_frozen_narrative_enabled = true
 	return _ok({})
@@ -216,7 +216,7 @@ func _dispatch_physical(physical_token: String, action: String, cell_index: int,
 		expected_revision: int) -> Dictionary:
 	if not _adopt(physical_token): return _fail(&"dating_challenge_unavailable")
 	if _post_ending_history() and _record.phase not in ["pre_challenge", "preparing"] and (
-			_history_target_branch != str(_attempt_identity().branch_id)
+			_history_target_branch != str(_game_state.capture_attempt_identity().branch_id)
 			or _history_reference.get("attempt_id") != _record.spec.board_token):
 		var rebound: Dictionary = _restore_attempt(_record, true)
 		if not rebound.get("ok", false): return rebound
@@ -397,11 +397,11 @@ func reconcile_restore_silent(restored_snapshot: Dictionary) -> Dictionary:
 		_routine_pending = false
 		_clear_history_state()
 		_admitted_command = {}
-		_history_reference = _game_state.route_context.get("dating_active_attempt_ref", {}).duplicate(true)
+		_history_reference = _game_state.route_context.get("dating_active_attempt_ref", {}).duplicate()
 		_scene_first_reveal_cell = -1
 		return _ok({})
 	var active_dating := str(restored_snapshot.get("route_id", "")) == "dating" and not stored.is_empty() \
-		and int(stored.get("context", {}).get("day", 0)) == int(_attempt_identity().day)
+		and int(stored.get("context", {}).get("day", 0)) == int(_game_state.capture_attempt_identity().day)
 	if active_dating:
 		if not _valid_record(stored, {}): return _fail(&"invalid_restored_dating_challenge")
 		var previous_record := _record
@@ -421,9 +421,6 @@ func reconcile_restore_silent(restored_snapshot: Dictionary) -> Dictionary:
 	if stored.phase in ["pre_challenge", "preparing"]: return _ok({})
 	return _restore_attempt(stored, true)
 
-func _attempt_identity() -> Dictionary:
-	return _game_state.capture_run_lifecycle()
-
 func _rebind_record(record: Dictionary, command: Dictionary) -> Dictionary:
 	if record.get("schema_version") == 4: return record
 	var rebound := record.duplicate()
@@ -438,12 +435,12 @@ func _post_ending_history() -> bool:
 	return _attempt_gate != null and (_record.get("schema_version") == 4 or _profile.has_completed_ending())
 
 func _history_state() -> Dictionary:
-	return {"selection": _history_selection.duplicate(true), "reference": _history_reference.duplicate(true),
+	return {"selection": _history_selection.duplicate(true), "reference": _history_reference.duplicate(),
 		"revision": _history_revision, "committed": _history_committed, "target_branch": _history_target_branch}
 
 func _restore_history_state(value: Dictionary) -> void:
 	_history_selection = value.selection.duplicate(true)
-	_history_reference = value.reference.duplicate(true)
+	_history_reference = value.reference.duplicate()
 	_history_revision = int(value.revision)
 	_history_committed = bool(value.committed)
 	_history_target_branch = str(value.target_branch)
@@ -460,11 +457,11 @@ func _select_committed_attempt(attempt: Dictionary) -> void:
 		"generation": attempt.generation}
 	_history_revision = int(attempt.revision)
 	_history_committed = true
-	_history_target_branch = str(_attempt_identity().branch_id)
+	_history_target_branch = str(_game_state.capture_attempt_identity().branch_id)
 	_history_selection = {"mode": "branch"} if _post_ending_history() else {}
 
 func _restore_attempt(command: Dictionary, silent: bool = false, certified_entry: bool = false) -> Dictionary:
-	var identity := _attempt_identity()
+	var identity: Dictionary = _game_state.capture_attempt_identity()
 	var run_id := str(identity.run_id)
 	var slot := ATTEMPTS.semantic_slot(_record.context)
 	if not _post_ending_history():
@@ -520,7 +517,7 @@ func _restore_attempt(command: Dictionary, silent: bool = false, certified_entry
 	return _game_state.store_dating_challenge_state(_record, not silent)
 
 func _commit_attempt() -> Dictionary:
-	var identity := _attempt_identity()
+	var identity: Dictionary = _game_state.capture_attempt_identity()
 	var run_id := str(identity.run_id)
 	var slot := ATTEMPTS.semantic_slot(_record.context)
 	var retained_record := _record.duplicate()
@@ -588,7 +585,7 @@ func flush_pending_attempt() -> Dictionary:
 
 func _publish_history_reference() -> Dictionary:
 	if not _history_committed or _history_reference.is_empty(): return _ok({})
-	_game_state.route_context["dating_active_attempt_ref"] = _history_reference.duplicate(true)
+	_game_state.route_context["dating_active_attempt_ref"] = _history_reference.duplicate()
 	if _record.phase == "completed":
 		var heads: Variant = _game_state.route_context.get("dating_canonical_heads", {})
 		if not heads is Dictionary: return _fail(&"invalid_dating_canonical_heads")
@@ -601,8 +598,8 @@ func _publish_history_reference() -> Dictionary:
 func _apply_record_effect(silent: bool = false) -> Dictionary:
 	if _record.get("schema_version") == 4:
 		_history_reference = {"attempt_id": _record.spec.board_token,
-			"branch_id": str(_attempt_identity().branch_id), "generation": 1}
-		_game_state.route_context["dating_active_attempt_ref"] = _history_reference.duplicate(true)
+			"branch_id": str(_game_state.capture_attempt_identity().branch_id), "generation": 1}
+		_game_state.route_context["dating_active_attempt_ref"] = _history_reference.duplicate()
 		return _game_state.store_dating_challenge_state(_record, not silent)
 	var rebound_context := _bind_frozen_pre_to_entered_attempt()
 	if not rebound_context.ok: return rebound_context
@@ -870,7 +867,7 @@ func _read_frozen_narrative(phase: String) -> Dictionary:
 	var checked := FROZEN_CONTEXT.validate(entry_id, saved.entries[entry_id])
 	if not checked.ok: return checked
 	var fields: Dictionary = checked.value.fields
-	if fields.run_id != _attempt_identity().run_id \
+	if fields.run_id != _game_state.capture_attempt_identity().run_id \
 			or (phase == "post_challenge" and fields.attempt_id != _record.spec.board_token) \
 			or (_record.host == "canonical_pair" and fields.stable_deck_state.form != _record.pair_form):
 		return _fail(&"frozen_context_attempt_mismatch")
@@ -900,7 +897,7 @@ func _bind_frozen_pre_to_entered_attempt() -> Dictionary:
 		if not checked.ok: return checked
 		if checked.value.fields.get("phase") != "pre_challenge" \
 				or checked.value.fields.get("day") != _record.context.day \
-				or checked.value.fields.get("run_id") != _attempt_identity().run_id:
+				or checked.value.fields.get("run_id") != _game_state.capture_attempt_identity().run_id:
 			return _fail(&"frozen_context_attempt_mismatch")
 	var prior: Variant = _game_state.route_context.get("dating_pre_challenge_presentation")
 	if not prior is Dictionary or prior.get("board_token") != saved.board_token:
@@ -950,7 +947,7 @@ func _freeze_narrative_projection(phase: String, signature_fields: Dictionary) -
 			remapped_cache.entries[entry_id] = built.value
 			_game_state.route_context["dating_frozen_contexts_v1"] = remapped_cache
 			return _read_frozen_narrative(phase)
-	var identity: Dictionary = _attempt_identity()
+	var identity: Dictionary = _game_state.capture_attempt_identity()
 	var schema := FROZEN_CONTEXT.schema_view(entry_id)
 	if not schema.ok: return schema
 	var fields := {"entry_id": entry_id, "entry_role": schema.value.fields.entry_role["const"],
@@ -984,7 +981,7 @@ func _freeze_narrative_projection(phase: String, signature_fields: Dictionary) -
 			return _fail(&"frozen_context_pair_receipt_required")
 		var count: Variant = null
 		if receipt.is_empty():
-			var plan: Variant = identity.get("active_resolution_plan")
+			var plan: Variant = _game_state.capture_run_lifecycle().get("active_resolution_plan")
 			var pending := false
 			if plan is Dictionary and plan.get("source_day") == _record.context.day \
 					and preload("res://scripts/domain/run/DayResolutionPlan.gd").from_dict(plan).get("ok", false):
@@ -993,7 +990,7 @@ func _freeze_narrative_projection(phase: String, signature_fields: Dictionary) -
 						pending = true
 			if not pending: return _fail(&"frozen_context_pair_receipt_required")
 		else:
-			count = receipt.pl_window.duplicate(true)
+			count = receipt.pl_window.duplicate()
 			count["transaction_id"] = str(receipt.transaction_id)
 		var variation: Variant = null
 		if _game_state.contacts.get("group_action", {}).get("day") == _record.context.day:
@@ -1004,7 +1001,7 @@ func _freeze_narrative_projection(phase: String, signature_fields: Dictionary) -
 		fields.merge({"pair_id": "priscilla_lavinia", "window_day": int(_record.context.day),
 			"encounter_presentation": _record.context.kind, "group_variation": variation,
 			"pair_count_receipt": count, "pair_count_status": "pending_rollover" if count == null else "committed",
-			"stable_deck_state": pair.pair_deck_draw.duplicate(true)})
+			"stable_deck_state": pair.pair_deck_draw})
 		if phase == "post_challenge":
 			fields.merge({"board_result": _record.outcome, "perfect_reasons": _record.perfect_reasons.duplicate(),
 				"observation_form": "truncated" if _record.outcome == "exploded" else "full",
@@ -1448,7 +1445,7 @@ func _begin_scene(command: Dictionary) -> Dictionary:
 		return _fail(&"scene_challenge_record_conflict")
 	_record = stored
 	_clear_history_state()
-	_history_reference = _game_state.route_context.get("dating_active_attempt_ref", {}).duplicate(true)
+	_history_reference = _game_state.route_context.get("dating_active_attempt_ref", {}).duplicate()
 	_scene_first_reveal_cell = -1
 	_admitted_command = command.duplicate(true)
 	return _ok({"physical_token": _token(command.completion_transaction_id, command.command_sha256), "command_sha256": command.command_sha256})
@@ -1615,7 +1612,7 @@ func _scene_checkpoint() -> Dictionary:
 	var applied := _apply_record_effect(true)
 	if not applied.ok: return applied
 	_scene_checkpoint_in_flight = true
-	var saved: Dictionary = _scene_authority.commit_scene_challenge_checkpoint(_record.duplicate(true), _history_reference.duplicate(true), _scene_lease)
+	var saved: Dictionary = _scene_authority.commit_scene_challenge_checkpoint(_record.duplicate(true), _history_reference.duplicate(), _scene_lease)
 	_scene_checkpoint_in_flight = false
 	if not saved.get("ok", false):
 		_retain_scene_failure_custody(saved)
@@ -1668,7 +1665,7 @@ func _close_scene_locked() -> Dictionary:
 		var applied := _apply_record_effect(true)
 		if not applied.ok: return applied
 		_scene_checkpoint_in_flight = true
-		var source: Dictionary = _scene_authority.commit_scene_challenge_checkpoint(_record.duplicate(true), _history_reference.duplicate(true), _scene_lease)
+		var source: Dictionary = _scene_authority.commit_scene_challenge_checkpoint(_record.duplicate(true), _history_reference.duplicate(), _scene_lease)
 		_scene_checkpoint_in_flight = false
 		if not source.get("ok", false):
 			_retain_scene_failure_custody(source)
@@ -1679,7 +1676,7 @@ func _close_scene_locked() -> Dictionary:
 		_pending_checkpoint = {}
 		var hashed: Dictionary = CANONICAL.canonical_sha256(_record)
 		if not hashed.ok: return hashed
-		proof = {"run_id": str(_attempt_identity().run_id), "slot_id": ATTEMPTS.semantic_slot(_record.context), "attempt_id": _record.spec.board_token,
+		proof = {"run_id": str(_game_state.capture_attempt_identity().run_id), "slot_id": ATTEMPTS.semantic_slot(_record.context), "attempt_id": _record.spec.board_token,
 			"branch_id": _history_reference.branch_id, "generation": _history_reference.generation, "revision": _revision() + 1,
 			"record_sha256": hashed.value.sha256, "publication": source.value.publication.duplicate(true)}
 		outcome = "unfinished" if _record.state == "in_progress" else str(_record.state)

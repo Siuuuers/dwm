@@ -2728,6 +2728,11 @@ func _capture_desktop_snapshot() -> Dictionary:
 	return _desktop_snapshot_view().duplicate(true)
 
 
+func capture_attempt_identity() -> Dictionary:
+	var identity: Dictionary = _run_lifecycle.get_desktop_identity_context(false)
+	identity["day"] = day
+	return identity
+
 func capture_run_lifecycle() -> Dictionary:
 	return _run_lifecycle.to_dict()
 
@@ -4384,13 +4389,17 @@ func _prepare_scene_day_renewal(trigger: Dictionary, target_id: String, registra
 	if not is_instance_valid(_scene_day_allocator) or not is_instance_valid(_scene_day_board) \
 			or not is_instance_valid(_scene_day_consequence):
 		return _transaction_failure(&"scene_day_dependencies_required", "")
-	var desktop := _capture_desktop_snapshot()
-	if desktop.consequence.get("pending") != null or desktop.board.get("phase") == "SETTLING":
+	var source := _desktop_snapshot_view()
+	if source.consequence.get("pending") != null or source.board.get("phase") == "SETTLING":
 		return _transaction_failure(&"scene_day_pending_settlement", "")
-	var board_wrapper: Variant = desktop.board.get("board")
+	var board_wrapper: Variant = source.board.get("board")
 	if board_wrapper is Dictionary and board_wrapper.get("board") is Dictionary \
 			and board_wrapper.board.get("terminal", false) and not _scene_day_board.has_settled_inspection():
 		return _transaction_failure(&"scene_day_pending_settlement", "")
+	var next_board: Dictionary = source.board.merged({"phase": "NONE", "settled_inspection": false,
+		"round_paid": false, "revision": int(source.board.revision) + 1,
+		"identity": null, "candidate": null, "board": null, "settlement": null}, true)
+	var desktop := source.merged({"board": next_board}, true).duplicate(true)
 	var lifecycle: Dictionary = capture_run_lifecycle()
 	var gameplay := _capture_scene_gameplay()
 	var identity: Dictionary = _run_lifecycle.get_desktop_identity_context()
@@ -4408,11 +4417,6 @@ func _prepare_scene_day_renewal(trigger: Dictionary, target_id: String, registra
 	var receipt: Dictionary = allocated.value.day_advance_identity_receipt
 	lifecycle.causal_day_instance = receipt.target_causal_day_instance
 	lifecycle.causal_day_instance_issuer_receipt = receipt.target_causal_day_instance_issuer_receipt
-	desktop.board.phase = "NONE"
-	desktop.board.settled_inspection = false
-	desktop.board.round_paid = false
-	desktop.board.revision += 1
-	for key: String in ["identity", "candidate", "board", "settlement"]: desktop.board[key] = null
 	desktop.consequence.causal_day_instance = receipt.target_causal_day_instance
 	desktop.consequence.causal_day_instance_issuer_receipt = receipt.target_causal_day_instance_issuer_receipt.duplicate(true)
 	desktop.consequence.run_revision += 1

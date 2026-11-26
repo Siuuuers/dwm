@@ -14,6 +14,7 @@ class State extends RefCounted:
 	var lifecycle := {"run_id": "TEST.scene.run", "branch_id": "TEST.scene.branch"}
 	var effects := 0
 	func get_stat(_name: String) -> int: return pressure
+	func capture_attempt_identity() -> Dictionary: return lifecycle.duplicate()
 	func capture_run_lifecycle() -> Dictionary: return lifecycle.duplicate(true)
 	func capture_run_snapshot_input() -> Dictionary: return {"lifecycle": lifecycle.duplicate(true), "gameplay": {"route_context": route_context.duplicate(true)}}
 	func capture_dating_challenge_state() -> Dictionary: return {"ok": true, "value": route_context.get("active_dating_challenge", {}).duplicate(true)}
