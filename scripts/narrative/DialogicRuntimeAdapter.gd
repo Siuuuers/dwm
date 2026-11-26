@@ -389,7 +389,7 @@ static func _scene_control_predecessor(saved: Dictionary, compiled: Dictionary, 
 	return {"ok": true, "value": {"index": authored.value.index, "marker": authored.value.marker,
 		"frontier": {"line_id": authored.value.line_id, "publication_id": row.publication_id}}}
 
-func project_scene_control_frontier(session: RefCounted) -> Dictionary:
+func project_scene_control_frontier(session: RefCounted, include_identity: bool = true) -> Dictionary:
 	if not _bound or not _qualified_runtime or session == null \
 			or _scene_control_restore.is_empty() or session != _scene_control_restore.session \
 			or not _marker_hold_identity_current():
@@ -421,7 +421,8 @@ func project_scene_control_frontier(session: RefCounted) -> Dictionary:
 		native = detached
 	if not native is DialogicLabelEvent or native.name != marker.label:
 		return _fail(&"scene_restore_control_changed", "")
-	var identity: Dictionary = _marker_hold.identity.duplicate(true)
+	if not include_identity: return {"ok": true}
+	var identity := _held_marker_identity()
 	identity["session_instance"] = session.get_instance_id()
 	identity["execution_generation"] = _marker_hold.execution_generation
 	return {"ok": true, "value": {"marker_id": marker.marker_id, "occurrence_id": session.scene_occurrence,
@@ -1916,10 +1917,15 @@ func bind_reading_marker(marker: Dictionary, restore_frontier: Dictionary = {}) 
 func is_marker_source_held() -> bool:
 	return _marker_hold_current()
 
+func _held_marker_identity() -> Dictionary:
+	var identity: Dictionary = _marker_hold.identity.duplicate()
+	identity.frontier = identity.frontier.duplicate()
+	return identity
+
 func marker_source_identity() -> Dictionary:
 	if not _marker_hold.is_empty():
 		if not _marker_hold_current(): return _fail(&"reading_marker_source_changed", "")
-		return {"ok": true, "value": _marker_hold.identity.duplicate(true)}
+		return {"ok": true, "value": _held_marker_identity()}
 	var captured := capture_reading_frontier()
 	if not captured.ok: return captured
 	return {"ok": true, "value": {"request": _request_id, "generation": _runtime_generation,
