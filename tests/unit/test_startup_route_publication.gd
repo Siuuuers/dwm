@@ -66,6 +66,8 @@ func test_repeated_finalize_publishes_only_final_target_once() -> void:
 	var published: Dictionary = router.publish_startup_route_hold(token)
 	assert_true(published.ok)
 	assert_false(published.value.deferred)
+	assert_true(published.is_read_only())
+	assert_true(published.value.is_read_only())
 	await _frames()
 	var scene := get_tree().current_scene
 	assert_ne(scene, title)

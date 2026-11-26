@@ -763,10 +763,10 @@ static func _validate_scene_receipts_registered(receipts: Dictionary, bundle: Di
 		var rebuilt := _make_scene_receipt_from_context(envelope, saved.reading_anchor, saved.result, context)
 		if not rebuilt.ok: return rebuilt
 		if not _equal(receipt, rebuilt.value): return _fail(&"scene_receipt_mismatch")
-		var issued: Dictionary = issuer.call(&"verify_issued", envelope.issuer_receipt.duplicate(true), &"transaction_id")
+		var issued: Dictionary = issuer.call(&"verify_issued", envelope.issuer_receipt, &"transaction_id")
 		if not issued.get("ok", false): return issued
 		if saved.result.kind == "scene_transition_accepted":
-			var child: Dictionary = issuer.call(&"validate_child", saved.result.resolution_receipt.provenance.duplicate(true), &"scene_day_completion")
+			var child: Dictionary = issuer.call(&"validate_child", saved.result.resolution_receipt.provenance, &"scene_day_completion")
 			if not child.get("ok", false): return child
 		if saved.result.kind == "thought_resolved":
 			var thought_key := _sha([envelope.source.run_id, saved.result.opportunity_id])
@@ -1118,7 +1118,7 @@ static func _validate_initial_materials(candidate: Dictionary, profile: Dictiona
 			return _fail(&"scene_initial_allocation_invalid")
 	var issued: Dictionary = issuer.verify_issued(request.transaction_issuer_receipt, &"transaction_id")
 	if not issued.get("ok", false): return issued
-	var reproduced: Dictionary = issuer.prepare_continuation_allocation(request.duplicate(true))
+	var reproduced: Dictionary = issuer.prepare_continuation_allocation(request)
 	if not reproduced.get("ok", false): return reproduced
 	if not _equal(candidate, reproduced.value): return _fail(&"scene_initial_allocation_mismatch")
 	if not _json_data(profile): return _fail(&"scene_initial_profile_invalid")

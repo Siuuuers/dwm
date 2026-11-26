@@ -20,7 +20,7 @@ static func validate_timelines(manifest: Dictionary) -> Dictionary:
 	var schema := _load_schema(TIMELINES_SCHEMA_PATH)
 	if not schema.get("ok", false):
 		return schema
-	var schema_result := SCHEMA_VALIDATOR.validate(manifest, schema["value"])
+	var schema_result := SCHEMA_VALIDATOR.check(manifest, schema["value"])
 	if not schema_result.get("ok", false):
 		return schema_result
 	var records: Array = manifest["records"]
@@ -106,7 +106,7 @@ static func validate_effects(effects: Dictionary) -> Dictionary:
 	var schema := _load_schema(ID_REGISTRY_SCHEMA_PATH)
 	if not schema.get("ok", false):
 		return schema
-	var schema_result := SCHEMA_VALIDATOR.validate(effects, schema["value"])
+	var schema_result := SCHEMA_VALIDATOR.check(effects, schema["value"])
 	if not schema_result.get("ok", false):
 		return schema_result
 	if str(effects.get("kind", "")) != "effects":
@@ -128,7 +128,7 @@ static func validate_routes(routes: Dictionary) -> Dictionary:
 	var schema := _load_schema(ID_REGISTRY_SCHEMA_PATH)
 	if not schema.get("ok", false):
 		return schema
-	var schema_result := SCHEMA_VALIDATOR.validate(routes, schema["value"])
+	var schema_result := SCHEMA_VALIDATOR.check(routes, schema["value"])
 	if not schema_result.get("ok", false):
 		return schema_result
 	if str(routes.get("kind", "")) != "routes":

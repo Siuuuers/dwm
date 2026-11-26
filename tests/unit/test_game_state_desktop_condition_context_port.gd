@@ -440,7 +440,7 @@ func test_a_completed_resolution_plan_is_not_resolving() -> void:
 
 
 ## A completed plan record: the lifecycle refuses "completed" unless the receipt is exactly the
-## one-key {"value": Dictionary} envelope `DayResolutionPlan._normalize_receipt` accepts.
+## one-key {"value": Dictionary} envelope DayResolutionPlan accepts.
 func _complete_record(record: Dictionary) -> void:
 	record["state"] = "completed"
 	record["receipt"] = {"value": {"completed_by": "the completed-plan premise"}}

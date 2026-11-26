@@ -50,7 +50,7 @@ func begin_scene_publication_hold(operation_id: String) -> Dictionary:
 		if retained != _restore_publication_handle or get_tree().current_scene != current:
 			return _startup_failure("stale_restore_publication_hold")
 		_scene_pause_publication = {"operation_id": operation_id,
-			"handle": _restore_publication_handle.duplicate(true), "acknowledged": false}
+			"handle": retained, "acknowledged": false}
 		return {"ok": true}
 	if is_restore_publication_held() or _restore_publication_publishing:
 		return _startup_failure("restore_publication_busy")
@@ -443,7 +443,7 @@ func publish_startup_route_hold(token: String) -> Dictionary:
 	if _return_title_publishing: return _startup_failure("return_title_publication_busy")
 	if token.is_empty() or token != _startup_hold_token: return _startup_failure("stale_startup_route_hold")
 	if _startup_publishing: return _startup_failure("startup_route_publication_busy")
-	if not _startup_published_result.is_empty(): return _startup_published_result.duplicate(true)
+	if not _startup_published_result.is_empty(): return _startup_published_result
 	if not _startup_hold_active: return _startup_failure("stale_startup_route_hold")
 	_startup_publishing = true
 	var result: Dictionary = {"ok": true, "value": {"route_id": get_current_route_id()}}
@@ -456,7 +456,9 @@ func publish_startup_route_hold(token: String) -> Dictionary:
 	value["deferred"] = false
 	value["route_id"] = get_current_route_id()
 	result["value"] = value
-	_startup_published_result = result.duplicate(true)
+	value.make_read_only()
+	result.make_read_only()
+	_startup_published_result = result
 	return result
 
 static func _startup_failure(code: String) -> Dictionary:

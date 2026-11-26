@@ -3,7 +3,7 @@ extends RefCounted
 const JSON_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const REGISTRY := preload("res://scripts/narrative/NarrativeCaptionRegistry.gd")
-const READING_KEYS := ["schema_version", "catalogue_fingerprint", "boundary", "ledger", "frontier"]
+const READING_OPERATION_KEYS := ["schema_version", "catalogue_fingerprint", "boundary", "ledger", "frontier", "next_operation"]
 const PLAN_KEYS := ["entry_id", "catalogue_fingerprint", "source_ledger", "source_frontier", "traversed_captions", "destination"]
 const PHASES := ["source", "destination"]
 
@@ -50,9 +50,7 @@ static func project_view(plan: Dictionary, phase: String) -> Dictionary:
 static func validated_operation_view(reading: Dictionary, entry_id: String) -> Dictionary:
 	if typeof(reading.get("schema_version")) == TYPE_INT and reading.schema_version == 5: return _validate_scene_operation(reading, entry_id)
 	if reading.get("schema_version") == 4: return _validate_marker_operation(reading, entry_id)
-	var keys := READING_KEYS.duplicate()
-	keys.append("next_operation")
-	if not FROZEN._exact(reading, keys) or typeof(reading.get("schema_version")) != TYPE_INT \
+	if not FROZEN._exact(reading, READING_OPERATION_KEYS) or typeof(reading.get("schema_version")) != TYPE_INT \
 			or reading.schema_version != 2 or not reading.get("next_operation") is Dictionary:
 		return _fail(&"reading_next_operation_invalid")
 	var operation: Dictionary = reading.next_operation
@@ -280,9 +278,8 @@ static func valid_scene_reading_shape(reading: Dictionary) -> bool:
 
 static func _valid_scene_reading_shape(reading: Dictionary, publications: Dictionary,
 		checked_frames: Dictionary) -> bool:
-	var keys: Array = SCENE_READING_KEYS.duplicate()
-	if reading.has("player_progress"): keys.append("player_progress")
-	if not FROZEN._exact(reading, keys) or not FROZEN._primitive(reading) \
+	if reading.size() != SCENE_READING_KEYS.size() + int(reading.has("player_progress")) \
+			or not reading.has_all(SCENE_READING_KEYS) or not FROZEN._primitive(reading) \
 			or typeof(reading.schema_version) != TYPE_INT or reading.schema_version != 5 \
 			or not _hash(reading.registration_sha256) or not _id(reading.entry_id) or not _id(reading.occurrence_id) \
 			or typeof(reading.program_index) != TYPE_INT or reading.program_index < 0 \
@@ -504,8 +501,8 @@ static func _validate_scene_path(plan: Dictionary, nodes: Array, attach_pairs: b
 	var destination: Dictionary = nodes[plan.destination.program_index]
 	var expected_kind: String = "line" if destination.kind == "caption" else destination.kind
 	if expected_kind != plan.destination.kind: return _fail(&"reading_next_destination_invalid")
-	var rows: Array = plan.traversed_captions.duplicate()
-	if plan.destination.kind == "line": rows.append(plan.destination.caption)
+	var rows: Array = plan.traversed_captions
+	if plan.destination.kind == "line": rows = rows + [plan.destination.caption]
 	if rows.size() != expected_lines.size(): return _fail(&"reading_next_sequence_invalid")
 	for index: int in rows.size():
 		if rows[index].beat.line_id != expected_lines[index]: return _fail(&"reading_next_sequence_invalid")

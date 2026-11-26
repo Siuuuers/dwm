@@ -2,9 +2,14 @@ class_name JsonSchemaValidator
 extends RefCounted
 
 static func validate(value: Variant, schema: Dictionary) -> Dictionary:
+	var result := check(value, schema)
+	if result.ok: result.value = value.duplicate(true) if value is Dictionary or value is Array else value
+	return result
+
+static func check(value: Variant, schema: Dictionary) -> Dictionary:
 	var errors: Array[Dictionary] = []
 	_validate_at(value, schema, "$", errors, schema, {})
-	if errors.is_empty(): return {"ok": true, "value": _detach(value)}
+	if errors.is_empty(): return {"ok": true}
 	return {"ok": false, "code": &"schema_validation_failed", "message": errors[0]["message"], "errors": errors}
 
 static func _validate_at(
@@ -47,7 +52,7 @@ static func _validate_at(
 				return
 			var branch_errors: Array[Dictionary] = []
 			_validate_at(
-				value, alternative, path, branch_errors, root_schema, active_refs.duplicate()
+				value, alternative, path, branch_errors, root_schema, active_refs
 			)
 			if branch_errors.is_empty():
 				match_count += 1
@@ -226,6 +231,3 @@ static func _json_equal(left: Variant, right: Variant) -> bool:
 
 static func _add(errors: Array[Dictionary], path: String, message: String) -> void:
 	errors.append({"path": path, "message": message})
-
-static func _detach(value: Variant) -> Variant:
-	return value.duplicate(true) if value is Dictionary or value is Array else value

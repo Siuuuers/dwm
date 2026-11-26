@@ -626,7 +626,7 @@ func _pause_projection() -> Dictionary:
 	return {"view_id": get_instance_id(), "receipt": _card.get("receipt", {}), "acknowledged": _accepted}
 
 func capture_pause_view(_source: Dictionary) -> Dictionary:
-	var projection := get_pause_projection()
+	var projection := _pause_projection()
 	if _covered or projection.is_empty(): return {"ok": false, "code": &"pause_view_unavailable"}
 	_capture_id += 1
 	var focus := get_viewport().gui_get_focus_owner()

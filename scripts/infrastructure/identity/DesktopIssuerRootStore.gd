@@ -810,7 +810,7 @@ func _validate_document(document: Dictionary) -> Dictionary:
 			or typeof(document["day_advance_allocation_receipts"]) != TYPE_DICTIONARY:
 		return _failed(&"root_schema_invalid", "allocation maps and receipts must be objects")
 
-	var shape: Dictionary = _SCHEMA_VALIDATOR.validate(document, _SCHEMA)
+	var shape: Dictionary = _SCHEMA_VALIDATOR.check(document, _SCHEMA)
 	if not shape.get("ok", false):
 		return _failed(&"root_schema_invalid", str(shape.get("message", "root document rejected by schema")))
 	var namespace_value := str(document["namespace"])

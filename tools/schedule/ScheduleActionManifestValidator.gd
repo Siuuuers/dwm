@@ -63,7 +63,7 @@ static func validate_file(manifest_path: String, schema_path: String) -> Diction
 	var schema := _read_json(schema_path)
 	if not schema.get("ok", false):
 		return schema
-	var shape: Dictionary = _SCHEMA_VALIDATOR.validate(manifest["value"], schema["value"])
+	var shape: Dictionary = _SCHEMA_VALIDATOR.check(manifest["value"], schema["value"])
 	if not shape.get("ok", false):
 		return _fail(&"published_schema_rejected", str(shape.get("message", "schema rejected")),
 			{"schema": schema_path, "errors": shape.get("errors", [])})

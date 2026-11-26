@@ -458,7 +458,7 @@ func _document_shape_error(document: Variant) -> String:
 	var records: Variant = (document as Dictionary)["records"]
 	if typeof(records) != TYPE_DICTIONARY:
 		return "records must be a dictionary"
-	var against_schema: Dictionary = _SCHEMA_CHECK.validate(document, _DOCUMENT_SCHEMA)
+	var against_schema: Dictionary = _SCHEMA_CHECK.check(document, _DOCUMENT_SCHEMA)
 	if not against_schema.get("ok", false):
 		return str(against_schema.get("message", "document rejected by schema"))
 	for record_key: Variant in records as Dictionary:
@@ -481,7 +481,7 @@ func _record_shape_error(candidate: Variant, expected_key: String,
 	for text_field: String in ["key", "kind", "publication_sha256"]:
 		if typeof(record[text_field]) != TYPE_STRING:
 			return text_field + " must be a String"
-	var against_schema: Dictionary = _SCHEMA_CHECK.validate(record, _RECORD_SCHEMA)
+	var against_schema: Dictionary = _SCHEMA_CHECK.check(record, _RECORD_SCHEMA)
 	if not against_schema.get("ok", false):
 		return str(against_schema.get("message", "record rejected by schema"))
 	if str(record["key"]) != expected_key:

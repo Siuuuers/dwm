@@ -108,8 +108,7 @@ func _ensure_scene_programme(entry_id: String) -> Dictionary:
 		if node.kind != "caption": continue
 		_scene_display[node.line_id] = node
 		if node.has("self_talk"): _scene_thought_ids[node.self_talk.line_id] = true
-	for event: Dictionary in compiled.value.events:
-		if event.kind == "text": _scene_text[event.line_id] = event.text
+	_scene_text.merge(compiled.value.text_by_line, true)
 	return {"ok": true}
 
 func fork_catalogue() -> RefCounted:
@@ -170,8 +169,8 @@ func _retain_scene_live(reading: Dictionary) -> Dictionary:
 
 func _fork_scene_transition(plan: Dictionary) -> Dictionary:
 	var sibling := _fork_scene_ledger()
-	var rows: Array = plan.traversed_captions.duplicate()
-	if plan.destination.kind == "line": rows.append(plan.destination.caption)
+	var rows: Array = plan.traversed_captions
+	if plan.destination.kind == "line": rows = rows + [plan.destination.caption]
 	for row: Dictionary in rows:
 		var published: Dictionary = sibling.ledger.publish_caption(command_id, row.publication_id,
 			row.beat, row.occurrence_id)

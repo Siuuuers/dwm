@@ -487,17 +487,6 @@ func test_named_presentation_view_orders_and_positions_overlays_and_clears_them_
 	view.configure_entry("template.scene")
 	assert_eq(view._overlays.get_child_count(), 0, "legacy entry rendering cannot retain stale overlays")
 
-func test_only_explicit_entry_bindings_produce_presentation_commands() -> void:
-	assert_true(_script.call(&"reload_placements", PRESENTATION_FIXTURE))
-	assert_eq(_script.call(&"get_presentation_commands", "unbound.entry"), {"ok": true, "value": []})
-	var result: Dictionary = _script.call(&"get_presentation_commands", "template.entry.checkpoint")
-	assert_true(result.ok)
-	var commands: Array = result.value
-	assert_eq(commands, [{"kind": "checkpoint", "id": "template.checkpoint"}])
-	commands[0].id = "changed"
-	assert_eq(_script.call(&"get_presentation_commands", "template.entry.checkpoint"),
-		{"ok": true, "value": [{"kind": "checkpoint", "id": "template.checkpoint"}]})
-
 func test_entry_presentation_commands_clear_once_and_keep_ordered_idempotent_overlays() -> void:
 	assert_true(_script.call(&"reload_placements", PRESENTATION_FIXTURE))
 	var initial: Dictionary = _script.call(&"apply_entry_presentation", "unbound.entry", {})

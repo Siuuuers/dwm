@@ -74,7 +74,7 @@ static func initialize(path: String = MANIFEST_PATH) -> Dictionary:
 			"the Minesweeper shop manifest is not strict JSON",
 			{"path": path, "cause": parsed.get("code", &"")})
 	var manifest: Dictionary = parsed["value"]
-	var shape: Dictionary = _SCHEMA_VALIDATOR.validate(manifest, _SCHEMA)
+	var shape: Dictionary = _SCHEMA_VALIDATOR.check(manifest, _SCHEMA)
 	if not shape.get("ok", false):
 		return _fail(&"invalid_shop_manifest", str(shape.get("message", "schema rejected")),
 			{"path": path, "errors": shape.get("errors", [])})

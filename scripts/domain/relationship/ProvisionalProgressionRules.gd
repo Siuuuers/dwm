@@ -132,7 +132,7 @@ func resolve_hospital(input: Dictionary) -> Dictionary:
 	return _ok({
 		"required": true,
 		"branch": "sylvia_variant" if bool(input["sylvia_encounter_committed"]) else "code_only",
-		"recovery": HOSPITAL_RECOVERY.duplicate(true),
+		"recovery": HOSPITAL_RECOVERY.duplicate(),
 	})
 
 

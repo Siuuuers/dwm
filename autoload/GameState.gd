@@ -4688,8 +4688,7 @@ func _commit_scene_contact_owned(kind: String, subject: String, id: String, proo
 	if contacts.transaction_receipts.has(id): return prepared
 	var configured: Dictionary = _narrative_checkpoint_port.configure_scene_contact_authority(self, _validate_scene_contact_checkpoint)
 	if not configured.get("ok", false): return configured
-	var candidate := before.duplicate(true)
-	candidate.contacts = prepared.value.candidate.duplicate(true)
+	var candidate := before.merged({"contacts": prepared.value.candidate}, true)
 	_scene_contact_operation = {"lease": lease, "session": session.value, "before": before,
 		"candidate": candidate, "checkpoint": boundary.value.checkpoint.duplicate(true)}
 	var saved: Dictionary = _narrative_checkpoint_port.commit_scene_contact(candidate, boundary.value.checkpoint)

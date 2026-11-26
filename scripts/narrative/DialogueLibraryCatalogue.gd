@@ -16,7 +16,7 @@ static func configure(passages: Array, registered_beats: Array, checkpoints: Dic
 		condition_labels: Dictionary = {}) -> Dictionary:
 	var prepared := prepare(passages, registered_beats, checkpoints, condition_labels)
 	if not prepared.ok: return prepared
-	_passages.assign(prepared.value.passages)
+	_passages = prepared.value.passages
 	_witnesses_by_checkpoint = prepared.value.index
 	_conditions = prepared.value.conditions
 	_loaded = true

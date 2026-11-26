@@ -121,13 +121,13 @@ static func _apply_rules(constraints: Array, total_mines: int, deduced_mine_coun
 		var cells: Array = entry["cells"]
 		if int(entry["count"]) == 0:
 			return {"rule": _RULE_ADJACENT_ZERO, "source_constraint_ids": [entry["id"]],
-				"proven_safe": cells.duplicate(), "proven_mine": []}
+				"proven_safe": cells, "proven_mine": []}
 	for constraint: Variant in constraints:
 		var entry: Dictionary = constraint
 		var cells: Array = entry["cells"]
 		if int(entry["count"]) == cells.size():
 			return {"rule": _RULE_ADJACENT_FULL, "source_constraint_ids": [entry["id"]],
-				"proven_safe": [], "proven_mine": cells.duplicate()}
+				"proven_safe": [], "proven_mine": cells}
 
 	var cell_sets: Dictionary = {}
 	for constraint: Variant in constraints:

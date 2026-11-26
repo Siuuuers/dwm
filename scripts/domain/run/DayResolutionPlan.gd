@@ -437,24 +437,20 @@ func find_record_by_transaction(transaction_id: String) -> Dictionary:
 func _complete_record(record: Dictionary, transaction_id: String, receipt: Dictionary) -> Dictionary:
 	if str(record["transaction_id"]) != transaction_id:
 		return _fail(&"transaction_mismatch", str(record["transaction_id"]))
-	var normalized := _normalize_receipt(receipt)
-	if normalized.is_empty():
+	if not _valid_receipt(receipt):
 		return _fail(&"invalid_receipt", "receipt must be {\"value\": Dictionary}")
 	if str(record["state"]) == "completed":
-		if record["receipt"] == normalized:
-			return {"ok": true, "code": &"ok", "receipt": (record["receipt"] as Dictionary).duplicate(true)}
-		return {"ok": false, "code": &"duplicate_transaction_conflict", "message": transaction_id}
-	if str(record["state"]) != "active":
+		if record["receipt"] != receipt:
+			return {"ok": false, "code": &"duplicate_transaction_conflict", "message": transaction_id}
+	elif str(record["state"]) == "active":
+		record["state"] = "completed"
+		record["receipt"] = receipt.duplicate(true)
+	else:
 		return _fail(&"stage_not_active", transaction_id)
-	record["state"] = "completed"
-	record["receipt"] = normalized
-	return {"ok": true, "code": &"ok", "receipt": normalized.duplicate(true)}
+	return {"ok": true, "code": &"ok", "receipt": (record["receipt"] as Dictionary).duplicate(true)}
 
-static func _normalize_receipt(receipt: Dictionary) -> Dictionary:
-	var keys := receipt.keys()
-	if keys != ["value"] or typeof(receipt["value"]) != TYPE_DICTIONARY:
-		return {}
-	return receipt.duplicate(true)
+static func _valid_receipt(receipt: Variant) -> bool:
+	return receipt is Dictionary and receipt.size() == 1 and receipt.get("value") is Dictionary
 
 static func _validate_resolution_root(
 		root: Variant, start_receipt: Variant, resolution_id: String) -> String:
@@ -493,7 +489,7 @@ static func _validate_resolution_root(
 
 static func _validate_receipt_field(receipt: Variant, state: String, owner_id: String) -> String:
 	if state == "completed":
-		if typeof(receipt) != TYPE_DICTIONARY or _normalize_receipt(receipt).is_empty():
+		if not _valid_receipt(receipt):
 			return "completed record requires a receipt: " + owner_id
 		return ""
 	if receipt != null:

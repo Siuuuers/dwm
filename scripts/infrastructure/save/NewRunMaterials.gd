@@ -33,15 +33,10 @@ static func validate(materials: Variant, initial_context: Dictionary, transactio
 		allocation_fingerprint: String, scene_bundle: Dictionary, scene_issuer: Object) -> Dictionary:
 	if typeof(materials) != TYPE_DICTIONARY:
 		return _fail(&"new_run_materials_invalid", "materials must be an object")
-	var detached: Dictionary = (materials as Dictionary).duplicate(true)
-	if not _has_exact_keys(detached, MATERIAL_KEYS):
+	if not _has_exact_keys(materials, MATERIAL_KEYS):
 		return _fail(&"new_run_materials_invalid", "materials have unexpected members")
 	if transaction_id.strip_edges().is_empty() or not _is_sha256(allocation_fingerprint):
 		return _fail(&"new_run_materials_invalid", "transaction identity is malformed")
-	return _validate_scene(detached, initial_context, transaction_id, allocation_fingerprint, scene_bundle, scene_issuer)
-
-static func _validate_scene(materials: Dictionary, initial_context: Dictionary,
-		transaction_id: String, allocation_fingerprint: String, scene_bundle: Dictionary, scene_issuer: Object) -> Dictionary:
 	var run_schema: Script = load("res://scripts/domain/run/RunSnapshotSchema.gd")
 	var primitive: Dictionary = run_schema.validate_primitive_tree(initial_context)
 	if not primitive.ok: return primitive
@@ -67,10 +62,8 @@ static func _validate_scene(materials: Dictionary, initial_context: Dictionary,
 	if assignment.run_id != allocation.value.run_id \
 			or assignment.receipt.creation_transaction_id != transaction_id:
 		return _fail(&"new_run_profile_invalid", "scene assignment does not bind this allocated creation")
-	var autosave := _validate_autosave(materials.autosave, initial_context, allocation.value,
+	return _validate_autosave(materials.autosave, initial_context, allocation.value,
 		assignment.receipt, materials.profile, scene_bundle, scene_issuer)
-	if not autosave.get("ok", false): return autosave
-	return {"ok": true, "code": &"ok", "value": {"materials": materials}}
 
 
 static func _validate_allocation(value: Variant, transaction_id: String,

@@ -301,9 +301,9 @@ func _prepare_scene_new_run_plans(snapshot: Dictionary) -> Dictionary:
 	var narrative: Dictionary = _restore_participants.narrative.prepare_scene_new_run(snapshot, _scene_new_run_bundle, self)
 	if not narrative.get("ok", false): return narrative
 	var plans := {"run": run.value.run_plan, "profile": profile.value.profile_plan, "narrative": narrative.value.narrative_plan}
-	var audio_snapshot := snapshot.duplicate()
-	if _scene_new_run_bundle.get("audio_catalogue", {}).get("schema_version") == 3:
-		audio_snapshot.scene = snapshot.scene.duplicate()
+	var audio_snapshot := snapshot
+	if snapshot.scene.has("music_plan_id") and _scene_new_run_bundle.get("audio_catalogue", {}).get("schema_version") == 3:
+		audio_snapshot = {"scene": snapshot.scene.duplicate()}
 		audio_snapshot.scene.erase("music_plan_id")
 	var audio_context := RUN_SNAPSHOT_SCHEMA.derive_scene_audio_context(audio_snapshot, _scene_new_run_bundle)
 	if not audio_context.ok: return audio_context

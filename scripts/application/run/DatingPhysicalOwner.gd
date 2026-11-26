@@ -589,7 +589,7 @@ func _publish_history_reference() -> Dictionary:
 	if _record.phase == "completed":
 		var heads: Variant = _game_state.route_context.get("dating_canonical_heads", {})
 		if not heads is Dictionary: return _fail(&"invalid_dating_canonical_heads")
-		var candidate: Dictionary = heads.duplicate(true)
+		var candidate: Dictionary = heads.duplicate()
 		candidate[ATTEMPTS.semantic_slot(_record.context)] = {
 			"attempt_id": _history_reference.attempt_id, "branch_id": _history_reference.branch_id}
 		_game_state.route_context["dating_canonical_heads"] = candidate

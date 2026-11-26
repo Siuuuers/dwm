@@ -171,7 +171,7 @@ static func _registered_alone_row(path: String, field: String) -> Dictionary:
 static func _validate_scene_manifest(document: Dictionary) -> Dictionary:
 	var parsed := STRICT_JSON.parse_object(FileAccess.get_file_as_string(SCENE_SCHEMA_PATH))
 	if not parsed.ok: return _scene_fail("scene schema missing")
-	var shape := JsonSchemaValidator.validate(document, parsed.value)
+	var shape := JsonSchemaValidator.check(document, parsed.value)
 	if not shape.ok: return shape
 	if typeof(document.schema_version) != TYPE_INT or typeof(document.entry_count) != TYPE_INT \
 			or document.entry_count != document.entries.size(): return _scene_fail("entry count")
@@ -587,7 +587,7 @@ static func validate_document(document: Dictionary) -> Dictionary:
 	var schema := _load_schema()
 	if not schema.get("ok", false):
 		return schema
-	var schema_result: Dictionary = JsonSchemaValidator.validate(document, schema["value"])
+	var schema_result: Dictionary = JsonSchemaValidator.check(document, schema["value"])
 	if not schema_result.get("ok", false):
 		return _fail(&"ENTRY_MANIFEST_SCHEMA_INVALID",
 			"the published schema rejected the document: " + str(schema_result.get("message", "")))
@@ -771,10 +771,8 @@ static func _check_allowlist(entry_id: String, signal_ids: Array) -> Dictionary:
 	if not signal_ids.has(WITNESS_SIGNAL):
 		return _fail(&"ENTRY_MANIFEST_SIGNAL_LIST_INVALID",
 			"%s: every entry may witness a manifest-owned line in the current entry" % entry_id)
-	var sorted_ids: Array = signal_ids.duplicate()
-	sorted_ids.sort()
-	for index in range(signal_ids.size()):
-		if str(sorted_ids[index]) != str(signal_ids[index]):
+	for index in range(1, signal_ids.size()):
+		if str(signal_ids[index - 1]) > str(signal_ids[index]):
 			return _fail(&"ENTRY_MANIFEST_SIGNAL_LIST_INVALID",
 				"%s: allowed_signals is stored sorted, so equal capabilities cannot differ in bytes"
 				% entry_id)
@@ -868,7 +866,7 @@ static func validate_ids_document(ids_document: Dictionary) -> Dictionary:
 	var schema := _load_ids_schema()
 	if not schema.get("ok", false):
 		return schema
-	var schema_result: Dictionary = JsonSchemaValidator.validate(ids_document, schema["value"])
+	var schema_result: Dictionary = JsonSchemaValidator.check(ids_document, schema["value"])
 	if not schema_result.get("ok", false):
 		return _fail(&"IDS_MANIFEST_SCHEMA_INVALID",
 			"the published schema rejected the registry: " + str(schema_result.get("message", "")))
@@ -946,10 +944,8 @@ static func validate_ids_document(ids_document: Dictionary) -> Dictionary:
 			if not fields.has(required):
 				return _fail(&"IDS_MANIFEST_SIGNAL_PAYLOAD_INVALID",
 					"%s: every registered payload carries %s" % [signal_id, required])
-		var sorted_fields: Array = fields.duplicate()
-		sorted_fields.sort()
-		for index in range(fields.size()):
-			if str(sorted_fields[index]) != str(fields[index]):
+		for index in range(1, fields.size()):
+			if str(fields[index - 1]) > str(fields[index]):
 				return _fail(&"IDS_MANIFEST_SIGNAL_PAYLOAD_INVALID",
 					"%s: payload_fields is stored sorted, so equal payloads cannot differ in bytes"
 					% signal_id)

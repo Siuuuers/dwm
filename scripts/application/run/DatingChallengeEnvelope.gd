@@ -87,8 +87,7 @@ static func _scene_preparation_matches(spec: Dictionary, envelope: Dictionary) -
 	var sought: Variant = envelope.preparation
 	while true:
 		if sought != null and current.slice_sequence >= sought.slice_sequence:
-			var plain := plain_frontier(current)
-			return plain.ok and plain.value == sought
+			return WRITER.normalize_engine_text(current) == sought
 		if str(current.status) != "searching":
 			if sought != null or str(current.status) != "certified": return false
 			var layout := {"schema_version": 1, "width": spec.width, "height": spec.height,

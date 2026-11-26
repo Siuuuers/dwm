@@ -362,7 +362,7 @@ func _supportz_eligibility() -> Dictionary:
 	var ledger: Dictionary = (state as Dictionary)["shop_ledger"]
 	return _CAPABILITY_RULES.supportz_eligible({
 		"causal_day_instance": str((state as Dictionary).get("causal_day_instance", "")),
-		"completion_receipts": (ledger.get("base_completion_receipts", []) as Array).duplicate(true),
+		"completion_receipts": ledger.get("base_completion_receipts", []),
 		"branch_purchase_count": int(ledger.get("supportz_branch_purchase_count", -1)),
 		"daily_purchase_done": str(ledger.get("supportz_last_purchase_causal_day_instance", "")) \
 			== str((state as Dictionary).get("causal_day_instance", "")),

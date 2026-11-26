@@ -88,10 +88,7 @@ func reconcile_scene_publication(session: RefCounted) -> Dictionary:
 	var node: Dictionary = compiled.value.nodes[index]
 	if node.kind != "caption" or node.line_id != frontier.value.line_id:
 		return _fail(&"scene_source_boundary_invalid", "")
-	var authored_text := ""
-	for event: Dictionary in compiled.value.events:
-		if event.kind == "text" and event.line_id == node.line_id: authored_text = event.text
-	if _caption_event.get_property_translated("text") != authored_text \
+	if _caption_event.get_property_translated("text") != compiled.value.text_by_line[node.line_id] \
 			or _caption_event.character != null or not _caption_event.character_identifier.is_empty():
 		return _fail(&"scene_source_boundary_invalid", "live source differs from the authenticated programme")
 	return session.accept_scene_publication(index, frontier.value)
@@ -129,12 +126,7 @@ func _scene_source_boundary(session: RefCounted, allow_suspended_read: bool = fa
 	if node.kind != "caption" or node.line_id != frontier.value.line_id \
 			or compiled.value.native_indices[index] != int(_dialogic.current_event_idx):
 		return _fail(&"scene_source_boundary_invalid", "")
-	var authored_text := ""
-	for event: Dictionary in compiled.value.events:
-		if event.kind == "text" and event.line_id == node.line_id:
-			authored_text = event.text
-			break
-	if _caption_event.get_property_translated("text") != authored_text \
+	if _caption_event.get_property_translated("text") != compiled.value.text_by_line[node.line_id] \
 			or _caption_event.character != null or not _caption_event.character_identifier.is_empty():
 		return _fail(&"scene_source_boundary_invalid", "live source differs from the authenticated programme")
 	var next: Dictionary = compiled.value.nodes[node.next]
@@ -564,7 +556,7 @@ static func _compile_scene_programme_timeline(timeline: DialogicTimeline, text: 
 	var native_indices: Array = []
 	var label_nodes := {}
 	var marker_labels := {}
-	var seen_lines := {}
+	var text_by_line := {}
 	var thought_pending := false
 	var pair_caption_index := -1
 	var clear_pending := false
@@ -632,10 +624,10 @@ static func _compile_scene_programme_timeline(timeline: DialogicTimeline, text: 
 			var parts := event.get_property_translation_key("text").split("/")
 			var line_id: String = parts[1] if parts.size() == 3 and parts[0] == "Text" and parts[2] == "text" else ""
 			var prose: String = event.get_property_translated("text")
-			if line_id.is_empty() or seen_lines.has(line_id) or prose.is_empty() or event.character != null \
+			if line_id.is_empty() or text_by_line.has(line_id) or prose.is_empty() or event.character != null \
 					or not event.character_identifier.is_empty() or "[" in prose or "{" in prose or "<" in prose:
 				return {"ok": false, "code": &"scene_text_invalid", "line": source_line}
-			seen_lines[line_id] = true
+			text_by_line[line_id] = prose
 			events.append({"kind": "text", "line_id": line_id, "text": prose})
 			if thought_pending:
 				if pair_caption_index < 0 or pair_caption_index != nodes.size() - 1 or nodes.back().kind != "caption" or nodes.back().has("self_talk") or clear_pending:
@@ -714,7 +706,7 @@ static func _compile_scene_programme_timeline(timeline: DialogicTimeline, text: 
 				cursor = int(nodes[cursor].next)
 	var encoded := SCENE_JSON.stringify(events)
 	if not encoded.ok: return encoded
-	return {"ok": true, "value": {"events": events, "nodes": nodes, "label_nodes": label_nodes,
+	return {"ok": true, "value": {"events": events, "nodes": nodes, "label_nodes": label_nodes, "text_by_line": text_by_line,
 		"native_indices": native_indices, "content_sha256": text.sha256_text(),
 		"program_sha256": str(encoded.value).sha256_text()}}
 
