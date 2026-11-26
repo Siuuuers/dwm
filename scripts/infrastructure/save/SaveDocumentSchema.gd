@@ -150,12 +150,8 @@ static func validate_scene_new_run_candidate(document: Dictionary, allocation_ca
 	if not RUN_SNAPSHOT_SCHEMA._scene_keys(current, ["checkpoint_kind", "snapshot"]) \
 			or current.checkpoint_kind != "day_start" or not current.snapshot is Dictionary:
 		return _fail(&"invalid_bundle_shape", "initial bundle must be day_start")
-	var checked := RUN_SNAPSHOT_SCHEMA.validate_scene_new_run_candidate(current.snapshot,
+	return RUN_SNAPSHOT_SCHEMA.validate_scene_new_run_candidate(current.snapshot,
 		allocation_candidate, profile_material, bundle, issuer, acknowledged_checkpoint)
-	if not checked.ok: return checked
-	document.current_snapshot = {"checkpoint_kind": current.checkpoint_kind, "snapshot": checked.value.candidate}
-	document.recovery_journal = []
-	return {"ok": true, "code": &"ok", "value": {"candidate": document}}
 
 static func validate(document: Dictionary, profile: Dictionary = {},
 		scene_seed_receiver: Callable = Callable()) -> Dictionary:

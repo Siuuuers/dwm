@@ -1319,7 +1319,7 @@ func _write_document_text_validator(text: String, validated_texts: Dictionary) -
 	return {"ok": true, "code": &"ok", "value": {}}
 
 func _document_text_validator(text: String) -> Dictionary:
-	var parsed: Dictionary = _parse_document_text(text)
+	var parsed: Dictionary = _parse_document_text(text, true)
 	if not parsed.get("ok", false):
 		return {"ok": false, "code": &"invalid_json", "message": "strict parse failed"}
 	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(parsed["value"])
@@ -1584,11 +1584,11 @@ func capture_committed_scene_creation(transaction_id: String) -> Dictionary:
 	var profile: Dictionary = _new_run_profile_owner.prove_scene_assignment(materials.allocation_candidate.run_id,
 		materials.profile.scene_assignment.receipt)
 	if not profile.get("ok", false): return profile
-	var initial: Dictionary = _parse_document_text(materials.autosave.outgoing_text)
+	var initial: Dictionary = _parse_document_text(materials.autosave.outgoing_text, true)
 	if not initial.get("ok", false): return initial
 	var initial_scene: Variant = initial.value.current_snapshot.snapshot.get("scene")
 	if not initial_scene is Dictionary or initial_scene.get("active_occurrence_id") != transaction_id:
 		return _fail(&"scene_creation_proof_invalid", "retained initial scene missing")
 	return {"ok": true, "value": {
 		"allocation_candidate": materials.allocation_candidate, "profile_material": materials.profile,
-		"initial_scene": initial_scene}}
+		"initial_scene": initial_scene.duplicate(true)}}

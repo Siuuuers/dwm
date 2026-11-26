@@ -360,17 +360,16 @@ static func build_scene(snapshot_input: Dictionary, dialogic_checkpoint: Diction
 	if not checked.ok: return checked
 	return {"ok": true, "code": &"ok", "value": {"snapshot": checked.value.candidate}}
 
-static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_candidate: Dictionary,
+static func validate_scene_new_run_candidate(candidate: Dictionary, allocation_candidate: Dictionary,
 		profile_material: Dictionary, bundle: Dictionary, issuer: Object,
 		acknowledged_checkpoint: Dictionary) -> Dictionary:
-	var primitive := validate_primitive_tree(snapshot)
+	var primitive := validate_primitive_tree(candidate)
 	if not primitive.ok: return primitive
 	var selected: Dictionary = SCENE_MANIFEST.scene_contract_tables()
 	if not selected.ok: return selected
 	if not is_same(bundle, selected.bundle) and not _scene_exact_value(bundle, selected.bundle):
 		return _fail(&"scene_registration_mismatch", "initial candidate must use the installed registration")
 	bundle = selected.bundle
-	var candidate: Dictionary = snapshot.duplicate(true)
 	if not _scene_keys(candidate, SCENE_TOP_KEYS) or typeof(candidate.schema_version) != TYPE_INT \
 			or candidate.schema_version != SCENE_SCHEMA_VERSION or candidate.route_id != "scene" \
 			or not _scene_id(candidate.run_id) or not _scene_int(candidate.content_version, 1) \
@@ -420,7 +419,7 @@ static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_ca
 	desktop.board = player_board.value.snapshot
 	if not _scene_exact_value(candidate.desktop, desktop):
 		return _fail(&"scene_initial_state_invalid", "initial desktop cannot contain prior attempts or consequences")
-	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
+	return {"ok": true, "code": &"ok"}
 
 static func _scene_has_initial_admission(snapshot: Dictionary) -> bool:
 	return snapshot.get("schema_version") == SCENE_SCHEMA_VERSION or snapshot.has("scene")
