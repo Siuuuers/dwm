@@ -39,7 +39,7 @@ func get_projection(friend_id: String, primary: String = "en", secondary: String
 		return _fail(&"invalid_contacts_projection_request")
 	var cached := _projection_contexts(friend_id)
 	if not cached.ok: return cached
-	return _project((_game_state.get("contacts") as Dictionary).duplicate(true),
+	return _project(_game_state.get("contacts"),
 		int(_game_state.get("day")), friend_id, primary, secondary, _missed_history(), cached.value)
 
 func _frozen_enabled() -> bool:
@@ -236,7 +236,7 @@ func _project(state: Dictionary, day: int, friend_id: String, primary: String, s
 			if not frozen.ok: return frozen
 			entry["presentation"] = frozen.value
 		entries.append(entry)
-		ordinary_choices = ordinary.choices.duplicate(true)
+		ordinary_choices = ordinary.choices
 	return _ok({"friend_id": friend_id, "entries": entries, "unread": unread,
 		"ordinary_choices": ordinary_choices,
 		"reply_required": friend_id != "" and group.get("day") == day \

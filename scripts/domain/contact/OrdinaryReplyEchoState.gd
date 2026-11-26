@@ -60,7 +60,8 @@ static func reply_definition(reply_id: String, locale: String = "en") -> Diction
 	var loaded := _load_registry()
 	if not loaded.ok: return loaded
 	if not _definitions.has(reply_id): return _fail("ordinary_reply_unregistered")
-	var result: Dictionary = _definitions[reply_id].duplicate(true)
+	var result: Dictionary = _definitions[reply_id].duplicate()
+	result.message_ids = result.message_ids.duplicate()
 	var ordinal: int = result.choice_ordinal
 	result.erase("choice_ordinal")
 	result["locale"] = locale
@@ -89,12 +90,13 @@ static func available(state: Dictionary, day: int, friend_id: String, locale: St
 	if expected_friend.is_empty() or expected_friend != friend_id: return _ok({})
 	var loaded := _load_registry()
 	if not loaded.ok: return loaded
+	if locale not in LOCALES: return _fail("ordinary_locale_unavailable")
+	if expiry_entry_id(state, day).is_empty(): return _ok({})
 	var choices: Array = []
 	for id: String in _definitions:
 		if _definitions[id].day != day: continue
 		var definition := reply_definition(id, locale)
 		if not definition.ok: return definition
-		if expiry_entry_id(state, day).is_empty(): return _ok({})
 		choices.append(definition.value)
 	choices.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.reply_id < b.reply_id)
 	if choices.size() != 3: return _fail("ordinary_registry_incomplete")
@@ -311,7 +313,7 @@ static func safe_snapshot(text: String) -> Dictionary:
 
 static func _load_registry() -> Dictionary:
 	if not _definitions.is_empty(): return _ok({})
-	var loaded: Dictionary = MANIFEST.load_ids_default(false)
+	var loaded: Dictionary = MANIFEST.load_legacy_ids()
 	if not loaded.get("ok", false): return loaded
 	var registry_check: Dictionary = MANIFEST.validate_ids_document(loaded.value)
 	if not registry_check.ok: return registry_check

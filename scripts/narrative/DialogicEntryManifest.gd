@@ -559,6 +559,9 @@ static func load_default(detach_selected: bool = true) -> Dictionary:
 	_registration_used = true
 	if not _scene_bundle.is_empty():
 		return {"ok": true, "value": _scene_bundle.entry_manifest.duplicate(true) if detach_selected else _scene_bundle.entry_manifest}
+	return _load_legacy_entries()
+
+static func _load_legacy_entries() -> Dictionary:
 	if not FileAccess.file_exists(MANIFEST_PATH):
 		return _fail(&"ENTRY_MANIFEST_FILE_MISSING", MANIFEST_PATH + " is absent")
 	var parsed: Dictionary = STRICT_JSON.parse_object(FileAccess.get_file_as_string(MANIFEST_PATH))
@@ -829,6 +832,9 @@ static func load_ids_default(detach_selected: bool = true) -> Dictionary:
 	_registration_used = true
 	if not _scene_bundle.is_empty():
 		return {"ok": true, "value": _scene_bundle.ids_registry.duplicate(true) if detach_selected else _scene_bundle.ids_registry}
+	return load_legacy_ids()
+
+static func load_legacy_ids() -> Dictionary:
 	if not FileAccess.file_exists(IDS_MANIFEST_PATH):
 		return _fail(&"IDS_MANIFEST_FILE_MISSING", IDS_MANIFEST_PATH + " is absent")
 	var parsed: Dictionary = STRICT_JSON.parse_object(
@@ -882,7 +888,7 @@ static func validate_ids_document(ids_document: Dictionary) -> Dictionary:
 					"%s: %s is registered more than once" % [str(pair[0]), id_value])
 			seen[id_value] = true
 
-	var entries := load_default(false)
+	var entries := _load_legacy_entries()
 	if not entries.get("ok", false):
 		return _fail(&"IDS_MANIFEST_ENTRIES_UNAVAILABLE",
 			"the entry manifest this registry is measured against is unreadable: "
