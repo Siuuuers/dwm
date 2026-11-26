@@ -63,7 +63,8 @@ func exercise_phase(phase: String) -> void:
 		var prepared: Dictionary = fixture.manager.prepare_restore_slot(1)
 		assert_true(prepared.ok, str(prepared))
 		if not prepared.ok: return
-		assert_eq(prepared.value.prepared.bundle.snapshot, snapshot, "selected Load chooses the entire saved bundle")
+		var selected_plan: Dictionary = fixture.manager._scene_restore_preparations[prepared.value.prepared.scene_preparation_token]
+		assert_eq(selected_plan.journal_seed.current.snapshot, snapshot, "selected Load chooses the entire saved bundle")
 		started = fixture.manager.commit_prepared_restore(prepared.value.prepared)
 		assert_false(fixture.gate.is_active(), "Load installs owners without a retained mutation lease")
 		assert_false(fixture.manager.is_save_locked())

@@ -280,9 +280,10 @@ func load_current_title_scene() -> void:
 	var prepared: Dictionary = app._port.prepare_action("load", "slot:1")
 	if not _ok(prepared): return
 	var opaque: Dictionary = saves._backup_actions[prepared.value.token].prepared_restore
-	assert_true(opaque.participant_plans.has("desktop_board"), "saved board is prepared directly")
-	assert_true(opaque.participant_plans.has("desktop_consequence"), "saved consequences are prepared directly")
-	assert_eq(typeof(opaque.participant_plans.run.snapshot.schema_version), TYPE_INT)
+	var plan: Dictionary = saves._scene_restore_preparations[opaque.scene_preparation_token]
+	assert_true(plan.participant_plans.has("desktop_board"), "saved board is prepared directly")
+	assert_true(plan.participant_plans.has("desktop_consequence"), "saved consequences are prepared directly")
+	assert_eq(typeof(plan.participant_plans.run.snapshot.schema_version), TYPE_INT)
 	assert_eq(game.capture_run_snapshot_input(), before)
 	assert_eq(profile.get_profile_snapshot(), witness.profile)
 	assert_eq(FileAccess.get_sha256(TITLE_SLOT), witness.slot_sha256)

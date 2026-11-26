@@ -29,11 +29,6 @@ const _CHECKPOINT_INPUT_KEYS: Array[String] = [
 	"active_app_id", "audio_context", "content_version", "dialogic_checkpoint",
 	"route_id", "snapshot_input",
 ]
-const _PREPARED_RESTORE_ALLOWED_KEYS: Array[String] = [
-	"bundle", "journal_seed", "participant_plans", "route_id", "checkpoint_id",
-	"source_locator", "existing_run_id", "source_desktop_timeline_generation",
-	"remap_source_transaction_ids", "scene_preparation_token",
-]
 
 var _storage: RefCounted = null
 var _journal: RefCounted = CHECKPOINT_JOURNAL.new()
@@ -209,19 +204,15 @@ func commit_prepared_restore(prepared: Dictionary) -> Dictionary:
 func _commit_prepared_scene_restore(prepared: Dictionary) -> Dictionary:
 	if _restore_participants.is_empty():
 		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "configure_scene_restore_participants first")
-	for key: Variant in prepared.keys():
-		if str(key) not in _PREPARED_RESTORE_ALLOWED_KEYS:
-			return _fail(&"invalid_prepared_restore", "unexpected prepared key: " + str(key))
-	if typeof(prepared.get("participant_plans")) != TYPE_DICTIONARY:
-		return _fail(&"invalid_prepared_restore", "prepared requires participant_plans")
 	var retained := _validate_scene_restore_preparation(prepared)
-	if not retained.get("ok", false): return retained
-	prepared = _scene_restore_preparations[prepared.scene_preparation_token].prepared
-	var operation_id := "scene_load:" + str(prepared.scene_preparation_token)
-	_scene_restore_preparations.erase(prepared.scene_preparation_token)
+	if not retained.ok: return retained
+	var token: String = prepared.scene_preparation_token
+	var plan: Dictionary = _scene_restore_preparations[token]
+	var operation_id := "scene_load:" + token
+	_scene_restore_preparations.erase(token)
 	_completed_scene_restore.clear()
-	return _run_scene_restore_transaction(prepared.participant_plans, prepared.journal_seed,
-		str(prepared.route_id), str(prepared.checkpoint_id), operation_id, false)
+	return _run_scene_restore_transaction(plan.participant_plans, plan.journal_seed,
+		str(plan.route_id), str(plan.checkpoint_id), operation_id, false)
 
 
 func configure_scene_new_run(bridge: Object) -> Dictionary:
@@ -1246,11 +1237,8 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary) -> Dictionary:
 		"participant_plans": plans, "route_id": snapshot.route_id, "checkpoint_id": snapshot.checkpoint_id}
 	_scene_restore_preparation_counter += 1
 	var token := "scene_restore_preparation:%d" % _scene_restore_preparation_counter
-	prepared.scene_preparation_token = token
-	_scene_restore_preparations[token] = {"prepared": prepared}
-	var public_plan := prepared.duplicate(true)
-	public_plan["bundle"] = bundle.duplicate(true)
-	return {"ok": true, "code": &"ok", "value": public_plan}
+	_scene_restore_preparations[token] = prepared
+	return {"ok": true, "code": &"ok", "value": {"scene_preparation_token": token}}
 
 
 func load_context(locator: Dictionary) -> Dictionary:
@@ -1387,6 +1375,7 @@ static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": {}}
 
 func _validate_scene_restore_preparation(prepared: Dictionary) -> Dictionary:
+	if prepared.size() != 1: return _fail(&"invalid_prepared_restore", "expected a scene preparation token")
 	var token: Variant = prepared.get("scene_preparation_token")
 	if not token is String or not _scene_restore_preparations.has(token):
 		return _fail(&"invalid_scene_restore_preparation", "selected preparation is unavailable")
