@@ -855,7 +855,7 @@ func _set_presentation_paused(value: bool) -> Dictionary:
 func _prepare_scene_art() -> void:
 	scene_art_changed.emit()
 	var source := get_current_scene_art()
-	var art: Dictionary = source.get("presentation", _SCENE_ART.get_scene_art(source.entry_id))
+	var art: Dictionary = source.presentation if source.has("presentation") else _SCENE_ART.get_scene_art(source.entry_id)
 	var hospital := str(source.entry_id) == "hospital.faint" or str(source.entry_id).begins_with("hospital.faint.")
 	var dating := str(source.entry_id).begins_with("dating.")
 	if not hospital and not dating and not _reached_replay.has("caption_ledger") and (str(source.entry_id).is_empty() or (str(art.get("background", "")).is_empty() \
@@ -2283,8 +2283,7 @@ func _record_line_presentation(expected_frontier: Dictionary) -> Dictionary:
 		if identity.has("caption_variant") and _reading_session.family == "scene":
 			var beats: Array[Dictionary] = _reading_session.scene_pair_beats(identity.line_id)
 			var game := get_node_or_null("/root/GameState") if is_inside_tree() else null
-			var presentation: Dictionary = game.get_scene_presentation() if game != null else {}
-			var checkpoint_id: String = presentation.get("checkpoint_id", "")
+			var checkpoint_id: String = game.get_scene_presentation_checkpoint_id() if game != null else ""
 			marked = _skip_profile.stage_caption_history(beats, checkpoint_id)
 		else:
 			marked = _skip_profile.mark_caption_variant_witnessed(identity.caption_variant, _reading_session.registry) \
