@@ -82,7 +82,7 @@ func configure(game_state: Object, data_catalog: Object, purchase_participant: O
 		return _fail(&"shop_session_capture_malformed")
 	var admitted: Dictionary = game_state.call(&"validate_live_session", captured.value)
 	if not admitted.get("ok", false): return admitted
-	_session_handle = captured.value.duplicate(true)
+	_session_handle = captured.value
 	_game_state = game_state
 	_data_catalog = data_catalog
 	_purchase_participant = purchase_participant
@@ -115,11 +115,11 @@ func configure_scene(game_state: Object, data_catalog: Object, identity_issuer: 
 	if not captured is Dictionary or not captured.get("ok", false) \
 			or not captured.get("value") is Dictionary:
 		return _fail(&"shop_session_capture_malformed")
-	var admitted: Variant = game_state.call(&"validate_live_session", captured.value.duplicate(true))
+	var admitted: Variant = game_state.call(&"validate_live_session", captured.value)
 	if not admitted is Dictionary:
 		return _fail(&"shop_session_admission_malformed")
-	if not admitted.get("ok", false): return admitted.duplicate(true)
-	_session_handle = captured.value.duplicate(true)
+	if not admitted.get("ok", false): return admitted
+	_session_handle = captured.value
 	_game_state = game_state
 	_data_catalog = data_catalog
 	_identity_issuer = identity_issuer
@@ -403,8 +403,8 @@ func _can_afford(currency: String, total: int) -> bool:
 func _admit_session() -> Dictionary:
 	if _game_state == null:
 		return _fail(&"shop_presentation_port_unconfigured")
-	var admitted: Variant = _game_state.call(&"validate_live_session", _session_handle.duplicate(true))
-	return (admitted as Dictionary).duplicate(true) if typeof(admitted) == TYPE_DICTIONARY \
+	var admitted: Variant = _game_state.call(&"validate_live_session", _session_handle)
+	return admitted if typeof(admitted) == TYPE_DICTIONARY \
 		else _fail(&"shop_session_admission_malformed")
 
 
