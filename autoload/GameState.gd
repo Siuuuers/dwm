@@ -4452,7 +4452,7 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 	if returning:
 		if _scene_snapshot_references.return_to == null or _scene_snapshot_references.return_to.target_id != target_id:
 			return _transaction_failure(&"scene_contact_parent_invalid", "")
-		next_scene.merge(_scene_snapshot_references.return_to.parent.duplicate(true), true)
+		next_scene.merge(candidate.scene.return_to.parent, true)
 	else:
 		var issued: Dictionary = _identity_issuer.issue_deferred(&"transaction_id")
 		if not issued.get("ok", false): return issued
@@ -4460,7 +4460,7 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 		if trigger.scene_event.result.kind == "contact_entry_accepted":
 			var contact_id: String = trigger.scene_event.semantic.payload.contact_event_id
 			var contact: Dictionary = tables.value.contacts[contact_id]
-			var parent: Dictionary = _scene_snapshot_references.duplicate(true)
+			var parent: Dictionary = candidate.scene.duplicate()
 			parent.erase("registration_sha256")
 			parent.erase("return_to")
 			parent.erase("presentation")
