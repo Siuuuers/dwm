@@ -3190,14 +3190,14 @@ func scene_event_context() -> Dictionary:
 	if not checked.ok: return checked
 	var group: Dictionary = checked.value.occurrences.get(_SCENE_EVENT.occurrence_key(source), {})
 	if not group.is_empty():
-		source = group.source.duplicate(true)
+		source = group.source
 		if source.run_id != live.value.run_id:
 			return _transaction_failure(&"event_source_mismatch", "")
 	return {"ok": true, "value": {"mode": "canonical", "suspended": false, "computer_held": false,
 		"source": source, "playback_token": str(boundary.value.playback_token) + "." + str(
 			_SCENE_EVENT.WRITER.stringify(live.value).value).sha256_text(),
 		"next_ordinal": group.get("next_ordinal", 0), "predecessor": group.get("predecessor", ""),
-		"notification": group.get("notification", {}).duplicate(true), "anchor": boundary.value.anchor,
+		"notification": group.get("notification", {}), "anchor": boundary.value.anchor,
 		"checkpoint": boundary.value.checkpoint}}
 
 func lookup_scene_event(command_id: String, digest: String) -> Dictionary:
