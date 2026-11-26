@@ -19,9 +19,7 @@ static func validate_request(request: Variant) -> Dictionary:
 			or not request.resolution_issuer_receipt is Dictionary \
 			or not request.completion_transaction_provenance is Dictionary:
 		return _fail(&"hospital_frozen_request_invalid")
-	var checked := validate(request.context)
-	if not checked.ok: return checked
-	return {"ok": true, "value": request.duplicate(true)}
+	return validate(request.context)
 
 static func from_schedule(context: Dictionary, contacts: Dictionary, entries: Array) -> Dictionary:
 	var accepted: Array[String] = []
@@ -89,9 +87,12 @@ static func _build(context: Dictionary, cause: String, accepted: Array[String],
 		"accepted_record_ids": accepted, "unfulfilled_record_ids": accepted.duplicate(),
 		"sylvia_eligible": eligible, "sylvia_witness_receipt_id": witness_id})
 	if not built.ok: return built
-	var result := context.duplicate(true)
-	result["presentation"] = built.value
-	return validate(result)
+	var result := context.merged({"presentation": built.value}, true)
+	var checked := validate(result)
+	if not checked.ok: return checked
+	result.source_entry_ids = result.source_entry_ids.duplicate()
+	result.miss_receipt_ids = result.miss_receipt_ids.duplicate()
+	return {"ok": true, "value": result}
 
 static func validate(context: Variant) -> Dictionary:
 	if not context is Dictionary or context.size() != CONTEXT_KEYS.size():
@@ -117,7 +118,7 @@ static func validate(context: Variant) -> Dictionary:
 			or (fields.qualifying_cause == "condition_hospital" and fields.sylvia_eligible \
 				and fields.sylvia_witness_receipt_id == null):
 		return _fail(&"hospital_frozen_witness_mismatch")
-	return {"ok": true, "value": context.duplicate(true)}
+	return {"ok": true}
 
 static func _sorted_ids(value: Variant) -> bool:
 	if not value is Array: return false

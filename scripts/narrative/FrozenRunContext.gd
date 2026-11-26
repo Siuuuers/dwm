@@ -632,12 +632,13 @@ static func _hospital(route: Dictionary, lifecycle: Dictionary, contacts: Dictio
 			return _fail(&"hospital_frozen_context_invalid")
 		requests = cache.requests
 		for key: Variant in requests:
-			var checked := HOSPITAL.validate_request(requests[key])
+			var request: Variant = requests[key]
+			var checked := HOSPITAL.validate_request(request)
 			if not checked.ok: return checked
-			if not key is String or checked.value.resolution_id != key \
-					or checked.value.context.presentation.fields.qualifying_cause != "schedule_done":
+			if not key is String or request.resolution_id != key \
+					or request.context.presentation.fields.qualifying_cause != "schedule_done":
 				return _fail(&"hospital_frozen_request_mismatch")
-			var sources := _hospital_sources(checked.value.context, contacts)
+			var sources := _hospital_sources(request.context, contacts)
 			if not sources.ok: return sources
 	var plan: Variant = lifecycle.get("active_resolution_plan")
 	if plan is Dictionary:
