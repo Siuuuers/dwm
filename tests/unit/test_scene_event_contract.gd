@@ -687,8 +687,8 @@ func test_shipped_structure_keeps_passage_compilation_in_authoring() -> void:
 		assert_true(passage.ok, str(passage))
 		if passage.ok:
 			assert_eq(passage.value, generated.records["passage.umbrella"])
-			passage.value.captions[0].text = "edited"
-			assert_eq(bridge.get_scene_passage("passage.umbrella").value, generated.records["passage.umbrella"])
+			assert_true(passage.value.captions[0].is_read_only())
+			assert_true(is_same(passage.value, selected.value.passages["passage.umbrella"]))
 		first.value.records["passage.umbrella"].captions[0].text = "changed caller copy"
 		assert_eq(passages.inspect(selected.bundle).value, generated, "Gallery cannot mutate shared passage data")
 		assert_true(adapter._scene_compile_cache.is_empty(), "Gallery lookup does not compile later passages")

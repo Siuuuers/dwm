@@ -646,6 +646,13 @@ func record_reached_presentation(signature: Dictionary) -> Dictionary:
 		committed = commit_prepared_profile(candidate)
 	return {"ok": true, "value": {"signature_id": id, "already_reached": false}} if committed.ok else committed
 
+func get_reached_presentation(signature_id: String) -> Dictionary:
+	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
+	if not _profile.reached_presentations.has(signature_id): return _command_failure(&"presentation_not_reached")
+	var checked := PRESENTATION_SIGNATURE.validate(_profile.reached_presentations[signature_id])
+	if not checked.ok or checked.value.signature_id != signature_id: return _command_failure(&"invalid_presentation_signature")
+	return {"ok": true, "value": checked.value.signature}
+
 func get_reached_presentations(entry_id: String = "") -> Dictionary:
 	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
 	var chronology: Dictionary = _profile.reached_presentation_chronology
