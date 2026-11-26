@@ -72,6 +72,8 @@ func test_effect_transaction_applies_once_and_is_idempotent() -> void:
 	assert_true(second.get("ok", false), str(second))
 	assert_eq(_snapshot(), after_first, "a duplicate transaction id applies nothing further")
 	assert_eq(second.get("receipt"), first.get("receipt"), "the duplicate returns the stored receipt")
+	first.receipt.source_id = "edited"
+	assert_eq(GameState.capture_run_snapshot_input().command_receipts["run:effect:2"].source_id, "test_source")
 
 
 func test_effect_transaction_conflict_on_same_id_different_payload() -> void:
