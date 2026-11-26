@@ -2620,12 +2620,13 @@ func configure_reading_catalogue(document: Dictionary) -> Dictionary:
 	var checked := _READING_SESSION.new()
 	var admitted: Dictionary = checked.configure(document)
 	if not admitted.ok: return admitted
+	var retained := document.merged({"entries": checked.catalogue.values()}, true)
 	if ending:
-		_ending_reading_catalogue_document = document.duplicate(true)
+		_ending_reading_catalogue_document = retained
 	elif hospital:
-		_hospital_reading_catalogue_document = document.duplicate(true)
+		_hospital_reading_catalogue_document = retained
 	else:
-		_reading_catalogue_document = document.duplicate(true)
+		_reading_catalogue_document = retained
 	return {"ok": true}
 
 

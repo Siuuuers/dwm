@@ -134,6 +134,17 @@ func before_each() -> void:
 	assert_true(parsed.ok, str(parsed))
 	_document = parsed.value
 
+func test_catalogue_registration_keeps_authored_order_and_owns_its_lines() -> void:
+	assert_true(_bridge.configure_reading_catalogue(_document).ok)
+	var retained: Dictionary = _bridge._reading_catalogue_for_entry(PRE)
+	assert_eq(retained, _document)
+	var original: String = retained.entries[0].lines[0].text
+	_document.entries[0].lines[0].text = original + " edited"
+	assert_eq(retained.entries[0].lines[0].text, original)
+	assert_eq(_bridge.configure_reading_catalogue(_document).get("code"), &"reading_catalogue_already_configured")
+	_document.entries[0].lines[0].text = original
+	assert_true(_bridge.configure_reading_catalogue(_document).ok)
+
 func _activate(document: Dictionary = {}) -> RefCounted:
 	var selected := _document if document.is_empty() else document
 	assert_true(_bridge.configure_reading_catalogue(selected).ok)
