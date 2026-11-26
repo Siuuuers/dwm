@@ -25,6 +25,19 @@ func _frontier(session: RefCounted) -> Dictionary:
 	var tail: Dictionary = session.ledger.snapshot().captions.back()
 	return {"line_id": tail.beat.line_id, "publication_id": tail.publication_id}
 
+func test_entry_program_shares_registered_lines_and_applies_session_text() -> void:
+	var session := SESSION.new()
+	assert_true(session.configure_scene().ok)
+	var registered: Dictionary = session.catalogue["Day1"]
+	var original := session.entry_program("Day1")
+	assert_true(is_same(original.value, registered))
+	var line: Dictionary = registered.lines[0]
+	session._scene_text[line.line_id] = "Session text"
+	var changed := session.entry_program("Day1")
+	assert_eq(changed.value.lines[0].text, "Session text")
+	assert_ne(line.get("text"), "Session text")
+	assert_true(is_same(changed.value.lines[1], registered.lines[1]))
+
 func test_reconstructed_day_passage_does_not_create_historical_publications() -> void:
 	var session := _position("Day1", 5)
 	if session == null: return
