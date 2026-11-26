@@ -171,7 +171,10 @@ func test_publication_mounts_same_prepared_instance_once_and_reentrant_routes_re
 	assert_eq(result.value.scene_instance_id, prepared.scene_instance_id)
 	assert_eq(attempts.size(), 2)
 	for attempt: Dictionary in attempts: assert_false(attempt.ok)
-	assert_true(router.publish_prepared_return_to_title(prepared.token).ok)
+	result.value.scene_instance_id = 0
+	var repeated: Dictionary = router.publish_prepared_return_to_title(prepared.token)
+	assert_true(repeated.ok)
+	assert_eq(repeated.value, prepared)
 	assert_eq(get_tree().current_scene, mounted)
 	replacement = Control.new()
 	get_tree().root.add_child(replacement)
