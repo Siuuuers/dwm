@@ -125,45 +125,54 @@ func _replace(fixture: Dictionary, path: String, text: String) -> void:
 	assert_true(fixture.ops.write_bytes(path, text.to_utf8_buffer()).get("ok", false))
 	assert_true(fixture.ops.flush_path(path).get("ok", false))
 
-func test_cold_and_warm_results_preserve_types_and_are_detached() -> void:
+func test_cold_and_warm_reads_share_the_strict_parse_and_preserve_types() -> void:
 	var manager := _manager()
 	var text := '{"integer":1,"decimal":1.0,"nested":{"items":["中文",null]}}'
-	var expected := STRICT.parse_object(text)
-	var first: Dictionary = manager._parse_document_text(text)
-	assert_true(CANONICAL._deep_same(first, expected))
-	first.value.nested.items[0] = "first caller edit"
-	var second: Dictionary = manager._parse_document_text(text)
-	assert_true(CANONICAL._deep_same(second, expected))
-	assert_eq(typeof(second.value.integer), TYPE_INT)
-	assert_eq(typeof(second.value.decimal), TYPE_FLOAT)
-	second.value.nested.items.append("second caller edit")
-	assert_true(CANONICAL._deep_same(manager._parse_document_text(text), expected))
+	var parsed: Dictionary = manager._parsed_document_view(text)
+	assert_true(CANONICAL._deep_same(parsed, STRICT.parse_object(text)))
+	assert_eq(typeof(parsed.value.integer), TYPE_INT)
+	assert_eq(typeof(parsed.value.decimal), TYPE_FLOAT)
+	assert_true(is_same(parsed, manager._parsed_document_view(text)))
 
-func test_cold_and_warm_inspection_share_only_the_cached_parse() -> void:
-	var manager := _manager()
-	var text := '{"nested":[1]}'
-	var inspection: Dictionary = manager._parse_document_text(text, true)
-	assert_true(is_same(inspection, manager._parse_document_text(text, true)))
-	manager._parse_document_text(text).value.nested.clear()
-	assert_eq(inspection.value.nested, [1])
+func test_load_context_returns_an_independent_snapshot_on_a_cache_hit() -> void:
+	var f := _fixture()
+	if f.is_empty(): return
+	var locator := {"slot_id": "slot:1", "checkpoint_id": _snapshot.checkpoint_id}
+	var reconciled: Dictionary = f.storage.reconcile("slot_1.json", f.manager._document_text_validator)
+	assert_true(reconciled.ok, str(reconciled))
+	if not reconciled.ok: return
+	var metadata: Dictionary = f.manager.get_save_metadata(&"slot", 1)
+	assert_true(metadata.ok, str(metadata))
+	assert_eq(metadata.get("value", {}).get("checkpoint_id"), _snapshot.checkpoint_id)
+	var first: Dictionary = f.manager.load_context(locator)
+	assert_true(first.ok, str(first))
+	if not first.ok: return
+	var before: int = first.value.context.gameplay.money
+	first.value.context.gameplay.money += 1
+	var second: Dictionary = f.manager.load_context(locator)
+	assert_true(second.ok, str(second))
+	if not second.ok: return
+	assert_eq(second.value.context.gameplay.money, before)
+	assert_eq(second.value.context_sha256, first.value.context_sha256)
+	assert_eq(f.manager._document_parse_cache.size(), 1)
 
 func test_exact_text_changes_and_malformed_inputs_keep_strict_results() -> void:
 	var manager := _manager()
 	for text: String in ['{"value":1}', '{ "value":1}', '{"value":2}']:
-		assert_true(CANONICAL._deep_same(manager._parse_document_text(text), STRICT.parse_object(text)))
+		assert_true(CANONICAL._deep_same(manager._parsed_document_view(text), STRICT.parse_object(text)))
 	assert_eq(manager._document_parse_cache.size(), 2)
 	for text: String in ['{"value":1,"value":2}', '{"value":', '[1,2]', '{"value":NaN}']:
 		var expected := STRICT.parse_object(text)
 		assert_false(expected.get("ok", true))
-		assert_eq(manager._parse_document_text(text), expected)
-		assert_eq(manager._parse_document_text(text), expected)
+		assert_eq(manager._parsed_document_view(text), expected)
+		assert_eq(manager._parsed_document_view(text), expected)
 		for entry: Dictionary in manager._document_parse_cache:
 			assert_ne(entry.text, text, "malformed input is never admitted")
 
 func test_entry_eviction_utf8_budget_and_oversize_bypass() -> void:
 	var manager := _manager()
 	for text: String in ['{"value":1}', '{"value":2}', '{"value":1}', '{"value":3}']:
-		assert_true(manager._parse_document_text(text).get("ok", false))
+		assert_true(manager._parsed_document_view(text).get("ok", false))
 	assert_eq(manager._document_parse_cache.size(), 2)
 	assert_eq(manager._document_parse_cache[0].text, '{"value":1}')
 	assert_eq(manager._document_parse_cache[1].text, '{"value":3}')
@@ -172,12 +181,12 @@ func test_entry_eviction_utf8_budget_and_oversize_bypass() -> void:
 	var padding := "x".repeat(4 * 1024 * 1024 - 32)
 	var medium := '{"value":"' + padding + "中".repeat(8) + '"}'
 	var large := '{"value":"' + padding + "文".repeat(8) + '"}'
-	assert_true(manager._parse_document_text(medium).get("ok", false))
-	assert_true(manager._parse_document_text(large).get("ok", false))
+	assert_true(manager._parsed_document_view(medium).get("ok", false))
+	assert_true(manager._parsed_document_view(large).get("ok", false))
 	assert_eq(manager._document_parse_cache.size(), 1, "UTF-8 bytes, not character count, bound admission")
 	assert_eq(manager._document_parse_cache_text_bytes, large.to_utf8_buffer().size())
 	var oversized := '{"value":"' + "x".repeat(SAVE._PARSE_CACHE_MAX_TEXT_BYTES) + '"}'
-	var parsed: Dictionary = manager._parse_document_text(oversized)
+	var parsed: Dictionary = manager._parsed_document_view(oversized)
 	assert_true(parsed.get("ok", false), "budget does not introduce a parser refusal")
 	assert_eq(parsed.value.value.length(), SAVE._PARSE_CACHE_MAX_TEXT_BYTES)
 	assert_eq(manager._document_parse_cache.size(), 1)
@@ -186,13 +195,13 @@ func test_entry_eviction_utf8_budget_and_oversize_bypass() -> void:
 func test_initialize_resets_cache_and_disabled_control_preserves_results() -> void:
 	var manager := _manager()
 	var text := '{"value":[1,2,3]}'
-	assert_true(manager._parse_document_text(text).get("ok", false))
+	assert_true(manager._parsed_document_view(text).get("ok", false))
 	assert_eq(manager._document_parse_cache.size(), 1)
 	assert_true(manager.initialize(STORAGE.new("parse-cache", ReadFaultOps.new())).get("ok", false))
 	assert_true(manager._document_parse_cache.is_empty())
 	assert_eq(manager._document_parse_cache_text_bytes, 0)
 	OS.set_environment("DWM_SAVE_PARSE_CACHE_DISABLED", "1")
-	assert_eq(manager._parse_document_text(text), STRICT.parse_object(text))
+	assert_eq(manager._parsed_document_view(text), STRICT.parse_object(text))
 	assert_true(manager._document_parse_cache.is_empty())
 
 func test_warm_inspection_does_not_accept_a_changed_external_target() -> void:
@@ -230,7 +239,7 @@ func test_warm_cache_keeps_storage_refusals_absence_and_schema_validation() -> v
 	assert_true(f.ops.remove_path("parse-cache/slot_1.json").get("ok", false))
 	assert_eq(f.manager.inspect_backup("slot:1").value.state, "empty")
 	var invalid := '{"schema_version":999}'
-	assert_true(f.manager._parse_document_text(invalid).get("ok", false))
+	assert_true(f.manager._parsed_document_view(invalid).get("ok", false))
 	assert_false(f.manager._document_text_validator(invalid).get("ok", true))
 	_replace(f, "parse-cache/slot_1.json", invalid)
 	assert_eq(f.manager.inspect_backup("slot:1").value.reason, "newer_version")
