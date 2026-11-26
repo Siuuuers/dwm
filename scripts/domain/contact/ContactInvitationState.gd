@@ -690,7 +690,7 @@ static func validate_schedule_source_receipt(state: Dictionary, receipt_id: Stri
 			or typeof((provenance as Dictionary).get("ordinal")) != TYPE_INT \
 			or int((provenance as Dictionary)["ordinal"]) != 0:
 		return _fail(&"schedule_source_provenance_mismatch", receipt_id)
-	return {"ok": true, "code": &"ok", "value": {"receipt": receipt.duplicate(true)}, "receipt": {}}
+	return found
 
 
 static func _classify_pl_window(day: int, pre_group_state: String, attendance: Dictionary) -> Dictionary:
@@ -2385,7 +2385,6 @@ static func _s_validate_state(state: Dictionary, _registration_sha256: String, i
 		var receipt: Dictionary = by_prior[prior]
 		var applied := _s_apply(candidate, receipt, definitions, receipt.registration_sha256, issuer)
 		if not applied.get("ok", false): return applied
-		candidate = applied.value.candidate
 		by_prior.erase(prior)
 		remaining -= 1
 	if not _s_equal(candidate, state): return _s_fail("scene_contact_state_linkage_invalid")
@@ -2433,7 +2432,7 @@ static func _s_apply(state: Dictionary, receipt: Dictionary, definitions: Dictio
 	if not verified.get("ok", false): return verified
 	if receipt.context.contacts_sha256 != _s_hash(state) or not receipt.result is Dictionary:
 		return _s_fail("scene_contact_context_stale")
-	var candidate: Dictionary = state.duplicate(true)
+	var candidate := state.duplicate(true) if preparing else state
 	var result := {}
 	var source_facts: Array = []
 	var batch: Array = []
@@ -2443,19 +2442,19 @@ static func _s_apply(state: Dictionary, receipt: Dictionary, definitions: Dictio
 		"scene_message":
 			if not _s_id(input.get("definition_id")) or not definitions.messages.has(input.definition_id): return _s_fail("scene_contact_definition_missing")
 			var row: Dictionary = definitions.messages[input.definition_id]
-			for prior: Dictionary in state.transaction_receipts.values():
+			for prior: Dictionary in candidate.transaction_receipts.values():
 				if prior.kind == "scene_message" and prior.result.definition_id == row.definition_id \
 						and prior.context.scene_occurrence == receipt.context.scene_occurrence: return _s_fail("scene_contact_message_already_emitted")
 			source_facts = row.message_fact_ids.duplicate()
-			result = {"definition_id": row.definition_id, "message_id": command, "sequence": state.next_sequence}
-			batch.append(_s_message(command, row, state.next_sequence, "incoming", null))
+			result = {"definition_id": row.definition_id, "message_id": command, "sequence": candidate.next_sequence}
+			batch.append(_s_message(command, row, candidate.next_sequence, "incoming", null))
 		"scene_read":
 			if input.get("friend_id") not in FRIEND_IDS: return _s_fail("unknown_friend")
 			var friend: String = input.friend_id
 			var ids: Array = []
-			var through: int = state.read_watermarks[friend]
-			for message: Dictionary in state.messages[friend]:
-				if message.sequence <= state.read_watermarks[friend]: continue
+			var through: int = candidate.read_watermarks[friend]
+			for message: Dictionary in candidate.messages[friend]:
+				if message.sequence <= candidate.read_watermarks[friend]: continue
 				through = maxi(through, message.sequence)
 				if message.direction == "incoming":
 					ids.append(message.message_id)
@@ -2471,9 +2470,9 @@ static func _s_apply(state: Dictionary, receipt: Dictionary, definitions: Dictio
 				return _s_fail("scene_contact_reply_invalid")
 			var reply: Dictionary = definitions.replies[input.reply_id]
 			var row: Dictionary = definitions.messages[reply.definition_id]
-			var incoming := _s_find_message(state, input.incoming_message_id)
+			var incoming := _s_find_message(candidate, input.incoming_message_id)
 			if incoming.is_empty() or incoming.direction != "incoming" or incoming.definition_id != reply.definition_id \
-					or incoming.sequence > state.read_watermarks[row.friend_id] or _s_replied(state, incoming.message_id):
+					or incoming.sequence > candidate.read_watermarks[row.friend_id] or _s_replied(candidate, incoming.message_id):
 				return _s_fail("scene_contact_reply_unavailable")
 			var text := _s_localized(reply.texts, input.locale)
 			var rendered := {"view_token": command, "line_id": reply.line_id, "text": text}
@@ -2482,24 +2481,22 @@ static func _s_apply(state: Dictionary, receipt: Dictionary, definitions: Dictio
 				return _s_fail("scene_contact_reply_not_acknowledged")
 			source_facts = reply.source_fact_ids.duplicate()
 			result = {"definition_id": reply.definition_id, "reply_id": reply.reply_id,
-				"incoming_message_id": incoming.message_id, "message_id": command, "sequence": state.next_sequence,
+				"incoming_message_id": incoming.message_id, "message_id": command, "sequence": candidate.next_sequence,
 				"locale": input.locale, "rendered_line": rendered}
-			batch.append(_s_message(command, row, state.next_sequence, "outgoing", reply.reply_id))
+			batch.append(_s_message(command, row, candidate.next_sequence, "outgoing", reply.reply_id))
 		_:
 			return _s_fail("scene_contact_kind_invalid")
 	source_facts.sort()
-	for prior: Dictionary in state.transaction_receipts.values():
+	for prior: Dictionary in candidate.transaction_receipts.values():
 		for fact: String in source_facts:
 			if prior.source_fact_ids.has(fact): return _s_fail("scene_contact_fact_multiply_owned")
-	var actual: Dictionary = receipt.duplicate(true)
-	actual.result = result
-	actual.source_fact_ids = source_facts
+	var actual := receipt.merged({"result": result, "source_fact_ids": source_facts}, true)
 	if not preparing and not _s_equal(actual, receipt): return _s_fail("scene_contact_result_mismatch")
 	for message: Dictionary in batch:
 		candidate.messages[message.friend_id].append(message)
 		candidate.next_sequence += 1
 	candidate.transaction_receipts[command] = actual
-	return _ok(candidate, batch, actual.duplicate(true))
+	return _ok(candidate, batch, actual.duplicate(true)) if preparing else {"ok": true}
 
 static func validate_scene_facts(state: Dictionary, source_fact_ids: Array,
 		registration_sha256: String, identity_issuer: Object) -> Dictionary:
@@ -2514,7 +2511,8 @@ static func validate_scene_facts(state: Dictionary, source_fact_ids: Array,
 			if not matched.is_empty(): return _s_fail("scene_contact_fact_multiply_owned")
 			matched = receipt
 		if matched.is_empty(): return _s_fail("scene_contact_fact_unresolved")
-		resolved.append({"source_fact_id": fact, "transaction_id": matched.transaction_id, "receipt": matched.duplicate(true)})
+		resolved.append({"source_fact_id": fact, "transaction_id": matched.transaction_id,
+			"run_id": matched.context.identity.run_id, "counter": matched.command_issuer_receipt.counter})
 	return {"ok": true, "value": {"receipts": resolved}}
 
 static func scene_reply_choices(state: Dictionary, friend_id: String, locale: String, registration_sha256: String) -> Dictionary:

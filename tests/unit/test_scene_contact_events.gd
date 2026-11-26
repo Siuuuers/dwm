@@ -41,6 +41,11 @@ func test_message_read_reply_resolve_only_actual_committed_receipts() -> void:
 		["TEST.fact.message", "TEST.fact.read", "TEST.fact.reply"], fixture.registration, fixture.issuer)
 	assert_true(facts.ok)
 	assert_eq(facts.value.receipts.size(), 3)
+	for fact: Dictionary in facts.value.receipts:
+		var receipt: Dictionary = fixture.contacts.transaction_receipts[fact.transaction_id]
+		assert_has(receipt.source_fact_ids, fact.source_fact_id)
+		assert_eq(fact.run_id, receipt.context.identity.run_id)
+		assert_eq(fact.counter, receipt.command_issuer_receipt.counter)
 	assert_eq(fixture.contacts.next_sequence, 3)
 	assert_true(STATE.validate_scene_state(fixture.contacts, fixture.registration, fixture.issuer).ok)
 

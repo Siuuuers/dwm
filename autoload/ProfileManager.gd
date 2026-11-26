@@ -702,6 +702,10 @@ func get_pair_form_witnesses() -> Dictionary:
 	return {"ok": true, "value": forms}
 
 
+func get_pair_form_witness_receipts() -> Dictionary:
+	return _profile.get("pair_form_witness_receipts", {}).duplicate()
+
+
 func has_displayed_artwork(asset_id: String) -> bool:
 	return asset_id in _profile.get("displayed_artwork_ids", [])
 
