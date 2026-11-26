@@ -1,6 +1,6 @@
 extends "res://tests/integration/scene_contacts_connected_child.gd"
 ## Real FINAL owners, issuer, schema and physical saves. Run this file in its own
-## test_manual process with DWM_TEST_ROOT, like contacts_checkpoint_refusal.
+## test_manual process with DWM_TEST_ROOT.
 
 class CustodyFault extends RefCounted:
 	var port: Object
@@ -14,8 +14,7 @@ class CustodyFault extends RefCounted:
 		validator = callback
 		return port.configure_scene_shop_authority(owner, callback)
 	func commit_scene_shop(input: Dictionary, checkpoint: Dictionary) -> Dictionary:
-		# Fault only the validator's supplied detached input, never the candidate
-		# retained by either owner. Real checkpoint phases still execute normally.
+		# Exercise the real checkpoint phases with a changed input or revoked lease.
 		port.set("_scene_shop_validator", _validate)
 		var result: Dictionary = port.commit_scene_shop(input, checkpoint)
 		port.set("_scene_shop_validator", validator)

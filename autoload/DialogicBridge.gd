@@ -4434,9 +4434,16 @@ func _check_scene_event_boundary() -> Dictionary:
 	return {"ok": true}
 
 func capture_scene_event_boundary() -> Dictionary:
+	return _scene_event_boundary(true)
+
+func matches_scene_event_checkpoint(expected: Dictionary) -> bool:
+	var boundary := _scene_event_boundary(false)
+	return boundary.ok and _READING_TRAVERSAL._same(boundary.value.checkpoint, expected)
+
+func _scene_event_boundary(detach_checkpoint: bool) -> Dictionary:
 	var guard := _check_scene_event_boundary()
 	if not guard.ok: return guard
-	var captured := capture_reading_checkpoint(false)
+	var captured := capture_reading_checkpoint(false) if detach_checkpoint else _reading_checkpoint_view()
 	if not captured.ok: return captured
 	var checkpoint: Dictionary = captured.value
 	var reading: Dictionary = checkpoint.reading_session
@@ -4454,7 +4461,7 @@ func capture_scene_event_boundary() -> Dictionary:
 func validate_live_scene_event_anchor(anchor: Dictionary, checkpoint: Dictionary) -> Dictionary:
 	if not has_reading_session() or _reading_session.family != "scene":
 		return _command_failure(&"event_anchor_invalid")
-	var current := capture_scene_event_boundary()
+	var current := _scene_event_boundary(false)
 	if not current.ok: return current
 	if not _READING_TRAVERSAL._same(anchor, current.value.anchor) \
 			or not _READING_TRAVERSAL._same(checkpoint, current.value.checkpoint):
