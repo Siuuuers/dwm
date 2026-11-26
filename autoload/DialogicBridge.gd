@@ -4287,7 +4287,7 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
 	var transitioning: bool = current_scene and envelope.get("kind") == "scene.transition" and _begin_scene_transition()
 	var result: Dictionary
 	if current_scene:
-		result = _scene_event_port.dispatch(envelope.duplicate(true))
+		result = _scene_event_port.dispatch(envelope)
 	else:
 		result = _runtime_adapter.dispatch_scene_event_acknowledged(
 			envelope, Callable(_scene_event_port, "dispatch"))

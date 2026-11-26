@@ -28,7 +28,9 @@ func dispatch(envelope: Variant) -> Dictionary:
 	var acquired: Dictionary = _gate.acquire(&"causal_transaction")
 	if not acquired.get("ok", false): return acquired
 	var lease: String = acquired.value.token
-	var result: Dictionary = _dispatch_owned(envelope.duplicate(true), shaped.value.digest, lease)
+	var event: Dictionary = shaped.value.semantic
+	event["playback_token"] = envelope.playback_token
+	var result: Dictionary = _dispatch_owned(event, shaped.value.digest, lease)
 	var released: Dictionary = _gate.release(&"causal_transaction", lease)
 	if not released.get("ok", false): return released
 	return result.duplicate(true)
