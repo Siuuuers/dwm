@@ -100,7 +100,7 @@ func kill_tween(channel_id: StringName) -> Dictionary:
 	return _ok({})
 
 
-func create_parallel_tween(channel_id: StringName, tracks: Array[Dictionary], duration: float) -> Dictionary:
+func create_parallel_tween(channel_id: StringName, tracks: Array[Dictionary], duration: float, resume_from_current: bool = false) -> Dictionary:
 	if duration <= 0.0:
 		for track in tracks:
 			var immediate := set_player_db(track["player_id"], float(track["to_db"]))
@@ -113,15 +113,21 @@ func create_parallel_tween(channel_id: StringName, tracks: Array[Dictionary], du
 		return _ok({"duration": 0.0})
 	_ensure_root()
 	var tween := _root.create_tween().set_parallel(true)
+	var retained_tracks: Array[Dictionary] = []
 	for track in tracks:
 		var player: AudioStreamPlayer = _players.get(track["player_id"])
 		if player == null:
 			return _failure(&"invalid_audio_runtime")
-		player.volume_db = float(track.get("from_db", player.volume_db))
+		var retained := track.duplicate()
+		if resume_from_current:
+			retained["from_db"] = player.volume_db
+		else:
+			player.volume_db = float(track.get("from_db", player.volume_db))
+		retained_tracks.append(retained)
 		tween.tween_property(player, "volume_db", float(track["to_db"]), duration)
 	tween.chain().tween_callback(func() -> void: _complete_tween(channel_id))
 	_tweens[channel_id] = tween
-	_tween_specs[channel_id] = {"tracks": tracks.duplicate(true), "duration": duration}
+	_tween_specs[channel_id] = {"tracks": retained_tracks, "duration": duration}
 	return _ok({"duration": duration})
 
 
@@ -460,12 +466,7 @@ func restore_runtime(backup: Dictionary) -> Dictionary:
 		set_bus_state(bus_name, state["db"], state["muted"])
 	for channel_id in backup.get("transitions", {}):
 		var transition: Dictionary = backup["transitions"][channel_id]
-		var tracks: Array[Dictionary] = transition["tracks"].duplicate(true)
-		for track in tracks:
-			var player: AudioStreamPlayer = _players.get(track["player_id"])
-			if player != null:
-				track["from_db"] = player.volume_db
-		var recreated := create_parallel_tween(channel_id, tracks, float(transition["remaining"]))
+		var recreated := create_parallel_tween(channel_id, transition["tracks"], float(transition["remaining"]), true)
 		if not recreated.get("ok", false):
 			return recreated
 	return _ok({})
