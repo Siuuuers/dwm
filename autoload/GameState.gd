@@ -3651,8 +3651,7 @@ func _continue_completed_scene_challenge_owned(lease: String) -> Dictionary:
 		return _transaction_failure(&"scene_attempt_absence_unverified", "")
 	var context := _scene_runtime_event_context()
 	if not context.ok: return context
-	var material := {"source_context": context.value.duplicate(true), "source_input": source_input,
-		"snapshot_input": source_input.duplicate(true)}
+	var material := {"source_context": context.value, "source_input": source_input}
 	_scene_playable_operation = {"material": material, "lease": lease}
 	var continued: Dictionary = _scene_event_bridge.commit_scene_playable({}, material, lease)
 	_scene_playable_operation = {}
@@ -4257,7 +4256,7 @@ func capture_scene_entry_audio(binding: Dictionary) -> Dictionary:
 func validate_scene_entry_staging_source(binding: Dictionary) -> Dictionary:
 	if _scene_entry_operation.is_empty() or not _SCENE_EVENT._equal(binding, _scene_entry_operation.binding) \
 			or not _mutation_gate.is_lease_active(&"causal_transaction", _scene_entry_operation.lease) \
-			or not _SCENE_EVENT._equal(_command_receipts, _scene_entry_operation.candidate.command_receipts if _scene_entry_operation.get("live_published", false) else _scene_entry_operation.prior_receipts):
+			or not _SCENE_EVENT._equal(_command_receipts, _scene_entry_operation.candidate.command_receipts if _scene_entry_operation.get("live_published", false) else _scene_entry_operation.prior_input.command_receipts):
 		return _transaction_failure(&"scene_staging_source_invalid", "")
 	if _scene_entry_operation.has("prior_input") and not _scene_entry_operation.get("live_published", false) \
 			and not _SCENE_EVENT._equal(capture_run_snapshot_input(), _scene_entry_operation.prior_input):
@@ -4418,7 +4417,7 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 	if not registration.ok: return registration
 	var tables := _SCENE_EVENT.validate_bundle_structure(registration.bundle)
 	if not tables.ok: return tables
-	var candidate: Dictionary = prepared_input.duplicate(true) if not prepared_input.is_empty() else capture_run_snapshot_input()
+	var candidate: Dictionary = prepared_input if not prepared_input.is_empty() else capture_run_snapshot_input()
 	var trigger: Variant = candidate.command_receipts.get(trigger_command_id) if recovery_trigger.is_empty() else recovery_trigger
 	if not recovery_trigger.is_empty():
 		var resolved := capture_resolved_scene_marker()
@@ -4484,7 +4483,7 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 		"registration_sha256": next_scene.registration_sha256}
 	_scene_entry_operation = {"lease": lease, "live_session": session.value,
 		"entry_id": next_scene.entry_id, "frame": frame, "binding": binding,
-		"prior_receipts": _command_receipts.duplicate(true), "prior_input": capture_run_snapshot_input(),
+		"prior_input": capture_run_snapshot_input(),
 		"recovery": not recovery_trigger.is_empty(), "named_autosave": visual.value.autosave or art_arrival.value.autosave}
 	if registration.bundle.get("audio_catalogue", {}).get("schema_version") == 3:
 		var arrival := prepare_scene_audio_arrival(next_scene, registration.bundle, target.label, visual.value.autosave and not next_scene.get("presentation", {}).has("background"))
@@ -4514,10 +4513,10 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 		_scene_entry_operation["audio_plan"] = audio_plan.value
 
 	if not day_plan.value.is_empty():
-		_scene_entry_operation["day_plan"] = day_plan.value.duplicate(true)
-		candidate.lifecycle = day_plan.value.lifecycle.duplicate(true)
-		candidate.gameplay = day_plan.value.gameplay.duplicate(true)
-		candidate.desktop = day_plan.value.desktop.duplicate(true)
+		_scene_entry_operation["day_plan"] = day_plan.value
+		candidate.lifecycle = day_plan.value.lifecycle
+		candidate.gameplay = day_plan.value.gameplay
+		candidate.desktop = day_plan.value.desktop
 	candidate.scene = next_scene
 	var held: Dictionary = _scene_event_bridge.hold_scene_entry_source()
 	if not held.get("ok", false): return held

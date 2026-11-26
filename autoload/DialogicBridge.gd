@@ -4203,8 +4203,7 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 	var departing: bool = event.is_empty()
 	if _scene_playable.is_empty():
 		if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary != ("control" if departing else "line") \
-				or not prepared.get("source_context") is Dictionary or not prepared.get("source_input") is Dictionary \
-				or not prepared.get("snapshot_input") is Dictionary:
+				or not prepared.get("source_context") is Dictionary or not prepared.get("source_input") is Dictionary:
 			return _command_failure(&"scene_playable_source_invalid")
 		var source: Dictionary = prepared.source_context.checkpoint
 		var captured := capture_reading_checkpoint(false)
@@ -4231,7 +4230,7 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 		var scene: Dictionary = {}
 		var presentation_autosave := false
 		if departing:
-			scene = prepared.snapshot_input.scene.duplicate()
+			scene = prepared.source_input.scene.duplicate()
 			var art_owner := preload("res://scripts/data/ArtManifest.gd")
 			var previous: Dictionary = scene.get("presentation", {})
 			if previous.is_empty() and not node.get("presentation_commands", []).is_empty():
