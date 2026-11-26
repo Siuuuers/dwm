@@ -670,17 +670,17 @@ func _scene_candidate_reference(candidate: Dictionary, checkpoint: Dictionary) -
 	var persisted: Variant = snapshot.get("narrative_checkpoint")
 	if not persisted is Dictionary: return {}
 	var owner := preload("res://scripts/narrative/SoloReadingSession.gd")
-	var persisted_player: Dictionary = owner.project_player_checkpoint(persisted)
+	var persisted_player: Dictionary = owner.player_checkpoint_view(persisted)
 	if not persisted_player.ok: return {}
 	if not _scene_entry.is_empty():
 		var retained: Variant = _scene_entry.checkpoint
 		if not retained is Dictionary: return {}
-		var retained_player: Dictionary = owner.project_player_checkpoint(retained)
+		var retained_player: Dictionary = owner.player_checkpoint_view(retained)
 		if not retained_player.ok or not READING_NEXT._same(persisted_player.value, retained_player.value) \
 				or _fingerprint(retained) != _scene_entry.narrative_checkpoint_sha256:
 			return {}
 	if reference.is_empty() or reference.checkpoint_id != candidate.get("checkpoint_id"): return {}
-	var supplied_player: Dictionary = owner.project_player_checkpoint(checkpoint)
+	var supplied_player: Dictionary = owner.player_checkpoint_view(checkpoint)
 	if not supplied_player.ok or not READING_NEXT._same(persisted_player.value, supplied_player.value) \
 			or _fingerprint(_scene_bundle_snapshot(candidate.get("autosave_document", {}).get("current_snapshot"))) != reference.snapshot_sha256:
 		return {}
@@ -868,6 +868,6 @@ func _player_checkpoint_same(left: Variant, right: Variant) -> bool:
 	if not left is Dictionary or not right is Dictionary: return false
 	if left.get("stage") != "scene" and right.get("stage") != "scene": return READING_NEXT._same(left, right)
 	var owner := preload("res://scripts/narrative/SoloReadingSession.gd")
-	var a: Dictionary = owner.project_player_checkpoint(left)
-	var b: Dictionary = owner.project_player_checkpoint(right)
+	var a: Dictionary = owner.player_checkpoint_view(left)
+	var b: Dictionary = owner.player_checkpoint_view(right)
 	return a.ok and b.ok and READING_NEXT._same(a.value, b.value)

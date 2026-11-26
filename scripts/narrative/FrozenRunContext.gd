@@ -123,7 +123,7 @@ static func _validate_reading_checkpoint_body(checkpoint: Dictionary, snapshot: 
 		var supplied_reading: Variant = checkpoint.get("reading_session")
 		if not supplied_reading is Dictionary: return _fail(&"reading_session_invalid")
 		if supplied_reading.get("schema_version") == 5:
-			var projected: Dictionary = SCENE_READING.project_player_checkpoint(checkpoint)
+			var projected: Dictionary = SCENE_READING.player_checkpoint_view(checkpoint)
 			if not projected.ok: return projected
 			checkpoint = projected.value
 		var expanded: Dictionary = SCENE_READING.expand_player_checkpoint(checkpoint)

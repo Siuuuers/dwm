@@ -338,7 +338,7 @@ static func build_scene(snapshot_input: Dictionary, dialogic_checkpoint: Diction
 	if not live.ok: return live
 	var player_board: Dictionary = DESKTOP_BOARD_STATE.project_player_state(snapshot_input.desktop.board)
 	if not player_board.ok: return player_board
-	var player_reading: Dictionary = SCENE_READING.project_player_checkpoint(dialogic_checkpoint)
+	var player_reading: Dictionary = SCENE_READING.player_checkpoint_view(dialogic_checkpoint)
 	if not player_reading.ok: return player_reading
 	var snapshot := {"schema_version": SCENE_SCHEMA_VERSION, "content_version": content_version,
 		"run_id": snapshot_input.lifecycle.run_id, "checkpoint_sequence": checkpoint_sequence,
@@ -351,7 +351,7 @@ static func build_scene(snapshot_input: Dictionary, dialogic_checkpoint: Diction
 		var ending: Dictionary = snapshot.lifecycle.ending_plan
 		if not ending.get("source_reading_checkpoint") is Dictionary:
 			return _fail(&"reading_checkpoint_invalid", "terminal source reading must be an object")
-		var source_reading: Dictionary = SCENE_READING.project_player_checkpoint(ending.source_reading_checkpoint)
+		var source_reading: Dictionary = SCENE_READING.player_checkpoint_view(ending.source_reading_checkpoint)
 		if not source_reading.ok: return source_reading
 		snapshot.lifecycle = snapshot.lifecycle.duplicate()
 		snapshot.lifecycle.ending_plan = ending.duplicate()

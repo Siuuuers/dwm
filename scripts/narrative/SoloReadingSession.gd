@@ -281,7 +281,12 @@ func mark_next_caption_as_checkpoint() -> void:
 	_pending_checkpoint = true
 
 static func project_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
-	if checkpoint.get("stage") != "scene": return {"ok": true, "value": checkpoint.duplicate(true)}
+	var projected := player_checkpoint_view(checkpoint)
+	if projected.ok: projected.value = projected.value.duplicate(true)
+	return projected
+
+static func player_checkpoint_view(checkpoint: Dictionary) -> Dictionary:
+	if checkpoint.get("stage") != "scene": return {"ok": true, "value": checkpoint}
 	var reading: Variant = checkpoint.get("reading_session")
 	if not reading is Dictionary or reading.get("schema_version") not in [5, 7]:
 		return _fail(&"reading_checkpoint_invalid")
@@ -291,13 +296,13 @@ static func project_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 	if reading.schema_version == 7:
 		var checked: Dictionary = session.restore_player(reading, str(checkpoint.get("entry_id", "")))
 		if not checked.ok: return checked
-		return {"ok": true, "value": checkpoint.duplicate(true)}
+		return {"ok": true, "value": checkpoint}
 	if reading.entry_id != checkpoint.get("entry_id"): return _fail(&"reading_checkpoint_invalid")
 	var prepared: Dictionary = session._ensure_scene_programme(reading.entry_id)
 	if not prepared.ok: return prepared
 	var projected: Dictionary = session._project_player_reading(reading)
 	if not projected.ok: return projected
-	return {"ok": true, "value": with_reading_session(checkpoint, projected.value)}
+	return {"ok": true, "value": checkpoint.merged({"reading_session": projected.value}, true)}
 
 static func normalize_player_checkpoint(checkpoint: Dictionary, owns_reading: bool = false) -> Dictionary:
 	var saved: Variant = checkpoint.get("reading_session")
@@ -453,8 +458,9 @@ func _project_player_reading(saved: Dictionary) -> Dictionary:
 		"boundary": saved.boundary, "position_id": position,
 		"session_token": saved.ledger.session_token,
 		"publication_serial": _scene_publication_high_water(saved.ledger.captions), "captions": [caption]}
-	var progress: Dictionary = saved.get("player_progress", {}).duplicate(true)
+	var progress: Dictionary = saved.get("player_progress", {})
 	if progress.is_empty():
+		progress = {}
 		TRAVERSAL.append_player_caption(progress, saved.entry_id, caption.line_id, _story_day(saved.entry_id))
 	compact.merge(progress)
 	return {"ok": true, "value": compact}
