@@ -2583,7 +2583,7 @@ static func _entry_record(entry_id: String) -> Dictionary:
 		return {}
 	for record: Variant in ((document["value"] as Dictionary).get("entries", []) as Array):
 		if record is Dictionary and str((record as Dictionary).get("entry_id", "")) == entry_id:
-			return (record as Dictionary).duplicate(true)
+			return record
 	return {}
 
 

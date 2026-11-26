@@ -428,6 +428,17 @@ const SUB_COMMIT_2B_METHOD_NAMES := [
 ]
 
 
+var _fixture_scope := preload("res://tests/support/SceneValidationScope.gd").new()
+
+
+func before_all() -> void:
+	_fixture_scope.install(true)
+
+
+func after_all() -> void:
+	_fixture_scope.restore()
+
+
 # --------------------------------------------------------------------------------------------
 # Loading helpers. Everything fails soft so RED is an assertion, never a script error.
 # --------------------------------------------------------------------------------------------

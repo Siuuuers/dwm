@@ -340,7 +340,7 @@ static func _projected(source: Dictionary) -> Dictionary:
 static func _entry_document_fingerprint() -> String:
 	if not _document_fingerprint.is_empty():
 		return _document_fingerprint
-	var loaded: Dictionary = ENTRY_MANIFEST.load_default()
+	var loaded: Dictionary = ENTRY_MANIFEST.load_default(false)
 	if not loaded.get("ok", false):
 		return ""
 	_document_fingerprint = str(ENTRY_MANIFEST.fingerprint(loaded["value"]))

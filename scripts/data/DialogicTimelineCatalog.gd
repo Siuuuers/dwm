@@ -120,7 +120,7 @@ static func build_missing_timeline_report(locale: String = "en") -> Dictionary:
 static func _ensure_entries() -> Dictionary:
 	if _entries_initialized:
 		return {"ok": true}
-	var loaded := DialogicEntryManifest.load_default()
+	var loaded := DialogicEntryManifest.load_default(false)
 	if not loaded.get("ok", false):
 		return loaded
 	var validated := DialogicEntryManifest.validate_document(loaded["value"])
