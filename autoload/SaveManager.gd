@@ -146,10 +146,11 @@ func record_stable_checkpoint(checkpoint_inputs: Dictionary, checkpoint_kind: St
 		int(peeked["value"]["checkpoint_sequence"]))
 	if not built.get("ok", false):
 		return built
-	var prepared: Dictionary = _journal.prepare_record(built["value"]["snapshot"], checkpoint_kind)
+	var snapshot: Dictionary = built.value.snapshot
+	var prepared: Dictionary = _journal.prepare_record(snapshot, checkpoint_kind, snapshot)
 	if not prepared.get("ok", false):
 		return prepared
-	var committed: Dictionary = _journal.commit_prepared(prepared["value"]["candidate"])
+	var committed: Dictionary = _journal._install_prepared(prepared.value.candidate)
 	if not committed.get("ok", false):
 		return committed
 	if _pending_deferred_save and _lock_owner == &"":
