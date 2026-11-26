@@ -285,17 +285,17 @@ func _start_scene_new_run_in_memory(target_id: String, initial_context: Dictiona
 		"scene", null, {}, initial_context.content_version, 1)
 	if not built.ok: return built
 	var snapshot: Dictionary = built.value.snapshot
-	var plans := _prepare_scene_new_run_plans(snapshot, _new_run_profile_owner.get_profile_snapshot())
+	var plans := _prepare_scene_new_run_plans(snapshot)
 	if not plans.ok: return plans
 	var reset := {"candidate_kind": "reset", "run_id": snapshot.run_id, "next_sequence": 2,
 		"current": {"checkpoint_kind": "day_start", "snapshot": snapshot}, "earlier": []}
 	_new_run_transaction_id = operation_id
 	return _run_scene_restore_transaction(plans.value, reset, "scene", snapshot.checkpoint_id, operation_id, true)
 
-func _prepare_scene_new_run_plans(snapshot: Dictionary, candidate_profile: Dictionary) -> Dictionary:
+func _prepare_scene_new_run_plans(snapshot: Dictionary) -> Dictionary:
 	var run: Dictionary = _restore_participants.run.prepare_scene_new_run(snapshot, _identity_issuer, self)
 	if not run.get("ok", false): return run
-	var profile: Dictionary = _restore_participants.profile.prepare(candidate_profile)
+	var profile: Dictionary = _restore_participants.profile.prepare_current()
 	if not profile.get("ok", false): return profile
 	var narrative: Dictionary = _restore_participants.narrative.prepare_scene_new_run(snapshot, _scene_new_run_bundle, self)
 	if not narrative.get("ok", false): return narrative
@@ -310,7 +310,7 @@ func _prepare_scene_new_run_plans(snapshot: Dictionary, candidate_profile: Dicti
 		"desktop_board": {"state": snapshot.desktop.board, "schema_version": 9},
 		"localization": {"locale_id": profile.value.locale_id, "font_style": profile.value.get("font_style", "pixel"),
 			"text_size": profile.value.get("text_size", 100)},
-		"audio": {"preferences": candidate_profile.preferences, "audio_context": audio_context.value},
+		"audio": {"preferences": plans.profile.profile.preferences, "audio_context": audio_context.value},
 		"route": {"route_id": "scene", "route_context": {"scene": true, "active_app_id": null}}}
 	if _scene_new_run_bundle.get("schema_version") == 3:
 		inputs.audio["scene_audio_mode"] = "entry"
@@ -1589,6 +1589,6 @@ func capture_committed_scene_creation(transaction_id: String) -> Dictionary:
 	var initial_scene: Variant = initial.value.current_snapshot.snapshot.get("scene")
 	if not initial_scene is Dictionary or initial_scene.get("active_occurrence_id") != transaction_id:
 		return _fail(&"scene_creation_proof_invalid", "retained initial scene missing")
-	return {"ok": true, "value": {"operation": operation,
-		"allocation_candidate": materials.allocation_candidate.duplicate(true), "profile_material": materials.profile.duplicate(true),
+	return {"ok": true, "value": {
+		"allocation_candidate": materials.allocation_candidate, "profile_material": materials.profile,
 		"initial_scene": initial_scene}}

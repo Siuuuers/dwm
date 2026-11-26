@@ -32,6 +32,11 @@ func prepare(candidate: Dictionary) -> Dictionary:
 		return prepared
 	return _prepare_profile_plan(prepared.get("value", {}))
 
+func prepare_current() -> Dictionary:
+	var checked: Dictionary = _owner.validate_restore_ready()
+	if not checked.ok: return checked
+	return _prepare_profile_plan(_owner.get_profile_snapshot())
+
 func _prepare_profile_plan(candidate: Dictionary) -> Dictionary:
 	var profile_plan := {"profile": candidate}
 	if _window_output != null:
