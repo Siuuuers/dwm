@@ -4454,7 +4454,7 @@ func validate_scene_event_anchor(anchor: Dictionary, checkpoint: Dictionary) -> 
 func validate_scene_event_anchors(anchors: Array[Dictionary], checkpoint: Dictionary) -> Dictionary:
 	var reading: Variant = checkpoint.get("reading_session")
 	if checkpoint.get("stage") == "scene" and (not reading is Dictionary or reading.get("schema_version") != 5):
-		var expanded := _READING_SESSION.expand_player_checkpoint(checkpoint)
+		var expanded := _READING_SESSION.expanded_checkpoint_view(checkpoint)
 		if not expanded.ok: return expanded
 		return expanded.session.validate_scene_event_anchors(anchors)
 	if reading is Dictionary and typeof(reading.get("schema_version")) == TYPE_INT and reading.schema_version == 5:

@@ -407,11 +407,16 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, owns_reading: bo
 	return {"ok": true, "value": {"checkpoint": result, "story_day": current.story_day, "fallback": fallback}}
 
 static func expand_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
-	if checkpoint.get("stage") != "scene": return {"ok": true, "value": checkpoint.duplicate(true)}
+	var expanded := expanded_checkpoint_view(checkpoint)
+	if expanded.ok: expanded.value = expanded.value.duplicate(true)
+	return expanded
+
+static func expanded_checkpoint_view(checkpoint: Dictionary) -> Dictionary:
+	if checkpoint.get("stage") != "scene": return {"ok": true, "value": checkpoint}
 	var reading: Variant = checkpoint.get("reading_session")
 	if not reading is Dictionary or reading.get("schema_version") not in [5, 7]:
 		return _fail(&"reading_checkpoint_invalid")
-	if reading.schema_version == 5: return {"ok": true, "value": checkpoint.duplicate(true)}
+	if reading.schema_version == 5: return {"ok": true, "value": checkpoint}
 	var session: RefCounted = load("res://scripts/narrative/SoloReadingSession.gd").new()
 	var configured: Dictionary = session.configure_scene()
 	if not configured.ok: return configured
@@ -428,9 +433,9 @@ static func expand_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 	if reading.boundary == "line":
 		var tail: Dictionary = reading.captions.back()
 		frontier = {"line_id": tail.line_id, "publication_id": tail.publication_id}
-	var captured: Dictionary = session.capture(frontier)
+	var captured: Dictionary = session.capture_view(frontier)
 	if not captured.ok: return captured
-	return {"ok": true, "value": with_reading_session(checkpoint, captured.value), "session": session}
+	return {"ok": true, "value": checkpoint.merged({"reading_session": captured.value}, true), "session": session}
 
 static func with_reading_session(checkpoint: Dictionary, reading: Dictionary) -> Dictionary:
 	var envelope := checkpoint.duplicate()

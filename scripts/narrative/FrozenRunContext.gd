@@ -107,7 +107,7 @@ static func _validate_reading_checkpoint_body(checkpoint: Dictionary, snapshot: 
 		if not FROZEN._field(checkpoint[key], "id"): return _fail(&"reading_session_invalid")
 	if _is_scene_checkpoint(checkpoint):
 		if not scene_receipts.is_empty():
-			var legacy: Dictionary = SCENE_READING.expand_player_checkpoint(checkpoint)
+			var legacy: Dictionary = SCENE_READING.expanded_checkpoint_view(checkpoint)
 			if not legacy.ok: return legacy
 			var envelope := _validate_scene_envelope(legacy.value)
 			if not envelope.ok: return envelope
@@ -126,7 +126,7 @@ static func _validate_reading_checkpoint_body(checkpoint: Dictionary, snapshot: 
 			var projected: Dictionary = SCENE_READING.player_checkpoint_view(checkpoint)
 			if not projected.ok: return projected
 			checkpoint = projected.value
-		var expanded: Dictionary = SCENE_READING.expand_player_checkpoint(checkpoint)
+		var expanded: Dictionary = SCENE_READING.expanded_checkpoint_view(checkpoint)
 		if not expanded.ok: return expanded
 		checkpoint = expanded.value
 		var scene := _validate_scene_envelope(checkpoint)
