@@ -242,8 +242,8 @@ class MemoryProfile extends Node:
 	func is_line_visited(_line_id: String) -> bool: return false
 	func mark_line_visited(_line_id: String) -> Dictionary:
 		return {"ok": false, "code": &"caption_fixture_has_no_authored_line_ids"}
-	func get_profile_snapshot() -> Dictionary:
-		return {"preferences":{"reading":{"reveal_speed":"fast","auto_delay":"short","auto_enabled":false,"skip_mode":"read_only"}}}
+	func get_preference_group(group: StringName) -> Dictionary:
+		return {"reading":{"reveal_speed":"fast","auto_delay":"short","auto_enabled":false,"skip_mode":"read_only"}}[group]
 
 class CaptionFixtureLocale extends Node:
 	signal locale_changed(locale: String)

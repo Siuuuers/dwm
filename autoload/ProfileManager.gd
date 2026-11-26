@@ -273,7 +273,7 @@ func get_profile_snapshot() -> Dictionary:
 
 
 func get_preference_group(group: StringName) -> Dictionary:
-	return _profile.preferences[group].duplicate()
+	return _profile.get("preferences", {}).get(group, {}).duplicate()
 
 
 func get_profile_revision() -> int:
