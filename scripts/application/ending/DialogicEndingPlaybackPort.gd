@@ -99,7 +99,7 @@ func start_ending_id(ending_id: String, context: Dictionary = {}) -> Dictionary:
 		if not _bridge.has_method("start_ending_presentation"):
 			_starting = false
 			return _fail(&"invalid_bridge", "exact ending presentation API required")
-		started = _bridge.start_ending_presentation(ending_id, context.duplicate(true), signature.duplicate(true), presentation.duplicate(true)) \
+		started = _bridge.start_ending_presentation(ending_id, context.duplicate(true), signature.duplicate(true), presentation) \
 			if not presentation.is_empty() else _bridge.start_ending_presentation(ending_id, context.duplicate(true), signature.duplicate(true))
 	elif role == "observer_coda":
 		if not _bridge.has_method("start_postscript_id"):
