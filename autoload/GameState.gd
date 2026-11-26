@@ -2506,11 +2506,11 @@ func capture_restore_state() -> Dictionary:
 		"gameplay": gameplay,
 		"dating_reconciliation": dating_backup,
 		"scene_live_closures": _scene_live_closures.duplicate(true),
-		"scene_choices": scene_choices.duplicate(true),
+		"scene_choices": scene_choices.duplicate(),
 		"scene_challenge_outcomes": scene_challenge_outcomes.duplicate(true),
 		"command_receipts": _command_receipts.duplicate(true),
-		"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(true),
-		"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(true),
+		"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(),
+		"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(),
 		"lifecycle": _run_lifecycle.to_dict(),
 		"run_configuration_installed": _run_configuration_installed,
 		"session_generation": _live_session_generation,
@@ -2597,11 +2597,11 @@ func _record_transaction_receipt(transaction_id: String, fingerprint: String, ki
 		"kind": kind,
 		"source_id": source_id,
 	}
-	_command_receipts[transaction_id] = receipt.duplicate(true)
+	_command_receipts[transaction_id] = receipt.duplicate()
 	if transaction_id not in applied_ids:
 		applied_ids.append(transaction_id)
 	emit_signal("save_relevant_state_changed")
-	return {"ok": true, "code": &"ok", "value": {"duplicate": false}, "receipt": receipt.duplicate(true)}
+	return {"ok": true, "code": &"ok", "value": {"duplicate": false}, "receipt": receipt}
 
 
 static func _transaction_failure(code: StringName, message: String) -> Dictionary:
@@ -2754,8 +2754,8 @@ func capture_run_snapshot_with_contacts(snapshot_contacts: Dictionary) -> Dictio
 		return {"lifecycle": _run_lifecycle.to_dict(), "gameplay": _capture_scene_gameplay(),
 			"contacts": snapshot_contacts.duplicate(true), "desktop": _capture_desktop_snapshot(),
 			"scene": _scene_snapshot_references.duplicate(true),
-			"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(true),
-			"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(true),
+			"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(),
+			"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(),
 			"command_receipts": _command_receipts.duplicate(true)}
 	var current: Dictionary = to_save_dict()
 	var gameplay := _legacy_run_gameplay(current, _narrative_variables.duplicate(true))
@@ -2766,8 +2766,8 @@ func capture_run_snapshot_with_contacts(snapshot_contacts: Dictionary) -> Dictio
 		"committed_schedule": _canonical_committed_schedule(),
 		"desktop": _capture_desktop_snapshot(),
 		"dating": current.get("dating_route_state", {}).duplicate(true) if typeof(current.get("dating_route_state")) == TYPE_DICTIONARY else {},
-		"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(true),
-		"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(true),
+		"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(),
+		"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(),
 		"command_receipts": _command_receipts.duplicate(true),
 	}
 
@@ -2947,7 +2947,7 @@ func _prepare_restore_bookkeeping(source: Dictionary, live_backup: bool = false)
 	var outcomes: Variant = source.get("scene_challenge_outcomes", {}) if live_backup else {}
 	var progress_error := _NARRATIVE_VARIABLE_SCHEMA._validate_scene_progress(choices, outcomes)
 	if progress_error != "": return _transaction_failure(&"invalid_run_bookkeeping", progress_error)
-	candidate["scene_choices"] = choices.duplicate(true)
+	candidate["scene_choices"] = choices.duplicate()
 	candidate["scene_challenge_outcomes"] = outcomes.duplicate(true)
 	var ledger_fields := ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]
 	var has_ledger := false
@@ -3419,7 +3419,7 @@ func _install_scene_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 	if not lifecycle.get("ok", false): return lifecycle
 	_apply_gameplay_silent(snapshot.gameplay)
 	_narrative_variables = snapshot.gameplay.narrative_variables.duplicate(true)
-	scene_choices = snapshot.gameplay.scene_choices.duplicate(true)
+	scene_choices = snapshot.gameplay.scene_choices.duplicate()
 	scene_challenge_outcomes = snapshot.gameplay.scene_challenge_outcomes.duplicate(true)
 	contacts = snapshot.contacts.duplicate(true)
 	_desktop_snapshot = snapshot.desktop.duplicate(true)
@@ -3428,8 +3428,8 @@ func _install_scene_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 	_scene_presentation_checkpoint_pending = false
 	_command_receipts = snapshot.get("command_receipts", {}).duplicate(true)
 	_scene_live_closures = snapshot.get("scene_live_closures", {}).duplicate(true)
-	_applied_effect_transaction_ids = snapshot.get("applied_effect_transaction_ids", []).duplicate(true)
-	_applied_variable_transaction_ids = snapshot.get("applied_variable_transaction_ids", []).duplicate(true)
+	_applied_effect_transaction_ids = snapshot.get("applied_effect_transaction_ids", []).duplicate()
+	_applied_variable_transaction_ids = snapshot.get("applied_variable_transaction_ids", []).duplicate()
 	_run_configuration_installed = true
 	return {"ok": true}
 
@@ -3773,7 +3773,7 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
 		return _scene_event_fatal(&"event_adoption_source_changed")
 	_command_receipts = candidate.command_receipts.duplicate(true)
 	_scene_snapshot_references = candidate.scene.duplicate(true)
-	scene_choices = candidate.gameplay.scene_choices.duplicate(true)
+	scene_choices = candidate.gameplay.scene_choices.duplicate()
 	if result.kind == "passage_finished":
 		var completed: Dictionary = _run_lifecycle.commit_restore(candidate.lifecycle)
 		if not completed.get("ok", false): return _scene_event_fatal(&"scene_passage_adoption_failed")
@@ -4555,7 +4555,7 @@ func _commit_scene_target_owned() -> Dictionary:
 		_desktop_snapshot = candidate.desktop.duplicate(true)
 		unfinished_minesweeper_result = {}
 	_apply_gameplay_silent(candidate.gameplay)
-	scene_choices = candidate.gameplay.scene_choices.duplicate(true)
+	scene_choices = candidate.gameplay.scene_choices.duplicate()
 	scene_challenge_outcomes = candidate.gameplay.scene_challenge_outcomes.duplicate(true)
 	_command_receipts = candidate.command_receipts.duplicate(true)
 	_scene_snapshot_references = candidate.scene.duplicate(true)
