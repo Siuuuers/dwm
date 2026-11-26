@@ -64,6 +64,16 @@ func _finish(fixture: Dictionary) -> Dictionary:
 	assert_true(fixture.gate.release(&"causal_transaction", lease.value.token).ok)
 	return result
 
+func test_registered_passage_catalogue_reuses_frozen_records() -> void:
+	var selected := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_contract_tables()
+	assert_true(selected.ok, str(selected))
+	if not selected.ok: return
+	var inspected := CATALOG.inspect(selected.bundle)
+	assert_true(inspected.ok, str(inspected))
+	if not inspected.ok: return
+	assert_true(is_same(inspected.value.records, selected.value.passages))
+	assert_true(inspected.value.records.is_read_only())
+
 func test_passage_catalogue_selects_only_between_the_two_markers_and_detaches() -> void:
 	var bundle := _bundle()
 	var result := CATALOG.inspect(bundle)

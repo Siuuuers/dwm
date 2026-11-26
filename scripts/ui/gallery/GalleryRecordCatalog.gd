@@ -47,7 +47,6 @@ const RECORD_DETAILS := {
 	"ending.priscilla_lavinia.observer": {"sentence": ["Lavinia gives back one of two identical keys.",
 		"Lavinia 交回两把相同钥匙中的一把。", "Lavinia 交回兩把相同鑰匙中的一把。"]},
 }
-const PRESENTATION_DETAILS := []
 
 var valid := true
 var _error: StringName = &""
@@ -79,7 +78,8 @@ func version_cue(record_id: String, signature_id: String, locale: String) -> Str
 	var language := locale.replace("_", "-")
 	return override.version_cue[2 if language == "zh-HK" else (1 if language.begins_with("zh") else 0)]
 
-func _init(details: Dictionary = RECORD_DETAILS, overrides: Array = PRESENTATION_DETAILS) -> void:
+func _init(details: Dictionary = RECORD_DETAILS, overrides: Array = []) -> void:
+	var built_in := is_same(details, RECORD_DETAILS)
 	for raw_id: Variant in details:
 		if not raw_id is String or raw_id.is_empty():
 			_invalidate(&"invalid_record_id")
@@ -89,14 +89,14 @@ func _init(details: Dictionary = RECORD_DETAILS, overrides: Array = PRESENTATION
 				or not details[raw_id] is Dictionary or not _valid_details(details[raw_id]):
 			_invalidate(&"invalid_record_details")
 			return
-		_records[record_id] = details[raw_id].duplicate(true)
+		_records[record_id] = details[raw_id] if built_in else details[raw_id].duplicate(true)
 	for value: Variant in overrides:
 		if not value is Dictionary or not value.has("signature") \
 				or not _exact_subset(value, ["signature", "sentence", "media_asset_id", "version_cue"]) \
 				or not value.signature is Dictionary:
 			_invalidate(&"invalid_presentation_details")
 			return
-		var details_only: Dictionary = value.duplicate(true)
+		var details_only: Dictionary = value.duplicate()
 		var signature: Dictionary = details_only.signature
 		details_only.erase("signature")
 		if not _valid_details(details_only, true):
@@ -120,7 +120,7 @@ func _init(details: Dictionary = RECORD_DETAILS, overrides: Array = PRESENTATION
 		if not _known_record(details_only.record_id):
 			_invalidate(&"invalid_presentation_record")
 			return
-		_presentations[signature_id] = details_only
+		_presentations[signature_id] = details_only.duplicate(true)
 
 func _known_record(record_id: String) -> bool:
 	if TITLES.has(record_id): return true

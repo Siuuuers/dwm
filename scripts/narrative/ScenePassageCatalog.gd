@@ -13,7 +13,7 @@ static func inspect(bundle: Dictionary, compiled: Dictionary = {}) -> Dictionary
 	var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
 	var registered: Dictionary = manifest.prepared_scene_contract(bundle)
 	if not registered.is_empty():
-		return {"ok": true, "value": {"records": registered.value.passages.duplicate(true)}}
+		return {"ok": true, "value": {"records": registered.value.passages}}
 	if not bundle.get("scene_programme") is Dictionary or not bundle.scene_programme.get("entries") is Array \
 			or not bundle.get("caption_registry") is Dictionary or not bundle.caption_registry.get("entries") is Array:
 		return _fail(&"scene_passage_registration_invalid")
@@ -89,7 +89,7 @@ static func inspect(bundle: Dictionary, compiled: Dictionary = {}) -> Dictionary
 					return _fail(&"scene_passage_control_inside_range")
 		var selected: Array = lines.slice(first, last + 1, 1, true)
 		for line: Dictionary in selected:
-			if paired_text.has(line.line_id): line["self_talk"] = paired_text[line.line_id].duplicate(true)
+			if paired_text.has(line.line_id): line["self_talk"] = paired_text[line.line_id].duplicate()
 		var line_ids: Array[String] = []
 		for line: Dictionary in selected: line_ids.append(line.line_id)
 		records[start.payload.passage_id] = {"passage_id": start.payload.passage_id,
