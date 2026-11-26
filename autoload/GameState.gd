@@ -4342,11 +4342,14 @@ func configure_scene_day_runtime(allocator: Object, board: Object, consequence: 
 
 static func renewed_scene_day_gameplay(gameplay: Dictionary) -> Dictionary:
 	var renewed := gameplay.duplicate(true)
+	_reset_scene_day_counters(renewed)
+	return renewed
+
+static func _reset_scene_day_counters(renewed: Dictionary) -> void:
 	renewed.minesweeper_rounds_left = MINESWEEPER_BASE_ROUNDS
 	renewed.minesweeper_app_rounds_finished_today = 0
 	renewed.minesweeper_money_earned_today = 0
 	renewed.penalty_points_today = 0
-	return renewed
 
 func _prepare_scene_day_renewal(trigger: Dictionary, target_id: String, registration: Dictionary,
 		identity: Dictionary) -> Dictionary:
@@ -4388,25 +4391,23 @@ func _prepare_scene_day_renewal(trigger: Dictionary, target_id: String, registra
 	var allocated: Dictionary = _scene_day_allocator.commit_advance(prepared.value.day_advance_identity_candidate)
 	if not allocated.get("ok", false): return allocated
 	var receipt: Dictionary = allocated.value.day_advance_identity_receipt
-	var next_identity := identity.duplicate(true)
-	next_identity.causal_day_instance = receipt.target_causal_day_instance
-	next_identity.causal_day_instance_issuer_receipt = receipt.target_causal_day_instance_issuer_receipt.duplicate(true)
-	lifecycle.causal_day_instance = next_identity.causal_day_instance
-	lifecycle.causal_day_instance_issuer_receipt = next_identity.causal_day_instance_issuer_receipt.duplicate(true)
+	lifecycle.causal_day_instance = receipt.target_causal_day_instance
+	lifecycle.causal_day_instance_issuer_receipt = receipt.target_causal_day_instance_issuer_receipt
 	desktop.board.phase = "NONE"
 	desktop.board.settled_inspection = false
 	desktop.board.round_paid = false
 	desktop.board.revision += 1
 	for key: String in ["identity", "candidate", "board", "settlement"]: desktop.board[key] = null
-	desktop.consequence.causal_day_instance = next_identity.causal_day_instance
-	desktop.consequence.causal_day_instance_issuer_receipt = next_identity.causal_day_instance_issuer_receipt.duplicate(true)
+	desktop.consequence.causal_day_instance = receipt.target_causal_day_instance
+	desktop.consequence.causal_day_instance_issuer_receipt = receipt.target_causal_day_instance_issuer_receipt.duplicate(true)
 	desktop.consequence.run_revision += 1
 	var board_candidate: Dictionary = _scene_day_board.prepare_restore_scene(desktop.board, _identity_issuer)
 	if not board_candidate.get("ok", false): return board_candidate
 	var consequence_candidate: Dictionary = _scene_day_consequence.prepare_restore(desktop.consequence)
 	if not consequence_candidate.get("ok", false): return consequence_candidate
-	return {"ok": true, "value": {"identity": next_identity, "lifecycle": lifecycle,
-		"gameplay": renewed_scene_day_gameplay(gameplay), "desktop": desktop,
+	_reset_scene_day_counters(gameplay)
+	return {"ok": true, "value": {"lifecycle": lifecycle,
+		"gameplay": gameplay, "desktop": desktop,
 		"board_candidate": board_candidate.value.candidate, "consequence_candidate": consequence_candidate.value.candidate}}
 
 func _admit_scene_target_owned(target_id: String, trigger_command_id: String, lease: String,
