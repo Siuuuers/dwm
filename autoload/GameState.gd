@@ -3320,6 +3320,9 @@ static func make_scene_new_run_gameplay() -> Dictionary:
 		"shop_purchase_counts": {}, "stats": {"pressure": 3}, "story_flags": {}}
 	return gameplay
 
+func get_scene_presentation_checkpoint_id() -> String:
+	return _scene_snapshot_references.get("presentation", {}).get("checkpoint_id", "")
+
 func get_scene_presentation() -> Dictionary:
 	var state: Dictionary = _scene_snapshot_references.get("presentation", {})
 	if state.is_empty(): return {}
