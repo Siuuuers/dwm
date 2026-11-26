@@ -9,6 +9,10 @@ const STYLE := "res://dialogic/styles/witnessed_caption_style.tres"
 class NativeBridge extends "res://autoload/DialogicBridge.gd":
 	var localization: Node
 	var history_projections := 0
+	var checkpoint_captures := 0
+	func capture_reading_checkpoint(complete_reveal: bool = false) -> Dictionary:
+		checkpoint_captures += 1
+		return super.capture_reading_checkpoint(complete_reveal)
 	func _scene_day_history(frontier: Dictionary) -> Dictionary:
 		history_projections += 1
 		return super._scene_day_history(frontier)
@@ -489,6 +493,9 @@ func test_held_control_actions_revalidate_history_and_preserve_read_only_custody
 	if held.is_empty(): return
 	held.session.captures = 0
 	held.ledger.snapshots = 0
+	var captures: int = _bridge.checkpoint_captures
+	assert_true(_bridge.capture_scene_challenge_control().ok)
+	assert_eq(_bridge.checkpoint_captures, captures, "Challenge admission only needs the held marker")
 	var position: Dictionary = _adapter.capture_scene_control_position(held.session)
 	assert_true(position.ok)
 	if not position.ok: return

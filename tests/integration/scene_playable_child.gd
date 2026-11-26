@@ -45,6 +45,8 @@ func create_playable() -> void:
 	assert_eq(fixture.profile_bytes(), profile_hashes)
 	var current: Dictionary = fixture.game.capture_run_snapshot_input()
 	assert_true(current.command_receipts.has(fixture.issued_event.command_id))
+	assert_eq(current.scene.active_challenge, {"challenge_id": fixture.issued_event.payload.challenge_id,
+		"playable_command_id": fixture.issued_event.command_id})
 	assert_eq(current.command_receipts.size(), fixture.before_input.command_receipts.size() + 1)
 	assert_eq(current.gameplay, fixture.before_input.gameplay, "availability does not create a board")
 	var retry: Dictionary = fixture.dispatch()

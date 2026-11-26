@@ -3528,7 +3528,7 @@ func _prepare_scene_playable_event(event: Dictionary, digest: String, lease: Str
 		return _transaction_failure(&"event_adoption_source_changed", "")
 	var captured := _scene_runtime_event_context()
 	if not captured.ok: return captured
-	var current: Dictionary = captured.value.duplicate(true)
+	var current: Dictionary = captured.value
 	if current.get("family") != "scene" or current.get("mode") != "canonical" \
 			or current.get("suspended") != false or current.get("computer_held") != false:
 		return _transaction_failure(&"event_presentation_held", "")
@@ -3536,9 +3536,9 @@ func _prepare_scene_playable_event(event: Dictionary, digest: String, lease: Str
 		return _transaction_failure(&"event_source_mismatch", "")
 	if current.get("playback_token") != event.playback_token:
 		return _transaction_failure(&"event_stale_token", "")
-	var proven: Dictionary = _identity_issuer.verify_issued(event.issuer_receipt.duplicate(true), &"transaction_id")
+	var proven: Dictionary = _identity_issuer.verify_issued(event.issuer_receipt, &"transaction_id")
 	if not proven.ok: return proven
-	var registered := scene_event_registration(event.duplicate(true))
+	var registered := scene_event_registration(event)
 	if not registered.ok: return registered
 	var bundle: Dictionary = registered.value
 	var inspected := _SCENE_EVENT.inspect_scene(event, bundle)
@@ -3562,22 +3562,13 @@ func _prepare_scene_playable_event(event: Dictionary, digest: String, lease: Str
 				or current.anchor.catalogue_fingerprint != inspected.value.registration_fingerprint:
 			return _transaction_failure(&"event_registration_mismatch", "")
 		var anchored: Dictionary = _scene_event_bridge.validate_live_scene_event_anchor(
-			current.anchor.duplicate(true), checkpoint.duplicate(true))
+			current.anchor, checkpoint)
 		if not anchored.get("ok", false): return anchored
 		var result := {"kind": "challenge_playable", "challenge_occurrence":
 			_SCENE_EVENT._sha([event.source.scene_occurrence, event.payload.challenge_id])}
 		var made := _SCENE_EVENT.make_scene_receipt(event, current.anchor, result, bundle)
 		if not made.ok: return made
-		var candidate := source_input.duplicate(true)
-		candidate.command_receipts[event.command_id] = made.value.duplicate(true)
-		candidate.scene.active_challenge = {"challenge_id": event.payload.challenge_id,
-			"playable_command_id": event.command_id}
-		var previous_physical: Dictionary = candidate.gameplay.route_context.get("active_dating_challenge", {})
-		if scene_physical_consumed(previous_physical, candidate.gameplay.scene_challenge_outcomes):
-			candidate.gameplay.route_context.erase("active_dating_challenge")
-			candidate.gameplay.route_context.erase("dating_active_attempt_ref")
-		material = {"source_context": current, "source_input": source_input,
-			"snapshot_input": candidate, "receipt": made.value, "result": result}
+		material = {"source_context": current, "source_input": source_input, "receipt": made.value, "result": result}
 	var after := _scene_runtime_event_context()
 	if not after.get("ok", false) or not _SCENE_EVENT._equal(after.get("value"), current) \
 			or not _SCENE_EVENT._equal(_command_receipts, prior) \
@@ -3623,9 +3614,18 @@ func _accept_scene_playable_event(event: Dictionary, digest: String, lease: Stri
 			or not _SCENE_EVENT._equal(boundary.value.checkpoint, committed.value.checkpoint) \
 			or not _SCENE_EVENT._equal(boundary.value.anchor, material.source_context.anchor):
 		return _scene_event_fatal(&"event_adoption_source_changed")
-	_command_receipts = material.snapshot_input.command_receipts
-	_scene_snapshot_references = material.snapshot_input.scene
-	route_context = material.snapshot_input.gameplay.route_context
+	var receipt: Dictionary = material.receipt
+	var input: Dictionary = material.source_input
+	var route: Dictionary = input.gameplay.route_context
+	if scene_physical_consumed(route.get("active_dating_challenge", {}), input.gameplay.scene_challenge_outcomes):
+		route.erase("active_dating_challenge")
+		route.erase("dating_active_attempt_ref")
+	input.command_receipts[receipt.transaction_id] = receipt
+	input.scene.active_challenge = {"challenge_id": receipt.scene_event.semantic.payload.challenge_id,
+		"playable_command_id": receipt.transaction_id}
+	_command_receipts = input.command_receipts
+	_scene_snapshot_references = input.scene
+	route_context = route
 	return {"ok": true, "duplicate": false, "value": material.result}
 
 
