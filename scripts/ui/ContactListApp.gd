@@ -270,7 +270,7 @@ func _present_ordinary_controls(value: Dictionary) -> void:
 		return
 	var command: Variant = pending.get("value", {}).get("command", {})
 	if command is Dictionary and not command.is_empty():
-		_ordinary_pending = command.duplicate(true)
+		_ordinary_pending = command
 		if is_instance_valid(_reply_button): _reply_button.disabled = true
 		if command.get("friend_id") != value.friend_id: return
 		if not command.get("rendered_line") is Dictionary or not contacts_panel.present_pending_reply(command.rendered_line, str(command.get("locale", _primary))):
@@ -346,8 +346,7 @@ func _acknowledge_ordinary(command_id: String, generation: int) -> void:
 		or generation != _ordinary_generation or not is_inside_tree() or not is_visible_in_tree() or is_queued_for_deletion(): return
 	_ordinary_busy = true
 	if is_instance_valid(_ordinary_retry): _ordinary_retry.disabled = true
-	var command := _ordinary_pending.duplicate(true)
-	var result: Variant = await _presentation_port.acknowledge_ordinary_reply(command, command.rendered_line.duplicate(true), _primary, _secondary)
+	var result: Variant = await _presentation_port.acknowledge_ordinary_reply(_ordinary_pending, _ordinary_pending.rendered_line, _primary, _secondary)
 	if not is_inside_tree() or is_queued_for_deletion(): return
 	_ordinary_busy = false
 	if _ordinary_pending.get("command_id") != command_id: return
@@ -363,8 +362,7 @@ func _cancel_ordinary_pending() -> bool:
 	if _ordinary_busy: return false
 	if _ordinary_pending.is_empty(): return true
 	if not _ordinary_available(): return false
-	var command := _ordinary_pending.duplicate(true)
-	var result: Dictionary = _presentation_port.cancel_pending_ordinary_reply(command)
+	var result: Dictionary = _presentation_port.cancel_pending_ordinary_reply(_ordinary_pending)
 	if not result.get("ok", false): return false
 	_ordinary_generation += 1
 	_ordinary_pending = {}
@@ -377,7 +375,7 @@ func _on_ordinary_visibility_changed() -> void:
 func _exit_tree() -> void:
 	if not _ordinary_pending.is_empty() and is_instance_valid(_presentation_port) \
 		and _presentation_port.has_method("cancel_pending_ordinary_reply"):
-		_presentation_port.cancel_pending_ordinary_reply(_ordinary_pending.duplicate(true))
+		_presentation_port.cancel_pending_ordinary_reply(_ordinary_pending)
 
 func _ordinary_retry_copy() -> String:
 	return {"en": "Retry", "zh-CN": "\u91cd\u8bd5", "zh-HK": "\u91cd\u8a66", "ja": "再試行", "ko": "다시 시도"}[_primary]
