@@ -107,14 +107,14 @@ func commit_prepared(candidate: Dictionary) -> Dictionary:
 		"reset":
 			if str(candidate["run_id"]) == _run_id and int(candidate["next_sequence"]) == _next_sequence:
 				return {"ok": false, "code": &"duplicate_commit", "message": str(candidate["run_id"])}
-	return _install_prepared(candidate)
+	return _install_prepared(candidate.duplicate(true))
 
-func _install_prepared(candidate: Dictionary) -> Dictionary:
-	var candidate_kind := str(candidate["candidate_kind"])
-	_run_id = str(candidate["run_id"])
-	_next_sequence = int(candidate["next_sequence"])
-	_current = (candidate["current"] as Dictionary).duplicate(true)
-	_earlier.assign((candidate["earlier"] as Array).duplicate(true))
+func _install_prepared(owned_candidate: Dictionary) -> Dictionary:
+	var candidate_kind := str(owned_candidate["candidate_kind"])
+	_run_id = str(owned_candidate["run_id"])
+	_next_sequence = int(owned_candidate["next_sequence"])
+	_current = owned_candidate["current"]
+	_earlier.assign(owned_candidate["earlier"])
 	if candidate_kind == "record":
 		_forget_unretained_bundle_proofs()
 	else:
