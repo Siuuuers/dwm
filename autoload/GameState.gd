@@ -1778,6 +1778,10 @@ func _provisional_dating_receipt(response: Dictionary, progression: Dictionary, 
 		"ruleset_status": response["ruleset_status"],
 	}
 
+func matches_dating_challenge_state(record: Dictionary) -> bool:
+	var stored: Variant = route_context.get("active_dating_challenge", {})
+	return stored is Dictionary and stored == record
+
 func capture_dating_challenge_state() -> Dictionary:
 	var stored: Variant = route_context.get("active_dating_challenge", {})
 	if not stored is Dictionary:

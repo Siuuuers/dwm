@@ -17,6 +17,7 @@ class State extends RefCounted:
 	func capture_attempt_identity() -> Dictionary: return lifecycle.duplicate()
 	func capture_run_lifecycle() -> Dictionary: return lifecycle.duplicate(true)
 	func capture_run_snapshot_input() -> Dictionary: return {"lifecycle": lifecycle.duplicate(true), "gameplay": {"route_context": route_context.duplicate(true)}}
+	func matches_dating_challenge_state(record: Dictionary) -> bool: return route_context.get("active_dating_challenge", {}) == record
 	func capture_dating_challenge_state() -> Dictionary: return {"ok": true, "value": route_context.get("active_dating_challenge", {}).duplicate(true)}
 	func store_dating_challenge_state(record: Dictionary, _emit: bool = true) -> Dictionary:
 		route_context.active_dating_challenge = record.duplicate(true)

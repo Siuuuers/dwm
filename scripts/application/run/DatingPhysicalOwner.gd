@@ -11,7 +11,7 @@ const CAPABILITIES := preload("res://scripts/domain/minesweeper/MinesweeperCapab
 const RULES := preload("res://scripts/application/run/DatingChallengeRules.gd")
 const ATTEMPTS := preload("res://scripts/profile/DatingAttemptLedger.gd")
 const PRESENTATION_SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
-const OBSERVER_RULES := preload("res://scripts/domain/relationship/ProvisionalProgressionRules.gd")
+const PROGRESSION_RULES := preload("res://scripts/domain/relationship/ProvisionalProgressionRules.gd")
 const FROZEN_CONTEXT := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const OWNER_KIND := "dating_challenge"
 const PHASES := ["pre_challenge", "preparing", "challenge", "cleared_awaiting_terminal_choice", "settlement_retry", "post_challenge", "completed"]
@@ -778,7 +778,7 @@ func _freeze_pre_challenge_presentation() -> Dictionary:
 		var friend_id: String = _record.context.participants[0]
 		var relationship: Dictionary = _game_state.dating_route_state.get(friend_id, {})
 		fields = {"tier": str(relationship.get("relationship_state", "friend")),
-			"tone": "dark" if int(relationship.get("dark_points", 0)) >= OBSERVER_RULES.DARK_TONE_THRESHOLD else "sweet",
+			"tone": "dark" if int(relationship.get("dark_points", 0)) >= PROGRESSION_RULES.DARK_TONE_THRESHOLD else "sweet",
 			"attitude": str(_game_state.friend_attitude.get(friend_id, "")), "echo_ids": []}
 	else:
 		fields = {"pair_mode": str(_record.context.kind), "pair_form": str(_record.pair_form)}
@@ -845,7 +845,7 @@ func _freeze_post_challenge_presentation() -> Dictionary:
 			var pre: Dictionary = _game_state.route_context.get("dating_pre_challenge_presentation", {})
 			if pre.get("fields", {}).get("tier", tier) != tier: promotion = tier
 		fields = {"tier": tier,
-			"tone": "dark" if int(relationship.get("dark_points", 0)) >= OBSERVER_RULES.DARK_TONE_THRESHOLD else "sweet",
+			"tone": "dark" if int(relationship.get("dark_points", 0)) >= PROGRESSION_RULES.DARK_TONE_THRESHOLD else "sweet",
 			"attitude": str(_game_state.friend_attitude.get(friend_id, "")),
 			"echo_ids": [], "promotion_result": promotion}
 	else:
@@ -1038,134 +1038,11 @@ func acknowledge_post_challenge_render(physical_token: String) -> Dictionary:
 
 func pull_observer(physical_token: String) -> Dictionary:
 	if not _adopt(physical_token): return _fail(&"stale_dating_physical_token")
-	var source := _observer_source()
-	if source.is_empty(): return _ok({})
-	return _ok(_observer_projection(source))
+	return _ok({})
 
-func dispatch_observer(physical_token: String, atom_id: String, action: String, elapsed_ms: int = 0) -> Dictionary:
+func dispatch_observer(physical_token: String, _atom_id: String, _action: String, _elapsed_ms: int = 0) -> Dictionary:
 	if not _adopt(physical_token): return _fail(&"stale_dating_physical_token")
-	var source := _observer_source()
-	if source.is_empty() or atom_id != source.presentation_atom_id: return _fail(&"observer_source_not_admitted")
-	var lease := {}
-	if _attempt_gate != null:
-		lease = _attempt_gate.acquire(&"causal_transaction")
-		if not lease.get("ok", false): return lease
-	var result := _dispatch_observer(source, action, elapsed_ms)
-	if not lease.is_empty():
-		var released: Dictionary = _attempt_gate.release(&"causal_transaction", lease.value.token)
-		if not released.ok: return released
-	return result
-
-func _observer_source() -> Dictionary:
-	return {}
-
-func _observer_state(source: Dictionary) -> Dictionary:
-	var stored: Variant = _game_state.route_context.get("dating_observer_source")
-	if stored is Dictionary and stored.get("entry_id") == source.entry_id and stored.get("run_id") == source.run_id:
-		var expected := ["capture_receipt_id", "checkpoint_pending", "closed", "comparison_shown", "elapsed_ms", "entry_id", "intervened", "playback_token", "rendered", "run_id"]
-		var keys: Array = stored.keys()
-		keys.sort()
-		if keys != expected: return {}
-		for key: String in ["capture_receipt_id", "entry_id", "playback_token", "run_id"]:
-			if not stored[key] is String: return {}
-		for key: String in ["checkpoint_pending", "closed", "comparison_shown", "intervened", "rendered"]:
-			if typeof(stored[key]) != TYPE_BOOL: return {}
-		if typeof(stored.elapsed_ms) != TYPE_INT or stored.elapsed_ms < 0 or stored.elapsed_ms > OBSERVER_RULES.OBSERVER_WITHHOLDING_MS: return {}
-		return stored.duplicate(true)
-	var capture_id := ""
-	var evidence: Dictionary = _profile.get_observer_evidence().value.receipts
-	var ids: Array = evidence.keys()
-	ids.sort()
-	for id: String in ids:
-		var receipt: Dictionary = evidence[id]
-		if receipt.kind == "capture" and receipt.run_id != source.run_id and receipt.comparison_key == source.comparison_key:
-			capture_id = id
-			break
-	return {"entry_id": source.entry_id, "run_id": source.run_id, "playback_token": "",
-		"capture_receipt_id": capture_id, "rendered": false, "comparison_shown": false,
-		"elapsed_ms": 0, "intervened": false, "closed": false, "checkpoint_pending": false}
-
-func _observer_projection(source: Dictionary) -> Dictionary:
-	var state := _observer_state(source)
-	if state.is_empty(): return {}
-	var evidence: Dictionary = _profile.get_observer_evidence().value.receipts
-	var captured := evidence.has(source.run_id + ":observer:capture")
-	var counterpart: bool = not str(state.capture_receipt_id).is_empty()
-	return {"entry_id": source.entry_id, "presentation_atom_id": source.presentation_atom_id,
-		"scope": source.scope, "text": source.original_text,
-		"counterpart_text": source.get("counterpart_text", ""),
-		"counterpart": counterpart, "captured": captured,
-		"comparison_shown": state.comparison_shown, "closed": state.closed,
-		"intervened": state.intervened, "elapsed_ms": state.elapsed_ms,
-		"checkpoint_pending": state.checkpoint_pending,
-		"duration_ms": OBSERVER_RULES.OBSERVER_WITHHOLDING_MS}
-
-func _dispatch_observer(source: Dictionary, action: String, elapsed_ms: int) -> Dictionary:
-	var state := _observer_state(source)
-	if state.is_empty(): return _fail(&"invalid_observer_restore_state")
-	if state.checkpoint_pending and action not in ["render", "retry"]: return _fail(&"observer_checkpoint_retry_required")
-	if action == "retry" and state.checkpoint_pending:
-		return _observer_checkpoint(source, state)
-	if action == "render":
-		state["rendered"] = true
-		state["playback_token"] = _record.physical_token
-	elif not state.rendered or state.playback_token != _record.physical_token:
-		return _fail(&"observer_atom_not_rendered")
-	elif source.scope == "priscilla":
-		if action == "capture" and str(state.capture_receipt_id).is_empty():
-			var receipt := _observer_receipt(source, "capture")
-			receipt["text_variant"] = "original"
-			var committed: Dictionary = _profile.record_observer_evidence(receipt)
-			if not committed.ok: return committed
-		elif action == "compare" and not str(state.capture_receipt_id).is_empty():
-			state["comparison_shown"] = true
-		elif action == "compare_rendered" and state.comparison_shown and not str(state.capture_receipt_id).is_empty():
-			var receipt := _observer_receipt(source, "verification")
-			receipt["capture_receipt_id"] = state.capture_receipt_id
-			var committed: Dictionary = _profile.record_observer_evidence(receipt)
-			if not committed.ok: return committed
-		else: return _fail(&"observer_action_unavailable")
-	else:
-		if state.closed: return _ok(_observer_projection(source))
-		if action == "intervene": state["intervened"] = true
-		elif action == "tick" and elapsed_ms >= 0 and elapsed_ms <= 1000:
-			state["elapsed_ms"] = mini(OBSERVER_RULES.OBSERVER_WITHHOLDING_MS, int(state.elapsed_ms) + elapsed_ms)
-		elif action == "close" and state.elapsed_ms == OBSERVER_RULES.OBSERVER_WITHHOLDING_MS:
-			if not state.intervened:
-				var receipt := _observer_receipt(source, "restraint")
-				receipt["window_id"] = source.run_id + ":" + source.entry_id + ":withholding"
-				receipt["duration_ms"] = OBSERVER_RULES.OBSERVER_WITHHOLDING_MS
-				receipt["intervened"] = false
-				var committed: Dictionary = _profile.record_observer_evidence(receipt)
-				if not committed.ok: return committed
-			state["closed"] = true
-		else: return _fail(&"observer_action_unavailable")
-	_game_state.route_context["dating_observer_source"] = state.duplicate(true)
-	if action in ["capture", "compare_rendered", "intervene", "close"]:
-		return _observer_checkpoint(source, state)
-	return _ok(_observer_projection(source))
-
-func _observer_checkpoint(source: Dictionary, state: Dictionary) -> Dictionary:
-	state["checkpoint_pending"] = false
-	_game_state.route_context["dating_observer_source"] = state.duplicate(true)
-	if _checkpoint_writer.is_valid():
-		var saved: Variant = _checkpoint_writer.call(_record.duplicate(true))
-		if not saved is Dictionary or not saved.get("ok", false):
-			state["checkpoint_pending"] = true
-			_game_state.route_context["dating_observer_source"] = state.duplicate(true)
-			return saved if saved is Dictionary else _fail(&"observer_checkpoint_failed")
-	state["checkpoint_pending"] = false
-	_game_state.route_context["dating_observer_source"] = state.duplicate(true)
-	return _ok(_observer_projection(source))
-
-func _observer_receipt(source: Dictionary, kind: String) -> Dictionary:
-	var previous: Variant = _profile.get_observer_evidence().value.receipts.get(source.run_id + ":observer:" + kind)
-	if previous is Dictionary: return previous.duplicate(true)
-	return {"kind": kind, "run_id": source.run_id,
-		"receipt_id": source.run_id + ":observer:" + kind,
-		"entry_id": source.entry_id, "presentation_atom_id": source.presentation_atom_id,
-		"line_id": source.line_id, "comparison_key": source.comparison_key,
-		"playback_token": _record.physical_token}
+	return _fail(&"observer_source_not_admitted")
 
 func _make_spec(host: String, scene_dimensions: Dictionary = {}) -> Dictionary:
 	var dimensions: Dictionary=CATALOG.lookup(host) if scene_dimensions.is_empty() else _ok(scene_dimensions)
@@ -1378,7 +1255,7 @@ func _scene_authorize(command: Dictionary) -> Dictionary:
 	if _scene_authority == null or ATTEMPTS.semantic_slot(command.get("context", {})).is_empty():
 		return _fail(&"scene_challenge_unconfigured")
 	var prepared: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").prepared_scene_contract(_scene_bundle)
-	return _scene_authority.validate_scene_challenge_command(command.duplicate(true),
+	return _scene_authority.validate_scene_challenge_command(command,
 		_scene_bundle if not prepared.is_empty() else _scene_bundle.duplicate(true))
 
 func admit_scene_continuation(command: Dictionary) -> Dictionary:
@@ -1400,19 +1277,18 @@ func _scene_input_open() -> bool:
 
 func _scene_story_binding() -> Dictionary:
 	if _scene_authority.has_method("capture_scene_challenge_binding"):
-		return _scene_authority.capture_scene_challenge_binding(_admitted_command.duplicate(true))
+		return _scene_authority.capture_scene_challenge_binding(_admitted_command)
 	return _ok({"challenge_id": _admitted_command.context.challenge_id,
 		"scene_occurrence": _admitted_command.context.scene_occurrence,
 		"playable_command_id": _admitted_command.context.playable_command_id})
 
 func _scene_closed() -> Dictionary:
-	return _scene_authority.capture_scene_challenge_closure(_admitted_command.context.duplicate(true))
+	return _scene_authority.capture_scene_challenge_closure(_admitted_command.context)
 
 func _scene_closed_record_matches(closed: Dictionary) -> bool:
 	if closed.is_empty() or not is_instance_valid(_game_state) \
 			or _routine_pending or not _pending_checkpoint.is_empty(): return false
-	var captured: Dictionary = _game_state.capture_dating_challenge_state()
-	if not captured.get("ok", false) or captured.value != _record: return false
+	if not _game_state.matches_dating_challenge_state(_record): return false
 	var context: Dictionary = _record.get("context", _admitted_command.get("context", {}))
 	var slot := ATTEMPTS.semantic_slot(context)
 	if slot.is_empty() or closed.get("kind") != "challenge_closed": return false
@@ -1430,7 +1306,7 @@ func _begin_scene(command: Dictionary) -> Dictionary:
 	if _scene_fatal: return _fail(&"scene_challenge_fatal_custody")
 	var admitted := _scene_authorize(command)
 	if not admitted.get("ok", false): return admitted
-	var closed: Dictionary = _scene_authority.capture_scene_challenge_closure(command.context.duplicate(true))
+	var closed: Dictionary = _scene_authority.capture_scene_challenge_closure(command.context)
 	if not closed.get("ok", false): return closed
 	if not closed.value.is_empty(): return _fail(&"scene_challenge_closed")
 	if not _pending_checkpoint.is_empty():
@@ -1612,7 +1488,7 @@ func _scene_checkpoint() -> Dictionary:
 	var applied := _apply_record_effect(true)
 	if not applied.ok: return applied
 	_scene_checkpoint_in_flight = true
-	var saved: Dictionary = _scene_authority.commit_scene_challenge_checkpoint(_record.duplicate(true), _history_reference.duplicate(), _scene_lease)
+	var saved: Dictionary = _scene_authority.commit_scene_challenge_checkpoint(_record, _history_reference, _scene_lease)
 	_scene_checkpoint_in_flight = false
 	if not saved.get("ok", false):
 		_retain_scene_failure_custody(saved)
@@ -1654,7 +1530,7 @@ func close_scene_challenge_owned(lease: String) -> Dictionary:
 	return result
 
 func _close_scene_locked() -> Dictionary:
-	var end: Dictionary = _scene_authority.validate_scene_challenge_end(_admitted_command.duplicate(true))
+	var end: Dictionary = _scene_authority.validate_scene_challenge_end(_admitted_command)
 	if not end.get("ok", false): return end
 	if not _pending_checkpoint.is_empty():
 		var retried := _scene_checkpoint()
@@ -1665,7 +1541,7 @@ func _close_scene_locked() -> Dictionary:
 		var applied := _apply_record_effect(true)
 		if not applied.ok: return applied
 		_scene_checkpoint_in_flight = true
-		var source: Dictionary = _scene_authority.commit_scene_challenge_checkpoint(_record.duplicate(true), _history_reference.duplicate(), _scene_lease)
+		var source: Dictionary = _scene_authority.commit_scene_challenge_checkpoint(_record, _history_reference, _scene_lease)
 		_scene_checkpoint_in_flight = false
 		if not source.get("ok", false):
 			_retain_scene_failure_custody(source)
