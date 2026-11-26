@@ -612,11 +612,11 @@ func capture_backup_checkpoint_inputs() -> Dictionary:
 	var inputs: Dictionary = captured.get("value", {})
 	var snapshot: Dictionary = inputs.get("snapshot_input", {})
 	var saved_record: Dictionary = snapshot.get("gameplay", {}).get("route_context", {}).get("active_dating_challenge", {})
-	var current: Dictionary = _services.game_state.capture_dating_challenge_state()
+	var record_matches: bool = _services.game_state.matches_dating_challenge_state(record)
 	var after := _capture_between_entry_reading_checkpoint()
 	if inputs.get("route_id") != "dating" or inputs.get("dialogic_checkpoint") != narrative.value \
 			or snapshot.get("lifecycle", {}).get("run_id") != _captured_source.session.get("run_id") \
-			or saved_record != record or not current.get("ok", false) or current.value != record \
+			or saved_record != record or not record_matches \
 			or not after.get("ok", false) or after.value != narrative.value \
 			or not _backup_admission().get("ok", false):
 		return _failure(&"pause_source_changed")
@@ -654,13 +654,13 @@ func _capture_reading_backup_inputs() -> Dictionary:
 		return captured if captured is Dictionary else _failure(&"invalid_backup_capture")
 	var inputs: Dictionary = captured.get("value", {})
 	var saved_record: Dictionary = inputs.get("snapshot_input", {}).get("gameplay", {}).get("route_context", {}).get("active_dating_challenge", {})
-	var current: Dictionary = _services.game_state.capture_dating_challenge_state()
-	var after: Dictionary = _services.bridge.capture_reading_checkpoint(false)
+	var record_matches: bool = _services.game_state.matches_dating_challenge_state(record)
+	var reading_matches: bool = _services.bridge.matches_reading_checkpoint(checkpoint.value)
 	if inputs.get("route_id") != _captured_source.route_id \
 			or inputs.get("snapshot_input", {}).get("lifecycle", {}).get("run_id") != _captured_source.session.get("run_id") \
 			or inputs.get("dialogic_checkpoint") != checkpoint.value \
-			or saved_record != record or not current.get("ok", false) or current.value != record \
-			or not after.get("ok", false) or after.value != checkpoint.value \
+			or saved_record != record or not record_matches \
+			or not reading_matches \
 			or not _backup_admission().get("ok", false):
 		return _failure(&"pause_source_changed")
 	return {"ok": true, "value": inputs}
@@ -675,13 +675,13 @@ func _capture_scene_reading_backup_inputs() -> Dictionary:
 	if not captured is Dictionary or not captured.get("ok", false):
 		return captured if captured is Dictionary else _failure(&"invalid_backup_capture")
 	var inputs: Dictionary = captured.get("value", {})
-	var after: Dictionary = _services.bridge.capture_reading_checkpoint(false)
-	var current: Dictionary = _services.game_state.capture_dating_challenge_state()
+	var reading_matches: bool = _services.bridge.matches_reading_checkpoint(checkpoint.value)
+	var record_matches: bool = _services.game_state.matches_dating_challenge_state(prior.value)
 	if inputs.get("route_id") != "scene" \
 			or inputs.get("snapshot_input", {}).get("lifecycle", {}).get("run_id") != _captured_source.session.get("run_id") \
 			or inputs.get("dialogic_checkpoint") != checkpoint.value \
-			or not after.get("ok", false) or after.value != checkpoint.value \
-			or not current.get("ok", false) or current.value != prior.value \
+			or not reading_matches \
+			or not record_matches \
 			or inputs.get("snapshot_input", {}).get("gameplay", {}).get("route_context", {}).get("active_dating_challenge", {}) != prior.value \
 			or not _backup_admission().get("ok", false):
 		return _failure(&"pause_source_changed")
@@ -695,11 +695,11 @@ func _capture_ending_reading_backup_inputs() -> Dictionary:
 	if not captured is Dictionary or not captured.get("ok", false):
 		return captured if captured is Dictionary else _failure(&"invalid_backup_capture")
 	var inputs: Dictionary = captured.get("value", {})
-	var after: Dictionary = _services.bridge.capture_reading_checkpoint(false)
+	var reading_matches: bool = _services.bridge.matches_reading_checkpoint(checkpoint.value)
 	if inputs.get("route_id") != "ending" \
 			or inputs.get("snapshot_input", {}).get("lifecycle", {}).get("run_id") != _captured_source.session.get("run_id") \
 			or inputs.get("dialogic_checkpoint") != checkpoint.value \
-			or not after.get("ok", false) or after.value != checkpoint.value \
+			or not reading_matches \
 			or not _backup_admission().get("ok", false):
 		return _failure(&"pause_source_changed")
 	if not inputs.snapshot_input.has("scene"):

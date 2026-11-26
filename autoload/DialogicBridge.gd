@@ -2084,7 +2084,7 @@ func _perform_caption_next(expected_frontier: Dictionary) -> Dictionary:
 		if not finished.get("ok", false) and _line_presentation_context(expected_frontier).get("ok", false):
 			finished["scene_departure_profile_revision"] = _skip_profile.get_profile_revision()
 		return finished
-	var source := capture_reading_checkpoint(false)
+	var source := _reading_checkpoint_view()
 	if not source.ok: return source
 	var revision: int = _skip_profile.get_profile_revision()
 	var planned: Dictionary = _reading_session.prepare_next(current.value.caption_publication,
@@ -2759,7 +2759,7 @@ func can_capture_reading_checkpoint() -> bool:
 			var control_frame: Dictionary = _reading_session.ledger.check_session_view(_reading_session.command_id,
 				_reading_session.latest_entry, _reading_session.scene_occurrence)
 			return control_frame.ok and _READING_TRAVERSAL._same(control_frame.value, _active_entry.get("frozen_context")) \
-				and _runtime_adapter.has_method("capture_scene_control_position") \
+				and _runtime_adapter.has_method("scene_control_position_view") \
 				and _runtime_adapter.has_method("project_scene_control_frontier") \
 				and _runtime_adapter.project_scene_control_frontier(_reading_session, false).get("ok", false)
 		var frame: Dictionary = _reading_session.ledger.check_session_view(_reading_session.command_id,
@@ -2776,6 +2776,15 @@ func can_capture_reading_checkpoint() -> bool:
 
 
 func capture_reading_checkpoint(complete_reveal: bool = false) -> Dictionary:
+	var checkpoint := _reading_checkpoint_view(complete_reveal)
+	if checkpoint.ok: checkpoint.value = checkpoint.value.duplicate(true)
+	return checkpoint
+
+func matches_reading_checkpoint(expected: Dictionary) -> bool:
+	var current := _reading_checkpoint_view()
+	return current.ok and current.value == expected
+
+func _reading_checkpoint_view(complete_reveal: bool = false) -> Dictionary:
 	if complete_reveal and not _pause_handle.is_empty(): return _command_failure(&"narrative_suspended")
 	if not can_capture_reading_checkpoint(): return _command_failure(&"reading_frontier_unavailable")
 	var frontier := {}
@@ -2784,14 +2793,14 @@ func capture_reading_checkpoint(complete_reveal: bool = false) -> Dictionary:
 			else _runtime_adapter.capture_reading_frontier()
 		if not native_frontier.ok: return native_frontier
 		frontier = native_frontier.value
-	var session_snapshot: Dictionary = _runtime_adapter.capture_scene_control_position(_reading_session) \
-		if _reading_session.family == "scene" and _reading_session.boundary == "control" else _reading_session.capture(frontier)
+	var session_snapshot: Dictionary = _runtime_adapter.scene_control_position_view(_reading_session) \
+		if _reading_session.family == "scene" and _reading_session.boundary == "control" else _reading_session.capture_view(frontier)
 	if not session_snapshot.ok: return session_snapshot
 	var entry_id: String = _reading_session.latest_entry
 	var context: Dictionary
 	var manifest_fingerprint: String
 	if _reading_session.family == "scene":
-		var frame := preload("res://scripts/narrative/NarrativeCaptionLedger.gd").resolve_scene_frame(
+		var frame := preload("res://scripts/narrative/NarrativeCaptionLedger.gd")._scene_frame_view(
 			session_snapshot.value.ledger.entry_contexts, session_snapshot.value.occurrence_id, entry_id)
 		if not frame.ok: return frame
 		context = frame.value
@@ -2799,7 +2808,7 @@ func capture_reading_checkpoint(complete_reveal: bool = false) -> Dictionary:
 	else:
 		var document := _ensure_entry_document()
 		if not document.ok: return document
-		context = session_snapshot.value.ledger.entry_contexts[entry_id].duplicate(true)
+		context = session_snapshot.value.ledger.entry_contexts[entry_id]
 		manifest_fingerprint = _ENTRY_MANIFEST.fingerprint(document.value)
 	return {"ok": true, "value": {"content_version": int(_reading_session.catalogue[entry_id].content_version),
 		"entry_id": entry_id, "frozen_context": context, "manifest_fingerprint": manifest_fingerprint,
@@ -2820,8 +2829,7 @@ func complete_paused_reading_reveal(handle: Dictionary, text_node: DialogicNode_
 	var completed: Dictionary = _runtime_adapter.complete_paused_reading_frontier(text_node)
 	_pause_changing = false
 	if not completed.get("ok", false): return completed
-	var after := capture_reading_checkpoint(false)
-	if not after.get("ok", false) or after.value != before.value or not get_state().get("ok", false):
+	if not matches_reading_checkpoint(before.value) or not get_state().get("ok", false):
 		return _pause_failure(&"pause_source_changed")
 	return completed
 
@@ -4172,7 +4180,7 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 				or not prepared.get("source_context") is Dictionary or not prepared.get("source_input") is Dictionary:
 			return _command_failure(&"scene_playable_source_invalid")
 		var source: Dictionary = prepared.source_context.checkpoint
-		var captured := capture_reading_checkpoint(false)
+		var captured := _reading_checkpoint_view()
 		if not captured.ok or not _READING_TRAVERSAL._same(captured.value, source):
 			return _command_failure(&"scene_playable_source_invalid")
 		var held: Dictionary = _runtime_adapter.hold_scene_source(_reading_session)

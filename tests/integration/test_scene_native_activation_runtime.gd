@@ -504,6 +504,10 @@ func test_held_control_actions_revalidate_history_and_preserve_read_only_custody
 	assert_true(view.value.is_read_only())
 	assert_true(view.value.ledger.captions.is_read_only())
 	assert_true(is_same(view.value, _adapter.scene_control_position_view(held.session).value))
+	var saved: Dictionary = _bridge.capture_reading_checkpoint(false).value
+	saved.frozen_context.presentation.fields.entry_id = "TEST.edited"
+	saved.reading_session.ledger.captions.clear()
+	assert_eq(_bridge.capture_reading_checkpoint(false).value, held.checkpoint)
 	assert_eq(position.value, held.checkpoint.reading_session)
 	assert_eq(held.session.captures, 0, "control capture validates live identity without rebuilding history")
 	assert_eq(held.ledger.snapshots, 0, "held marker checks reuse immutable history")

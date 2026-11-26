@@ -479,7 +479,7 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 	if not audio.ok: return audio
 	var content := _call_provider("content_version", [])
 	if not content.ok: return content
-	var inputs := _checkpoint_inputs(active.value, audio.value, content.value, checkpoint.duplicate(true), route.value, snapshot_input.duplicate(true))
+	var inputs := _checkpoint_inputs(active.value, audio.value, content.value, checkpoint, route.value, snapshot_input)
 	var captured: Dictionary = _real_port.capture()
 	if not captured.get("ok", false): return captured
 	var prepared: Dictionary = _real_port.prepare(inputs, &"safe_marker",
