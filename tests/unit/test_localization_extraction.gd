@@ -45,11 +45,11 @@ func test_manifest_and_catalog_bundle_are_semantically_valid() -> void:
 func test_manifest_rejects_duplicates_paths_and_cycles() -> void:
 	var manifest := _read("res://localization/manifest.json")
 	var duplicate := manifest.duplicate(true); duplicate["locales"].append(duplicate["locales"][0].duplicate(true))
-	assert_false(LOCALIZATION_SCHEMA.validate_manifest(duplicate, "res://localization/").get("ok", true))
+	assert_false(LOCALIZATION_SCHEMA.validate_manifest(duplicate).get("ok", true))
 	var escaped := manifest.duplicate(true); escaped["locales"][1]["ui_file"] = "../outside.json"
-	assert_false(LOCALIZATION_SCHEMA.validate_manifest(escaped, "res://localization/").get("ok", true))
+	assert_false(LOCALIZATION_SCHEMA.validate_manifest(escaped).get("ok", true))
 	var cycle := manifest.duplicate(true); cycle["locales"][1]["fallback_locale"] = "zh_HK"; cycle["locales"][2]["fallback_locale"] = "zh_CN"
-	assert_false(LOCALIZATION_SCHEMA.validate_manifest(cycle, "res://localization/").get("ok", true))
+	assert_false(LOCALIZATION_SCHEMA.validate_manifest(cycle).get("ok", true))
 
 func test_placeholder_mismatch_rejects_bundle() -> void:
 	var manifest := _read("res://localization/manifest.json")
