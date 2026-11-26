@@ -233,7 +233,7 @@ func commit_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary, name
 			else:
 				_scene_entry.state = "committed"
 				_scene_entry.ack = {"capability_id": _scene_entry.capability_id, "operation_id": _scene_entry.binding.operation_id,
-					"source_checkpoint": _scene_entry.binding.source_checkpoint.duplicate(true), "target_publication": reference.duplicate(true),
+					"source_checkpoint": _scene_entry.binding.source_checkpoint.duplicate(), "target_publication": reference.duplicate(),
 					"binding_sha256": _scene_entry.binding_sha256, "narrative_checkpoint_sha256": _scene_entry.narrative_checkpoint_sha256}
 		elif result.get("committed", false) or str(result.get("code", "")) == "APPLICATION_FATAL":
 			_scene_entry.state = "uncertain"

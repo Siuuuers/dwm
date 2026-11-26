@@ -3741,10 +3741,11 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
 	var receipt := _SCENE_EVENT.make_scene_receipt(event, current.value.anchor, result, registered.value)
 	if not receipt.ok: return receipt
 	if receipt.value.request_fingerprint != digest: return _transaction_failure(&"event_digest_mismatch", "")
-	var prior := _command_receipts.duplicate(true)
-	if prior.has(event.command_id): return lookup_scene_event(event.command_id, digest)
+	if _command_receipts.has(event.command_id): return lookup_scene_event(event.command_id, digest)
+	var changes_scene: bool = result.kind in ["scene_transition_accepted", "thought_resolved", "challenge_recalled", "contact_entry_accepted", "contact_returned"]
+	var prior := {} if changes_scene else _command_receipts.duplicate(true)
 	var candidate := capture_run_snapshot_input()
-	candidate.command_receipts[event.command_id] = receipt.value.duplicate(true)
+	candidate.command_receipts[event.command_id] = receipt.value
 	if result.kind == "thought_resolved":
 		candidate.gameplay.scene_choices[result.opportunity_id] = result.choice
 	elif result.kind == "passage_finished":
@@ -3752,7 +3753,7 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
 		candidate.lifecycle["completed_registration_sha256"] = candidate.scene.registration_sha256
 	elif result.kind == "notification_updated":
 		candidate.scene.notification = result.notification.duplicate(true)
-	if result.kind in ["scene_transition_accepted", "thought_resolved", "challenge_recalled", "contact_entry_accepted", "contact_returned"]:
+	if changes_scene:
 		var advanced := _admit_scene_target_owned(result.target_id, event.command_id, lease, candidate)
 		if not advanced.get("ok", false): return advanced
 		return {"ok": true, "value": result.duplicate(true), "duplicate": false, "committed": true}
@@ -3777,7 +3778,7 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
 	if result.kind == "passage_finished":
 		var completed: Dictionary = _run_lifecycle.commit_restore(candidate.lifecycle)
 		if not completed.get("ok", false): return _scene_event_fatal(&"scene_passage_adoption_failed")
-	return {"ok": true, "value": result.duplicate(true), "duplicate": false}
+	return {"ok": true, "value": result, "duplicate": false}
 
 var _scene_save_owner: Object
 var _scene_entry_operation: Dictionary = {}

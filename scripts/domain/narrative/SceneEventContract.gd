@@ -96,7 +96,7 @@ static func make_receipt(envelope: Dictionary, anchor: Dictionary) -> Dictionary
 		"request_fingerprint": shaped.value.digest, "kind": "scene_event",
 		"source_id": envelope.source.scene_occurrence, "scene_event": {
 			"schema_version": 1, "semantic": shaped.value.semantic,
-			"registration_fingerprint": fingerprint.value, "reading_anchor": anchor.duplicate(true),
+			"registration_fingerprint": fingerprint.value, "reading_anchor": anchor.duplicate(),
 			"result": {"event_id": envelope.event_id, "ordinal": envelope.ordinal,
 				"notification": envelope.payload.duplicate(true) if envelope.kind == "notification.set" else {}}}}}
 
@@ -499,7 +499,7 @@ static func _make_scene_receipt_from_context(envelope: Dictionary, anchor: Dicti
 	return {"ok": true, "value": {"transaction_id": envelope.command_id, "request_fingerprint": checked.value.digest,
 		"kind": "scene_event", "source_id": envelope.source.scene_occurrence, "scene_event": {
 			"schema_version": 2, "semantic": checked.value.semantic, "registration_fingerprint": checked.value.registration_fingerprint,
-			"reading_anchor": anchor.duplicate(true), "result": result.duplicate(true)}}}
+			"reading_anchor": anchor.duplicate(), "result": result.duplicate(true)}}}
 
 static func validate_scene_result(envelope: Dictionary, result: Variant, bundle: Dictionary) -> Dictionary:
 	var context := _inspect_scene_context(envelope, bundle)
