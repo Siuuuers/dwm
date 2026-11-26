@@ -1,5 +1,5 @@
 extends RefCounted
-const PREVIEW_GAMEPLAY_KEYS := ["money", "coins", "minesweeper_round_floor", "stats", "inventory"]
+const GAMEPLAY_KEYS := ["money", "coins", "minesweeper_round_floor", "stats", "inventory"]
 const MAX_INTEGER: int = 9223372036854775807
 const SPECIAL_IDS: Array[String] = ["supportz", "lucky_charm", "debug_key"]
 

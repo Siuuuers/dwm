@@ -4730,21 +4730,19 @@ func capture_scene_shop_context() -> Dictionary:
 func preview_scene_shop_purchase(item_id: String, quantity: int) -> Dictionary:
 	var context := capture_scene_shop_context()
 	if not context.ok: return context
-	var prepared := _prepare_scene_shop_gameplay(item_id, quantity, "scene-shop-preview", context.value.identity,
-		_SCENE_SHOP_RULES.PREVIEW_GAMEPLAY_KEYS)
+	var prepared := _prepare_scene_shop_gameplay(item_id, quantity, "scene-shop-preview", context.value.identity)
 	if not prepared.ok: return prepared
 	var purchase: Dictionary = prepared.value.purchase
 	return {"ok": true, "value": {"eligible": true, "total": purchase.unit_price * purchase.quantity}}
 
-func _prepare_scene_shop_gameplay(item_id: String, quantity: int, id: String, identity: Dictionary,
-		gameplay_keys: Array = SCENE_GAMEPLAY_KEYS) -> Dictionary:
+func _prepare_scene_shop_gameplay(item_id: String, quantity: int, id: String, identity: Dictionary) -> Dictionary:
 	if not is_instance_valid(_scene_shop_catalog) or not is_instance_valid(_scene_shop_consequence):
 		return _transaction_failure(&"scene_shop_unconfigured", "")
 	var raw: Variant = _scene_shop_catalog.call("get_shop_item", item_id)
 	if not raw is Dictionary or raw.is_empty(): return _transaction_failure(&"unregistered_shop_item", "")
 	var captured: Dictionary = _scene_shop_consequence.capture()
 	if not captured.get("ok", false): return captured
-	var gameplay := _capture_scene_gameplay(gameplay_keys)
+	var gameplay := _capture_scene_gameplay(_SCENE_SHOP_RULES.GAMEPLAY_KEYS)
 	if not _SCENE_EVENT._equal(_desktop_snapshot_view().get("consequence"), captured.value.state) \
 			or captured.value.state.get("pending") != null \
 			or captured.value.state.get("causal_day_instance") != identity.causal_day_instance:
@@ -4803,17 +4801,19 @@ func _commit_scene_shop_owned(item_id: String, quantity: int, id: String, proof:
 	var receipt := _SCENE_EVENT.make_scene_shop_purchase(context.value.identity, proof,
 		context.value.scene_occurrence, prepared.value.purchase, _identity_issuer)
 	if not receipt.ok: return receipt
-	var candidate := before.duplicate(true)
-	candidate.gameplay = prepared.value.gameplay
-	candidate.command_receipts[id] = receipt.value.duplicate(true)
+	var candidate := before.duplicate()
+	candidate.gameplay = before.gameplay.merged(prepared.value.gameplay, true)
+	candidate.command_receipts = before.command_receipts.duplicate()
+	candidate.command_receipts[id] = receipt.value
 	var consequence_candidate := {}
 	if item_id == "supportz":
 		var recorded: Dictionary = _scene_shop_consequence.prepare_record_supportz_purchase(id, context.value.identity.causal_day_instance)
 		if not recorded.get("ok", false): return recorded
-		candidate.desktop.consequence = recorded.value.candidate.state_after.duplicate(true)
+		candidate.desktop = before.desktop.duplicate()
+		candidate.desktop.consequence = recorded.value.candidate.state_after
 		var restored: Dictionary = _scene_shop_consequence.prepare_restore(candidate.desktop.consequence)
 		if not restored.get("ok", false): return restored
-		consequence_candidate = restored.value.candidate.duplicate(true)
+		consequence_candidate = restored.value.candidate
 	var configured: Dictionary = _narrative_checkpoint_port.configure_scene_shop_authority(self, _validate_scene_shop_checkpoint)
 	if not configured.get("ok", false): return configured
 	_scene_shop_operation = {"lease": lease, "session": session.value, "before": before,
@@ -4826,7 +4826,7 @@ func _commit_scene_shop_owned(item_id: String, quantity: int, id: String, proof:
 	if not consequence_candidate.is_empty():
 		var adopted: Dictionary = _scene_shop_consequence.commit(consequence_candidate)
 		if not adopted.get("ok", false): return _scene_event_fatal(&"scene_shop_adoption_failed")
-	_apply_gameplay_silent(candidate.gameplay)
+	_apply_gameplay_silent(prepared.value.gameplay)
 	_command_receipts = candidate.command_receipts.duplicate(true)
 	return _scene_shop_result(receipt.value)
 
