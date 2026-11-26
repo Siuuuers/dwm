@@ -792,7 +792,7 @@ func _await_scene_backup_load(pending: Dictionary) -> Dictionary:
 	var source := _captured_source.duplicate(true)
 	_pending_scene_load = operation_id
 	_scene_load_waiting = true
-	var result := pending.duplicate(true)
+	var result := pending
 	while result.get("code") == &"scene_activation_pending":
 		await get_tree().process_frame
 		if not _loading or _handle != handle or _captured_source != source or _pending_scene_load != operation_id:
