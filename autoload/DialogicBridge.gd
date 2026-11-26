@@ -512,9 +512,7 @@ var _signal_command_port: Object = null
 var _playback_completion_port: Object = null
 var _active_entry: Dictionary = {}
 const _READING_SESSION := preload("res://scripts/narrative/SoloReadingSession.gd")
-var _reading_catalogue_document: Dictionary = {}
-var _hospital_reading_catalogue_document: Dictionary = {}
-var _ending_reading_catalogue_document: Dictionary = {}
+var _reading_catalogues: Dictionary = {}
 var _ending_reading: Dictionary = {}
 var _hospital_reading_command: Dictionary = {}
 var _hospital_reading_token := ""
@@ -1488,7 +1486,7 @@ func start_ending_presentation(ending_id: String, context: Dictionary, signature
 	var resolved := _resolve_entry_for_playback(signature.entry_id, -1)
 	if not resolved.ok: return resolved
 	if not _ending_records.has(ending_id): return _command_failure(&"unknown_ending_id")
-	if not _ending_reading_catalogue_document.is_empty():
+	if _reading_catalogues.has("ending"):
 		var reading := _start_ending_reading(ending_id, context, signature, presentation)
 		if reading.get("code") != &"ending_reading_unregistered": return reading
 	if has_active_playback() or not _pause_handle.is_empty(): return _command_failure(&"narrative_playback_active")
@@ -1530,9 +1528,7 @@ func start_ending_presentation(ending_id: String, context: Dictionary, signature
 
 func _start_ending_reading(ending_id: String, context: Dictionary, signature: Dictionary, presentation: Dictionary) -> Dictionary:
 	if not _pause_handle.is_empty(): return _command_failure(&"narrative_suspended")
-	var candidate := _READING_SESSION.new()
-	var configured: Dictionary = candidate.configure(_ending_reading_catalogue_document)
-	if not configured.ok: return configured
+	var candidate: _READING_SESSION = _reading_catalogues["ending"].fork_catalogue()
 	if not candidate.catalogue.has(signature.entry_id): return _command_failure(&"ending_reading_unregistered")
 	var checked := preload("res://scripts/narrative/FrozenPresentationContext.gd").validate(signature.entry_id, presentation)
 	if not checked.ok: return checked
@@ -2122,9 +2118,8 @@ func _perform_caption_next(expected_frontier: Dictionary) -> Dictionary:
 	var source_reading := _READING_TRAVERSAL.project(plan, "source")
 	if not target_reading.ok: return target_reading
 	if not source_reading.ok: return source_reading
-	var candidate := _READING_SESSION.new()
-	var configured: Dictionary = candidate.configure(_reading_catalogue_document)
-	if not configured.ok: return configured
+	if not _reading_catalogues.has("solo"): return _READING_SESSION._fail(&"reading_catalogue_invalid")
+	var candidate: _READING_SESSION = _reading_catalogues["solo"].fork_catalogue()
 	var restored: Dictionary = candidate.restore(target_reading.value, plan.entry_id)
 	if not restored.ok: return restored
 	var destination_line := "" if plan.destination.kind == "completion" else str(plan.destination.caption.beat.line_id)
@@ -2612,27 +2607,22 @@ func configure_playback_completion_port(port: Object) -> Dictionary:
 
 
 func configure_reading_catalogue(document: Dictionary) -> Dictionary:
-	var hospital: bool = document.get("kind") == "hospital_reading_catalogue"
-	var ending: bool = document.get("kind") == "ending_reading_catalogue"
-	var current := _ending_reading_catalogue_document if ending else (_hospital_reading_catalogue_document if hospital else _reading_catalogue_document)
-	if not current.is_empty():
-		return {"ok": true} if current == document else _command_failure(&"reading_catalogue_already_configured")
-	var checked := _READING_SESSION.new()
-	var admitted: Dictionary = checked.configure(document)
-	if not admitted.ok: return admitted
-	var retained := document.merged({"entries": checked.catalogue.values()}, true)
-	if ending:
-		_ending_reading_catalogue_document = retained
-	elif hospital:
-		_hospital_reading_catalogue_document = retained
-	else:
-		_reading_catalogue_document = retained
-	return {"ok": true}
+	var kind: Variant = document.get("kind")
+	var family := "ending" if kind == "ending_reading_catalogue" else ("hospital" if kind == "hospital_reading_catalogue" else "solo")
+	var current: _READING_SESSION = _reading_catalogues.get(family)
+	if current != null:
+		var registered := {"kind": family + "_reading_catalogue", "schema_version": current.catalogue_schema_version,
+			"entries": current.catalogue.values()}
+		return {"ok": true} if registered == document else _command_failure(&"reading_catalogue_already_configured")
+	var candidate := _READING_SESSION.new()
+	var admitted := candidate.configure(document)
+	if admitted.ok: _reading_catalogues[family] = candidate
+	return admitted
 
 
-func _reading_catalogue_for_entry(entry_id: String) -> Dictionary:
-	if entry_id.begins_with("ending."): return _ending_reading_catalogue_document
-	return _hospital_reading_catalogue_document if entry_id.begins_with("hospital.faint.day") else _reading_catalogue_document
+func _reading_catalogue_for_entry(entry_id: String) -> _READING_SESSION:
+	if entry_id.begins_with("ending."): return _reading_catalogues.get("ending")
+	return _reading_catalogues.get("hospital" if entry_id.begins_with("hospital.faint.day") else "solo")
 
 
 func _reading_command_entry(command: Dictionary) -> String:
@@ -2643,11 +2633,9 @@ func _reading_command_entry(command: Dictionary) -> String:
 
 func begin_hospital_reading(command: Dictionary) -> Dictionary:
 	var entry_id := _reading_command_entry(command)
-	if _hospital_reading_catalogue_document.is_empty():
+	if not _reading_catalogues.has("hospital"):
 		return {"ok": true, "value": {"enabled": false}}
-	var candidate := _READING_SESSION.new()
-	var configured: Dictionary = candidate.configure(_hospital_reading_catalogue_document)
-	if not configured.ok: return configured
+	var candidate: _READING_SESSION = _reading_catalogues["hospital"].fork_catalogue()
 	if not candidate.catalogue.has(entry_id): return {"ok": true, "value": {"enabled": false}}
 	if has_active_playback() and not is_hospital_reading_restore_for(command):
 		return _command_failure(&"narrative_playback_active")
@@ -2699,11 +2687,9 @@ func can_capture_hospital_reading_checkpoint(command: Dictionary) -> bool:
 
 func begin_reading_session(command: Dictionary) -> Dictionary:
 	var entry_id := _reading_command_entry(command)
-	var document := _reading_catalogue_for_entry(entry_id)
-	if document.is_empty(): return {"ok": true, "value": {"enabled": false}}
-	var candidate := _READING_SESSION.new()
-	var configured: Dictionary = candidate.configure(document)
-	if not configured.ok: return configured
+	var catalogue := _reading_catalogue_for_entry(entry_id)
+	if catalogue == null: return {"ok": true, "value": {"enabled": false}}
+	var candidate: _READING_SESSION = catalogue.fork_catalogue()
 	if not candidate.catalogue.has(entry_id) or command.get("context", {}).get("kind") != candidate.family:
 		if not _reading_restore_pending.is_empty() or _reading_restore_adoption:
 			return _command_failure(&"reading_restore_command_mismatch")
@@ -2940,7 +2926,8 @@ func validate_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Diction
 		var scene := _prepare_scene_reading_candidate(checkpoint, entry_contexts)
 		if not scene.ok: return scene
 		return {"ok": true, "value": {"entry_contexts": checkpoint.reading_session.ledger.entry_contexts}}
-	if _reading_catalogue_for_entry(str(checkpoint.get("entry_id", ""))).is_empty(): return _command_failure(&"reading_catalogue_unavailable")
+	var catalogue := _reading_catalogue_for_entry(str(checkpoint.get("entry_id", "")))
+	if catalogue == null: return _command_failure(&"reading_catalogue_unavailable")
 	var keys := _RESUME_CHECKPOINT_KEYS.duplicate()
 	keys.append("manifest_fingerprint")
 	keys.append("reading_session")
@@ -2957,9 +2944,7 @@ func validate_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Diction
 	if not document.ok: return document
 	if checkpoint.manifest_fingerprint != _ENTRY_MANIFEST.fingerprint(document.value):
 		return _command_failure(&"reading_catalogue_mismatch")
-	var candidate := _READING_SESSION.new()
-	var configured: Dictionary = candidate.configure(_reading_catalogue_for_entry(checkpoint.entry_id))
-	if not configured.ok: return configured
+	var candidate: _READING_SESSION = catalogue.fork_catalogue()
 	var reconstructed: Dictionary = candidate.restore(checkpoint.reading_session, checkpoint.entry_id)
 	if not reconstructed.ok: return reconstructed
 	var frames: Dictionary = checkpoint.reading_session.ledger.entry_contexts
@@ -3078,9 +3063,7 @@ func stage_scene_terminal_restore(checkpoint: Dictionary, operation_id: String, 
 		if not checked.ok: return checked
 		if checkpoint.reading_session.family != "ending" or checkpoint.reading_session.boundary not in ["line", "between_entries"]:
 			return _command_failure(&"reading_checkpoint_invalid")
-		candidate = _READING_SESSION.new()
-		var configured: Dictionary = candidate.configure(_ending_reading_catalogue_document)
-		if not configured.ok: return configured
+		candidate = _reading_catalogues["ending"].fork_catalogue()
 		var restored: Dictionary = candidate.restore(checkpoint.reading_session, checkpoint.entry_id)
 		if not restored.ok: return restored
 	if has_active_playback() and not is_pause_restore_pending(): return _command_failure(&"narrative_playback_active")
@@ -3319,9 +3302,7 @@ func _resume_reading_checkpoint(checkpoint: Dictionary, execution_mode: StringNa
 	var checked := validate_reading_checkpoint(checkpoint)
 	if not checked.ok: return checked
 	if has_active_playback(): return _command_failure(&"narrative_playback_active")
-	var candidate := _READING_SESSION.new()
-	var configured: Dictionary = candidate.configure(_reading_catalogue_for_entry(checkpoint.entry_id))
-	if not configured.ok: return configured
+	var candidate: _READING_SESSION = _reading_catalogue_for_entry(checkpoint.entry_id).fork_catalogue()
 	var restored: Dictionary = candidate.restore(checkpoint.reading_session, checkpoint.entry_id)
 	if not restored.ok: return restored
 	if candidate.family == "hospital" and not _hospital_reading_command.is_empty() \
@@ -4498,9 +4479,8 @@ func validate_scene_event_anchors(anchors: Array[Dictionary], checkpoint: Dictio
 	return {"ok": true}
 
 func _validate_solo_event_anchor(anchor: Dictionary, checkpoint: Dictionary) -> Dictionary:
-	var catalogue := _READING_SESSION.new()
-	var configured: Dictionary = catalogue.configure(_reading_catalogue_for_entry(str(anchor.entry_id)))
-	if not configured.get("ok", false) or catalogue.family != "solo" \
+	var catalogue := _reading_catalogue_for_entry(str(anchor.entry_id))
+	if catalogue == null or catalogue.family != "solo" \
 			or catalogue.fingerprint != anchor.catalogue_fingerprint \
 			or not catalogue.catalogue.has(anchor.entry_id) \
 			or catalogue.catalogue[anchor.entry_id].content_version != anchor.content_version:
