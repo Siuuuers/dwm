@@ -34,15 +34,21 @@ static func encode_plan(plan: Dictionary, version: int) -> Dictionary:
 	return encoded if encoded.ok else _fail(&"reading_next_plan_invalid")
 
 static func project(plan: Dictionary, phase: String) -> Dictionary:
-	var made := create(plan, phase)
+	var projected := project_view(plan, phase)
+	if projected.ok: projected.value = projected.value.duplicate(true)
+	return projected
+
+static func project_view(plan: Dictionary, phase: String) -> Dictionary:
+	var made := _operation_view(plan, phase)
 	if not made.ok: return made
 	var reading: Dictionary
 	match made.value.schema_version:
-		3: reading = _scene_projection(plan, phase)
-		2: reading = _marker_projection_view(plan, phase).duplicate(true)
+		3: reading = _scene_projection(plan, phase, false)
+		2: reading = _marker_projection_view(plan, phase)
 		_:
-			reading = solo_projection_view(plan, phase).duplicate(true)
+			reading = solo_projection_view(plan, phase)
 			reading["schema_version"] = 2
+	if is_same(reading, plan.get("source_reading")): reading = reading.duplicate()
 	reading["next_operation"] = made.value
 	return {"ok": true, "value": reading}
 

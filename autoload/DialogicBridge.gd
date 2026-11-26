@@ -2097,8 +2097,8 @@ func _perform_caption_next(expected_frontier: Dictionary) -> Dictionary:
 		Callable(_skip_profile, "is_caption_variant_witnessed"))
 	if not planned.ok: return planned
 	var plan: Dictionary = planned.value
-	var target_reading := _READING_TRAVERSAL.project(plan, "destination")
-	var source_reading := _READING_TRAVERSAL.project(plan, "source")
+	var target_reading := _READING_TRAVERSAL.project_view(plan, "destination")
+	var source_reading := _READING_TRAVERSAL.project_view(plan, "source")
 	if not target_reading.ok: return target_reading
 	if not source_reading.ok: return source_reading
 	if not _reading_catalogues.has("solo"): return _READING_SESSION._fail(&"reading_catalogue_invalid")
