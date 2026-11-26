@@ -761,7 +761,7 @@ static func _resolve_scene_presentation(scene: Dictionary) -> Dictionary:
 	if not scene.has("presentation"): return {"ok": true, "value": {}}
 	if not scene.presentation is Dictionary:
 		return _fail(&"scene_presentation_invalid", "saved presentation must be an object")
-	return preload("res://scripts/data/ArtManifest.gd").resolve_saved_presentation(scene.presentation)
+	return preload("res://scripts/data/ArtManifest.gd").resolve_saved_presentation_view(scene.presentation)
 
 
 static func _validate_scene_gameplay(gameplay: Variant) -> String:

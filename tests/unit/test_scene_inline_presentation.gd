@@ -67,15 +67,15 @@ func test_saved_resolved_state_restores_without_replaying_checkpoint() -> void:
 		{"kind": "show", "id": "template.right", "slot": "portrait"}], {})
 	assert_true(prepared.ok, str(prepared))
 	if not prepared.ok: return
-	var restored := ART.resolve_saved_presentation(prepared.value.state)
+	var restored := ART.resolve_saved_presentation_view(prepared.value.state)
 	assert_true(restored.ok, str(restored))
 	if not restored.ok: return
-	assert_eq(restored.value, prepared.value.state)
+	assert_true(is_same(restored.value, prepared.value.state), "Resolved inline art can be read directly")
 	assert_eq(restored.value.background, "template.art", "checkpoint defaults do not replace saved art")
 	assert_false(restored.has("autosave"))
 
 func test_legacy_fixture_state_still_resolves_without_reauthoring() -> void:
-	var restored := ART.resolve_saved_presentation({"checkpoint_id": "template.checkpoint", "overlays": ["template.left"]})
+	var restored := ART.resolve_saved_presentation_view({"checkpoint_id": "template.checkpoint", "overlays": ["template.left"]})
 	assert_true(restored.ok, str(restored))
 	if not restored.ok: return
 	assert_eq(restored.value.background, "template.background")
@@ -89,7 +89,7 @@ func test_new_checkpoint_id_needs_no_duplicate_catalogue_entry() -> void:
 	if not result.ok: return
 	assert_true(result.value.autosave)
 	assert_eq(result.value.state.checkpoint_id, "new.story.arrival")
-	var restored := ART.resolve_saved_presentation(result.value.state)
+	var restored := ART.resolve_saved_presentation_view(result.value.state)
 	assert_true(restored.ok, str(restored))
 	if restored.ok: assert_eq(restored.value, result.value.state)
 

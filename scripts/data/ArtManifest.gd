@@ -81,6 +81,11 @@ static func get_scene_art(entry_id: String) -> Dictionary:
 		"cg": str(value.get("cg", ""))}
 
 static func get_presentation_commands(entry_id: String) -> Dictionary:
+	var result := _presentation_commands_view(entry_id)
+	if result.ok: result.value = result.value.duplicate(true)
+	return result
+
+static func _presentation_commands_view(entry_id: String) -> Dictionary:
 	var entries: Variant = _catalog().get("presentation_entries", {})
 	if entries is Dictionary:
 		var commands: Variant = entries.get(entry_id, [])
@@ -91,13 +96,13 @@ static func get_presentation_commands(entry_id: String) -> Dictionary:
 						or not command.get("id") is String or command.id.is_empty():
 					valid = false
 					break
-			if valid: return {"ok": true, "value": commands.duplicate(true)}
+			if valid: return {"ok": true, "value": commands}
 	return {"ok": false, "code": &"reading_content_error",
 		"message": "Invalid presentation commands at entry: " + entry_id,
 		"details": {"entry_id": entry_id}}
 
 static func apply_entry_presentation(entry_id: String, previous: Dictionary) -> Dictionary:
-	var commands := get_presentation_commands(entry_id)
+	var commands := _presentation_commands_view(entry_id)
 	if not commands.ok: return commands
 	var state := previous.duplicate(true)
 	var autosave := false
@@ -121,7 +126,7 @@ static func apply_entry_presentation(entry_id: String, previous: Dictionary) -> 
 			_:
 				return {"ok": false, "code": &"presentation_command_invalid", "reference": entry_id}
 	if not state.is_empty():
-		var resolved := resolve_saved_presentation(state)
+		var resolved := resolve_saved_presentation_view(state)
 		if not resolved.ok: return resolved
 	return {"ok": true, "value": {"state": state, "autosave": autosave}}
 
@@ -169,7 +174,7 @@ static func apply_presentation_commands(commands: Array, previous: Dictionary) -
 	elif previous.has("background"):
 		state = previous.duplicate(true)
 	else:
-		var resolved := resolve_saved_presentation(previous)
+		var resolved := resolve_saved_presentation_view(previous)
 		if not resolved.ok: return resolved
 		state = resolved.value
 		for overlay: Dictionary in state.overlays:
@@ -201,7 +206,7 @@ static func apply_presentation_commands(commands: Array, previous: Dictionary) -
 					if state.overlays[index].slot == command.slot: state.overlays.remove_at(index)
 	return {"ok": true, "value": {"state": state, "autosave": autosave}}
 
-static func resolve_saved_presentation(state: Dictionary) -> Dictionary:
+static func resolve_saved_presentation_view(state: Dictionary) -> Dictionary:
 	if state.is_empty(): return {"ok": true, "value": {}}
 	if not state.has("background"):
 		if state.size() != 2 or not state.get("checkpoint_id") is String or not state.get("overlays") is Array:
@@ -226,7 +231,7 @@ static func resolve_saved_presentation(state: Dictionary) -> Dictionary:
 		slots[overlay.slot] = true
 	for portrait: Variant in state.portraits:
 		if not portrait is String: return _presentation_reference_error("saved portrait", "shape")
-	return {"ok": true, "value": state.duplicate(true)}
+	return {"ok": true, "value": state}
 
 static func resolve_presentation(checkpoint_id: String, overlay_labels: Array) -> Dictionary:
 	var catalog := _catalog()

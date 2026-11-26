@@ -3324,7 +3324,7 @@ func get_scene_presentation() -> Dictionary:
 	var state: Dictionary = _scene_snapshot_references.get("presentation", {})
 	if state.is_empty(): return {}
 	if state.has("background"): return state.duplicate(true)
-	var resolved := _PRESENTATION_ART.resolve_saved_presentation(state)
+	var resolved := _PRESENTATION_ART.resolve_saved_presentation_view(state)
 	return resolved.value if resolved.ok else {}
 
 func prepare_scene_new_run_snapshot_input(allocation_candidate: Dictionary, entry_id: String,
@@ -4208,7 +4208,7 @@ func prepare_scene_audio_arrival(scene: Dictionary, bundle: Dictionary, label: S
 	var audio_owner := preload("res://scripts/data/AudioManifest.gd")
 	var context: Dictionary
 	if reset_default and scene.has("presentation"):
-		var presentation := _PRESENTATION_ART.resolve_saved_presentation(scene.presentation)
+		var presentation := _PRESENTATION_ART.resolve_saved_presentation_view(scene.presentation)
 		if not presentation.ok: return presentation
 		context = audio_owner.make_named_presentation_context(bundle, presentation.value.audio_plan_id, scene.active_occurrence_id)
 	elif not reset_default and scene.has("music_plan_id"):
@@ -4507,7 +4507,7 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 		var audio := get_node_or_null("/root/AudioManager")
 		var selected: Dictionary
 		if next_scene.has("presentation"):
-			var resolved := _PRESENTATION_ART.resolve_saved_presentation(next_scene.presentation)
+			var resolved := _PRESENTATION_ART.resolve_saved_presentation_view(next_scene.presentation)
 			if not resolved.ok: return resolved
 			selected = audio_owner.make_named_presentation_context(registration.bundle, resolved.value.audio_plan_id, occurrence)
 		else:
