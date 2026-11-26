@@ -1545,11 +1545,7 @@ func advance_day_or_end() -> bool:
 
 
 func capture_new_day_gameplay() -> Dictionary:
-	var gameplay: Dictionary
-	if _run_lifecycle.is_scene_run():
-		gameplay = _capture_scene_gameplay()
-	else:
-		gameplay = _capture_legacy_gameplay()
+	var gameplay := capture_run_gameplay()
 	_reset_day_fields(gameplay)
 	return gameplay
 
@@ -2754,6 +2750,10 @@ static func _legacy_run_gameplay(saved: Dictionary, variables: Dictionary) -> Di
 
 func _capture_legacy_gameplay() -> Dictionary:
 	return _legacy_run_gameplay(to_save_dict(), _narrative_variables).duplicate(true)
+
+
+func capture_run_gameplay() -> Dictionary:
+	return _capture_scene_gameplay() if _run_lifecycle.is_scene_run() else _capture_legacy_gameplay()
 
 
 func capture_run_snapshot_input() -> Dictionary:

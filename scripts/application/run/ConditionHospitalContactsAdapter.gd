@@ -7,7 +7,7 @@ const CANON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 static func prepare(contacts: Dictionary, plan: Dictionary, issuer: Object) -> Dictionary:
 	var valid: Dictionary = CONTACTS.validate_state(contacts)
 	if not valid.get("ok", false): return valid
-	var detached := contacts.duplicate(true)
+	var witnesses: Dictionary = contacts.sylvia_hospital_witness_receipts.duplicate()
 	var source_ids: Array = []
 	var misses: Array = []
 	var witness: Variant = null
@@ -38,7 +38,7 @@ static func prepare(contacts: Dictionary, plan: Dictionary, issuer: Object) -> D
 		var miss := {"receipt_id": str(derived.value.child_id),
 			"receipt_provenance": derived.value.provenance.duplicate(true),
 			"source_receipt_id": str(source.receipt_id), "action_id": str(source.action_id),
-			"day": int(plan.source_day), "participants": receipt.participants.duplicate(true),
+			"day": int(plan.source_day), "participants": receipt.participants,
 			"missed_reason": "hospital"}
 		misses.append(miss)
 		source_ids.append(str(source.receipt_id))
@@ -57,8 +57,9 @@ static func prepare(contacts: Dictionary, plan: Dictionary, issuer: Object) -> D
 				"care_followup_entry_id": "care.sylvia.day%d" % (int(plan.source_day) + 1),
 				"affection_delta": 2, "dark_delta": 1, "attitude": "fixated",
 				"tier_transition": "advance_one_or_stay_love"}
-			detached.sylvia_hospital_witness_receipts[witness.receipt_id] = witness
-	var closed: Dictionary = CONTACTS.prepare_resolve_day_end(detached, int(plan.source_day),
+			witnesses[witness.receipt_id] = witness
+	var closed: Dictionary = CONTACTS.prepare_resolve_day_end(
+		contacts.merged({"sylvia_hospital_witness_receipts": witnesses}, true), int(plan.source_day),
 		{"solo_attended_action_ids": [], "group_outcome": "prevented_by_fainting"}, resolution_id)
 	if not closed.get("ok", false): return closed
 	var validated: Dictionary = CONTACTS.validate_state(closed.value.candidate)
