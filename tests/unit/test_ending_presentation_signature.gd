@@ -34,6 +34,8 @@ func test_signature_uses_frozen_role_facts_and_refuses_changed_command() -> void
 	var context: Dictionary = game.request_next_ending_command().value.playback_context
 	context.transaction_id += ":stale"
 	assert_false(game.capture_ending_presentation_signature("ending.priscilla.sweet", context).ok)
+	first.value.fields.miss_reasons.append("busy")
+	assert_eq(_read(game).value.fields.miss_reasons, [])
 	first.value.fields.tier = "friend"
 	assert_eq(_read(game).value.fields.tier, "love", "caller cannot mutate frozen inputs")
 

@@ -76,13 +76,13 @@ func start_ending_id(ending_id: String, context: Dictionary = {}) -> Dictionary:
 	var signature: Dictionary = {}
 	var presentation: Dictionary = {}
 	if _presentation_reader.is_valid():
-		var captured: Dictionary = _presentation_reader.call(ending_id, context.duplicate(true))
+		var captured: Dictionary = _presentation_reader.call(ending_id, context.duplicate())
 		if not captured.get("ok", false): return captured
 		var checked := SIGNATURE.validate(captured.value)
 		if not checked.ok: return checked
 		signature = checked.value.signature
 	if _frozen_presentation_reader.is_valid():
-		var frozen: Dictionary = _frozen_presentation_reader.call(ending_id, context.duplicate(true))
+		var frozen: Dictionary = _frozen_presentation_reader.call(ending_id, context.duplicate())
 		if not frozen.get("ok", false): return frozen
 		if signature.is_empty() or not frozen.get("value") is Dictionary or frozen.value.get("signature") != signature:
 			return _fail(&"ending_frozen_signature_mismatch", "")
@@ -99,15 +99,15 @@ func start_ending_id(ending_id: String, context: Dictionary = {}) -> Dictionary:
 		if not _bridge.has_method("start_ending_presentation"):
 			_starting = false
 			return _fail(&"invalid_bridge", "exact ending presentation API required")
-		started = _bridge.start_ending_presentation(ending_id, context.duplicate(true), signature, presentation) \
-			if not presentation.is_empty() else _bridge.start_ending_presentation(ending_id, context.duplicate(true), signature)
+		started = _bridge.start_ending_presentation(ending_id, context.duplicate(), signature, presentation) \
+			if not presentation.is_empty() else _bridge.start_ending_presentation(ending_id, context.duplicate(), signature)
 	elif role == "observer_coda":
 		if not _bridge.has_method("start_postscript_id"):
 			_starting = false
 			return _fail(&"invalid_bridge", "bridge must expose start_postscript_id for Observer")
 		started = _bridge.start_postscript_id(ending_id)
 	else:
-		var bridge_context := context.duplicate(true)
+		var bridge_context := context.duplicate()
 		if role not in ["primary", "epilogue"]:
 			bridge_context["role"] = &"epilogue" if role == "pair_coda" else &"primary"
 		started = _bridge.start_ending_id(ending_id, bridge_context)
@@ -139,7 +139,7 @@ func _started_result() -> Dictionary:
 
 func _on_finished(playback_token: String, ending_id: String, receipt: Dictionary) -> void:
 	if _starting:
-		_early_events.append({"kind": "finished", "token": playback_token, "ending_id": ending_id, "receipt": receipt.duplicate(true)})
+		_early_events.append({"kind": "finished", "token": playback_token, "ending_id": ending_id, "receipt": {"receipt_id": str(receipt.get("receipt_id", ""))}})
 		return
 	if _active.is_empty() or str(_active.receipt.playback_token) != playback_token:
 		return
