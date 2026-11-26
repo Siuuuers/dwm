@@ -9,7 +9,7 @@ const _FROZEN_CONTEXT := preload("res://scripts/narrative/HospitalFrozenContext.
 static func art_participants(contacts: Dictionary, context: Dictionary, committed_schedule: Dictionary = {}) -> Array[String]:
 	if context.has("presentation"):
 		var checked := _FROZEN_CONTEXT.validate(context)
-		if checked.get("ok", false) and checked.value.presentation.fields.sylvia_eligible:
+		if checked.get("ok", false) and context.presentation.fields.sylvia_eligible:
 			return ["sylvia"]
 		return []
 	if context.get("kind") != "hospital" or not context.get("source_entry_ids") is Array \

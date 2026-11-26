@@ -135,7 +135,7 @@ func begin_physical(command: Dictionary) -> Dictionary:
 	if timeline_id == "hospital.faint" and _bridge.has_method("begin_hospital_reading"):
 		var canonical := command.duplicate(true)
 		canonical["physical_token"] = token
-		_in_flight[completion_id]["semantic_command"] = canonical.duplicate(true)
+		_in_flight[completion_id]["semantic_command"] = canonical
 		var reading: Dictionary = _bridge.begin_hospital_reading(canonical)
 		if not reading.get("ok", false):
 			_in_flight.erase(completion_id)

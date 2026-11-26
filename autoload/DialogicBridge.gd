@@ -704,10 +704,10 @@ func start_timeline_id(timeline_id: String, context: Dictionary = {}) -> Diction
 	if timeline_id == "hospital.faint" and context.has("presentation"):
 		var frozen := preload("res://scripts/narrative/HospitalFrozenContext.gd").validate(context)
 		if not frozen.get("ok", false): return frozen
-		var semantic_id: String = str(frozen.value.presentation.fields.entry_id)
+		var semantic_id: String = str(context.presentation.fields.entry_id)
 		var located := _resolve_entry_for_playback(semantic_id, -1)
 		if not located.get("ok", false): return located
-		return _start_at_path(timeline_id, str(located.value.path), frozen.value, str(located.value.label))
+		return _start_at_path(timeline_id, str(located.value.path), context, str(located.value.label))
 	if not DialogicTimelineCatalog.has_timeline_id(timeline_id):
 		var fail2 := {"ok": false, "reason": "unknown_timeline_id", "timeline_id": timeline_id}
 		emit_signal("timeline_failed", fail2)
@@ -916,7 +916,7 @@ func _start_at_path(timeline_id: String, path: String, context: Dictionary, labe
 	if witnessed_hospital and context.has("presentation"):
 		var frozen := preload("res://scripts/narrative/HospitalFrozenContext.gd").validate(context)
 		if not frozen.get("ok", false): return frozen
-		var installed: Dictionary = _runtime_adapter.install_frozen_presentation(frozen.value.presentation)
+		var installed: Dictionary = _runtime_adapter.install_frozen_presentation(context.presentation)
 		if not installed.get("ok", false): return installed
 	var before := {"id": _current_timeline_id, "context": _current_timeline_context}
 	_ordinary_speech_counter += 1
@@ -2632,17 +2632,18 @@ func begin_hospital_reading(command: Dictionary) -> Dictionary:
 			or command.get("physical_token") != preload("res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd").derive_token(
 				str(command.completion_transaction_id), str(command.command_sha256)):
 		return _command_failure(&"reading_context_invalid")
+	var owned_command := command.duplicate(true)
 	var context := {"expected_stage": "hospital", "role": "hospital",
 		"transaction_id": str(command.completion_transaction_id) + ":hospital",
 		"playback_id": str(command.physical_token) + ":hospital",
-		"presentation": command.context.presentation.duplicate(true)}
+		"presentation": owned_command.context.presentation}
 	var begun: Dictionary = candidate.begin(str(command.completion_transaction_id), entry_id)
 	if not begun.ok: return begun
 	var admitted: Dictionary = candidate.admit(entry_id, context)
 	if not admitted.ok: return admitted
 	var reading := begin_reading_session(command)
 	if not reading.get("ok", false) or not reading.get("value", {}).get("enabled", false): return reading
-	_hospital_reading_command = command.duplicate(true)
+	_hospital_reading_command = owned_command
 	_hospital_reading_token = ""
 	_hospital_reading_completed = false
 	if reading.value.get("restoring", false): return reading

@@ -3065,7 +3065,7 @@ func read_hospital_presentation_request(resolution_id: String) -> Dictionary:
 		if not key is String: return _transaction_failure(&"hospital_frozen_context_invalid", "")
 		var checked: Dictionary = HOSPITAL_FROZEN.validate_request(cache.requests[key])
 		if not checked.get("ok", false): return checked
-		if checked.value.resolution_id != key:
+		if cache.requests[key].resolution_id != key:
 			return _transaction_failure(&"hospital_frozen_request_mismatch", key)
 	var saved: Dictionary = cache.requests.get(resolution_id, {})
 	if saved.is_empty(): return {"ok": true, "value": {}}
@@ -3101,9 +3101,8 @@ func retain_hospital_presentation_request(request: Dictionary) -> Dictionary:
 	const CACHE_KEY := "hospital_frozen_contexts_v1"
 	var had_cache := route_context.has(CACHE_KEY)
 	var previous_cache: Variant = route_context.get(CACHE_KEY)
-	var cache: Dictionary = previous_cache.duplicate(true) if previous_cache != null else {"schema_version": 1, "requests": {}}
-	cache.requests[request.resolution_id] = checked.value
-	route_context[CACHE_KEY] = cache
+	var requests: Dictionary = previous_cache.requests if previous_cache != null else {}
+	route_context[CACHE_KEY] = {"schema_version": 1, "requests": requests.merged({request.resolution_id: request.duplicate(true)})}
 	var bound := read_hospital_presentation_request(str(request.resolution_id))
 	var saved: Dictionary = _contact_checkpoint_writer.call() if bound.get("ok", false) else bound
 	if not saved.get("ok", false):
@@ -3116,7 +3115,7 @@ func retain_hospital_presentation_request(request: Dictionary) -> Dictionary:
 	if not lease.is_empty():
 		var released: Dictionary = _mutation_gate.release(&"causal_transaction", str(lease.value.token))
 		if not released.get("ok", false): return released
-	return {"ok": true, "value": checked.value.duplicate(true)}
+	return bound
 
 
 const _CONTACTS_FROZEN := preload("res://scripts/narrative/ContactsFrozenContext.gd")
