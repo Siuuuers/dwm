@@ -287,7 +287,7 @@ func install_scene_continuation(session: RefCounted, checkpoint: Dictionary, sou
 	var traversal := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
 	var planned: Dictionary = source_session.prepare_scene_control_continuation()
 	if not planned.ok: return planned
-	var expected := traversal._scene_projection(planned.value, "destination")
+	var expected := traversal._scene_projection(planned.value, "destination", false)
 	if not traversal._same(checkpoint.get("reading_session", {}), expected):
 		return _fail(&"scene_control_candidate_invalid", "exact control departure required")
 	return _install_scene_frontier(session, checkpoint, source_token)

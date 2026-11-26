@@ -366,8 +366,8 @@ static func _validate_scene_plan_shape(plan: Dictionary) -> Dictionary:
 	elif target.caption != null: return _fail(&"reading_next_destination_invalid")
 	return {"ok": true}
 
-static func _scene_projection(plan: Dictionary, phase: String) -> Dictionary:
-	if phase == "source": return plan.source_reading.duplicate(true)
+static func _scene_projection(plan: Dictionary, phase: String, detach: bool = true) -> Dictionary:
+	if phase == "source": return plan.source_reading.duplicate(true) if detach else plan.source_reading
 	var result: Dictionary = plan.source_reading.duplicate()
 	result.ledger = result.ledger.duplicate()
 	var captions: Array = result.ledger.captions if plan.traversed_captions.is_empty() else plan.traversed_captions
@@ -385,8 +385,9 @@ static func _scene_projection(plan: Dictionary, phase: String) -> Dictionary:
 			result.boundary = "between_entries"
 			result.frontier = {}
 	result.ledger.captions = [] if captions.is_empty() else [captions.back()]
-	result = result.duplicate(true)
+	if detach: result = result.duplicate(true)
 	if result.has("player_progress"):
+		if not detach: result.player_progress = result.player_progress.duplicate(true)
 		for row: Dictionary in plan.traversed_captions:
 			append_player_caption(result.player_progress, row.beat.owning_entry_id, row.beat.line_id,
 				result.player_progress.story_day)
@@ -437,11 +438,11 @@ static func _validate_scene_operation(reading: Dictionary, entry_id: String) -> 
 	var made := _operation_view(operation.plan, operation.phase, 3)
 	if not made.ok: return made
 	if not operation.operation_id is String or operation.operation_id != made.value.operation_id or operation.plan.entry_id != entry_id: return _fail(&"reading_next_operation_mismatch")
-	var expected: Dictionary = operation.plan.source_reading if operation.phase == "source" else _scene_projection(operation.plan, "destination")
+	var expected: Dictionary = _scene_projection(operation.plan, operation.phase, false)
 	if not _same(without_operation_view(reading), expected): return _fail(&"reading_next_projection_mismatch")
 	return made
 
-static func validate_scene_operation_path(reading: Dictionary, entry_id: String, nodes: Array) -> Dictionary:
+static func validated_scene_opposite_view(reading: Dictionary, entry_id: String, nodes: Array) -> Dictionary:
 	var checked := _validate_scene_operation(reading, entry_id)
 	if not checked.ok: return checked
 	var operation: Dictionary = checked.value
@@ -449,11 +450,7 @@ static func validate_scene_operation_path(reading: Dictionary, entry_id: String,
 	var path := _validate_scene_path(plan, nodes)
 	if not path.ok: return path
 	var phase := "destination" if operation.phase == "source" else "source"
-	var opposite := _scene_projection(plan, phase)
-	operation.phase = phase
-	operation.plan = plan.duplicate(true)
-	opposite.next_operation = operation
-	return {"ok": true, "value": opposite}
+	return {"ok": true, "value": _scene_projection(plan, phase, false)}
 
 static func finish_scene_plan(plan: Dictionary, nodes: Array) -> Dictionary:
 	var checked := _validate_scene_plan_shape(plan)
