@@ -225,7 +225,7 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 		return _command_failure(&"scene_staging_unavailable")
 	if not preload("res://scripts/narrative/NarrativeCaptionLedger.gd").valid_scene_frame(context, str(context.get("playback_id", "")), entry_id):
 		return _command_failure(&"scene_staging_target_invalid")
-	var supplied: Variant = _scene_stage_context.call(entry_id, context.duplicate(true))
+	var supplied: Variant = _scene_stage_context.call(entry_id, context)
 	if not supplied is Dictionary or not supplied.get("ok", false) or not supplied.get("value") is Dictionary:
 		return _command_failure(&"scene_staging_owner_refused")
 	var binding: Dictionary = supplied.value
@@ -242,7 +242,7 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 			return _command_failure(&"scene_staging_source_invalid")
 	elif binding.source_occurrence_id != null or binding.trigger_command_id != null or has_active_playback():
 		return _command_failure(&"scene_staging_source_invalid")
-	var source: Variant = _scene_stage_source.call(binding.duplicate(true))
+	var source: Variant = _scene_stage_source.call(binding)
 	if not source is Dictionary or not source.get("ok", false): return _command_failure(&"scene_staging_source_invalid")
 	var registration := _ENTRY_MANIFEST.scene_contract_tables()
 	if not registration.ok or binding.registration_sha256 != registration.value.fingerprint:
