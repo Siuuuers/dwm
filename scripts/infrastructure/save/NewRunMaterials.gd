@@ -188,7 +188,7 @@ static func _validate_autosave(value: Variant, initial_context: Dictionary,
 		allocation, profile_material, scene_bundle, scene_issuer, projected.value)
 	if not validated.get("ok", false):
 		return _fail(&"new_run_autosave_invalid", "Autosave bytes do not satisfy the current schema")
-	var document: Dictionary = validated["value"]["candidate"]
+	var document: Dictionary = parsed.value
 	var canonical := _canonical_text(parsed.value)
 	if canonical.is_empty() or outgoing_text != canonical + "\n":
 		return _fail(&"new_run_autosave_invalid", "Autosave bytes are not canonical with one final newline")
