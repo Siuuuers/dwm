@@ -235,6 +235,22 @@ func test_async_old_player_stop_failure_latches_fatal() -> void:
 	assert_eq(_manager.set_music_context("hospital").get("code"), &"audio_runtime_indeterminate")
 
 
+func test_playback_warning_retains_independent_channel_details() -> void:
+	var gate := FAKE_GATE.new()
+	assert_true(_manager.configure_mutation_gate(gate).ok)
+	var report := {"code": &"audio_runtime_failure", "details": {"player": "MusicA"}}
+	watch_signals(_manager)
+	_manager._on_port_runtime_failure(&"music", report)
+	assert_signal_emit_count(_manager, "audio_warning", 1)
+	var warning: Dictionary = get_signal_parameters(_manager, "audio_warning")[0]
+	assert_eq(warning.details.details.channel_id, &"music")
+	var published: Dictionary = warning.details.details.details
+	assert_eq(published, report)
+	published.details.clear()
+	assert_eq(report.details, {"player": "MusicA"})
+	assert_true(gate.is_fatal_latched())
+
+
 func test_committed_preference_apply_failure_latches_shared_gate() -> void:
 	var gate: RefCounted = FAKE_GATE.new()
 	assert_true(_manager.configure_mutation_gate(gate).get("ok", false))

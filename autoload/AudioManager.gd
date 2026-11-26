@@ -895,7 +895,8 @@ func _valid_prepared_audio(audio: Dictionary) -> bool:
 func _warn_missing(semantic_id: String) -> Dictionary:
 	var result := _failure(&"missing_audio")
 	result["semantic_id"] = semantic_id
-	audio_warning.emit(result.duplicate(true))
+	if audio_warning.has_connections():
+		audio_warning.emit(result.duplicate(true))
 	return result
 
 
@@ -907,7 +908,7 @@ func _on_preference_changed(path: StringName, _value: Variant) -> void:
 
 
 func _on_port_runtime_failure(channel_id: StringName, result: Dictionary) -> void:
-	_latch_consumer_fatal(&"playback_completion", {"code": result.get("code", &"audio_runtime_failure"), "channel_id": channel_id, "details": result.duplicate(true)})
+	_latch_consumer_fatal(&"playback_completion", {"code": result.get("code", &"audio_runtime_failure"), "channel_id": channel_id, "details": result})
 
 
 func _latch_consumer_fatal(phase: StringName, result: Dictionary) -> void:
@@ -919,13 +920,13 @@ func _latch_consumer_fatal(phase: StringName, result: Dictionary) -> void:
 		"details": result.duplicate(true),
 	}
 	if _mutation_gate != null:
-		var gate_failure := failure.duplicate(true)
+		var gate_failure := failure.duplicate()
 		gate_failure["details"] = {"cause_code": String(failure.code)}
 		_mutation_gate.call(&"latch_fatal", gate_failure)
 	var warning := _failure(&"audio_runtime_indeterminate")
 	warning["fatal"] = true
-	warning["details"] = failure.duplicate(true)
-	audio_warning.emit(warning.duplicate(true))
+	warning["details"] = failure
+	audio_warning.emit(warning)
 
 
 func _valid_pause_handle(handle: Dictionary) -> bool:
