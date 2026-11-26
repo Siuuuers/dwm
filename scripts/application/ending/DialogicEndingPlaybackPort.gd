@@ -99,8 +99,8 @@ func start_ending_id(ending_id: String, context: Dictionary = {}) -> Dictionary:
 		if not _bridge.has_method("start_ending_presentation"):
 			_starting = false
 			return _fail(&"invalid_bridge", "exact ending presentation API required")
-		started = _bridge.start_ending_presentation(ending_id, context.duplicate(true), signature.duplicate(true), presentation) \
-			if not presentation.is_empty() else _bridge.start_ending_presentation(ending_id, context.duplicate(true), signature.duplicate(true))
+		started = _bridge.start_ending_presentation(ending_id, context.duplicate(true), signature, presentation) \
+			if not presentation.is_empty() else _bridge.start_ending_presentation(ending_id, context.duplicate(true), signature)
 	elif role == "observer_coda":
 		if not _bridge.has_method("start_postscript_id"):
 			_starting = false
@@ -147,7 +147,7 @@ func _on_finished(playback_token: String, ending_id: String, receipt: Dictionary
 		_on_failed(playback_token, str(_active.receipt.ending_id), _fail(&"invalid_ending_completion", "completion identity differs"))
 		return
 	if _reached_profile != null and not (_active.get("signature", {}) as Dictionary).is_empty():
-		var recorded: Dictionary = _reached_profile.record_reached_presentation(_active.signature.duplicate(true))
+		var recorded: Dictionary = _reached_profile.record_reached_presentation(_active.signature)
 		if not recorded.get("ok", false):
 			_on_failed(playback_token, ending_id, recorded)
 			return

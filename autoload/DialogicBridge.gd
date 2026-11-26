@@ -1476,7 +1476,7 @@ func start_ending_presentation(ending_id: String, context: Dictionary, signature
 	var timeline_id := str(_ending_records[ending_id].timeline_id)
 	var locator: Dictionary = resolved.value
 	if not presentation.is_empty():
-		var frozen := preload("res://scripts/narrative/FrozenPresentationContext.gd").validate(signature.entry_id, presentation)
+		var frozen := preload("res://scripts/narrative/FrozenPresentationContext.gd").validated_view(signature.entry_id, presentation)
 		if not frozen.ok: return frozen
 		if frozen.value.fields.step_token != context.playback_id or frozen.value.fields.ending_role != str(context.role) \
 				or frozen.value.fields.ending_form != signature.fields.ending_form:
@@ -1589,7 +1589,7 @@ func can_capture_ending_reading_checkpoint(command: Dictionary) -> bool:
 func _bind_ending_reading(ending_id: String, frame: Dictionary) -> void:
 	_playback_counter += 1
 	_ending_reading = {"token": "ending-reading-%d" % _playback_counter,
-		"ending_id": ending_id, "frame": frame.duplicate(true)}
+		"ending_id": ending_id, "frame": frame}
 
 
 func _complete_ending_reading(token: String) -> void:
@@ -3316,7 +3316,7 @@ func _resume_reading_checkpoint(checkpoint: Dictionary, execution_mode: StringNa
 		var entry: Dictionary = _PRESENTATION_SIGNATURE.entry_record_view(checkpoint.entry_id).value
 		var ending_id := str(entry.ending_id)
 		if ".observer." in str(checkpoint.entry_id): ending_id = str(checkpoint.entry_id)
-		_bind_ending_reading(ending_id, checkpoint.frozen_context)
+		_bind_ending_reading(ending_id, _reading_adoption_checkpoint.frozen_context)
 	_reading_resume_frontier = _reading_adoption_checkpoint.reading_session.frontier
 	if candidate.boundary == "notification":
 		_reading_resume_frontier = {"line_id": candidate.marker_frontier.anchor.line_id,

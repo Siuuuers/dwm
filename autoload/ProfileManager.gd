@@ -645,11 +645,10 @@ func record_reached_presentation(signature: Dictionary) -> Dictionary:
 	candidate.reached_presentations = _profile.reached_presentations.merged({id: signature})
 	candidate.reached_presentation_chronology = _profile.reached_presentation_chronology.duplicate()
 	candidate.reached_presentation_chronology.first_witnessed = _profile.reached_presentation_chronology.first_witnessed + [id]
-	var committed: Dictionary
-	if _mutation_gate != null and _mutation_gate.is_internal_owner_active(&"causal_transaction"):
-		committed = _commit_profile_candidate(candidate)
-	else:
-		committed = commit_prepared_profile(candidate)
+	if _mutation_gate != null and not _mutation_gate.is_internal_owner_active(&"causal_transaction"):
+		var guarded := _guard(&"profile_commit")
+		if not guarded.get("ok", false): return guarded
+	var committed := _commit_profile_candidate(candidate)
 	return {"ok": true, "value": {"signature_id": id, "already_reached": false}} if committed.ok else committed
 
 func get_reached_presentation(signature_id: String) -> Dictionary:
