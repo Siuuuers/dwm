@@ -198,7 +198,7 @@ func begin_suspend(handle: Dictionary) -> Dictionary:
 			_latch_consumer_fatal(&"pause_begin", _failure(&"audio_runtime_indeterminate"))
 			return _lifecycle_failure(&"audio_runtime_indeterminate")
 		return _lifecycle_failure(_port_failure_code(suspended, &"audio_suspend_failed"))
-	_pause_handle = handle.duplicate(true)
+	_pause_handle = handle.duplicate()
 	_pause_frontier_id = "audio:%s:%d" % [handle.handle_id, int(handle.generation)]
 	return _lifecycle_success({"frontier_id": _pause_frontier_id})
 
@@ -353,7 +353,7 @@ func prepare_semantic_restore(snapshot: Dictionary, prepared_profile: Dictionary
 	if not _valid_prepared_audio(audio):
 		return _failure(&"invalid_restore_plan")
 	if not _supports_output_mode(audio.output_mode): return _failure(&"unsupported_audio_output_mode")
-	var plan := {"snapshot": validated.value, "audio": audio.duplicate(true)}
+	var plan := {"snapshot": validated.value, "audio": audio.duplicate()}
 	if snapshot.get("kind") == "scene_audio":
 		var prepared: Dictionary = _prepare_scene_output(validated.value)
 		if not prepared.get("ok", false): return prepared
@@ -443,7 +443,7 @@ func apply_scene_admission(plan: Dictionary) -> Dictionary:
 			and _semantic.get("registration_sha256") == plan.snapshot.registration_sha256 \
 			and _semantic.get("selection") == plan.snapshot.selection):
 		_semantic = resolved.value.snapshot
-		return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true), "unchanged": true}
+		return {"ok": true, "code": &"ok", "value": get_semantic_audio_context(), "unchanged": true}
 	var prepared: Dictionary = _prepare_scene_output(resolved.value)
 	if not prepared.get("ok", false): return prepared
 	var captured: Dictionary = capture_restore_state()
@@ -454,7 +454,7 @@ func apply_scene_admission(plan: Dictionary) -> Dictionary:
 			_restart_music_in_backup(captured.value.runtime)
 		var compensated: Dictionary = rollback_restore_silent(captured.value)
 		return applied if compensated.get("ok", false) else compensated
-	return applied
+	return {"ok": true, "code": &"ok", "value": get_semantic_audio_context()}
 
 
 func _install_scene_output(prepared: Dictionary, restoring: bool, fade_seconds: float = 0.0) -> Dictionary:
@@ -483,7 +483,7 @@ func _install_scene_output(prepared: Dictionary, restoring: bool, fade_seconds: 
 	_active_players = {&"music": MUSIC_PLAYERS[0], &"ambience": AMBIENCE_PLAYERS[0]}
 	if prepared.missing_media:
 		_warn_missing(str(prepared.record.asset.asset_id))
-	return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true)}
+	return {"ok": true}
 
 
 func _transition_scene_music(prepared: Dictionary, fade_seconds: float) -> Dictionary:
@@ -516,7 +516,7 @@ func _transition_scene_music(prepared: Dictionary, fade_seconds: float) -> Dicti
 	if prepared.record != null: _records[&"music"] = prepared.record
 	if prepared.stream != null: _active_players[&"music"] = new_player
 	if prepared.missing_media: _warn_missing(str(prepared.record.asset.asset_id))
-	return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true)}
+	return {"ok": true}
 
 
 func capture_restore_state() -> Dictionary:
@@ -532,7 +532,7 @@ func capture_restore_state() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {
 		"snapshot": _semantic.duplicate(true), "settings": _settings.duplicate(true),
 		"runtime": captured["value"],
-		"records": _records.duplicate(true), "active_players": _active_players.duplicate(true),
+		"records": _records.duplicate(true), "active_players": _active_players.duplicate(),
 	}, "receipt": {}}
 
 
@@ -587,7 +587,7 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 	for member: String in ["snapshot", "settings", "runtime", "records", "active_players"]:
 		if typeof(source.get(member)) != TYPE_DICTIONARY:
 			return _failure(&"invalid_restore_backup")
-	var restored: Dictionary = _playback_port.call(&"restore_runtime", source["runtime"].duplicate(true))
+	var restored: Dictionary = _playback_port.call(&"restore_runtime", source["runtime"])
 	if not restored.get("ok", false):
 		_latch_consumer_fatal(&"restore_rollback", restored)
 		var failure := _failure(&"audio_runtime_indeterminate")
@@ -596,7 +596,7 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 	_semantic = source["snapshot"].duplicate(true)
 	_settings = source["settings"].duplicate(true)
 	_records = source["records"].duplicate(true)
-	_active_players = source["active_players"].duplicate(true)
+	_active_players = source["active_players"].duplicate()
 	_restore_backup = {}
 	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
 
@@ -698,12 +698,12 @@ func _set_context(channel_id: StringName, context_id: String, context: Dictionar
 	_active_players[channel_id] = new_player
 	_records[channel_id] = record
 	_semantic[id_key] = context_id
-	_semantic[context_key] = context.duplicate(true)
+	_semantic[context_key] = context.duplicate()
 	if not silent:
 		if channel_id == &"music":
-			music_context_changed.emit(context_id, context.duplicate(true))
+			music_context_changed.emit(context_id, context.duplicate())
 		else:
-			ambience_context_changed.emit(context_id, context.duplicate(true))
+			ambience_context_changed.emit(context_id, context.duplicate())
 	return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true), "receipt": {}}
 
 
@@ -748,7 +748,7 @@ func _rollback_failed_context(channel_id: StringName, backup: Dictionary, cause:
 		var fatal := _failure(&"audio_runtime_indeterminate")
 		fatal["fatal"] = true
 		return fatal
-	return cause.duplicate(true)
+	return cause
 
 
 func _restart_music_in_backup(runtime: Dictionary) -> void:
@@ -815,7 +815,7 @@ func _apply_settings_output(candidate: Dictionary) -> Dictionary:
 		var muted: bool = audio[String(channel) + "_muted"] or linear <= VOLUME_SILENCE_THRESHOLD \
 			or (_focus_loss_mute and audio.mute_when_inactive)
 		states[CHANNELS[channel].bus] = {"db": SILENCE_DB if linear <= VOLUME_SILENCE_THRESHOLD else linear_to_db(linear), "muted": muted}
-	states[&"UI"] = states[&"SFX"].duplicate()
+	states[&"UI"] = states[&"SFX"]
 	var applied: Dictionary = _playback_port.set_output_mode(audio.output_mode)
 	if applied.get("ok", false):
 		for bus: StringName in states:
@@ -833,9 +833,9 @@ func _apply_settings_output(candidate: Dictionary) -> Dictionary:
 
 
 func _rollback_settings(backup: Dictionary, cause: Dictionary) -> Dictionary:
-	var rollback: Dictionary = _playback_port.call(&"restore_runtime", backup.duplicate(true))
+	var rollback: Dictionary = _playback_port.call(&"restore_runtime", backup)
 	if rollback.get("ok", false):
-		return cause.duplicate(true)
+		return cause
 	_latch_consumer_fatal(&"settings_rollback", rollback)
 	var fatal := _failure(&"audio_runtime_indeterminate")
 	fatal["fatal"] = true
@@ -997,7 +997,7 @@ func _prove_or_recover_port_suspended() -> bool:
 
 
 func _lifecycle_success(value: Dictionary) -> Dictionary:
-	return {"ok": true, "code": &"ok", "value": value.duplicate(true)}
+	return {"ok": true, "code": &"ok", "value": value}
 
 
 func _lifecycle_failure(code: StringName) -> Dictionary:
