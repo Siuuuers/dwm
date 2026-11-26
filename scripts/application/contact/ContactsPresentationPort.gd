@@ -336,30 +336,30 @@ func _scene_projection_current(friend_id: String, primary: String, secondary: St
 func _scene_project(state: Dictionary, friend_id: String, primary: String, secondary: String, registration: String) -> Dictionary:
 	if (friend_id != "" and friend_id not in CONTACT_STATE.FRIEND_IDS) or primary not in LOCALES \
 			or (secondary != "" and secondary not in LOCALES) or primary == secondary \
-			or not CONTACT_STATE._s_projection_shape(state) \
-			or not CONTACT_STATE._has_exact_keys(state.messages, CONTACT_STATE.FRIEND_IDS) \
-			or not CONTACT_STATE._has_exact_keys(state.read_watermarks, CONTACT_STATE.FRIEND_IDS):
+			or not CONTACT_STATE._s_projection_shape(state):
 		return _fail(&"invalid_contacts_projection_request")
+	var definitions := {}
+	if not friend_id.is_empty():
+		var loaded := CONTACT_STATE.capture_scene_definitions(registration)
+		if not loaded.ok: return loaded
+		definitions = loaded.value
 	var entries: Array = []
 	var unread := {}
 	for friend: String in CONTACT_STATE.FRIEND_IDS:
-		if not state.messages[friend] is Array or typeof(state.read_watermarks[friend]) != TYPE_INT: return _fail(&"scene_contacts_invalid")
 		unread[friend] = false
-		for message: Variant in state.messages[friend]:
-			if not CONTACT_STATE._has_exact_keys(message, CONTACT_STATE._SCENE_MESSAGE_KEYS) \
-					or typeof(message.sequence) != TYPE_INT: return _fail(&"scene_contact_message_invalid")
+		for message: Dictionary in state.messages[friend]:
 			if message.direction == "incoming" and message.sequence > state.read_watermarks[friend]: unread[friend] = true
 			if friend != friend_id: continue
 			var texts := {}
 			for locale: String in [primary, secondary]:
 				if locale.is_empty(): continue
-				var resolved := CONTACT_STATE.scene_message_text(message, locale, registration)
+				var resolved := CONTACT_STATE.scene_message_text(message, locale, definitions)
 				if not resolved.get("ok", false): return resolved
 				texts[locale] = resolved.value
 			entries.append({"id": message.message_id, "outgoing": message.direction == "outgoing", "texts": texts})
 	var choices: Array = []
 	if friend_id != "":
-		var available := CONTACT_STATE.scene_reply_choices(state, friend_id, primary, registration)
+		var available := CONTACT_STATE._scene_reply_choices(state, friend_id, primary, definitions)
 		if not available.get("ok", false): return available
 		choices = available.value
 	return _ok({"friend_id": friend_id, "entries": entries, "unread": unread, "ordinary_choices": choices, "reply_required": false})

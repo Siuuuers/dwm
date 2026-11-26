@@ -2517,9 +2517,12 @@ static func scene_reply_choices(state: Dictionary, friend_id: String, locale: St
 	if not loaded.get("ok", false): return loaded
 	if friend_id not in FRIEND_IDS or locale not in _SCENE_LOCALES or not _s_projection_shape(state):
 		return _s_fail("scene_contact_reply_invalid")
+	return _scene_reply_choices(state, friend_id, locale, loaded.value)
+
+static func _scene_reply_choices(state: Dictionary, friend_id: String, locale: String, definitions: Dictionary) -> Dictionary:
 	var choices: Array = []
-	for reply: Dictionary in loaded.value.replies.values():
-		var row: Dictionary = loaded.value.messages[reply.definition_id]
+	for reply: Dictionary in definitions.replies.values():
+		var row: Dictionary = definitions.messages[reply.definition_id]
 		if row.friend_id != friend_id: continue
 		var matches: Array = []
 		for message: Dictionary in state.messages[friend_id]:
@@ -2533,17 +2536,15 @@ static func scene_reply_choices(state: Dictionary, friend_id: String, locale: St
 				"line_id": reply.line_id, "text": text})
 	return {"ok": true, "value": choices}
 
-static func scene_message_text(message: Dictionary, locale: String, registration_sha256: String) -> Dictionary:
-	var loaded := capture_scene_definitions(registration_sha256)
-	if not loaded.get("ok", false): return loaded
+static func scene_message_text(message: Dictionary, locale: String, definitions: Dictionary) -> Dictionary:
 	if not _s_json(message) or not _has_exact_keys(message, _SCENE_MESSAGE_KEYS) or locale not in _SCENE_LOCALES \
 			or not _s_id(message.definition_id) or message.direction not in ["incoming", "outgoing"] \
-			or not loaded.value.messages.has(message.definition_id): return _s_fail("scene_contact_message_invalid")
-	var row: Dictionary = loaded.value.messages[message.definition_id]
+			or not definitions.messages.has(message.definition_id): return _s_fail("scene_contact_message_invalid")
+	var row: Dictionary = definitions.messages[message.definition_id]
 	if row.friend_id != message.friend_id: return _s_fail("scene_contact_message_invalid")
 	if message.direction == "outgoing":
-		if not _s_id(message.reply_id) or not loaded.value.replies.has(message.reply_id): return _s_fail("scene_contact_reply_invalid")
-		row = loaded.value.replies[message.reply_id]
+		if not _s_id(message.reply_id) or not definitions.replies.has(message.reply_id): return _s_fail("scene_contact_reply_invalid")
+		row = definitions.replies[message.reply_id]
 		if row.definition_id != message.definition_id: return _s_fail("scene_contact_reply_invalid")
 	var text := _s_localized(row.texts, locale)
 	return {"ok": true, "value": text} if not text.is_empty() else _s_fail("scene_contact_translation_unavailable")
