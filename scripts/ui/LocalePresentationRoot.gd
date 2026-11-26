@@ -35,48 +35,48 @@ func prepare_presentation(profile: Dictionary) -> Dictionary:
 	var direction: String = profile["layout_direction"]
 	if direction not in ["ltr", "rtl"]:
 		return _fail(&"invalid_layout_direction")
+	var theme := _target.theme.duplicate() as Theme if _target.theme != null else Theme.new()
+	var project_font := _project_font if _locale_font_active else theme.default_font
+	var face: Font
+	if profile.has("font_style"):
+		if profile["font_style"] not in ["pixel", "readable"]:
+			return _fail(&"invalid_font_style")
+		face = TYPOGRAPHY.font(str(profile["locale_id"]), int(profile.get("text_size", 100)), str(profile["font_style"]))
+		if face == null: return _fail(&"font_load_failed")
+	else:
+		var legacy := _prepare_manifest_font(str(profile["font_profile"]))
+		if not legacy.ok: return legacy
+		face = legacy.value
+	theme.default_font = face if face != null else project_font
+	return _success({
+		"project_font": project_font,
+		"locale_font_active": face != null,
+		"theme": theme,
+		"layout_direction": Control.LAYOUT_DIRECTION_LTR if direction == "ltr" else Control.LAYOUT_DIRECTION_RTL,
+	})
+
+
+func _prepare_manifest_font(profile_id: String) -> Dictionary:
 	var font_paths: Dictionary
 	if _localization != null and _localization.has_method("get_font_paths"):
-		font_paths = _localization.get_font_paths(str(profile["font_profile"]))
+		font_paths = _localization.get_font_paths(profile_id)
 	else:
 		var loaded: Dictionary = CATALOG.load_bundle("res://localization/manifest.json")
 		if not loaded.get("ok", false):
 			return loaded
-		font_paths = _font_paths_for_profile(loaded["value"]["manifest"], str(profile["font_profile"]))
+		font_paths = _font_paths_for_profile(loaded["value"]["manifest"], profile_id)
 	if not font_paths.get("ok", false):
 		return font_paths
-	var theme := _target.theme.duplicate() as Theme if _target.theme != null else Theme.new()
 	var fonts: Array[Font] = []
-	if not profile.has("font_style"):
-		for relative_path in font_paths["value"]:
-			var font: Font = load("res://localization/%s" % relative_path) as Font
-			if font == null:
-				return _fail(&"font_load_failed")
-			fonts.append(font)
-	var project_font := _project_font if _locale_font_active else theme.default_font
-	if profile.has("font_style"):
-		if profile["font_style"] not in ["pixel", "readable"]:
-			return _fail(&"invalid_font_style")
-		var face := TYPOGRAPHY.font(str(profile["locale_id"]), int(profile.get("text_size", 100)), str(profile["font_style"]))
-		if face == null: return _fail(&"font_load_failed")
-		fonts.assign([face])
-	if profile.has("font_style"):
-		theme.default_font = fonts[0]
-	elif not fonts.is_empty():
-		var primary: Font = fonts[0].duplicate(true)
-		var fallbacks: Array[Font] = []
-		for index in range(1, fonts.size()):
-			fallbacks.append(fonts[index].duplicate(true))
-		primary.fallbacks = fallbacks
-		theme.default_font = primary
-	elif _locale_font_active:
-		theme.default_font = project_font
-	return _success({
-		"project_font": project_font,
-		"locale_font_active": not fonts.is_empty(),
-		"theme": theme,
-		"layout_direction": Control.LAYOUT_DIRECTION_LTR if direction == "ltr" else Control.LAYOUT_DIRECTION_RTL,
-	})
+	for relative_path in font_paths["value"]:
+		var font: Font = load("res://localization/%s" % relative_path) as Font
+		if font == null: return _fail(&"font_load_failed")
+		fonts.append(font)
+	if fonts.is_empty(): return _success(null)
+	var primary := fonts.pop_front() as Font
+	var face := primary.duplicate() as Font
+	face.fallbacks = fonts
+	return _success(face)
 
 
 func capture_presentation_state() -> Dictionary:
