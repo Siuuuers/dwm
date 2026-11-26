@@ -4409,8 +4409,7 @@ func capture_scene_challenge_control() -> Dictionary:
 	var index: int = int(reading.get("program_index", -1))
 	if index < 0 or index >= nodes.size() or not nodes[index].get("marker_id") is String:
 		return _command_failure(&"scene_challenge_control_required")
-	return {"ok": true, "value": {"marker_id": nodes[index].marker_id,
-		"checkpoint": boundary.value.checkpoint}}
+	return {"ok": true, "value": {"marker_id": nodes[index].marker_id}}
 
 func capture_scene_event_boundary() -> Dictionary:
 	if not _computer_hold_frontier.is_empty() and (_computer_hold_changing or not _computer_frontier_matches(true)):

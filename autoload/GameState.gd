@@ -3874,8 +3874,7 @@ func capture_scene_challenge_command() -> Dictionary:
 		if challenge.challenge_id == _scene_snapshot_references.active_challenge.challenge_id:
 			matched = challenge.entry_id == _scene_snapshot_references.entry_id and challenge.playable_marker_id == held.value.marker_id
 	if not matched: return _transaction_failure(&"scene_challenge_control_mismatch", "")
-	return {"ok": true, "value": {"command": command.value, "bundle": registered.bundle,
-		"checkpoint": held.value.checkpoint.duplicate(true)}}
+	return {"ok": true, "value": {"command": command.value, "bundle": registered.bundle}}
 
 func _retained_scene_challenge_command(expected_context: Dictionary = {}) -> Dictionary:
 	var command := _current_scene_challenge_command(_scene_snapshot_references)
