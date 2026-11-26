@@ -2242,10 +2242,10 @@ func _admit_terminal_ending() -> Dictionary:
 	route_context["epilogue_ending_id"] = str(plan.epilogue_ending_id)
 	if not condition_source.is_empty():
 		if _frozen_ending_contexts_enabled:
-			var frozen_contacts := preload("res://scripts/narrative/ContactsFrozenContext.gd").capture_candidate(
-				contacts, closure.value.candidate, _legacy_run_gameplay(to_save_dict(), _narrative_variables), 7)
+			var frozen_contacts := _CONTACTS_FROZEN.capture_candidate(contacts, closure.value.candidate,
+				{"route_context": route_context, "missed_invitations": missed_invitations, "friend_attitude": friend_attitude}, 7)
 			if not frozen_contacts.ok: return _rollback_ending_admission(backup, {}, frozen_contacts)
-			_apply_gameplay_silent(frozen_contacts.value)
+			route_context = frozen_contacts.value.route_context
 		contacts = closure.value.candidate.duplicate(true)
 		var cause := str(condition_source.terminal_cause)
 		route_context["day7_condition_ending"] = {
@@ -3128,19 +3128,19 @@ func configure_frozen_contacts_contexts() -> Dictionary:
 func frozen_contacts_contexts_enabled() -> bool:
 	return _frozen_contacts_contexts_enabled
 
-func _contact_presentation_inputs() -> Dictionary:
+func contact_presentation_inputs() -> Dictionary:
 	return {"route_context": route_context, "missed_invitations": missed_invitations,
 		"dating_route_state": dating_route_state, "friend_attitude": friend_attitude}
 
 func _prepare_contact_presentation_candidate(candidate: Dictionary) -> Dictionary:
 	if not _frozen_contacts_contexts_enabled: return {"ok": true}
-	return _CONTACTS_FROZEN.capture_candidate(contacts, candidate, _contact_presentation_inputs(), day)
+	return _CONTACTS_FROZEN.capture_candidate(contacts, candidate, contact_presentation_inputs(), day)
 
 func ensure_contact_presentation_contexts(friend_id: String = "") -> Dictionary:
 	if not _frozen_contacts_contexts_enabled: return {"ok": true, "value": {}}
 	if friend_id != "" and friend_id not in _CONTACT_INVITATION_STATE.FRIEND_IDS:
 		return _transaction_failure(&"unknown_friend", "")
-	var prepared := _CONTACTS_FROZEN.prepare_projection(contacts, _contact_presentation_inputs(), day, friend_id)
+	var prepared := _CONTACTS_FROZEN.prepare_projection(contacts, contact_presentation_inputs(), day, friend_id)
 	if not prepared.ok: return prepared
 	var candidate: Dictionary = prepared.value.route_context
 	if candidate == route_context:

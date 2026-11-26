@@ -293,7 +293,7 @@ func _presentation_request(plan: Dictionary, stage_id: String, context: Dictiona
 
 func _closure_gameplay(misses: Array) -> Dictionary:
 	var gameplay: Dictionary = _game.capture_run_snapshot_input().gameplay
-	var retained: Array = gameplay.get("missed_invitations", []).duplicate(true)
+	var retained: Array = gameplay.get("missed_invitations", [])
 	for miss: Dictionary in misses:
 		for friend: String in miss.participants:
 			retained.append({"friend_id": friend, "source": "group" if miss.participants.size() > 1 else "solo",
