@@ -353,12 +353,14 @@ func prepare_semantic_restore(snapshot: Dictionary, prepared_profile: Dictionary
 	if not _valid_prepared_audio(audio):
 		return _failure(&"invalid_restore_plan")
 	if not _supports_output_mode(audio.output_mode): return _failure(&"unsupported_audio_output_mode")
-	var plan := {"snapshot": validated.value, "audio": audio.duplicate()}
+	var plan := {"audio": audio.duplicate()}
 	if snapshot.get("kind") == "scene_audio":
 		var prepared: Dictionary = _prepare_scene_output(validated.value)
 		if not prepared.get("ok", false): return prepared
 		plan["snapshot"] = prepared.value.snapshot
 		plan["scene_audio_mode"] = scene_audio_mode
+	else:
+		plan["snapshot"] = snapshot.duplicate(true)
 	return {"ok": true, "code": &"ok", "value": plan, "receipt": {}}
 
 
@@ -860,7 +862,7 @@ func _validate_snapshot(snapshot: Dictionary) -> Dictionary:
 		return _failure(&"invalid_audio_snapshot")
 	if not snapshot["ambience_context_id"].is_empty() and not _manifest.resolve_ambience_context(snapshot["ambience_context_id"], snapshot["ambience_context"]).get("ok", false):
 		return _failure(&"invalid_audio_snapshot")
-	return {"ok": true, "code": &"ok", "value": snapshot.duplicate(true), "receipt": {}}
+	return {"ok": true}
 
 
 func _settings_from_audio(audio: Dictionary) -> Dictionary:

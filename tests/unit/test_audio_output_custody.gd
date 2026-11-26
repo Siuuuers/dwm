@@ -49,6 +49,10 @@ func test_capture_reads_actual_server_values_and_returns_detached_output_only() 
 	assert_eq(result.value.bus_states[BUS], {"db": -17.0, "muted": true})
 	assert_false(result.value.has("players"))
 	assert_false(result.value.has("transitions"))
+	var runtime: Dictionary = port.capture_runtime().value
+	assert_eq(runtime.bus_states, result.value.bus_states)
+	runtime.bus_states[BUS].muted = false
+	assert_true(port.capture_runtime().value.bus_states[BUS].muted)
 	result.value.bus_states[BUS].db = -40.0
 	assert_eq(AudioServer.get_bus_volume_db(index), -17.0)
 	assert_false(port.output_matches({BUS: {"db": -3.0, "muted": false}}, "stereo"), "cached setter state cannot prove current output")

@@ -7,7 +7,7 @@ var _root: Node
 var _players: Dictionary = {}
 var _tweens: Dictionary = {}
 var _tween_specs: Dictionary = {}
-var _bus_states: Dictionary = {}
+var _bus_names: Array[StringName] = [&"Master"]
 var _pause_capture: Dictionary = {}
 var _playback_refs: Array[WeakRef] = []
 var _mono_effect: AudioEffectStereoEnhance
@@ -19,7 +19,7 @@ func ensure_bus(bus_name: StringName) -> Dictionary:
 		AudioServer.add_bus()
 		index = AudioServer.bus_count - 1
 		AudioServer.set_bus_name(index, bus_name)
-	_bus_states[bus_name] = {"db":AudioServer.get_bus_volume_db(index),"muted":AudioServer.is_bus_mute(index)}
+	if bus_name not in _bus_names: _bus_names.append(bus_name)
 	return _ok({"bus": bus_name})
 
 
@@ -275,7 +275,6 @@ func set_bus_state(bus_name: StringName, value_db: float, muted: bool) -> Dictio
 	var index := AudioServer.get_bus_index(bus_name)
 	AudioServer.set_bus_volume_db(index, value_db)
 	AudioServer.set_bus_mute(index, muted)
-	_bus_states[bus_name] = {"db": value_db, "muted": muted}
 	return _ok({})
 
 
@@ -330,14 +329,20 @@ func _restore_output_state(state: Dictionary) -> Dictionary:
 	AudioServer.set_bus_effect_enabled(bus,index,bool(state.enabled))
 	return _ok({})
 
-func capture_output() -> Dictionary:
+func _capture_bus_states(recreate_missing: bool) -> Dictionary:
 	var buses := {}
-	var names: Array = _bus_states.keys()
-	if &"Master" not in names: names.append(&"Master")
-	for bus_name: Variant in names:
+	for bus_name in _bus_names:
 		var index := AudioServer.get_bus_index(bus_name)
-		if index < 0: return _failure(&"invalid_audio_runtime")
+		if index < 0:
+			if not recreate_missing: return {}
+			ensure_bus(bus_name)
+			index = AudioServer.get_bus_index(bus_name)
 		buses[bus_name] = {"db": AudioServer.get_bus_volume_db(index), "muted": AudioServer.is_bus_mute(index)}
+	return buses
+
+
+func capture_output() -> Dictionary:
+	var buses := _capture_bus_states(false)
 	if not _valid_output_buses(buses) or not _owned_mono_is_valid(): return _failure(&"invalid_audio_runtime")
 	return _ok({"bus_states": buses, "output_state": _capture_output_state()})
 
@@ -384,7 +389,7 @@ func _valid_output_buses(buses: Dictionary) -> bool:
 	if buses.is_empty(): return false
 	for name: Variant in buses:
 		if typeof(name) not in [TYPE_STRING, TYPE_STRING_NAME] \
-				or (name != &"Master" and not _bus_states.has(name)) \
+				or not _bus_names.has(name) \
 				or AudioServer.get_bus_index(name) < 0: return false
 		var state: Variant = buses[name]
 		if typeof(state) != TYPE_DICTIONARY or state.size() != 2 or not state.has_all(["db", "muted"]) \
@@ -416,9 +421,6 @@ func _owned_mono_is_valid() -> bool:
 
 
 func capture_runtime() -> Dictionary:
-	ensure_bus(&"Master")
-	for bus_name in _bus_states.keys():
-		ensure_bus(bus_name)
 	var players := {}
 	for id in _players:
 		var player: AudioStreamPlayer = _players[id]
@@ -438,7 +440,7 @@ func capture_runtime() -> Dictionary:
 			"tracks": specification["tracks"].duplicate(true),
 			"remaining": maxf(0.0, float(specification["duration"]) - (tween.get_total_elapsed_time() if tween != null and tween.is_valid() else 0.0)),
 		}
-	return _ok({"players": players, "bus_states": _bus_states.duplicate(true), "transitions": transitions, "output_state":_capture_output_state()})
+	return _ok({"players": players, "bus_states": _capture_bus_states(true), "transitions": transitions, "output_state":_capture_output_state()})
 
 
 func restore_runtime(backup: Dictionary) -> Dictionary:
