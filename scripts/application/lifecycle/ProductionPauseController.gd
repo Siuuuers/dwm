@@ -591,7 +591,7 @@ func capture_backup_checkpoint_inputs() -> Dictionary:
 				or inputs.get("snapshot_input", {}).get("lifecycle", {}).get("run_id") != _captured_source.session.get("run_id") \
 				or not _backup_admission().get("ok", false):
 			return _failure(&"pause_source_changed")
-		return {"ok": true, "value": inputs.duplicate(true)}
+		return {"ok": true, "value": inputs}
 	var command: Dictionary = _captured_source.command
 	var physical: Dictionary = _services.dating_presentation.pull_physical(command)
 	if not physical.get("ok", false): return physical
@@ -620,7 +620,7 @@ func capture_backup_checkpoint_inputs() -> Dictionary:
 			or not after.get("ok", false) or after.value != narrative.value \
 			or not _backup_admission().get("ok", false):
 		return _failure(&"pause_source_changed")
-	return {"ok": true, "value": inputs.duplicate(true)}
+	return {"ok": true, "value": inputs}
 
 func _capture_between_entry_reading_checkpoint() -> Dictionary:
 	var bridge: Object = _services.bridge
@@ -663,7 +663,7 @@ func _capture_reading_backup_inputs() -> Dictionary:
 			or not after.get("ok", false) or after.value != checkpoint.value \
 			or not _backup_admission().get("ok", false):
 		return _failure(&"pause_source_changed")
-	return {"ok": true, "value": inputs.duplicate(true)}
+	return {"ok": true, "value": inputs}
 
 func _capture_scene_reading_backup_inputs() -> Dictionary:
 	if not _reading_save_owner_available("scene"): return _failure(&"pause_save_unavailable")
@@ -685,7 +685,7 @@ func _capture_scene_reading_backup_inputs() -> Dictionary:
 			or inputs.get("snapshot_input", {}).get("gameplay", {}).get("route_context", {}).get("active_dating_challenge", {}) != prior.value \
 			or not _backup_admission().get("ok", false):
 		return _failure(&"pause_source_changed")
-	return {"ok": true, "value": inputs.duplicate(true)}
+	return {"ok": true, "value": inputs}
 
 func _capture_ending_reading_backup_inputs() -> Dictionary:
 	if not _reading_save_owner_available("ending"): return _failure(&"pause_save_unavailable")
@@ -707,7 +707,7 @@ func _capture_ending_reading_backup_inputs() -> Dictionary:
 		snapshot["route_id"] = "ending"
 		var authority := preload("res://scripts/narrative/FrozenRunContext.gd").validate_reading_checkpoint(checkpoint.value, snapshot)
 		if not authority.get("ok", false): return authority
-	return {"ok": true, "value": inputs.duplicate(true)}
+	return {"ok": true, "value": inputs}
 
 
 func can_load_backup() -> bool:
