@@ -5,6 +5,7 @@ signal presentation_changed()
 signal closed()
 signal home_requested()
 
+const READ_ONLY := preload("res://scripts/domain/ReadOnlyData.gd")
 const WORKSHEET := preload("res://scripts/ui/minesweeper/MinesweeperWorksheet.gd")
 const DOCK := preload("res://scripts/ui/minesweeper/MinesweeperDock.gd")
 const PANEL_SIZE := Vector2(960, 656)
@@ -71,6 +72,7 @@ func bind(port: Object, presentation_command: Dictionary) -> bool:
 		return _port == port and _command == presentation_command
 	_port = port
 	_command = presentation_command.duplicate(true)
+	READ_ONLY.freeze(_command)
 	return true
 
 func bind_view_preferences(profile: Object) -> bool:
@@ -110,7 +112,7 @@ func set_interaction_blocked(blocked: bool) -> void:
 
 func refresh() -> bool:
 	if not is_instance_valid(_port): return _fail(&"scene_panel_unbound")
-	var response: Variant = _port.call("pull_scene_panel", _command.duplicate(true))
+	var response: Variant = _port.call("pull_scene_panel", _command)
 	if not response is Dictionary or not response.get("ok", false):
 		return _fail(StringName(response.get("code", "scene_panel_unavailable")) if response is Dictionary else &"scene_panel_unavailable")
 	var value: Variant = response.get("value")
@@ -178,7 +180,7 @@ func _dispatch(action: StringName, index: int, revision: int) -> void:
 	if not _can_interact() or worksheet.information_sheet != null or action not in CELL_ACTIONS: return
 	if String(action) not in public_view.get("actions", []): return
 	_dispatching = true
-	var result: Variant = _port.call("dispatch_scene_panel_action", _command.duplicate(true), String(action), index, revision)
+	var result: Variant = _port.call("dispatch_scene_panel_action", _command, String(action), index, revision)
 	_dispatching = false
 	if not result is Dictionary or not result.get("ok", false):
 		_fail(StringName(result.get("code", "scene_panel_action_refused")) if result is Dictionary else &"scene_panel_action_refused")

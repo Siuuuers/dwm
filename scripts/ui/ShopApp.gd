@@ -632,8 +632,7 @@ func _render_selection() -> void:
 	_buy_button.focus_mode = Control.FOCUS_NONE
 	status_label.text = ""
 	if has_purchase:
-		var admitted := _provider_can_purchase(selected_id, quantity)
-		_buy_button.disabled = not admitted.get("ok", false)
+		_buy_button.disabled = not _provider_can_purchase(selected_id, quantity)
 		_buy_button.focus_mode = Control.FOCUS_NONE if _buy_button.disabled else Control.FOCUS_ALL
 		if _buy_button.disabled: status_label.text = _t("unavailable")
 	elif record.available:
@@ -715,12 +714,11 @@ func _quantity_action(key: String) -> void:
 	if focused == null or (focused is BaseButton and focused.disabled):
 		_focus_first_action()
 
-func _provider_can_purchase(item_id: String, requested_quantity: int) -> Dictionary:
+func _provider_can_purchase(item_id: String, requested_quantity: int) -> bool:
 	if _provider == null or not _provider.has_method("can_purchase"):
-		return {"ok": _provider != null and _provider.has_method("purchase"), "code": &"ok"}
+		return _provider != null and _provider.has_method("purchase")
 	var result: Variant = _provider.call(&"can_purchase", item_id, requested_quantity)
-	return (result as Dictionary).duplicate(true) if typeof(result) == TYPE_DICTIONARY \
-		else {"ok": false, "code": &"shop_purchase_result_malformed"}
+	return result is Dictionary and result.get("ok", false)
 
 func _purchase_selected() -> void:
 	if not _has_host_custody() or not is_instance_valid(_buy_button) or _buy_button.disabled:
@@ -730,7 +728,7 @@ func _purchase_selected() -> void:
 func _refresh_supportz() -> void:
 	if not is_instance_valid(_supportz_button): return
 	var admitted: bool = page_index == int(_index_of("supportz") / page_capacity) and _provider != null and _provider.has_method("purchase") \
-		and _provider_can_purchase("supportz", 1).get("ok", false)
+		and _provider_can_purchase("supportz", 1)
 	var card_height: float = 176.0 if cards.is_empty() else (cards.values()[0] as Control).size.y
 	var slot := _index_of("supportz") % page_capacity
 	_supportz_button.position = Vector2((slot % 3) * (_card_width + 8), (slot / 3) * (card_height + 8))
@@ -774,11 +772,8 @@ func _attempt_supportz_purchase() -> Dictionary:
 	if not _view_is_current() or not is_visible_in_tree():
 		return {"ok": false, "code": &"shop_view_detached"}
 	var result: Variant = _provider.call(&"purchase", "supportz", 1)
-	var outcome: Dictionary = result.duplicate(true) if result is Dictionary \
-		else {"ok": false, "code": &"shop_purchase_result_malformed"}
-	outcome["retained_purchase"] = _provider.has_method("has_pending_purchase") \
-		and bool(_provider.call(&"has_pending_purchase"))
-	return outcome
+	return {"ok": result is Dictionary and result.get("ok", false),
+		"retained_purchase": _provider.has_method("has_pending_purchase") and bool(_provider.call(&"has_pending_purchase"))}
 
 func _finish_supportz_confirmation(_accepted: bool) -> void:
 	_supportz_confirmation = null

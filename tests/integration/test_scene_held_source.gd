@@ -258,6 +258,8 @@ func test_caller_transport_mutation_during_ack_cannot_redirect_private_target() 
 	if not committed.ok: return
 	assert_eq(committed.value, original.value.narrative_checkpoint,
 		"the result must name the original privately retained checkpoint")
+	assert_true(committed.value.is_read_only())
+	assert_true(committed.value.reading_session.ledger.captions.is_read_only())
 	assert_ne(prepared.value.narrative_checkpoint, original.value.narrative_checkpoint)
 	await _settle()
 	_assert_target(original, "line.scene.test.a.one")

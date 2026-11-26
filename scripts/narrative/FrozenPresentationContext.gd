@@ -221,11 +221,7 @@ static func _freeze(value: Variant) -> void:
 		value.make_read_only()
 
 static func _exact(value: Dictionary, expected: Array) -> bool:
-	var keys := value.keys()
-	keys.sort()
-	var other := expected.duplicate()
-	other.sort()
-	return keys == other
+	return value.size() == expected.size() and value.has_all(expected)
 
 static func _ok(value: Dictionary) -> Dictionary:
 	return {"ok": true, "value": value}

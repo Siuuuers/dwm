@@ -92,7 +92,7 @@ static func load_current() -> Dictionary:
 
 
 static func from_manifest(manifest: Dictionary) -> Dictionary:
-	var shape: Dictionary = _SCHEMA_VALIDATOR.validate(manifest, _SCHEMA)
+	var shape: Dictionary = _SCHEMA_VALIDATOR.check(manifest, _SCHEMA)
 	if not shape.get("ok", false):
 		return _fail(&"invalid_registry_manifest", str(shape.get("message", "schema rejected")),
 			{"errors": shape.get("errors", [])})

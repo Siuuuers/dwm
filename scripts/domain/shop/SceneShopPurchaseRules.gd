@@ -4,11 +4,6 @@ const MAX_INTEGER: int = 9223372036854775807
 const SPECIAL_IDS: Array[String] = ["supportz", "lucky_charm", "debug_key"]
 
 
-static func prepare(gameplay: Dictionary, item_record: Dictionary, quantity: Variant,
-		supportz_effect: Dictionary = {}) -> Dictionary:
-	return apply_to_candidate(gameplay.duplicate(true), item_record, quantity, supportz_effect)
-
-
 static func apply_to_candidate(candidate: Dictionary, item_record: Dictionary, quantity: Variant,
 		supportz_effect: Dictionary = {}) -> Dictionary:
 	if typeof(quantity) != TYPE_INT or quantity < 1:

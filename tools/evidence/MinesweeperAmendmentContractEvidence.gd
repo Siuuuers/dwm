@@ -279,7 +279,7 @@ static func validate_schema(document: Dictionary) -> Dictionary:
 	var schema: Dictionary = load_schema()
 	if not schema.get("ok", false):
 		return schema
-	var against: Dictionary = _SCHEMA_VALIDATOR.validate(
+	var against: Dictionary = _SCHEMA_VALIDATOR.check(
 		document, (schema.get("value", {}) as Dictionary).get("schema", {}) as Dictionary)
 	if not against.get("ok", false):
 		return _fail(&"document_schema_rejected", str(against.get("message", "")),

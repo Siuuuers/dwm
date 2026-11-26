@@ -376,12 +376,12 @@ func _commit_scene_entry(candidate: Dictionary) -> Dictionary:
 	if not _scene_stage.is_empty():
 		if _scene_stage.has("native_failure"): return _scene_stage.native_failure.duplicate(true)
 		if installed.get("value", {}).get("pending", false) and not _scene_stage.get("frontier_restored", false):
-			return {"ok": true, "value": candidate.narrative_checkpoint.duplicate(true), "pending": true}
+			return {"ok": true, "value": candidate.narrative_checkpoint, "pending": true}
 		var adopted := _adopt_scene_target()
 		if not adopted.ok:
 			_scene_stage["native_failure"] = adopted.duplicate(true)
 			return adopted
-	return {"ok": true, "value": candidate.narrative_checkpoint.duplicate(true)}
+	return {"ok": true, "value": candidate.narrative_checkpoint}
 
 func _scene_source_current() -> bool:
 	if _scene_stage.is_empty() or _runtime_adapter != _scene_stage.runtime \
@@ -473,7 +473,6 @@ var _profile: Node
 var _preference_adapter: RefCounted
 var _cached_preference_plan: Dictionary = {}
 var _preferences_bound := false
-var _fatal_preference_failure := {}
 
 var _runtime_adapter: RefCounted = null
 var _catalog: Script = null
@@ -1281,10 +1280,9 @@ func _latch_preference_fatal(phase: StringName, result: Dictionary) -> void:
 		"code": String(result.get("code", &"dialogic_preference_failure")),
 		"details": result.duplicate(true),
 	}
-	_fatal_preference_failure = failure.duplicate(true)
 	if _mutation_gate != null:
-		_mutation_gate.call(&"latch_fatal", failure.duplicate(true))
-	timeline_failed.emit({"ok": false, "code": &"dialogic_preference_failure", "details": failure.duplicate(true), "receipt": {}})
+		_mutation_gate.call(&"latch_fatal", failure)
+	timeline_failed.emit({"ok": false, "code": &"dialogic_preference_failure", "details": failure, "receipt": {}})
 
 
 
@@ -4248,12 +4246,8 @@ func _scene_caption_challenge_end() -> Dictionary:
 	if not source.get("ok", false): return source
 	var reading: Dictionary = source.value.reading
 	var index: int = int(reading.program_index) + (1 if reading.boundary == "line" else 0)
-	var registered := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_contract_tables()
-	if not registered.ok: return registered
-	for programme: Dictionary in registered.bundle.scene_programme.entries:
-		if programme.entry_id == reading.entry_id:
-			return _adjacent_challenge_end(_reading_session._scene_nodes[reading.entry_id], programme.markers, index, source.value.marker)
-	return _command_failure(&"scene_marker_unavailable")
+	var programme: Dictionary = _reading_session._scene_tables.entries[reading.entry_id]
+	return _adjacent_challenge_end(_reading_session._scene_nodes[reading.entry_id], programme.markers, index, source.value.marker)
 
 static func _adjacent_challenge_end(nodes: Array, markers: Array, index: int, playable: Dictionary) -> Dictionary:
 	if playable.get("kind") != "challenge.playable" or index < 1 or index + 1 >= nodes.size() \
@@ -4264,7 +4258,7 @@ static func _adjacent_challenge_end(nodes: Array, markers: Array, index: int, pl
 	for marker: Dictionary in markers:
 		if marker.marker_id == nodes[index + 1].marker_id and marker.kind == "challenge.end" \
 				and marker.payload == playable.payload and marker.after_line_id == playable.after_line_id:
-			return {"ok": true, "value": marker.duplicate(true)}
+			return {"ok": true, "value": marker}
 	return {"ok": false, "code": &"scene_marker_unavailable"}
 
 func capture_scene_pending_marker() -> Dictionary:
@@ -4279,7 +4273,7 @@ func capture_scene_pending_marker() -> Dictionary:
 	if not source.get("ok", false): return source
 	if source.value.marker.kind not in ["passage.finish", "scene.transition", "challenge.playable", "challenge.end", "contact.enter", "contact.return", "thought.pass", "thought.options", "challenge.recall"]:
 		return _command_failure(&"scene_marker_unavailable")
-	return {"ok": true, "value": source.value.marker.duplicate(true)}
+	return {"ok": true, "value": source.value.marker}
 
 func project_scene_optional_frontier(guard_mutation: bool = true) -> Dictionary:
 	if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary != "control":

@@ -7,13 +7,6 @@ const NODE_BUDGET := 4096
 const DIAGNOSTIC_KEYS: Array[String] = ["operation", "owner_id", "result"]
 const FAILURE_KEYS: Array[String] = ["code", "details", "phase", "source"]
 
-const INVARIANT_FALLBACK := {
-	"source": "fatal_diagnostic_projector",
-	"phase": "project_failure",
-	"code": "FATAL_PROJECTOR_INVARIANT",
-	"details": {"reason": "invalid_projector_output", "path": "$"},
-}
-
 static func project_failure(
 		source: Variant,
 		phase: Variant,
@@ -65,7 +58,12 @@ static func validate_failure(failure: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok"}
 
 static func get_invariant_fallback() -> Dictionary:
-	return INVARIANT_FALLBACK.duplicate(true)
+	return {
+		"source": "fatal_diagnostic_projector",
+		"phase": "project_failure",
+		"code": "FATAL_PROJECTOR_INVARIANT",
+		"details": {"reason": "invalid_projector_output", "path": "$"},
+	}
 
 static func _project_value(value: Variant, path: String, depth: int, budget: Dictionary) -> Variant:
 	budget["nodes"] = int(budget["nodes"]) - 1

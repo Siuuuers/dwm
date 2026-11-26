@@ -102,6 +102,8 @@ func test_validate_failure_and_invariant_fallback() -> void:
 		"details": {"reason": "invalid_projector_output", "path": "$"},
 	})
 	fallback["code"] = "mutated"
+	fallback.details.path = "mutated"
+	assert_eq(projector.get_invariant_fallback().details.path, "$")
 	assert_eq(projector.get_invariant_fallback()["code"], "FATAL_PROJECTOR_INVARIANT",
 		"fallback returns a fresh copy")
 	assert_true(projector.validate_failure(projector.get_invariant_fallback())["ok"])

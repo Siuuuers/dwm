@@ -80,11 +80,6 @@ static func get_scene_art(entry_id: String) -> Dictionary:
 	return {"background": str(value.get("background", "")), "portraits": portraits,
 		"cg": str(value.get("cg", ""))}
 
-static func get_presentation_commands(entry_id: String) -> Dictionary:
-	var result := _presentation_commands_view(entry_id)
-	if result.ok: result.value = result.value.duplicate(true)
-	return result
-
 static func _presentation_commands_view(entry_id: String) -> Dictionary:
 	var entries: Variant = _catalog().get("presentation_entries", {})
 	if entries is Dictionary:

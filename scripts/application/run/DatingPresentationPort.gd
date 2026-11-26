@@ -279,7 +279,7 @@ func _trusted_physical_command(candidate: Dictionary) -> Dictionary:
 			or candidate != (_commands[completion_id] as Dictionary):
 		return _fail(&"presentation_command_conflict",
 			"the UI command is not the exact command issued by this port", {})
-	return _ok(candidate.duplicate(true))
+	return _ok(candidate)
 
 
 

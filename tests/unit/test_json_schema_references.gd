@@ -11,6 +11,7 @@ func test_nested_referenced_closed_object_is_validated_and_detached() -> void:
 	var schema := _object_schema()
 	var value := {"record":{"id":3,"enabled":true}}
 	var before := value.duplicate(true)
+	assert_eq(RULES.check(value,schema), {"ok": true})
 	var result := RULES.validate(value,schema)
 	assert_true(result.ok)
 	if not result.ok: return
