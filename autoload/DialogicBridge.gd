@@ -3952,7 +3952,7 @@ func acknowledge_signal(signal_id: String, payload: Dictionary) -> Dictionary:
 		var stored: Dictionary = _signal_receipts[receipt_id]
 		if str(stored["fingerprint"]) == fingerprint:
 			return {"ok": true, "code": &"acknowledged", "value": {"duplicate": true},
-				"receipt": (stored["receipt"] as Dictionary).duplicate(true)}
+				"receipt": (stored["receipt"] as Dictionary).duplicate()}
 		return _playback_failure(&"duplicate_transaction_conflict", receipt_id)
 	if _signal_command_port == null:
 		return _playback_failure(&"signal_command_port_not_configured",
@@ -3972,14 +3972,14 @@ func acknowledge_signal(signal_id: String, payload: Dictionary) -> Dictionary:
 		"stage": str(stage),
 		"playback_token": token,
 	}
-	_signal_receipts[receipt_id] = {"fingerprint": fingerprint, "receipt": receipt.duplicate(true)}
+	_signal_receipts[receipt_id] = {"fingerprint": fingerprint, "receipt": receipt.duplicate()}
 	return {"ok": true, "code": &"acknowledged", "value": {"duplicate": false}, "receipt": receipt}
 
 
 func abort_current_entry(code: StringName) -> Dictionary:
 	if _active_entry.is_empty():
 		return _playback_failure(&"no_active_entry", "no semantic entry is active")
-	var entry := _active_entry.duplicate(true)
+	var entry := _active_entry
 	_active_entry = {}
 	_clear_scene_transition()
 	if not _ending_reading.is_empty() and entry.get("frozen_context") == _ending_reading.frame:
@@ -4073,7 +4073,7 @@ func _on_runtime_timeline_ended() -> void:
 			{"receipt_id": "%s:complete" % str(playback.get("stable_playback_id", playback["token"])), "ending_id": str(playback["ending_id"]), "timeline_id": str(playback["timeline_id"])})
 		return
 	if not _active_entry.is_empty():
-		var entry := _active_entry.duplicate(true)
+		var entry := _active_entry
 		_active_entry = {}
 		if has_reading_session() and _reading_session.latest_entry == entry.entry_id:
 			_reading_session.completed(entry.entry_id)
@@ -4149,7 +4149,7 @@ func _load_ending_records() -> Dictionary:
 	for record in records:
 		if typeof(record) != TYPE_DICTIONARY:
 			return _command_failure(&"ending_manifest_invalid")
-		by_id[str((record as Dictionary)["ending_id"])] = (record as Dictionary).duplicate(true)
+		by_id[str(record.ending_id)] = record
 	_ending_records = by_id
 	return {"ok": true}
 
