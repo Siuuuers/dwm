@@ -225,7 +225,7 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 		return _command_failure(&"scene_staging_unavailable")
 	if not preload("res://scripts/narrative/NarrativeCaptionLedger.gd").valid_scene_frame(context, str(context.get("playback_id", "")), entry_id):
 		return _command_failure(&"scene_staging_target_invalid")
-	var supplied: Variant = _scene_stage_context.call(entry_id, context.duplicate(true))
+	var supplied: Variant = _scene_stage_context.call(entry_id, context)
 	if not supplied is Dictionary or not supplied.get("ok", false) or not supplied.get("value") is Dictionary:
 		return _command_failure(&"scene_staging_owner_refused")
 	var binding: Dictionary = supplied.value
@@ -242,7 +242,7 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 			return _command_failure(&"scene_staging_source_invalid")
 	elif binding.source_occurrence_id != null or binding.trigger_command_id != null or has_active_playback():
 		return _command_failure(&"scene_staging_source_invalid")
-	var source: Variant = _scene_stage_source.call(binding.duplicate(true))
+	var source: Variant = _scene_stage_source.call(binding)
 	if not source is Dictionary or not source.get("ok", false): return _command_failure(&"scene_staging_source_invalid")
 	var registration := _ENTRY_MANIFEST.scene_contract_tables()
 	if not registration.ok or binding.registration_sha256 != registration.value.fingerprint:
@@ -1330,7 +1330,7 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 				_current_timeline_context = checkpoint.duplicate(true)
 				_ordinary_playback = {"timeline_id": _current_timeline_id,
 					"context": _current_timeline_context, "cache_before": before,
-					"runtime_before": captured.get("value", {}).get("backup", {}).duplicate(true),
+					"runtime_before": captured.get("value", {}).get("backup", {}),
 					"speech_token": "ordinary-%d" % _ordinary_speech_counter, "content_locale": "en",
 					"suppress_first_speech": true}
 				_restore_playback_started = true
@@ -1385,7 +1385,7 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 	var source: Variant = backup.get("backup", backup)
 	if typeof(source) != TYPE_DICTIONARY or not (source as Dictionary).has("timeline_id"):
 		return {"ok": false, "code": &"invalid_narrative_backup", "message": "narrative backup requires a timeline_id"}
-	var runtime_before: Dictionary = _ordinary_playback.get("runtime_before", source).duplicate(true)
+	var runtime_before: Dictionary = _ordinary_playback.get("runtime_before", source)
 	if _restore_playback_started:
 		_restore_playback_started = false
 		_ordinary_playback = {}
@@ -4079,7 +4079,7 @@ func _on_runtime_timeline_ended() -> void:
 	if _ordinary_playback.is_empty():
 		return
 	var finished_id := str(_ordinary_playback.timeline_id)
-	var context: Dictionary = _ordinary_playback.context.duplicate(true)
+	var context: Dictionary = _ordinary_playback.context
 	_ordinary_playback = {}
 	scene_art_changed.emit()
 	_current_timeline_id = ""
@@ -4409,8 +4409,7 @@ func capture_scene_challenge_control() -> Dictionary:
 	var index: int = int(reading.get("program_index", -1))
 	if index < 0 or index >= nodes.size() or not nodes[index].get("marker_id") is String:
 		return _command_failure(&"scene_challenge_control_required")
-	return {"ok": true, "value": {"marker_id": nodes[index].marker_id,
-		"checkpoint": boundary.value.checkpoint}}
+	return {"ok": true, "value": {"marker_id": nodes[index].marker_id}}
 
 func capture_scene_event_boundary() -> Dictionary:
 	if not _computer_hold_frontier.is_empty() and (_computer_hold_changing or not _computer_frontier_matches(true)):

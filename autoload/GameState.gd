@@ -3874,8 +3874,7 @@ func capture_scene_challenge_command() -> Dictionary:
 		if challenge.challenge_id == _scene_snapshot_references.active_challenge.challenge_id:
 			matched = challenge.entry_id == _scene_snapshot_references.entry_id and challenge.playable_marker_id == held.value.marker_id
 	if not matched: return _transaction_failure(&"scene_challenge_control_mismatch", "")
-	return {"ok": true, "value": {"command": command.value, "bundle": registered.bundle,
-		"checkpoint": held.value.checkpoint.duplicate(true)}}
+	return {"ok": true, "value": {"command": command.value, "bundle": registered.bundle}}
 
 func _retained_scene_challenge_command(expected_context: Dictionary = {}) -> Dictionary:
 	var command := _current_scene_challenge_command(_scene_snapshot_references)
@@ -4441,7 +4440,8 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 	if not registration.ok: return registration
 	var tables := _SCENE_EVENT.validate_bundle_structure(registration.bundle)
 	if not tables.ok: return tables
-	var candidate: Dictionary = prepared_input if not prepared_input.is_empty() else capture_run_snapshot_input()
+	var prior_input := capture_run_snapshot_input()
+	var candidate: Dictionary = prepared_input if not prepared_input.is_empty() else prior_input.duplicate()
 	var trigger: Variant = candidate.command_receipts.get(trigger_command_id) if recovery_trigger.is_empty() else recovery_trigger
 	if not recovery_trigger.is_empty():
 		var resolved := capture_resolved_scene_marker()
@@ -4458,18 +4458,17 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 			"details": {"target_id": target_id}}
 	var target: Dictionary = tables.value.targets[target_id].target
 	if target.kind == "ending": return _transaction_failure(&"scene_target_unavailable", "ordinary DTL Finish is required")
-	var prior_input := capture_run_snapshot_input()
 	var source_ref := {"kind": "live", "state_sha256": _SCENE_EVENT._sha(prior_input)}
 	var day_plan := _prepare_scene_day_renewal(trigger, target_id, registration.bundle)
 	if not day_plan.ok: return day_plan
 	var next_scene := {"registration_sha256": _SCENE_MANIFEST.scene_registration_fingerprint(),
 		"active_occurrence_id": "", "entry_id": target.entry_id, "notification": {}, "active_challenge": {}, "return_to": null}
-	var visual := _PRESENTATION_ART.apply_entry_presentation(target.entry_id, _scene_snapshot_references.get("presentation", {}))
+	var visual := _PRESENTATION_ART.apply_entry_presentation(target.entry_id, prior_input.scene.get("presentation", {}))
 	if not visual.ok: return visual
 	if not visual.value.state.is_empty(): next_scene["presentation"] = visual.value.state
 	var physical: Dictionary = candidate.gameplay.route_context.get("active_dating_challenge", {})
 	if not physical.is_empty() and not scene_physical_consumed(physical, candidate.gameplay.scene_challenge_outcomes):
-		next_scene.active_challenge = _scene_snapshot_references.active_challenge.duplicate(true)
+		next_scene.active_challenge = prior_input.scene.active_challenge
 	var returning: bool = trigger.scene_event.result.kind == "contact_returned"
 	if returning:
 		if _scene_snapshot_references.return_to == null or _scene_snapshot_references.return_to.target_id != target_id:
@@ -4555,9 +4554,9 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 func _commit_scene_target_owned() -> Dictionary:
 	var source := validate_scene_entry_staging_source(_scene_entry_operation.binding)
 	if not source.ok: return source
-	var candidate: Dictionary = _scene_entry_operation.candidate.duplicate(true)
-	var staged: Dictionary = _scene_entry_operation.staged.duplicate(true)
-	var admitted: Dictionary = _scene_entry_operation.admitted.duplicate()
+	var candidate: Dictionary = _scene_entry_operation.candidate
+	var staged: Dictionary = _scene_entry_operation.staged
+	var admitted: Dictionary = _scene_entry_operation.admitted
 	var committed: Dictionary = _narrative_checkpoint_port.commit_scene_event(candidate, staged.narrative_checkpoint, true) if _scene_entry_operation.get("named_autosave", false) else _narrative_checkpoint_port.commit_scene_event(candidate, staged.narrative_checkpoint)
 	if not committed.get("ok", false):
 		if committed.get("committed", false): return _scene_event_fatal(&"scene_entry_commit_uncertain")

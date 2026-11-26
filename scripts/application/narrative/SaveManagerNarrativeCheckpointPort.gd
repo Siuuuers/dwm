@@ -400,7 +400,7 @@ func _capture_scene_target_audio(audio: Dictionary) -> Dictionary:
 	if not _scene_validate(_scene_entry, "commit"):
 		return _fail(&"scene_entry_custody_invalid", "audio capture requires retained entry")
 	_scene_callback_busy = true
-	var captured_audio: Variant = _scene_audio_source.call(_scene_entry.binding.duplicate(true))
+	var captured_audio: Variant = _scene_audio_source.call(_scene_entry.binding)
 	_scene_callback_busy = false
 	if not captured_audio is Dictionary or not captured_audio.get("ok", false):
 		return _fail(&"scene_entry_audio_unavailable", "Run owner refused target audio capture")
@@ -639,7 +639,7 @@ func consume_scene_entry_ack(capability_id: String) -> Dictionary:
 func _scene_validate(entry: Dictionary, phase: String) -> bool:
 	if _scene_callback_busy or not is_instance_valid(_scene_authority) or not _scene_validator.is_valid(): return false
 	_scene_callback_busy = true
-	var result: Variant = _scene_validator.call(entry.capability_id, entry.binding.duplicate(true), entry.checkpoint.duplicate(true), phase)
+	var result: Variant = _scene_validator.call(entry.capability_id, entry.binding, entry.checkpoint, phase)
 	_scene_callback_busy = false
 	return result is Dictionary and result.get("ok", false) == true
 
