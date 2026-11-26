@@ -46,7 +46,7 @@ func test_profile_plan_preserves_first_process_current_document_without_import_o
 	var disk: Dictionary = fixture.files._persisted.duplicate(true)
 	var publications: Array = []
 	profile.profile_restored.connect(func(value: Dictionary) -> void: publications.append(value))
-	var prepared: Dictionary = fixture.participant.prepare(before)
+	var prepared: Dictionary = fixture.participant.prepare_current()
 	assert_true(prepared.get("ok", false), str(prepared))
 	if not prepared.get("ok", false): return
 	assert_eq(prepared.value.locale_id, "zh_HK")
@@ -72,7 +72,7 @@ func test_profile_plan_apply_and_finalize_preserve_all_current_fields_and_receip
 	var disk: Dictionary = fixture.files._persisted.duplicate(true)
 	var publications: Array = []
 	profile.profile_restored.connect(func(value: Dictionary) -> void: publications.append(value.duplicate(true)))
-	var prepared: Dictionary = fixture.participant.prepare(before)
+	var prepared: Dictionary = fixture.participant.prepare_current()
 	assert_true(prepared.get("ok", false), str(prepared))
 	if not prepared.get("ok", false): return
 	assert_eq(prepared.value.profile_plan.window_plan, {"window_mode": "borderless"})
