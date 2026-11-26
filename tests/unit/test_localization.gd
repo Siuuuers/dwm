@@ -91,7 +91,7 @@ func test_lookup_uses_registered_fallback_and_exact_placeholder_sets() -> void:
 	assert_eq(_manager.t("app.minesweeper"), "扫雷")
 	assert_eq(_manager.t("desktop.notification.new_message_from_friend", {"friend_name": "Priscilla"}), "Angela 收到了来自 Priscilla 的新消息。")
 	# Remove only this isolated manager's detached translation to exercise the registered fallback.
-	var catalog: Dictionary = _manager.get("_bundle")["catalogs"]["zh_CN"]
+	var catalog: Dictionary = _manager.get("_catalog_store")["catalogs"]["zh_CN"]
 	catalog.erase("desktop.notification.new_message_from_friend")
 	assert_eq(_manager.t("desktop.notification.new_message_from_friend", {"friend_name": "Priscilla"}), "Angela received a new message from Priscilla.")
 	assert_eq(_manager.t("hud.minesweeper_rounds", {"remaining": 1}), "[format_error:hud.minesweeper_rounds]")
@@ -174,16 +174,14 @@ func test_profile_write_failure_rolls_back_all_roots_and_manager() -> void:
 	assert_eq(_profile.get_profile_snapshot(), before_profile)
 
 
-func test_prepared_bundle_contains_only_candidate_fallback_chain() -> void:
+func test_prepared_locale_plan_uses_registered_catalogues() -> void:
 	assert_true(_initialize().get("ok", false))
 	var root: FakePresentationRoot = autofree(FakePresentationRoot.new())
 	assert_true(_manager.register_presentation_root(root).get("ok", false))
 	var prepared: Dictionary = _manager.prepare_locale("zh_hk")
 	assert_true(prepared.get("ok", false), str(prepared))
 	assert_eq(prepared["value"]["canonical_locale_id"], "zh_HK")
-	var catalog_ids: Array = prepared["value"]["bundle"]["catalogs"].keys()
-	catalog_ids.sort()
-	assert_eq(catalog_ids, ["en", "zh_HK"])
+	assert_false(prepared.value.has("bundle"))
 	assert_eq(prepared["value"]["root_plans"].size(), 1)
 	assert_false(prepared["value"]["root_plans"][0].has("root"))
 	prepared["value"]["root_plans"][0]["plan"]["profile"]["locale_id"] = "mutated"
@@ -225,7 +223,7 @@ func test_restore_apply_and_rollback_are_silent_and_detached() -> void:
 	assert_eq(root.call_log.count(&"capture"), 1, "Apply captures this root once before updating it")
 	assert_eq(_manager.get_locale(), "zh_CN")
 	assert_eq(root.applied_profile["locale_id"], "zh_CN")
-	plan["bundle"].clear()
+	plan["canonical_locale_id"] = "en"
 	assert_eq(_manager.t("app.minesweeper"), "扫雷")
 	assert_true(_manager.rollback_restore_silent(backup).get("ok", false))
 	assert_true(_profile.rollback_restore_silent(profile_backup["value"]).get("ok", false))

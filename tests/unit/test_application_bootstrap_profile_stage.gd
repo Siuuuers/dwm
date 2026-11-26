@@ -240,7 +240,7 @@ func test_real_six_target_gate_failure_stops_at_each_ordinal_before_initializati
 		assert_null(targets[&"ProfileManager"].get("_storage"))
 		assert_false(targets[&"ProfileManager"].get("_initialized"))
 		assert_null(targets[&"LocalizationManager"].get("_profile"))
-		assert_eq(targets[&"LocalizationManager"].get("_bundle"), {})
+		assert_eq(targets[&"LocalizationManager"].get("_catalog_store"), {})
 		assert_null(targets[&"InputManager"].get("_profile"))
 		assert_null(targets[&"AccessibilityManager"].get("_profile"))
 		assert_null(targets[&"AudioManager"].get("_profile"))

@@ -16,7 +16,6 @@ var _profile: Node
 var _mutation_gate: Object
 var _readiness := &"uninitialized"
 var _catalog_store: Dictionary = {}
-var _bundle: Dictionary = {}
 var _locale_id := ""
 var _presentation_profile: Dictionary = {}
 var _warned_missing: Dictionary = {}
@@ -63,7 +62,6 @@ func initialize(profile: Node, manifest_path: String = "res://localization/manif
 	var canonical_locale := _resolve_locale_in_bundle(_catalog_store, stored_locale)
 	if canonical_locale.is_empty():
 		canonical_locale = source_locale
-	var next_bundle := _bundle_for_locale(_catalog_store, canonical_locale)
 	var next_presentation := _make_presentation_in_bundle(_catalog_store, canonical_locale)
 	var prepared_roots := _prepare_root_plans(next_presentation)
 	if not prepared_roots.get("ok", false):
@@ -88,7 +86,6 @@ func initialize(profile: Node, manifest_path: String = "res://localization/manif
 			return committed
 		publication_id = committed["value"]["publication_id"]
 
-	_bundle = next_bundle
 	_locale_id = canonical_locale
 	_presentation_profile = next_presentation
 	_readiness = &"ready"
@@ -176,7 +173,6 @@ func prepare_locale_presentation(locale_input: String, font_style: String, text_
 		return root_plans
 	return _success({
 		"canonical_locale_id": canonical,
-		"bundle": _bundle_for_locale(_catalog_store, canonical).duplicate(true),
 		"presentation_profile": presentation,
 		"root_plans": root_plans["value"],
 	})
@@ -200,12 +196,11 @@ func set_font_style(font_style: String) -> Dictionary:
 	if _readiness != &"ready": return _fail(&"localization_not_ready")
 	var candidate: Dictionary = _profile.prepare_font_style_preference(font_style)
 	if not candidate.get("ok", false): return candidate
-	var presentation := _make_presentation_in_bundle(_bundle, _locale_id, font_style)
+	var presentation := _make_presentation_in_bundle(_catalog_store, _locale_id, font_style)
 	var root_plans := _prepare_root_plans(presentation)
 	if not root_plans.get("ok", false): return root_plans
 	return _commit_presentation({
 		"canonical_locale_id": _locale_id,
-		"bundle": _bundle,
 		"presentation_profile": presentation,
 		"root_plans": root_plans["value"],
 		"profile_candidate": candidate["value"],
@@ -221,7 +216,6 @@ func _commit_presentation(plan: Dictionary, publish_locale: bool) -> Dictionary:
 		_rollback_applied_roots(applied.get("applied", []))
 		return committed
 
-	_bundle = plan["bundle"]
 	_locale_id = plan["canonical_locale_id"]
 	_presentation_profile = plan["presentation_profile"]
 	_publishing_own_presentation = true
@@ -295,7 +289,6 @@ func capture_restore_state() -> Dictionary:
 		return root_states
 	return _success({
 		"locale_id": _locale_id,
-		"bundle": _bundle.duplicate(true),
 		"presentation_profile": _presentation_profile.duplicate(true),
 		"root_states": root_states["value"],
 	})
@@ -313,18 +306,17 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 		return applied
 	_restore_applied = applied["applied"]
 	_locale_id = plan["canonical_locale_id"]
-	_bundle = (plan["bundle"] as Dictionary).duplicate(true)
 	_presentation_profile = (plan["presentation_profile"] as Dictionary).duplicate(true)
 	return _success()
 
 
 func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 	var value: Dictionary = backup.get("value", backup)
-	if not value.has_all(["locale_id", "bundle", "presentation_profile"]):
+	if not value.has_all(["locale_id", "presentation_profile"]) \
+			or (value.locale_id != "" and not _catalog_store.get("catalogs", {}).has(value.locale_id)):
 		return _fail(&"invalid_localization_restore_backup")
 	_rollback_root_states(value.get("root_states", []))
 	_locale_id = value["locale_id"]
-	_bundle = (value["bundle"] as Dictionary).duplicate(true)
 	_presentation_profile = (value["presentation_profile"] as Dictionary).duplicate(true)
 	_finalize_roots(_restore_applied)
 	_restore_applied = []
@@ -446,7 +438,8 @@ func _validate_root(root: Node) -> Dictionary:
 
 
 func _is_restore_plan_valid(plan: Dictionary) -> bool:
-	return plan.has_all(["canonical_locale_id", "bundle", "presentation_profile", "root_plans"])
+	return plan.has_all(["canonical_locale_id", "presentation_profile", "root_plans"]) \
+		and _catalog_store.get("catalogs", {}).has(plan.canonical_locale_id)
 
 
 func _on_profile_preference_changed(path: StringName, _value: Variant) -> void:
@@ -477,7 +470,6 @@ func _on_profile_preference_changed(path: StringName, _value: Variant) -> void:
 		push_error("Could not apply committed locale presentation")
 		return
 	var changed_locale := _locale_id != canonical
-	_bundle = _bundle_for_locale(_catalog_store, canonical)
 	_locale_id = canonical
 	_presentation_profile = presentation
 	if changed_locale:
@@ -494,15 +486,15 @@ func _warn_once(kind: StringName, key: String) -> void:
 
 
 func _lookup(key: String) -> Variant:
-	if _bundle.is_empty():
+	if _locale_id.is_empty():
 		return null
-	var catalogs: Dictionary = _bundle["catalogs"]
+	var catalogs: Dictionary = _catalog_store["catalogs"]
 	var cursor: Variant = _locale_id
 	while cursor != null:
 		var text: Variant = catalogs[cursor].get(key)
 		if text != null:
 			return text
-		cursor = _locale_record_in_bundle(_bundle, cursor)["fallback_locale"]
+		cursor = _locale_record_in_bundle(_catalog_store, cursor)["fallback_locale"]
 	return null
 
 
@@ -514,18 +506,6 @@ func _resolve_locale_in_bundle(bundle: Dictionary, input: String) -> String:
 		if alias["input"] == input:
 			return alias["locale"]
 	return ""
-
-
-func _bundle_for_locale(catalog_store: Dictionary, locale_id: String) -> Dictionary:
-	var catalogs: Dictionary = {}
-	var cursor: Variant = locale_id
-	while cursor != null:
-		catalogs[cursor] = catalog_store["catalogs"][cursor]
-		cursor = _locale_record_in_bundle(catalog_store, cursor)["fallback_locale"]
-	return {
-		"manifest": catalog_store["manifest"],
-		"catalogs": catalogs,
-	}
 
 
 func _locale_record_in_bundle(bundle: Dictionary, locale_id: String) -> Dictionary:
