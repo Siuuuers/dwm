@@ -15,7 +15,7 @@ static func build(order: Array, source: Dictionary, bindings: Dictionary) -> Dic
 	var admitted: Dictionary = MANIFEST.validate_scene_registration(source)
 	if not admitted.get("ok", false):
 		return _fail("sequence_source_invalid", "Referenced content/registration refused: " + str(admitted))
-	var bundle: Dictionary = source.duplicate(true)
+	var bundle: Dictionary = admitted.value
 	var entries := {}
 	var programmes := {}
 	var targets := {}
@@ -46,17 +46,18 @@ static func build(order: Array, source: Dictionary, bindings: Dictionary) -> Dic
 		if not found: return _fail("sequence_marker_missing", id + ": " + marker_id)
 	# Recompile through the retained owner; do not derive hashes from this helper's data.
 	# Payload-only relinking may leave native program hashes unchanged.
+	var parsed_sources := {}
 	for id: String in entries:
 		var programme: Dictionary = programmes[id]
-		var compiled: Dictionary = ADAPTER.compile_scene_programme(
-			entries[id].locators.en.path, id, entries.keys(), programme.markers)
+		var compiled: Dictionary = ADAPTER._compile_scene_programme_in_registration(
+			entries[id].locators.en.path, id, entries.keys(), programme.markers, parsed_sources)
 		if not compiled.get("ok", false):
 			return _fail("sequence_compile_failed", id + ": " + str(compiled))
 		programme.content_sha256 = compiled.value.content_sha256
 		programme.program_sha256 = compiled.value.program_sha256
 	for target: Dictionary in targets.values():
 		target.program_sha256 = programmes[target.entry_id].program_sha256
-	var validated: Dictionary = MANIFEST.validate_scene_registration(bundle)
+	var validated: Dictionary = MANIFEST.validate_scene_registration_passages(bundle)
 	if not validated.get("ok", false):
 		return _fail("sequence_output_invalid", str(validated))
 	return {"ok": true, "value": {"registration": bundle,

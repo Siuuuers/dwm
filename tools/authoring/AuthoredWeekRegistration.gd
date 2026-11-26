@@ -97,9 +97,7 @@ static func prepare(source_path: String = SOURCE_PATH) -> Dictionary:
 	bundle.targets.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.target_id < b.target_id)
 	bundle.challenges.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.challenge_id < b.challenge_id)
 	bundle.audio_catalogue.bindings.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.entry_id < b.entry_id)
-	var checked: Dictionary = MANIFEST.validate_scene_registration(bundle)
-	if not checked.ok: return checked
-	var passages: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(bundle, compiled_entries)
+	var passages: Dictionary = MANIFEST.validate_scene_registration_passages(bundle)
 	if not passages.ok: return passages
 	var library := prepare_dtl_library(source, bundle, compiled_entries)
 	if not library.ok: return library

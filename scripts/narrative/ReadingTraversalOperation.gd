@@ -7,11 +7,6 @@ const READING_KEYS := ["schema_version", "catalogue_fingerprint", "boundary", "l
 const PLAN_KEYS := ["entry_id", "catalogue_fingerprint", "source_ledger", "source_frontier", "traversed_captions", "destination"]
 const PHASES := ["source", "destination"]
 
-static func create(plan: Dictionary, phase: String) -> Dictionary:
-	var made := _operation_view(plan, phase)
-	if made.ok: made.value.plan = plan.duplicate(true)
-	return made
-
 static func _operation_view(plan: Dictionary, phase: String, version: int = 0) -> Dictionary:
 	if version == 0:
 		var declared: Variant = plan.get("schema_version")

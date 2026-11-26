@@ -51,7 +51,9 @@ func test_continuation_plans_one_visible_caption_without_mutating_held_custody()
 	assert_eq(projected.value.ledger.captions.size(), 1)
 	assert_eq(session.capture({}), before, "Projection grants no commit or native installation authority.")
 	plan.destination.caption.beat.line_id = "TEST.changed.detached.copy"
+	plan.source_reading.ledger.captions.clear()
 	assert_eq(session.capture({}), before)
+	assert_eq(session.scene_control_continuation_view().value.destination.caption.beat.line_id, "line.scene.test.b.two")
 
 func test_continuation_records_the_authored_thought_on_the_same_reading_step() -> void:
 	var session := _at_playable()

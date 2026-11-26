@@ -583,8 +583,13 @@ func _validate_scene_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 	return checked
 
 func prepare_scene_control_continuation() -> Dictionary:
+	var planned := scene_control_continuation_view()
+	if planned.ok: planned.value = planned.value.duplicate(true)
+	return planned
+
+func scene_control_continuation_view() -> Dictionary:
 	if family != "scene" or boundary != "control": return _fail(&"reading_next_unavailable")
-	var source := _capture_scene({})
+	var source := _capture_scene({}, null, false)
 	if not source.ok: return source
 	var nodes: Array = _scene_nodes[latest_entry]
 	var node: Dictionary = nodes[scene_index]
@@ -604,7 +609,7 @@ func prepare_scene_control_continuation() -> Dictionary:
 		"major_checkpoint": _is_major_marker(node.marker_id),
 		"path": [{"from": scene_index, "to": target}], "traversed_captions": [],
 		"destination": {"kind": "line", "program_index": target, "caption": {
-			"publication_id": allocation.value, "occurrence_id": scene_occurrence, "beat": beat.duplicate(true)}}}
+			"publication_id": allocation.value, "occurrence_id": scene_occurrence, "beat": beat}}}
 	return TRAVERSAL.finish_scene_plan(plan, nodes)
 
 func prepare_scene_next(frontier: Dictionary, is_witnessed: Callable) -> Dictionary:

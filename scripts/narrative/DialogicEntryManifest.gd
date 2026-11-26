@@ -37,14 +37,14 @@ static func _select_startup_fixture() -> Dictionary:
 	var fixture: bool = OS.get_cmdline_user_args().has(SCENE_TEST_FLAG) or OS.get_cmdline_args().has(SCENE_TEST_FLAG) or OS.get_environment("DWM_SCENE_READING_FIXTURE") == "1"
 	if fixture and not OS.has_feature("debug"):
 		_startup_selection_error = _scene_fail("test_only")
-		return _startup_selection_error.duplicate(true)
+		return _startup_selection_error.duplicate()
 	var path: String = SCENE_TEST_BUNDLE_PATH if fixture else SCENE_STORY_BUNDLE_PATH
 	# shortcut: generated Variant-compatible JSON only, revisit decoding if registration parity fails.
 	var text := FileAccess.get_file_as_string(path)
 	var parsed: Variant = str_to_var(text)
 	if not parsed is Dictionary:
 		_startup_selection_error = _scene_fail("startup registration unavailable: " + path)
-		return _startup_selection_error.duplicate(true)
+		return _startup_selection_error.duplicate()
 	var selected: Dictionary
 	if fixture:
 		selected = configure_test_scene_registration(parsed)
@@ -53,7 +53,7 @@ static func _select_startup_fixture() -> Dictionary:
 		if not passages is Dictionary or not passages.get("records") is Dictionary:
 			selected = _scene_fail("passage catalogue unavailable")
 		else:
-			selected = _configure_scene_registration(parsed, passages, text.trim_suffix("\n").sha256_text(), true)
+			selected = _configure_scene_registration(parsed, passages, text.trim_suffix("\n").sha256_text())
 	if selected.ok:
 		if fixture: _first_target_id = "target_a"
 		else:
@@ -76,20 +76,18 @@ static func configure_test_scene_registration(bundle: Dictionary) -> Dictionary:
 		return _scene_fail("test_only")
 	if _registration_used or not _scene_bundle.is_empty():
 		return _scene_fail("registration_already_selected")
-	var checked := validate_scene_registration(bundle)
-	if not checked.ok: return checked
-	var passages: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(bundle)
+	var passages := validate_scene_registration_passages(bundle)
 	if not passages.ok: return passages
 	var structural := SCENE_EVENTS.validate_bundle_structure(bundle)
 	if not structural.ok: return structural
-	return _configure_scene_registration(checked.value, passages.value, structural.value.fingerprint, true)
+	return _configure_scene_registration(bundle.duplicate(true), passages.value, structural.value.fingerprint)
 
-static func _configure_scene_registration(bundle: Dictionary, passages: Dictionary, fingerprint: String, owns_inputs: bool = false) -> Dictionary:
+static func _configure_scene_registration(bundle: Dictionary, passages: Dictionary, fingerprint: String) -> Dictionary:
 	if _registration_used or not _scene_bundle.is_empty():
 		return _scene_fail("registration_already_selected")
 	# Build checks own shipped structure and canonical bytes; fixtures validate before adoption.
-	_scene_bundle = bundle if owns_inputs else bundle.duplicate(true)
-	_scene_contract_tables = {"fingerprint": fingerprint, "markers": {}, "passages": passages.records if owns_inputs else passages.records.duplicate(true)}
+	_scene_bundle = bundle
+	_scene_contract_tables = {"fingerprint": fingerprint, "markers": {}, "passages": passages.records}
 	for pair: Array in [["entries", "entry_id"], ["targets", "target_id"], ["board_profiles", "board_profile_id"],
 			["challenges", "challenge_id"], ["contacts", "contact_event_id"]]:
 		var rows: Array = _scene_bundle.scene_programme.entries if pair[0] == "entries" else _scene_bundle[pair[0]]
@@ -206,6 +204,10 @@ static func _validate_scene_manifest(document: Dictionary) -> Dictionary:
 	return {"ok": true, "value": document}
 
 static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
+	var checked := validate_scene_registration_passages(bundle)
+	return {"ok": true, "value": bundle.duplicate(true)} if checked.ok else checked
+
+static func validate_scene_registration_passages(bundle: Dictionary) -> Dictionary:
 	var header := validate_scene_bundle_header(bundle)
 	if not header.ok: return header
 	for field: String in ["entry_manifest", "context_registry", "ids_registry", "caption_registry", "scene_programme"]:
@@ -378,7 +380,7 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 			return _scene_fail("passage native range mismatch")
 	var tables := _validate_scene_tables(bundle, entries, programmes.value, compiled, markers)
 	if not tables.ok: return tables
-	return {"ok": true, "value": bundle.duplicate(true)}
+	return passages
 
 static func validate_scene_bundle_header(bundle: Variant) -> Dictionary:
 	if not bundle is Dictionary or typeof(bundle.get("schema_version")) != TYPE_INT:

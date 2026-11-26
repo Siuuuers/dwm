@@ -689,15 +689,15 @@ func test_shipped_structure_keeps_passage_compilation_in_authoring() -> void:
 			assert_eq(passage.value, generated.records["passage.umbrella"])
 			assert_true(passage.value.captions[0].is_read_only())
 			assert_true(is_same(passage.value, selected.value.passages["passage.umbrella"]))
-		first.value.records["passage.umbrella"].captions[0].text = "changed caller copy"
+		assert_true(first.value.records["passage.umbrella"].captions[0].is_read_only())
 		assert_eq(passages.inspect(selected.bundle).value, generated, "Gallery cannot mutate shared passage data")
 		assert_true(adapter._scene_compile_cache.is_empty(), "Gallery lookup does not compile later passages")
 	scope.restore()
 	scope.install(true)
-	assert_true(manifest._configure_scene_registration(bundle, generated, structured.value.fingerprint).ok)
+	assert_true(manifest.configure_test_scene_registration(bundle).ok)
 	assert_false(bundle.is_read_only(), "Adoption must not freeze caller data")
 	assert_false(bundle.scene_programme.entries[0].is_read_only())
-	assert_false(generated.records.is_read_only())
+	assert_false(bundle.caption_registry.entries[0].lines[0].is_read_only())
 	scope.restore()
 	adapter._scene_compile_cache = prior_compiled
 	passages._display_by_programme = prior_display

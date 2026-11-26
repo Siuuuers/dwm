@@ -23,6 +23,7 @@ static func inspect(bundle: Dictionary, compiled: Dictionary = {}) -> Dictionary
 			return _fail(&"scene_passage_registration_invalid")
 		captions[row.entry_id] = row.lines
 	var records := {}
+	var parsed_sources := {}
 	for entry: Variant in bundle.scene_programme.entries:
 		if not entry is Dictionary or not entry.get("entry_id") is String or not entry.get("markers") is Array:
 			return _fail(&"scene_passage_registration_invalid")
@@ -52,7 +53,8 @@ static func inspect(bundle: Dictionary, compiled: Dictionary = {}) -> Dictionary
 					for locator: Dictionary in bundle.entry_manifest.entries:
 						labels.append(locator.entry_id)
 						if locator.entry_id == entry.entry_id: path = locator.locators.en.path
-					var prepared := DialogicRuntimeAdapter.compile_scene_programme(path, entry.entry_id, labels, entry.markers)
+					var prepared := DialogicRuntimeAdapter._compile_scene_programme_in_registration(
+						path, entry.entry_id, labels, entry.markers, parsed_sources)
 					if not prepared.ok: return prepared
 					native = prepared.value
 				var thoughts := {}
