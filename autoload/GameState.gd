@@ -4764,7 +4764,7 @@ func commit_scene_shop_purchase(item_id: String, quantity: int, id: String, proo
 	if not guarded.get("ok", false): return guarded
 	var acquired: Dictionary = _mutation_gate.acquire(&"causal_transaction")
 	if not acquired.get("ok", false): return acquired
-	var result := _commit_scene_shop_owned(item_id, quantity, id, proof.duplicate(true), source_context.duplicate(true), acquired.value.token)
+	var result := _commit_scene_shop_owned(item_id, quantity, id, proof.duplicate(), source_context.duplicate(true), acquired.value.token)
 	_scene_shop_operation = {}
 	var released: Dictionary = _mutation_gate.release(&"causal_transaction", acquired.value.token)
 	if not released.get("ok", false):
@@ -4827,7 +4827,7 @@ func _commit_scene_shop_owned(item_id: String, quantity: int, id: String, proof:
 		var adopted: Dictionary = _scene_shop_consequence.commit(consequence_candidate)
 		if not adopted.get("ok", false): return _scene_event_fatal(&"scene_shop_adoption_failed")
 	_apply_gameplay_silent(prepared.value.gameplay)
-	_command_receipts = candidate.command_receipts.duplicate(true)
+	_command_receipts[id] = receipt.value
 	return _scene_shop_result(receipt.value)
 
 func _publish_scene_shop_purchase() -> void:

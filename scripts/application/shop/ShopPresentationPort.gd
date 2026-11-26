@@ -235,7 +235,7 @@ func purchase(item_id: String, quantity: int) -> Dictionary:
 			return source.duplicate(true) if source is Dictionary else _fail(&"shop_source_context_malformed")
 		if not source.get("value") is Dictionary:
 			return _fail(&"shop_source_context_malformed")
-		source_context = source.value.duplicate(true)
+		source_context = source.value
 	var issued := _issue_transaction()
 	if not issued.get("ok", false):
 		return issued
@@ -272,7 +272,7 @@ func _prepare_purchase(item_id: String, quantity: int, issue_value: Dictionary) 
 	var issuer_receipt: Dictionary = issue_value["issuer_receipt"]
 	var source_id := str(_PUBLIC_TO_SOURCE.get(item_id, item_id))
 	var quoted: Variant = _purchase_participant.call(&"quote", source_id, transaction_id,
-		issuer_receipt.duplicate(true), quantity)
+		issuer_receipt.duplicate(), quantity)
 	if typeof(quoted) != TYPE_DICTIONARY or not (quoted as Dictionary).get("ok", false):
 		return quoted if typeof(quoted) == TYPE_DICTIONARY else _fail(&"shop_quote_result_malformed")
 	var quote_value: Variant = (quoted as Dictionary).get("value")
@@ -280,7 +280,7 @@ func _prepare_purchase(item_id: String, quantity: int, issue_value: Dictionary) 
 		return _fail(&"shop_quote_result_malformed")
 	var prepared: Variant = _purchase_participant.call(&"prepare_purchase", {
 		"transaction_id": transaction_id,
-		"transaction_issuer_receipt": issuer_receipt.duplicate(true),
+		"transaction_issuer_receipt": issuer_receipt.duplicate(),
 		"item_id": source_id,
 		"quote_id": str((quote_value as Dictionary)["quote_id"]),
 		"expected_run_revision": int((consequence as Dictionary).get("run_revision", -1)),
@@ -311,7 +311,7 @@ func _retry_purchase() -> Dictionary:
 		if not admitted.get("ok", false): return admitted
 		var committed: Variant = _game_state.call(&"commit_scene_shop_purchase",
 			str(_pending_purchase.source_id), int(_pending_purchase.quantity),
-			str(_pending_purchase.transaction_id), _pending_purchase.issuer_receipt.duplicate(true),
+			str(_pending_purchase.transaction_id), _pending_purchase.issuer_receipt.duplicate(),
 			_pending_purchase.source_context.duplicate(true))
 		if not committed is Dictionary:
 			return _fail(&"shop_scene_commit_result_malformed")
@@ -349,7 +349,7 @@ func _issue_transaction() -> Dictionary:
 	var verified: Variant = _identity_issuer.call(&"verify_issued", receipt, &"transaction_id")
 	if typeof(verified) != TYPE_DICTIONARY or not (verified as Dictionary).get("ok", false):
 		return _fail(&"shop_transaction_issue_unverified")
-	return _ok({"transaction_id": transaction_id, "issuer_receipt": receipt.duplicate(true)})
+	return _ok({"transaction_id": transaction_id, "issuer_receipt": receipt.duplicate()})
 
 
 func _supportz_eligibility() -> Dictionary:
