@@ -105,7 +105,7 @@ func _setup() -> bool:
 	trigger = fixture.command_receipts[fixture.event.command_id].duplicate(true)
 	native = NativeEntry.new()
 	game._scene_event_bridge = native
-	prepared = game._prepare_scene_day_renewal(trigger, "TEST.target", fixture.bundle, identity)
+	prepared = game._prepare_scene_day_renewal(trigger, "TEST.target", fixture.bundle)
 	if not _ok(prepared, "day preparation"): return false
 	day_plan = prepared.value
 	assert_eq(game.capture_run_snapshot_input(), before, "allocation does not adopt gameplay or board")
@@ -130,7 +130,7 @@ func _stage(lease: String) -> void:
 func test_refused_checkpoint_retains_board_counters_and_identity_then_retry_adopts_once() -> void:
 	if not _setup(): return
 	var allocated_root: Dictionary = fixture.issuer.capture_root()
-	var again: Dictionary = game._prepare_scene_day_renewal(trigger, "TEST.target", fixture.bundle, FIXTURE.identity(fixture.lifecycle))
+	var again: Dictionary = game._prepare_scene_day_renewal(trigger, "TEST.target", fixture.bundle)
 	if not _ok(again, "same day preparation retry"): return
 	assert_eq(again.value, day_plan)
 	assert_eq(fixture.issuer.capture_root(), allocated_root, "no second allocation")
@@ -267,7 +267,7 @@ func test_next_day_debug_round_one_does_not_inherit_yesterdays_payment() -> void
 	assert_eq(board.capture().board.spec.difficulty_id, "beginner")
 	assert_eq(game.minesweeper_rounds_left, 1)
 	before = game.capture_run_snapshot_input().duplicate(true)
-	var renewal: Dictionary = game._prepare_scene_day_renewal(trigger, "TEST.target", fixture.bundle, FIXTURE.identity(fixture.lifecycle))
+	var renewal: Dictionary = game._prepare_scene_day_renewal(trigger, "TEST.target", fixture.bundle)
 	if not _ok(renewal, "renew paid day"): return
 	day_plan = renewal.value
 	var lease: Dictionary = gate.acquire(&"causal_transaction")
@@ -402,7 +402,7 @@ func test_recovered_story_day_highwater_skips_renewal_for_already_reached_day() 
 		{"schema_version": 7, "story_day": 3}]:
 		native.reading = reading
 		var repeated: Dictionary = game._prepare_scene_day_renewal(trigger, "TEST.target",
-			fixture.bundle, FIXTURE.identity(fixture.lifecycle))
+			fixture.bundle)
 		if not _ok(repeated, "recovered day already reached"): return
 		assert_eq(repeated.value, {}, "no renewal plan or new causal day")
 		assert_eq(game.capture_run_snapshot_input(), retained, "reading fallback preserves board, counters and identity")
