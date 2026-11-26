@@ -914,18 +914,22 @@ func get_controls_import_review() -> Dictionary:
 func prepare_controls_import(bindings: Variant, expected_revision: Variant) -> Dictionary:
 	var pending := _check_controls_import_pending()
 	if not pending.ok: return pending
-	if typeof(expected_revision) != TYPE_INT or expected_revision < 0:
-		return _failure(&"invalid_profile_revision", "Import review requires an exact profile revision")
-	if expected_revision != _profile_revision:
-		return _failure(&"profile_revision_changed", "Import review no longer matches the profile")
-	var validation := CONTROLS_RULES.validate(bindings)
-	if not validation.get("ok", false): return validation
+	var validation := _validate_controls_import(bindings, expected_revision)
+	if not validation.ok: return validation
 	return {"ok": true, "code": &"ok", "value": {
 		"revision": _profile_revision,
 		"before": _profile.controls_bindings.duplicate(true),
 		"legacy_bindings": _profile.input_mappings.duplicate(true),
 		"after": bindings.duplicate(true),
 	}}
+
+
+func _validate_controls_import(bindings: Variant, expected_revision: Variant) -> Dictionary:
+	if typeof(expected_revision) != TYPE_INT or expected_revision < 0:
+		return _failure(&"invalid_profile_revision", "Import review requires an exact profile revision")
+	if expected_revision != _profile_revision:
+		return _failure(&"profile_revision_changed", "Import review no longer matches the profile")
+	return CONTROLS_RULES.validate(bindings)
 
 
 func commit_controls_import(proposal: Dictionary) -> Dictionary:
@@ -936,17 +940,14 @@ func commit_controls_import(proposal: Dictionary) -> Dictionary:
 	for field: String in ["revision", "before", "legacy_bindings", "after"]:
 		if not proposal.has(field):
 			return _failure(&"invalid_binding_proposal", "Import proposal is malformed")
-	var source := _profile.duplicate()
-	source.controls_bindings = proposal.before
-	source.input_mappings = proposal.legacy_bindings
-	if not SCHEMA.validate(source).get("ok", false):
+	if not SCHEMA.validate_input_mappings(proposal.legacy_bindings).ok or not CONTROLS_RULES.validate(proposal.before).ok:
 		return _failure(&"invalid_binding_proposal", "Import source metadata is malformed")
-	var recomputed := prepare_controls_import(proposal.after, proposal.revision)
-	if not recomputed.get("ok", false): return recomputed
-	if proposal != recomputed.value:
+	var validation := _validate_controls_import(proposal.after, proposal.revision)
+	if not validation.ok: return validation
+	if proposal.before != _profile.controls_bindings or proposal.legacy_bindings != _profile.input_mappings:
 		return _failure(&"invalid_binding_proposal", "Import proposal no longer matches the complete source")
 	var candidate := _profile.duplicate()
-	candidate.controls_bindings = recomputed.value.after
+	candidate.controls_bindings = proposal.after
 	candidate.controls_import_pending = false
 	return commit_prepared_profile(candidate, false, proposal.revision)
 

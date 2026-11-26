@@ -129,7 +129,7 @@ static func validate(source: Dictionary) -> Dictionary:
 	if not visited.get("ok", false): return visited
 	var preferences := _validate_preferences(profile["preferences"])
 	if not preferences.get("ok", false): return preferences
-	var mappings := _validate_input_mappings(profile["input_mappings"])
+	var mappings := validate_input_mappings(profile["input_mappings"])
 	if not mappings.get("ok", false): return mappings
 	if typeof(profile["controls_import_pending"]) != TYPE_BOOL:
 		return _invalid("controls_import_pending", "import status must be a boolean")
@@ -318,7 +318,7 @@ static func _validate_gallery_receipts(value: Variant) -> Dictionary:
 	return {"ok": true}
 
 
-static func _validate_input_mappings(value: Variant) -> Dictionary:
+static func validate_input_mappings(value: Variant) -> Dictionary:
 	if typeof(value) != TYPE_DICTIONARY:
 		return _invalid("input_mappings", "input_mappings must be an object")
 	for action_id in value:
