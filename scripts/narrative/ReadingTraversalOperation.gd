@@ -386,7 +386,7 @@ static func _scene_projection(plan: Dictionary, phase: String, detach: bool = tr
 			result.frontier = {}
 	result.ledger.captions = [] if captions.is_empty() else [captions.back()]
 	if detach: result = result.duplicate(true)
-	if result.has("player_progress"):
+	if result.has("player_progress") and (not plan.traversed_captions.is_empty() or plan.destination.kind == "line"):
 		if not detach: result.player_progress = result.player_progress.duplicate(true)
 		for row: Dictionary in plan.traversed_captions:
 			append_player_caption(result.player_progress, row.beat.owning_entry_id, row.beat.line_id,

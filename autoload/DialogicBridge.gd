@@ -2156,7 +2156,7 @@ func _next_source_matches(frontier: Dictionary, revision: int) -> bool:
 
 func _on_next_runtime_finished(result: Dictionary, generation: int) -> void:
 	if _progression_phase != ProgressionPhase.NEXT_ACTIVE or generation != _next_generation or not _next_runtime_result.is_empty(): return
-	_next_runtime_result = result.duplicate(true)
+	_next_runtime_result = {"ok": result.get("ok", false), "code": result.get("code", "reading_next_projection_failed")}
 	_next_runtime_settled.emit()
 
 
