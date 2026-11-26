@@ -154,8 +154,8 @@ func test_refused_checkpoint_retains_board_counters_and_identity_then_retry_adop
 	assert_eq(game.minesweeper_money_earned_today, 0)
 	assert_eq(board.capture().phase, "NONE")
 	assert_eq(board.capture().revision, before.desktop.board.revision + 1)
-	assert_eq(game._run_lifecycle.to_dict().causal_day_instance, day_plan.identity.causal_day_instance)
-	assert_eq(consequence.capture().value.state.causal_day_instance, day_plan.identity.causal_day_instance)
+	assert_eq(game._run_lifecycle.to_dict().causal_day_instance, day_plan.lifecycle.causal_day_instance)
+	assert_eq(consequence.capture().value.state.causal_day_instance, day_plan.lifecycle.causal_day_instance)
 	assert_eq(fixture.issuer.capture_root(), allocated_root)
 	assert_true(gate.release(&"causal_transaction", lease.value.token).ok)
 
@@ -186,8 +186,8 @@ func test_committed_checkpoint_native_failure_latches_fatal_and_retains_recovera
 	prepared = recovered_consequence.prepare_restore(saved.desktop.consequence)
 	if not _ok(prepared, "fresh consequence preparation"): return
 	assert_true(recovered_consequence.commit(prepared.value.candidate).ok)
-	assert_eq(recovered_lifecycle.to_dict().causal_day_instance, day_plan.identity.causal_day_instance)
-	assert_eq(recovered_consequence.capture().value.state.causal_day_instance, day_plan.identity.causal_day_instance)
+	assert_eq(recovered_lifecycle.to_dict().causal_day_instance, day_plan.lifecycle.causal_day_instance)
+	assert_eq(recovered_consequence.capture().value.state.causal_day_instance, day_plan.lifecycle.causal_day_instance)
 	assert_eq(recovered_board.capture().phase, "NONE")
 	assert_eq(saved.gameplay.minesweeper_rounds_left, 2)
 	assert_eq(saved.gameplay.minesweeper_money_earned_today, 0)

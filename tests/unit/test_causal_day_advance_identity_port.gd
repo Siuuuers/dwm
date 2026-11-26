@@ -231,6 +231,8 @@ func test_prepare_advance_returns_the_exact_frozen_result_shape() -> void:
 	assert_eq(candidate.get("day_advance_identity_receipt"),
 		value.get("day_advance_identity_receipt"),
 		"plan line 748: the candidate's receipt is byte-equal to the returned receipt")
+	value.day_advance_identity_receipt.target_causal_day_instance_issuer_receipt.token = "edited"
+	assert_ne(candidate.day_advance_identity_receipt.target_causal_day_instance_issuer_receipt.token, "edited")
 
 
 func test_the_day_advance_receipt_carries_exactly_the_frozen_member_set() -> void:

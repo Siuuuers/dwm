@@ -122,7 +122,8 @@ func prepare_advance(request: Dictionary) -> Dictionary:
 	if not tuple_ok.get("ok", false):
 		return tuple_ok
 
-	var source_verification_receipt: Dictionary = _verification_receipt(source_receipt)
+	var source_verification_receipt := source_receipt.duplicate()
+	source_verification_receipt.erase("provenance")
 	var verified_source: Dictionary = _identity_issuer.call(
 		&"verify_issued",
 		source_verification_receipt,
@@ -198,7 +199,7 @@ func prepare_advance(request: Dictionary) -> Dictionary:
 		"source_causal_day_instance_receipt_id": source_receipt_id,
 		"source_causal_day_instance_issuer_receipt": source_receipt.duplicate(true),
 		"target_causal_day_instance": str(target_receipt.get("token", "")),
-		"target_causal_day_instance_issuer_receipt": target_receipt.duplicate(true),
+		"target_causal_day_instance_issuer_receipt": target_receipt,
 		"request_sha256": str(request_sha256["value"]),
 		"root_before_fingerprint": _root_fingerprint(before_root),
 		"counter_start": counter_start,
@@ -378,7 +379,7 @@ func _prepared_result(receipt: Dictionary) -> Dictionary:
 			"day_advance_identity_candidate": {
 				"day_advance_identity_receipt": receipt.duplicate(true),
 			},
-			"day_advance_identity_receipt": receipt.duplicate(true),
+			"day_advance_identity_receipt": receipt,
 		},
 	}
 
@@ -402,13 +403,6 @@ func _exact_keys(value: Dictionary, expected: Array[String]) -> Dictionary:
 
 func _day_advance_key(resolution_kind: String, source_resolution_receipt_id: String) -> String:
 	return "%s:%s" % [resolution_kind, source_resolution_receipt_id]
-
-
-func _verification_receipt(receipt: Dictionary) -> Dictionary:
-	var filtered := receipt.duplicate(true)
-	if filtered.has("provenance"):
-		filtered.erase("provenance")
-	return filtered
 
 
 func _require_configured(method: String) -> Dictionary:
