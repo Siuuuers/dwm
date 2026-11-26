@@ -4231,7 +4231,7 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 		var scene: Dictionary = {}
 		var presentation_autosave := false
 		if departing:
-			scene = prepared.snapshot_input.scene.duplicate(true)
+			scene = prepared.snapshot_input.scene.duplicate()
 			var art_owner := preload("res://scripts/data/ArtManifest.gd")
 			var previous: Dictionary = scene.get("presentation", {})
 			if previous.is_empty() and not node.get("presentation_commands", []).is_empty():
@@ -4269,11 +4269,10 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 		_scene_playable = {}
 		return {"ok": true, "value": {"checkpoint": checkpoint, "scene": scene, "presentation_autosave": presentation_autosave}}
 	var installed: Dictionary = _runtime_adapter.install_scene_control(_scene_playable.candidate,
-		checkpoint.reading_session.duplicate(true), _scene_playable.native_token)
+		checkpoint.reading_session, _scene_playable.native_token)
 	if not installed.get("ok", false):
 		return {"ok": false, "code": &"scene_playable_native_refused", "committed": true}
-	var position: Dictionary = _runtime_adapter.capture_scene_control_position(_scene_playable.candidate)
-	if not position.get("ok", false) or not _READING_TRAVERSAL._same(position.value, checkpoint.reading_session):
+	if not _READING_TRAVERSAL._same(installed.value, checkpoint.reading_session):
 		return {"ok": false, "code": &"scene_playable_native_mismatch", "committed": true}
 	_reading_session = _scene_playable.candidate
 	_scene_playable = {}
@@ -4442,9 +4441,6 @@ func capture_scene_challenge_control() -> Dictionary:
 	if not boundary.get("ok", false): return boundary
 	var reading: Dictionary = boundary.value.checkpoint.get("reading_session", {})
 	if reading.get("schema_version") != 5 or reading.get("boundary") != "control":
-		return _command_failure(&"scene_challenge_control_required")
-	var native: Dictionary = _runtime_adapter.capture_scene_control_position(_reading_session)
-	if not native.get("ok", false) or not _READING_TRAVERSAL._same(native.value, reading):
 		return _command_failure(&"scene_challenge_control_required")
 	var nodes: Array = _reading_session._scene_nodes.get(reading.entry_id, [])
 	var index: int = int(reading.get("program_index", -1))
