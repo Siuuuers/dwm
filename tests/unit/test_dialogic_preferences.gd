@@ -42,8 +42,8 @@ class FakeBridgeProfile:
 	var snapshot := {"preferences": {"reading": {"reveal_speed": "normal", "auto_delay": "normal", "auto_enabled": false, "skip_mode": "read_only"}}}
 	var visited: Array[String] = []
 
-	func get_profile_snapshot() -> Dictionary:
-		return snapshot.duplicate(true)
+	func get_preference_group(group: StringName) -> Dictionary:
+		return snapshot.preferences[group].duplicate()
 
 	func is_line_visited(line_id: String) -> bool:
 		return line_id in visited
@@ -196,9 +196,13 @@ func test_bootstrap_binding_applies_installed_dialogic_preferences_exactly_once(
 	var adapter := CountingPreferenceAdapter.new()
 	var bridge: Node = BRIDGE.new()
 	add_child_autofree(bridge)
-	assert_true(bridge.bind_profile_preferences(profile, adapter).get("ok", false))
+	var bound: Dictionary = bridge.bind_profile_preferences(profile, adapter)
+	assert_true(bound.ok)
+	bound.value.text_delay_multiplier = 99.0
 	assert_eq(adapter.apply_count, 1)
 	var dialogic := get_node("/root/Dialogic")
 	assert_almost_eq(float(dialogic.Settings.settings[&"text_speed"]), 0.5, 0.001)
 	assert_almost_eq(float(dialogic.Inputs.auto_advance.delay_modifier), 0.5, 0.001)
 	assert_false(dialogic.Inputs.auto_advance.enabled_until_user_input)
+	assert_true(bridge.reapply_cached_preferences_after_clear().ok)
+	assert_almost_eq(float(dialogic.Settings.settings[&"text_speed"]), 0.5, 0.001)

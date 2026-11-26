@@ -614,7 +614,7 @@ func configure_mutation_gate(gate: Object) -> Dictionary:
 func bind_profile_preferences(profile: Node, preference_adapter: RefCounted = null) -> Dictionary:
 	if _preferences_bound:
 		return _command_failure(&"already_initialized")
-	if profile == null or not profile.has_method("get_profile_snapshot"):
+	if profile == null or not profile.has_method("get_preference_group"):
 		return _command_failure(&"invalid_profile_manager")
 	var dialogic := get_node_or_null("/root/Dialogic")
 	if dialogic == null:
@@ -625,7 +625,7 @@ func bind_profile_preferences(profile: Node, preference_adapter: RefCounted = nu
 	var bound: Dictionary = _preference_adapter.call(&"bind", dialogic)
 	if not bound.get("ok", false):
 		return bound
-	var prepared: Dictionary = _preference_adapter.call(&"prepare", profile.call(&"get_profile_snapshot"))
+	var prepared: Dictionary = _preference_adapter.call(&"prepare", {"reading": profile.get_preference_group(&"reading")})
 	if not prepared.get("ok", false):
 		return prepared
 	var previous_skip_profile: Object = _skip_profile
@@ -639,13 +639,13 @@ func bind_profile_preferences(profile: Node, preference_adapter: RefCounted = nu
 		_skip_mode = previous_skip_mode
 		return applied
 	_profile = profile
-	_cached_preference_plan = (prepared["value"] as Dictionary).duplicate(true)
+	_cached_preference_plan = prepared["value"]
 	_preferences_bound = true
 	if profile.has_signal("preference_changed") and not profile.preference_changed.is_connected(_on_profile_preference_changed):
 		profile.preference_changed.connect(_on_profile_preference_changed)
 	if dialogic.has_signal("timeline_started") and not dialogic.timeline_started.is_connected(_on_dialogic_timeline_started):
 		dialogic.timeline_started.connect(_on_dialogic_timeline_started)
-	return {"ok": true, "code": &"ok", "value": _cached_preference_plan.duplicate(true), "receipt": {}}
+	return {"ok": true, "code": &"ok", "value": _cached_preference_plan.duplicate(), "receipt": {}}
 
 
 func apply_profile_preferences(changed_path: StringName = &"") -> Dictionary:
@@ -657,22 +657,22 @@ func apply_profile_preferences(changed_path: StringName = &"") -> Dictionary:
 		&"preferences.reading.auto_enabled",
 		&"preferences.reading.skip_mode",
 	]:
-		return {"ok": true, "code": &"ok", "value": _cached_preference_plan.duplicate(true), "receipt": {}, "unchanged": true}
-	var prepared: Dictionary = _preference_adapter.call(&"prepare", _profile.call(&"get_profile_snapshot"))
+		return {"ok": true, "code": &"ok", "value": _cached_preference_plan.duplicate(), "receipt": {}, "unchanged": true}
+	var prepared: Dictionary = _preference_adapter.call(&"prepare", {"reading": _profile.get_preference_group(&"reading")})
 	if not prepared.get("ok", false):
 		return prepared
 	var applied: Dictionary = _preference_adapter.call(&"apply_silent", prepared["value"])
 	if not applied.get("ok", false):
 		return applied
-	_cached_preference_plan = (prepared["value"] as Dictionary).duplicate(true)
+	_cached_preference_plan = prepared["value"]
 	set_skip_mode(_cached_preference_plan["skip_mode"])
-	return {"ok": true, "code": &"ok", "value": _cached_preference_plan.duplicate(true), "receipt": {}}
+	return {"ok": true, "code": &"ok", "value": _cached_preference_plan.duplicate(), "receipt": {}}
 
 
 func reapply_cached_preferences_after_clear() -> Dictionary:
 	if not _preferences_bound or _cached_preference_plan.is_empty():
 		return _command_failure(&"not_initialized")
-	return _preference_adapter.call(&"apply_silent", _cached_preference_plan.duplicate(true))
+	return _preference_adapter.call(&"apply_silent", _cached_preference_plan)
 
 
 func _on_profile_preference_changed(path: StringName, _value: Variant) -> void:
