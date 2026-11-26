@@ -3404,7 +3404,7 @@ func _validate_scene_passage_completion(snapshot: Dictionary, bundle: Dictionary
 		return {"ok": true}
 	var catalogue: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(bundle)
 	if not catalogue.ok: return catalogue
-	var expanded: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(snapshot.narrative_checkpoint)
+	var expanded: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").expanded_checkpoint_view(snapshot.narrative_checkpoint)
 	if not expanded.ok: return expanded
 	var checkpoint: Dictionary = expanded.value
 	for passage: Dictionary in catalogue.value.records.values():

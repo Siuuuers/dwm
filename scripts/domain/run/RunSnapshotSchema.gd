@@ -283,7 +283,7 @@ static func normalize_scene_content(snapshot: Dictionary, trusted: bool = false)
 		if not current.ok: return current
 		var binding := _validate_scene_challenge_binding(candidate.scene, gameplay, selected.bundle)
 		if not binding.ok: return binding
-		var reading := SCENE_READING.expand_player_checkpoint(candidate.narrative_checkpoint)
+		var reading := SCENE_READING.expanded_checkpoint_view(candidate.narrative_checkpoint)
 		if not reading.ok: return reading
 	if candidate.get("lifecycle") is Dictionary and candidate.lifecycle.get("state") == "COMPLETED" \
 			and not candidate.lifecycle.has("ending_plan") \
@@ -558,7 +558,7 @@ static func is_scene_terminal(snapshot: Dictionary) -> bool:
 static func _validate_scene_reading(candidate: Dictionary) -> Dictionary:
 	if not candidate.get("narrative_checkpoint") is Dictionary:
 		return _fail(&"reading_checkpoint_invalid", "narrative checkpoint must be an object")
-	var expanded: Dictionary = SCENE_READING.expand_player_checkpoint(candidate.narrative_checkpoint)
+	var expanded: Dictionary = SCENE_READING.expanded_checkpoint_view(candidate.narrative_checkpoint)
 	if not expanded.ok: return expanded
 	var checkpoint: Variant = expanded.value
 	if not _scene_keys(checkpoint, SCENE_CHECKPOINT_KEYS) or checkpoint.stage != "scene" \
