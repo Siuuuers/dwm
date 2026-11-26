@@ -255,7 +255,6 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 	var candidate: RefCounted
 	var source_session: RefCounted = _reading_session
 	var native_source: RefCounted
-	var source_state: RefCounted
 	var source_entry := _active_entry.duplicate(true)
 	if has_reading_session():
 		if _runtime_adapter == null or not _runtime_adapter.has_method("retain_scene_source"):
@@ -263,11 +262,10 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 		var retained_source: Dictionary = _runtime_adapter.retain_scene_source(_reading_session)
 		if not retained_source.ok: return retained_source
 		native_source = retained_source.value
-		var captured := capture_reading_checkpoint(false)
-		if not captured.ok: return captured
-		var retained_state: Dictionary = source_session._retain_scene_live(captured.value.reading_session)
-		if not retained_state.ok: return retained_state
-		source_state = retained_state.value
+		if not can_capture_reading_checkpoint(): return _command_failure(&"reading_frontier_unavailable")
+		if source_session.boundary == "control":
+			var held: Dictionary = _runtime_adapter.capture_scene_control_position(source_session, false)
+			if not held.ok: return held
 		candidate = source_session._fork_scene_live()
 		var source_marker := capture_scene_pending_marker()
 		if source_marker.ok and source_marker.value.kind in ["thought.pass", "thought.options",
@@ -312,7 +310,7 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 	FrozenPresentationContext._freeze(retained_binding)
 	_scene_stage = {"candidate": candidate, "candidate_state": candidate._fork_scene_live(), "transport": retained_transport, "binding": retained_binding,
 		"target": target, "binding_sha256": _scene_digest(binding), "checkpoint_sha256": _scene_digest(checkpoint),
-		"source_session": source_session, "native_source": native_source, "source_state": source_state,
+		"source_session": source_session, "native_source": native_source,
 		"source_entry": source_entry, "runtime": _runtime_adapter, "path": path}
 	var retained: Variant = _scene_stage_port.call("retain_scene_entry", self, capability, retained_binding, retained_transport.narrative_checkpoint)
 	if not retained is Dictionary or not retained.get("ok", false):
@@ -391,8 +389,7 @@ func _scene_source_current() -> bool:
 			or not _READING_TRAVERSAL._same(_active_entry, _scene_stage.source_entry): return false
 	if _scene_stage.source_session == null: return not has_active_playback()
 	var checked: Dictionary = _runtime_adapter.validate_scene_source(_scene_stage.native_source, _reading_session)
-	if not checked.ok: return false
-	return _reading_session._matches_scene_live(_scene_stage.source_state)
+	return checked.ok
 
 func _scene_candidate_current() -> bool:
 	return _scene_stage.candidate._matches_scene_live(_scene_stage.candidate_state)
@@ -2764,7 +2761,7 @@ func can_capture_reading_checkpoint() -> bool:
 			return control_frame.ok and _READING_TRAVERSAL._same(control_frame.value, _active_entry.get("frozen_context")) \
 				and _runtime_adapter.has_method("capture_scene_control_position") \
 				and _runtime_adapter.has_method("project_scene_control_frontier") \
-				and _runtime_adapter.project_scene_control_frontier(_reading_session).get("ok", false)
+				and _runtime_adapter.project_scene_control_frontier(_reading_session, false).get("ok", false)
 		var frame: Dictionary = _reading_session.ledger.check_session_view(_reading_session.command_id,
 			_reading_session.latest_entry, _reading_session.scene_occurrence)
 		if not frame.ok or not _READING_TRAVERSAL._same(frame.value, _active_entry.get("frozen_context")):

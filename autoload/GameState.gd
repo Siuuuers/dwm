@@ -1191,7 +1191,7 @@ func capture_ending_frozen_presentation(ending_id: String, context: Dictionary) 
 	if not command.get("ok", false) or command.get("value", {}).get("kind") != "play_ending" \
 			or command.value.ending_id != ending_id or command.value.playback_context != context:
 		return _transaction_failure(&"ending_presentation_command_mismatch", ending_id)
-	var lifecycle: Dictionary = _run_lifecycle.capture_ending_context()
+	var lifecycle: Dictionary = _run_lifecycle.ending_context_view()
 	if lifecycle.get("ending_plan") is Dictionary and lifecycle.ending_plan.get("source_kind") == "scene":
 		return _ENDING_FROZEN_CONTEXT.build_scene(lifecycle.ending_plan, str(context.playback_id))
 	var cached: Variant = route_context.get("ending_frozen_contexts_v1")
@@ -1221,7 +1221,7 @@ func capture_ending_presentation_signature(ending_id: String, context: Dictionar
 	if not command.get("ok", false) or command.get("value", {}).get("kind") != "play_ending" \
 			or command.value.get("ending_id") != ending_id or command.value.get("playback_context") != context:
 		return _transaction_failure(&"ending_presentation_command_mismatch", ending_id)
-	var lifecycle: Dictionary = _run_lifecycle.capture_ending_context()
+	var lifecycle: Dictionary = _run_lifecycle.ending_context_view()
 	if lifecycle.get("ending_plan") is Dictionary and lifecycle.ending_plan.get("source_kind") == "scene":
 		var projected := _ENDING_FROZEN_CONTEXT.build_scene(lifecycle.ending_plan, str(context.playback_id))
 		return {"ok": true, "value": projected.value.signature} if projected.ok else projected
@@ -2039,7 +2039,7 @@ func request_next_ending_command() -> Dictionary:
 		return {"ok": true, "value": {"kind": "return_completed", "expected_stage": &"COMPLETED"}}
 	if _run_lifecycle.get_state() != &"ENDING":
 		return {"ok": false, "code": &"not_in_ending", "message": "run is not in the ENDING state"}
-	var snapshot: Dictionary = _run_lifecycle.capture_ending_context()
+	var snapshot: Dictionary = _run_lifecycle.ending_context_view()
 	var lifecycle_plan: Dictionary = snapshot["ending_plan"]
 	if lifecycle_plan.has("steps"):
 		return _ordered_ending_command(snapshot, lifecycle_plan)
@@ -2233,7 +2233,7 @@ func _admit_terminal_ending() -> Dictionary:
 	var backup: Dictionary = captured.value.backup
 	var admitted: Dictionary = _run_lifecycle.enter_ending(plan)
 	if not admitted.get("ok", false): return admitted
-	route_context["provisional_ending_plan"] = provisional.value.duplicate(true)
+	route_context["provisional_ending_plan"] = provisional.value
 	route_context["ending_id"] = str(plan.ending_id)
 	route_context["epilogue_ending_id"] = str(plan.epilogue_ending_id)
 	if not condition_source.is_empty():
@@ -2311,7 +2311,7 @@ func _commit_ending_playback_completion(transaction_id: String, expected_stage: 
 	if _ending_checkpoint_writer.is_valid():
 		var saved: Dictionary = _ending_checkpoint_writer.call()
 		if not saved.get("ok", false):
-			var plan: Variant = _run_lifecycle.capture_ending_context().ending_plan
+			var plan: Variant = _run_lifecycle.ending_context_view().ending_plan
 			if saved.get("committed", false) and plan is Dictionary and plan.get("source_kind") == "scene":
 				return _scene_event_fatal(&"scene_terminal_commit_uncertain")
 			var restored: Dictionary = rollback_restore_silent(captured.value.backup)
@@ -2328,7 +2328,7 @@ func _retire_completed_ending_session() -> void:
 	_retired_live_session_generation = _live_session_generation
 
 func _completed_ordered_ending_replay(transaction_id: String, stage: StringName, receipt: Dictionary) -> Dictionary:
-	var snapshot: Dictionary = _run_lifecycle.capture_ending_context()
+	var snapshot: Dictionary = _run_lifecycle.ending_context_view()
 	var plan: Variant = snapshot.ending_plan
 	if not plan is Dictionary or not plan.has("steps"): return {}
 	for index in int(plan.next_step_index):
@@ -2336,14 +2336,14 @@ func _completed_ordered_ending_replay(transaction_id: String, stage: StringName,
 		var previous: Dictionary = plan.playback_receipts.get("step:%d" % index, {})
 		if stage != &"PRIMARY_PENDING" or previous != {"value": receipt}:
 			return {"ok": false, "code": &"duplicate_transaction_conflict"}
-		return {"ok": true, "code": &"ok", "value": previous.value}
+		return {"ok": true, "code": &"ok", "value": previous.value.duplicate()}
 	return {}
 
 
 func _complete_ending_playback_stage(transaction_id: String, expected_stage: StringName, receipt: Dictionary) -> Dictionary:
 	if _run_lifecycle.get_state() != &"ENDING":
 		return {"ok": false, "code": &"not_in_ending", "message": "run is not in the ENDING state"}
-	var snapshot: Dictionary = _run_lifecycle.capture_ending_context()
+	var snapshot: Dictionary = _run_lifecycle.ending_context_view()
 	var lifecycle_plan: Dictionary = snapshot.ending_plan
 	if lifecycle_plan.has("steps"):
 		var ordered_command: Dictionary = _ordered_ending_command(snapshot, lifecycle_plan)
@@ -2389,7 +2389,7 @@ func _complete_run() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"route": "menu"}}
 
 func _complete_play_ending(stage: String, transaction_id: String, receipt: Dictionary) -> Dictionary:
-	var snapshot: Dictionary = _run_lifecycle.capture_ending_context()
+	var snapshot: Dictionary = _run_lifecycle.ending_context_view()
 	var plan: Dictionary = snapshot["ending_plan"]
 	var run_id := str(snapshot["run_id"])
 	var lifecycle_transaction := ""
@@ -2450,7 +2450,7 @@ func get_frozen_ordered_ending_plan() -> Dictionary:
 
 
 func _ordered_plan_from_provisional(provisional: Dictionary) -> Dictionary:
-	var steps: Array = ((provisional as Dictionary).get("steps", []) as Array).duplicate(true)
+	var steps: Array = provisional.get("steps", [])
 	if steps.is_empty():
 		return {}
 	var pair_present := false

@@ -1,8 +1,8 @@
 extends Node
 
-signal pause_opened(source: Dictionary)
+signal pause_opened
 signal pause_closed
-signal pause_recovery_required(result: Dictionary)
+signal pause_recovery_required
 
 var _source_owner: Object
 var _router: Object
@@ -93,7 +93,7 @@ func request_pause(holder_id: StringName) -> Dictionary:
 	get_tree().paused = true
 	_owns_tree_pause = true
 	_phase = &"Suspended"
-	pause_opened.emit(_source.duplicate(true))
+	pause_opened.emit()
 	return _success(_handle.duplicate())
 
 func request_resume(handle: Dictionary) -> Dictionary:
@@ -284,7 +284,7 @@ func _recover(cause: Dictionary) -> Dictionary:
 	var view: Object = _source_view.get_ref() if _source_view != null else null
 	if is_instance_valid(view) and not _anchor.is_empty(): view.cover_pause_view(_anchor)
 	_phase = &"Recovery"
-	pause_recovery_required.emit(cause.duplicate(true))
+	pause_recovery_required.emit()
 	return cause
 
 func _reset_pause() -> void:

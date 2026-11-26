@@ -190,7 +190,7 @@ func after_each() -> void:
 func _capture() -> Dictionary:
 	_provider_calls += 1
 	if _provider_effect.is_valid(): _provider_effect.call()
-	return {"ok": true, "value": _inputs}
+	return {"ok": true, "value": _inputs.duplicate(true)}
 
 func _use_hospital() -> HospitalOwner:
 	var fixture: Node = autofree(HOSPITAL_FIXTURE.new())

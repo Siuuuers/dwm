@@ -527,7 +527,7 @@ func get_save_metadata(kind: StringName, slot_id: int = -1) -> Dictionary:
 	var read: Dictionary = _storage.read_text(relative_path)
 	if not read.get("ok", false):
 		return read
-	var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]))
+	var parsed: Dictionary = _parsed_document_view(str(read["value"]))
 	if not parsed.get("ok", false):
 		return _fail(&"corrupt_save_document", relative_path)
 	var admitted: Dictionary = SAVE_DOCUMENT_SCHEMA.admit_document(parsed["value"],
@@ -704,7 +704,7 @@ func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictio
 	if typeof(evidence.get("text")) != TYPE_STRING:
 		record["reason"] = "unreadable"
 		return {"ok": true, "value": record}
-	var parsed := _parse_document_text(evidence["text"], true)
+	var parsed := _parsed_document_view(evidence["text"])
 	_save_load_profile_phase(profile, "parse_us")
 	if not parsed.get("ok", false):
 		record["reason"] = "unreadable"
@@ -1180,7 +1180,7 @@ func _prepare_restore_content(locator: Dictionary, expected_revision: String) ->
 		return read
 	if not expected_revision.is_empty() and str(read["value"]["revision"]) != expected_revision:
 		return _fail(&"stale_backup_target", "")
-	var parsed: Dictionary = _parse_document_text(str(read["value"]["text"]), true)
+	var parsed: Dictionary = _parsed_document_view(str(read["value"]["text"]))
 	if not parsed.get("ok", false):
 		return _fail(&"corrupt_save_document", relative_path)
 
@@ -1251,7 +1251,7 @@ func load_context(locator: Dictionary) -> Dictionary:
 	var read: Dictionary = _storage.inspect_revision(relative_path)
 	if not read.get("ok", false):
 		return read
-	var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]["text"]))
+	var parsed: Dictionary = _parsed_document_view(str(read["value"]["text"]))
 	if not parsed.get("ok", false):
 		return _fail(&"corrupt_save_document", relative_path)
 	var admitted: Dictionary = SAVE_DOCUMENT_SCHEMA.admit_document(parsed["value"],
@@ -1317,7 +1317,7 @@ func _write_document_text_validator(text: String, validated_texts: Dictionary) -
 	return {"ok": true, "code": &"ok", "value": {}}
 
 func _document_text_validator(text: String) -> Dictionary:
-	var parsed: Dictionary = _parse_document_text(text, true)
+	var parsed: Dictionary = _parsed_document_view(text)
 	if not parsed.get("ok", false):
 		return {"ok": false, "code": &"invalid_json", "message": "strict parse failed"}
 	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(parsed["value"])
@@ -1325,7 +1325,7 @@ func _document_text_validator(text: String) -> Dictionary:
 		return validated
 	return {"ok": true, "code": &"ok", "value": validated["value"]["candidate"]}
 
-func _parse_document_text(text: String, borrow_cached: bool = false) -> Dictionary:
+func _parsed_document_view(text: String) -> Dictionary:
 	var disabled := OS.get_environment("DWM_SAVE_PARSE_CACHE_DISABLED") == "1"
 	var profile := _save_load_profile_begin("document_parse")
 	if not profile.is_empty():
@@ -1340,7 +1340,7 @@ func _parse_document_text(text: String, borrow_cached: bool = false) -> Dictiona
 			_document_parse_cache.append(entry)
 			if not profile.is_empty(): profile["cache_hit"] = true
 			var cached: Dictionary = entry["parsed"]
-			return _save_load_profile_finish(profile, cached if borrow_cached else cached.duplicate(true))
+			return _save_load_profile_finish(profile, cached)
 	var parsed := STRICT_JSON.parse_object(text)
 	if not parsed.get("ok", false):
 		return _save_load_profile_finish(profile, parsed)
@@ -1355,7 +1355,7 @@ func _parse_document_text(text: String, borrow_cached: bool = false) -> Dictiona
 	_document_parse_cache.append({"text": text, "text_bytes": text_bytes,
 		"parsed": parsed})
 	_document_parse_cache_text_bytes += text_bytes
-	return _save_load_profile_finish(profile, parsed if borrow_cached else parsed.duplicate(true))
+	return _save_load_profile_finish(profile, parsed)
 
 func _validate_checkpoint_inputs(checkpoint_inputs: Dictionary) -> String:
 	var keys: Array = checkpoint_inputs.keys()
@@ -1585,7 +1585,7 @@ func capture_committed_scene_creation(transaction_id: String) -> Dictionary:
 	var profile: Dictionary = _new_run_profile_owner.prove_scene_assignment(materials.allocation_candidate.run_id,
 		materials.profile.scene_assignment.receipt)
 	if not profile.get("ok", false): return profile
-	var initial: Dictionary = _parse_document_text(materials.autosave.outgoing_text, true)
+	var initial: Dictionary = _parsed_document_view(materials.autosave.outgoing_text)
 	if not initial.get("ok", false): return initial
 	var initial_scene: Variant = initial.value.current_snapshot.snapshot.get("scene")
 	if not initial_scene is Dictionary or initial_scene.get("active_occurrence_id") != transaction_id:
