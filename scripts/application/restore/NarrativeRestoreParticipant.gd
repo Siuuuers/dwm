@@ -114,7 +114,7 @@ func prepare_scene_new_run(snapshot: Dictionary, bundle: Dictionary, creation_ow
 			or creation_owner != _owner.get_node_or_null("/root/SaveManager"):
 		return _fail(&"scene_creation_owner_required", "actual continuation owner required")
 	var checkpoint: Dictionary = snapshot.narrative_checkpoint
-	var expanded := preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(checkpoint)
+	var expanded := preload("res://scripts/narrative/SoloReadingSession.gd").expanded_checkpoint_view(checkpoint)
 	if not expanded.ok: return expanded
 	var frames := FROZEN_RUN.derive_current_scene_frames(snapshot.scene, expanded.value.reading_session)
 	if not frames.ok: return frames
