@@ -3267,7 +3267,7 @@ func publish_scene_activation(operation_id: String) -> Dictionary:
 		var restored_caption: Dictionary = _runtime_adapter.capture_reading_frontier()
 		if restored_caption.get("ok", false):
 			_scene_restore["restored_caption"] = {"token": _active_entry.get("token", ""),
-				"caption_publication": restored_caption.value.duplicate(true)}
+				"caption_publication": restored_caption.value}
 	scene_art_changed.emit()
 	reading_session_changed.emit()
 	return {"ok": true}
