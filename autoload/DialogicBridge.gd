@@ -1566,7 +1566,7 @@ func _start_ending_reading(ending_id: String, context: Dictionary, signature: Di
 		if not begun.ok: return begun
 		_reading_session = candidate
 	if _reading_session.latest_entry == signature.entry_id and _reading_session.boundary == "between_entries":
-		var completed: Dictionary = _reading_session.capture({})
+		var completed: Dictionary = _reading_session.capture_view({})
 		if not completed.ok: return completed
 		if completed.value.ledger.entry_contexts.get(signature.entry_id) != frame:
 			return _command_failure(&"reading_context_invalid")
@@ -3113,7 +3113,7 @@ func _terminal_restore_current() -> bool:
 	if not _READING_TRAVERSAL._same(gs.capture_run_lifecycle(), _scene_restore.lifecycle): return false
 	var checkpoint: Dictionary = _scene_restore.checkpoint
 	if checkpoint.is_empty(): return _scene_restore.candidate == null
-	var captured: Dictionary = _scene_restore.candidate.capture(checkpoint.reading_session.frontier)
+	var captured: Dictionary = _scene_restore.candidate.capture_view(checkpoint.reading_session.frontier)
 	return captured.get("ok", false) and _READING_TRAVERSAL._same(captured.value, checkpoint.reading_session)
 
 func begin_scene_activation(operation_id: String) -> Dictionary:
@@ -3182,7 +3182,7 @@ func _scene_restore_current() -> bool:
 		return false
 	if _scene_restore.get("terminal", false): return _terminal_restore_current()
 	var checkpoint: Dictionary = _scene_restore.checkpoint
-	var captured: Dictionary = _scene_restore.candidate.capture(checkpoint.reading_session.frontier)
+	var captured: Dictionary = _scene_restore.candidate.capture_view(checkpoint.reading_session.frontier)
 	return captured.get("ok", false) and _READING_TRAVERSAL._same(captured.value, checkpoint.reading_session) \
 		and checkpoint.manifest_fingerprint == _ENTRY_MANIFEST.scene_registration_fingerprint()
 
@@ -4265,7 +4265,7 @@ func _scene_playable_current() -> bool:
 	if not owner.get("ok", false): return false
 	var native: Dictionary = _runtime_adapter.validate_scene_source(_scene_playable.native_token, _reading_session)
 	if not native.ok: return false
-	var candidate: Dictionary = _scene_playable.candidate.capture(_scene_playable.checkpoint.reading_session.frontier)
+	var candidate: Dictionary = _scene_playable.candidate.capture_view(_scene_playable.checkpoint.reading_session.frontier)
 	return candidate.ok \
 		and _READING_TRAVERSAL._same(candidate.value, _scene_playable.checkpoint.reading_session)
 

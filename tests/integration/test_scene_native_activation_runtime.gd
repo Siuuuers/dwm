@@ -17,9 +17,9 @@ class NativeBridge extends "res://autoload/DialogicBridge.gd":
 
 class CountingSession extends "res://scripts/narrative/SoloReadingSession.gd":
 	var captures := 0
-	func capture(frontier: Dictionary) -> Dictionary:
+	func _capture_scene(frontier: Dictionary, operation: Variant = null, detach: bool = true) -> Dictionary:
 		captures += 1
-		return super.capture(frontier)
+		return super._capture_scene(frontier, operation, detach)
 
 class CountingLedger extends "res://scripts/narrative/NarrativeCaptionLedger.gd":
 	var snapshots := 0

@@ -164,7 +164,7 @@ func _matches_scene_live(retained: RefCounted) -> bool:
 
 func _retain_scene_live(reading: Dictionary) -> Dictionary:
 	var retained := _fork_scene_live()
-	var captured: Dictionary = retained.capture(reading.get("frontier", {}))
+	var captured: Dictionary = retained.capture_view(reading.get("frontier", {}))
 	if not captured.ok or not TRAVERSAL._same(captured.value, reading): return _fail(&"reading_session_changed")
 	return {"ok": true, "value": retained}
 
@@ -259,14 +259,14 @@ func _update_scene_progress() -> Dictionary:
 	_progress_publication = highest
 	return {"ok": true}
 
-func _capture_scene(frontier: Dictionary, operation: Variant = null) -> Dictionary:
+func _capture_scene(frontier: Dictionary, operation: Variant = null, detach: bool = true) -> Dictionary:
 	var updated := _update_scene_progress()
 	if not updated.ok: return updated
 	var saved := {"schema_version": 5, "registration_sha256": fingerprint, "entry_id": latest_entry,
 		"occurrence_id": scene_occurrence, "program_index": scene_index, "boundary": boundary,
 		"ledger": ledger.snapshot_view(), "frontier": frontier, "player_progress": player_progress,
 		"next_operation": operation}
-	return {"ok": true, "value": saved.duplicate(true)}
+	return {"ok": true, "value": saved.duplicate(true) if detach else saved}
 
 func _story_day(entry_id: String) -> int:
 	return int(_scene_bundle.get("scene_programme", {}).get("story_days", {}).get(entry_id,
@@ -803,7 +803,7 @@ func admit(entry_id: String, context: Dictionary) -> Dictionary:
 		elif latest_entry != entry_id:
 			if boundary != "between_entries" or index != _entry_index(latest_entry) + 1:
 				return _fail(&"reading_context_invalid")
-			var preceding := capture({})
+			var preceding := _validated_reading_view({})
 			if not preceding.ok: return preceding
 	if catalogue_schema_version == 2:
 		var selected := _admit_authored(entry_id, context)
@@ -842,6 +842,10 @@ func capture(frontier: Dictionary) -> Dictionary:
 	if family == "scene": return _capture_scene(frontier, null if next_operation.is_empty() else next_operation)
 	var checked := _validated_reading_view(frontier)
 	return {"ok": true, "value": checked.value.duplicate(true)} if checked.ok else checked
+
+func capture_view(frontier: Dictionary) -> Dictionary:
+	if family == "scene": return _capture_scene(frontier, null if next_operation.is_empty() else next_operation, false)
+	return _validated_reading_view(frontier)
 
 func _validated_reading_view(frontier: Dictionary) -> Dictionary:
 	if ledger == null or latest_entry.is_empty(): return _fail(&"reading_session_unavailable")
@@ -1106,7 +1110,7 @@ func _admit_authored(entry_id: String, context: Dictionary) -> Dictionary:
 			or latest_entry != pre_entry_id or boundary != "between_entries":
 		return _fail(&"reading_context_invalid")
 	else:
-		var completed_source := capture({})
+		var completed_source := _validated_reading_view({})
 		if not completed_source.ok: return completed_source
 	source.entry_contexts = source.entry_contexts.merged({entry_id: context})
 	var frames: Dictionary = source.entry_contexts
