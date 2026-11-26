@@ -447,6 +447,9 @@ func test_the_condition_receipt_is_the_exact_p03_condition_decision_child() -> v
 	assert_eq(condition["receipt_provenance"], (expected["value"] as Dictionary)["provenance"])
 	var validated: Dictionary = _issuer.validate_child(condition["receipt_provenance"], &"condition")
 	assert_true(validated.get("ok", false), JSON.stringify(validated))
+	condition.receipt_provenance.source_ids.clear()
+	assert_eq(result.receipt.receipt_provenance.source_ids, source_ids)
+	assert_eq(result.value.notification_intent.source_condition_receipt_provenance.source_ids, source_ids)
 
 
 func test_the_notification_intent_is_the_exact_p03_condition_notification_child() -> void:

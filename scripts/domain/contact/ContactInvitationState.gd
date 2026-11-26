@@ -942,7 +942,7 @@ static func _derive_source(identity_issuer: Object, command_issuer_receipt: Dict
 		"kind": source_kind,
 		"action_id": action_id,
 		"day": day,
-		"participants": participants.duplicate(true),
+		"participants": participants.duplicate(),
 		"previous_receipt_id": previous_receipt_id,
 	}
 	return {"ok": true, "code": &"ok", "value": {"receipt": receipt}, "receipt": {}}
