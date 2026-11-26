@@ -991,7 +991,7 @@ func _retire_caption_binding() -> void:
 	_scene_control_restore = {}
 	_marker_hold = {}
 	_marker_binding = {}
-	_marker_restore = {}
+	_marker_restore_line = ""
 	_scene_event_hold = {}
 	_retain_caption_layout = false
 	_caption_ledger = null
@@ -1447,14 +1447,13 @@ func _finish_reading_restore(request_id: String, event: DialogicTextEvent) -> vo
 			return
 		reading_frontier_restored.emit(position)
 		return
-	if not _marker_restore.is_empty():
+	if not _marker_restore_line.is_empty():
 		var parked := hold_marker_source(captured.value)
 		if not parked.ok:
 			_fail_reading_restore(parked)
 			return
-		_marker_hold.source_line = _marker_restore.anchor.line_id
-		_marker_hold.frontier = _marker_restore
-		_marker_restore = {}
+		_marker_hold.source_line = _marker_restore_line
+		_marker_restore_line = ""
 	reading_frontier_restored.emit(captured)
 
 
@@ -1876,7 +1875,7 @@ func dispatch_scene_event_acknowledged(envelope: Dictionary, dispatch: Callable)
 
 var _marker_binding: Dictionary = {}
 var _marker_hold: Dictionary = {}
-var _marker_restore: Dictionary = {}
+var _marker_restore_line := ""
 
 func bind_reading_marker(marker: Dictionary, restore_frontier: Dictionary = {}) -> Dictionary:
 	if has_active_playback() or _caption_ledger == null: return _fail(&"reading_marker_binding_unavailable", "")
@@ -1896,8 +1895,8 @@ func bind_reading_marker(marker: Dictionary, restore_frontier: Dictionary = {}) 
 			return _fail(&"reading_marker_binding_invalid", "the restore must retain its session anchor")
 		var occurrence := _check_reading_occurrence({"line_id": anchor.line_id, "publication_id": anchor.get("publication_id")})
 		if not occurrence.ok: return occurrence
-	_marker_binding = marker.duplicate(true)
-	_marker_restore = restore_frontier.duplicate(true)
+	_marker_binding = marker.duplicate()
+	_marker_restore_line = "" if restore_frontier.is_empty() else restore_frontier.anchor.line_id
 	return {"ok": true}
 
 func is_marker_source_held() -> bool:
@@ -1969,7 +1968,7 @@ func hold_marker_source(source: Dictionary) -> Dictionary:
 		halt_with_error(failed)
 		return failed
 	_marker_hold = {"identity": identity.value, "source_line": source.line_id,
-		"frontier": {}, "ledger": ledger, "snapshot": snapshot,
+		"ledger": ledger, "snapshot": snapshot,
 		"live_history": history,
 		"event": event, "execution_generation": event._execution_generation}
 	return {"ok": true}
@@ -2012,7 +2011,6 @@ func install_marker_candidate(plan: Dictionary, candidate: NarrativeCaptionLedge
 		_marker_hold.ledger = candidate
 		_marker_hold.snapshot = history.snapshot_view()
 		_marker_hold.live_history = history
-		_marker_hold.frontier = frontier.duplicate(true)
 		_marker_hold.source_line = frontier.anchor.line_id
 		return {"ok": true, "value": {"pending": false}}
 	_caption_seek_frontier = frontier.duplicate()
