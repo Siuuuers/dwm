@@ -1330,7 +1330,7 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 				_current_timeline_context = checkpoint.duplicate(true)
 				_ordinary_playback = {"timeline_id": _current_timeline_id,
 					"context": _current_timeline_context, "cache_before": before,
-					"runtime_before": captured.get("value", {}).get("backup", {}).duplicate(true),
+					"runtime_before": captured.get("value", {}).get("backup", {}),
 					"speech_token": "ordinary-%d" % _ordinary_speech_counter, "content_locale": "en",
 					"suppress_first_speech": true}
 				_restore_playback_started = true
@@ -1385,7 +1385,7 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 	var source: Variant = backup.get("backup", backup)
 	if typeof(source) != TYPE_DICTIONARY or not (source as Dictionary).has("timeline_id"):
 		return {"ok": false, "code": &"invalid_narrative_backup", "message": "narrative backup requires a timeline_id"}
-	var runtime_before: Dictionary = _ordinary_playback.get("runtime_before", source).duplicate(true)
+	var runtime_before: Dictionary = _ordinary_playback.get("runtime_before", source)
 	if _restore_playback_started:
 		_restore_playback_started = false
 		_ordinary_playback = {}
@@ -4079,7 +4079,7 @@ func _on_runtime_timeline_ended() -> void:
 	if _ordinary_playback.is_empty():
 		return
 	var finished_id := str(_ordinary_playback.timeline_id)
-	var context: Dictionary = _ordinary_playback.context.duplicate(true)
+	var context: Dictionary = _ordinary_playback.context
 	_ordinary_playback = {}
 	scene_art_changed.emit()
 	_current_timeline_id = ""
