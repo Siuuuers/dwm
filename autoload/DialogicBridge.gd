@@ -331,7 +331,7 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 	var retained_transport := transport.duplicate(true)
 	FrozenPresentationContext._freeze(retained_transport)
 	_scene_stage = {"candidate": candidate, "candidate_state": candidate_state.value, "transport": retained_transport, "binding": binding.duplicate(true),
-		"target": target.duplicate(true), "binding_sha256": _scene_digest(binding), "checkpoint_sha256": _scene_digest(checkpoint),
+		"target": target, "binding_sha256": _scene_digest(binding), "checkpoint_sha256": _scene_digest(checkpoint),
 		"source_session": source_session, "native_source": native_source, "source_state": source_state,
 		"source_entry": source_entry, "runtime": _runtime_adapter, "path": path}
 	var retained: Variant = _scene_stage_port.call("retain_scene_entry", self, capability, binding.duplicate(true), checkpoint.duplicate(true))
@@ -371,7 +371,7 @@ func _commit_scene_entry(candidate: Dictionary) -> Dictionary:
 		_scene_stage_fatal = true
 		return _command_failure(&"scene_staging_ack_invalid")
 	_scene_stage_fatal = true
-	_scene_stage["live_publication"] = target_ref.duplicate(true)
+	_scene_stage["live_publication"] = target_ref.duplicate()
 	var confirmed_source: Variant = _scene_stage_source.call(_scene_stage.binding.duplicate(true))
 	if not confirmed_source is Dictionary or not confirmed_source.get("ok", false):
 		return _command_failure(&"scene_staging_source_invalid")
