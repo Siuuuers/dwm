@@ -64,7 +64,7 @@ func prepare_new_run(run_id: String, branch_id: String, desktop_timeline_generat
 		return prepared
 	var snapshot_input: Dictionary = prepared["value"]["snapshot_input"]
 	return {"ok": true, "code": &"ok", "value": {
-		"snapshot_input": snapshot_input.duplicate(true),
+		"snapshot_input": snapshot_input,
 		"run_plan": {"snapshot_input": snapshot_input.duplicate(true)},
 	}}
 

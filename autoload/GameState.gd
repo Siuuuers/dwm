@@ -3361,7 +3361,7 @@ func prepare_scene_new_run(snapshot: Dictionary, issuer: Object, creation_owner:
 			or issuer != _identity_issuer or not is_instance_valid(_mutation_gate) \
 			or not _mutation_gate.is_internal_owner_active(&"new_run"):
 		return _transaction_failure(&"scene_creation_owner_required", "")
-	_scene_new_run_plan = {"snapshot": snapshot.duplicate(true)}
+	_scene_new_run_plan = {"snapshot": snapshot}
 	_scene_new_run_plan_owner = creation_owner
 	return {"ok": true, "value": {"run_plan": _scene_new_run_plan.duplicate(true)}}
 

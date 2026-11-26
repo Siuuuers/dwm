@@ -122,7 +122,6 @@ func prepare_scene_new_run(snapshot: Dictionary, bundle: Dictionary, creation_ow
 		return _content_unavailable("scene creation owner unavailable")
 	var admitted: Dictionary = _owner.validate_reading_checkpoint(expanded.value, frames.value.entry_contexts)
 	if not admitted.get("ok", false): return admitted
-	_prepared_scene_checkpoint = checkpoint.duplicate(true)
 	_prepared_scene_arrival_cues = []
 	var game: Node = _owner.get_node("/root/GameState")
 	var presentation: Dictionary = game.prepare_scene_presentation_arrival(snapshot.scene, bundle, "")
@@ -132,6 +131,7 @@ func prepare_scene_new_run(snapshot: Dictionary, bundle: Dictionary, creation_ow
 		var arrival: Dictionary = game.prepare_scene_audio_arrival(snapshot.scene, bundle, "")
 		if not arrival.ok: return arrival
 		_prepared_scene_arrival_cues = arrival.value.cues
+	_prepared_scene_checkpoint = checkpoint
 	return {"ok": true, "value": {"narrative_plan": checkpoint.duplicate(true)}}
 
 func apply_silent(plan: Dictionary) -> Dictionary:
