@@ -298,7 +298,8 @@ func commit_allocation(candidate: Dictionary) -> Dictionary:
 	for receipt: Dictionary in receipts:
 		document.receipts[receipt.receipt_id] = receipt
 	document.next_counter += receipts.size()
-	document.allocation_receipts[transaction_id] = candidate.duplicate(true)
+	reproducible.request = request.duplicate(true)
+	document.allocation_receipts[transaction_id] = reproducible
 	var written := _write_document(document)
 	if not written.ok: return written
 	return {"ok": true, "value": candidate.duplicate(true)}
